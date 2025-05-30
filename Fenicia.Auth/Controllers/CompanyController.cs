@@ -1,4 +1,5 @@
 using Fenicia.Auth.Services;
+using Fenicia.Auth.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

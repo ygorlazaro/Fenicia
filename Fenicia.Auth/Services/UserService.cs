@@ -1,10 +1,12 @@
 using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Repositories;
+using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Requests;
+using Fenicia.Auth.Services.Interfaces;
 
 namespace Fenicia.Auth.Services;
 
-public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, ICompanyRepository companyRepository) : IUserService
+public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository) : IUserService
 {
     public async Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj)
     {
@@ -43,7 +45,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         };
         
         var user = userRepository.Add(userRequest);
-        var company = companyRepository.Add(new CompanyModel()
+        var company = companyRepository.Add(new CompanyModel
         {
             Name = request.Company.Name,
             CNPJ = request.Company.CNPJ,
@@ -68,5 +70,10 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         await userRepository.SaveAsync();
 
         return user;
+    }
+
+    public async Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId)
+    {
+        return await userRoleRepository.ExistsInCompanyAsync(userId, companyId);
     }
 }

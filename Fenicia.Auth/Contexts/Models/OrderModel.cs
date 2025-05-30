@@ -25,5 +25,8 @@ public class OrderModel: BaseModel
     [ForeignKey("CustomerId")]
     public virtual CustomerModel Customer { get; set; } = null!;
     
-    public virtual List<OrderDetailModel> OrderDetails { get; set; } = null!;
+    [JsonIgnore]
+    public virtual SubscriptionModel? Subscription { get; set; } = null!;
+    
+    public virtual List<OrderDetailModel> Details { get; set; } = null!;
 }

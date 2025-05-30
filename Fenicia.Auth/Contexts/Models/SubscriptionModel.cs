@@ -21,9 +21,16 @@ public class SubscriptionModel:BaseModel
     [Required]
     public DateTime EndDate { get; set; }
     
+    public Guid? OrderId { get; set; }
+    
     [JsonIgnore]
     [ForeignKey("CompanyId")]
     public CompanyModel Company { get; set; } = null!;
     
-    public virtual List<SubscriptionCreditModel> Customers { get; set; } = null!;
+    [JsonIgnore]
+    [ForeignKey("OrderId")]
+    public virtual OrderModel? Order { get; set; }
+    
+    [JsonIgnore]
+    public virtual List<SubscriptionCreditModel> Credits { get; set; } = null!;
 }

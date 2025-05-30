@@ -1,7 +1,6 @@
 using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Requests;
 
-namespace Fenicia.Auth.Repositories;
+namespace Fenicia.Auth.Repositories.Interfaces;
 
 public interface ICompanyRepository
 {

@@ -12,7 +12,7 @@ public class ModuleModel:BaseModel
     public string Name { get; set; } = null!;
     
     [Required]
-    public decimal Price { get; set; }
+    public decimal Amount { get; set; }
     
     public ModuleType Type { get; set; }
     
