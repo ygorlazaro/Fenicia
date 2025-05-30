@@ -1,6 +1,6 @@
 using Fenicia.Auth.Contexts.Models;
 
-namespace Fenicia.Auth.Services;
+namespace Fenicia.Auth.Services.Interfaces;
 
 public interface ITokenService
 {

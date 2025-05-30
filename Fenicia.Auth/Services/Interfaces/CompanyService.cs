@@ -1,7 +1,7 @@
 using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Repositories;
+using Fenicia.Auth.Repositories.Interfaces;
 
-namespace Fenicia.Auth.Services;
+namespace Fenicia.Auth.Services.Interfaces;
 
 public class CompanyService(ICompanyRepository companyRepository) : ICompanyService
 {

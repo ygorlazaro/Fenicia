@@ -23,6 +23,8 @@ public class SubscriptionCreditModel: BaseModel
     [Required]
     public DateTime EndDate { get; set; }
     
+    public Guid? OrderDetailId { get; set; }
+    
     [JsonIgnore]
     [ForeignKey("ModuleId")]
     public virtual ModuleModel Module { get; set; } = null!;
@@ -30,4 +32,8 @@ public class SubscriptionCreditModel: BaseModel
     [JsonIgnore]
     [ForeignKey("SubscriptionId")]
     public virtual SubscriptionModel Subscription { get; set; } = null!;
+    
+    [JsonIgnore]
+    [ForeignKey("OrderDetailId")]
+    public virtual OrderDetailModel? OrderDetail { get; set; } = null!;
 }

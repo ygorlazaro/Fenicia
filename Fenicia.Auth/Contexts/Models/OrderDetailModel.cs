@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Fenicia.Common.Database;
 
 namespace Fenicia.Auth.Contexts.Models;
 
 [Table("order_details")]
-public class OrderDetailModel : OrderModel
+public class OrderDetailModel : BaseModel
 {
     [Required]
     public Guid OrderId { get; set; }
@@ -23,4 +24,7 @@ public class OrderDetailModel : OrderModel
     [JsonIgnore]
     [ForeignKey("ModuleId")]
     public virtual ModuleModel Module { get; set; } = null!;
+    
+    [JsonIgnore]
+    public virtual SubscriptionCreditModel? SubscriptionCredit { get; set; }
 }

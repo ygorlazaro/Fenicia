@@ -105,6 +105,10 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("amount");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
@@ -118,10 +122,6 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric")
-                        .HasColumnName("price");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer")
                         .HasColumnName("type");
@@ -134,6 +134,49 @@ namespace Fenicia.Auth.Migrations
                         .HasName("pk_modules");
 
                     b.ToTable("modules", (string)null);
+                });
+
+            modelBuilder.Entity("Fenicia.Auth.Contexts.Models.OrderDetailModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<Guid>("ModuleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("module_id");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.HasKey("Id")
+                        .HasName("pk_order_details");
+
+                    b.HasIndex("ModuleId")
+                        .HasDatabaseName("ix_order_details_module_id");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_order_details_order_id");
+
+                    b.ToTable("order_details", (string)null);
                 });
 
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.OrderModel", b =>
@@ -171,14 +214,13 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_orders");
 
                     b.HasIndex("CustomerId")
                         .HasDatabaseName("ix_orders_customer_id");
 
                     b.ToTable("orders", (string)null);
-
-                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.RoleModel", b =>
@@ -238,6 +280,10 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("module_id");
 
+                    b.Property<Guid?>("OrderDetailId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_detail_id");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("start_date");
@@ -255,6 +301,10 @@ namespace Fenicia.Auth.Migrations
 
                     b.HasIndex("ModuleId")
                         .HasDatabaseName("ix_subscription_credits_module_id");
+
+                    b.HasIndex("OrderDetailId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_subscription_credits_order_detail_id");
 
                     b.HasIndex("SubscriptionId")
                         .HasDatabaseName("ix_subscription_credits_subscription_id");
@@ -285,6 +335,10 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("end_date");
 
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("start_date");
@@ -302,6 +356,10 @@ namespace Fenicia.Auth.Migrations
 
                     b.HasIndex("CompanyId")
                         .HasDatabaseName("ix_subscriptions_company_id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_subscriptions_order_id");
 
                     b.ToTable("subscriptions", (string)null);
                 });
@@ -392,31 +450,6 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("users_roles", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Contexts.Models.OrderDetailModel", b =>
-                {
-                    b.HasBaseType("Fenicia.Auth.Contexts.Models.OrderModel");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric")
-                        .HasColumnName("amount");
-
-                    b.Property<Guid>("ModuleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("module_id");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("order_id");
-
-                    b.HasIndex("ModuleId")
-                        .HasDatabaseName("ix_order_details_module_id");
-
-                    b.HasIndex("OrderId")
-                        .HasDatabaseName("ix_order_details_order_id");
-
-                    b.ToTable("order_details", (string)null);
-                });
-
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.CustomerModel", b =>
                 {
                     b.HasOne("Fenicia.Auth.Contexts.Models.CompanyModel", "Company")
@@ -436,6 +469,27 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Company");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Fenicia.Auth.Contexts.Models.OrderDetailModel", b =>
+                {
+                    b.HasOne("Fenicia.Auth.Contexts.Models.ModuleModel", "Module")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_details_modules_module_id");
+
+                    b.HasOne("Fenicia.Auth.Contexts.Models.OrderModel", "Order")
+                        .WithMany("Details")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_details_orders_order_id");
+
+                    b.Navigation("Module");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.OrderModel", b =>
@@ -459,14 +513,21 @@ namespace Fenicia.Auth.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_subscription_credits_modules_module_id");
 
+                    b.HasOne("Fenicia.Auth.Contexts.Models.OrderDetailModel", "OrderDetail")
+                        .WithOne("SubscriptionCredit")
+                        .HasForeignKey("Fenicia.Auth.Contexts.Models.SubscriptionCreditModel", "OrderDetailId")
+                        .HasConstraintName("fk_subscription_credits_order_details_order_detail_id");
+
                     b.HasOne("Fenicia.Auth.Contexts.Models.SubscriptionModel", "Subscription")
-                        .WithMany("Customers")
+                        .WithMany("Credits")
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_subscription_credits_subscriptions_subscription_id");
 
                     b.Navigation("Module");
+
+                    b.Navigation("OrderDetail");
 
                     b.Navigation("Subscription");
                 });
@@ -480,7 +541,14 @@ namespace Fenicia.Auth.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_subscriptions_companies_company_id");
 
+                    b.HasOne("Fenicia.Auth.Contexts.Models.OrderModel", "Order")
+                        .WithOne("Subscription")
+                        .HasForeignKey("Fenicia.Auth.Contexts.Models.SubscriptionModel", "OrderId")
+                        .HasConstraintName("fk_subscriptions_orders_order_id");
+
                     b.Navigation("Company");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.UserRoleModel", b =>
@@ -513,34 +581,6 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Contexts.Models.OrderDetailModel", b =>
-                {
-                    b.HasOne("Fenicia.Auth.Contexts.Models.OrderModel", null)
-                        .WithOne()
-                        .HasForeignKey("Fenicia.Auth.Contexts.Models.OrderDetailModel", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_order_details_orders_id");
-
-                    b.HasOne("Fenicia.Auth.Contexts.Models.ModuleModel", "Module")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("ModuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_order_details_modules_module_id");
-
-                    b.HasOne("Fenicia.Auth.Contexts.Models.OrderModel", "Order")
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_order_details_orders_order_id");
-
-                    b.Navigation("Module");
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.CompanyModel", b =>
                 {
                     b.Navigation("Customers");
@@ -562,9 +602,16 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("OrderDetails");
                 });
 
+            modelBuilder.Entity("Fenicia.Auth.Contexts.Models.OrderDetailModel", b =>
+                {
+                    b.Navigation("SubscriptionCredit");
+                });
+
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.OrderModel", b =>
                 {
-                    b.Navigation("OrderDetails");
+                    b.Navigation("Details");
+
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.RoleModel", b =>
@@ -574,7 +621,7 @@ namespace Fenicia.Auth.Migrations
 
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.SubscriptionModel", b =>
                 {
-                    b.Navigation("Customers");
+                    b.Navigation("Credits");
                 });
 
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.UserModel", b =>

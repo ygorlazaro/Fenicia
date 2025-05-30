@@ -1,5 +1,6 @@
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Contexts.Models;
+using Fenicia.Auth.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Repositories;

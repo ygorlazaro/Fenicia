@@ -1,4 +1,4 @@
-namespace Fenicia.Auth.Services;
+namespace Fenicia.Auth.Services.Interfaces;
 
 public interface IUserRoleService
 {

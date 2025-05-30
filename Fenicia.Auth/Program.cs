@@ -1,7 +1,9 @@
 using System.Text;
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Repositories;
+using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services;
+using Fenicia.Auth.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,7 +20,7 @@ public class Program
 
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
                                           throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
-        
+
         var connectionString = configuration.GetConnectionString("AuthConnection");
 
         builder.Services.AddTransient<ITokenService, TokenService>();
@@ -29,6 +31,14 @@ public class Program
         builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
         builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
         builder.Services.AddTransient<ICompanyService, CompanyService>();
+        builder.Services.AddTransient<IModuleService, ModuleService>();
+        builder.Services.AddTransient<IModuleRepository, ModuleRepository>();
+        builder.Services.AddTransient<ICustomerService, CustomerService>();
+        builder.Services.AddTransient<ISubscriptionService, SubscriptionService>();
+        builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
+        builder.Services.AddTransient<IOrderService, OrderService>();
+        builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+        builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
 
         builder.Services.AddDbContext<AuthContext>(x =>
         {
@@ -68,6 +78,11 @@ public class Program
                 x.WithDarkModeToggle(true)
                     .WithTheme(ScalarTheme.BluePlanet)
                     .WithClientButton(true);
+
+                x.Authentication = new ScalarAuthenticationOptions
+                {
+                    PreferredSecurityScheme = "Bearer"
+                };
             });
         }
 
