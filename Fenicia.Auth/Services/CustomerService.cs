@@ -13,7 +13,7 @@ public class CustomerService(ICustomerRepository customerRepository) : ICustomer
         {
             return customer.Id;
         }
-        
+
         return await customerRepository.CreateNewCustomerAsync(userId, companyId);
     }
 }

@@ -11,17 +11,17 @@ public class CompanyModel : BaseModel
     [Required]
     [MaxLength(50)]
     public string Name { get; set; } = null!;
-    
+
     [Required]
     [Length(14, 14)]
     public string CNPJ { get; set; } = null!;
-    
+
     [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
-    
+
     [JsonIgnore]
     public virtual List<CustomerModel> Customers { get; set; } = null!;
-    
+
     [JsonIgnore]
     public virtual List<SubscriptionModel> Subscriptions { get; set; } = null!;
 }

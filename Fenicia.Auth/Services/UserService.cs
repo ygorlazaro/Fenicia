@@ -1,5 +1,4 @@
 using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Repositories;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Services.Interfaces;
@@ -26,24 +25,24 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         if (isExintingUser)
         {
             Console.WriteLine("Esse e-mail já existe");
-            
+
             return null;
         }
 
         if (isExintingCompany)
         {
             Console.WriteLine("Esse company já existe");
-            
+
             return null;
         }
-        
+
         var userRequest = new UserModel
         {
             Email = request.Email,
             Password = request.Password,
             Name = request.Name
         };
-        
+
         var user = userRepository.Add(userRequest);
         var company = companyRepository.Add(new CompanyModel
         {
@@ -66,7 +65,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
                 Role = adminRole
             }
         ];
-        
+
         await userRepository.SaveAsync();
 
         return user;

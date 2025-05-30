@@ -33,9 +33,9 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
     public async Task<List<CompanyModel>> GetByUserIdAsync(Guid userId)
     {
         var query = from company in authContext.Companies
-            join userRoles in authContext.UserRoles on company.Id equals userRoles.CompanyId
-            where userRoles.UserId == userId
-            select company;
+                    join userRoles in authContext.UserRoles on company.Id equals userRoles.CompanyId
+                    where userRoles.UserId == userId
+                    select company;
 
         return await query.ToListAsync();
     }

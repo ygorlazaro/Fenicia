@@ -1,8 +1,6 @@
 using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Enums;
-using Fenicia.Auth.Repositories;
 using Fenicia.Auth.Repositories.Interfaces;
-using Fenicia.Auth.Requests;
 using Fenicia.Auth.Services.Interfaces;
 
 namespace Fenicia.Auth.Services;

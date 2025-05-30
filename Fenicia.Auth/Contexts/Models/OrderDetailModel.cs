@@ -10,21 +10,21 @@ public class OrderDetailModel : BaseModel
 {
     [Required]
     public Guid OrderId { get; set; }
-    
+
     [Required]
     public Guid ModuleId { get; set; }
-    
+
     [Required]
     public decimal Amount { get; set; }
-    
+
     [JsonIgnore]
     [ForeignKey("OrderId")]
     public virtual OrderModel Order { get; set; } = null!;
-    
+
     [JsonIgnore]
     [ForeignKey("ModuleId")]
     public virtual ModuleModel Module { get; set; } = null!;
-    
+
     [JsonIgnore]
     public virtual SubscriptionCreditModel? SubscriptionCredit { get; set; }
 }
