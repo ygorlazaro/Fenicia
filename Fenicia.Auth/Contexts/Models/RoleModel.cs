@@ -10,7 +10,7 @@ public class RoleModel : BaseModel
 {
     [Required]
     public string Name { get; set; } = null!;
-    
+
     [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
 }

@@ -10,8 +10,8 @@ public class RoleRepository(AuthContext authContext) : IRoleRepository
     public async Task<RoleModel?> GetAdminRoleAsync()
     {
         var query = from role in authContext.Roles
-            where role.Name == "Admin"
-            select role;
+                    where role.Name == "Admin"
+                    select role;
 
         return await query.FirstOrDefaultAsync();
     }

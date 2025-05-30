@@ -82,6 +82,6 @@ public class OrderService(
             return [];
         }
 
-        return [basicModule, ..modules];
+        return [basicModule, .. modules];
     }
 }

@@ -1,6 +1,5 @@
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
-using Fenicia.Auth.Services;
 using Fenicia.Auth.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +20,7 @@ public class SignUpController(IUserService userService) : ControllerBase
         {
             return BadRequest(TextConstants.ThereWasAnErrorAtCreating);
         }
-        
+
         var response = new NewUserResponse
         {
             Name = user.Name,

@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Database", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Basic", "Fenicia.Module.Basic\Fenicia.Module.Basic.csproj", "{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Api", "Fenicia.Common.Api\Fenicia.Common.Api.csproj", "{4F6547A1-EE32-41F8-9DED-8434B27DF723}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,8 +28,13 @@ Global
 		{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F6547A1-EE32-41F8-9DED-8434B27DF723}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F6547A1-EE32-41F8-9DED-8434B27DF723}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F6547A1-EE32-41F8-9DED-8434B27DF723}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F6547A1-EE32-41F8-9DED-8434B27DF723}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF} = {58817977-A1E2-4B96-BE8B-E014348C0A95}
+		{4F6547A1-EE32-41F8-9DED-8434B27DF723} = {58817977-A1E2-4B96-BE8B-E014348C0A95}
 	EndGlobalSection
 EndGlobal

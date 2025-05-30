@@ -27,6 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj" />
       <ProjectReference Include="..\Fenicia.Common.Database\Fenicia.Common.Database.csproj" />
     </ItemGroup>
 

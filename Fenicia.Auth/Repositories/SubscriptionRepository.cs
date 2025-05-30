@@ -4,12 +4,12 @@ using Fenicia.Auth.Repositories.Interfaces;
 
 namespace Fenicia.Auth.Repositories;
 
-public class SubscriptionRepository(AuthContext authContext): ISubscriptionRepository
+public class SubscriptionRepository(AuthContext authContext) : ISubscriptionRepository
 {
     public async Task SaveSubscription(SubscriptionModel subscription)
     {
         authContext.Subscriptions.Add(subscription);
-        
+
         await authContext.SaveChangesAsync();
     }
 }

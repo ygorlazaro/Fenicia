@@ -1,4 +1,3 @@
-using Fenicia.Auth.Repositories;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services.Interfaces;
 

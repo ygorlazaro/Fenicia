@@ -10,9 +10,9 @@ public class CustomerRepository(AuthContext authContext) : ICustomerRepository
     public async Task<CustomerModel?> GetByUserIdAsync(Guid userId, Guid companyId)
     {
         var query = from customer in authContext.Customers
-            where customer.UserId == userId && companyId == customer.CompanyId
-            select customer;
-        
+                    where customer.UserId == userId && companyId == customer.CompanyId
+                    select customer;
+
         return await query.FirstOrDefaultAsync();
     }
 
@@ -23,7 +23,7 @@ public class CustomerRepository(AuthContext authContext) : ICustomerRepository
             UserId = userId,
             CompanyId = companyId
         };
-        
+
         authContext.Customers.Add(customer);
 
         await authContext.SaveChangesAsync();

@@ -10,11 +10,11 @@ public class UserRepository(AuthContext authContext) : IUserRepository
     public async Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj)
     {
         var query = from user in authContext.Users
-            join userRole in authContext.UserRoles on user.Id equals userRole.UserId
-            join company in authContext.Companies on userRole.CompanyId equals company.Id
-            where user.Email == email
-                  && company.CNPJ == cnpj
-            select user;
+                    join userRole in authContext.UserRoles on user.Id equals userRole.UserId
+                    join company in authContext.Companies on userRole.CompanyId equals company.Id
+                    where user.Email == email
+                          && company.CNPJ == cnpj
+                    select user;
 
         return await query.FirstOrDefaultAsync();
     }
