@@ -6,9 +6,16 @@ namespace Fenicia.Auth.Repositories;
 
 public class UserRepository(AuthContext authContext) : IUserRepository
 {
-    public async Task<UserModel?> GetByEmailAsync(string email)
+    public async Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj)
     {
-        return await authContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var query = from user in authContext.Users
+            join userRole in authContext.UserRoles on user.Id equals userRole.UserId
+            join company in authContext.Companies on userRole.CompanyId equals company.Id
+            where user.Email == email
+                  && company.CNPJ == cnpj
+            select user;
+
+        return await query.FirstOrDefaultAsync();
     }
 
     public UserModel Add(UserModel userRequest)

@@ -3,6 +3,7 @@ using System;
 using Fenicia.Auth.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fenicia.Auth.Migrations
 {
     [DbContext(typeof(AuthContext))]
-    partial class AuthContextModelSnapshot : ModelSnapshot
+    [Migration("20250530144219_Subscriptions")]
+    partial class Subscriptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,15 +254,15 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnName("updated");
 
                     b.HasKey("Id")
-                        .HasName("pk_subscription_credits");
+                        .HasName("pk_subscrption_credits");
 
                     b.HasIndex("ModuleId")
-                        .HasDatabaseName("ix_subscription_credits_module_id");
+                        .HasDatabaseName("ix_subscrption_credits_module_id");
 
                     b.HasIndex("SubscriptionId")
-                        .HasDatabaseName("ix_subscription_credits_subscription_id");
+                        .HasDatabaseName("ix_subscrption_credits_subscription_id");
 
-                    b.ToTable("subscription_credits", (string)null);
+                    b.ToTable("subscrption_credits", (string)null);
                 });
 
             modelBuilder.Entity("Fenicia.Auth.Contexts.Models.SubscriptionModel", b =>
@@ -457,14 +460,14 @@ namespace Fenicia.Auth.Migrations
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_subscription_credits_modules_module_id");
+                        .HasConstraintName("fk_subscrption_credits_modules_module_id");
 
                     b.HasOne("Fenicia.Auth.Contexts.Models.SubscriptionModel", "Subscription")
                         .WithMany("Customers")
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_subscription_credits_subscriptions_subscription_id");
+                        .HasConstraintName("fk_subscrption_credits_subscriptions_subscription_id");
 
                     b.Navigation("Module");
 

@@ -8,15 +8,17 @@ namespace Fenicia.Auth.Services;
 
 public class TokenService(IConfiguration configuration) : ITokenService
 {
-    public string GenerateToken(UserModel user, string[] roles)
+    public string GenerateToken(UserModel user, string[] roles, Guid companyId)
     {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
                                           throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
 
         var authClaims = new List<Claim>
         {
+            new ("userId", user.Id.ToString()),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, user.Name),
+            new("companyId", companyId.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 

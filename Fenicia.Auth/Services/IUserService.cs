@@ -5,7 +5,7 @@ namespace Fenicia.Auth.Services;
 
 public interface IUserService
 {
-    Task<UserModel?> GetByEmailAsync(string email);
+    Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj);
     Task<bool> ValidatePasswordAsync(string password, string hasedPassword);
     Task<UserModel?> CreateNewUserAsync(NewUserRequest request);
 }

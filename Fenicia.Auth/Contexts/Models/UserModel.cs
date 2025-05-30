@@ -19,5 +19,9 @@ public class UserModel: BaseModel
     [Required]
     public string Name { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
+    
+    [JsonIgnore]
+    public virtual CustomerModel? Customer { get; set; }
 }

@@ -6,6 +6,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{588179
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Database", "Fenicia.Common.Database\Fenicia.Common.Database.csproj", "{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Basic", "Fenicia.Module.Basic\Fenicia.Module.Basic.csproj", "{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF} = {58817977-A1E2-4B96-BE8B-E014348C0A95}

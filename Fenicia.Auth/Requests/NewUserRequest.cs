@@ -15,5 +15,8 @@ public class NewUserRequest
     [Required]
     [MaxLength(32)]
     public string Name { get; set; }= null!;
+    
+    [Required]
+    public NewCompanyRequest Company { get; set; } = null!;
 }
     
