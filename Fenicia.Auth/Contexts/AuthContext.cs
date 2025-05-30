@@ -1,0 +1,32 @@
+using Fenicia.Auth.Contexts.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+namespace Fenicia.Auth.Contexts;
+
+public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(options)
+{
+    public DbSet<RoleModel> Roles { get; set; } = null!;
+    
+    public DbSet<UserModel> Users { get; set; } = null!;
+    
+    public DbSet<UserRoleModel> UserRoles { get; set; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+            v => v.ToUniversalTime(),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+        );
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties().Where(p => p.ClrType == typeof(DateTime)))
+            {
+                property.SetValueConverter(dateTimeConverter);
+            }
+        }
+        
+        base.OnModelCreating(modelBuilder);
+    }
+}
