@@ -4,5 +4,5 @@ namespace Fenicia.Auth.Services;
 
 public interface ITokenService
 {
-    string GenerateToken(UserModel user, string[] roles);
+    string GenerateToken(UserModel user, string[] roles, Guid companyId);
 }

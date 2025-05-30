@@ -8,18 +8,19 @@ namespace Fenicia.Auth.Controllers;
 [AllowAnonymous]
 [Route("[controller]")]
 [ApiController]
-public class TokenController(ITokenService tokenService, IUserService userService, IUserRoleService userRoleService): ControllerBase
+public class TokenController(ITokenService tokenService, IUserService userService, IUserRoleService userRoleService, ICompanyService companyService): ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> PostAsync(TokenRequest request)
     {
-        var user = await userService.GetByEmailAsync(request.Email);
+        var user = await userService.GetByEmailAndCnpjAsync(request.Email, request.CNPJ);
+        var company = await companyService.GetByCnpjAsync(request.CNPJ);
 
-        if (user is null)
+        if (user is null || company is null)
         {
             return BadRequest(TextConstants.InvalidUsernameOrPassword);
         }
-
+        
         var isValidPassword = await userService.ValidatePasswordAsync(request.Password, user.Password);
 
         if (!isValidPassword)
@@ -34,7 +35,7 @@ public class TokenController(ITokenService tokenService, IUserService userServic
             return BadRequest(TextConstants.UserWithoutRoles);
         }
         
-        var token = tokenService.GenerateToken(user, roles);
+        var token = tokenService.GenerateToken(user, roles, company.Id);
         
         return Ok(token);
     }

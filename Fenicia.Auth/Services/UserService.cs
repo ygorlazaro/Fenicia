@@ -4,11 +4,11 @@ using Fenicia.Auth.Requests;
 
 namespace Fenicia.Auth.Services;
 
-public class UserService(IUserRepository userRepository, IRoleRepository roleRepository) : IUserService
+public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, ICompanyRepository companyRepository) : IUserService
 {
-    public async Task<UserModel?> GetByEmailAsync(string email)
+    public async Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj)
     {
-        return await userRepository.GetByEmailAsync(email);
+        return await userRepository.GetByEmailAndCnpjAsync(email, cnpj);
     }
 
     public Task<bool> ValidatePasswordAsync(string password, string hasedPassword)
@@ -19,10 +19,18 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     public async Task<UserModel?> CreateNewUserAsync(NewUserRequest request)
     {
         var isExintingUser = await userRepository.CheckUserExistsAsync(request.Email);
+        var isExintingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.CNPJ);
 
         if (isExintingUser)
         {
             Console.WriteLine("Esse e-mail já existe");
+            
+            return null;
+        }
+
+        if (isExintingCompany)
+        {
+            Console.WriteLine("Esse company já existe");
             
             return null;
         }
@@ -35,6 +43,11 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         };
         
         var user = userRepository.Add(userRequest);
+        var company = companyRepository.Add(new CompanyModel()
+        {
+            Name = request.Company.Name,
+            CNPJ = request.Company.CNPJ,
+        });
         var adminRole = await roleRepository.GetAdminRoleAsync();
 
         if (adminRole is null)
@@ -47,6 +60,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             new UserRoleModel
             {
                 User = user,
+                Company = company,
                 Role = adminRole
             }
         ];

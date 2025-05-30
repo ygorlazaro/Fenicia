@@ -27,6 +27,8 @@ public class Program
         builder.Services.AddTransient<IUserRoleService, UserUserRoleService>();
         builder.Services.AddTransient<IRoleRepository, RoleRepository>();
         builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
+        builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
+        builder.Services.AddTransient<ICompanyService, CompanyService>();
 
         builder.Services.AddDbContext<AuthContext>(x =>
         {
