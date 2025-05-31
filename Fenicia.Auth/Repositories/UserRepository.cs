@@ -13,7 +13,7 @@ public class UserRepository(AuthContext authContext) : IUserRepository
                     join userRole in authContext.UserRoles on user.Id equals userRole.UserId
                     join company in authContext.Companies on userRole.CompanyId equals company.Id
                     where user.Email == email
-                          && company.CNPJ == cnpj
+                          && company.Cnpj == cnpj
                     select user;
 
         return await query.FirstOrDefaultAsync();

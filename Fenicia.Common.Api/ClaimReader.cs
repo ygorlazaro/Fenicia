@@ -4,31 +4,25 @@ namespace Fenicia.Common.Api;
 
 public static class ClaimReader
 {
-    public static Guid UserId(ClaimsPrincipal user)
+    public static Guid UserId(ClaimsPrincipal user) => GetGuidClaimValue(user, "userId");
+
+    public static Guid CompanyId(ClaimsPrincipal user) => GetGuidClaimValue(user, "companyId");
+
+    private static Guid GetGuidClaimValue(ClaimsPrincipal user, string claimType)
     {
-        var claim = user.Claims.FirstOrDefault(claimToSearch => string.Equals(claimToSearch.Type, "userId", StringComparison.Ordinal));
+        var claim = user.Claims.FirstOrDefault(claimToSearch => 
+            string.Equals(claimToSearch.Type, claimType, StringComparison.Ordinal));
 
         if (claim == null)
         {
             throw new UnauthorizedAccessException();
         }
         
-        var value = Guid.Parse(claim.Value);
-
-        return value;
+        return Guid.Parse(claim.Value);
     }
-
-    public static Guid CompanyId(ClaimsPrincipal user)
+    
+    public static string[] Modules(ClaimsPrincipal user)
     {
-        var claim = user.Claims.FirstOrDefault(claimToSearch => string.Equals(claimToSearch.Type, "companyId", StringComparison.Ordinal));
-
-        if (claim == null)
-        {
-            throw new UnauthorizedAccessException();
-        }
-        
-        var value = Guid.Parse(claim.Value);
-
-        return value;
+        return user.Claims.Where(x => x.Type == "module").Select(x => x.Value).ToArray();
     }
 }

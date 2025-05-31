@@ -9,6 +9,7 @@ namespace Fenicia.Auth.Contexts.Models;
 public class ModuleModel : BaseModel
 {
     [Required]
+    [MaxLength(30)]
     public string Name { get; set; } = null!;
 
     [Required]

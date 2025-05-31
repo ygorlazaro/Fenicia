@@ -5,31 +5,31 @@ using Fenicia.Auth.Services.Interfaces;
 
 namespace Fenicia.Auth.Services;
 
-public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository) : IUserService
+public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository, ISecurityService securityService) : IUserService
 {
     public async Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj)
     {
         return await userRepository.GetByEmailAndCnpjAsync(email, cnpj);
     }
 
-    public Task<bool> ValidatePasswordAsync(string password, string hasedPassword)
+    public bool ValidatePasswordAsync(string password, string hashedPassword)
     {
-        return Task.FromResult(password == hasedPassword);
+        return securityService.VerifyPassword(password, hashedPassword);
     }
 
     public async Task<UserModel?> CreateNewUserAsync(NewUserRequest request)
     {
-        var isExintingUser = await userRepository.CheckUserExistsAsync(request.Email);
-        var isExintingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.CNPJ);
+        var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email);
+        var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.CNPJ);
 
-        if (isExintingUser)
+        if (isExistingUser)
         {
             Console.WriteLine("Esse e-mail já existe");
 
             return null;
         }
 
-        if (isExintingCompany)
+        if (isExistingCompany)
         {
             Console.WriteLine("Esse company já existe");
 
@@ -39,7 +39,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         var userRequest = new UserModel
         {
             Email = request.Email,
-            Password = request.Password,
+            Password = securityService.HashPassword(request.Password),
             Name = request.Name
         };
 
@@ -47,7 +47,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         var company = companyRepository.Add(new CompanyModel
         {
             Name = request.Company.Name,
-            CNPJ = request.Company.CNPJ,
+            Cnpj = request.Company.CNPJ,
         });
         var adminRole = await roleRepository.GetAdminRoleAsync();
 
