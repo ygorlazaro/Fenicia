@@ -9,14 +9,17 @@ namespace Fenicia.Auth.Contexts.Models;
 public class UserModel : BaseModel
 {
     [EmailAddress]
+    [MaxLength(48)]
     [Required]
     public string Email { get; set; } = null!;
 
     [Required]
     [JsonIgnore]
+    [MaxLength(200)]
     public string Password { get; set; } = null!;
 
     [Required]
+    [MaxLength(48)]
     public string Name { get; set; } = null!;
 
     [JsonIgnore]

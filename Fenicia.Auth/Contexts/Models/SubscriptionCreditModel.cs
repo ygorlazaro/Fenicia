@@ -35,5 +35,5 @@ public class SubscriptionCreditModel : BaseModel
 
     [JsonIgnore]
     [ForeignKey("OrderDetailId")]
-    public virtual OrderDetailModel? OrderDetail { get; set; } = null!;
+    public virtual OrderDetailModel? OrderDetail { get; set; }
 }

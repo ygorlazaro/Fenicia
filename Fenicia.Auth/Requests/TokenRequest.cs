@@ -14,6 +14,6 @@ public record TokenRequest
 
     [Required]
     [MaxLength(14)]
-    public string CNPJ { get; set; } = null!;
+    public string Cnpj { get; set; } = null!;
 }
 

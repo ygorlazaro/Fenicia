@@ -4,5 +4,7 @@ namespace Fenicia.Auth.Services.Interfaces;
 
 public interface ISubscriptionService
 {
-    Task<object?> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details, Guid companyId);
+    Task<SubscriptionModel?> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details,
+        Guid companyId);
+    Task<List<Guid>> GetValidSubscriptionsAsync(Guid companyId);
 }

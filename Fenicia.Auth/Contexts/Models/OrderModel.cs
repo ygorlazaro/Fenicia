@@ -26,7 +26,7 @@ public class OrderModel : BaseModel
     public virtual CustomerModel Customer { get; set; } = null!;
 
     [JsonIgnore]
-    public virtual SubscriptionModel? Subscription { get; set; } = null!;
+    public virtual SubscriptionModel? Subscription { get; set; }
 
     public virtual List<OrderDetailModel> Details { get; set; } = null!;
 }
