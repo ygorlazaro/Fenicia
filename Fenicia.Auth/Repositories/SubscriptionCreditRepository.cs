@@ -15,8 +15,8 @@ public class SubscriptionCreditRepository(AuthContext authContext) : ISubscripti
             join module in authContext.Modules on credit.ModuleId equals module.Id
             join subscription in subscriptions on credit.SubscriptionId equals subscription
             where credit.IsActive
-                  && credit.StartDate >= now
-                  && credit.EndDate <= now
+                  && now >= credit.StartDate
+                  && now <= credit.EndDate
                   orderby module.Id
             select module.Type;
 
