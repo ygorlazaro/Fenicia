@@ -7,7 +7,7 @@ namespace Fenicia.Auth.Services;
 
 public class SubscriptionService(ISubscriptionRepository subscriptionRepository) : ISubscriptionService
 {
-    public async Task<object?> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details,
+    public async Task<SubscriptionModel?> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details,
         Guid companyId)
     {
         if (details.Count == 0)
@@ -41,5 +41,10 @@ public class SubscriptionService(ISubscriptionRepository subscriptionRepository)
         await subscriptionRepository.SaveSubscription(subscription);
 
         return subscription;
+    }
+
+    public async Task<List<Guid>> GetValidSubscriptionsAsync(Guid companyId)
+    {
+        return await subscriptionRepository.GetValidSubscriptionAsync(companyId); 
     }
 }

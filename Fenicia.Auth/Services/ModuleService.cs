@@ -12,7 +12,7 @@ public class ModuleService(IModuleRepository moduleRepository) : IModuleService
         return await moduleRepository.GetAllOrderedAsync();
     }
 
-    public async Task<List<ModuleModel?>> GetModulesToOrderAsync(IEnumerable<Guid> request)
+    public async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request)
     {
         return await moduleRepository.GetManyOrdersAsync(request);
     }

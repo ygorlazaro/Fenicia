@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataSource name="@localhost">
+  <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.53">
+    <root id="1">
+      <DateStyle>mdy</DateStyle>
+      <ServerVersion>17.5</ServerVersion>
+      <StartupTime>1748688503</StartupTime>
+    </root>
+    <database id="2" parent="1" name="FeniciaAuth">
+      <ObjectId>16388</ObjectId>
+      <OwnerName>postgres</OwnerName>
+    </database>
+    <database id="3" parent="1" name="fenicia-auth">
+      <Current>1</Current>
+      <ObjectId>16566</ObjectId>
+      <OwnerName>postgres</OwnerName>
+    </database>
+    <database id="4" parent="1" name="postgres">
+      <Comment>default administrative connection database</Comment>
+      <ObjectId>5</ObjectId>
+      <OwnerName>postgres</OwnerName>
+    </database>
+    <schema id="5" parent="2" name="information_schema">
+      <ObjectId>13219</ObjectId>
+      <StateNumber>538</StateNumber>
+      <OwnerName>postgres</OwnerName>
+    </schema>
+    <schema id="6" parent="2" name="pg_catalog">
+      <Comment>system catalog schema</Comment>
+      <ObjectId>11</ObjectId>
+      <StateNumber>532</StateNumber>
+      <OwnerName>postgres</OwnerName>
+    </schema>
+    <schema id="7" parent="2" name="public">
+      <Comment>standard public schema</Comment>
+      <Current>1</Current>
+      <ObjectId>2200</ObjectId>
+      <StateNumber>532</StateNumber>
+      <OwnerName>pg_database_owner</OwnerName>
+    </schema>
+    <schema id="8" parent="3" name="information_schema">
+      <ObjectId>13219</ObjectId>
+      <StateNumber>538</StateNumber>
+      <OwnerName>postgres</OwnerName>
+    </schema>
+    <schema id="9" parent="3" name="pg_catalog">
+      <Comment>system catalog schema</Comment>
+      <ObjectId>11</ObjectId>
+      <StateNumber>532</StateNumber>
+      <OwnerName>postgres</OwnerName>
+    </schema>
+    <schema id="10" parent="3" name="public">
+      <Comment>standard public schema</Comment>
+      <Current>1</Current>
+      <ObjectId>2200</ObjectId>
+      <StateNumber>532</StateNumber>
+      <OwnerName>pg_database_owner</OwnerName>
+    </schema>
+    <schema id="11" parent="4" name="information_schema">
+      <ObjectId>13219</ObjectId>
+      <StateNumber>538</StateNumber>
+      <OwnerName>postgres</OwnerName>
+    </schema>
+    <schema id="12" parent="4" name="pg_catalog">
+      <Comment>system catalog schema</Comment>
+      <ObjectId>11</ObjectId>
+      <StateNumber>532</StateNumber>
+      <OwnerName>postgres</OwnerName>
+    </schema>
+    <schema id="13" parent="4" name="public">
+      <Comment>standard public schema</Comment>
+      <Current>1</Current>
+      <ObjectId>2200</ObjectId>
+      <StateNumber>532</StateNumber>
+      <OwnerName>pg_database_owner</OwnerName>
+    </schema>
+  </database-model>
+</dataSource>

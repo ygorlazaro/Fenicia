@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
         <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5"/>
@@ -29,6 +30,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj" />
       <ProjectReference Include="..\Fenicia.Common.Database\Fenicia.Common.Database.csproj" />
+      <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj" />
     </ItemGroup>
 
 </Project>

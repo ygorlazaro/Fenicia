@@ -9,6 +9,7 @@ namespace Fenicia.Auth.Contexts.Models;
 public class RoleModel : BaseModel
 {
     [Required]
+    [MaxLength(10)]
     public string Name { get; set; } = null!;
 
     [JsonIgnore]
