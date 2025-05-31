@@ -20,4 +20,9 @@ public static class ClaimReader
         
         return Guid.Parse(claim.Value);
     }
+    
+    public static string[] Modules(ClaimsPrincipal user)
+    {
+        return user.Claims.Where(x => x.Type == "module").Select(x => x.Value).ToArray();
+    }
 }

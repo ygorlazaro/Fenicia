@@ -60,12 +60,13 @@ public static class Program
             {
                 x.RequireHttpsMetadata = false;
                 x.SaveToken = true;
+                x.ClaimsIssuer = "AuthService";
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateAudience = false,
                 };
             });
 

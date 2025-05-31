@@ -21,8 +21,8 @@ public class SubscriptionRepository(AuthContext authContext) : ISubscriptionRepo
 
         var subscriptions = from subscription in authContext.Subscriptions
             where subscription.CompanyId == companyId
-                  && subscription.StartDate >= now
-                  && subscription.EndDate <= now
+                  && now >= subscription.StartDate
+                  && now <= subscription.EndDate
                   && subscription.Status == SubscriptionStatus.Active
             select subscription.Id;
 
