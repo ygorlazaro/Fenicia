@@ -9,6 +9,10 @@ public class BasicContext(DbContextOptions<BasicContext> options, TenantProvider
 {
     public DbSet<StateModel> States { get; set; } = null!;
     
+    public DbSet<AddressModel> Addresses { get; set; } = null!;
+    
+    public DbSet<CustomerModel> Customers { get; set; } = null!;
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);

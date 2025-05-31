@@ -10,30 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cba3df7d-f868-4dfc-8a05-55fc4ebcb717" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Fenicia.Common.Api/Middlewares/TenantMiddleware.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fenicia.Common.Api/Providers/TenantProvider.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/StateModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Controllers/StateController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Repositories/Interfaces/IStateRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Repositories/StateRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Services/Interfaces/IStateService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Services/StateService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/dataSources/332a932d-3818-4a36-b01d-2a00fa26ee6f.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/dataSources/332a932d-3818-4a36-b01d-2a00fa26ee6f/storage_v2/_src_/database/fenicia-auth.NEhTHQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/dataSources/332a932d-3818-4a36-b01d-2a00fa26ee6f/storage_v2/_src_/database/fenicia-auth.NEhTHQ/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/dataSources/332a932d-3818-4a36-b01d-2a00fa26ee6f/storage_v2/_src_/database/fenicia-auth.NEhTHQ/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Properties/launchSettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Repositories/SubscriptionCreditRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Repositories/SubscriptionCreditRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Repositories/SubscriptionRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Repositories/SubscriptionRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common.Api/ClaimReader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common.Api/ClaimReader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common.Api/Fenicia.Common.Api.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common.Api/Fenicia.Common.Api.csproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/AddressModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/CustomerModel.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/BasicContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/BasicContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Fenicia.Module.Basic.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Fenicia.Module.Basic.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/appsettings.Development.json" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/appsettings.Development.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.sln" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.sln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/StateModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/StateModel.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,12 +27,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock:///AIAssistantSnippet.." root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///AIAssistantSnippet.." root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///home/ygor/Gato Ninja/Fenicia/Fenicia.Auth/Contexts/Models/CompanyModel.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///home/ygor/Gato Ninja/Fenicia/Fenicia.Auth/Contexts/Models/RoleModel.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///home/ygor/Gato Ninja/Fenicia/Fenicia.Common.Api/ClaimReader.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///home/ygor/Gato Ninja/Fenicia/Fenicia.Module.Basic/appsettings.Development.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a0b45f29f34f594814a7b1fbc25fe5ef3c18257956ed4f4fbfa68717db58/DbContext.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///var/run/host/usr/lib/dotnet/sdk/9.0.106/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_9_default.globalconfig" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="HttpClientEndpointsTabState">

@@ -14,4 +14,6 @@ public class StateModel: BaseModel
     [Required]
     [MaxLength(2)]
     public string Uf { get; set; } = null!;
+    
+    public virtual List<AddressModel> Addresses { get; set; } = null!;
 }
