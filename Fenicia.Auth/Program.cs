@@ -4,6 +4,7 @@ using Fenicia.Auth.Repositories;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services;
 using Fenicia.Auth.Services.Interfaces;
+using Fenicia.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -11,7 +12,7 @@ using Scalar.AspNetCore;
 
 namespace Fenicia.Auth;
 
-public class Program
+public static class Program
 {
     public static void Main(string[] args)
     {
@@ -23,6 +24,7 @@ public class Program
 
         var connectionString = configuration.GetConnectionString("AuthConnection");
 
+        builder.Services.AddTransient<ISecurityService, SecurityService>();
         builder.Services.AddTransient<ITokenService, TokenService>();
         builder.Services.AddTransient<IUserService, UserService>();
         builder.Services.AddTransient<IUserRepository, UserRepository>();
@@ -39,6 +41,8 @@ public class Program
         builder.Services.AddTransient<IOrderService, OrderService>();
         builder.Services.AddTransient<IOrderRepository, OrderRepository>();
         builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
+        builder.Services.AddTransient<ISubscriptionCreditRepository, SubscriptionCreditRepository>();
+        builder.Services.AddTransient<ISubscriptionCreditService, SubscriptionCreditService>();
 
         builder.Services.AddDbContext<AuthContext>(x =>
         {

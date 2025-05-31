@@ -1,0 +1,25 @@
+using Fenicia.Auth.Contexts;
+using Fenicia.Auth.Enums;
+using Fenicia.Auth.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace Fenicia.Auth.Repositories;
+
+public class SubscriptionCreditRepository(AuthContext authContext) : ISubscriptionCreditRepository
+{
+    public async Task<List<ModuleType>> GetValidModulesTypesAsync(List<Guid> subscriptions)
+    {
+        var now = DateTime.Now;
+
+        var query = from credit in authContext.SubscriptionCredits
+            join module in authContext.Modules on credit.ModuleId equals module.Id
+            join subscription in subscriptions on credit.SubscriptionId equals subscription
+            where credit.IsActive
+                  && credit.StartDate >= now
+                  && credit.EndDate <= now
+                  orderby module.Id
+            select module.Type;
+
+        return await query.Distinct().ToListAsync();
+    }
+}

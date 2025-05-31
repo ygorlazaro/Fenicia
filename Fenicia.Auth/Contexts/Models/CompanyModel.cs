@@ -13,8 +13,8 @@ public class CompanyModel : BaseModel
     public string Name { get; set; } = null!;
 
     [Required]
-    [Length(14, 14)]
-    public string CNPJ { get; set; } = null!;
+    [MaxLength(14)]
+    public string Cnpj { get; set; } = null!;
 
     [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];

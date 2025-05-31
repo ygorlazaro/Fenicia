@@ -9,7 +9,7 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
 {
     public async Task<bool> CheckCompanyExistsAsync(string cnpj)
     {
-        return await authContext.Companies.AnyAsync(c => c.CNPJ == cnpj);
+        return await authContext.Companies.AnyAsync(c => c.Cnpj == cnpj);
     }
 
     public CompanyModel Add(CompanyModel company)
@@ -27,7 +27,7 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
 
     public async Task<CompanyModel?> GetByCnpjAsync(string cnpj)
     {
-        return await authContext.Companies.FirstOrDefaultAsync(c => c.CNPJ == cnpj);
+        return await authContext.Companies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
     }
 
     public async Task<List<CompanyModel>> GetByUserIdAsync(Guid userId)

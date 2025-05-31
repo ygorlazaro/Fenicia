@@ -13,7 +13,7 @@ public class ModuleRepository(AuthContext authContext) : IModuleRepository
         return await authContext.Modules.OrderBy(m => m.Type).ToListAsync();
     }
 
-    public async Task<List<ModuleModel?>> GetManyOrdersAsync(IEnumerable<Guid> request)
+    public async Task<List<ModuleModel>> GetManyOrdersAsync(IEnumerable<Guid> request)
     {
         var query = from module in authContext.Modules
                     where request.Any(r => r == module.Id)

@@ -1,6 +1,6 @@
-namespace Fenicia.Auth;
+namespace Fenicia.Common;
 
-internal static class TextConstants
+public static class TextConstants
 {
     public const string InvalidJwtSecret = "Invalid Jwt Secret";
     public const string InvalidUsernameOrPassword = "Invalid Username or password";

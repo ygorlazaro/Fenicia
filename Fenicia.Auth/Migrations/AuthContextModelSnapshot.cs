@@ -29,9 +29,10 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("CNPJ")
+                    b.Property<string>("Cnpj")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)")
                         .HasColumnName("cnpj");
 
                     b.Property<DateTime>("Created")
@@ -119,7 +120,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
                         .HasColumnName("name");
 
                     b.Property<int>("Type")
@@ -240,7 +242,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
                         .HasColumnName("name");
 
                     b.Property<DateTime?>("Updated")
@@ -381,17 +384,20 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)")
                         .HasColumnName("email");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)")
                         .HasColumnName("name");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
                         .HasColumnName("password");
 
                     b.Property<DateTime?>("Updated")

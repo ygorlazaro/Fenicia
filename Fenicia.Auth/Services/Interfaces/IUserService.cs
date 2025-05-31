@@ -6,7 +6,7 @@ namespace Fenicia.Auth.Services.Interfaces;
 public interface IUserService
 {
     Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj);
-    Task<bool> ValidatePasswordAsync(string password, string hasedPassword);
+    bool ValidatePasswordAsync(string password, string hashedPassword);
     Task<UserModel?> CreateNewUserAsync(NewUserRequest request);
     Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId);
 }
