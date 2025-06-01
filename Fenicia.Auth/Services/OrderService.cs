@@ -3,6 +3,7 @@ using Fenicia.Auth.Enums;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Services.Interfaces;
+using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Services;
 

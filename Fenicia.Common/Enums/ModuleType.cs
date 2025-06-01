@@ -1,4 +1,4 @@
-namespace Fenicia.Auth.Enums;
+namespace Fenicia.Common.Enums;
 
 public enum ModuleType
 {
