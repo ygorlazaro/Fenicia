@@ -15,4 +15,9 @@ public class UserRoleRepository(AuthContext context) : IUserRoleRepository
     {
         return await context.UserRoles.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId);
     }
+
+    public async Task<bool> HasRoleAsync(Guid guid, Guid companyId, string role)
+    {
+        return await context.UserRoles.AnyAsync(ur => ur.UserId == guid && ur.CompanyId == companyId && ur.Role.Name == role);
+    }
 }

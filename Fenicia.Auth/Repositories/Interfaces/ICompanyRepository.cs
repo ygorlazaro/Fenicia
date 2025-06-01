@@ -9,4 +9,5 @@ public interface ICompanyRepository
     Task<int> SaveAsync();
     Task<CompanyModel?> GetByCnpjAsync(string cnpj);
     Task<List<CompanyModel>> GetByUserIdAsync(Guid userId);
+    Task<CompanyModel?> PatchAsync(CompanyModel company);
 }

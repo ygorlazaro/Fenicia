@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Contexts\Models\" />
       <Folder Include="Controllers\" />
     </ItemGroup>
 

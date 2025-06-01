@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using AutoMapper;
 
 namespace Fenicia.Auth;
 
@@ -28,7 +29,7 @@ public static class Program
         builder.Services.AddTransient<ITokenService, TokenService>();
         builder.Services.AddTransient<IUserService, UserService>();
         builder.Services.AddTransient<IUserRepository, UserRepository>();
-        builder.Services.AddTransient<IUserRoleService, UserUserRoleService>();
+        builder.Services.AddTransient<IUserRoleService, UserRoleService>();
         builder.Services.AddTransient<IRoleRepository, RoleRepository>();
         builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
         builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
@@ -43,6 +44,8 @@ public static class Program
         builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
         builder.Services.AddTransient<ISubscriptionCreditRepository, SubscriptionCreditRepository>();
         builder.Services.AddTransient<ISubscriptionCreditService, SubscriptionCreditService>();
+        
+        builder.Services.AddAutoMapper(typeof(Program));
 
         builder.Services.AddDbContext<AuthContext>(x =>
         {

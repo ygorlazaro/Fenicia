@@ -1,3 +1,4 @@
+using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common.Api;
 using Microsoft.AspNetCore.Authorization;
@@ -17,5 +18,26 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
         var companies = await companyService.GetByUserIdAsync(userId);
 
         return Ok(companies);
+    }
+
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> PatchAsync(CompanyModel request, Guid id)
+    {
+        var userId = ClaimReader.UserId(User);
+        var companyId = ClaimReader.CompanyId(User);
+        
+        if (id != companyId)
+        {
+            return Unauthorized();
+        }
+
+        var response = await companyService.PatchAsync(id, userId, request);
+
+        if (response is null)
+        {
+            return BadRequest();
+        }
+        
+        return Ok(response);
     }
 }
