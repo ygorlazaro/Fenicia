@@ -1,4 +1,3 @@
-using BCrypt.Net;
 using Fenicia.Auth.Services.Interfaces;
 
 namespace Fenicia.Auth.Services;
