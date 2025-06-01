@@ -33,11 +33,6 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
 
         var response = await companyService.PatchAsync(id, userId, request);
 
-        if (response is null)
-        {
-            return BadRequest();
-        }
-        
-        return Ok(response);
+        return response is null ? BadRequest() : Ok(response);
     }
 }

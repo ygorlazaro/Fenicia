@@ -2,12 +2,10 @@ namespace Fenicia.Common.Api.Providers;
 
 public class TenantProvider
 {
-    private string? _tenantId;
-
-    public string? TenantId => _tenantId;
+    public string? TenantId { get; private set; }
 
     public void SetTenant(string tenantId)
     {
-        _tenantId = tenantId;
+        TenantId= tenantId;
     }
 }
