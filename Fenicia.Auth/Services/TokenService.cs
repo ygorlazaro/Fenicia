@@ -1,10 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+
 using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Enums;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
+using Fenicia.Common.Enums;
+
 using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Services;
@@ -27,6 +29,11 @@ public class TokenService(IConfiguration configuration) : ITokenService
 
         authClaims.AddRange(roles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
         authClaims.AddRange(modules.Select(m => new Claim("module", m.ToString())));
+
+        if (roles.Any(r => r == "God"))
+        {
+            authClaims.Add(new Claim("module", "erp"));
+        }
 
         var authSigningKey = new SymmetricSecurityKey(key);
         var tokenDescriptor = new SecurityTokenDescriptor

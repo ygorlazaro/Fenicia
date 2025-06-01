@@ -20,4 +20,15 @@ public static class ClaimReader
     {
         return user.Claims.Where(x => x.Type == "module").Select(x => x.Value).ToArray();
     }
+
+    public static void ValidateRole(ClaimsPrincipal user, string 
+        roleToSearch)
+    {
+        var access = user.Claims.Where(x => x.Type == "role").Any(x => x.Value == roleToSearch);
+
+        if (!access)
+        {
+            throw new UnauthorizedAccessException();
+        }
+    }
 }

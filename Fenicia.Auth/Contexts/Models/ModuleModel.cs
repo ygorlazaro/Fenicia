@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Fenicia.Auth.Enums;
+
 using Fenicia.Common.Database;
+using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Contexts.Models;
 

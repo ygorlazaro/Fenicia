@@ -19,7 +19,7 @@ public class CompanyModel : BaseModel
     [Required]
     public bool IsActive { get; set; } = true;
     
-    public string Logo { get; set; } = null!;
+    public string? Logo { get; set; } = null!;
 
     public string TimeZone { get; set; } = TimeZoneInfo.Local.StandardName;
     

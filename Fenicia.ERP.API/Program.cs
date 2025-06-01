@@ -1,4 +1,5 @@
 using Fenicia.Common;
+using Fenicia.Common.Api.Middlewares;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -13,14 +14,6 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var tenantArg = args.FirstOrDefault(x => x.StartsWith("--tenant="));
-        if (tenantArg is not null)
-        {
-            var tenantId = tenantArg.Split("=")[1];
-
-            Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
-        }
-
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
 
@@ -69,6 +62,7 @@ public class Program
         }
 
         app.UseAuthentication();
+        app.UseMiddleware<RoleGodRequirementMiddleware>();
         app.UseAuthorization();
 
         app.MapControllers();
