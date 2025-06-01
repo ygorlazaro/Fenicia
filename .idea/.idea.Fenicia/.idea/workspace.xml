@@ -10,10 +10,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cba3df7d-f868-4dfc-8a05-55fc4ebcb717" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/AddressModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/CustomerModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/EmployeeModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/PositionModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/ProductCategoryModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/ProductModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/StockMovementModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/SupplierModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/BasicContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/BasicContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/StateModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/Models/StateModel.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,31 +52,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.Fenicia.Auth: http.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.Fenicia.Module.Basic: http.executor&quot;: &quot;Run&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.36720553&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/basic-skeleton&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/ygor/Downloads/ej-release-251.132.71.zip&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.Fenicia.Auth: http.executor": "Run",
+    ".NET Launch Settings Profile.Fenicia.Module.Basic: http.executor": "Run",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "XThreadsFramesViewSplitterKey": "0.36720553",
+    "git-widget-placeholder": "develop",
+    "last_opened_file_path": "/home/ygor/Downloads/ej-release-251.132.71.zip",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunAnythingCache">
     <option name="myCommands">
       <command value="Rep" />
