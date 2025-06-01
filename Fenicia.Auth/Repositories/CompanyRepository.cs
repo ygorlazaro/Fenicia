@@ -39,4 +39,14 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
 
         return await query.ToListAsync();
     }
+
+    public async Task<CompanyModel?> PatchAsync(CompanyModel company)
+    {
+        company.Updated = DateTime.Now;
+        
+        authContext.Companies.Update(company);
+        await authContext.SaveChangesAsync();
+
+        return company;
+    }
 }
