@@ -1,16 +1,13 @@
-using System.Text;
 using Fenicia.Common;
-using Fenicia.Common.Api;
-using Fenicia.Common.Api.Middlewares;
-using Fenicia.Common.Api.Providers;
-using Fenicia.Module.Ecommerce.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 using Scalar.AspNetCore;
 
-namespace Fenicia.Module.Ecommerce;
+using System.Text;
+
+namespace Fenicia.ERP.API;
 
 public class Program
 {
@@ -29,28 +26,6 @@ public class Program
 
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
                                           throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
-
-        builder.Services.AddScoped<TenantProvider>();
-
-        builder.Services.AddDbContext<EcommerceContext>((sp, options) =>
-        {
-            var config = sp.GetRequiredService<IConfiguration>();
-            var tenantProvider = sp.GetRequiredService<TenantProvider>();
-
-            var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
-
-            var connString = config.GetConnectionString("EcommerceConnection")?.Replace("{tenant}", tenantId);
-
-            if (string.IsNullOrWhiteSpace(connString))
-            {
-                throw new Exception("Connection string inválida");
-            }
-
-            options
-                .UseNpgsql(connString)
-                .EnableSensitiveDataLogging()
-                .UseSnakeCaseNamingConvention();
-        });
 
         builder.Services.AddAuthentication(x =>
             {
@@ -94,13 +69,7 @@ public class Program
         }
 
         app.UseAuthentication();
-        app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
-        
-        app.UseWhen(
-            context => context.Request.Path.StartsWithSegments("/ecommerce"),
-            appBuilder => appBuilder.UseModuleRequirement("ecommerce")
-        );
 
         app.MapControllers();
 

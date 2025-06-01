@@ -77,11 +77,6 @@ public class OrderService(
 
         var basicModule = await moduleService.GetModuleByTypeAsync(ModuleType.Basic);
 
-        if (basicModule is null)
-        {
-            return [];
-        }
-
-        return [basicModule, .. modules];
+        return basicModule is null ? [] : [basicModule, .. modules];
     }
 }

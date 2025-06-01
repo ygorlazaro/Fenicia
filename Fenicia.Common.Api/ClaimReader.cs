@@ -13,14 +13,9 @@ public static class ClaimReader
         var claim = user.Claims.FirstOrDefault(claimToSearch => 
             string.Equals(claimToSearch.Type, claimType, StringComparison.Ordinal));
 
-        if (claim == null)
-        {
-            throw new UnauthorizedAccessException();
-        }
-        
-        return Guid.Parse(claim.Value);
+        return claim == null ? throw new UnauthorizedAccessException() : Guid.Parse(claim.Value);
     }
-    
+
     public static string[] Modules(ClaimsPrincipal user)
     {
         return user.Claims.Where(x => x.Type == "module").Select(x => x.Value).ToArray();
