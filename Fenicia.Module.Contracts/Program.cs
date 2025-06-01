@@ -3,17 +3,13 @@ using Fenicia.Common;
 using Fenicia.Common.Api;
 using Fenicia.Common.Api.Middlewares;
 using Fenicia.Common.Api.Providers;
-using Fenicia.Module.Basic.Contexts;
-using Fenicia.Module.Basic.Repositories;
-using Fenicia.Module.Basic.Repositories.Interfaces;
-using Fenicia.Module.Basic.Services;
-using Fenicia.Module.Basic.Services.Interfaces;
+using Fenicia.Module.Contracts.Contexts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
-namespace Fenicia.Module.Basic;
+namespace Fenicia.Module.Contracts;
 
 public class Program
 {
@@ -34,17 +30,15 @@ public class Program
                                           throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
 
         builder.Services.AddScoped<TenantProvider>();
-        builder.Services.AddTransient<IStateService, StateService>();
-        builder.Services.AddTransient<IStateRepository, StateRepository>();
 
-        builder.Services.AddDbContext<BasicContext>((sp, options) =>
+        builder.Services.AddDbContext<ContractsContext>((sp, options) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
 
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
 
-            var connString = config.GetConnectionString("BasicConnection")?.Replace("{tenant}", tenantId);
+            var connString = config.GetConnectionString("ContractsConnection")?.Replace("{tenant}", tenantId);
 
             if (string.IsNullOrWhiteSpace(connString))
             {
@@ -103,8 +97,8 @@ public class Program
         app.UseAuthorization();
         
         app.UseWhen(
-            context => context.Request.Path.StartsWithSegments("/basic"),
-            appBuilder => appBuilder.UseModuleRequirement("basic")
+            context => context.Request.Path.StartsWithSegments("/contract"),
+            appBuilder => appBuilder.UseModuleRequirement("contract")
         );
 
         app.MapControllers();

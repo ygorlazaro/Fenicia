@@ -1,4 +1,3 @@
-using Fenicia.Common.Api;
 using Fenicia.Module.Basic.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
