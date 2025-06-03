@@ -7,8 +7,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Controllers\**" />
+      <Content Remove="Controllers\**" />
+      <EmbeddedResource Remove="Controllers\**" />
+      <None Remove="Controllers\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
           <PrivateAssets>all</PrivateAssets>
@@ -19,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
+      <Folder Include="Contexts\Models\" />
     </ItemGroup>
 
     <ItemGroup>

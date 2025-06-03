@@ -1,24 +1,31 @@
-using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Enums;
+using AutoMapper;
 using Fenicia.Auth.Repositories.Interfaces;
+using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
+using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Services;
 
-public class ModuleService(IModuleRepository moduleRepository) : IModuleService
+public class ModuleService(IMapper mapper, IModuleRepository moduleRepository) : IModuleService
 {
-    public async Task<List<ModuleModel>> GetAllOrderedAsync()
+    public async Task<List<ModuleResponse>> GetAllOrderedAsync()
     {
-        return await moduleRepository.GetAllOrderedAsync();
+        var modules = await moduleRepository.GetAllOrderedAsync();
+        
+        return mapper.Map<List<ModuleResponse>>(modules);
     }
 
-    public async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request)
+    public async Task<List<ModuleResponse>> GetModulesToOrderAsync(IEnumerable<Guid> request)
     {
-        return await moduleRepository.GetManyOrdersAsync(request);
+        var modules =  await moduleRepository.GetManyOrdersAsync(request);
+        
+        return mapper.Map<List<ModuleResponse>>(modules);
     }
 
-    public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType)
+    public async Task<ModuleResponse?> GetModuleByTypeAsync(ModuleType moduleType)
     {
-        return await moduleRepository.GetModuleByTypeAsync(moduleType);
+        var module = await moduleRepository.GetModuleByTypeAsync(moduleType);
+
+        return module is null ? null : mapper.Map<ModuleResponse>(module);
     }
 }

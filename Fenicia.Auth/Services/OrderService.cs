@@ -1,12 +1,17 @@
+using AutoMapper;
 using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Enums;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Requests;
+using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
+using Fenicia.Common;
+using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Services;
 
 public class OrderService(
+    IMapper mapper,
     IOrderRepository orderRepository,
     ICustomerService customerService,
     IModuleService moduleService,
@@ -14,31 +19,27 @@ public class OrderService(
     IUserService userService
 ) : IOrderService
 {
-    public async Task<OrderModel?> CreateNewOrderAsync(Guid userId, Guid companyId, NewOrderRequest request)
+    public async Task<OrderResponse> CreateNewOrderAsync(Guid userId, Guid companyId, NewOrderRequest request)
     {
         var existingUser = await userService.ExistsInCompanyAsync(userId, companyId);
 
         if (!existingUser)
         {
-            return null;
+            throw new UnauthorizedAccessException(TextConstants.PermissionDenied);
         }
 
         var customerId = await customerService.GetOrCreateByUserIdAsync(userId, companyId);
 
         if (customerId is null)
         {
-            Console.WriteLine("Houve um problema criando ou buscando o cliente");
-
-            return null;
+            throw new ArgumentException(TextConstants.ThereWasAnErrorAtCreatingCustomer);
         }
 
         var modules = await PopulateModules(request);
 
         if (modules.Count == 0)
         {
-            Console.WriteLine("Houve um problema buscando os módulos");
-
-            return null;
+            throw new InvalidDataException(TextConstants.ThereWasAnErrorSearchingModules);
         }
 
         var totalAmount = modules.Sum(m => m.Amount);
@@ -59,10 +60,11 @@ public class OrderService(
         };
 
         await orderRepository.SaveOrderAsync(order);
-
         await subscriptionService.CreateCreditsForOrderAsync(order, details, companyId);
+        
+        var response = mapper.Map<OrderResponse>(order);
 
-        return order;
+        return response;
     }
 
     private async Task<List<ModuleModel>> PopulateModules(NewOrderRequest request)
@@ -72,7 +74,7 @@ public class OrderService(
 
         if (modules.Any(m => m.Type == ModuleType.Basic))
         {
-            return modules;
+            return mapper.Map<List<ModuleModel>>(modules);
         }
 
         var basicModule = await moduleService.GetModuleByTypeAsync(ModuleType.Basic);
@@ -81,7 +83,9 @@ public class OrderService(
         {
             return [];
         }
-
-        return [basicModule, .. modules];
+        
+        modules.Add(basicModule);
+        
+        return  mapper.Map<List<ModuleModel>>(modules);
     }
 }

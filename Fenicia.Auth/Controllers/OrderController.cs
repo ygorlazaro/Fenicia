@@ -1,18 +1,30 @@
 using Fenicia.Auth.Requests;
+using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
 
 namespace Fenicia.Auth.Controllers;
 
 [Authorize]
 [ApiController]
 [Route("[controller]")]
+[Produces(MediaTypeNames.Application.Json)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class OrderController(IOrderService orderService) : ControllerBase
 {
+    /// <summary>
+    /// Creates a new order for the authenticated user's company
+    /// </summary>
+    /// <param name="request">The order creation details</param>
+    /// <response code="200">Returns the created order</response>
+    /// <response code="401">If the user is not authenticated</response>
     [HttpPost]
-    public async Task<IActionResult> CreateNewOrderAsync(NewOrderRequest request)
+    [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(NewOrderRequest request)
     {
         var userId = ClaimReader.UserId(User);
         var companyId = ClaimReader.CompanyId(User);

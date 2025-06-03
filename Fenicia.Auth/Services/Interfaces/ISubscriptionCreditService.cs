@@ -1,4 +1,4 @@
-using Fenicia.Auth.Enums;
+using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Services.Interfaces;
 
