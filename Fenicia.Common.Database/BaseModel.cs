@@ -9,11 +9,11 @@ public abstract class BaseModel
     public Guid Id { get; set; }
 
     [JsonIgnore]
-    public DateTime Created { get; set; } = DateTime.Now;
-    
+    public DateTime Created { get; set; }
+
     [JsonIgnore]
     public DateTime? Updated { get; set; }
-    
+
     [JsonIgnore]
     public DateTime? Deleted { get; set; }
 }

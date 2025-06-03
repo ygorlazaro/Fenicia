@@ -26,11 +26,16 @@ public class ModuleController(ILogger<ModuleController> logger, IModuleService m
     {
         var modules = await moduleService.GetAllOrderedAsync(query.Page, query.PerPage);
         var total = await moduleService.CountAsync();
-        
-        var pagination = new Pagination<List<ModuleResponse>>(modules, total, query.Page, query.PerPage);
-        
+
+        if (modules.Data is null)
+        {
+            return StatusCode((int)modules.StatusCode, modules.Message);
+        }
+
+        var pagination = new Pagination<List<ModuleResponse>>(modules.Data, total.Data, query.Page, query.PerPage);
+
         logger.LogInformation("Getting modules");
-        
+
         return Ok(pagination);
     }
 }

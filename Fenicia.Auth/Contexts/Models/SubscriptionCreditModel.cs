@@ -26,14 +26,14 @@ public class SubscriptionCreditModel : BaseModel
     public Guid? OrderDetailId { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("ModuleId")]
+    [ForeignKey(nameof(ModuleId))]
     public virtual ModuleModel Module { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("SubscriptionId")]
+    [ForeignKey(nameof(SubscriptionId))]
     public virtual SubscriptionModel Subscription { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("OrderDetailId")]
+    [ForeignKey(nameof(OrderDetailId))]
     public virtual OrderDetailModel? OrderDetail { get; set; }
 }

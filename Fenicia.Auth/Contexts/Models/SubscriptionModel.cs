@@ -24,11 +24,11 @@ public class SubscriptionModel : BaseModel
     public Guid? OrderId { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CompanyId")]
+    [ForeignKey(nameof(CompanyId))]
     public CompanyModel Company { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("OrderId")]
+    [ForeignKey(nameof(OrderId))]
     public virtual OrderModel? Order { get; set; }
 
     [JsonIgnore]

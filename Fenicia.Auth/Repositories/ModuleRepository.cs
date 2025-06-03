@@ -20,9 +20,9 @@ public class ModuleRepository(AuthContext authContext) : IModuleRepository
     public async Task<List<ModuleModel>> GetManyOrdersAsync(IEnumerable<Guid> request)
     {
         var query = from module in authContext.Modules
-            where request.Any(r => r == module.Id)
-            orderby module.Type
-            select module;
+                    where request.Any(r => r == module.Id)
+                    orderby module.Type
+                    select module;
 
         return await query.ToListAsync();
     }

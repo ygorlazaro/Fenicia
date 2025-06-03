@@ -2,12 +2,13 @@ using System.Security.Cryptography;
 using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services.Interfaces;
+using Fenicia.Common;
 
 namespace Fenicia.Auth.Services;
 
-public class RefreshTokenService(ILogger<RefreshTokenService> logger, IRefreshTokenRepository refreshTokenRepository): IRefreshTokenService
+public class RefreshTokenService(ILogger<RefreshTokenService> logger, IRefreshTokenRepository refreshTokenRepository) : IRefreshTokenService
 {
-    public async Task<string> GenerateRefreshTokenAsync(Guid userId)
+    public async Task<ServiceResponse<string>> GenerateRefreshTokenAsync(Guid userId)
     {
         logger.LogInformation("Generating refresh token");
         var randomNumber = new byte[32];
@@ -25,16 +26,20 @@ public class RefreshTokenService(ILogger<RefreshTokenService> logger, IRefreshTo
 
         await refreshTokenRepository.SaveChangesAsync();
 
-        return refreshToken.Token;
+        return new ServiceResponse<string>(refreshToken.Token);
     }
 
-    public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken)
+    public async Task<ServiceResponse<bool>> ValidateTokenAsync(Guid userId, string refreshToken)
     {
-        return await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken);
+        var response = await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken);
+
+        return new ServiceResponse<bool>(response);
     }
 
-    public async Task InvalidateRefreshTokenAsync(string refreshToken)
+    public async Task<ServiceResponse<object>> InvalidateRefreshTokenAsync(string refreshToken)
     {
         await refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken);
+
+        return new ServiceResponse<object>(null);
     }
 }

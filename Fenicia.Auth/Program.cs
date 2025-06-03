@@ -1,10 +1,13 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Repositories;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
+using Fenicia.Common.Api;
+using Fenicia.Common.Api.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,15 +21,15 @@ public static class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+
         builder.Host.UseSerilog((context, loggerConfiguration) =>
         {
             loggerConfiguration.WriteTo.Console();
             loggerConfiguration.ReadFrom.Configuration(context.Configuration);
         });
-        
+
         var configuration = builder.Configuration;
-        
+
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
             .CreateLogger();
@@ -37,7 +40,6 @@ public static class Program
         var connectionString = configuration.GetConnectionString("AuthConnection");
 
         builder.Services.AddTransient<ICompanyService, CompanyService>();
-        builder.Services.AddTransient<ICustomerService, CustomerService>();
         builder.Services.AddTransient<IModuleService, ModuleService>();
         builder.Services.AddTransient<IOrderService, OrderService>();
         builder.Services.AddTransient<IRefreshTokenService, RefreshTokenService>();
@@ -47,9 +49,8 @@ public static class Program
         builder.Services.AddTransient<ITokenService, TokenService>();
         builder.Services.AddTransient<IUserRoleService, UserRoleService>();
         builder.Services.AddTransient<IUserService, UserService>();
-        
+
         builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
-        builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
         builder.Services.AddTransient<IModuleRepository, ModuleRepository>();
         builder.Services.AddTransient<IOrderRepository, OrderRepository>();
         builder.Services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -58,7 +59,7 @@ public static class Program
         builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
         builder.Services.AddTransient<IUserRepository, UserRepository>();
         builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
-        
+
         builder.Services.AddAutoMapper(typeof(Program));
 
         builder.Services.AddDbContext<AuthContext>(x =>
@@ -87,10 +88,21 @@ public static class Program
                 };
             });
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers(x =>
+        {
+            x.Filters.Add(new ValidateModelFilter());
+        })
+            .AddJsonOptions(x =>
+            {
+                x.JsonSerializerOptions.AllowTrailingCommas = false;
+                x.JsonSerializerOptions.MaxDepth = 0;
+                x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
+        app.UseMiddleware<RequestLoggingMiddleware>();
+        app.UseMiddleware<ExceptionMiddleware>();
 
         if (app.Environment.IsDevelopment())
         {

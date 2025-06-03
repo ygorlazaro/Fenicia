@@ -1,15 +1,14 @@
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Contexts.Models;
+using Fenicia.Auth.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Repositories.Interfaces;
+namespace Fenicia.Auth.Repositories;
 
-public class RefreshTokenRepository(AuthContext authContext): IRefreshTokenRepository
+public class RefreshTokenRepository(AuthContext authContext) : IRefreshTokenRepository
 {
     public void Add(RefreshTokenModel refreshToken)
     {
-        refreshToken.Created = DateTime.Now;
-        
         authContext.RefreshTokens.Add(refreshToken);
     }
 
@@ -21,14 +20,14 @@ public class RefreshTokenRepository(AuthContext authContext): IRefreshTokenRepos
     public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken)
     {
         var now = DateTime.Now;
-        
+
         var query = from token in authContext.RefreshTokens
-            where token.UserId == userId
-                  && now < token.ExpirationDate 
-                  && token.Token == refreshToken
-                  && token.IsActive
-            select token.Id;
-        
+                    where token.UserId == userId
+                          && now < token.ExpirationDate
+                          && token.Token == refreshToken
+                          && token.IsActive
+                    select token.Id;
+
         return await query.AnyAsync();
     }
 
@@ -40,9 +39,9 @@ public class RefreshTokenRepository(AuthContext authContext): IRefreshTokenRepos
         {
             return;
         }
-        
+
         refreshTokenModel.IsActive = false;
-        
+
         await SaveChangesAsync();
     }
 }

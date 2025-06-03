@@ -16,8 +16,6 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
 
     public DbSet<ModuleModel> Modules { get; set; } = null!;
 
-    public DbSet<CustomerModel> Customers { get; set; } = null!;
-
     public DbSet<OrderModel> Orders { get; set; } = null!;
 
     public DbSet<OrderDetailModel> OrderDetails { get; set; } = null!;
@@ -25,17 +23,55 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
     public DbSet<SubscriptionModel> Subscriptions { get; set; } = null!;
 
     public DbSet<SubscriptionCreditModel> SubscriptionCredits { get; set; } = null!;
-    
+
     public DbSet<AddressModel> Addresses { get; set; } = null!;
-    
+
     public DbSet<StateModel> States { get; set; } = null!;
-    
+
     public DbSet<RefreshTokenModel> RefreshTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
+        AddSoftDeleteSupport(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
+    }
+
+    private static void AddSoftDeleteSupport(ModelBuilder modelBuilder)
+    {
+        var mutableEntityTypes = modelBuilder.Model.GetEntityTypes()
+            .Where(entityType => typeof(BaseModel).IsAssignableFrom(entityType.ClrType));
+
+        foreach (var entityType in mutableEntityTypes)
+        {
+            entityType.AddSoftDeleteQueryFilter();
+        }
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellation = default)
+    {
+        foreach (var item in ChangeTracker.Entries())
+        {
+            if (item.Entity is not BaseModel model)
+            {
+                continue;
+            }
+
+            switch (item.State)
+            {
+                case EntityState.Added:
+                    model.Created = DateTime.UtcNow;
+                    break;
+                case EntityState.Modified:
+                    model.Updated = DateTime.UtcNow;
+                    break;
+                case EntityState.Deleted:
+                    model.Deleted = DateTime.UtcNow;
+                    break;
+            }
+        }
+
+        return base.SaveChangesAsync(cancellation);
     }
 }

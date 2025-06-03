@@ -1,16 +1,14 @@
 using System.Text;
 using Fenicia.Common;
-using Fenicia.Common.Api;
 using Fenicia.Common.Api.Middlewares;
 using Fenicia.Common.Api.Providers;
 using Fenicia.Module.SocialNetwork.Contexts;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
-namespace Fenicia.Module.Plus;
+namespace Fenicia.Module.SocialNetwork;
 
 public class Program
 {
@@ -96,7 +94,7 @@ public class Program
         app.UseAuthentication();
         app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
-        
+
         app.UseWhen(
             context => context.Request.Path.StartsWithSegments("/socialnetwork"),
             appBuilder => appBuilder.UseModuleRequirement("socialnetwork")

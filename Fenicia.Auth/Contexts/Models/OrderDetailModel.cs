@@ -18,11 +18,11 @@ public class OrderDetailModel : BaseModel
     public decimal Amount { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("OrderId")]
+    [ForeignKey(nameof(OrderId))]
     public virtual OrderModel Order { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("ModuleId")]
+    [ForeignKey(nameof(ModuleId))]
     public virtual ModuleModel Module { get; set; } = null!;
 
     [JsonIgnore]

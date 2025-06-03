@@ -1,3 +1,4 @@
+using System.Net;
 using AutoMapper;
 using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Repositories.Interfaces;
@@ -5,6 +6,7 @@ using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Services;
 
@@ -17,7 +19,7 @@ public class UserService(
     ICompanyRepository companyRepository,
     ISecurityService securityService) : IUserService
 {
-    public async Task<UserResponse> GetForLoginAsync(TokenRequest request)
+    public async Task<ServiceResponse<UserResponse>> GetForLoginAsync(TokenRequest request)
     {
         logger.LogInformation("Getting user for login");
         var user = await userRepository.GetByEmailAndCnpjAsync(request.Email, request.Cnpj);
@@ -25,26 +27,27 @@ public class UserService(
         if (user is null)
         {
             logger.LogInformation("Invalid login - {email}", [request.Email]);
-            throw new InvalidDataException(TextConstants.InvalidUsernameOrPassword);
+
+            return new ServiceResponse<UserResponse>(null, HttpStatusCode.BadRequest,
+                TextConstants.InvalidUsernameOrPassword);
         }
 
         var isValidPassword = securityService.VerifyPassword(request.Password, user.Password);
 
-        if (!isValidPassword)
+        if (isValidPassword.Data)
         {
-            logger.LogInformation("Invalid login - {email}", [request.Email]);
-            throw new InvalidDataException(TextConstants.InvalidUsernameOrPassword);
+            var response = mapper.Map<UserResponse>(user);
+
+            return new ServiceResponse<UserResponse>(response);
         }
 
-        return mapper.Map<UserResponse>(user);
+        logger.LogInformation("Invalid login - {email}", [request.Email]);
+
+        return new ServiceResponse<UserResponse>(null, HttpStatusCode.BadRequest,
+            TextConstants.InvalidUsernameOrPassword);
     }
 
-    public bool ValidatePasswordAsync(string password, string hashedPassword)
-    {
-        return securityService.VerifyPassword(password, hashedPassword);
-    }
-
-    public async Task<UserResponse?> CreateNewUserAsync(UserRequest request)
+    public async Task<ServiceResponse<UserResponse>> CreateNewUserAsync(UserRequest request)
     {
         logger.LogInformation("Creating new user");
         var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email);
@@ -53,19 +56,23 @@ public class UserService(
         if (isExistingUser)
         {
             logger.LogInformation("User already exists - {email}", [request.Email]);
-            throw new InvalidDataException(TextConstants.EmailExists);
+
+            return new ServiceResponse<UserResponse>(null, HttpStatusCode.BadRequest, TextConstants.EmailExists);
         }
 
         if (isExistingCompany)
         {
             logger.LogInformation("Company already exists - {cnpj}", [request.Company.Cnpj]);
-            throw new InvalidDataException(TextConstants.CompanyExists);
+
+            return new ServiceResponse<UserResponse>(null, HttpStatusCode.BadRequest, TextConstants.CompanyExists);
         }
+
+        var hashedPassword = securityService.HashPassword(request.Password).Data;
 
         var userRequest = new UserModel
         {
             Email = request.Email,
-            Password = securityService.HashPassword(request.Password),
+            Password = hashedPassword!,
             Name = request.Name
         };
 
@@ -79,7 +86,9 @@ public class UserService(
 
         if (adminRole is null)
         {
-            return null;
+            logger.LogCritical("Missing admin role. Please check database.");
+
+            return new ServiceResponse<UserResponse>(null, HttpStatusCode.InternalServerError, TextConstants.MissingAdminRole);
         }
 
         user.UsersRoles =
@@ -96,21 +105,28 @@ public class UserService(
 
         var response = mapper.Map<UserResponse>(user);
 
-        return response;
+        return new ServiceResponse<UserResponse>(response);
     }
 
-    public async Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId)
+    public async Task<ServiceResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId)
     {
         logger.LogInformation("Checking if user exists in company");
-        return await userRoleRepository.ExistsInCompanyAsync(userId, companyId);
+        var response = await userRoleRepository.ExistsInCompanyAsync(userId, companyId);
+
+        return new ServiceResponse<bool>(response);
     }
 
-    public async Task<UserResponse?> GetUserForRefreshAsync(Guid userId)
+    public async Task<ServiceResponse<UserResponse>> GetUserForRefreshAsync(Guid userId)
     {
         logger.LogInformation("Getting user for refresh");
         var user = await userRepository.GetUserForRefreshTokenAsync(userId);
         var response = mapper.Map<UserResponse>(user);
-        
-        return response;
+
+        if (user is null)
+        {
+            return new ServiceResponse<UserResponse>(null, HttpStatusCode.Unauthorized, TextConstants.PermissionDenied);
+        }
+
+        return new ServiceResponse<UserResponse>(response);
     }
 }

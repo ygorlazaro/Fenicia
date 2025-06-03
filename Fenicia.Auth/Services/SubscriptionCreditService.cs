@@ -1,18 +1,25 @@
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services.Interfaces;
+using Fenicia.Common;
 using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Services;
 
-public class SubscriptionCreditService(ILogger<SubscriptionCreditService> logger, ISubscriptionCreditRepository subscriptionCreditRepository, ISubscriptionService subscriptionService): ISubscriptionCreditService
+public class SubscriptionCreditService(ILogger<SubscriptionCreditService> logger, ISubscriptionCreditRepository subscriptionCreditRepository, ISubscriptionService subscriptionService) : ISubscriptionCreditService
 {
-    public async Task<List<ModuleType>> GetActiveModulesTypesAsync(Guid companyId)
+    public async Task<ServiceResponse<List<ModuleType>>> GetActiveModulesTypesAsync(Guid companyId)
     {
         logger.LogInformation("Getting active modules types");
-        
+
         var validSubscriptions = await subscriptionService.GetValidSubscriptionsAsync(companyId);
-        var validModules = await subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions);
-        
-        return validModules;
+
+        if (validSubscriptions.Data is null)
+        {
+            return new ServiceResponse<List<ModuleType>>(null, validSubscriptions.StatusCode, validSubscriptions.Message);
+        }
+
+        var validModules = await subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions.Data);
+
+        return new ServiceResponse<List<ModuleType>>(validModules);
     }
 }

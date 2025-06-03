@@ -13,11 +13,11 @@ namespace Fenicia.Auth.Services;
 
 public class TokenService(IConfiguration configuration, ILogger<TokenService> logger) : ITokenService
 {
-    public string GenerateToken(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
+    public ServiceResponse<string> GenerateToken(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
     {
         logger.LogInformation("Generating token");
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
-                                          throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+                                          throw new InvalidOperationException());
 
         var authClaims = GenerateClaims(user, roles, companyId, modules);
         var authSigningKey = new SymmetricSecurityKey(key);
@@ -31,7 +31,9 @@ public class TokenService(IConfiguration configuration, ILogger<TokenService> lo
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
-        return tokenHandler.WriteToken(token);
+        var finalToken = tokenHandler.WriteToken(token);
+        
+        return new ServiceResponse<string>(finalToken);
     }
 
     private static List<Claim> GenerateClaims(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)

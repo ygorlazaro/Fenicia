@@ -26,15 +26,15 @@ public class SignUpController(ILogger<SignUpController> logger, IUserService use
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UserResponse>> CreateNewUserAsync(UserRequest request)
     {
-        var user = await userService.CreateNewUserAsync(request);
+        var userResponse = await userService.CreateNewUserAsync(request);
 
-        if (user is null)
+        if (userResponse.Data is null)
         {
-            return BadRequest(TextConstants.ThereWasAnErrorAtCreatingUser);
+            return StatusCode((int)userResponse.StatusCode, userResponse.Message);
         }
-        
+
         logger.LogInformation("New user - {email}", [request.Email]);
 
-        return Ok(user);
+        return Ok(userResponse.Data);
     }
 }

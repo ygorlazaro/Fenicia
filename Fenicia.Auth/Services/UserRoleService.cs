@@ -1,21 +1,24 @@
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services.Interfaces;
+using Fenicia.Common;
 
 namespace Fenicia.Auth.Services;
 
 public class UserRoleService(ILogger<UserRoleService> logger, IUserRoleRepository userRoleRepository) : IUserRoleService
 {
-    public async Task<string[]> GetRolesByUserAsync(Guid userId)
+    public async Task<ServiceResponse<string[]>> GetRolesByUserAsync(Guid userId)
     {
         logger.LogInformation("Getting roles by user id {userId}", userId);
         var roles = await userRoleRepository.GetRolesByUserAsync(userId);
 
-        return roles;
+        return new ServiceResponse<string[]>(roles);
     }
 
-    public async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role)
+    public async Task<ServiceResponse<bool>> HasRoleAsync(Guid userId, Guid companyId, string role)
     {
         logger.LogInformation("Checking if user has role {role}", role);
-        return await userRoleRepository.HasRoleAsync(userId, companyId, role);
+        var response = await userRoleRepository.HasRoleAsync(userId, companyId, role);
+
+        return new ServiceResponse<bool>(response);
     }
 }

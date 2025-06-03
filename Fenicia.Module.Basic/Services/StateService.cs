@@ -4,7 +4,7 @@ using Fenicia.Module.Basic.Services.Interfaces;
 
 namespace Fenicia.Module.Basic.Services;
 
-public class StateService(IStateRepository stateRepository): IStateService
+public class StateService(IStateRepository stateRepository) : IStateService
 {
     public async Task<List<StateModel>> GetAllAsync()
     {
