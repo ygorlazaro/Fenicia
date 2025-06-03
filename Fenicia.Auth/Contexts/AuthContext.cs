@@ -29,6 +29,8 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
     public DbSet<AddressModel> Addresses { get; set; } = null!;
     
     public DbSet<StateModel> States { get; set; } = null!;
+    
+    public DbSet<RefreshTokenModel> RefreshTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

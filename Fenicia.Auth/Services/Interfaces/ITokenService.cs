@@ -1,4 +1,3 @@
-using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Responses;
 using Fenicia.Common.Enums;
 

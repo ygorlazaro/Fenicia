@@ -10,4 +10,10 @@ public class TokenResponse
     /// </summary>
     /// <example>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</example>
     public string Token { get; set; } = null!;
+
+    /// <summary>
+    /// The JWT refresh token
+    /// </summary>
+    /// <example>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</example>
+    public string RefreshToken { get; set; } = null!;
 }
