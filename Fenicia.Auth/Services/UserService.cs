@@ -104,4 +104,13 @@ public class UserService(
         logger.LogInformation("Checking if user exists in company");
         return await userRoleRepository.ExistsInCompanyAsync(userId, companyId);
     }
+
+    public async Task<UserResponse?> GetUserForRefreshAsync(Guid userId)
+    {
+        logger.LogInformation("Getting user for refresh");
+        var user = await userRepository.GetUserForRefreshTokenAsync(userId);
+        var response = mapper.Map<UserResponse>(user);
+        
+        return response;
+    }
 }

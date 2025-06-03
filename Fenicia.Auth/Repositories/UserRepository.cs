@@ -36,4 +36,9 @@ public class UserRepository(AuthContext authContext) : IUserRepository
     {
         return await authContext.Users.AnyAsync(u => u.Email == email);
     }
+
+    public async Task<UserModel?> GetUserForRefreshTokenAsync(Guid userId)
+    {
+        return await authContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+    }
 }

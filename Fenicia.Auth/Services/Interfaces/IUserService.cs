@@ -10,4 +10,5 @@ public interface IUserService
     bool ValidatePasswordAsync(string password, string hashedPassword);
     Task<UserResponse?> CreateNewUserAsync(UserRequest request);
     Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId);
+    Task<UserResponse?> GetUserForRefreshAsync(Guid userId);
 }

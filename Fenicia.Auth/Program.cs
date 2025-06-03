@@ -36,25 +36,28 @@ public static class Program
 
         var connectionString = configuration.GetConnectionString("AuthConnection");
 
-        builder.Services.AddTransient<ISecurityService, SecurityService>();
-        builder.Services.AddTransient<ITokenService, TokenService>();
-        builder.Services.AddTransient<IUserService, UserService>();
-        builder.Services.AddTransient<IUserRepository, UserRepository>();
-        builder.Services.AddTransient<IUserRoleService, UserRoleService>();
-        builder.Services.AddTransient<IRoleRepository, RoleRepository>();
-        builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
-        builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
         builder.Services.AddTransient<ICompanyService, CompanyService>();
-        builder.Services.AddTransient<IModuleService, ModuleService>();
-        builder.Services.AddTransient<IModuleRepository, ModuleRepository>();
         builder.Services.AddTransient<ICustomerService, CustomerService>();
-        builder.Services.AddTransient<ISubscriptionService, SubscriptionService>();
-        builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
+        builder.Services.AddTransient<IModuleService, ModuleService>();
         builder.Services.AddTransient<IOrderService, OrderService>();
-        builder.Services.AddTransient<IOrderRepository, OrderRepository>();
-        builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
-        builder.Services.AddTransient<ISubscriptionCreditRepository, SubscriptionCreditRepository>();
+        builder.Services.AddTransient<IRefreshTokenService, RefreshTokenService>();
+        builder.Services.AddTransient<ISecurityService, SecurityService>();
         builder.Services.AddTransient<ISubscriptionCreditService, SubscriptionCreditService>();
+        builder.Services.AddTransient<ISubscriptionService, SubscriptionService>();
+        builder.Services.AddTransient<ITokenService, TokenService>();
+        builder.Services.AddTransient<IUserRoleService, UserRoleService>();
+        builder.Services.AddTransient<IUserService, UserService>();
+        
+        builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
+        builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
+        builder.Services.AddTransient<IModuleRepository, ModuleRepository>();
+        builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+        builder.Services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
+        builder.Services.AddTransient<IRoleRepository, RoleRepository>();
+        builder.Services.AddTransient<ISubscriptionCreditRepository, SubscriptionCreditRepository>();
+        builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
+        builder.Services.AddTransient<IUserRepository, UserRepository>();
+        builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
         
         builder.Services.AddAutoMapper(typeof(Program));
 
