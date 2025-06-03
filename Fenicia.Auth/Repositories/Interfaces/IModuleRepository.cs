@@ -1,5 +1,5 @@
 using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Enums;
+using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Repositories.Interfaces;
 

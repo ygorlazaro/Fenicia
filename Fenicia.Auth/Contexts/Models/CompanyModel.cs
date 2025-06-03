@@ -15,7 +15,16 @@ public class CompanyModel : BaseModel
     [Required]
     [MaxLength(14)]
     public string Cnpj { get; set; } = null!;
+    
+    [Required]
+    public bool IsActive { get; set; } = true;
+    
+    public string? Logo { get; set; } = null!;
 
+    public string TimeZone { get; set; } = TimeZoneInfo.Local.StandardName;
+    
+    public string Language { get; set; } = "pt-BR";
+    
     [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
 

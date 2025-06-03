@@ -4,9 +4,11 @@ using Fenicia.Common.Api;
 using Fenicia.Common.Api.Middlewares;
 using Fenicia.Common.Api.Providers;
 using Fenicia.Module.Contracts.Contexts;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 using Scalar.AspNetCore;
 
 namespace Fenicia.Module.Contracts;
