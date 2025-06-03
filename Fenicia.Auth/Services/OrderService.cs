@@ -1,3 +1,4 @@
+using System.Net;
 using AutoMapper;
 using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Enums;
@@ -14,42 +15,40 @@ public class OrderService(
     IMapper mapper,
     ILogger<OrderService> logger,
     IOrderRepository orderRepository,
-    ICustomerService customerService,
     IModuleService moduleService,
     ISubscriptionService subscriptionService,
     IUserService userService
 ) : IOrderService
 {
-    public async Task<OrderResponse> CreateNewOrderAsync(Guid userId, Guid companyId, NewOrderRequest request)
+    public async Task<ServiceResponse<OrderResponse>> CreateNewOrderAsync(Guid userId, Guid companyId, NewOrderRequest request)
     {
         logger.LogInformation("Creating new order");
         var existingUser = await userService.ExistsInCompanyAsync(userId, companyId);
 
-        if (!existingUser)
+        if (!existingUser.Data)
         {
             logger.LogWarning("User {userId} does not exist in company {companyId}", [userId, companyId]);
-            throw new UnauthorizedAccessException(TextConstants.PermissionDenied);
-        }
 
-        var customerId = await customerService.GetOrCreateByUserIdAsync(userId, companyId);
-
-        if (customerId is null)
-        {
-            logger.LogWarning("There was an error creating customer for user {userId}", [userId]);
-            throw new ArgumentException(TextConstants.ThereWasAnErrorAtCreatingCustomer);
+            return new ServiceResponse<OrderResponse>(null, HttpStatusCode.BadRequest, TextConstants.UserNotInCompany);
         }
 
         var modules = await PopulateModules(request);
 
-        if (modules.Count == 0)
+        if (modules.Data is null)
         {
-            logger.LogWarning("There was an error searching modules");
-            throw new InvalidDataException(TextConstants.ThereWasAnErrorSearchingModules);
+            return new ServiceResponse<OrderResponse>(null, modules.StatusCode, modules.Message);
         }
 
-        var totalAmount = modules.Sum(m => m.Amount);
+        if (modules.Data.Count == 0)
+        {
+            logger.LogWarning("There was an error searching modules");
 
-        var details = modules.Select(m => new OrderDetailModel
+            return new ServiceResponse<OrderResponse>(null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorSearchingModules);
+        }
+
+        var totalAmount = modules.Data.Sum(m => m.Amount);
+
+        var details = modules.Data.Select(m => new OrderDetailModel
         {
             ModuleId = m.Id,
             Amount = m.Amount
@@ -59,38 +58,47 @@ public class OrderService(
         {
             SaleDate = DateTime.Now,
             Status = OrderStatus.Approved,
-            CustomerId = customerId.Value,
+            UserId = userId,
             TotalAmount = totalAmount,
             Details = details
         };
 
         await orderRepository.SaveOrderAsync(order);
         await subscriptionService.CreateCreditsForOrderAsync(order, details, companyId);
-        
+
         var response = mapper.Map<OrderResponse>(order);
 
-        return response;
+        return new ServiceResponse<OrderResponse>(response);
     }
 
-    private async Task<List<ModuleModel>> PopulateModules(NewOrderRequest request)
+    private async Task<ServiceResponse<List<ModuleModel>>> PopulateModules(NewOrderRequest request)
     {
         var uniqueModules = request.Details.Select(d => d.ModuleId).Distinct();
         var modules = await moduleService.GetModulesToOrderAsync(uniqueModules);
 
-        if (modules.Any(m => m.Type == ModuleType.Basic))
+        if (modules.Data is null)
         {
-            return mapper.Map<List<ModuleModel>>(modules);
+            return new ServiceResponse<List<ModuleModel>>(null, modules.StatusCode, modules.Message);
+        }
+
+        if (modules.Data.Any(m => m.Type == ModuleType.Basic))
+        {
+            var response = mapper.Map<List<ModuleModel>>(modules);
+
+            return new ServiceResponse<List<ModuleModel>>(response);
         }
 
         var basicModule = await moduleService.GetModuleByTypeAsync(ModuleType.Basic);
 
-        if (basicModule is null)
+        if (basicModule.Data is null)
         {
-            return [];
+            return new ServiceResponse<List<ModuleModel>>([]);
         }
-        
-        modules.Add(basicModule);
-        
-        return  mapper.Map<List<ModuleModel>>(modules);
+
+        modules.Data.Add(basicModule.Data);
+
+        var finalResponse = mapper.Map<List<ModuleModel>>(modules.Data);
+
+        return new ServiceResponse<List<ModuleModel>>(finalResponse);
     }
 }

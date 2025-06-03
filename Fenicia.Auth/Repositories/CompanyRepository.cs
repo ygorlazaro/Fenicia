@@ -14,7 +14,6 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
 
     public CompanyModel Add(CompanyModel company)
     {
-        company.Created = DateTime.Now;
         authContext.Companies.Add(company);
 
         return company;
@@ -39,7 +38,7 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
             .Take(perPage)
             .ToListAsync();
     }
-    
+
     public async Task<int> CountByUserIdAsync(Guid userId)
     {
         return await QueryFromUserId(userId).CountAsync();
@@ -47,20 +46,18 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
 
     public async Task<CompanyModel?> PatchAsync(CompanyModel company)
     {
-        company.Updated = DateTime.Now;
-
         authContext.Companies.Update(company);
         await authContext.SaveChangesAsync();
 
         return company;
     }
-    
+
     private IQueryable<CompanyModel> QueryFromUserId(Guid userId)
     {
         var query = from company in authContext.Companies
-            join userRoles in authContext.UserRoles on company.Id equals userRoles.CompanyId
-            where userRoles.UserId == userId
-            select company;
+                    join userRoles in authContext.UserRoles on company.Id equals userRoles.CompanyId
+                    where userRoles.UserId == userId
+                    select company;
         return query;
     }
 

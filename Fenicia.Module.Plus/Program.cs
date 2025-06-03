@@ -1,6 +1,5 @@
 using System.Text;
 using Fenicia.Common;
-using Fenicia.Common.Api;
 using Fenicia.Common.Api.Middlewares;
 using Fenicia.Common.Api.Providers;
 using Fenicia.Module.Plus.Contexts;
@@ -96,7 +95,7 @@ public class Program
         app.UseAuthentication();
         app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
-        
+
         app.UseWhen(
             context => context.Request.Path.StartsWithSegments("/plus"),
             appBuilder => appBuilder.UseModuleRequirement("plus")

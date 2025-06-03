@@ -20,11 +20,11 @@ public class SubscriptionRepository(AuthContext authContext) : ISubscriptionRepo
         var now = DateTime.Now;
 
         var subscriptions = from subscription in authContext.Subscriptions
-            where subscription.CompanyId == companyId
-                  && now >= subscription.StartDate
-                  && now <= subscription.EndDate
-                  && subscription.Status == SubscriptionStatus.Active
-            select subscription.Id;
+                            where subscription.CompanyId == companyId
+                                  && now >= subscription.StartDate
+                                  && now <= subscription.EndDate
+                                  && subscription.Status == SubscriptionStatus.Active
+                            select subscription.Id;
 
         return await subscriptions.ToListAsync();
     }

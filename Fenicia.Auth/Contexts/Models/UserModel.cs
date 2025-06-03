@@ -26,8 +26,8 @@ public class UserModel : BaseModel
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
 
     [JsonIgnore]
-    public virtual CustomerModel? Customer { get; set; }
-    
-    [JsonIgnore]
     public virtual List<RefreshTokenModel> RefreshTokens { get; set; } = [];
+
+    [JsonIgnore]
+    public virtual List<OrderModel> Orders { get; set; } = [];
 }

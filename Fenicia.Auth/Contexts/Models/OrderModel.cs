@@ -10,7 +10,10 @@ namespace Fenicia.Auth.Contexts.Models;
 public class OrderModel : BaseModel
 {
     [Required]
-    public Guid CustomerId { get; set; }
+    public Guid UserId { get; set; }
+
+    [Required]
+    public Guid CompanyId { get; set; }
 
     [Required]
     public decimal TotalAmount { get; set; }
@@ -22,11 +25,16 @@ public class OrderModel : BaseModel
     public OrderStatus Status { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CustomerId")]
-    public virtual CustomerModel Customer { get; set; } = null!;
-
-    [JsonIgnore]
     public virtual SubscriptionModel? Subscription { get; set; }
 
+    [JsonIgnore]
     public virtual List<OrderDetailModel> Details { get; set; } = null!;
+
+    [ForeignKey(nameof(UserId))]
+    [JsonIgnore]
+    public virtual UserModel User { get; set; } = null!;
+
+    [ForeignKey(nameof(CompanyId))]
+    [JsonIgnore]
+    public virtual CompanyModel Company { get; set; } = null!;
 }

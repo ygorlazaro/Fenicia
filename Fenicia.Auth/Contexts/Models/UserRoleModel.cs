@@ -17,15 +17,15 @@ public class UserRoleModel : BaseModel
     [Required]
     public Guid CompanyId { get; set; }
 
-    [ForeignKey("RoleId")]
+    [ForeignKey(nameof(RoleId))]
     [JsonIgnore]
     public virtual RoleModel Role { get; set; } = null!;
 
-    [ForeignKey("UserId")]
+    [ForeignKey(nameof(UserId))]
     [JsonIgnore]
     public virtual UserModel User { get; set; } = null!;
 
-    [ForeignKey("CompanyId")]
+    [ForeignKey(nameof(CompanyId))]
     [JsonIgnore]
     public virtual CompanyModel Company { get; set; } = null!;
 }

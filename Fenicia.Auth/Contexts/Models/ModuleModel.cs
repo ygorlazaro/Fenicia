@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Text.Json.Serialization;
 using Fenicia.Common.Database;
 using Fenicia.Common.Enums;
 
@@ -18,7 +18,9 @@ public class ModuleModel : BaseModel
 
     public ModuleType Type { get; set; }
 
+    [JsonIgnore]
     public virtual List<SubscriptionCreditModel> Customers { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual List<OrderDetailModel> OrderDetails { get; set; } = null!;
 }

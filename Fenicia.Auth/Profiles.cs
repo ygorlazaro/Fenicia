@@ -6,7 +6,7 @@ using Fenicia.Auth.Responses;
 namespace Fenicia.Auth;
 
 // ReSharper disable once UnusedType.Global
-public class Profiles: Profile
+public class Profiles : Profile
 {
     public Profiles()
     {
@@ -14,11 +14,11 @@ public class Profiles: Profile
         CreateMap<CompanyResponse, CompanyModel>().ReverseMap();
 
         CreateMap<ModuleResponse, ModuleModel>().ReverseMap();
-        
+
         CreateMap<OrderResponse, OrderModel>().ReverseMap();
-        
+
         CreateMap<SubscriptionResponse, SubscriptionModel>().ReverseMap();
-        
+
         CreateMap<UserResponse, UserModel>().ReverseMap();
     }
 }

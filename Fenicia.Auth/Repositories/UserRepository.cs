@@ -21,7 +21,6 @@ public class UserRepository(AuthContext authContext) : IUserRepository
 
     public UserModel Add(UserModel userRequest)
     {
-        userRequest.Created = DateTime.Now;
         authContext.Users.Add(userRequest);
 
         return userRequest;

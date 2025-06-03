@@ -1,14 +1,14 @@
-using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
+using Fenicia.Common;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<UserResponse> GetForLoginAsync(TokenRequest request);
-    bool ValidatePasswordAsync(string password, string hashedPassword);
-    Task<UserResponse?> CreateNewUserAsync(UserRequest request);
-    Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId);
-    Task<UserResponse?> GetUserForRefreshAsync(Guid userId);
+    Task<ServiceResponse<UserResponse>> GetForLoginAsync(TokenRequest request);
+    Task<ServiceResponse<UserResponse>> CreateNewUserAsync(UserRequest request);
+    Task<ServiceResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId);
+    Task<ServiceResponse<UserResponse>> GetUserForRefreshAsync(Guid userId);
 }

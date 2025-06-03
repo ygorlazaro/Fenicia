@@ -11,9 +11,9 @@ public class Pagination<T>
     }
 
     public T Data { get; set; }
-    public int Total { get; set;}
-    public int Page { get; set;}
-    public int PerPage { get; set;}
+    public int Total { get; set; }
+    public int Page { get; set; }
+    public int PerPage { get; set; }
 
     public int Pages => (int)Math.Ceiling(Total / (double)PerPage);
 }

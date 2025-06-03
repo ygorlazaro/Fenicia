@@ -39,14 +39,20 @@ public class TokenController(
     {
         var company = await companyService.GetByCnpjAsync(request.Cnpj);
 
-        if (company is null)
+        if (company.Data is null)
         {
             logger.LogInformation("Invalid login - {email}", [request.Email]);
-            throw new InvalidDataException(TextConstants.InvalidUsernameOrPassword);
+            return StatusCode((int)company.StatusCode, company.Message);
         }
 
-        var user = await userService.GetForLoginAsync(request);
-        var response = await PopulateTokenAsync(user, company.Id);
+        var userResponse = await userService.GetForLoginAsync(request);
+
+        if (userResponse.Data is null)
+        {
+            return StatusCode((int)userResponse.StatusCode, userResponse.Message);
+        }
+
+        var response = await PopulateTokenAsync(userResponse.Data, company.Data.Id);
 
         return response;
     }
@@ -68,19 +74,19 @@ public class TokenController(
         var companyId = ClaimReader.CompanyId(User);
         var isValidToken = await refreshTokenService.ValidateTokenAsync(userId, request.RefreshToken);
 
-        if (!isValidToken)
+        if (!isValidToken.Data)
         {
             return BadRequest("Invalid client request");
         }
 
-        var user = await userService.GetUserForRefreshAsync(userId);
+        var userResponse = await userService.GetUserForRefreshAsync(userId);
 
-        if (user is null)
+        if (userResponse.Data is null)
         {
             return BadRequest(TextConstants.PermissionDenied);
         }
 
-        var response = await PopulateTokenAsync(user, companyId);
+        var response = await PopulateTokenAsync(userResponse.Data, companyId);
 
         await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken);
 
@@ -92,22 +98,44 @@ public class TokenController(
     {
         var roles = await userRoleService.GetRolesByUserAsync(user.Id);
 
-        if (roles.Length == 0)
+        if (roles.Data is null)
+        {
+            return StatusCode((int)roles.StatusCode, roles.Message);
+        }
+
+        if (roles.Data.Length == 0)
         {
             logger.LogInformation("User without role - {email}", [user.Email]);
             return BadRequest(TextConstants.UserWithoutRoles);
         }
 
         var modules = await subscriptionCreditService.GetActiveModulesTypesAsync(companyId);
-        var token = tokenService.GenerateToken(user, roles, companyId, modules);
+
+        if (modules.Data is null)
+        {
+            return StatusCode((int)modules.StatusCode, modules.Message);
+        }
+
+        var token = tokenService.GenerateToken(user, roles.Data, companyId, modules.Data);
+
+        if (token.Data is null)
+        {
+            return StatusCode((int)token.StatusCode, token.Message);
+        }
+
         var refreshToken = await refreshTokenService.GenerateRefreshTokenAsync(user.Id);
+
+        if (refreshToken.Data is null)
+        {
+            return StatusCode((int)refreshToken.StatusCode, refreshToken.Message);
+        }
 
         logger.LogInformation("User logged in - {email}", [user.Email]);
 
         return Ok(new TokenResponse
         {
-            Token = token,
-            RefreshToken = refreshToken
+            Token = token.Data,
+            RefreshToken = refreshToken.Data
         });
     }
 }

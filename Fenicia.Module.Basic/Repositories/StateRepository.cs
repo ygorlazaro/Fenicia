@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Repositories;
 
-public class StateRepository(BasicContext basicContext): IStateRepository
+public class StateRepository(BasicContext basicContext) : IStateRepository
 {
     public async Task<List<StateModel>> GetAllAsync()
     {

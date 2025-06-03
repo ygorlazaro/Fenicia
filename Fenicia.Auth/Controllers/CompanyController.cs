@@ -1,3 +1,4 @@
+using System.Net;
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
@@ -28,10 +29,15 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
         var userId = ClaimReader.UserId(User);
         var companies = await companyService.GetByUserIdAsync(userId, query.Page, query.PerPage);
         var total = await companyService.CountByUserIdAsync(userId);
-        
+
         logger.LogInformation("Getting companies");
-        
-        var response = new Pagination<IEnumerable<CompanyResponse>>(companies, total, query.Page, query.PerPage);
+
+        if (companies.Data is null)
+        {
+            return StatusCode((int)companies.StatusCode, companies.Message);
+        }
+
+        var response = new Pagination<IEnumerable<CompanyResponse>>(companies.Data, total.Data, query.Page, query.PerPage);
 
         return Ok(companies);
     }
@@ -55,16 +61,21 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
     {
         var userId = ClaimReader.UserId(User);
         var companyId = ClaimReader.CompanyId(User);
-        
+
         if (id != companyId)
         {
             return Unauthorized();
         }
 
         var response = await companyService.PatchAsync(id, userId, request);
-        
+
+        if (response.Data is null)
+        {
+            return StatusCode((int)response.StatusCode, response.Message);
+        }
+
         logger.LogInformation("Company updated - {id}", [id]);
 
-        return response is null ? BadRequest() : Ok(response);
+        return Ok(response.Data);
     }
 }

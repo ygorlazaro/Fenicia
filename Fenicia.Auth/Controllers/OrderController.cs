@@ -30,9 +30,14 @@ public class OrderController(ILogger<OrderController> logger, IOrderService orde
         var companyId = ClaimReader.CompanyId(User);
 
         var order = await orderService.CreateNewOrderAsync(userId, companyId, request);
-        
+
+        if (order.Data is null)
+        {
+            return StatusCode((int)order.StatusCode, order.Message);
+        }
+
         logger.LogInformation("New order made - {userId}", [userId]);
 
-        return Ok(order);
+        return Ok(order.Data);
     }
 }

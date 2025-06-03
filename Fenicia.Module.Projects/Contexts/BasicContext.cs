@@ -6,7 +6,7 @@ namespace Fenicia.Module.Projects.Contexts;
 
 public class ProjectContext(DbContextOptions<ProjectContext> options, TenantProvider tenantProvider, IConfiguration configuration) : DbContext(options)
 {
-   protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
 

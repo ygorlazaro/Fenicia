@@ -6,6 +6,6 @@ public class TenantProvider
 
     public void SetTenant(string tenantId)
     {
-        TenantId= tenantId;
+        TenantId = tenantId;
     }
 }

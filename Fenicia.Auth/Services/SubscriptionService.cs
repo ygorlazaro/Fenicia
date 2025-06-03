@@ -1,3 +1,4 @@
+using System.Net;
 using AutoMapper;
 using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Enums;
@@ -10,15 +11,16 @@ namespace Fenicia.Auth.Services;
 
 public class SubscriptionService(IMapper mapper, ILogger<SubscriptionService> logger, ISubscriptionRepository subscriptionRepository) : ISubscriptionService
 {
-    public async Task<SubscriptionResponse?> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details,
+    public async Task<ServiceResponse<SubscriptionResponse>> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details,
         Guid companyId)
     {
         logger.LogInformation("Creating credits for order");
-        
+
         if (details.Count == 0)
         {
             logger.LogWarning("There was an error adding modules");
-            throw new InvalidDataException(TextConstants.ThereWasAnErrorAddingModules);
+
+            return new ServiceResponse<SubscriptionResponse>(null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorAddingModules);
         }
 
         var credits = order.Details.Select(d =>
@@ -44,12 +46,16 @@ public class SubscriptionService(IMapper mapper, ILogger<SubscriptionService> lo
 
         await subscriptionRepository.SaveSubscription(subscription);
 
-        return mapper.Map<SubscriptionResponse>(subscription);
+        var response = mapper.Map<SubscriptionResponse>(subscription);
+
+        return new ServiceResponse<SubscriptionResponse>(response);
     }
 
-    public async Task<List<Guid>> GetValidSubscriptionsAsync(Guid companyId)
+    public async Task<ServiceResponse<List<Guid>>> GetValidSubscriptionsAsync(Guid companyId)
     {
         logger.LogInformation("Getting valid subscriptions");
-        return await subscriptionRepository.GetValidSubscriptionAsync(companyId); 
+        var response = await subscriptionRepository.GetValidSubscriptionAsync(companyId);
+
+        return new ServiceResponse<List<Guid>>(response);
     }
 }
