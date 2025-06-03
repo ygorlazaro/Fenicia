@@ -3,6 +3,7 @@ using Fenicia.Auth.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
+using Fenicia.Common;
 
 namespace Fenicia.Auth.Controllers;
 
@@ -21,12 +22,15 @@ public class ModuleController(ILogger<ModuleController> logger, IModuleService m
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<ModuleResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ModuleResponse>>> GetAllModulesAsync()
+    public async Task<ActionResult<Pagination<List<ModuleResponse>>>> GetAllModulesAsync([FromQuery] PaginationQuery query)
     {
-        var modules = await moduleService.GetAllOrderedAsync();
+        var modules = await moduleService.GetAllOrderedAsync(query.Page, query.PerPage);
+        var total = await moduleService.CountAsync();
+        
+        var pagination = new Pagination<List<ModuleResponse>>(modules, total, query.Page, query.PerPage);
         
         logger.LogInformation("Getting modules");
         
-        return Ok(modules);
+        return Ok(pagination);
     }
 }

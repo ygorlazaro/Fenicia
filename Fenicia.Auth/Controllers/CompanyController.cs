@@ -5,6 +5,7 @@ using Fenicia.Common.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
+using Fenicia.Common;
 
 namespace Fenicia.Auth.Controllers;
 
@@ -22,12 +23,15 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
     /// <response code="401">If the user is not authenticated</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<CompanyResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<CompanyResponse>>> GetByLoggedUser()
+    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query)
     {
         var userId = ClaimReader.UserId(User);
-        var companies = await companyService.GetByUserIdAsync(userId);
+        var companies = await companyService.GetByUserIdAsync(userId, query.Page, query.PerPage);
+        var total = await companyService.CountByUserIdAsync(userId);
         
         logger.LogInformation("Getting companies");
+        
+        var response = new Pagination<IEnumerable<CompanyResponse>>(companies, total, query.Page, query.PerPage);
 
         return Ok(companies);
     }

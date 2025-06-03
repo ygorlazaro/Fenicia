@@ -8,6 +8,7 @@ public interface ICompanyRepository
     CompanyModel Add(CompanyModel company);
     Task<int> SaveAsync();
     Task<CompanyModel?> GetByCnpjAsync(string cnpj);
-    Task<List<CompanyModel>> GetByUserIdAsync(Guid userId);
+    Task<List<CompanyModel>> GetByUserIdAsync(Guid userId, int page = 1, int perPage = 10);
     Task<CompanyModel?> PatchAsync(CompanyModel company);
+    Task<int> CountByUserIdAsync(Guid userId);
 }

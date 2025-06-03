@@ -22,10 +22,10 @@ public class CompanyService(
         return company is null ? null : mapper.Map<CompanyResponse>(company);
     }
 
-    public async Task<List<CompanyResponse>> GetByUserIdAsync(Guid userId)
+    public async Task<List<CompanyResponse>> GetByUserIdAsync(Guid userId, int page = 1, int perPage = 10)
     {
         logger.LogInformation("Getting companies by user {userId}", [userId]);
-        var companies = await companyRepository.GetByUserIdAsync(userId);
+        var companies = await companyRepository.GetByUserIdAsync(userId, page, perPage);
         var response = mapper.Map<List<CompanyResponse>>(companies);
 
         return response;
@@ -49,5 +49,10 @@ public class CompanyService(
         var response = await companyRepository.PatchAsync(companyToUpdate);
 
         return response is null ? null : mapper.Map<CompanyResponse>(response);
+    }
+
+    public async Task<int> CountByUserIdAsync(Guid userId)
+    {
+        return await companyRepository.CountByUserIdAsync(userId);
     }
 }
