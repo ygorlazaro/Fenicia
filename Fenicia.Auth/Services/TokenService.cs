@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 
 using Fenicia.Auth.Contexts.Models;
+using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Enums;
@@ -13,11 +14,28 @@ namespace Fenicia.Auth.Services;
 
 public class TokenService(IConfiguration configuration) : ITokenService
 {
-    public string GenerateToken(UserModel user, string[] roles, Guid companyId, List<ModuleType> modules)
+    public string GenerateToken(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
     {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
                                           throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
 
+        var authClaims = GenerateClaims(user, roles, companyId, modules);
+        var authSigningKey = new SymmetricSecurityKey(key);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Expires = DateTime.UtcNow.AddHours(3),
+            SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
+            Subject = new ClaimsIdentity(authClaims)
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        return tokenHandler.WriteToken(token);
+    }
+
+    private static List<Claim> GenerateClaims(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
+    {
         var authClaims = new List<Claim>
         {
             new ("userId", user.Id.ToString()),
@@ -35,17 +53,6 @@ public class TokenService(IConfiguration configuration) : ITokenService
             authClaims.Add(new Claim("module", "erp"));
         }
 
-        var authSigningKey = new SymmetricSecurityKey(key);
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Expires = DateTime.UtcNow.AddHours(3),
-            SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
-            Subject = new ClaimsIdentity(authClaims)
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return tokenHandler.WriteToken(token);
+        return authClaims;
     }
 }

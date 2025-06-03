@@ -4,31 +4,35 @@ using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
 
 namespace Fenicia.Auth.Controllers;
 
 [AllowAnonymous]
 [Route("[controller]")]
 [ApiController]
+[Produces(MediaTypeNames.Application.Json)]
 public class SignUpController(IUserService userService) : ControllerBase
 {
+    /// <summary>
+    /// Creates a new user account
+    /// </summary>
+    /// <param name="request">The user registration information</param>
+    /// <response code="200">Returns the created user information</response>
+    /// <response code="400">If the user creation fails</response>
     [HttpPost]
-    public async Task<IActionResult> CreateNewUserAsync(NewUserRequest request)
+    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    public async Task<ActionResult<UserResponse>> CreateNewUserAsync(UserRequest request)
     {
         var user = await userService.CreateNewUserAsync(request);
 
         if (user is null)
         {
-            return BadRequest(TextConstants.ThereWasAnErrorAtCreating);
+            return BadRequest(TextConstants.ThereWasAnErrorAtCreatingUser);
         }
 
-        var response = new NewUserResponse
-        {
-            Name = user.Name,
-            Email = user.Email,
-            Id = user.Id
-        };
-
-        return Ok(response);
+        return Ok(user);
     }
 }
