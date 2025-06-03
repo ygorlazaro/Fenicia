@@ -10,6 +10,7 @@ namespace Fenicia.Auth.Services;
 
 public class UserService(
     IMapper mapper,
+    ILogger<UserService> logger,
     IUserRepository userRepository,
     IRoleRepository roleRepository,
     IUserRoleRepository userRoleRepository,
@@ -18,10 +19,12 @@ public class UserService(
 {
     public async Task<UserResponse> GetForLoginAsync(TokenRequest request)
     {
+        logger.LogInformation("Getting user for login");
         var user = await userRepository.GetByEmailAndCnpjAsync(request.Email, request.Cnpj);
 
         if (user is null)
         {
+            logger.LogInformation("Invalid login - {email}", [request.Email]);
             throw new InvalidDataException(TextConstants.InvalidUsernameOrPassword);
         }
 
@@ -29,6 +32,7 @@ public class UserService(
 
         if (!isValidPassword)
         {
+            logger.LogInformation("Invalid login - {email}", [request.Email]);
             throw new InvalidDataException(TextConstants.InvalidUsernameOrPassword);
         }
 
@@ -42,16 +46,19 @@ public class UserService(
 
     public async Task<UserResponse?> CreateNewUserAsync(UserRequest request)
     {
+        logger.LogInformation("Creating new user");
         var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email);
         var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.Cnpj);
 
         if (isExistingUser)
         {
+            logger.LogInformation("User already exists - {email}", [request.Email]);
             throw new InvalidDataException(TextConstants.EmailExists);
         }
 
         if (isExistingCompany)
         {
+            logger.LogInformation("Company already exists - {cnpj}", [request.Company.Cnpj]);
             throw new InvalidDataException(TextConstants.CompanyExists);
         }
 
@@ -94,6 +101,7 @@ public class UserService(
 
     public async Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId)
     {
+        logger.LogInformation("Checking if user exists in company");
         return await userRoleRepository.ExistsInCompanyAsync(userId, companyId);
     }
 }

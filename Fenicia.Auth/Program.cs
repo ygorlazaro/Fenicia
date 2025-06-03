@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Serilog;
 
 namespace Fenicia.Auth;
 
@@ -17,7 +18,18 @@ public static class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        
+        builder.Host.UseSerilog((context, loggerConfiguration) =>
+        {
+            loggerConfiguration.WriteTo.Console();
+            loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+        });
+        
         var configuration = builder.Configuration;
+        
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateLogger();
 
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
                                           throw new InvalidOperationException(TextConstants.InvalidJwtSecret));

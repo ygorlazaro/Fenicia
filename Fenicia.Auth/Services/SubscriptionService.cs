@@ -8,13 +8,16 @@ using Fenicia.Common;
 
 namespace Fenicia.Auth.Services;
 
-public class SubscriptionService(IMapper mapper, ISubscriptionRepository subscriptionRepository) : ISubscriptionService
+public class SubscriptionService(IMapper mapper, ILogger<SubscriptionService> logger, ISubscriptionRepository subscriptionRepository) : ISubscriptionService
 {
     public async Task<SubscriptionResponse?> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details,
         Guid companyId)
     {
+        logger.LogInformation("Creating credits for order");
+        
         if (details.Count == 0)
         {
+            logger.LogWarning("There was an error adding modules");
             throw new InvalidDataException(TextConstants.ThereWasAnErrorAddingModules);
         }
 
@@ -46,6 +49,7 @@ public class SubscriptionService(IMapper mapper, ISubscriptionRepository subscri
 
     public async Task<List<Guid>> GetValidSubscriptionsAsync(Guid companyId)
     {
+        logger.LogInformation("Getting valid subscriptions");
         return await subscriptionRepository.GetValidSubscriptionAsync(companyId); 
     }
 }

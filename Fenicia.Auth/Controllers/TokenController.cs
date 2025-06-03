@@ -12,7 +12,7 @@ namespace Fenicia.Auth.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class TokenController(ITokenService tokenService, IUserService userService, IUserRoleService userRoleService, ICompanyService companyService, ISubscriptionCreditService subscriptionCreditService) : ControllerBase
+public class TokenController(ILogger<TokenController> logger, ITokenService tokenService, IUserService userService, IUserRoleService userRoleService, ICompanyService companyService, ISubscriptionCreditService subscriptionCreditService) : ControllerBase
 {
     /// <summary>
     /// Generates an authentication token for the user
@@ -32,6 +32,7 @@ public class TokenController(ITokenService tokenService, IUserService userServic
 
         if (company is null)
         {
+            logger.LogInformation("Invalid login - {email}", [request.Email]);
             throw new InvalidDataException(TextConstants.InvalidUsernameOrPassword);
         }
         
@@ -40,11 +41,14 @@ public class TokenController(ITokenService tokenService, IUserService userServic
 
         if (roles.Length == 0)
         {
+            logger.LogInformation("User without role - {email}", [request.Email]);
             return BadRequest(TextConstants.UserWithoutRoles);
         }
 
         var modules = await subscriptionCreditService.GetActiveModulesTypesAsync(company.Id);
         var token = tokenService.GenerateToken(user, roles, company.Id, modules);
+        
+        logger.LogInformation("User logged in - {email}", [request.Email]);
 
         return Ok(new TokenResponse
         {

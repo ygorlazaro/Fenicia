@@ -18,5 +18,7 @@ public class Profiles: Profile
         CreateMap<OrderResponse, OrderModel>().ReverseMap();
         
         CreateMap<SubscriptionResponse, SubscriptionModel>().ReverseMap();
+        
+        CreateMap<UserResponse, UserModel>().ReverseMap();
     }
 }

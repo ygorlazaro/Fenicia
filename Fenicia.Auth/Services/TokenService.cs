@@ -12,10 +12,11 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Services;
 
-public class TokenService(IConfiguration configuration) : ITokenService
+public class TokenService(IConfiguration configuration, ILogger<TokenService> logger) : ITokenService
 {
     public string GenerateToken(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
     {
+        logger.LogInformation("Generating token");
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
                                           throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
 
