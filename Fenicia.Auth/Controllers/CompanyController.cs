@@ -13,7 +13,7 @@ namespace Fenicia.Auth.Controllers;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CompanyController(ICompanyService companyService) : ControllerBase
+public class CompanyController(ILogger<CompanyController> logger, ICompanyService companyService) : ControllerBase
 {
     /// <summary>
     /// Retrieves companies associated with the logged-in user
@@ -26,6 +26,8 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     {
         var userId = ClaimReader.UserId(User);
         var companies = await companyService.GetByUserIdAsync(userId);
+        
+        logger.LogInformation("Getting companies");
 
         return Ok(companies);
     }
@@ -56,6 +58,8 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
         }
 
         var response = await companyService.PatchAsync(id, userId, request);
+        
+        logger.LogInformation("Company updated - {id}", [id]);
 
         return response is null ? BadRequest() : Ok(response);
     }

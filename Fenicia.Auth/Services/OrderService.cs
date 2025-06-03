@@ -12,6 +12,7 @@ namespace Fenicia.Auth.Services;
 
 public class OrderService(
     IMapper mapper,
+    ILogger<OrderService> logger,
     IOrderRepository orderRepository,
     ICustomerService customerService,
     IModuleService moduleService,
@@ -21,10 +22,12 @@ public class OrderService(
 {
     public async Task<OrderResponse> CreateNewOrderAsync(Guid userId, Guid companyId, NewOrderRequest request)
     {
+        logger.LogInformation("Creating new order");
         var existingUser = await userService.ExistsInCompanyAsync(userId, companyId);
 
         if (!existingUser)
         {
+            logger.LogWarning("User {userId} does not exist in company {companyId}", [userId, companyId]);
             throw new UnauthorizedAccessException(TextConstants.PermissionDenied);
         }
 
@@ -32,6 +35,7 @@ public class OrderService(
 
         if (customerId is null)
         {
+            logger.LogWarning("There was an error creating customer for user {userId}", [userId]);
             throw new ArgumentException(TextConstants.ThereWasAnErrorAtCreatingCustomer);
         }
 
@@ -39,6 +43,7 @@ public class OrderService(
 
         if (modules.Count == 0)
         {
+            logger.LogWarning("There was an error searching modules");
             throw new InvalidDataException(TextConstants.ThereWasAnErrorSearchingModules);
         }
 

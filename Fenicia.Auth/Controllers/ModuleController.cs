@@ -11,7 +11,7 @@ namespace Fenicia.Auth.Controllers;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ModuleController(IModuleService moduleService) : ControllerBase
+public class ModuleController(ILogger<ModuleController> logger, IModuleService moduleService) : ControllerBase
 {
     /// <summary>
     /// Retrieves all available modules in the system
@@ -24,7 +24,9 @@ public class ModuleController(IModuleService moduleService) : ControllerBase
     public async Task<ActionResult<List<ModuleResponse>>> GetAllModulesAsync()
     {
         var modules = await moduleService.GetAllOrderedAsync();
-
+        
+        logger.LogInformation("Getting modules");
+        
         return Ok(modules);
     }
 }

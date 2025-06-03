@@ -12,7 +12,7 @@ namespace Fenicia.Auth.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class SignUpController(IUserService userService) : ControllerBase
+public class SignUpController(ILogger<SignUpController> logger, IUserService userService) : ControllerBase
 {
     /// <summary>
     /// Creates a new user account
@@ -32,6 +32,8 @@ public class SignUpController(IUserService userService) : ControllerBase
         {
             return BadRequest(TextConstants.ThereWasAnErrorAtCreatingUser);
         }
+        
+        logger.LogInformation("New user - {email}", [request.Email]);
 
         return Ok(user);
     }

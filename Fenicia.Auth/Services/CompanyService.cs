@@ -8,17 +8,23 @@ using Fenicia.Common;
 
 namespace Fenicia.Auth.Services;
 
-public class CompanyService(IMapper mapper, ICompanyRepository companyRepository, IUserRoleService userRoleService) : ICompanyService
+public class CompanyService(
+    IMapper mapper,
+    ILogger<CompanyService> logger,
+    ICompanyRepository companyRepository,
+    IUserRoleService userRoleService) : ICompanyService
 {
     public async Task<CompanyResponse?> GetByCnpjAsync(string cnpj)
     {
-        var company =  await companyRepository.GetByCnpjAsync(cnpj);
+        logger.LogInformation("Getting company {cnpj}", [cnpj]);
+        var company = await companyRepository.GetByCnpjAsync(cnpj);
 
         return company is null ? null : mapper.Map<CompanyResponse>(company);
     }
 
     public async Task<List<CompanyResponse>> GetByUserIdAsync(Guid userId)
     {
+        logger.LogInformation("Getting companies by user {userId}", [userId]);
         var companies = await companyRepository.GetByUserIdAsync(userId);
         var response = mapper.Map<List<CompanyResponse>>(companies);
 
@@ -27,17 +33,19 @@ public class CompanyService(IMapper mapper, ICompanyRepository companyRepository
 
     public async Task<CompanyResponse?> PatchAsync(Guid companyId, Guid userId, CompanyRequest company)
     {
+        logger.LogInformation("Patching company {companyId}", [companyId]);
         var hasAdminRole = await userRoleService.HasRoleAsync(userId, companyId, "Admin");
-        
+
         if (!hasAdminRole)
         {
+            logger.LogWarning("User {userId} does not have admin role", [userId]);
             throw new UnauthorizedAccessException(TextConstants.PermissionDenied);
         }
-        
+
         var companyToUpdate = mapper.Map<CompanyRequest, CompanyModel>(company);
 
         companyToUpdate.Id = companyId;
-        
+
         var response = await companyRepository.PatchAsync(companyToUpdate);
 
         return response is null ? null : mapper.Map<CompanyResponse>(response);
