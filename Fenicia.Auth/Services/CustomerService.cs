@@ -9,6 +9,6 @@ public class CustomerService(ICustomerRepository customerRepository) : ICustomer
     {
         var customer = await customerRepository.GetByUserIdAsync(userId, companyId);
 
-        return customer is not null ? customer.Id : await customerRepository.CreateNewCustomerAsync(userId, companyId);
+        return customer?.Id ?? await customerRepository.CreateNewCustomerAsync(userId, companyId);
     }
 }
