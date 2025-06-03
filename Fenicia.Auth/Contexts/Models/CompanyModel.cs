@@ -25,6 +25,8 @@ public class CompanyModel : BaseModel
     
     public string Language { get; set; } = "pt-BR";
     
+    public Guid? AddressId { get; set; }
+    
     [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
 
@@ -33,4 +35,7 @@ public class CompanyModel : BaseModel
 
     [JsonIgnore]
     public virtual List<SubscriptionModel> Subscriptions { get; set; } = null!;
+    
+    [ForeignKey(nameof(AddressId))]
+    public virtual AddressModel? Address { get; set; }
 }
