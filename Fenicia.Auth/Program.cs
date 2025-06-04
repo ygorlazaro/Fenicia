@@ -6,7 +6,6 @@ using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
-using Fenicia.Common.Api;
 using Fenicia.Common.Api.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -84,14 +83,11 @@ public static class Program
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateAudience = false
                 };
             });
 
-        builder.Services.AddControllers(x =>
-        {
-            x.Filters.Add(new ValidateModelFilter());
-        })
+        builder.Services.AddControllers()
             .AddJsonOptions(x =>
             {
                 x.JsonSerializerOptions.AllowTrailingCommas = false;

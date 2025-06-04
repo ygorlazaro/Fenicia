@@ -1,12 +1,9 @@
+using System.Text;
 using Fenicia.Common;
 using Fenicia.Common.Api.Middlewares;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-
 using Scalar.AspNetCore;
-
-using System.Text;
 
 namespace Fenicia.ERP.API;
 

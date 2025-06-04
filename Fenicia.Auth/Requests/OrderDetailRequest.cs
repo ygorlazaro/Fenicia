@@ -3,7 +3,7 @@ namespace Fenicia.Auth.Requests;
 /// <summary>
 /// Request model for a single module order detail
 /// </summary>
-public class NewOrderDetailRequest
+public class OrderDetailRequest
 {
     /// <summary>
     /// The unique identifier of the module being ordered

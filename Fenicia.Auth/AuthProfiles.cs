@@ -6,12 +6,13 @@ using Fenicia.Auth.Responses;
 namespace Fenicia.Auth;
 
 // ReSharper disable once UnusedType.Global
-public class Profiles : Profile
+public class AuthProfiles : Profile
 {
-    public Profiles()
+    public AuthProfiles()
     {
         CreateMap<CompanyRequest, CompanyModel>().ReverseMap();
         CreateMap<CompanyResponse, CompanyModel>().ReverseMap();
+        CreateMap<CompanyUpdateRequest, CompanyModel>().ReverseMap();
 
         CreateMap<ModuleResponse, ModuleModel>().ReverseMap();
 

@@ -1,7 +1,6 @@
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
 using Fenicia.Common;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Services.Interfaces;
 

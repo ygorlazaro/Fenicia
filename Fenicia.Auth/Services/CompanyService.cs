@@ -6,7 +6,6 @@ using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
-using Microsoft.Extensions.FileProviders;
 
 namespace Fenicia.Auth.Services;
 
@@ -40,9 +39,20 @@ public class CompanyService(
         return new ServiceResponse<List<CompanyResponse>>(response);
     }
 
-    public async Task<ServiceResponse<CompanyResponse>> PatchAsync(Guid companyId, Guid userId, CompanyRequest company)
+    public async Task<ServiceResponse<CompanyResponse>> PatchAsync(Guid companyId, Guid userId,
+        CompanyUpdateRequest company)
     {
         logger.LogInformation("Patching company {companyId}", [companyId]);
+
+        var existing = await companyRepository.CheckCompanyExistsAsync(companyId);
+
+        if (!existing)
+        {
+            logger.LogWarning("Company {companyId} does not exist", [companyId]);
+            
+            return new ServiceResponse<CompanyResponse>(null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+        }
+        
         var hasAdminRole = await userRoleService.HasRoleAsync(userId, companyId, "Admin");
 
         if (!hasAdminRole.Data)
@@ -52,13 +62,14 @@ public class CompanyService(
             return new ServiceResponse<CompanyResponse>(null, HttpStatusCode.Unauthorized, TextConstants.PermissionDenied);
         }
 
-        var companyToUpdate = mapper.Map<CompanyRequest, CompanyModel>(company);
+        var companyToUpdate = mapper.Map<CompanyModel>(company);
 
         companyToUpdate.Id = companyId;
 
-        var updatedCompany = await companyRepository.PatchAsync(companyToUpdate);
+        var updatedCompany = companyRepository.PatchAsync(companyToUpdate);
+        var saved = await companyRepository.SaveAsync();
 
-        if (updatedCompany is null)
+        if (saved == 0)
         {
             return new ServiceResponse<CompanyResponse>(null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
         }

@@ -12,8 +12,8 @@ public class ModuleRepository(AuthContext authContext) : IModuleRepository
     {
         return await authContext.Modules
             .OrderBy(m => m.Type)
-            .Take(perPage)
             .Skip((page - 1) * perPage)
+            .Take(perPage)
             .ToListAsync();
     }
 
