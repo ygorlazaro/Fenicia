@@ -16,7 +16,7 @@ public class RefreshTokenService(ILogger<RefreshTokenService> logger, IRefreshTo
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
 
-        var refreshToken = new RefreshTokenModel()
+        var refreshToken = new RefreshTokenModel
         {
             Token = Convert.ToBase64String(randomNumber),
             UserId = userId

@@ -13,4 +13,5 @@ public static class TextConstants
     public const string MissingAdminRole = "Missing admin role";
     public const string UserNotInCompany = "User not in company";
     public const string ItemNotFound = "Item not found";
+    public const string InvalidPassword = "Invalid password";
 }

@@ -1,12 +1,11 @@
-using System.Net;
+using System.Net.Mime;
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
+using Fenicia.Common;
 using Fenicia.Common.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
-using Fenicia.Common;
 
 namespace Fenicia.Auth.Controllers;
 
@@ -56,7 +55,7 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CompanyResponse>> PatchAsync(
-        [FromBody] CompanyRequest request,
+        [FromBody] CompanyUpdateRequest request,
         [FromRoute] Guid id)
     {
         var userId = ClaimReader.UserId(User);

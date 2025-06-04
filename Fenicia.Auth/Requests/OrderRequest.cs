@@ -5,11 +5,11 @@ namespace Fenicia.Auth.Requests;
 /// <summary>
 /// Request model for creating a new order
 /// </summary>
-public class NewOrderRequest
+public class OrderRequest
 {
     /// <summary>
     /// List of module details included in the order
     /// </summary>
     [Required]
-    public List<NewOrderDetailRequest> Details { get; set; } = null!;
+    public IEnumerable<OrderDetailRequest> Details { get; set; } = null!;
 }

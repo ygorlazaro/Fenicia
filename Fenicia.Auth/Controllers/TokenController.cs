@@ -1,11 +1,11 @@
+using System.Net.Mime;
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
+using Fenicia.Common.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
-using Fenicia.Common.Api;
 
 namespace Fenicia.Auth.Controllers;
 

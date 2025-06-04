@@ -7,6 +7,11 @@ namespace Fenicia.Auth.Repositories;
 
 public class CompanyRepository(AuthContext authContext) : ICompanyRepository
 {
+    public async Task<bool> CheckCompanyExistsAsync(Guid companyId)
+    {
+        return await authContext.Companies.AnyAsync(c => c.Id == companyId);
+    }
+
     public async Task<bool> CheckCompanyExistsAsync(string cnpj)
     {
         return await authContext.Companies.AnyAsync(c => c.Cnpj == cnpj);
@@ -44,10 +49,9 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
         return await QueryFromUserId(userId).CountAsync();
     }
 
-    public async Task<CompanyModel?> PatchAsync(CompanyModel company)
+    public CompanyModel PatchAsync(CompanyModel company)
     {
-        authContext.Companies.Update(company);
-        await authContext.SaveChangesAsync();
+        authContext.Entry(company).State = EntityState.Modified;
 
         return company;
     }

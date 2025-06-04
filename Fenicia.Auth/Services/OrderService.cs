@@ -20,7 +20,7 @@ public class OrderService(
     IUserService userService
 ) : IOrderService
 {
-    public async Task<ServiceResponse<OrderResponse>> CreateNewOrderAsync(Guid userId, Guid companyId, NewOrderRequest request)
+    public async Task<ServiceResponse<OrderResponse>> CreateNewOrderAsync(Guid userId, Guid companyId, OrderRequest request)
     {
         logger.LogInformation("Creating new order");
         var existingUser = await userService.ExistsInCompanyAsync(userId, companyId);
@@ -71,7 +71,7 @@ public class OrderService(
         return new ServiceResponse<OrderResponse>(response);
     }
 
-    private async Task<ServiceResponse<List<ModuleModel>>> PopulateModules(NewOrderRequest request)
+    private async Task<ServiceResponse<List<ModuleModel>>> PopulateModules(OrderRequest request)
     {
         var uniqueModules = request.Details.Select(d => d.ModuleId).Distinct();
         var modules = await moduleService.GetModulesToOrderAsync(uniqueModules);

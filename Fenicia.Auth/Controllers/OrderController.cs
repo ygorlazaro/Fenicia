@@ -1,10 +1,10 @@
+using System.Net.Mime;
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
 
 namespace Fenicia.Auth.Controllers;
 
@@ -24,7 +24,7 @@ public class OrderController(ILogger<OrderController> logger, IOrderService orde
     [HttpPost]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(NewOrderRequest request)
+    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(OrderRequest request)
     {
         var userId = ClaimReader.UserId(User);
         var companyId = ClaimReader.CompanyId(User);
