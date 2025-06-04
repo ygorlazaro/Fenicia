@@ -44,7 +44,7 @@ public class TokenService(IConfiguration configuration, ILogger<TokenService> lo
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Name, user.Name),
             new("companyId", companyId.ToString()),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
         authClaims.AddRange(roles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));

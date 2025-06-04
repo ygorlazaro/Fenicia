@@ -6,7 +6,6 @@ using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Services;
 
@@ -80,7 +79,7 @@ public class UserService(
         var company = companyRepository.Add(new CompanyModel
         {
             Name = request.Company.Name,
-            Cnpj = request.Company.Cnpj,
+            Cnpj = request.Company.Cnpj
         });
         var adminRole = await roleRepository.GetAdminRoleAsync();
 
