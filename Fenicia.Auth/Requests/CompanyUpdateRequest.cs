@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 namespace Fenicia.Auth.Requests;
 
 /// <summary>
-/// Request model for company creation
+/// Request model for company update
 /// </summary>
-public class CompanyRequest
+public class CompanyUpdateRequest
 {
     /// <summary>
     /// The name of the company
@@ -15,11 +15,5 @@ public class CompanyRequest
     [Required]
     public string Name { get; set; } = null!;
 
-    /// <summary>
-    /// The CNPJ (Brazilian company registration number)
-    /// </summary>
-    /// <example>12345678000199</example>
-    [Required]
-    [MaxLength(14)]
-    public string Cnpj { get; set; } = null!;
+    public string Timezone { get; set; } = null!;
 }

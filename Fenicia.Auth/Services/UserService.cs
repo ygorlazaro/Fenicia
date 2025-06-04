@@ -6,7 +6,6 @@ using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Services;
 

@@ -6,7 +6,6 @@ using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services;
 using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
-using Fenicia.Common.Api;
 using Fenicia.Common.Api.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -88,10 +87,7 @@ public static class Program
                 };
             });
 
-        builder.Services.AddControllers(x =>
-        {
-            x.Filters.Add(new ValidateModelFilter());
-        })
+        builder.Services.AddControllers()
             .AddJsonOptions(x =>
             {
                 x.JsonSerializerOptions.AllowTrailingCommas = false;
