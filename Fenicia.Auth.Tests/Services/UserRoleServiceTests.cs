@@ -3,7 +3,6 @@ using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 
 namespace Fenicia.Auth.Tests.Services;
 
@@ -69,7 +68,7 @@ public class UserRoleServiceTests
         // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var role = _faker.Random.ArrayElement(new[] { "Admin", "User", "Manager" });
+        var role = _faker.Random.ArrayElement(["Admin", "User", "Manager"]);
 
         _userRoleRepositoryMock
             .Setup(x => x.HasRoleAsync(userId, companyId, role))

@@ -89,7 +89,7 @@ public class SubscriptionServiceTests
         var order = new OrderModel
         {
             Id = Guid.NewGuid(),
-            Details = new List<OrderDetailModel>()
+            Details = []
         };
         var emptyDetails = new List<OrderDetailModel>();
 

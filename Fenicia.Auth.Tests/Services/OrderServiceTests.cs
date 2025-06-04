@@ -98,7 +98,7 @@ public class OrderServiceTests
 
         _mapperMock
             .Setup(x => x.Map<List<ModuleModel>>(emptyModulesList))
-            .Returns(new List<ModuleModel>());
+            .Returns([]);
 
         // Act
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request);

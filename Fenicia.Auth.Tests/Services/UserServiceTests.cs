@@ -7,7 +7,6 @@ using Fenicia.Auth.Responses;
 using Fenicia.Auth.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using System.Net;
 using Fenicia.Auth.Services;
 using Fenicia.Common;
