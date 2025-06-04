@@ -13,14 +13,15 @@ public class SubscriptionCreditRepository(AuthContext authContext) : ISubscripti
         var now = DateTime.Now;
 
         var query = from credit in authContext.SubscriptionCredits
-                    join module in authContext.Modules on credit.ModuleId equals module.Id
-                    join subscription in subscriptions on credit.SubscriptionId equals subscription
-                    where credit.IsActive
-                          && now >= credit.StartDate
-                          && now <= credit.EndDate
-                    orderby module.Id
-                    select module.Type;
+            join module in authContext.Modules on credit.ModuleId equals module.Id
+            where credit.IsActive
+                  && subscriptions.Contains(credit.SubscriptionId)
+                  && now >= credit.StartDate
+                  && now <= credit.EndDate
+            orderby module.Id
+            select module.Type;
 
         return await query.Distinct().ToListAsync();
     }
+
 }

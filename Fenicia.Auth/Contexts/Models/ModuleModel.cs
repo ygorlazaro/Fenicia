@@ -19,7 +19,7 @@ public class ModuleModel : BaseModel
     public ModuleType Type { get; set; }
 
     [JsonIgnore]
-    public virtual List<SubscriptionCreditModel> Customers { get; set; } = null!;
+    public virtual List<SubscriptionCreditModel> SubscriptioCredits { get; set; } = null!;
 
     [JsonIgnore]
     public virtual List<OrderDetailModel> OrderDetails { get; set; } = null!;

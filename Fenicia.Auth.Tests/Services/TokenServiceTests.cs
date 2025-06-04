@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Fenicia.Auth.Services;
 
 namespace Fenicia.Auth.Tests.Services;

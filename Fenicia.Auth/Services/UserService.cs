@@ -79,7 +79,7 @@ public class UserService(
         var company = companyRepository.Add(new CompanyModel
         {
             Name = request.Company.Name,
-            Cnpj = request.Company.Cnpj,
+            Cnpj = request.Company.Cnpj
         });
         var adminRole = await roleRepository.GetAdminRoleAsync();
 
