@@ -12,7 +12,8 @@ namespace Fenicia.Auth.Controllers;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ModuleController(ILogger<ModuleController> logger, IModuleService moduleService) : ControllerBase
+public class ModuleController(ILogger<ModuleController> logger, IModuleService moduleService)
+    : ControllerBase
 {
     /// <summary>
     /// Retrieves all available modules in the system
@@ -22,7 +23,9 @@ public class ModuleController(ILogger<ModuleController> logger, IModuleService m
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<ModuleResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<Pagination<List<ModuleResponse>>>> GetAllModulesAsync([FromQuery] PaginationQuery query)
+    public async Task<ActionResult<Pagination<List<ModuleResponse>>>> GetAllModulesAsync(
+        [FromQuery] PaginationQuery query
+    )
     {
         var modules = await moduleService.GetAllOrderedAsync(query.Page, query.PerPage);
         var total = await moduleService.CountAsync();
@@ -32,7 +35,12 @@ public class ModuleController(ILogger<ModuleController> logger, IModuleService m
             return StatusCode((int)modules.StatusCode, modules.Message);
         }
 
-        var pagination = new Pagination<List<ModuleResponse>>(modules.Data, total.Data, query.Page, query.PerPage);
+        var pagination = new Pagination<List<ModuleResponse>>(
+            modules.Data,
+            total.Data,
+            query.Page,
+            query.PerPage
+        );
 
         logger.LogInformation("Getting modules");
 

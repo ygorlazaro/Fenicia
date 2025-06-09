@@ -1,15 +1,15 @@
+using System.Net;
 using AutoMapper;
 using Bogus;
 using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Requests;
 using Fenicia.Auth.Responses;
+using Fenicia.Auth.Services;
 using Fenicia.Auth.Services.Interfaces;
+using Fenicia.Common;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Net;
-using Fenicia.Auth.Services;
-using Fenicia.Common;
 
 namespace Fenicia.Auth.Tests.Services;
 
@@ -57,7 +57,7 @@ public class UserServiceTests
         {
             Email = _faker.Internet.Email(),
             Password = _faker.Internet.Password(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
+            Cnpj = _faker.Random.String2(14, "0123456789"),
         };
 
         var user = new UserModel
@@ -65,14 +65,14 @@ public class UserServiceTests
             Id = Guid.NewGuid(),
             Email = request.Email,
             Password = "hashedPassword",
-            Name = _faker.Name.FullName()
+            Name = _faker.Name.FullName(),
         };
 
         var expectedResponse = new UserResponse
         {
             Id = user.Id,
             Email = user.Email,
-            Name = user.Name
+            Name = user.Name,
         };
 
         _userRepositoryMock
@@ -83,9 +83,7 @@ public class UserServiceTests
             .Setup(x => x.VerifyPassword(request.Password, user.Password))
             .Returns(new ServiceResponse<bool>(true));
 
-        _mapperMock
-            .Setup(x => x.Map<UserResponse>(user))
-            .Returns(expectedResponse);
+        _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetForLoginAsync(request);
@@ -102,7 +100,7 @@ public class UserServiceTests
         {
             Email = _faker.Internet.Email(),
             Password = _faker.Internet.Password(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
+            Cnpj = _faker.Random.String2(14, "0123456789"),
         };
 
         _userRepositoryMock
@@ -129,8 +127,8 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
-            }
+                Cnpj = _faker.Random.String2(14, "0123456789"),
+            },
         };
 
         var hashedPassword = "hashedPassword";
@@ -140,19 +138,23 @@ public class UserServiceTests
             Id = Guid.NewGuid(),
             Email = request.Email,
             Password = hashedPassword,
-            Name = request.Name
+            Name = request.Name,
         };
 
         var expectedResponse = new UserResponse
         {
             Id = user.Id,
             Email = user.Email,
-            Name = user.Name
+            Name = user.Name,
         };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email)).ReturnsAsync(false);
-        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj)).ReturnsAsync(false);
-        _securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(new ServiceResponse<string>(hashedPassword));
+        _companyRepositoryMock
+            .Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj))
+            .ReturnsAsync(false);
+        _securityServiceMock
+            .Setup(x => x.HashPassword(request.Password))
+            .Returns(new ServiceResponse<string>(hashedPassword));
         _userRepositoryMock.Setup(x => x.Add(It.IsAny<UserModel>())).Returns(user);
         _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync()).ReturnsAsync(adminRole);
         _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
@@ -162,7 +164,7 @@ public class UserServiceTests
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedResponse));
-        
+
         _userRepositoryMock.Verify(x => x.SaveAsync(), Times.Once);
     }
 
@@ -178,8 +180,8 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
-            }
+                Cnpj = _faker.Random.String2(14, "0123456789"),
+            },
         };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email)).ReturnsAsync(true);
@@ -220,23 +222,19 @@ public class UserServiceTests
         {
             Id = userId,
             Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName()
+            Name = _faker.Name.FullName(),
         };
 
         var expectedResponse = new UserResponse
         {
             Id = user.Id,
             Email = user.Email,
-            Name = user.Name
+            Name = user.Name,
         };
 
-        _userRepositoryMock
-            .Setup(x => x.GetUserForRefreshTokenAsync(userId))
-            .ReturnsAsync(user);
+        _userRepositoryMock.Setup(x => x.GetUserForRefreshTokenAsync(userId)).ReturnsAsync(user);
 
-        _mapperMock
-            .Setup(x => x.Map<UserResponse>(user))
-            .Returns(expectedResponse);
+        _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetUserForRefreshAsync(userId);
@@ -275,14 +273,18 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
-            }
+                Cnpj = _faker.Random.String2(14, "0123456789"),
+            },
         };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email)).ReturnsAsync(false);
-        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj)).ReturnsAsync(false);
+        _companyRepositoryMock
+            .Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj))
+            .ReturnsAsync(false);
         _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync()).ReturnsAsync((RoleModel)null);
-        _securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(new ServiceResponse<string>("hashedPassword"));
+        _securityServiceMock
+            .Setup(x => x.HashPassword(request.Password))
+            .Returns(new ServiceResponse<string>("hashedPassword"));
 
         // Act
         var result = await _sut.CreateNewUserAsync(request);

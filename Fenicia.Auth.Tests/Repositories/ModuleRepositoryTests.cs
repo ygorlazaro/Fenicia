@@ -40,12 +40,14 @@ public class ModuleRepositoryTests
         var modules = new List<ModuleModel>();
         for (int i = 0; i < 15; i++)
         {
-            modules.Add(new ModuleModel
-            {
-                Id = Guid.NewGuid(),
-                Type = (ModuleType)(i % 5),
-                Name = _faker.Commerce.ProductName()
-            });
+            modules.Add(
+                new ModuleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Type = (ModuleType)(i % 5),
+                    Name = _faker.Commerce.ProductName(),
+                }
+            );
         }
         await _context.Modules.AddRangeAsync(modules);
         await _context.SaveChangesAsync();
@@ -76,14 +78,14 @@ public class ModuleRepositoryTests
         // Arrange
         var modules = new List<ModuleModel>();
         var requestedIds = new List<Guid>();
-        
+
         for (int i = 0; i < 5; i++)
         {
             var module = new ModuleModel
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)i,
-                Name = _faker.Commerce.ProductName()
+                Name = _faker.Commerce.ProductName(),
             };
             modules.Add(module);
             if (i < 3) // Request only first 3 modules
@@ -91,7 +93,7 @@ public class ModuleRepositoryTests
                 requestedIds.Add(module.Id);
             }
         }
-        
+
         await _context.Modules.AddRangeAsync(modules);
         await _context.SaveChangesAsync();
 
@@ -126,9 +128,9 @@ public class ModuleRepositoryTests
         {
             Id = Guid.NewGuid(),
             Type = moduleType,
-            Name = _faker.Commerce.ProductName()
+            Name = _faker.Commerce.ProductName(),
         };
-        
+
         await _context.Modules.AddAsync(module);
         await _context.SaveChangesAsync();
 
@@ -157,17 +159,19 @@ public class ModuleRepositoryTests
         // Arrange
         var expectedCount = 5;
         var modules = new List<ModuleModel>();
-        
+
         for (int i = 0; i < expectedCount; i++)
         {
-            modules.Add(new ModuleModel
-            {
-                Id = Guid.NewGuid(),
-                Type = (ModuleType)i,
-                Name = _faker.Commerce.ProductName()
-            });
+            modules.Add(
+                new ModuleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Type = (ModuleType)i,
+                    Name = _faker.Commerce.ProductName(),
+                }
+            );
         }
-        
+
         await _context.Modules.AddRangeAsync(modules);
         await _context.SaveChangesAsync();
 
@@ -195,12 +199,14 @@ public class ModuleRepositoryTests
         var modules = new List<ModuleModel>();
         for (int i = 0; i < 25; i++)
         {
-            modules.Add(new ModuleModel
-            {
-                Id = Guid.NewGuid(),
-                Type = (ModuleType)(i % 5),
-                Name = _faker.Commerce.ProductName()
-            });
+            modules.Add(
+                new ModuleModel
+                {
+                    Id = Guid.NewGuid(),
+                    Type = (ModuleType)(i % 5),
+                    Name = _faker.Commerce.ProductName(),
+                }
+            );
         }
         await _context.Modules.AddRangeAsync(modules);
         await _context.SaveChangesAsync();

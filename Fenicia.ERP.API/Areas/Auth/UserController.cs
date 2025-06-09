@@ -1,5 +1,4 @@
 ﻿using Fenicia.Common.Api;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

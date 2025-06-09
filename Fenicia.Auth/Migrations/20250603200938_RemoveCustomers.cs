@@ -13,32 +13,32 @@ namespace Fenicia.Auth.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "fk_orders_customers_customer_id",
-                table: "orders");
+                table: "orders"
+            );
 
-            migrationBuilder.DropTable(
-                name: "customers");
+            migrationBuilder.DropTable(name: "customers");
 
-            migrationBuilder.RenameColumn(
-                name: "customer_id",
-                table: "orders",
-                newName: "user_id");
+            migrationBuilder.RenameColumn(name: "customer_id", table: "orders", newName: "user_id");
 
             migrationBuilder.RenameIndex(
                 name: "ix_orders_customer_id",
                 table: "orders",
-                newName: "ix_orders_user_id");
+                newName: "ix_orders_user_id"
+            );
 
             migrationBuilder.AddColumn<Guid>(
                 name: "company_id",
                 table: "orders",
                 type: "uuid",
                 nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000")
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_orders_company_id",
                 table: "orders",
-                column: "company_id");
+                column: "company_id"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "fk_orders_companies_company_id",
@@ -46,7 +46,8 @@ namespace Fenicia.Auth.Migrations
                 column: "company_id",
                 principalTable: "companies",
                 principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "fk_orders_users_user_id",
@@ -54,7 +55,8 @@ namespace Fenicia.Auth.Migrations
                 column: "user_id",
                 principalTable: "users",
                 principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
 
         /// <inheritdoc />
@@ -62,29 +64,22 @@ namespace Fenicia.Auth.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "fk_orders_companies_company_id",
-                table: "orders");
+                table: "orders"
+            );
 
-            migrationBuilder.DropForeignKey(
-                name: "fk_orders_users_user_id",
-                table: "orders");
+            migrationBuilder.DropForeignKey(name: "fk_orders_users_user_id", table: "orders");
 
-            migrationBuilder.DropIndex(
-                name: "ix_orders_company_id",
-                table: "orders");
+            migrationBuilder.DropIndex(name: "ix_orders_company_id", table: "orders");
 
-            migrationBuilder.DropColumn(
-                name: "company_id",
-                table: "orders");
+            migrationBuilder.DropColumn(name: "company_id", table: "orders");
 
-            migrationBuilder.RenameColumn(
-                name: "user_id",
-                table: "orders",
-                newName: "customer_id");
+            migrationBuilder.RenameColumn(name: "user_id", table: "orders", newName: "customer_id");
 
             migrationBuilder.RenameIndex(
                 name: "ix_orders_user_id",
                 table: "orders",
-                newName: "ix_orders_customer_id");
+                newName: "ix_orders_customer_id"
+            );
 
             migrationBuilder.CreateTable(
                 name: "customers",
@@ -93,9 +88,18 @@ namespace Fenicia.Auth.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     company_id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    created = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    deleted = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
+                    updated = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
@@ -105,25 +109,30 @@ namespace Fenicia.Auth.Migrations
                         column: x => x.company_id,
                         principalTable: "companies",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Cascade
+                    );
                     table.ForeignKey(
                         name: "fk_customers_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_customers_company_id",
                 table: "customers",
-                column: "company_id");
+                column: "company_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_customers_user_id",
                 table: "customers",
                 column: "user_id",
-                unique: true);
+                unique: true
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "fk_orders_customers_customer_id",
@@ -131,7 +140,8 @@ namespace Fenicia.Auth.Migrations
                 column: "customer_id",
                 principalTable: "customers",
                 principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
     }
 }

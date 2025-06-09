@@ -34,14 +34,15 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
         return await authContext.Companies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
     }
 
-    public async Task<List<CompanyModel>> GetByUserIdAsync(Guid userId, int page = 1, int perPage = 10)
+    public async Task<List<CompanyModel>> GetByUserIdAsync(
+        Guid userId,
+        int page = 1,
+        int perPage = 10
+    )
     {
         var query = QueryFromUserId(userId);
 
-        return await query
-            .Skip((page - 1) * perPage)
-            .Take(perPage)
-            .ToListAsync();
+        return await query.Skip((page - 1) * perPage).Take(perPage).ToListAsync();
     }
 
     public async Task<int> CountByUserIdAsync(Guid userId)
@@ -58,11 +59,11 @@ public class CompanyRepository(AuthContext authContext) : ICompanyRepository
 
     private IQueryable<CompanyModel> QueryFromUserId(Guid userId)
     {
-        var query = from company in authContext.Companies
-                    join userRoles in authContext.UserRoles on company.Id equals userRoles.CompanyId
-                    where userRoles.UserId == userId
-                    select company;
+        var query =
+            from company in authContext.Companies
+            join userRoles in authContext.UserRoles on company.Id equals userRoles.CompanyId
+            where userRoles.UserId == userId
+            select company;
         return query;
     }
-
 }

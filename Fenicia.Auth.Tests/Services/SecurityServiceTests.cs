@@ -30,7 +30,11 @@ public class SecurityServiceTests
         {
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Data, Is.Not.EqualTo(password));
-            Assert.That(result.Data.StartsWith("$2a$12$"), Is.True, "Hash should use BCrypt format with work factor 12");
+            Assert.That(
+                result.Data.StartsWith("$2a$12$"),
+                Is.True,
+                "Hash should use BCrypt format with work factor 12"
+            );
             Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         });
     }
@@ -50,7 +54,11 @@ public class SecurityServiceTests
         }
 
         // Assert
-        Assert.That(hashes.Count, Is.EqualTo(5), "Each hash should be unique even for the same password");
+        Assert.That(
+            hashes.Count,
+            Is.EqualTo(5),
+            "Each hash should be unique even for the same password"
+        );
     }
 
     [Test]
@@ -129,15 +137,23 @@ public class SecurityServiceTests
         {
             // Verify correct password
             var correctResult = _sut.VerifyPassword(passwords[i], hashedPasswords[i]);
-            Assert.That(correctResult.Data, Is.True, $"Password {i} should verify against its own hash");
+            Assert.That(
+                correctResult.Data,
+                Is.True,
+                $"Password {i} should verify against its own hash"
+            );
 
             // Verify against other passwords' hashes
             for (int j = 0; j < passwordCount; j++)
             {
-                if (i == j) continue;
+                if (i == j)
+                    continue;
                 var incorrectResult = _sut.VerifyPassword(passwords[i], hashedPasswords[j]);
-                Assert.That(incorrectResult.Data, Is.False, 
-                    $"Password {i} should not verify against hash {j}");
+                Assert.That(
+                    incorrectResult.Data,
+                    Is.False,
+                    $"Password {i} should not verify against hash {j}"
+                );
             }
         }
     }
@@ -150,7 +166,7 @@ public class SecurityServiceTests
         {
             _faker.Internet.Password(8, false), // Simple password
             _faker.Internet.Password(16, true), // Complex password
-            _faker.Internet.Password(32, true, "@#$%") // Very complex password
+            _faker.Internet.Password(32, true, "@#$%"), // Very complex password
         };
 
         foreach (var password in testPasswords)
@@ -180,7 +196,7 @@ public class SecurityServiceTests
             (Password: "", Hash: validHash),
             (Password: null, Hash: validHash),
             (Password: validPassword, Hash: ""),
-            (Password: validPassword, Hash: null)
+            (Password: validPassword, Hash: null),
         };
 
         foreach (var (password, hash) in testCases)

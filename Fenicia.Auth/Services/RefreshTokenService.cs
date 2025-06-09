@@ -6,7 +6,10 @@ using Fenicia.Common;
 
 namespace Fenicia.Auth.Services;
 
-public class RefreshTokenService(ILogger<RefreshTokenService> logger, IRefreshTokenRepository refreshTokenRepository) : IRefreshTokenService
+public class RefreshTokenService(
+    ILogger<RefreshTokenService> logger,
+    IRefreshTokenRepository refreshTokenRepository
+) : IRefreshTokenService
 {
     public async Task<ServiceResponse<string>> GenerateRefreshTokenAsync(Guid userId)
     {
@@ -19,7 +22,7 @@ public class RefreshTokenService(ILogger<RefreshTokenService> logger, IRefreshTo
         var refreshToken = new RefreshTokenModel
         {
             Token = Convert.ToBase64String(randomNumber),
-            UserId = userId
+            UserId = userId,
         };
 
         refreshTokenRepository.Add(refreshToken);

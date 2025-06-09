@@ -21,19 +21,23 @@ public class RefreshTokenRepository(AuthContext authContext) : IRefreshTokenRepo
     {
         var now = DateTime.Now;
 
-        var query = from token in authContext.RefreshTokens
-                    where token.UserId == userId
-                          && now < token.ExpirationDate
-                          && token.Token == refreshToken
-                          && token.IsActive
-                    select token.Id;
+        var query =
+            from token in authContext.RefreshTokens
+            where
+                token.UserId == userId
+                && now < token.ExpirationDate
+                && token.Token == refreshToken
+                && token.IsActive
+            select token.Id;
 
         return await query.AnyAsync();
     }
 
     public async Task InvalidateRefreshTokenAsync(string refreshToken)
     {
-        var refreshTokenModel = await authContext.RefreshTokens.FirstOrDefaultAsync(token => token.Token == refreshToken);
+        var refreshTokenModel = await authContext.RefreshTokens.FirstOrDefaultAsync(token =>
+            token.Token == refreshToken
+        );
 
         if (refreshTokenModel == null)
         {

@@ -59,13 +59,17 @@ public class SubscriptionCreditRepositoryTests
         var now = DateTime.Now;
 
         var modules = _moduleGenerator.Generate(3);
-        var credits = subscriptionIds.Select(subscriptionId =>
-            _creditGenerator.Clone()
-                .RuleFor(c => c.SubscriptionId, subscriptionId)
-                .RuleFor(c => c.ModuleId, f => f.PickRandom(modules).Id)
-                .RuleFor(c => c.StartDate, now.AddDays(-10))
-                .RuleFor(c => c.EndDate, now.AddDays(10))
-                .Generate()).ToList();
+        var credits = subscriptionIds
+            .Select(subscriptionId =>
+                _creditGenerator
+                    .Clone()
+                    .RuleFor(c => c.SubscriptionId, subscriptionId)
+                    .RuleFor(c => c.ModuleId, f => f.PickRandom(modules).Id)
+                    .RuleFor(c => c.StartDate, now.AddDays(-10))
+                    .RuleFor(c => c.EndDate, now.AddDays(10))
+                    .Generate()
+            )
+            .ToList();
 
         await _context.Modules.AddRangeAsync(modules);
         await _context.SubscriptionCredits.AddRangeAsync(credits);
@@ -100,7 +104,8 @@ public class SubscriptionCreditRepositoryTests
         var now = DateTime.Now;
 
         var module = _moduleGenerator.Generate();
-        var credit = _creditGenerator.Clone()
+        var credit = _creditGenerator
+            .Clone()
             .RuleFor(c => c.SubscriptionId, subscription)
             .RuleFor(c => c.ModuleId, module.Id)
             .RuleFor(c => c.IsActive, false)
@@ -127,7 +132,8 @@ public class SubscriptionCreditRepositoryTests
         var now = DateTime.Now;
 
         var module = _moduleGenerator.Generate();
-        var credit = _creditGenerator.Clone()
+        var credit = _creditGenerator
+            .Clone()
             .RuleFor(c => c.SubscriptionId, subscription)
             .RuleFor(c => c.ModuleId, module.Id)
             .RuleFor(c => c.StartDate, now.AddDays(-20))
@@ -153,7 +159,8 @@ public class SubscriptionCreditRepositoryTests
         var now = DateTime.Now;
 
         var module = _moduleGenerator.Generate();
-        var credit = _creditGenerator.Clone()
+        var credit = _creditGenerator
+            .Clone()
             .RuleFor(c => c.SubscriptionId, subscription)
             .RuleFor(c => c.ModuleId, module.Id)
             .RuleFor(c => c.StartDate, now.AddDays(10))
@@ -179,13 +186,17 @@ public class SubscriptionCreditRepositoryTests
         var now = DateTime.Now;
 
         var module = _moduleGenerator.Generate();
-        var credits = subscriptions.Select(subscriptionId =>
-            _creditGenerator.Clone()
-                .RuleFor(c => c.SubscriptionId, subscriptionId)
-                .RuleFor(c => c.ModuleId, module.Id)
-                .RuleFor(c => c.StartDate, now.AddDays(-10))
-                .RuleFor(c => c.EndDate, now.AddDays(10))
-                .Generate()).ToList();
+        var credits = subscriptions
+            .Select(subscriptionId =>
+                _creditGenerator
+                    .Clone()
+                    .RuleFor(c => c.SubscriptionId, subscriptionId)
+                    .RuleFor(c => c.ModuleId, module.Id)
+                    .RuleFor(c => c.StartDate, now.AddDays(-10))
+                    .RuleFor(c => c.EndDate, now.AddDays(10))
+                    .Generate()
+            )
+            .ToList();
 
         await _context.Modules.AddAsync(module);
         await _context.SubscriptionCredits.AddRangeAsync(credits);
@@ -205,21 +216,23 @@ public class SubscriptionCreditRepositoryTests
         // Arrange
         var subscription = Guid.NewGuid();
         var now = DateTime.Now;
-        
-        var moduleTypes = new[] { ModuleType.Accounting, ModuleType.HR, ModuleType.Ecommerce };
-        var modules = moduleTypes.Select(type => _moduleGenerator
-            .Clone()
-            .RuleFor(m => m.Type, type)
-            .Generate()
-        ).ToList();
 
-        var credits = modules.Select(module =>
-            _creditGenerator.Clone()
-                .RuleFor(c => c.SubscriptionId, subscription)
-                .RuleFor(c => c.ModuleId, module.Id)
-                .RuleFor(c => c.StartDate, now.AddDays(-10))
-                .RuleFor(c => c.EndDate, now.AddDays(10))
-                .Generate()).ToList();
+        var moduleTypes = new[] { ModuleType.Accounting, ModuleType.HR, ModuleType.Ecommerce };
+        var modules = moduleTypes
+            .Select(type => _moduleGenerator.Clone().RuleFor(m => m.Type, type).Generate())
+            .ToList();
+
+        var credits = modules
+            .Select(module =>
+                _creditGenerator
+                    .Clone()
+                    .RuleFor(c => c.SubscriptionId, subscription)
+                    .RuleFor(c => c.ModuleId, module.Id)
+                    .RuleFor(c => c.StartDate, now.AddDays(-10))
+                    .RuleFor(c => c.EndDate, now.AddDays(10))
+                    .Generate()
+            )
+            .ToList();
 
         await _context.Modules.AddRangeAsync(modules);
         await _context.SubscriptionCredits.AddRangeAsync(credits);

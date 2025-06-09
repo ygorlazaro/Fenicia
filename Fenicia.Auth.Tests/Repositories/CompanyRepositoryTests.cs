@@ -40,7 +40,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
+            Cnpj = _faker.Random.String2(14, "0123456789"),
         };
         await _context.Companies.AddAsync(company);
         await _context.SaveChangesAsync();
@@ -70,7 +70,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
+            Cnpj = _faker.Random.String2(14, "0123456789"),
         };
         await _context.Companies.AddAsync(company);
         await _context.SaveChangesAsync();
@@ -90,7 +90,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
+            Cnpj = _faker.Random.String2(14, "0123456789"),
         };
 
         // Act
@@ -112,7 +112,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
+            Cnpj = _faker.Random.String2(14, "0123456789"),
         };
         await _context.Companies.AddAsync(company);
         await _context.SaveChangesAsync();
@@ -140,7 +140,7 @@ public class CompanyRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
+                Cnpj = _faker.Random.String2(14, "0123456789"),
             };
             companies.Add(company);
 
@@ -148,7 +148,7 @@ public class CompanyRepositoryTests
             {
                 UserId = userId,
                 CompanyId = company.Id,
-                Company = company
+                Company = company,
             };
             userRoles.Add(userRole);
         }
@@ -181,7 +181,7 @@ public class CompanyRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
+                Cnpj = _faker.Random.String2(14, "0123456789"),
             };
             companies.Add(company);
 
@@ -189,7 +189,7 @@ public class CompanyRepositoryTests
             {
                 UserId = userId,
                 CompanyId = company.Id,
-                Company = company
+                Company = company,
             };
             userRoles.Add(userRole);
         }
@@ -213,7 +213,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
+            Cnpj = _faker.Random.String2(14, "0123456789"),
         };
         await _context.Companies.AddAsync(company);
         await _context.SaveChangesAsync();

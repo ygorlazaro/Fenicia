@@ -1,4 +1,3 @@
-
 using System.Net;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Services;
@@ -23,7 +22,7 @@ public class SubscriptionCreditServiceTests
         _loggerMock = new Mock<ILogger<SubscriptionCreditService>>();
         _subscriptionCreditRepositoryMock = new Mock<ISubscriptionCreditRepository>();
         _subscriptionServiceMock = new Mock<ISubscriptionService>();
-        
+
         _sut = new SubscriptionCreditService(
             _loggerMock.Object,
             _subscriptionCreditRepositoryMock.Object,
@@ -37,10 +36,10 @@ public class SubscriptionCreditServiceTests
         // Arrange
         var companyId = Guid.NewGuid();
         var validSubscriptions = new List<Guid>(); // Replace with your actual subscription type
-        var expectedModuleTypes = new List<ModuleType> 
-        { 
+        var expectedModuleTypes = new List<ModuleType>
+        {
             ModuleType.Accounting,
-            ModuleType.Contracts
+            ModuleType.Contracts,
         };
 
         _subscriptionServiceMock
@@ -56,9 +55,12 @@ public class SubscriptionCreditServiceTests
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedModuleTypes));
-        
+
         _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId), Times.Once);
-        _subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(validSubscriptions), Times.Once);
+        _subscriptionCreditRepositoryMock.Verify(
+            x => x.GetValidModulesTypesAsync(validSubscriptions),
+            Times.Once
+        );
     }
 
     [Test]
@@ -67,7 +69,11 @@ public class SubscriptionCreditServiceTests
         // Arrange
         var companyId = Guid.NewGuid();
         var errorMessage = "No valid subscriptions found";
-        var errorResponse = new ServiceResponse<List<Guid>>(null, HttpStatusCode.NotFound, errorMessage);
+        var errorResponse = new ServiceResponse<List<Guid>>(
+            null,
+            HttpStatusCode.NotFound,
+            errorMessage
+        );
 
         _subscriptionServiceMock
             .Setup(x => x.GetValidSubscriptionsAsync(companyId))
@@ -82,7 +88,10 @@ public class SubscriptionCreditServiceTests
         Assert.That(result.Data, Is.Null);
 
         _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId), Times.Once);
-        _subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(It.IsAny<List<Guid>>()), Times.Never);
+        _subscriptionCreditRepositoryMock.Verify(
+            x => x.GetValidModulesTypesAsync(It.IsAny<List<Guid>>()),
+            Times.Never
+        );
     }
 
     [Test]
@@ -106,8 +115,11 @@ public class SubscriptionCreditServiceTests
 
         // Assert
         Assert.That(result.Data, Is.Empty);
-        
+
         _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId), Times.Once);
-        _subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(validSubscriptions), Times.Once);
+        _subscriptionCreditRepositoryMock.Verify(
+            x => x.GetValidModulesTypesAsync(validSubscriptions),
+            Times.Once
+        );
     }
 }

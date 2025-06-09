@@ -14,7 +14,9 @@ public static class PostgresDateTimeOffsetSupport
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            foreach (var property in entityType.GetProperties().Where(p => p.ClrType == typeof(DateTime)))
+            foreach (
+                var property in entityType.GetProperties().Where(p => p.ClrType == typeof(DateTime))
+            )
             {
                 property.SetValueConverter(dateTimeConverter);
             }

@@ -23,10 +23,10 @@ public class ExceptionMiddleware(RequestDelegate next)
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         context.Response.ContentType = "application/json";
 
-        return context.Response.WriteAsync(JsonConvert.SerializeObject(new
-        {
-            StatusCode = context.Response.StatusCode,
-            Message = ex.Message
-        }));
+        return context.Response.WriteAsync(
+            JsonConvert.SerializeObject(
+                new { StatusCode = context.Response.StatusCode, Message = ex.Message }
+            )
+        );
     }
 }

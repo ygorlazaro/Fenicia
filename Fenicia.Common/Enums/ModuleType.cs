@@ -14,5 +14,5 @@ public enum ModuleType
     Contracts = 8,
     Ecommerce = 9,
     CustomerSupport = 10,
-    Plus = 11
+    Plus = 11,
 }

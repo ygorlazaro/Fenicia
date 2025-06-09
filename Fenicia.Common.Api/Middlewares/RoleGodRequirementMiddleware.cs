@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.Api.Middlewares;
 
-
 public class RoleGodRequirementMiddleware
 {
     private readonly RequestDelegate _next;

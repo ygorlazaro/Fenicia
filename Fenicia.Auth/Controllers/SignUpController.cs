@@ -11,7 +11,8 @@ namespace Fenicia.Auth.Controllers;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class SignUpController(ILogger<SignUpController> logger, IUserService userService) : ControllerBase
+public class SignUpController(ILogger<SignUpController> logger, IUserService userService)
+    : ControllerBase
 {
     /// <summary>
     /// Creates a new user account

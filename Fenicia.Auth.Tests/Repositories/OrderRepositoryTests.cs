@@ -40,7 +40,7 @@ public class OrderRepositoryTests
         {
             Id = Guid.NewGuid(),
             CompanyId = Guid.NewGuid(),
-            UserId = Guid.NewGuid()
+            UserId = Guid.NewGuid(),
         };
 
         // Act
@@ -49,7 +49,7 @@ public class OrderRepositoryTests
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Id, Is.EqualTo(order.Id));
-        
+
         var savedOrder = await _context.Orders.FindAsync(order.Id);
         Assert.That(savedOrder, Is.Not.Null);
         Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
@@ -64,7 +64,7 @@ public class OrderRepositoryTests
         {
             Id = Guid.NewGuid(),
             CompanyId = Guid.NewGuid(),
-            UserId = Guid.NewGuid()
+            UserId = Guid.NewGuid(),
         };
 
         // Act
@@ -96,16 +96,15 @@ public class OrderRepositoryTests
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
-                    Amount = _faker.Random.Int(1, 10)
+                    Amount = _faker.Random.Int(1, 10),
                 },
-
                 new()
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
-                    Amount = _faker.Random.Int(1, 10)
-                }
-            ]
+                    Amount = _faker.Random.Int(1, 10),
+                },
+            ],
         };
 
         // Act
@@ -114,14 +113,16 @@ public class OrderRepositoryTests
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Details, Has.Count.EqualTo(2));
-        
-        var savedOrder = await _context.Orders
-            .Include(o => o.Details)
+
+        var savedOrder = await _context
+            .Orders.Include(o => o.Details)
             .FirstOrDefaultAsync(o => o.Id == order.Id);
-            
+
         Assert.That(savedOrder, Is.Not.Null);
         Assert.That(savedOrder.Details, Has.Count.EqualTo(2));
-        Assert.That(savedOrder.Details.Select(i => i.Id), 
-            Is.EquivalentTo(order.Details.Select(i => i.Id)));
+        Assert.That(
+            savedOrder.Details.Select(i => i.Id),
+            Is.EquivalentTo(order.Details.Select(i => i.Id))
+        );
     }
 }

@@ -1,0 +1,63 @@
+@page "/SignUp"
+@using Fenicia.Auth.Requests
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Sign Up</h3>
+                </div>
+                <div class="card-body">
+                    <EditForm Model="@userRequest" OnValidSubmit="@HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <InputText id="name" class="form-control" @bind-Value="userRequest.Name" />
+                            <ValidationMessage For="@(() => userRequest.Name)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <InputText id="email" class="form-control" type="email" @bind-Value="userRequest.Email" />
+                            <ValidationMessage For="@(() => userRequest.Email)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <InputText type="password" id="password" class="form-control" @bind-Value="userRequest.Password" />
+                            <ValidationMessage For="@(() => userRequest.Password)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="company" class="form-label">Company</label>
+                            <InputText id="company" class="form-control" @bind-Value="userRequest.Company.Name" />
+                            <ValidationMessage For="@(() => userRequest.Company.Name)" />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="cnpj" class="form-label">CNPJ</label>
+                            <InputText id="cnpj" class="form-control" @bind-Value="userRequest.Company.Cnpj" />
+                            <ValidationMessage For="@(() => userRequest.Company.Cnpj)" />
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Sign Up</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private UserRequest userRequest = new() { Company = new CompanyRequest() };
+
+    private async Task HandleValidSubmit()
+    {
+        // Handle the form submission here
+    }
+}

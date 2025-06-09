@@ -16,42 +16,87 @@ namespace Fenicia.Module.Basic.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    name = table.Column<string>(
+                        type: "character varying(50)",
+                        maxLength: 50,
+                        nullable: false
+                    ),
+                    created = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    updated = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
+                    deleted = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_positions", x => x.id);
-                });
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "product_categories",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    name = table.Column<string>(
+                        type: "character varying(50)",
+                        maxLength: 50,
+                        nullable: false
+                    ),
+                    created = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    updated = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
+                    deleted = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_product_categories", x => x.id);
-                });
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "suppliers",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    cpf = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: true),
+                    name = table.Column<string>(
+                        type: "character varying(50)",
+                        maxLength: 50,
+                        nullable: false
+                    ),
+                    cpf = table.Column<string>(
+                        type: "character varying(14)",
+                        maxLength: 14,
+                        nullable: true
+                    ),
                     address_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    created = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    updated = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
+                    deleted = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
@@ -61,21 +106,40 @@ namespace Fenicia.Module.Basic.Migrations
                         column: x => x.address_id,
                         principalTable: "addresses",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "employees",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    cpf = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: true),
+                    name = table.Column<string>(
+                        type: "character varying(50)",
+                        maxLength: 50,
+                        nullable: false
+                    ),
+                    cpf = table.Column<string>(
+                        type: "character varying(14)",
+                        maxLength: 14,
+                        nullable: true
+                    ),
                     address_id = table.Column<Guid>(type: "uuid", nullable: false),
                     position_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    created = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    updated = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
+                    deleted = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
@@ -85,28 +149,44 @@ namespace Fenicia.Module.Basic.Migrations
                         column: x => x.address_id,
                         principalTable: "addresses",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Cascade
+                    );
                     table.ForeignKey(
                         name: "fk_employees_positions_position_id",
                         column: x => x.position_id,
                         principalTable: "positions",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "products",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    name = table.Column<string>(
+                        type: "character varying(50)",
+                        maxLength: 50,
+                        nullable: false
+                    ),
                     cost_price = table.Column<decimal>(type: "numeric", nullable: false),
                     selling_price = table.Column<decimal>(type: "numeric", nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     category_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    created = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    updated = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
+                    deleted = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
@@ -116,8 +196,10 @@ namespace Fenicia.Module.Basic.Migrations
                         column: x => x.category_id,
                         principalTable: "product_categories",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "stock_movements",
@@ -128,9 +210,18 @@ namespace Fenicia.Module.Basic.Migrations
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     price = table.Column<decimal>(type: "numeric", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    created = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    updated = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
+                    deleted = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
@@ -140,55 +231,56 @@ namespace Fenicia.Module.Basic.Migrations
                         column: x => x.product_id,
                         principalTable: "products",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_employees_address_id",
                 table: "employees",
-                column: "address_id");
+                column: "address_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_employees_position_id",
                 table: "employees",
-                column: "position_id");
+                column: "position_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_products_category_id",
                 table: "products",
-                column: "category_id");
+                column: "category_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_stock_movements_product_id",
                 table: "stock_movements",
-                column: "product_id");
+                column: "product_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_suppliers_address_id",
                 table: "suppliers",
-                column: "address_id");
+                column: "address_id"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "employees");
+            migrationBuilder.DropTable(name: "employees");
 
-            migrationBuilder.DropTable(
-                name: "stock_movements");
+            migrationBuilder.DropTable(name: "stock_movements");
 
-            migrationBuilder.DropTable(
-                name: "suppliers");
+            migrationBuilder.DropTable(name: "suppliers");
 
-            migrationBuilder.DropTable(
-                name: "positions");
+            migrationBuilder.DropTable(name: "positions");
 
-            migrationBuilder.DropTable(
-                name: "products");
+            migrationBuilder.DropTable(name: "products");
 
-            migrationBuilder.DropTable(
-                name: "product_categories");
+            migrationBuilder.DropTable(name: "product_categories");
         }
     }
 }

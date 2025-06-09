@@ -33,12 +33,8 @@ public class RoleRepositoryTests
     public async Task GetAdminRoleAsync_ReturnsRole_WhenAdminRoleExists()
     {
         // Arrange
-        var adminRole = new RoleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Admin"
-        };
-        
+        var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
+
         await _context.Roles.AddAsync(adminRole);
         await _context.SaveChangesAsync();
 
@@ -55,12 +51,8 @@ public class RoleRepositoryTests
     public async Task GetAdminRoleAsync_ReturnsNull_WhenAdminRoleDoesNotExist()
     {
         // Arrange
-        var nonAdminRole = new RoleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "User"
-        };
-        
+        var nonAdminRole = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
+
         await _context.Roles.AddAsync(nonAdminRole);
         await _context.SaveChangesAsync();
 
@@ -89,9 +81,9 @@ public class RoleRepositoryTests
         {
             new RoleModel { Id = Guid.NewGuid(), Name = "User" },
             new RoleModel { Id = Guid.NewGuid(), Name = "Admin" },
-            new RoleModel { Id = Guid.NewGuid(), Name = "Manager" }
+            new RoleModel { Id = Guid.NewGuid(), Name = "Manager" },
         };
-        
+
         await _context.Roles.AddRangeAsync(roles);
         await _context.SaveChangesAsync();
 
@@ -107,12 +99,8 @@ public class RoleRepositoryTests
     public async Task GetAdminRoleAsync_IsCaseInsensitive()
     {
         // Arrange
-        var adminRole = new RoleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "ADMIN"
-        };
-        
+        var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "ADMIN" };
+
         await _context.Roles.AddAsync(adminRole);
         await _context.SaveChangesAsync();
 

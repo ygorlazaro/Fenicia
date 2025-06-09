@@ -20,7 +20,8 @@ public class TokenController(
     IUserService userService,
     IUserRoleService userRoleService,
     ICompanyService companyService,
-    ISubscriptionCreditService subscriptionCreditService) : ControllerBase
+    ISubscriptionCreditService subscriptionCreditService
+) : ControllerBase
 {
     /// <summary>
     /// Generates an authentication token for the user
@@ -72,7 +73,10 @@ public class TokenController(
 
         var userId = ClaimReader.UserId(User);
         var companyId = ClaimReader.CompanyId(User);
-        var isValidToken = await refreshTokenService.ValidateTokenAsync(userId, request.RefreshToken);
+        var isValidToken = await refreshTokenService.ValidateTokenAsync(
+            userId,
+            request.RefreshToken
+        );
 
         if (!isValidToken.Data)
         {
@@ -93,8 +97,10 @@ public class TokenController(
         return response;
     }
 
-
-    private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(UserResponse user, Guid companyId)
+    private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(
+        UserResponse user,
+        Guid companyId
+    )
     {
         var roles = await userRoleService.GetRolesByUserAsync(user.Id);
 
@@ -132,10 +138,6 @@ public class TokenController(
 
         logger.LogInformation("User logged in - {email}", [user.Email]);
 
-        return Ok(new TokenResponse
-        {
-            Token = token.Data,
-            RefreshToken = refreshToken.Data
-        });
+        return Ok(new TokenResponse { Token = token.Data, RefreshToken = refreshToken.Data });
     }
 }

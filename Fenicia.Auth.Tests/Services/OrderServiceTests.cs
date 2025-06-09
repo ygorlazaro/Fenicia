@@ -35,15 +35,16 @@ public class OrderServiceTests
         _moduleServiceMock = new Mock<IModuleService>();
         _subscriptionServiceMock = new Mock<ISubscriptionService>();
         _userServiceMock = new Mock<IUserService>();
-        
+
         _sut = new OrderService(
             _mapperMock.Object,
             _loggerMock.Object,
             _orderRepositoryMock.Object,
             _moduleServiceMock.Object,
             _subscriptionServiceMock.Object,
-            _userServiceMock.Object);
-            
+            _userServiceMock.Object
+        );
+
         _faker = new Faker();
     }
 
@@ -74,12 +75,9 @@ public class OrderServiceTests
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
-        var request = new OrderRequest 
-        { 
-            Details = new List<OrderDetailRequest> 
-            { 
-                new() { ModuleId = moduleId } 
-            } 
+        var request = new OrderRequest
+        {
+            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } },
         };
 
         var emptyModulesList = new List<ModuleResponse>();
@@ -96,9 +94,7 @@ public class OrderServiceTests
             .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic))
             .ReturnsAsync(new ServiceResponse<ModuleResponse>(null));
 
-        _mapperMock
-            .Setup(x => x.Map<List<ModuleModel>>(emptyModulesList))
-            .Returns([]);
+        _mapperMock.Setup(x => x.Map<List<ModuleModel>>(emptyModulesList)).Returns([]);
 
         // Act
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
@@ -116,36 +112,43 @@ public class OrderServiceTests
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
         var moduleAmount = _faker.Random.Decimal(10, 1000);
-        
-        var request = new OrderRequest 
-        { 
-            Details = new List<OrderDetailRequest> 
-            { 
-                new() { ModuleId = moduleId } 
-            } 
+
+        var request = new OrderRequest
+        {
+            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } },
         };
 
-        var moduleResponses = new List<ModuleResponse> 
-        { 
-            new() 
-            { 
-                Id = moduleId, 
+        var moduleResponses = new List<ModuleResponse>
+        {
+            new()
+            {
+                Id = moduleId,
                 Amount = moduleAmount,
-                Type = ModuleType.Accounting 
-            }
+                Type = ModuleType.Accounting,
+            },
         };
 
-        var basicModuleResponse = new ModuleResponse 
-        { 
-            Id = Guid.NewGuid(), 
+        var basicModuleResponse = new ModuleResponse
+        {
+            Id = Guid.NewGuid(),
             Type = ModuleType.Basic,
-            Amount = _faker.Random.Decimal(10, 1000)
+            Amount = _faker.Random.Decimal(10, 1000),
         };
 
         var moduleModels = new List<ModuleModel>
         {
-            new() { Id = moduleId, Amount = moduleAmount, Type = ModuleType.Accounting },
-            new() { Id = basicModuleResponse.Id, Amount = basicModuleResponse.Amount, Type = ModuleType.Basic }
+            new()
+            {
+                Id = moduleId,
+                Amount = moduleAmount,
+                Type = ModuleType.Accounting,
+            },
+            new()
+            {
+                Id = basicModuleResponse.Id,
+                Amount = basicModuleResponse.Amount,
+                Type = ModuleType.Basic,
+            },
         };
 
         var expectedOrder = new OrderModel
@@ -153,7 +156,7 @@ public class OrderServiceTests
             Id = Guid.NewGuid(),
             UserId = userId,
             Status = OrderStatus.Approved,
-            TotalAmount = moduleAmount + basicModuleResponse.Amount
+            TotalAmount = moduleAmount + basicModuleResponse.Amount,
         };
 
         _userServiceMock
@@ -186,19 +189,24 @@ public class OrderServiceTests
         // Assert
         Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(result.Data, Is.Not.Null);
-        
+
         _orderRepositoryMock.Verify(
-            x => x.SaveOrderAsync(It.Is<OrderModel>(o => 
-                o.UserId == userId && 
-                o.Status == OrderStatus.Approved)), 
-            Times.Once);
-        
+            x =>
+                x.SaveOrderAsync(
+                    It.Is<OrderModel>(o => o.UserId == userId && o.Status == OrderStatus.Approved)
+                ),
+            Times.Once
+        );
+
         _subscriptionServiceMock.Verify(
-            x => x.CreateCreditsForOrderAsync(
-                It.IsAny<OrderModel>(), 
-                It.IsAny<List<OrderDetailModel>>(), 
-                companyId), 
-            Times.Once);
+            x =>
+                x.CreateCreditsForOrderAsync(
+                    It.IsAny<OrderModel>(),
+                    It.IsAny<List<OrderDetailModel>>(),
+                    companyId
+                ),
+            Times.Once
+        );
     }
 
     [Test]
@@ -209,28 +217,30 @@ public class OrderServiceTests
         var companyId = Guid.NewGuid();
         var basicModuleId = Guid.NewGuid();
         var moduleAmount = _faker.Random.Decimal(10, 1000);
-        
-        var request = new OrderRequest 
-        { 
-            Details = new List<OrderDetailRequest> 
-            { 
-                new() { ModuleId = basicModuleId } 
-            } 
+
+        var request = new OrderRequest
+        {
+            Details = new List<OrderDetailRequest> { new() { ModuleId = basicModuleId } },
         };
 
-        var moduleResponses = new List<ModuleResponse> 
-        { 
-            new() 
-            { 
-                Id = basicModuleId, 
+        var moduleResponses = new List<ModuleResponse>
+        {
+            new()
+            {
+                Id = basicModuleId,
                 Amount = moduleAmount,
-                Type = ModuleType.Basic 
-            }
+                Type = ModuleType.Basic,
+            },
         };
 
         var moduleModels = new List<ModuleModel>
         {
-            new() { Id = basicModuleId, Amount = moduleAmount, Type = ModuleType.Basic }
+            new()
+            {
+                Id = basicModuleId,
+                Amount = moduleAmount,
+                Type = ModuleType.Basic,
+            },
         };
 
         _userServiceMock
@@ -241,9 +251,7 @@ public class OrderServiceTests
             .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>()))
             .ReturnsAsync(new ServiceResponse<List<ModuleResponse>>(moduleResponses));
 
-        _mapperMock
-            .Setup(x => x.Map<List<ModuleModel>>(moduleResponses))
-            .Returns(moduleModels);
+        _mapperMock.Setup(x => x.Map<List<ModuleModel>>(moduleResponses)).Returns(moduleModels);
 
         _mapperMock
             .Setup(x => x.Map<OrderResponse>(It.IsAny<OrderModel>()))

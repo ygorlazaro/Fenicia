@@ -4,7 +4,10 @@ using Fenicia.Common;
 
 namespace Fenicia.Auth.Services;
 
-public class UserRoleService(ILogger<UserRoleService> logger, IUserRoleRepository userRoleRepository) : IUserRoleService
+public class UserRoleService(
+    ILogger<UserRoleService> logger,
+    IUserRoleRepository userRoleRepository
+) : IUserRoleService
 {
     public async Task<ServiceResponse<string[]>> GetRolesByUserAsync(Guid userId)
     {

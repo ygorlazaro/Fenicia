@@ -15,15 +15,14 @@ namespace Fenicia.Auth.Migrations
                 table: "refresh_tokens",
                 type: "boolean",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "is_active",
-                table: "refresh_tokens");
+            migrationBuilder.DropColumn(name: "is_active", table: "refresh_tokens");
         }
     }
 }

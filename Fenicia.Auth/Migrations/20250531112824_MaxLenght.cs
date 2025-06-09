@@ -17,7 +17,8 @@ namespace Fenicia.Auth.Migrations
                 maxLength: 200,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -26,7 +27,8 @@ namespace Fenicia.Auth.Migrations
                 maxLength: 48,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "email",
@@ -35,7 +37,8 @@ namespace Fenicia.Auth.Migrations
                 maxLength: 48,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -44,7 +47,8 @@ namespace Fenicia.Auth.Migrations
                 maxLength: 10,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -53,7 +57,8 @@ namespace Fenicia.Auth.Migrations
                 maxLength: 30,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "cnpj",
@@ -62,7 +67,8 @@ namespace Fenicia.Auth.Migrations
                 maxLength: 14,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "text");
+                oldType: "text"
+            );
         }
 
         /// <inheritdoc />
@@ -75,7 +81,8 @@ namespace Fenicia.Auth.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "character varying(200)",
-                oldMaxLength: 200);
+                oldMaxLength: 200
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -84,7 +91,8 @@ namespace Fenicia.Auth.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "character varying(48)",
-                oldMaxLength: 48);
+                oldMaxLength: 48
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "email",
@@ -93,7 +101,8 @@ namespace Fenicia.Auth.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "character varying(48)",
-                oldMaxLength: 48);
+                oldMaxLength: 48
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -102,7 +111,8 @@ namespace Fenicia.Auth.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "character varying(10)",
-                oldMaxLength: 10);
+                oldMaxLength: 10
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "name",
@@ -111,7 +121,8 @@ namespace Fenicia.Auth.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "character varying(30)",
-                oldMaxLength: 30);
+                oldMaxLength: 30
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "cnpj",
@@ -120,7 +131,8 @@ namespace Fenicia.Auth.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "character varying(14)",
-                oldMaxLength: 14);
+                oldMaxLength: 14
+            );
         }
     }
 }

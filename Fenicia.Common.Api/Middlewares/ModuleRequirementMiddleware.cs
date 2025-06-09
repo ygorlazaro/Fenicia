@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.Api.Middlewares;
 
-
 public class ModuleRequirementMiddleware
 {
     private readonly RequestDelegate _next;
@@ -30,10 +29,15 @@ public class ModuleRequirementMiddleware
         {
             var modules = JsonSerializer.Deserialize<List<string>>(moduleClaim.Value);
 
-            if (modules is null || !modules.Contains(_requiredModule, StringComparer.OrdinalIgnoreCase))
+            if (
+                modules is null
+                || !modules.Contains(_requiredModule, StringComparer.OrdinalIgnoreCase)
+            )
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await context.Response.WriteAsync($"Access to module '{_requiredModule}' is forbidden.");
+                await context.Response.WriteAsync(
+                    $"Access to module '{_requiredModule}' is forbidden."
+                );
                 return;
             }
         }

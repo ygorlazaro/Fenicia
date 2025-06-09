@@ -16,7 +16,8 @@ public class UserService(
     IRoleRepository roleRepository,
     IUserRoleRepository userRoleRepository,
     ICompanyRepository companyRepository,
-    ISecurityService securityService) : IUserService
+    ISecurityService securityService
+) : IUserService
 {
     public async Task<ServiceResponse<UserResponse>> GetForLoginAsync(TokenRequest request)
     {
@@ -27,8 +28,11 @@ public class UserService(
         {
             logger.LogInformation("Invalid login - {email}", [request.Email]);
 
-            return new ServiceResponse<UserResponse>(null, HttpStatusCode.BadRequest,
-                TextConstants.InvalidUsernameOrPassword);
+            return new ServiceResponse<UserResponse>(
+                null,
+                HttpStatusCode.BadRequest,
+                TextConstants.InvalidUsernameOrPassword
+            );
         }
 
         var isValidPassword = securityService.VerifyPassword(request.Password, user.Password);
@@ -42,28 +46,41 @@ public class UserService(
 
         logger.LogInformation("Invalid login - {email}", [request.Email]);
 
-        return new ServiceResponse<UserResponse>(null, HttpStatusCode.BadRequest,
-            TextConstants.InvalidUsernameOrPassword);
+        return new ServiceResponse<UserResponse>(
+            null,
+            HttpStatusCode.BadRequest,
+            TextConstants.InvalidUsernameOrPassword
+        );
     }
 
     public async Task<ServiceResponse<UserResponse>> CreateNewUserAsync(UserRequest request)
     {
         logger.LogInformation("Creating new user");
         var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email);
-        var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.Cnpj);
+        var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(
+            request.Company.Cnpj
+        );
 
         if (isExistingUser)
         {
             logger.LogInformation("User already exists - {email}", [request.Email]);
 
-            return new ServiceResponse<UserResponse>(null, HttpStatusCode.BadRequest, TextConstants.EmailExists);
+            return new ServiceResponse<UserResponse>(
+                null,
+                HttpStatusCode.BadRequest,
+                TextConstants.EmailExists
+            );
         }
 
         if (isExistingCompany)
         {
             logger.LogInformation("Company already exists - {cnpj}", [request.Company.Cnpj]);
 
-            return new ServiceResponse<UserResponse>(null, HttpStatusCode.BadRequest, TextConstants.CompanyExists);
+            return new ServiceResponse<UserResponse>(
+                null,
+                HttpStatusCode.BadRequest,
+                TextConstants.CompanyExists
+            );
         }
 
         var hashedPassword = securityService.HashPassword(request.Password).Data;
@@ -72,22 +89,24 @@ public class UserService(
         {
             Email = request.Email,
             Password = hashedPassword!,
-            Name = request.Name
+            Name = request.Name,
         };
 
         var user = userRepository.Add(userRequest);
-        var company = companyRepository.Add(new CompanyModel
-        {
-            Name = request.Company.Name,
-            Cnpj = request.Company.Cnpj
-        });
+        var company = companyRepository.Add(
+            new CompanyModel { Name = request.Company.Name, Cnpj = request.Company.Cnpj }
+        );
         var adminRole = await roleRepository.GetAdminRoleAsync();
 
         if (adminRole is null)
         {
             logger.LogCritical("Missing admin role. Please check database.");
 
-            return new ServiceResponse<UserResponse>(null, HttpStatusCode.InternalServerError, TextConstants.MissingAdminRole);
+            return new ServiceResponse<UserResponse>(
+                null,
+                HttpStatusCode.InternalServerError,
+                TextConstants.MissingAdminRole
+            );
         }
 
         user.UsersRoles =
@@ -96,8 +115,8 @@ public class UserService(
             {
                 User = user,
                 Company = company,
-                Role = adminRole
-            }
+                Role = adminRole,
+            },
         ];
 
         await userRepository.SaveAsync();
@@ -123,7 +142,11 @@ public class UserService(
 
         if (user is null)
         {
-            return new ServiceResponse<UserResponse>(null, HttpStatusCode.Unauthorized, TextConstants.PermissionDenied);
+            return new ServiceResponse<UserResponse>(
+                null,
+                HttpStatusCode.Unauthorized,
+                TextConstants.PermissionDenied
+            );
         }
 
         return new ServiceResponse<UserResponse>(response);

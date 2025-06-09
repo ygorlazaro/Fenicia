@@ -15,48 +15,44 @@ namespace Fenicia.Auth.Migrations
                 table: "companies",
                 type: "boolean",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false
+            );
 
             migrationBuilder.AddColumn<string>(
                 name: "language",
                 table: "companies",
                 type: "text",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: ""
+            );
 
             migrationBuilder.AddColumn<string>(
                 name: "logo",
                 table: "companies",
                 type: "text",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: ""
+            );
 
             migrationBuilder.AddColumn<string>(
                 name: "time_zone",
                 table: "companies",
                 type: "text",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: ""
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "is_active",
-                table: "companies");
+            migrationBuilder.DropColumn(name: "is_active", table: "companies");
 
-            migrationBuilder.DropColumn(
-                name: "language",
-                table: "companies");
+            migrationBuilder.DropColumn(name: "language", table: "companies");
 
-            migrationBuilder.DropColumn(
-                name: "logo",
-                table: "companies");
+            migrationBuilder.DropColumn(name: "logo", table: "companies");
 
-            migrationBuilder.DropColumn(
-                name: "time_zone",
-                table: "companies");
+            migrationBuilder.DropColumn(name: "time_zone", table: "companies");
         }
     }
 }

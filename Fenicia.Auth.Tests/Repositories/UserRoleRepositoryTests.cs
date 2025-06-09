@@ -53,14 +53,18 @@ public class UserRoleRepositoryTests
         // Arrange
         var userId = Guid.NewGuid();
         var roles = new[] { "Admin", "User", "Manager" };
-        var userRoles = roles.Select(role => _userRoleGenerator
-            .Clone()
-            .RuleFor(ur => ur.UserId, userId)
-            .RuleFor(ur => ur.Role, f => _roleGenerator
-                .Clone()
-                .RuleFor(r => r.Name, role)
-                .Generate())
-            .Generate()).ToList();
+        var userRoles = roles
+            .Select(role =>
+                _userRoleGenerator
+                    .Clone()
+                    .RuleFor(ur => ur.UserId, userId)
+                    .RuleFor(
+                        ur => ur.Role,
+                        f => _roleGenerator.Clone().RuleFor(r => r.Name, role).Generate()
+                    )
+                    .Generate()
+            )
+            .ToList();
 
         await _context.UserRoles.AddRangeAsync(userRoles);
         await _context.SaveChangesAsync();
@@ -134,10 +138,10 @@ public class UserRoleRepositoryTests
             .Clone()
             .RuleFor(ur => ur.UserId, userId)
             .RuleFor(ur => ur.CompanyId, companyId)
-            .RuleFor(ur => ur.Role, f => _roleGenerator
-                .Clone()
-                .RuleFor(r => r.Name, roleName)
-                .Generate())
+            .RuleFor(
+                ur => ur.Role,
+                f => _roleGenerator.Clone().RuleFor(r => r.Name, roleName).Generate()
+            )
             .Generate();
 
         await _context.UserRoles.AddAsync(userRole);
@@ -161,10 +165,10 @@ public class UserRoleRepositoryTests
             .Clone()
             .RuleFor(ur => ur.UserId, userId)
             .RuleFor(ur => ur.CompanyId, companyId)
-            .RuleFor(ur => ur.Role, f => _roleGenerator
-                .Clone()
-                .RuleFor(r => r.Name, "DifferentRole")
-                .Generate())
+            .RuleFor(
+                ur => ur.Role,
+                f => _roleGenerator.Clone().RuleFor(r => r.Name, "DifferentRole").Generate()
+            )
             .Generate();
 
         await _context.UserRoles.AddAsync(userRole);

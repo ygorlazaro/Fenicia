@@ -8,10 +8,16 @@ using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Services;
 
-public class ModuleService(IMapper mapper, ILogger<ModuleService> logger, IModuleRepository moduleRepository)
-    : IModuleService
+public class ModuleService(
+    IMapper mapper,
+    ILogger<ModuleService> logger,
+    IModuleRepository moduleRepository
+) : IModuleService
 {
-    public async Task<ServiceResponse<List<ModuleResponse>>> GetAllOrderedAsync(int page = 1, int perPage = 10)
+    public async Task<ServiceResponse<List<ModuleResponse>>> GetAllOrderedAsync(
+        int page = 1,
+        int perPage = 10
+    )
     {
         logger.LogInformation("Getting all modules");
         var modules = await moduleRepository.GetAllOrderedAsync(page, perPage);
@@ -21,7 +27,9 @@ public class ModuleService(IMapper mapper, ILogger<ModuleService> logger, IModul
         return new ServiceResponse<List<ModuleResponse>>(response);
     }
 
-    public async Task<ServiceResponse<List<ModuleResponse>>> GetModulesToOrderAsync(IEnumerable<Guid> request)
+    public async Task<ServiceResponse<List<ModuleResponse>>> GetModulesToOrderAsync(
+        IEnumerable<Guid> request
+    )
     {
         logger.LogInformation("Getting modules to order");
         var modules = await moduleRepository.GetManyOrdersAsync(request);
@@ -38,7 +46,11 @@ public class ModuleService(IMapper mapper, ILogger<ModuleService> logger, IModul
 
         if (module is null)
         {
-            return new ServiceResponse<ModuleResponse>(null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+            return new ServiceResponse<ModuleResponse>(
+                null,
+                HttpStatusCode.NotFound,
+                TextConstants.ItemNotFound
+            );
         }
 
         var response = mapper.Map<ModuleResponse>(module);

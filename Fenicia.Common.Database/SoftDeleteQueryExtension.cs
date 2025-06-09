@@ -9,8 +9,7 @@ public static class SoftDeleteQueryExtension
     public static void AddSoftDeleteQueryFilter(this IMutableEntityType entityData)
     {
         var methodToCall = typeof(SoftDeleteQueryExtension)
-            .GetMethod(nameof(GetSoftDeleteFilter),
-                BindingFlags.NonPublic | BindingFlags.Static)
+            .GetMethod(nameof(GetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)
             ?.MakeGenericMethod(entityData.ClrType);
 
         if (methodToCall is null)
@@ -26,6 +25,6 @@ public static class SoftDeleteQueryExtension
     private static LambdaExpression GetSoftDeleteFilter<TEntity>()
         where TEntity : BaseModel
     {
-        return (Expression<Func<TEntity, bool>>) (x => x.Deleted == null);
+        return (Expression<Func<TEntity, bool>>)(x => x.Deleted == null);
     }
 }
