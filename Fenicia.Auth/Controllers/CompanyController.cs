@@ -14,7 +14,8 @@ namespace Fenicia.Auth.Controllers;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CompanyController(ILogger<CompanyController> logger, ICompanyService companyService) : ControllerBase
+public class CompanyController(ILogger<CompanyController> logger, ICompanyService companyService)
+    : ControllerBase
 {
     /// <summary>
     /// Retrieves companies associated with the logged-in user
@@ -23,7 +24,9 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
     /// <response code="401">If the user is not authenticated</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<CompanyResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query)
+    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser(
+        [FromQuery] PaginationQuery query
+    )
     {
         var userId = ClaimReader.UserId(User);
         var companies = await companyService.GetByUserIdAsync(userId, query.Page, query.PerPage);
@@ -36,9 +39,14 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
             return StatusCode((int)companies.StatusCode, companies.Message);
         }
 
-        var response = new Pagination<IEnumerable<CompanyResponse>>(companies.Data, total.Data, query.Page, query.PerPage);
+        var response = new Pagination<IEnumerable<CompanyResponse>>(
+            companies.Data,
+            total.Data,
+            query.Page,
+            query.PerPage
+        );
 
-        return Ok(companies);
+        return Ok(response);
     }
 
     /// <summary>
@@ -56,7 +64,8 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CompanyResponse>> PatchAsync(
         [FromBody] CompanyUpdateRequest request,
-        [FromRoute] Guid id)
+        [FromRoute] Guid id
+    )
     {
         var userId = ClaimReader.UserId(User);
         var companyId = ClaimReader.CompanyId(User);

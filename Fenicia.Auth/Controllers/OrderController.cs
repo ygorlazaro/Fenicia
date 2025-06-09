@@ -13,7 +13,8 @@ namespace Fenicia.Auth.Controllers;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController(ILogger<OrderController> logger, IOrderService orderService) : ControllerBase
+public class OrderController(ILogger<OrderController> logger, IOrderService orderService)
+    : ControllerBase
 {
     /// <summary>
     /// Creates a new order for the authenticated user's company

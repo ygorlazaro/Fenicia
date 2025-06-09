@@ -21,20 +21,22 @@ public static class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Host.UseSerilog((context, loggerConfiguration) =>
-        {
-            loggerConfiguration.WriteTo.Console();
-            loggerConfiguration.ReadFrom.Configuration(context.Configuration);
-        });
+        builder.Host.UseSerilog(
+            (context, loggerConfiguration) =>
+            {
+                loggerConfiguration.WriteTo.Console();
+                loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+            }
+        );
 
         var configuration = builder.Configuration;
 
-        Log.Logger = new LoggerConfiguration()
-            .WriteTo.Console()
-            .CreateLogger();
+        Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
-                                          throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+        var key = Encoding.ASCII.GetBytes(
+            configuration["Jwt:Secret"]
+                ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret)
+        );
 
         var connectionString = configuration.GetConnectionString("AuthConnection");
 
@@ -54,7 +56,10 @@ public static class Program
         builder.Services.AddTransient<IOrderRepository, OrderRepository>();
         builder.Services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
         builder.Services.AddTransient<IRoleRepository, RoleRepository>();
-        builder.Services.AddTransient<ISubscriptionCreditRepository, SubscriptionCreditRepository>();
+        builder.Services.AddTransient<
+            ISubscriptionCreditRepository,
+            SubscriptionCreditRepository
+        >();
         builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
         builder.Services.AddTransient<IUserRepository, UserRepository>();
         builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
@@ -68,7 +73,8 @@ public static class Program
                 .UseSnakeCaseNamingConvention();
         });
 
-        builder.Services.AddAuthentication(x =>
+        builder
+            .Services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -83,16 +89,18 @@ public static class Program
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateAudience = false,
                 };
             });
 
-        builder.Services.AddControllers()
+        builder
+            .Services.AddControllers()
             .AddJsonOptions(x =>
             {
                 x.JsonSerializerOptions.AllowTrailingCommas = false;
                 x.JsonSerializerOptions.MaxDepth = 0;
-                x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                x.JsonSerializerOptions.DefaultIgnoreCondition =
+                    JsonIgnoreCondition.WhenWritingNull;
             });
         builder.Services.AddOpenApi();
 
@@ -105,13 +113,11 @@ public static class Program
             app.MapOpenApi();
             app.MapScalarApiReference(x =>
             {
-                x.WithDarkModeToggle(true)
-                    .WithTheme(ScalarTheme.BluePlanet)
-                    .WithClientButton(true);
+                x.WithDarkModeToggle(true).WithTheme(ScalarTheme.BluePlanet).WithClientButton(true);
 
                 x.Authentication = new ScalarAuthenticationOptions
                 {
-                    PreferredSecurityScheme = "Bearer"
+                    PreferredSecurityScheme = "Bearer",
                 };
             });
         }

@@ -6,5 +6,9 @@ namespace Fenicia.Auth.Services.Interfaces;
 
 public interface IOrderService
 {
-    Task<ServiceResponse<OrderResponse>> CreateNewOrderAsync(Guid userId, Guid companyId, OrderRequest request);
+    Task<ServiceResponse<OrderResponse>> CreateNewOrderAsync(
+        Guid userId,
+        Guid companyId,
+        OrderRequest request
+    );
 }

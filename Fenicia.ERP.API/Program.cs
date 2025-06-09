@@ -14,10 +14,13 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
 
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
-                                          throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+        var key = Encoding.ASCII.GetBytes(
+            configuration["Jwt:Secret"]
+                ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret)
+        );
 
-        builder.Services.AddAuthentication(x =>
+        builder
+            .Services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -33,7 +36,7 @@ public class Program
                     ValidIssuer = "AuthService",
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = true
+                    ValidateLifetime = true,
                 };
             });
 
@@ -47,13 +50,11 @@ public class Program
             app.MapOpenApi();
             app.MapScalarApiReference(x =>
             {
-                x.WithDarkModeToggle(true)
-                    .WithTheme(ScalarTheme.BluePlanet)
-                    .WithClientButton(true);
+                x.WithDarkModeToggle(true).WithTheme(ScalarTheme.BluePlanet).WithClientButton(true);
 
                 x.Authentication = new ScalarAuthenticationOptions
                 {
-                    PreferredSecurityScheme = "Bearer"
+                    PreferredSecurityScheme = "Bearer",
                 };
             });
         }

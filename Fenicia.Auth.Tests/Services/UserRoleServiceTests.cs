@@ -38,7 +38,7 @@ public class UserRoleServiceTests
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedRoles));
-        
+
         _userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId), Times.Once);
     }
 
@@ -49,16 +49,14 @@ public class UserRoleServiceTests
         var userId = Guid.NewGuid();
         var emptyRoles = Array.Empty<string>();
 
-        _userRoleRepositoryMock
-            .Setup(x => x.GetRolesByUserAsync(userId))
-            .ReturnsAsync(emptyRoles);
+        _userRoleRepositoryMock.Setup(x => x.GetRolesByUserAsync(userId)).ReturnsAsync(emptyRoles);
 
         // Act
         var result = await _sut.GetRolesByUserAsync(userId);
 
         // Assert
         Assert.That(result.Data, Is.Empty);
-        
+
         _userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId), Times.Once);
     }
 
@@ -79,11 +77,8 @@ public class UserRoleServiceTests
 
         // Assert
         Assert.That(result.Data, Is.True);
-        
-        _userRoleRepositoryMock.Verify(
-            x => x.HasRoleAsync(userId, companyId, role),
-            Times.Once
-        );
+
+        _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role), Times.Once);
     }
 
     [Test]
@@ -103,11 +98,8 @@ public class UserRoleServiceTests
 
         // Assert
         Assert.That(result.Data, Is.False);
-        
-        _userRoleRepositoryMock.Verify(
-            x => x.HasRoleAsync(userId, companyId, role),
-            Times.Once
-        );
+
+        _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role), Times.Once);
     }
 
     [TestCase("Admin")]
@@ -128,10 +120,7 @@ public class UserRoleServiceTests
 
         // Assert
         Assert.That(result.Data, Is.True);
-        
-        _userRoleRepositoryMock.Verify(
-            x => x.HasRoleAsync(userId, companyId, role),
-            Times.Once
-        );
+
+        _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role), Times.Once);
     }
 }

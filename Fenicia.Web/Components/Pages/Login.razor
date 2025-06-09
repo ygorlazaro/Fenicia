@@ -1,0 +1,133 @@
+@page "/Login"
+@using Fenicia.Auth.Requests
+@using Fenicia.Web.Providers.Auth
+@using Blazored.LocalStorage
+@inject ILocalStorageService localStorage
+@inject TokenProvider TokenProvider
+@inject NavigationManager NavigationManager
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Login</h3>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessage
+                        </div>
+                    }
+                    <form @onsubmit="HandleSubmit" @onsubmit:preventDefault>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" 
+                                   id="email" 
+                                   class="form-control" 
+                                   @bind="tokenRequest.Email" 
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" 
+                                   id="password" 
+                                   class="form-control" 
+                                   @bind="tokenRequest.Password" 
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="cnpj" class="form-label">CNPJ</label>
+                            <input type="text" 
+                                   id="cnpj" 
+                                   class="form-control" 
+                                   @bind="tokenRequest.Cnpj" 
+                                   maxlength="14" 
+                                   required />
+                        </div>
+
+                        <div class="text-center">
+                            <button class="btn btn-primary" disabled="@isLoading">
+                                @if (isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    <span>Loading...</span>
+                                }
+                                else
+                                {
+                                    <span>Login</span>
+                                }
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private TokenRequest tokenRequest = new()
+    {
+        Cnpj = "23351185000184",
+        Email = "ygor@ygorlazaro.com",
+        Password = "Age14rjy"
+    };
+    private bool isLoading;
+    private string? errorMessage;
+
+    protected override void OnInitialized()
+    {
+        localStorage.RemoveItemAsync("authToken");
+        localStorage.RemoveItemAsync("refreshToken");
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            if (string.IsNullOrWhiteSpace(tokenRequest.Email) ||
+                string.IsNullOrWhiteSpace(tokenRequest.Password) ||
+                string.IsNullOrWhiteSpace(tokenRequest.Cnpj))
+            {
+                errorMessage = "Please fill in all required fields.";
+                return;
+            }
+
+            var response = await TokenProvider.GetTokenAsync(tokenRequest);
+            
+            if (response != null)
+            {
+                await localStorage.SetItemAsync("authToken", response.Token);
+                await localStorage.SetItemAsync("refreshToken", response.RefreshToken);
+                NavigationManager.NavigateTo("/home", true);
+            }
+            else
+            {
+                errorMessage = "Invalid login attempt.";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = ex.Message;
+            Console.WriteLine($"Error details: {ex}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An unexpected error occurred. Please try again.";
+            Console.WriteLine($"Error details: {ex}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

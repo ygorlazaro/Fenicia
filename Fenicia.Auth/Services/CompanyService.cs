@@ -13,7 +13,8 @@ public class CompanyService(
     IMapper mapper,
     ILogger<CompanyService> logger,
     ICompanyRepository companyRepository,
-    IUserRoleService userRoleService) : ICompanyService
+    IUserRoleService userRoleService
+) : ICompanyService
 {
     public async Task<ServiceResponse<CompanyResponse>> GetByCnpjAsync(string cnpj)
     {
@@ -22,7 +23,11 @@ public class CompanyService(
 
         if (company is null)
         {
-            return new ServiceResponse<CompanyResponse>(null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+            return new ServiceResponse<CompanyResponse>(
+                null,
+                HttpStatusCode.NotFound,
+                TextConstants.ItemNotFound
+            );
         }
 
         var response = mapper.Map<CompanyResponse>(company);
@@ -30,7 +35,11 @@ public class CompanyService(
         return new ServiceResponse<CompanyResponse>(response);
     }
 
-    public async Task<ServiceResponse<List<CompanyResponse>>> GetByUserIdAsync(Guid userId, int page = 1, int perPage = 10)
+    public async Task<ServiceResponse<List<CompanyResponse>>> GetByUserIdAsync(
+        Guid userId,
+        int page = 1,
+        int perPage = 10
+    )
     {
         logger.LogInformation("Getting companies by user {userId}", [userId]);
         var companies = await companyRepository.GetByUserIdAsync(userId, page, perPage);
@@ -39,8 +48,11 @@ public class CompanyService(
         return new ServiceResponse<List<CompanyResponse>>(response);
     }
 
-    public async Task<ServiceResponse<CompanyResponse>> PatchAsync(Guid companyId, Guid userId,
-        CompanyUpdateRequest company)
+    public async Task<ServiceResponse<CompanyResponse>> PatchAsync(
+        Guid companyId,
+        Guid userId,
+        CompanyUpdateRequest company
+    )
     {
         logger.LogInformation("Patching company {companyId}", [companyId]);
 
@@ -49,17 +61,25 @@ public class CompanyService(
         if (!existing)
         {
             logger.LogWarning("Company {companyId} does not exist", [companyId]);
-            
-            return new ServiceResponse<CompanyResponse>(null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+
+            return new ServiceResponse<CompanyResponse>(
+                null,
+                HttpStatusCode.NotFound,
+                TextConstants.ItemNotFound
+            );
         }
-        
+
         var hasAdminRole = await userRoleService.HasRoleAsync(userId, companyId, "Admin");
 
         if (!hasAdminRole.Data)
         {
             logger.LogWarning("User {userId} does not have admin role", [userId]);
 
-            return new ServiceResponse<CompanyResponse>(null, HttpStatusCode.Unauthorized, TextConstants.PermissionDenied);
+            return new ServiceResponse<CompanyResponse>(
+                null,
+                HttpStatusCode.Unauthorized,
+                TextConstants.PermissionDenied
+            );
         }
 
         var companyToUpdate = mapper.Map<CompanyModel>(company);
@@ -71,7 +91,11 @@ public class CompanyService(
 
         if (saved == 0)
         {
-            return new ServiceResponse<CompanyResponse>(null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+            return new ServiceResponse<CompanyResponse>(
+                null,
+                HttpStatusCode.NotFound,
+                TextConstants.ItemNotFound
+            );
         }
 
         var response = mapper.Map<CompanyResponse>(updatedCompany);

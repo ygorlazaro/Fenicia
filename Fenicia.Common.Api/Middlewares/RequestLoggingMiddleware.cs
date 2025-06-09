@@ -26,7 +26,8 @@ public class RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory logge
                 context.Request?.Path.Value,
                 context.Request?.QueryString,
                 context.Connection?.RemoteIpAddress?.ToString(),
-                context.Response?.StatusCode);
+                context.Response?.StatusCode
+            );
         }
     }
 }

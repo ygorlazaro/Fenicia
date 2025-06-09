@@ -5,7 +5,11 @@ using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Services;
 
-public class SubscriptionCreditService(ILogger<SubscriptionCreditService> logger, ISubscriptionCreditRepository subscriptionCreditRepository, ISubscriptionService subscriptionService) : ISubscriptionCreditService
+public class SubscriptionCreditService(
+    ILogger<SubscriptionCreditService> logger,
+    ISubscriptionCreditRepository subscriptionCreditRepository,
+    ISubscriptionService subscriptionService
+) : ISubscriptionCreditService
 {
     public async Task<ServiceResponse<List<ModuleType>>> GetActiveModulesTypesAsync(Guid companyId)
     {
@@ -15,10 +19,16 @@ public class SubscriptionCreditService(ILogger<SubscriptionCreditService> logger
 
         if (validSubscriptions.Data is null)
         {
-            return new ServiceResponse<List<ModuleType>>(null, validSubscriptions.StatusCode, validSubscriptions.Message);
+            return new ServiceResponse<List<ModuleType>>(
+                null,
+                validSubscriptions.StatusCode,
+                validSubscriptions.Message
+            );
         }
 
-        var validModules = await subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions.Data);
+        var validModules = await subscriptionCreditRepository.GetValidModulesTypesAsync(
+            validSubscriptions.Data
+        );
 
         return new ServiceResponse<List<ModuleType>>(validModules);
     }

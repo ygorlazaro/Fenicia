@@ -40,7 +40,8 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
 
     private static void AddSoftDeleteSupport(ModelBuilder modelBuilder)
     {
-        var mutableEntityTypes = modelBuilder.Model.GetEntityTypes()
+        var mutableEntityTypes = modelBuilder
+            .Model.GetEntityTypes()
             .Where(entityType => typeof(BaseModel).IsAssignableFrom(entityType.ClrType));
 
         foreach (var entityType in mutableEntityTypes)

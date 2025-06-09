@@ -10,4 +10,3 @@ public interface IUserRepository
     Task<bool> CheckUserExistsAsync(string email);
     Task<UserModel?> GetUserForRefreshTokenAsync(Guid userId);
 }
-

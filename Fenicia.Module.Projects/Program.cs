@@ -3,7 +3,6 @@ using Fenicia.Common;
 using Fenicia.Common.Api.Middlewares;
 using Fenicia.Common.Api.Providers;
 using Fenicia.Module.Projects.Contexts;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -26,32 +25,40 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
 
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ??
-                                          throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+        var key = Encoding.ASCII.GetBytes(
+            configuration["Jwt:Secret"]
+                ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret)
+        );
 
         builder.Services.AddScoped<TenantProvider>();
 
-        builder.Services.AddDbContext<ProjectContext>((sp, options) =>
-        {
-            var config = sp.GetRequiredService<IConfiguration>();
-            var tenantProvider = sp.GetRequiredService<TenantProvider>();
-
-            var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
-
-            var connString = config.GetConnectionString("BasicConnection")?.Replace("{tenant}", tenantId);
-
-            if (string.IsNullOrWhiteSpace(connString))
+        builder.Services.AddDbContext<ProjectContext>(
+            (sp, options) =>
             {
-                throw new Exception("Connection string inválida");
+                var config = sp.GetRequiredService<IConfiguration>();
+                var tenantProvider = sp.GetRequiredService<TenantProvider>();
+
+                var tenantId =
+                    Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
+
+                var connString = config
+                    .GetConnectionString("BasicConnection")
+                    ?.Replace("{tenant}", tenantId);
+
+                if (string.IsNullOrWhiteSpace(connString))
+                {
+                    throw new Exception("Connection string inválida");
+                }
+
+                options
+                    .UseNpgsql(connString)
+                    .EnableSensitiveDataLogging()
+                    .UseSnakeCaseNamingConvention();
             }
+        );
 
-            options
-                .UseNpgsql(connString)
-                .EnableSensitiveDataLogging()
-                .UseSnakeCaseNamingConvention();
-        });
-
-        builder.Services.AddAuthentication(x =>
+        builder
+            .Services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -67,7 +74,7 @@ public class Program
                     ValidIssuer = "AuthService",
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = true
+                    ValidateLifetime = true,
                 };
             });
 
@@ -81,13 +88,11 @@ public class Program
             app.MapOpenApi();
             app.MapScalarApiReference(x =>
             {
-                x.WithDarkModeToggle(true)
-                    .WithTheme(ScalarTheme.BluePlanet)
-                    .WithClientButton(true);
+                x.WithDarkModeToggle(true).WithTheme(ScalarTheme.BluePlanet).WithClientButton(true);
 
                 x.Authentication = new ScalarAuthenticationOptions
                 {
-                    PreferredSecurityScheme = "Bearer"
+                    PreferredSecurityScheme = "Bearer",
                 };
             });
         }

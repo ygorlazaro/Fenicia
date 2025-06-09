@@ -1,13 +1,13 @@
+using System.Net;
 using AutoMapper;
 using Bogus;
 using Fenicia.Auth.Contexts.Models;
 using Fenicia.Auth.Enums;
 using Fenicia.Auth.Repositories.Interfaces;
 using Fenicia.Auth.Responses;
+using Fenicia.Auth.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Net;
-using Fenicia.Auth.Services;
 
 namespace Fenicia.Auth.Tests.Services;
 
@@ -40,23 +40,11 @@ public class SubscriptionServiceTests
         var companyId = Guid.NewGuid();
         var orderDetails = new List<OrderDetailModel>
         {
-            new()
-            {
-                Id = Guid.NewGuid(),
-                ModuleId = Guid.NewGuid()
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                ModuleId = Guid.NewGuid()
-            }
+            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() },
+            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() },
         };
 
-        var order = new OrderModel
-        {
-            Id = Guid.NewGuid(),
-            Details = orderDetails
-        };
+        var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
 
         var expectedResponse = new SubscriptionResponse();
 
@@ -71,12 +59,15 @@ public class SubscriptionServiceTests
         Assert.That(result.Data, Is.EqualTo(expectedResponse));
 
         _subscriptionRepositoryMock.Verify(
-            x => x.SaveSubscription(It.Is<SubscriptionModel>(s =>
-                s.CompanyId == companyId &&
-                s.OrderId == order.Id &&
-                s.Status == SubscriptionStatus.Active &&
-                s.Credits.Count == orderDetails.Count
-            )),
+            x =>
+                x.SaveSubscription(
+                    It.Is<SubscriptionModel>(s =>
+                        s.CompanyId == companyId
+                        && s.OrderId == order.Id
+                        && s.Status == SubscriptionStatus.Active
+                        && s.Credits.Count == orderDetails.Count
+                    )
+                ),
             Times.Once
         );
     }
@@ -86,11 +77,7 @@ public class SubscriptionServiceTests
     {
         // Arrange
         var companyId = Guid.NewGuid();
-        var order = new OrderModel
-        {
-            Id = Guid.NewGuid(),
-            Details = []
-        };
+        var order = new OrderModel { Id = Guid.NewGuid(), Details = [] };
         var emptyDetails = new List<OrderDetailModel>();
 
         // Act
@@ -99,7 +86,7 @@ public class SubscriptionServiceTests
         // Assert
         Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
         Assert.That(result.Data, Is.Null);
-        
+
         _subscriptionRepositoryMock.Verify(
             x => x.SaveSubscription(It.IsAny<SubscriptionModel>()),
             Times.Never
@@ -115,7 +102,7 @@ public class SubscriptionServiceTests
         {
             Guid.NewGuid(),
             Guid.NewGuid(),
-            Guid.NewGuid()
+            Guid.NewGuid(),
         };
 
         _subscriptionRepositoryMock
@@ -127,11 +114,8 @@ public class SubscriptionServiceTests
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedSubscriptions));
-        
-        _subscriptionRepositoryMock.Verify(
-            x => x.GetValidSubscriptionAsync(companyId),
-            Times.Once
-        );
+
+        _subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId), Times.Once);
     }
 
     [Test]
@@ -150,11 +134,8 @@ public class SubscriptionServiceTests
 
         // Assert
         Assert.That(result.Data, Is.Empty);
-        
-        _subscriptionRepositoryMock.Verify(
-            x => x.GetValidSubscriptionAsync(companyId),
-            Times.Once
-        );
+
+        _subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId), Times.Once);
     }
 
     [Test]
@@ -164,18 +145,10 @@ public class SubscriptionServiceTests
         var companyId = Guid.NewGuid();
         var orderDetails = new List<OrderDetailModel>
         {
-            new()
-            {
-                Id = Guid.NewGuid(),
-                ModuleId = Guid.NewGuid()
-            }
+            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() },
         };
 
-        var order = new OrderModel
-        {
-            Id = Guid.NewGuid(),
-            Details = orderDetails
-        };
+        var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
 
         SubscriptionModel capturedSubscription = null;
         _subscriptionRepositoryMock
@@ -188,7 +161,7 @@ public class SubscriptionServiceTests
         // Assert
         Assert.That(capturedSubscription, Is.Not.Null);
         Assert.That(capturedSubscription.Credits, Has.Count.EqualTo(1));
-        
+
         var credit = capturedSubscription.Credits.First();
         Assert.That(credit.StartDate.Date, Is.EqualTo(DateTime.Now.Date));
         Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.Now.AddMonths(1).Date));

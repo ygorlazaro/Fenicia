@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.PerformanceEvaluation.Contexts;
 
-public class PerformanceEvaluationContext(DbContextOptions<PerformanceEvaluationContext> options) : DbContext(options)
+public class PerformanceEvaluationContext(DbContextOptions<PerformanceEvaluationContext> options)
+    : DbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

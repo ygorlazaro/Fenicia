@@ -29,7 +29,8 @@ public class ModuleServiceTests
         _sut = new ModuleService(
             _mapperMock.Object,
             _loggerMock.Object,
-            _moduleRepositoryMock.Object);
+            _moduleRepositoryMock.Object
+        );
         _faker = new Faker();
     }
 
@@ -40,17 +41,15 @@ public class ModuleServiceTests
         var modules = new List<ModuleModel>
         {
             new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() },
-            new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() }
+            new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() },
         };
-        var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
+        var expectedResponse = modules
+            .Select(m => new ModuleResponse { Id = m.Id, Name = m.Name })
+            .ToList();
 
-        _moduleRepositoryMock
-            .Setup(x => x.GetAllOrderedAsync(1, 10))
-            .ReturnsAsync(modules);
+        _moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(1, 10)).ReturnsAsync(modules);
 
-        _mapperMock
-            .Setup(x => x.Map<List<ModuleResponse>>(modules))
-            .Returns(expectedResponse);
+        _mapperMock.Setup(x => x.Map<List<ModuleResponse>>(modules)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetAllOrderedAsync();
@@ -65,16 +64,16 @@ public class ModuleServiceTests
     {
         // Arrange
         var moduleIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-        var modules = moduleIds.Select(id => new ModuleModel { Id = id, Name = _faker.Commerce.ProductName() }).ToList();
-        var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
+        var modules = moduleIds
+            .Select(id => new ModuleModel { Id = id, Name = _faker.Commerce.ProductName() })
+            .ToList();
+        var expectedResponse = modules
+            .Select(m => new ModuleResponse { Id = m.Id, Name = m.Name })
+            .ToList();
 
-        _moduleRepositoryMock
-            .Setup(x => x.GetManyOrdersAsync(moduleIds))
-            .ReturnsAsync(modules);
+        _moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIds)).ReturnsAsync(modules);
 
-        _mapperMock
-            .Setup(x => x.Map<List<ModuleResponse>>(modules))
-            .Returns(expectedResponse);
+        _mapperMock.Setup(x => x.Map<List<ModuleResponse>>(modules)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetModulesToOrderAsync(moduleIds);
@@ -89,26 +88,22 @@ public class ModuleServiceTests
     {
         // Arrange
         var moduleType = ModuleType.Ecommerce;
-        var module = new ModuleModel 
-        { 
-            Id = Guid.NewGuid(), 
+        var module = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
             Name = _faker.Commerce.ProductName(),
-            Type = moduleType
+            Type = moduleType,
         };
-        var expectedResponse = new ModuleResponse 
-        { 
-            Id = module.Id, 
+        var expectedResponse = new ModuleResponse
+        {
+            Id = module.Id,
             Name = module.Name,
-            Type = moduleType
+            Type = moduleType,
         };
 
-        _moduleRepositoryMock
-            .Setup(x => x.GetModuleByTypeAsync(moduleType))
-            .ReturnsAsync(module);
+        _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType)).ReturnsAsync(module);
 
-        _mapperMock
-            .Setup(x => x.Map<ModuleResponse>(module))
-            .Returns(expectedResponse);
+        _mapperMock.Setup(x => x.Map<ModuleResponse>(module)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetModuleByTypeAsync(moduleType);
@@ -142,9 +137,7 @@ public class ModuleServiceTests
         // Arrange
         var expectedCount = _faker.Random.Int(1, 100);
 
-        _moduleRepositoryMock
-            .Setup(x => x.CountAsync())
-            .ReturnsAsync(expectedCount);
+        _moduleRepositoryMock.Setup(x => x.CountAsync()).ReturnsAsync(expectedCount);
 
         // Act
         var result = await _sut.CountAsync();

@@ -9,10 +9,17 @@ using Fenicia.Common;
 
 namespace Fenicia.Auth.Services;
 
-public class SubscriptionService(IMapper mapper, ILogger<SubscriptionService> logger, ISubscriptionRepository subscriptionRepository) : ISubscriptionService
+public class SubscriptionService(
+    IMapper mapper,
+    ILogger<SubscriptionService> logger,
+    ISubscriptionRepository subscriptionRepository
+) : ISubscriptionService
 {
-    public async Task<ServiceResponse<SubscriptionResponse>> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details,
-        Guid companyId)
+    public async Task<ServiceResponse<SubscriptionResponse>> CreateCreditsForOrderAsync(
+        OrderModel order,
+        List<OrderDetailModel> details,
+        Guid companyId
+    )
     {
         logger.LogInformation("Creating credits for order");
 
@@ -20,19 +27,23 @@ public class SubscriptionService(IMapper mapper, ILogger<SubscriptionService> lo
         {
             logger.LogWarning("There was an error adding modules");
 
-            return new ServiceResponse<SubscriptionResponse>(null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorAddingModules);
+            return new ServiceResponse<SubscriptionResponse>(
+                null,
+                HttpStatusCode.BadRequest,
+                TextConstants.ThereWasAnErrorAddingModules
+            );
         }
 
-        var credits = order.Details.Select(d =>
-            new SubscriptionCreditModel
+        var credits = order
+            .Details.Select(d => new SubscriptionCreditModel
             {
                 ModuleId = d.ModuleId,
                 IsActive = true,
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddMonths(1),
-                OrderDetailId = d.Id
-            }
-        ).ToList();
+                OrderDetailId = d.Id,
+            })
+            .ToList();
 
         var subscription = new SubscriptionModel
         {
@@ -41,7 +52,7 @@ public class SubscriptionService(IMapper mapper, ILogger<SubscriptionService> lo
             StartDate = DateTime.Now,
             EndDate = DateTime.Now.AddMonths(1),
             OrderId = order.Id,
-            Credits = credits
+            Credits = credits,
         };
 
         await subscriptionRepository.SaveSubscription(subscription);

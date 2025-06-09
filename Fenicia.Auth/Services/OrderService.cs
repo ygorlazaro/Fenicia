@@ -20,16 +20,27 @@ public class OrderService(
     IUserService userService
 ) : IOrderService
 {
-    public async Task<ServiceResponse<OrderResponse>> CreateNewOrderAsync(Guid userId, Guid companyId, OrderRequest request)
+    public async Task<ServiceResponse<OrderResponse>> CreateNewOrderAsync(
+        Guid userId,
+        Guid companyId,
+        OrderRequest request
+    )
     {
         logger.LogInformation("Creating new order");
         var existingUser = await userService.ExistsInCompanyAsync(userId, companyId);
 
         if (!existingUser.Data)
         {
-            logger.LogWarning("User {userId} does not exist in company {companyId}", [userId, companyId]);
+            logger.LogWarning(
+                "User {userId} does not exist in company {companyId}",
+                [userId, companyId]
+            );
 
-            return new ServiceResponse<OrderResponse>(null, HttpStatusCode.BadRequest, TextConstants.UserNotInCompany);
+            return new ServiceResponse<OrderResponse>(
+                null,
+                HttpStatusCode.BadRequest,
+                TextConstants.UserNotInCompany
+            );
         }
 
         var modules = await PopulateModules(request);
@@ -43,16 +54,18 @@ public class OrderService(
         {
             logger.LogWarning("There was an error searching modules");
 
-            return new ServiceResponse<OrderResponse>(null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorSearchingModules);
+            return new ServiceResponse<OrderResponse>(
+                null,
+                HttpStatusCode.BadRequest,
+                TextConstants.ThereWasAnErrorSearchingModules
+            );
         }
 
         var totalAmount = modules.Data.Sum(m => m.Amount);
 
-        var details = modules.Data.Select(m => new OrderDetailModel
-        {
-            ModuleId = m.Id,
-            Amount = m.Amount
-        }).ToList();
+        var details = modules
+            .Data.Select(m => new OrderDetailModel { ModuleId = m.Id, Amount = m.Amount })
+            .ToList();
 
         var order = new OrderModel
         {
@@ -60,7 +73,7 @@ public class OrderService(
             Status = OrderStatus.Approved,
             UserId = userId,
             TotalAmount = totalAmount,
-            Details = details
+            Details = details,
         };
 
         await orderRepository.SaveOrderAsync(order);
@@ -78,7 +91,11 @@ public class OrderService(
 
         if (modules.Data is null)
         {
-            return new ServiceResponse<List<ModuleModel>>(null, modules.StatusCode, modules.Message);
+            return new ServiceResponse<List<ModuleModel>>(
+                null,
+                modules.StatusCode,
+                modules.Message
+            );
         }
 
         if (modules.Data.Any(m => m.Type == ModuleType.Basic))

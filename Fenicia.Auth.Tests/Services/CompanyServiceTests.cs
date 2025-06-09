@@ -33,7 +33,8 @@ public class CompanyServiceTests
             _mapperMock.Object,
             _loggerMock.Object,
             _companyRepositoryMock.Object,
-            _userRoleServiceMock.Object);
+            _userRoleServiceMock.Object
+        );
         _faker = new Faker();
     }
 
@@ -45,13 +46,9 @@ public class CompanyServiceTests
         var companyModel = new CompanyModel { Cnpj = cnpj };
         var expectedResponse = new CompanyResponse { Cnpj = cnpj };
 
-        _companyRepositoryMock
-            .Setup(x => x.GetByCnpjAsync(cnpj))
-            .ReturnsAsync(companyModel);
+        _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj)).ReturnsAsync(companyModel);
 
-        _mapperMock
-            .Setup(x => x.Map<CompanyResponse>(companyModel))
-            .Returns(expectedResponse);
+        _mapperMock.Setup(x => x.Map<CompanyResponse>(companyModel)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetByCnpjAsync(cnpj);
@@ -66,10 +63,8 @@ public class CompanyServiceTests
     {
         // Arrange
         var cnpj = _faker.Random.String2(14, "0123456789");
-        
-        _companyRepositoryMock
-            .Setup(x => x.GetByCnpjAsync(cnpj))
-            .ReturnsAsync((CompanyModel)null);
+
+        _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj)).ReturnsAsync((CompanyModel)null);
 
         // Act
         var result = await _sut.GetByCnpjAsync(cnpj);
@@ -84,10 +79,10 @@ public class CompanyServiceTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var companies = new List<CompanyModel> 
-        { 
+        var companies = new List<CompanyModel>
+        {
             new() { Id = Guid.NewGuid() },
-            new() { Id = Guid.NewGuid() }
+            new() { Id = Guid.NewGuid() },
         };
         var expectedResponse = companies.Select(c => new CompanyResponse { Id = c.Id }).ToList();
 
@@ -95,9 +90,7 @@ public class CompanyServiceTests
             .Setup(x => x.GetByUserIdAsync(userId, 1, 10))
             .ReturnsAsync(companies);
 
-        _mapperMock
-            .Setup(x => x.Map<List<CompanyResponse>>(companies))
-            .Returns(expectedResponse);
+        _mapperMock.Setup(x => x.Map<List<CompanyResponse>>(companies)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetByUserIdAsync(userId);
@@ -117,29 +110,21 @@ public class CompanyServiceTests
         var companyModel = new CompanyModel { Id = companyId, Name = updateRequest.Name };
         var expectedResponse = new CompanyResponse { Id = companyId, Name = updateRequest.Name };
 
-        _companyRepositoryMock
-            .Setup(x => x.CheckCompanyExistsAsync(companyId))
-            .ReturnsAsync(true);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId)).ReturnsAsync(true);
 
         _userRoleServiceMock
             .Setup(x => x.HasRoleAsync(userId, companyId, "Admin"))
             .ReturnsAsync(new ServiceResponse<bool>(true));
 
-        _mapperMock
-            .Setup(x => x.Map<CompanyModel>(updateRequest))
-            .Returns(companyModel);
+        _mapperMock.Setup(x => x.Map<CompanyModel>(updateRequest)).Returns(companyModel);
 
         _companyRepositoryMock
             .Setup(x => x.PatchAsync(It.IsAny<CompanyModel>()))
             .Returns(companyModel);
 
-        _companyRepositoryMock
-            .Setup(x => x.SaveAsync())
-            .ReturnsAsync(1);
+        _companyRepositoryMock.Setup(x => x.SaveAsync()).ReturnsAsync(1);
 
-        _mapperMock
-            .Setup(x => x.Map<CompanyResponse>(companyModel))
-            .Returns(expectedResponse);
+        _mapperMock.Setup(x => x.Map<CompanyResponse>(companyModel)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.PatchAsync(companyId, userId, updateRequest);
@@ -157,9 +142,7 @@ public class CompanyServiceTests
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
 
-        _companyRepositoryMock
-            .Setup(x => x.CheckCompanyExistsAsync(companyId))
-            .ReturnsAsync(false);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId)).ReturnsAsync(false);
 
         // Act
         var result = await _sut.PatchAsync(companyId, userId, updateRequest);
@@ -177,9 +160,7 @@ public class CompanyServiceTests
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
 
-        _companyRepositoryMock
-            .Setup(x => x.CheckCompanyExistsAsync(companyId))
-            .ReturnsAsync(true);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId)).ReturnsAsync(true);
 
         _userRoleServiceMock
             .Setup(x => x.HasRoleAsync(userId, companyId, "Admin"))
@@ -200,9 +181,7 @@ public class CompanyServiceTests
         var userId = Guid.NewGuid();
         var expectedCount = _faker.Random.Int(1, 100);
 
-        _companyRepositoryMock
-            .Setup(x => x.CountByUserIdAsync(userId))
-            .ReturnsAsync(expectedCount);
+        _companyRepositoryMock.Setup(x => x.CountByUserIdAsync(userId)).ReturnsAsync(expectedCount);
 
         // Act
         var result = await _sut.CountByUserIdAsync(userId);

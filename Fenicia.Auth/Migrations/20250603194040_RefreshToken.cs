@@ -16,12 +16,28 @@ namespace Fenicia.Auth.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    token = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                    expiration_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    token = table.Column<string>(
+                        type: "character varying(256)",
+                        maxLength: 256,
+                        nullable: false
+                    ),
+                    expiration_date = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    created = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
+                    updated = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
+                    deleted = table.Column<DateTime>(
+                        type: "timestamp with time zone",
+                        nullable: true
+                    ),
                 },
                 constraints: table =>
                 {
@@ -31,20 +47,22 @@ namespace Fenicia.Auth.Migrations
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_refresh_tokens_user_id",
                 table: "refresh_tokens",
-                column: "user_id");
+                column: "user_id"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "refresh_tokens");
+            migrationBuilder.DropTable(name: "refresh_tokens");
         }
     }
 }

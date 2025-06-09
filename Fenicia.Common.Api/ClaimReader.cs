@@ -11,7 +11,8 @@ public static class ClaimReader
     private static Guid GetGuidClaimValue(ClaimsPrincipal user, string claimType)
     {
         var claim = user.Claims.FirstOrDefault(claimToSearch =>
-            string.Equals(claimToSearch.Type, claimType, StringComparison.Ordinal));
+            string.Equals(claimToSearch.Type, claimType, StringComparison.Ordinal)
+        );
 
         return claim == null ? throw new UnauthorizedAccessException() : Guid.Parse(claim.Value);
     }
@@ -21,8 +22,7 @@ public static class ClaimReader
         return user.Claims.Where(x => x.Type == "module").Select(x => x.Value).ToArray();
     }
 
-    public static void ValidateRole(ClaimsPrincipal user, string
-        roleToSearch)
+    public static void ValidateRole(ClaimsPrincipal user, string roleToSearch)
     {
         var access = user.Claims.Where(x => x.Type == "role").Any(x => x.Value == roleToSearch);
 

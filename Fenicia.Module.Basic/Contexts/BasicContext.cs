@@ -5,7 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Contexts;
 
-public class BasicContext(DbContextOptions<BasicContext> options, TenantProvider tenantProvider, IConfiguration configuration) : DbContext(options)
+public class BasicContext(
+    DbContextOptions<BasicContext> options,
+    TenantProvider tenantProvider,
+    IConfiguration configuration
+) : DbContext(options)
 {
     public DbSet<StateModel> States { get; set; } = null!;
 
