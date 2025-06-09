@@ -6,7 +6,7 @@ namespace Fenicia.Auth.Services.Interfaces;
 
 public interface ITokenService
 {
-    ServiceResponse<string> GenerateToken(
+    ApiResponse<string> GenerateToken(
         UserResponse user,
         string[] roles,
         Guid companyId,

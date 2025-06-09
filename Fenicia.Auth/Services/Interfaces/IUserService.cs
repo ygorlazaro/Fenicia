@@ -6,8 +6,8 @@ namespace Fenicia.Auth.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<ServiceResponse<UserResponse>> GetForLoginAsync(TokenRequest request);
-    Task<ServiceResponse<UserResponse>> CreateNewUserAsync(UserRequest request);
-    Task<ServiceResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId);
-    Task<ServiceResponse<UserResponse>> GetUserForRefreshAsync(Guid userId);
+    Task<ApiResponse<UserResponse>> GetForLoginAsync(TokenRequest request);
+    Task<ApiResponse<UserResponse>> CreateNewUserAsync(UserRequest request);
+    Task<ApiResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId);
+    Task<ApiResponse<UserResponse>> GetUserForRefreshAsync(Guid userId);
 }

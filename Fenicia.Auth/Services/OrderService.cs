@@ -20,7 +20,7 @@ public class OrderService(
     IUserService userService
 ) : IOrderService
 {
-    public async Task<ServiceResponse<OrderResponse>> CreateNewOrderAsync(
+    public async Task<ApiResponse<OrderResponse>> CreateNewOrderAsync(
         Guid userId,
         Guid companyId,
         OrderRequest request
@@ -36,7 +36,7 @@ public class OrderService(
                 [userId, companyId]
             );
 
-            return new ServiceResponse<OrderResponse>(
+            return new ApiResponse<OrderResponse>(
                 null,
                 HttpStatusCode.BadRequest,
                 TextConstants.UserNotInCompany
@@ -47,14 +47,14 @@ public class OrderService(
 
         if (modules.Data is null)
         {
-            return new ServiceResponse<OrderResponse>(null, modules.StatusCode, modules.Message);
+            return new ApiResponse<OrderResponse>(null, modules.StatusCode, modules.Message);
         }
 
         if (modules.Data.Count == 0)
         {
             logger.LogWarning("There was an error searching modules");
 
-            return new ServiceResponse<OrderResponse>(
+            return new ApiResponse<OrderResponse>(
                 null,
                 HttpStatusCode.BadRequest,
                 TextConstants.ThereWasAnErrorSearchingModules
@@ -81,17 +81,17 @@ public class OrderService(
 
         var response = mapper.Map<OrderResponse>(order);
 
-        return new ServiceResponse<OrderResponse>(response);
+        return new ApiResponse<OrderResponse>(response);
     }
 
-    private async Task<ServiceResponse<List<ModuleModel>>> PopulateModules(OrderRequest request)
+    private async Task<ApiResponse<List<ModuleModel>>> PopulateModules(OrderRequest request)
     {
         var uniqueModules = request.Details.Select(d => d.ModuleId).Distinct();
         var modules = await moduleService.GetModulesToOrderAsync(uniqueModules);
 
         if (modules.Data is null)
         {
-            return new ServiceResponse<List<ModuleModel>>(
+            return new ApiResponse<List<ModuleModel>>(
                 null,
                 modules.StatusCode,
                 modules.Message
@@ -102,20 +102,20 @@ public class OrderService(
         {
             var response = mapper.Map<List<ModuleModel>>(modules);
 
-            return new ServiceResponse<List<ModuleModel>>(response);
+            return new ApiResponse<List<ModuleModel>>(response);
         }
 
         var basicModule = await moduleService.GetModuleByTypeAsync(ModuleType.Basic);
 
         if (basicModule.Data is null)
         {
-            return new ServiceResponse<List<ModuleModel>>([]);
+            return new ApiResponse<List<ModuleModel>>([]);
         }
 
         modules.Data.Add(basicModule.Data);
 
         var finalResponse = mapper.Map<List<ModuleModel>>(modules.Data);
 
-        return new ServiceResponse<List<ModuleModel>>(finalResponse);
+        return new ApiResponse<List<ModuleModel>>(finalResponse);
     }
 }

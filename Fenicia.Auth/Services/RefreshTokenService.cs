@@ -11,7 +11,7 @@ public class RefreshTokenService(
     IRefreshTokenRepository refreshTokenRepository
 ) : IRefreshTokenService
 {
-    public async Task<ServiceResponse<string>> GenerateRefreshTokenAsync(Guid userId)
+    public async Task<ApiResponse<string>> GenerateRefreshTokenAsync(Guid userId)
     {
         logger.LogInformation("Generating refresh token");
         var randomNumber = new byte[32];
@@ -29,20 +29,20 @@ public class RefreshTokenService(
 
         await refreshTokenRepository.SaveChangesAsync();
 
-        return new ServiceResponse<string>(refreshToken.Token);
+        return new ApiResponse<string>(refreshToken.Token);
     }
 
-    public async Task<ServiceResponse<bool>> ValidateTokenAsync(Guid userId, string refreshToken)
+    public async Task<ApiResponse<bool>> ValidateTokenAsync(Guid userId, string refreshToken)
     {
         var response = await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken);
 
-        return new ServiceResponse<bool>(response);
+        return new ApiResponse<bool>(response);
     }
 
-    public async Task<ServiceResponse<object>> InvalidateRefreshTokenAsync(string refreshToken)
+    public async Task<ApiResponse<object>> InvalidateRefreshTokenAsync(string refreshToken)
     {
         await refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken);
 
-        return new ServiceResponse<object>(null);
+        return new ApiResponse<object>(null);
     }
 }

@@ -16,14 +16,14 @@ public class CompanyService(
     IUserRoleService userRoleService
 ) : ICompanyService
 {
-    public async Task<ServiceResponse<CompanyResponse>> GetByCnpjAsync(string cnpj)
+    public async Task<ApiResponse<CompanyResponse>> GetByCnpjAsync(string cnpj)
     {
         logger.LogInformation("Getting company {cnpj}", [cnpj]);
         var company = await companyRepository.GetByCnpjAsync(cnpj);
 
         if (company is null)
         {
-            return new ServiceResponse<CompanyResponse>(
+            return new ApiResponse<CompanyResponse>(
                 null,
                 HttpStatusCode.NotFound,
                 TextConstants.ItemNotFound
@@ -32,10 +32,10 @@ public class CompanyService(
 
         var response = mapper.Map<CompanyResponse>(company);
 
-        return new ServiceResponse<CompanyResponse>(response);
+        return new ApiResponse<CompanyResponse>(response);
     }
 
-    public async Task<ServiceResponse<List<CompanyResponse>>> GetByUserIdAsync(
+    public async Task<ApiResponse<List<CompanyResponse>>> GetByUserIdAsync(
         Guid userId,
         int page = 1,
         int perPage = 10
@@ -45,10 +45,10 @@ public class CompanyService(
         var companies = await companyRepository.GetByUserIdAsync(userId, page, perPage);
         var response = mapper.Map<List<CompanyResponse>>(companies);
 
-        return new ServiceResponse<List<CompanyResponse>>(response);
+        return new ApiResponse<List<CompanyResponse>>(response);
     }
 
-    public async Task<ServiceResponse<CompanyResponse>> PatchAsync(
+    public async Task<ApiResponse<CompanyResponse>> PatchAsync(
         Guid companyId,
         Guid userId,
         CompanyUpdateRequest company
@@ -62,7 +62,7 @@ public class CompanyService(
         {
             logger.LogWarning("Company {companyId} does not exist", [companyId]);
 
-            return new ServiceResponse<CompanyResponse>(
+            return new ApiResponse<CompanyResponse>(
                 null,
                 HttpStatusCode.NotFound,
                 TextConstants.ItemNotFound
@@ -75,7 +75,7 @@ public class CompanyService(
         {
             logger.LogWarning("User {userId} does not have admin role", [userId]);
 
-            return new ServiceResponse<CompanyResponse>(
+            return new ApiResponse<CompanyResponse>(
                 null,
                 HttpStatusCode.Unauthorized,
                 TextConstants.PermissionDenied
@@ -91,7 +91,7 @@ public class CompanyService(
 
         if (saved == 0)
         {
-            return new ServiceResponse<CompanyResponse>(
+            return new ApiResponse<CompanyResponse>(
                 null,
                 HttpStatusCode.NotFound,
                 TextConstants.ItemNotFound
@@ -100,13 +100,13 @@ public class CompanyService(
 
         var response = mapper.Map<CompanyResponse>(updatedCompany);
 
-        return new ServiceResponse<CompanyResponse>(response);
+        return new ApiResponse<CompanyResponse>(response);
     }
 
-    public async Task<ServiceResponse<int>> CountByUserIdAsync(Guid userId)
+    public async Task<ApiResponse<int>> CountByUserIdAsync(Guid userId)
     {
         var response = await companyRepository.CountByUserIdAsync(userId);
 
-        return new ServiceResponse<int>(response);
+        return new ApiResponse<int>(response);
     }
 }

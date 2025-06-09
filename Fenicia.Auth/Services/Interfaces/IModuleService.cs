@@ -6,8 +6,8 @@ namespace Fenicia.Auth.Services.Interfaces;
 
 public interface IModuleService
 {
-    Task<ServiceResponse<List<ModuleResponse>>> GetAllOrderedAsync(int page = 1, int perPage = 10);
-    Task<ServiceResponse<List<ModuleResponse>>> GetModulesToOrderAsync(IEnumerable<Guid> request);
-    Task<ServiceResponse<ModuleResponse>> GetModuleByTypeAsync(ModuleType moduleType);
-    Task<ServiceResponse<int>> CountAsync();
+    Task<ApiResponse<List<ModuleResponse>>> GetAllOrderedAsync(int page = 1, int perPage = 10);
+    Task<ApiResponse<List<ModuleResponse>>> GetModulesToOrderAsync(IEnumerable<Guid> request);
+    Task<ApiResponse<ModuleResponse>> GetModuleByTypeAsync(ModuleType moduleType);
+    Task<ApiResponse<int>> CountAsync();
 }

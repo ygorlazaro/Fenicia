@@ -44,7 +44,7 @@ public class SubscriptionCreditServiceTests
 
         _subscriptionServiceMock
             .Setup(x => x.GetValidSubscriptionsAsync(companyId))
-            .ReturnsAsync(new ServiceResponse<List<Guid>>(validSubscriptions)); // Replace object with your actual type
+            .ReturnsAsync(new ApiResponse<List<Guid>>(validSubscriptions)); // Replace object with your actual type
 
         _subscriptionCreditRepositoryMock
             .Setup(x => x.GetValidModulesTypesAsync(validSubscriptions))
@@ -69,7 +69,7 @@ public class SubscriptionCreditServiceTests
         // Arrange
         var companyId = Guid.NewGuid();
         var errorMessage = "No valid subscriptions found";
-        var errorResponse = new ServiceResponse<List<Guid>>(
+        var errorResponse = new ApiResponse<List<Guid>>(
             null,
             HttpStatusCode.NotFound,
             errorMessage
@@ -104,7 +104,7 @@ public class SubscriptionCreditServiceTests
 
         _subscriptionServiceMock
             .Setup(x => x.GetValidSubscriptionsAsync(companyId))
-            .ReturnsAsync(new ServiceResponse<List<Guid>>(validSubscriptions));
+            .ReturnsAsync(new ApiResponse<List<Guid>>(validSubscriptions));
 
         _subscriptionCreditRepositoryMock
             .Setup(x => x.GetValidModulesTypesAsync(validSubscriptions))

@@ -14,7 +14,7 @@ public class ModuleService(
     IModuleRepository moduleRepository
 ) : IModuleService
 {
-    public async Task<ServiceResponse<List<ModuleResponse>>> GetAllOrderedAsync(
+    public async Task<ApiResponse<List<ModuleResponse>>> GetAllOrderedAsync(
         int page = 1,
         int perPage = 10
     )
@@ -24,10 +24,10 @@ public class ModuleService(
 
         var response = mapper.Map<List<ModuleResponse>>(modules);
 
-        return new ServiceResponse<List<ModuleResponse>>(response);
+        return new ApiResponse<List<ModuleResponse>>(response);
     }
 
-    public async Task<ServiceResponse<List<ModuleResponse>>> GetModulesToOrderAsync(
+    public async Task<ApiResponse<List<ModuleResponse>>> GetModulesToOrderAsync(
         IEnumerable<Guid> request
     )
     {
@@ -36,17 +36,17 @@ public class ModuleService(
 
         var response = mapper.Map<List<ModuleResponse>>(modules);
 
-        return new ServiceResponse<List<ModuleResponse>>(response);
+        return new ApiResponse<List<ModuleResponse>>(response);
     }
 
-    public async Task<ServiceResponse<ModuleResponse>> GetModuleByTypeAsync(ModuleType moduleType)
+    public async Task<ApiResponse<ModuleResponse>> GetModuleByTypeAsync(ModuleType moduleType)
     {
         logger.LogInformation("Getting module by type {moduleType}", [moduleType]);
         var module = await moduleRepository.GetModuleByTypeAsync(moduleType);
 
         if (module is null)
         {
-            return new ServiceResponse<ModuleResponse>(
+            return new ApiResponse<ModuleResponse>(
                 null,
                 HttpStatusCode.NotFound,
                 TextConstants.ItemNotFound
@@ -55,13 +55,13 @@ public class ModuleService(
 
         var response = mapper.Map<ModuleResponse>(module);
 
-        return new ServiceResponse<ModuleResponse>(response);
+        return new ApiResponse<ModuleResponse>(response);
     }
 
-    public async Task<ServiceResponse<int>> CountAsync()
+    public async Task<ApiResponse<int>> CountAsync()
     {
         var response = await moduleRepository.CountAsync();
 
-        return new ServiceResponse<int>(response);
+        return new ApiResponse<int>(response);
     }
 }

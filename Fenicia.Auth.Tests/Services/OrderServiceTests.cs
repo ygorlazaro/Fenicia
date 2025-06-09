@@ -58,7 +58,7 @@ public class OrderServiceTests
 
         _userServiceMock
             .Setup(x => x.ExistsInCompanyAsync(userId, companyId))
-            .ReturnsAsync(new ServiceResponse<bool>(false));
+            .ReturnsAsync(new ApiResponse<bool>(false));
 
         // Act
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
@@ -84,15 +84,15 @@ public class OrderServiceTests
 
         _userServiceMock
             .Setup(x => x.ExistsInCompanyAsync(userId, companyId))
-            .ReturnsAsync(new ServiceResponse<bool>(true));
+            .ReturnsAsync(new ApiResponse<bool>(true));
 
         _moduleServiceMock
             .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>()))
-            .ReturnsAsync(new ServiceResponse<List<ModuleResponse>>(emptyModulesList));
+            .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(emptyModulesList));
 
         _moduleServiceMock
             .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic))
-            .ReturnsAsync(new ServiceResponse<ModuleResponse>(null));
+            .ReturnsAsync(new ApiResponse<ModuleResponse>(null));
 
         _mapperMock.Setup(x => x.Map<List<ModuleModel>>(emptyModulesList)).Returns([]);
 
@@ -161,15 +161,15 @@ public class OrderServiceTests
 
         _userServiceMock
             .Setup(x => x.ExistsInCompanyAsync(userId, companyId))
-            .ReturnsAsync(new ServiceResponse<bool>(true));
+            .ReturnsAsync(new ApiResponse<bool>(true));
 
         _moduleServiceMock
             .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>()))
-            .ReturnsAsync(new ServiceResponse<List<ModuleResponse>>(moduleResponses));
+            .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
         _moduleServiceMock
             .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic))
-            .ReturnsAsync(new ServiceResponse<ModuleResponse>(basicModuleResponse));
+            .ReturnsAsync(new ApiResponse<ModuleResponse>(basicModuleResponse));
 
         _mapperMock
             .Setup(x => x.Map<List<ModuleModel>>(moduleResponses))
@@ -245,11 +245,11 @@ public class OrderServiceTests
 
         _userServiceMock
             .Setup(x => x.ExistsInCompanyAsync(userId, companyId))
-            .ReturnsAsync(new ServiceResponse<bool>(true));
+            .ReturnsAsync(new ApiResponse<bool>(true));
 
         _moduleServiceMock
             .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>()))
-            .ReturnsAsync(new ServiceResponse<List<ModuleResponse>>(moduleResponses));
+            .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
         _mapperMock.Setup(x => x.Map<List<ModuleModel>>(moduleResponses)).Returns(moduleModels);
 

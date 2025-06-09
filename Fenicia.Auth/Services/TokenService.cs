@@ -12,7 +12,7 @@ namespace Fenicia.Auth.Services;
 public class TokenService(IConfiguration configuration, ILogger<TokenService> logger)
     : ITokenService
 {
-    public ServiceResponse<string> GenerateToken(
+    public ApiResponse<string> GenerateToken(
         UserResponse user,
         string[] roles,
         Guid companyId,
@@ -41,7 +41,7 @@ public class TokenService(IConfiguration configuration, ILogger<TokenService> lo
 
         var finalToken = tokenHandler.WriteToken(token);
 
-        return new ServiceResponse<string>(finalToken);
+        return new ApiResponse<string>(finalToken);
     }
 
     private static List<Claim> GenerateClaims(
