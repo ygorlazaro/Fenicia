@@ -4,6 +4,6 @@ namespace Fenicia.Auth.Services.Interfaces;
 
 public interface ISecurityService
 {
-    ServiceResponse<string> HashPassword(string password);
-    ServiceResponse<bool> VerifyPassword(string password, string hashedPassword);
+    ApiResponse<string> HashPassword(string password);
+    ApiResponse<bool> VerifyPassword(string password, string hashedPassword);
 }

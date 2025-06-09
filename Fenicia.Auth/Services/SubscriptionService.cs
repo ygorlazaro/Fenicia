@@ -15,7 +15,7 @@ public class SubscriptionService(
     ISubscriptionRepository subscriptionRepository
 ) : ISubscriptionService
 {
-    public async Task<ServiceResponse<SubscriptionResponse>> CreateCreditsForOrderAsync(
+    public async Task<ApiResponse<SubscriptionResponse>> CreateCreditsForOrderAsync(
         OrderModel order,
         List<OrderDetailModel> details,
         Guid companyId
@@ -27,7 +27,7 @@ public class SubscriptionService(
         {
             logger.LogWarning("There was an error adding modules");
 
-            return new ServiceResponse<SubscriptionResponse>(
+            return new ApiResponse<SubscriptionResponse>(
                 null,
                 HttpStatusCode.BadRequest,
                 TextConstants.ThereWasAnErrorAddingModules
@@ -59,14 +59,14 @@ public class SubscriptionService(
 
         var response = mapper.Map<SubscriptionResponse>(subscription);
 
-        return new ServiceResponse<SubscriptionResponse>(response);
+        return new ApiResponse<SubscriptionResponse>(response);
     }
 
-    public async Task<ServiceResponse<List<Guid>>> GetValidSubscriptionsAsync(Guid companyId)
+    public async Task<ApiResponse<List<Guid>>> GetValidSubscriptionsAsync(Guid companyId)
     {
         logger.LogInformation("Getting valid subscriptions");
         var response = await subscriptionRepository.GetValidSubscriptionAsync(companyId);
 
-        return new ServiceResponse<List<Guid>>(response);
+        return new ApiResponse<List<Guid>>(response);
     }
 }

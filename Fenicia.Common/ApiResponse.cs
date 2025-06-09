@@ -2,7 +2,7 @@ using System.Net;
 
 namespace Fenicia.Common;
 
-public class ServiceResponse<T>(
+public class ApiResponse<T>(
     T? data,
     HttpStatusCode statusCode = HttpStatusCode.OK,
     string message = ""

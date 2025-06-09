@@ -11,7 +11,7 @@ public class SubscriptionCreditService(
     ISubscriptionService subscriptionService
 ) : ISubscriptionCreditService
 {
-    public async Task<ServiceResponse<List<ModuleType>>> GetActiveModulesTypesAsync(Guid companyId)
+    public async Task<ApiResponse<List<ModuleType>>> GetActiveModulesTypesAsync(Guid companyId)
     {
         logger.LogInformation("Getting active modules types");
 
@@ -19,7 +19,7 @@ public class SubscriptionCreditService(
 
         if (validSubscriptions.Data is null)
         {
-            return new ServiceResponse<List<ModuleType>>(
+            return new ApiResponse<List<ModuleType>>(
                 null,
                 validSubscriptions.StatusCode,
                 validSubscriptions.Message
@@ -30,6 +30,6 @@ public class SubscriptionCreditService(
             validSubscriptions.Data
         );
 
-        return new ServiceResponse<List<ModuleType>>(validModules);
+        return new ApiResponse<List<ModuleType>>(validModules);
     }
 }

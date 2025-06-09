@@ -81,7 +81,7 @@ public class UserServiceTests
 
         _securityServiceMock
             .Setup(x => x.VerifyPassword(request.Password, user.Password))
-            .Returns(new ServiceResponse<bool>(true));
+            .Returns(new ApiResponse<bool>(true));
 
         _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
 
@@ -154,7 +154,7 @@ public class UserServiceTests
             .ReturnsAsync(false);
         _securityServiceMock
             .Setup(x => x.HashPassword(request.Password))
-            .Returns(new ServiceResponse<string>(hashedPassword));
+            .Returns(new ApiResponse<string>(hashedPassword));
         _userRepositoryMock.Setup(x => x.Add(It.IsAny<UserModel>())).Returns(user);
         _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync()).ReturnsAsync(adminRole);
         _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
@@ -284,7 +284,7 @@ public class UserServiceTests
         _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync()).ReturnsAsync((RoleModel)null);
         _securityServiceMock
             .Setup(x => x.HashPassword(request.Password))
-            .Returns(new ServiceResponse<string>("hashedPassword"));
+            .Returns(new ApiResponse<string>("hashedPassword"));
 
         // Act
         var result = await _sut.CreateNewUserAsync(request);

@@ -19,7 +19,7 @@ public class UserService(
     ISecurityService securityService
 ) : IUserService
 {
-    public async Task<ServiceResponse<UserResponse>> GetForLoginAsync(TokenRequest request)
+    public async Task<ApiResponse<UserResponse>> GetForLoginAsync(TokenRequest request)
     {
         logger.LogInformation("Getting user for login");
         var user = await userRepository.GetByEmailAndCnpjAsync(request.Email, request.Cnpj);
@@ -28,7 +28,7 @@ public class UserService(
         {
             logger.LogInformation("Invalid login - {email}", [request.Email]);
 
-            return new ServiceResponse<UserResponse>(
+            return new ApiResponse<UserResponse>(
                 null,
                 HttpStatusCode.BadRequest,
                 TextConstants.InvalidUsernameOrPassword
@@ -41,19 +41,19 @@ public class UserService(
         {
             var response = mapper.Map<UserResponse>(user);
 
-            return new ServiceResponse<UserResponse>(response);
+            return new ApiResponse<UserResponse>(response);
         }
 
         logger.LogInformation("Invalid login - {email}", [request.Email]);
 
-        return new ServiceResponse<UserResponse>(
+        return new ApiResponse<UserResponse>(
             null,
             HttpStatusCode.BadRequest,
             TextConstants.InvalidUsernameOrPassword
         );
     }
 
-    public async Task<ServiceResponse<UserResponse>> CreateNewUserAsync(UserRequest request)
+    public async Task<ApiResponse<UserResponse>> CreateNewUserAsync(UserRequest request)
     {
         logger.LogInformation("Creating new user");
         var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email);
@@ -65,7 +65,7 @@ public class UserService(
         {
             logger.LogInformation("User already exists - {email}", [request.Email]);
 
-            return new ServiceResponse<UserResponse>(
+            return new ApiResponse<UserResponse>(
                 null,
                 HttpStatusCode.BadRequest,
                 TextConstants.EmailExists
@@ -76,7 +76,7 @@ public class UserService(
         {
             logger.LogInformation("Company already exists - {cnpj}", [request.Company.Cnpj]);
 
-            return new ServiceResponse<UserResponse>(
+            return new ApiResponse<UserResponse>(
                 null,
                 HttpStatusCode.BadRequest,
                 TextConstants.CompanyExists
@@ -102,7 +102,7 @@ public class UserService(
         {
             logger.LogCritical("Missing admin role. Please check database.");
 
-            return new ServiceResponse<UserResponse>(
+            return new ApiResponse<UserResponse>(
                 null,
                 HttpStatusCode.InternalServerError,
                 TextConstants.MissingAdminRole
@@ -123,18 +123,18 @@ public class UserService(
 
         var response = mapper.Map<UserResponse>(user);
 
-        return new ServiceResponse<UserResponse>(response);
+        return new ApiResponse<UserResponse>(response);
     }
 
-    public async Task<ServiceResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId)
+    public async Task<ApiResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId)
     {
         logger.LogInformation("Checking if user exists in company");
         var response = await userRoleRepository.ExistsInCompanyAsync(userId, companyId);
 
-        return new ServiceResponse<bool>(response);
+        return new ApiResponse<bool>(response);
     }
 
-    public async Task<ServiceResponse<UserResponse>> GetUserForRefreshAsync(Guid userId)
+    public async Task<ApiResponse<UserResponse>> GetUserForRefreshAsync(Guid userId)
     {
         logger.LogInformation("Getting user for refresh");
         var user = await userRepository.GetUserForRefreshTokenAsync(userId);
@@ -142,13 +142,13 @@ public class UserService(
 
         if (user is null)
         {
-            return new ServiceResponse<UserResponse>(
+            return new ApiResponse<UserResponse>(
                 null,
                 HttpStatusCode.Unauthorized,
                 TextConstants.PermissionDenied
             );
         }
 
-        return new ServiceResponse<UserResponse>(response);
+        return new ApiResponse<UserResponse>(response);
     }
 }

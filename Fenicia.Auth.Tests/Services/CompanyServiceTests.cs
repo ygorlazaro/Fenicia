@@ -114,7 +114,7 @@ public class CompanyServiceTests
 
         _userRoleServiceMock
             .Setup(x => x.HasRoleAsync(userId, companyId, "Admin"))
-            .ReturnsAsync(new ServiceResponse<bool>(true));
+            .ReturnsAsync(new ApiResponse<bool>(true));
 
         _mapperMock.Setup(x => x.Map<CompanyModel>(updateRequest)).Returns(companyModel);
 
@@ -164,7 +164,7 @@ public class CompanyServiceTests
 
         _userRoleServiceMock
             .Setup(x => x.HasRoleAsync(userId, companyId, "Admin"))
-            .ReturnsAsync(new ServiceResponse<bool>(false));
+            .ReturnsAsync(new ApiResponse<bool>(false));
 
         // Act
         var result = await _sut.PatchAsync(companyId, userId, updateRequest);

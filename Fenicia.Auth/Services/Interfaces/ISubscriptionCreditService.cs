@@ -5,5 +5,5 @@ namespace Fenicia.Auth.Services.Interfaces;
 
 public interface ISubscriptionCreditService
 {
-    Task<ServiceResponse<List<ModuleType>>> GetActiveModulesTypesAsync(Guid companyId);
+    Task<ApiResponse<List<ModuleType>>> GetActiveModulesTypesAsync(Guid companyId);
 }

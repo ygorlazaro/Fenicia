@@ -6,7 +6,7 @@ namespace Fenicia.Auth.Services;
 
 public class SecurityService : ISecurityService
 {
-    public ServiceResponse<string> HashPassword(string password)
+    public ApiResponse<string> HashPassword(string password)
     {
         if (string.IsNullOrEmpty(password))
         {
@@ -20,10 +20,10 @@ public class SecurityService : ISecurityService
             throw new Exception("Error hashing password");
         }
 
-        return new ServiceResponse<string>(hashed);
+        return new ApiResponse<string>(hashed);
     }
 
-    public ServiceResponse<bool> VerifyPassword(string password, string hashedPassword)
+    public ApiResponse<bool> VerifyPassword(string password, string hashedPassword)
     {
         try
         {
@@ -34,11 +34,11 @@ public class SecurityService : ISecurityService
 
             var result = BCrypt.Net.BCrypt.Verify(password, hashedPassword);
 
-            return new ServiceResponse<bool>(result);
+            return new ApiResponse<bool>(result);
         }
         catch
         {
-            return new ServiceResponse<bool>(false, HttpStatusCode.InternalServerError);
+            return new ApiResponse<bool>(false, HttpStatusCode.InternalServerError);
         }
     }
 }
