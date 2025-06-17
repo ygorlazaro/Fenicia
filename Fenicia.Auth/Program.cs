@@ -113,7 +113,7 @@ public static class Program
             app.MapOpenApi();
             app.MapScalarApiReference(x =>
             {
-                x.WithDarkModeToggle(true).WithTheme(ScalarTheme.BluePlanet).WithClientButton(true);
+                x.WithDarkModeToggle(true).WithTheme(ScalarTheme.Purple).WithClientButton(true);
 
                 x.Authentication = new ScalarAuthenticationOptions
                 {

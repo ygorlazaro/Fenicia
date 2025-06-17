@@ -74,6 +74,7 @@ public class OrderService(
             UserId = userId,
             TotalAmount = totalAmount,
             Details = details,
+            CompanyId = companyId,
         };
 
         await orderRepository.SaveOrderAsync(order);
