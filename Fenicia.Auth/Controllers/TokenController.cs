@@ -97,6 +97,13 @@ public class TokenController(
         return response;
     }
 
+    [HttpGet("teste")]
+    [AllowAnonymous]
+    public string Teste()
+    {
+        return "Sucesso";
+    }
+
     private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(
         UserResponse user,
         Guid companyId
