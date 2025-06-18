@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
 using Bogus;
-using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Repositories.Interfaces;
-using Fenicia.Auth.Services;
+
+using Fenicia.Auth.Domains.RefreshToken;
+
 using Microsoft.Extensions.Logging;
 using Moq;
 

@@ -29,10 +29,6 @@
   <component name="ChangeListManager">
     <list default="true" id="cba3df7d-f868-4dfc-8a05-55fc4ebcb717" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Controllers/TokenController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Controllers/TokenController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Services/OrderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Services/OrderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.sln.DotSettings.user" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -418,7 +414,7 @@
       <workItem from="1749225668727" duration="82000" />
       <workItem from="1749500277089" duration="609000" />
       <workItem from="1749844525356" duration="2974000" />
-      <workItem from="1750173284441" duration="1980000" />
+      <workItem from="1750173284441" duration="3592000" />
     </task>
     <task id="LOCAL-00001" summary="Basic foundation">
       <option name="closed" value="true" />
@@ -428,7 +424,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748691702961</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Fix insert on order">
+      <option name="closed" value="true" />
+      <created>1750175397095</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1750175397095</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -465,7 +469,8 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Basic foundation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Basic foundation" />
+    <MESSAGE value="Fix insert on order" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix insert on order" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -510,19 +515,6 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="23" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Fenicia.Auth.Tests/Services/UserServiceTests.cs</url>
-          <line>62</line>
-          <properties documentPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/UserServiceTests.cs" containingFunctionPresentation="Method 'GetForLoginAsync_WithValidCredentials_ReturnsUser'">
-            <startOffsets>
-              <option value="1978" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2175" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="24" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

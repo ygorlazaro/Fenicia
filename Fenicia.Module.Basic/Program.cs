@@ -3,10 +3,8 @@ using Fenicia.Common;
 using Fenicia.Common.Api.Middlewares;
 using Fenicia.Common.Api.Providers;
 using Fenicia.Module.Basic.Contexts;
-using Fenicia.Module.Basic.Repositories;
-using Fenicia.Module.Basic.Repositories.Interfaces;
-using Fenicia.Module.Basic.Services;
-using Fenicia.Module.Basic.Services.Interfaces;
+using Fenicia.Module.Basic.Domains.State;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

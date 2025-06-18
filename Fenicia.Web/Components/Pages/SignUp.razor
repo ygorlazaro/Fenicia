@@ -1,5 +1,6 @@
 @page "/SignUp"
-@using Fenicia.Auth.Requests
+@using Fenicia.Auth.Domains.Company
+@using Fenicia.Auth.Domains.User
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -53,11 +54,46 @@
     </div>
 </div>
 
+@inject NavigationManager NavigationManager
+@inject Fenicia.Web.Providers.Auth.SignUpProvider SignUpProvider
+
 @code {
     private UserRequest userRequest = new() { Company = new CompanyRequest() };
+    private string? errorMessage;
+    private bool isLoading;
 
     private async Task HandleValidSubmit()
     {
-        // Handle the form submission here
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            var response = await SignUpProvider.CreateNewUserAsync(userRequest);
+
+            if (response != null)
+            {
+                NavigationManager.NavigateTo("/login", true);
+            }
+            else
+            {
+                errorMessage = "Sign up failed.";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            errorMessage = ex.Message;
+            Console.WriteLine($"Error details: {ex}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An unexpected error occurred. Please try again.";
+            Console.WriteLine($"Error details: {ex}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
     }
 }

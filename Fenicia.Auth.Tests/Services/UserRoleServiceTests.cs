@@ -1,6 +1,7 @@
 using Bogus;
-using Fenicia.Auth.Repositories.Interfaces;
-using Fenicia.Auth.Services;
+
+using Fenicia.Auth.Domains.UserRole;
+
 using Microsoft.Extensions.Logging;
 using Moq;
 

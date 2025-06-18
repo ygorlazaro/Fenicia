@@ -1,7 +1,7 @@
 using Bogus;
 using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Repositories;
+using Fenicia.Auth.Domains.Order;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Repositories;

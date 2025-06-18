@@ -1,6 +1,7 @@
 using System.Net;
 using Bogus;
-using Fenicia.Auth.Services;
+
+using Fenicia.Auth.Domains.Security;
 
 namespace Fenicia.Auth.Tests.Services;
 

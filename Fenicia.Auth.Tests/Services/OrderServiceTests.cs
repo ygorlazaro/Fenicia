@@ -1,13 +1,13 @@
 using System.Net;
 using AutoMapper;
 using Bogus;
-using Fenicia.Auth.Contexts.Models;
+
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.OrderDetail;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Enums;
-using Fenicia.Auth.Repositories.Interfaces;
-using Fenicia.Auth.Requests;
-using Fenicia.Auth.Responses;
-using Fenicia.Auth.Services;
-using Fenicia.Auth.Services.Interfaces;
 using Fenicia.Common;
 using Fenicia.Common.Enums;
 using Microsoft.Extensions.Logging;
