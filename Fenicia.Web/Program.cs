@@ -6,6 +6,10 @@ using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Log the ApiSettings:BaseUrl value for debugging
+var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"];
+Console.WriteLine($"ApiSettings:BaseUrl = {apiBaseUrl}");
+
 // Configure Static Web Assets
 StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 
@@ -20,6 +24,22 @@ builder.Services.AddHttpClient<TokenProvider>(client =>
     );
 });
 builder.Services.AddScoped<TokenProvider>();
+
+builder.Services.AddHttpClient<SignUpProvider>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5000/"
+    );
+});
+builder.Services.AddScoped<SignUpProvider>();
+
+builder.Services.AddHttpClient<CompanyProvider>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5000/"
+    );
+});
+builder.Services.AddScoped<CompanyProvider>();
 builder.Services.AddBlazoredLocalStorage();
 
 var app = builder.Build();

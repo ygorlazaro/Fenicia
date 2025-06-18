@@ -1,4 +1,15 @@
-using Fenicia.Auth.Contexts.Models;
+using Fenicia.Auth.Domains.Address;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.OrderDetail;
+using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.State;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.SubscriptionCredit;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Database;
 using Microsoft.EntityFrameworkCore;
 

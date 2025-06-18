@@ -1,0 +1,52 @@
+@page "/companies"
+@using Fenicia.Auth.Domains.Company
+
+@inject Fenicia.Web.Providers.Auth.CompanyProvider CompanyProvider
+
+<PageTitle>Companies</PageTitle>
+
+<h3>Companies</h3>
+
+@if (isLoading)
+{
+    <p>Loading companies...</p>
+}
+else if (loadError is not null)
+{
+    <p class="text-danger">Error loading companies: @loadError</p>
+}
+else if (companies is null || !companies.Any())
+{
+    <p>No companies found.</p>
+}
+else
+{
+    <ul>
+        @foreach (var company in companies)
+        {
+            <li>@company.Name</li>
+        }
+    </ul>
+}
+
+@code {
+    private IEnumerable<CompanyResponse>? companies;
+    private bool isLoading = true;
+    private string? loadError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            companies = await CompanyProvider.GetCompaniesAsync();
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

@@ -1,7 +1,10 @@
 using AutoMapper;
-using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Requests;
-using Fenicia.Auth.Responses;
+
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.User;
 
 namespace Fenicia.Auth;
 

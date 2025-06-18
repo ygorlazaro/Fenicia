@@ -1,7 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using Bogus;
-using Fenicia.Auth.Responses;
-using Fenicia.Auth.Services;
+
+using Fenicia.Auth.Domains.Token;
+using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

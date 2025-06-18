@@ -1,12 +1,9 @@
 using System.Net;
 using AutoMapper;
 using Bogus;
-using Fenicia.Auth.Contexts.Models;
-using Fenicia.Auth.Repositories.Interfaces;
-using Fenicia.Auth.Requests;
-using Fenicia.Auth.Responses;
-using Fenicia.Auth.Services;
-using Fenicia.Auth.Services.Interfaces;
+
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Microsoft.Extensions.Logging;
 using Moq;

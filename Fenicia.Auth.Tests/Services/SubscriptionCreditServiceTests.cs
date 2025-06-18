@@ -1,7 +1,7 @@
 using System.Net;
-using Fenicia.Auth.Repositories.Interfaces;
-using Fenicia.Auth.Services;
-using Fenicia.Auth.Services.Interfaces;
+
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Common;
 using Fenicia.Common.Enums;
 using Microsoft.Extensions.Logging;
