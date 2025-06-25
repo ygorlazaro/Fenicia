@@ -27,7 +27,7 @@ public class CompanyModel : BaseModel
     [MaxLength(32)]
     public string? Logo { get; set; } = null!;
 
-    [MaxLength(5)]
+    [MaxLength(256)]
     public string TimeZone { get; set; } = TimeZoneInfo.Local.StandardName;
 
     [MaxLength(10)]

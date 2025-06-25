@@ -28,89 +28,44 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cba3df7d-f868-4dfc-8a05-55fc4ebcb717" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.editorconfig" beforeDir="false" afterPath="$PROJECT_DIR$/.editorconfig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/ForgotPassword/ForgotPasswordController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/ForgotPassword/ForgotPasswordModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/ForgotPassword/ForgotPasswordRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/ForgotPassword/ForgotPasswordRequest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/ForgotPassword/ForgotPasswordResponse.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/ForgotPassword/ForgotPasswordService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/ForgotPassword/IForgotPasswordRepository.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/ForgotPassword/IForgotPasswordService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Common.Externals.Email/IBrevoProvider.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Fenicia.Common/Enums/EmailTemplate.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fenicia/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/CompanyRepositoryTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/CompanyRepositoryTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/ModuleRepositoryTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/ModuleRepositoryTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/OrderRepositoryTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/OrderRepositoryTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/RefreshTokenRepositoryTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/RefreshTokenRepositoryTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/RoleRepositoryTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/RoleRepositoryTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/SubscriptionCreditRepositoryTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/SubscriptionCreditRepositoryTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/SubscriptionRepositoryTest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/SubscriptionRepositoryTest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/UserRepositoryTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/UserRepositoryTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/UserRoleRepositoryTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Repositories/UserRoleRepositoryTests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/CompanyServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/CompanyServiceTests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/ModuleServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/ModuleServiceTests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/OrderServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/OrderServiceTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/RefreshTokenServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/RefreshTokenServiceTests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/SecurityServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/SecurityServiceTests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/SubscriptionCreditServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/SubscriptionCreditServiceTests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/SubscriptionServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/SubscriptionServiceTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/TokenServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/TokenServiceTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/UserRoleServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/UserRoleServiceTests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/UserServiceTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth.Tests/Services/UserServiceTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/AuthProfiles.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/AuthProfiles.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Contexts/AuthContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Contexts/AuthContext.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Company/CompanyController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Company/CompanyController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Company/CompanyModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Company/CompanyModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Company/CompanyService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Company/CompanyService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Module/ModuleService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Module/ModuleService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Module/ModuleController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Module/ModuleController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Order/OrderController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Order/OrderController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Order/OrderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Order/OrderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/RefreshToken/RefreshTokenService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/RefreshToken/RefreshTokenService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/RefreshToken/RefreshTokenRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/RefreshToken/RefreshTokenRequest.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/SignUp/SignUpController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/SignUp/SignUpController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Subscription/SubscriptionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Subscription/SubscriptionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/SubscriptionCredit/SubscriptionCreditService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/SubscriptionCredit/SubscriptionCreditService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Token/TokenController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Token/TokenController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/Token/TokenService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/Token/TokenService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/User/IUserRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/User/IUserRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/User/IUserService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/User/IUserService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/User/UserRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/User/UserRepository.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Domains/User/UserService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Domains/User/UserService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Enums/OrderStatus.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Enums/OrderStatus.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Enums/SubscriptionStatus.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Enums/SubscriptionStatus.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250530174603_Initial.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250530174603_Initial.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250531112824_MaxLenght.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250531112824_MaxLenght.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250601024231_CompanyTimezone.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250601024231_CompanyTimezone.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250601160354_CompanyLogoNullable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250601160354_CompanyLogoNullable.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250603161945_CompanyAddress.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250603161945_CompanyAddress.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250603194040_RefreshToken.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250603194040_RefreshToken.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250603195014_RefreshTokenActive.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250603195014_RefreshTokenActive.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250603200938_RemoveCustomers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Migrations/20250603200938_RemoveCustomers.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Fenicia.Auth.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Fenicia.Auth.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Migrations/AuthContextModelSnapshot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Migrations/AuthContextModelSnapshot.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Fenicia.Auth/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Auth/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common.Api/ClaimReader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common.Api/ClaimReader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common.Api/Middlewares/ExceptionMiddleware.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common.Api/Middlewares/ExceptionMiddleware.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common.Api/Middlewares/ModuleRequirementMiddleware.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common.Api/Middlewares/ModuleRequirementMiddleware.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common.Api/Middlewares/RoleGodRequirementMiddleware.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common.Api/Middlewares/RoleGodRequirementMiddleware.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common.Api/Middlewares/TenantMiddleware.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common.Api/Middlewares/TenantMiddleware.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common.Database/BaseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common.Database/BaseModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common.Database/SoftDeleteQueryExtension.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common.Database/SoftDeleteQueryExtension.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Common/Enums/ModuleType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common/Enums/ModuleType.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.ERP.API/Areas/Auth/UserController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.ERP.API/Areas/Auth/UserController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.ERP.API/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.ERP.API/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Accounting/Contexts/AccountingContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Accounting/Contexts/AccountingContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Accounting/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Accounting/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/BasicContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Contexts/BasicContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Migrations/20250531224921_State.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Migrations/20250531224921_State.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Migrations/20250531225538_Customer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Migrations/20250531225538_Customer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Migrations/20250601003026_Entities.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Migrations/20250601003026_Entities.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Basic/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Basic/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Contracts/Contexts/ContractsContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Contracts/Contexts/ContractsContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Contracts/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Contracts/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.CustomerSupport/Contexts/CustomerSupportContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.CustomerSupport/Contexts/CustomerSupportContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.CustomerSupport/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.CustomerSupport/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Ecommerce/Contexts/EcommerceContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Ecommerce/Contexts/EcommerceContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Ecommerce/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Ecommerce/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.HR/Contexts/HrContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.HR/Contexts/HrContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.HR/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.HR/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.POS/Contexts/PosContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.POS/Contexts/PosContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.POS/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.POS/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.PerformanceEvaluation/Contexts/PerformanceEvaluationContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.PerformanceEvaluation/Contexts/PerformanceEvaluationContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.PerformanceEvaluation/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.PerformanceEvaluation/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Plus/Contexts/PlusContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Plus/Contexts/PlusContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Plus/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Plus/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Projects/Contexts/BasicContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Projects/Contexts/BasicContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.Projects/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.Projects/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.SocialNetwork/Contexts/SocialNetworkContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.SocialNetwork/Contexts/SocialNetworkContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Module.SocialNetwork/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Module.SocialNetwork/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Web/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Web/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.Web/Providers/Auth/CompanyProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Web/Providers/Auth/CompanyProvider.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Fenicia.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.Common/ApiResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.Common/ApiResponse.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Fenicia.sln" beforeDir="false" afterPath="$PROJECT_DIR$/Fenicia.sln" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -165,40 +120,40 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.Fenicia.Auth: http.executor": "Debug",
-    ".NET Launch Settings Profile.Fenicia.Module.Accounting: http.executor": "Run",
-    ".NET Launch Settings Profile.Fenicia.Module.Basic: http.executor": "Run",
-    ".NET Launch Settings Profile.Fenicia.Web: http.executor": "Run",
-    ".NET Project.Frontend\\Fenicia.Web.executor": "Run",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "be978b3d-b1d4-4efd-8688-7aa381a3d455.executor": "Debug",
-    "beaf09e2-d09d-4ca3-b61e-dd15e0f478d4.executor": "Debug",
-    "d5096105-17ef-4ae0-a4ae-cdb5ade5cd13.executor": "Debug",
-    "deletionFromPopupRequiresConfirmation": "false",
-    "git-widget-placeholder": "develop",
-    "last_opened_file_path": "/home/ygor/Downloads/ej-release-251.132.71.zip",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.Fenicia.Auth: http.executor&quot;: &quot;Debug&quot;,
+    &quot;.NET Launch Settings Profile.Fenicia.Module.Accounting: http.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Launch Settings Profile.Fenicia.Module.Basic: http.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Launch Settings Profile.Fenicia.Web: http.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Project.Frontend\\Fenicia.Web.executor&quot;: &quot;Run&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;be978b3d-b1d4-4efd-8688-7aa381a3d455.executor&quot;: &quot;Debug&quot;,
+    &quot;beaf09e2-d09d-4ca3-b61e-dd15e0f478d4.executor&quot;: &quot;Debug&quot;,
+    &quot;d5096105-17ef-4ae0-a4ae-cdb5ade5cd13.executor&quot;: &quot;Debug&quot;,
+    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/forgot-password&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ygor/Downloads/ej-release-251.132.71.zip&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ],
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "Markdown"
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;Markdown&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunAnythingCache">
     <option name="myCommands">
       <command value="Rep" />

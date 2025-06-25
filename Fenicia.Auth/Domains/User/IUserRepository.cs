@@ -7,4 +7,6 @@ public interface IUserRepository
     Task<int> SaveAsync();
     Task<bool> CheckUserExistsAsync(string email);
     Task<UserModel?> GetUserForRefreshTokenAsync(Guid userId);
+    Task<Guid?> GetUserIdFromEmailAsync(string email);
+    Task<UserModel?> GetByIdAsync(Guid userId);
 }

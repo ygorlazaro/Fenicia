@@ -20,7 +20,7 @@ public class SubscriptionCreditService(
         {
             return new ApiResponse<List<ModuleType>>(
                 null,
-                validSubscriptions.StatusCode,
+                validSubscriptions.Status,
                 validSubscriptions.Message
             );
         }

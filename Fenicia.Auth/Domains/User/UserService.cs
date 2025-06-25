@@ -153,4 +153,46 @@ public class UserService(
 
         return new ApiResponse<UserResponse>(response);
     }
+
+    public async Task<ApiResponse<UserResponse>> GetUserIdFromEmailAsync(string email)
+    {
+        logger.LogInformation("Finding id of user {email}", [email]);
+
+        var userId = await userRepository.GetUserIdFromEmailAsync(email);
+
+        if (userId is null)
+        {
+            return new ApiResponse<UserResponse>(null, HttpStatusCode.NotFound,
+                TextConstants.ItemNotFound);
+        }
+
+        var response = new UserResponse
+        {
+            Id = userId.Value
+        };
+
+        return new ApiResponse<UserResponse>(response);
+
+    }
+
+    public async Task<ApiResponse<UserResponse>> ChangePasswordAsync(Guid userId, string password)
+    {
+        logger.LogInformation("Changing password for user {userId}", userId);
+        var user = await userRepository.GetByIdAsync(userId);
+
+
+        if (user is null)
+        {
+            logger.LogInformation("User not found {userId}", userId);
+
+            return new ApiResponse<UserResponse>(null, HttpStatusCode.NotFound,
+                TextConstants.ItemNotFound);
+        }
+
+        var hashedPassword = securityService.HashPassword(password).Data;
+        user.Password = hashedPassword!;
+        await userRepository.SaveAsync();
+
+        return new ApiResponse<UserResponse>(mapper.Map<UserResponse>(user));
+    }
 }

@@ -87,7 +87,7 @@ public class SubscriptionCreditServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
             Assert.That(result.Message, Is.EqualTo(errorMessage));
             Assert.That(result.Data, Is.Null);
         });

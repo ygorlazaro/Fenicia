@@ -118,7 +118,7 @@ public class UserServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(result.Data, Is.Null);
         });
     }
@@ -200,7 +200,7 @@ public class UserServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(result.Data, Is.Null);
         });
     }
@@ -270,7 +270,7 @@ public class UserServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
             Assert.That(result.Data, Is.Null);
         });
     }
@@ -306,7 +306,7 @@ public class UserServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.InternalServerError));
             Assert.That(result.Data, Is.Null);
         });
     }

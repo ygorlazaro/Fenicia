@@ -1,5 +1,6 @@
 using Fenicia.Auth.Domains.Address;
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.OrderDetail;
@@ -39,6 +40,8 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
     public DbSet<AddressModel> Addresses { get; set; } = null!;
 
     public DbSet<StateModel> States { get; set; } = null!;
+
+    public DbSet<ForgotPasswordModel> ForgottenPasswords { get; set; } = null!;
 
     public DbSet<RefreshTokenModel> RefreshTokens { get; set; } = null!;
 

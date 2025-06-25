@@ -46,7 +46,7 @@ public class OrderService(
 
         if (modules.Data is null)
         {
-            return new ApiResponse<OrderResponse>(null, modules.StatusCode, modules.Message);
+            return new ApiResponse<OrderResponse>(null, modules.Status, modules.Message);
         }
 
         if (modules.Data.Count == 0)
@@ -93,7 +93,7 @@ public class OrderService(
         {
             return new ApiResponse<List<ModuleModel>>(
                 null,
-                modules.StatusCode,
+                modules.Status,
                 modules.Message
             );
         }

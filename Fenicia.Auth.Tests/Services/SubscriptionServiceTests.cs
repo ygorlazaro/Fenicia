@@ -86,7 +86,7 @@ public class SubscriptionServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(result.Data, Is.Null);
         });
 

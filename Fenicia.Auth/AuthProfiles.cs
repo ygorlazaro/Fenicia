@@ -1,6 +1,7 @@
 using AutoMapper;
 
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Subscription;
@@ -24,5 +25,9 @@ public class AuthProfiles : Profile
         CreateMap<SubscriptionResponse, SubscriptionModel>().ReverseMap();
 
         CreateMap<UserResponse, UserModel>().ReverseMap();
+
+        CreateMap<ForgotPasswordRequest, ForgotPasswordModel>().ReverseMap();
+        CreateMap<ForgotPasswordResponse, ForgotPasswordModel>().ReverseMap();
+        CreateMap<ForgotPasswordRequestReset, ForgotPasswordModel>().ReverseMap();
     }
 }
