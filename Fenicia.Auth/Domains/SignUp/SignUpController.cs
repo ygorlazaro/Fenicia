@@ -30,7 +30,7 @@ public class SignUpController(ILogger<SignUpController> logger, IUserService use
 
         if (userResponse.Data is null)
         {
-            return StatusCode((int)userResponse.StatusCode, userResponse.Message);
+            return StatusCode((int)userResponse.Status, userResponse.Message);
         }
 
         logger.LogInformation("New user - {email}", request.Email);

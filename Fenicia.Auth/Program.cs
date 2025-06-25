@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.RefreshToken;
@@ -15,6 +16,7 @@ using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.Api.Middlewares;
+using Fenicia.Common.Externals.Email;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +54,7 @@ public static class Program
         var connectionString = configuration.GetConnectionString("AuthConnection");
 
         builder.Services.AddTransient<ICompanyService, CompanyService>();
+        builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();
         builder.Services.AddTransient<IModuleService, ModuleService>();
         builder.Services.AddTransient<IOrderService, OrderService>();
         builder.Services.AddTransient<IRefreshTokenService, RefreshTokenService>();
@@ -63,6 +66,7 @@ public static class Program
         builder.Services.AddTransient<IUserService, UserService>();
 
         builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
+        builder.Services.AddTransient<IForgotPasswordRepository, ForgotPasswordRepository>();
         builder.Services.AddTransient<IModuleRepository, ModuleRepository>();
         builder.Services.AddTransient<IOrderRepository, OrderRepository>();
         builder.Services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -74,6 +78,8 @@ public static class Program
         builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
         builder.Services.AddTransient<IUserRepository, UserRepository>();
         builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
+
+        builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
 
         builder.Services.AddAutoMapper(typeof(Program));
 

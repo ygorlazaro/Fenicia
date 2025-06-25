@@ -33,7 +33,7 @@ public class OrderController(ILogger<OrderController> logger, IOrderService orde
 
         if (order.Data is null)
         {
-            return StatusCode((int)order.StatusCode, order.Message);
+            return StatusCode((int)order.Status, order.Message);
         }
 
         logger.LogInformation("New order made - {userId}", userId);

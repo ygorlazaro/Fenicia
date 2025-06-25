@@ -58,7 +58,7 @@ public class CompanyServiceTests
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 
@@ -76,7 +76,7 @@ public class CompanyServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
             Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
         });
     }
@@ -106,7 +106,7 @@ public class CompanyServiceTests
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 
@@ -143,7 +143,7 @@ public class CompanyServiceTests
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 
@@ -163,7 +163,7 @@ public class CompanyServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
             Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
         });
     }
@@ -188,7 +188,7 @@ public class CompanyServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
             Assert.That(result.Message, Is.EqualTo(TextConstants.PermissionDenied));
         });
     }
@@ -209,7 +209,7 @@ public class CompanyServiceTests
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedCount));
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 }

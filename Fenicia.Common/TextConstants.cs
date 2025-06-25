@@ -15,4 +15,5 @@ public static class TextConstants
     public const string UserNotInCompany = "User not in company";
     public const string ItemNotFound = "Item not found";
     public const string InvalidPassword = "Invalid password";
+    public const string ResetPasswordCodeNotFound = "Reset password code not found";
 }

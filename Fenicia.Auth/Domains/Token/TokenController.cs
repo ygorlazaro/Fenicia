@@ -6,7 +6,6 @@ using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
-using Fenicia.Common.Api;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,14 +46,14 @@ public class TokenController(
         if (company.Data is null)
         {
             logger.LogInformation("Invalid login - {email}", request.Email);
-            return StatusCode((int)company.StatusCode, company.Message);
+            return StatusCode((int)company.Status, company.Message);
         }
 
         var userResponse = await userService.GetForLoginAsync(request);
 
         if (userResponse.Data is null)
         {
-            return StatusCode((int)userResponse.StatusCode, userResponse.Message);
+            return StatusCode((int)userResponse.Status, userResponse.Message);
         }
 
         var response = await PopulateTokenAsync(userResponse.Data, company.Data.Id);
@@ -68,6 +67,7 @@ public class TokenController(
     /// <param name="request">The refresh token request containing the refresh token</param>
     /// <response code="200">Returns the authentication token</response>
     [HttpPost]
+    [AllowAnonymous]
     [Route("refresh")]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -75,10 +75,8 @@ public class TokenController(
     {
         logger.LogInformation("Refreshing token");
 
-        var userId = ClaimReader.UserId(User);
-        var companyId = ClaimReader.CompanyId(User);
         var isValidToken = await refreshTokenService.ValidateTokenAsync(
-            userId,
+            request.UserId,
             request.RefreshToken
         );
 
@@ -87,14 +85,14 @@ public class TokenController(
             return BadRequest("Invalid client request");
         }
 
-        var userResponse = await userService.GetUserForRefreshAsync(userId);
+        var userResponse = await userService.GetUserForRefreshAsync(request.UserId);
 
         if (userResponse.Data is null)
         {
             return BadRequest(TextConstants.PermissionDenied);
         }
 
-        var response = await PopulateTokenAsync(userResponse.Data, companyId);
+        var response = await PopulateTokenAsync(userResponse.Data, request.CompanyId);
 
         await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken);
 
@@ -110,7 +108,7 @@ public class TokenController(
 
         if (roles.Data is null)
         {
-            return StatusCode((int)roles.StatusCode, roles.Message);
+            return StatusCode((int)roles.Status, roles.Message);
         }
 
         if (roles.Data.Length == 0)
@@ -123,21 +121,21 @@ public class TokenController(
 
         if (modules.Data is null)
         {
-            return StatusCode((int)modules.StatusCode, modules.Message);
+            return StatusCode((int)modules.Status, modules.Message);
         }
 
         var token = tokenService.GenerateToken(user, roles.Data, companyId, modules.Data);
 
         if (token.Data is null)
         {
-            return StatusCode((int)token.StatusCode, token.Message);
+            return StatusCode((int)token.Status, token.Message);
         }
 
         var refreshToken = await refreshTokenService.GenerateRefreshTokenAsync(user.Id);
 
         if (refreshToken.Data is null)
         {
-            return StatusCode((int)refreshToken.StatusCode, refreshToken.Message);
+            return StatusCode((int)refreshToken.Status, refreshToken.Message);
         }
 
         logger.LogInformation("User logged in - {email}", user.Email);

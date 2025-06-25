@@ -32,7 +32,7 @@ public class ModuleController(ILogger<ModuleController> logger, IModuleService m
 
         if (modules.Data is null)
         {
-            return StatusCode((int)modules.StatusCode, modules.Message);
+            return StatusCode((int)modules.Status, modules.Message);
         }
 
         var pagination = new Pagination<List<ModuleResponse>>(

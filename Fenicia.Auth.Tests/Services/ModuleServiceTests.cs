@@ -60,7 +60,7 @@ public class ModuleServiceTests
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 
@@ -87,7 +87,7 @@ public class ModuleServiceTests
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 
@@ -120,7 +120,7 @@ public class ModuleServiceTests
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 
@@ -140,7 +140,7 @@ public class ModuleServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
             Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
         });
     }
@@ -160,7 +160,7 @@ public class ModuleServiceTests
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedCount));
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 }

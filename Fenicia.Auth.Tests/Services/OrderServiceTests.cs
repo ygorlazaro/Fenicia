@@ -70,7 +70,7 @@ public class OrderServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(result.Message, Is.EqualTo(TextConstants.UserNotInCompany));
         });
     }
@@ -109,7 +109,7 @@ public class OrderServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(result.Message, Is.EqualTo(TextConstants.ThereWasAnErrorSearchingModules));
         });
     }
@@ -199,7 +199,7 @@ public class OrderServiceTests
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(result.Data, Is.Not.Null);
         });
 
@@ -274,7 +274,7 @@ public class OrderServiceTests
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
 
         // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         _moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic), Times.Never);
     }
 }

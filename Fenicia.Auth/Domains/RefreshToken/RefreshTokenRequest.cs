@@ -9,4 +9,10 @@ public class RefreshTokenRequest
 
     [Required]
     public string RefreshToken { get; set; } = null!;
+
+    [Required]
+    public Guid UserId { get; set; }
+
+    [Required]
+    public Guid CompanyId { get; set; }
 }

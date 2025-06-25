@@ -35,7 +35,7 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
 
         if (companies.Data is null)
         {
-            return StatusCode((int)companies.StatusCode, companies.Message);
+            return StatusCode((int)companies.Status, companies.Message);
         }
 
         var response = new Pagination<IEnumerable<CompanyResponse>>(
@@ -78,7 +78,7 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
 
         if (response.Data is null)
         {
-            return StatusCode((int)response.StatusCode, response.Message);
+            return StatusCode((int)response.Status, response.Message);
         }
 
         logger.LogInformation("Company updated - {id}", id);

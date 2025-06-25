@@ -4,11 +4,11 @@ namespace Fenicia.Common;
 
 public class ApiResponse<T>(
     T? data,
-    HttpStatusCode statusCode = HttpStatusCode.OK,
+    HttpStatusCode status = HttpStatusCode.OK,
     string message = ""
 )
 {
     public T? Data { get; set; } = data;
-    public HttpStatusCode StatusCode { get; set; } = statusCode;
+    public HttpStatusCode Status { get; set; } = status;
     public string Message { get; set; } = message;
 }

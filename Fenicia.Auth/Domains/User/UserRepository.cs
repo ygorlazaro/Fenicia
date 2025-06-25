@@ -39,4 +39,14 @@ public class UserRepository(AuthContext authContext) : IUserRepository
     {
         return await authContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
     }
+
+    public async Task<Guid?> GetUserIdFromEmailAsync(string email)
+    {
+        return await authContext.Users.Select(u => u.Id).FirstOrDefaultAsync();
+    }
+
+    public async Task<UserModel?> GetByIdAsync(Guid userId)
+    {
+        return await authContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+    }
 }

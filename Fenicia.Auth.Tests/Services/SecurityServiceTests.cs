@@ -37,7 +37,7 @@ public class SecurityServiceTests
                 Does.StartWith("$2a$12$"),
                 "Hash should use BCrypt format with work factor 12"
             );
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 
@@ -85,7 +85,7 @@ public class SecurityServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Data, Is.True);
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 
@@ -104,7 +104,7 @@ public class SecurityServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Data, Is.False);
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
 
@@ -122,7 +122,7 @@ public class SecurityServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Data, Is.False);
-            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.InternalServerError));
         });
     }
 
@@ -210,7 +210,7 @@ public class SecurityServiceTests
             Assert.Multiple(() =>
             {
                 Assert.That(result.Data, Is.False);
-                Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+                Assert.That(result.Status, Is.EqualTo(HttpStatusCode.InternalServerError));
             });
         }
     }
