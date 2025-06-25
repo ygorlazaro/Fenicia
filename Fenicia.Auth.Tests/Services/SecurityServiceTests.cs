@@ -1,4 +1,5 @@
 using System.Net;
+
 using Bogus;
 
 using Fenicia.Auth.Domains.Security;
@@ -32,8 +33,8 @@ public class SecurityServiceTests
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Data, Is.Not.EqualTo(password));
             Assert.That(
-                result.Data.StartsWith("$2a$12$"),
-                Is.True,
+                result.Data!,
+                Does.StartWith("$2a$12$"),
                 "Hash should use BCrypt format with work factor 12"
             );
             Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -48,16 +49,16 @@ public class SecurityServiceTests
         var hashes = new HashSet<string>();
 
         // Act
-        for (int i = 0; i < 5; i++)
+        for (var i = 0; i < 5; i++)
         {
             var result = _sut.HashPassword(password);
-            hashes.Add(result.Data);
+            hashes.Add(result.Data!);
         }
 
         // Assert
         Assert.That(
-            hashes.Count,
-            Is.EqualTo(5),
+            hashes,
+            Has.Count.EqualTo(5),
             "Each hash should be unique even for the same password"
         );
     }
@@ -78,7 +79,7 @@ public class SecurityServiceTests
         var hashedPassword = _sut.HashPassword(password).Data;
 
         // Act
-        var result = _sut.VerifyPassword(password, hashedPassword);
+        var result = _sut.VerifyPassword(password, hashedPassword!);
 
         // Assert
         Assert.Multiple(() =>
@@ -97,7 +98,7 @@ public class SecurityServiceTests
         var hashedPassword = _sut.HashPassword(password).Data;
 
         // Act
-        var result = _sut.VerifyPassword(wrongPassword, hashedPassword);
+        var result = _sut.VerifyPassword(wrongPassword, hashedPassword!);
 
         // Assert
         Assert.Multiple(() =>
@@ -134,10 +135,10 @@ public class SecurityServiceTests
         var hashedPasswords = passwords.Select(p => _sut.HashPassword(p).Data).ToList();
 
         // Act & Assert
-        for (int i = 0; i < passwordCount; i++)
+        for (var i = 0; i < passwordCount; i++)
         {
             // Verify correct password
-            var correctResult = _sut.VerifyPassword(passwords[i], hashedPasswords[i]);
+            var correctResult = _sut.VerifyPassword(passwords[i], hashedPasswords[i]!);
             Assert.That(
                 correctResult.Data,
                 Is.True,
@@ -145,11 +146,11 @@ public class SecurityServiceTests
             );
 
             // Verify against other passwords' hashes
-            for (int j = 0; j < passwordCount; j++)
+            for (var j = 0; j < passwordCount; j++)
             {
                 if (i == j)
                     continue;
-                var incorrectResult = _sut.VerifyPassword(passwords[i], hashedPasswords[j]);
+                var incorrectResult = _sut.VerifyPassword(passwords[i], hashedPasswords[j]!);
                 Assert.That(
                     incorrectResult.Data,
                     Is.False,
@@ -165,22 +166,22 @@ public class SecurityServiceTests
         // Arrange
         var testPasswords = new[]
         {
-            _faker.Internet.Password(8, false), // Simple password
+            _faker.Internet.Password(8), // Simple password
             _faker.Internet.Password(16, true), // Complex password
-            _faker.Internet.Password(32, true, "@#$%"), // Very complex password
+            _faker.Internet.Password(32, true, "@#$%") // Very complex password
         };
 
         foreach (var password in testPasswords)
         {
             // Act
             var result = _sut.HashPassword(password);
-            var verifyResult = _sut.VerifyPassword(password, result.Data);
+            var verifyResult = _sut.VerifyPassword(password, result.Data!);
 
             // Assert
             Assert.Multiple(() =>
             {
                 Assert.That(result.Data, Is.Not.Null);
-                Assert.That(result.Data.StartsWith("$2a$12$"), Is.True);
+                Assert.That(result.Data, Does.StartWith("$2a$12$"));
                 Assert.That(verifyResult.Data, Is.True);
             });
         }
@@ -197,13 +198,13 @@ public class SecurityServiceTests
             (Password: "", Hash: validHash),
             (Password: null, Hash: validHash),
             (Password: validPassword, Hash: ""),
-            (Password: validPassword, Hash: null),
+            (Password: validPassword, Hash: null)
         };
 
         foreach (var (password, hash) in testCases)
         {
             // Act
-            var result = _sut.VerifyPassword(password, hash);
+            var result = _sut.VerifyPassword(password!, hash!);
 
             // Assert
             Assert.Multiple(() =>

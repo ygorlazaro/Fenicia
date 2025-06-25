@@ -1,8 +1,11 @@
 using System.Text;
+
 using Fenicia.Common;
 using Fenicia.Common.Api.Middlewares;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+
 using Scalar.AspNetCore;
 
 namespace Fenicia.ERP.API;
@@ -36,7 +39,7 @@ public class Program
                     ValidIssuer = "AuthService",
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = true,
+                    ValidateLifetime = true
                 };
             });
 
@@ -54,7 +57,7 @@ public class Program
 
                 x.Authentication = new ScalarAuthenticationOptions
                 {
-                    PreferredSecurityScheme = "Bearer",
+                    PreferredSecuritySchemes = ["Bearer "]
                 };
             });
         }

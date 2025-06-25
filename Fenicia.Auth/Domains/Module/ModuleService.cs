@@ -40,7 +40,7 @@ public class ModuleService(
 
     public async Task<ApiResponse<ModuleResponse>> GetModuleByTypeAsync(ModuleType moduleType)
     {
-        logger.LogInformation("Getting module by type {moduleType}", [moduleType]);
+        logger.LogInformation("Getting module by type {moduleType}", moduleType);
         var module = await moduleRepository.GetModuleByTypeAsync(moduleType);
 
         if (module is null)

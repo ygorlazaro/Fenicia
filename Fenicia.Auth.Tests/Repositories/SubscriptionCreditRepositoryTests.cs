@@ -1,8 +1,10 @@
 using Bogus;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Common.Enums;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Repositories;
@@ -31,15 +33,15 @@ public class SubscriptionCreditRepositoryTests
     private void SetupFakers()
     {
         _moduleGenerator = new Faker<ModuleModel>()
-            .RuleFor(m => m.Id, f => Guid.NewGuid())
+            .RuleFor(m => m.Id, _ => Guid.NewGuid())
             .RuleFor(m => m.Type, f => f.PickRandom<ModuleType>())
             .RuleFor(m => m.Name, f => f.Commerce.ProductName());
 
         _creditGenerator = new Faker<SubscriptionCreditModel>()
-            .RuleFor(c => c.Id, f => Guid.NewGuid())
-            .RuleFor(c => c.SubscriptionId, f => Guid.NewGuid())
-            .RuleFor(c => c.ModuleId, f => Guid.NewGuid())
-            .RuleFor(c => c.IsActive, f => true)
+            .RuleFor(c => c.Id, _ => Guid.NewGuid())
+            .RuleFor(c => c.SubscriptionId, _ => Guid.NewGuid())
+            .RuleFor(c => c.ModuleId, _ => Guid.NewGuid())
+            .RuleFor(c => c.IsActive, _ => true)
             .RuleFor(c => c.StartDate, f => f.Date.Past())
             .RuleFor(c => c.EndDate, f => f.Date.Future());
     }
@@ -80,7 +82,7 @@ public class SubscriptionCreditRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Empty);
-        Assert.That(result.Count, Is.LessThanOrEqualTo(modules.Count));
+        Assert.That(result, Has.Count.LessThanOrEqualTo(modules.Count));
     }
 
     [Test]
@@ -217,7 +219,7 @@ public class SubscriptionCreditRepositoryTests
         var subscription = Guid.NewGuid();
         var now = DateTime.Now;
 
-        var moduleTypes = new[] { ModuleType.Accounting, ModuleType.HR, ModuleType.Ecommerce };
+        var moduleTypes = new[] { ModuleType.Accounting, ModuleType.Hr, ModuleType.Ecommerce };
         var modules = moduleTypes
             .Select(type => _moduleGenerator.Clone().RuleFor(m => m.Type, type).Generate())
             .ToList();

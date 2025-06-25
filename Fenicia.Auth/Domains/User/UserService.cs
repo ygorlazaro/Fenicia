@@ -28,7 +28,7 @@ public class UserService(
 
         if (user is null)
         {
-            logger.LogInformation("Invalid login - {email}", [request.Email]);
+            logger.LogInformation("Invalid login - {email}", request.Email);
 
             return new ApiResponse<UserResponse>(
                 null,
@@ -46,7 +46,7 @@ public class UserService(
             return new ApiResponse<UserResponse>(response);
         }
 
-        logger.LogInformation("Invalid login - {email}", [request.Email]);
+        logger.LogInformation("Invalid login - {email}", request.Email);
 
         return new ApiResponse<UserResponse>(
             null,
@@ -65,7 +65,7 @@ public class UserService(
 
         if (isExistingUser)
         {
-            logger.LogInformation("User already exists - {email}", [request.Email]);
+            logger.LogInformation("User already exists - {email}", request.Email);
 
             return new ApiResponse<UserResponse>(
                 null,
@@ -76,7 +76,7 @@ public class UserService(
 
         if (isExistingCompany)
         {
-            logger.LogInformation("Company already exists - {cnpj}", [request.Company.Cnpj]);
+            logger.LogInformation("Company already exists - {cnpj}", request.Company.Cnpj);
 
             return new ApiResponse<UserResponse>(
                 null,
@@ -91,7 +91,7 @@ public class UserService(
         {
             Email = request.Email,
             Password = hashedPassword!,
-            Name = request.Name,
+            Name = request.Name
         };
 
         var user = userRepository.Add(userRequest);
@@ -117,8 +117,8 @@ public class UserService(
             {
                 User = user,
                 Company = company,
-                Role = adminRole,
-            },
+                Role = adminRole
+            }
         ];
 
         await userRepository.SaveAsync();

@@ -1,4 +1,5 @@
 using Bogus;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Order;
 
@@ -40,7 +41,7 @@ public class OrderRepositoryTests
         {
             Id = Guid.NewGuid(),
             CompanyId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
+            UserId = Guid.NewGuid()
         };
 
         // Act
@@ -52,8 +53,11 @@ public class OrderRepositoryTests
 
         var savedOrder = await _context.Orders.FindAsync(order.Id);
         Assert.That(savedOrder, Is.Not.Null);
-        Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
-        Assert.That(savedOrder.UserId, Is.EqualTo(order.UserId));
+        Assert.Multiple(() =>
+        {
+            Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
+            Assert.That(savedOrder.UserId, Is.EqualTo(order.UserId));
+        });
     }
 
     [Test]
@@ -64,7 +68,7 @@ public class OrderRepositoryTests
         {
             Id = Guid.NewGuid(),
             CompanyId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
+            UserId = Guid.NewGuid()
         };
 
         // Act
@@ -75,9 +79,12 @@ public class OrderRepositoryTests
         {
             var savedOrder = await context.Orders.FindAsync(order.Id);
             Assert.That(savedOrder, Is.Not.Null);
-            Assert.That(savedOrder.Id, Is.EqualTo(order.Id));
-            Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
-            Assert.That(savedOrder.UserId, Is.EqualTo(order.UserId));
+            Assert.Multiple(() =>
+            {
+                Assert.That(savedOrder.Id, Is.EqualTo(order.Id));
+                Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
+                Assert.That(savedOrder.UserId, Is.EqualTo(order.UserId));
+            });
         }
     }
 
@@ -96,15 +103,15 @@ public class OrderRepositoryTests
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
-                    Amount = _faker.Random.Int(1, 10),
+                    Amount = _faker.Random.Int(1, 10)
                 },
                 new()
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
-                    Amount = _faker.Random.Int(1, 10),
-                },
-            ],
+                    Amount = _faker.Random.Int(1, 10)
+                }
+            ]
         };
 
         // Act

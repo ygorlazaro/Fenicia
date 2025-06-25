@@ -1,11 +1,15 @@
 using System.Net;
+
 using AutoMapper;
+
 using Bogus;
 
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -50,9 +54,12 @@ public class CompanyServiceTests
         // Act
         var result = await _sut.GetByCnpjAsync(cnpj);
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.Data, Is.EqualTo(expectedResponse));
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        });
     }
 
     [Test]
@@ -61,14 +68,17 @@ public class CompanyServiceTests
         // Arrange
         var cnpj = _faker.Random.String2(14, "0123456789");
 
-        _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj)).ReturnsAsync((CompanyModel)null);
+        _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj)).ReturnsAsync((CompanyModel)null!);
 
         // Act
         var result = await _sut.GetByCnpjAsync(cnpj);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-        Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
+        });
     }
 
     [Test]
@@ -79,7 +89,7 @@ public class CompanyServiceTests
         var companies = new List<CompanyModel>
         {
             new() { Id = Guid.NewGuid() },
-            new() { Id = Guid.NewGuid() },
+            new() { Id = Guid.NewGuid() }
         };
         var expectedResponse = companies.Select(c => new CompanyResponse { Id = c.Id }).ToList();
 
@@ -92,9 +102,12 @@ public class CompanyServiceTests
         // Act
         var result = await _sut.GetByUserIdAsync(userId);
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.Data, Is.EqualTo(expectedResponse));
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        });
     }
 
     [Test]
@@ -126,9 +139,12 @@ public class CompanyServiceTests
         // Act
         var result = await _sut.PatchAsync(companyId, userId, updateRequest);
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.Data, Is.EqualTo(expectedResponse));
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        });
     }
 
     [Test]
@@ -144,9 +160,12 @@ public class CompanyServiceTests
         // Act
         var result = await _sut.PatchAsync(companyId, userId, updateRequest);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-        Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
+        });
     }
 
     [Test]
@@ -166,9 +185,12 @@ public class CompanyServiceTests
         // Act
         var result = await _sut.PatchAsync(companyId, userId, updateRequest);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-        Assert.That(result.Message, Is.EqualTo(TextConstants.PermissionDenied));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+            Assert.That(result.Message, Is.EqualTo(TextConstants.PermissionDenied));
+        });
     }
 
     [Test]
@@ -183,8 +205,11 @@ public class CompanyServiceTests
         // Act
         var result = await _sut.CountByUserIdAsync(userId);
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedCount));
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.Data, Is.EqualTo(expectedCount));
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        });
     }
 }

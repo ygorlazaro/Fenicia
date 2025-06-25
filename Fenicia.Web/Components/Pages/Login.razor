@@ -2,7 +2,7 @@
 @using Fenicia.Web.Providers.Auth
 @using Blazored.LocalStorage
 @using Fenicia.Auth.Domains.Token
-@inject ILocalStorageService localStorage
+@inject ILocalStorageService LocalStorage
 @inject TokenProvider TokenProvider
 @inject NavigationManager NavigationManager
 
@@ -14,10 +14,10 @@
                     <h3 class="text-center">Login</h3>
                 </div>
                 <div class="card-body">
-                    @if (!string.IsNullOrEmpty(errorMessage))
+                    @if (!string.IsNullOrEmpty(_errorMessage))
                     {
                         <div class="alert alert-danger" role="alert">
-                            @errorMessage
+                            @_errorMessage
                         </div>
                     }
                     <form @onsubmit="HandleSubmit" @onsubmit:preventDefault>
@@ -26,7 +26,7 @@
                             <input type="email" 
                                    id="email" 
                                    class="form-control" 
-                                   @bind="tokenRequest.Email" 
+                                   @bind="_tokenRequest.Email" 
                                    required />
                         </div>
 
@@ -35,7 +35,7 @@
                             <input type="password" 
                                    id="password" 
                                    class="form-control" 
-                                   @bind="tokenRequest.Password" 
+                                   @bind="_tokenRequest.Password" 
                                    required />
                         </div>
 
@@ -44,14 +44,14 @@
                             <input type="text" 
                                    id="cnpj" 
                                    class="form-control" 
-                                   @bind="tokenRequest.Cnpj" 
+                                   @bind="_tokenRequest.Cnpj" 
                                    maxlength="14" 
                                    required />
                         </div>
 
                         <div class="text-center">
-                            <button class="btn btn-primary" disabled="@isLoading">
-                                @if (isLoading)
+                            <button class="btn btn-primary" disabled="@_isLoading">
+                                @if (_isLoading)
                                 {
                                     <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                                     <span>Loading...</span>
@@ -71,62 +71,62 @@
 
 @code {
 
-    private TokenRequest tokenRequest = new()
+    private TokenRequest _tokenRequest = new()
     {
         Cnpj = "23351185000184",
         Email = "ygor@ygorlazaro.com",
         Password = "Age14rjy"
     };
-    private bool isLoading;
-    private string? errorMessage;
+    private bool _isLoading;
+    private string? _errorMessage;
 
     protected override void OnInitialized()
     {
-        localStorage.RemoveItemAsync("authToken");
-        localStorage.RemoveItemAsync("refreshToken");
+        LocalStorage.RemoveItemAsync("authToken");
+        LocalStorage.RemoveItemAsync("refreshToken");
     }
 
     private async Task HandleSubmit()
     {
         try
         {
-            isLoading = true;
-            errorMessage = null;
+            _isLoading = true;
+            _errorMessage = null;
 
-            if (string.IsNullOrWhiteSpace(tokenRequest.Email) ||
-                string.IsNullOrWhiteSpace(tokenRequest.Password) ||
-                string.IsNullOrWhiteSpace(tokenRequest.Cnpj))
+            if (string.IsNullOrWhiteSpace(_tokenRequest.Email) ||
+                string.IsNullOrWhiteSpace(_tokenRequest.Password) ||
+                string.IsNullOrWhiteSpace(_tokenRequest.Cnpj))
             {
-                errorMessage = "Please fill in all required fields.";
+                _errorMessage = "Please fill in all required fields.";
                 return;
             }
 
-            var response = await TokenProvider.GetTokenAsync(tokenRequest);
+            var response = await TokenProvider.GetTokenAsync(_tokenRequest);
             
             if (response != null)
             {
-                await localStorage.SetItemAsync("authToken", response.Token);
-                await localStorage.SetItemAsync("refreshToken", response.RefreshToken);
+                await LocalStorage.SetItemAsync("authToken", response.Token);
+                await LocalStorage.SetItemAsync("refreshToken", response.RefreshToken);
                 NavigationManager.NavigateTo("/home", true);
             }
             else
             {
-                errorMessage = "Invalid login attempt.";
+                _errorMessage = "Invalid login attempt.";
             }
         }
         catch (HttpRequestException ex)
         {
-            errorMessage = ex.Message;
+            _errorMessage = ex.Message;
             Console.WriteLine($"Error details: {ex}");
         }
         catch (Exception ex)
         {
-            errorMessage = "An unexpected error occurred. Please try again.";
+            _errorMessage = "An unexpected error occurred. Please try again.";
             Console.WriteLine($"Error details: {ex}");
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
             StateHasChanged();
         }
     }

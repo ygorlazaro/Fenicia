@@ -1,7 +1,9 @@
 using Bogus;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Common.Enums;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Repositories;
@@ -37,14 +39,14 @@ public class ModuleRepositoryTests
     {
         // Arrange
         var modules = new List<ModuleModel>();
-        for (int i = 0; i < 15; i++)
+        for (var i = 0; i < 15; i++)
         {
             modules.Add(
                 new ModuleModel
                 {
                     Id = Guid.NewGuid(),
                     Type = (ModuleType)(i % 5),
-                    Name = _faker.Commerce.ProductName(),
+                    Name = _faker.Commerce.ProductName()
                 }
             );
         }
@@ -55,9 +57,12 @@ public class ModuleRepositoryTests
         var page1 = await _sut.GetAllOrderedAsync(page: 1, perPage: 10);
         var page2 = await _sut.GetAllOrderedAsync(page: 2, perPage: 10);
 
-        // Assert
-        Assert.That(page1, Has.Count.EqualTo(10));
-        Assert.That(page2, Has.Count.EqualTo(5));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(page1, Has.Count.EqualTo(10));
+            Assert.That(page2, Has.Count.EqualTo(5));
+        });
         Assert.That(page1, Is.Ordered.By("Type"));
     }
 
@@ -78,13 +83,13 @@ public class ModuleRepositoryTests
         var modules = new List<ModuleModel>();
         var requestedIds = new List<Guid>();
 
-        for (int i = 0; i < 5; i++)
+        for (var i = 0; i < 5; i++)
         {
             var module = new ModuleModel
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)i,
-                Name = _faker.Commerce.ProductName(),
+                Name = _faker.Commerce.ProductName()
             };
             modules.Add(module);
             if (i < 3) // Request only first 3 modules
@@ -101,8 +106,11 @@ public class ModuleRepositoryTests
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(3));
-        Assert.That(result.Select(m => m.Id), Is.EquivalentTo(requestedIds));
-        Assert.That(result, Is.Ordered.By("Type"));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Select(m => m.Id), Is.EquivalentTo(requestedIds));
+            Assert.That(result, Is.Ordered.By("Type"));
+        });
     }
 
     [Test]
@@ -127,7 +135,7 @@ public class ModuleRepositoryTests
         {
             Id = Guid.NewGuid(),
             Type = moduleType,
-            Name = _faker.Commerce.ProductName(),
+            Name = _faker.Commerce.ProductName()
         };
 
         await _context.Modules.AddAsync(module);
@@ -138,8 +146,11 @@ public class ModuleRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Type, Is.EqualTo(moduleType));
-        Assert.That(result.Id, Is.EqualTo(module.Id));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Type, Is.EqualTo(moduleType));
+            Assert.That(result.Id, Is.EqualTo(module.Id));
+        });
     }
 
     [Test]
@@ -159,14 +170,14 @@ public class ModuleRepositoryTests
         var expectedCount = 5;
         var modules = new List<ModuleModel>();
 
-        for (int i = 0; i < expectedCount; i++)
+        for (var i = 0; i < expectedCount; i++)
         {
             modules.Add(
                 new ModuleModel
                 {
                     Id = Guid.NewGuid(),
                     Type = (ModuleType)i,
-                    Name = _faker.Commerce.ProductName(),
+                    Name = _faker.Commerce.ProductName()
                 }
             );
         }
@@ -196,14 +207,14 @@ public class ModuleRepositoryTests
     {
         // Arrange
         var modules = new List<ModuleModel>();
-        for (int i = 0; i < 25; i++)
+        for (var i = 0; i < 25; i++)
         {
             modules.Add(
                 new ModuleModel
                 {
                     Id = Guid.NewGuid(),
                     Type = (ModuleType)(i % 5),
-                    Name = _faker.Commerce.ProductName(),
+                    Name = _faker.Commerce.ProductName()
                 }
             );
         }

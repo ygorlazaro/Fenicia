@@ -1,5 +1,7 @@
 using System.Net;
+
 using AutoMapper;
+
 using Bogus;
 
 using Fenicia.Auth.Domains.Module;
@@ -10,7 +12,9 @@ using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Enums;
 using Fenicia.Common;
 using Fenicia.Common.Enums;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -63,9 +67,12 @@ public class OrderServiceTests
         // Act
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(result.Message, Is.EqualTo(TextConstants.UserNotInCompany));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Message, Is.EqualTo(TextConstants.UserNotInCompany));
+        });
     }
 
     [Test]
@@ -77,7 +84,7 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest
         {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } },
+            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
         };
 
         var emptyModulesList = new List<ModuleResponse>();
@@ -99,9 +106,12 @@ public class OrderServiceTests
         // Act
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(result.Message, Is.EqualTo(TextConstants.ThereWasAnErrorSearchingModules));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Message, Is.EqualTo(TextConstants.ThereWasAnErrorSearchingModules));
+        });
     }
 
     [Test]
@@ -115,7 +125,7 @@ public class OrderServiceTests
 
         var request = new OrderRequest
         {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } },
+            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
         };
 
         var moduleResponses = new List<ModuleResponse>
@@ -124,15 +134,15 @@ public class OrderServiceTests
             {
                 Id = moduleId,
                 Amount = moduleAmount,
-                Type = ModuleType.Accounting,
-            },
+                Type = ModuleType.Accounting
+            }
         };
 
         var basicModuleResponse = new ModuleResponse
         {
             Id = Guid.NewGuid(),
             Type = ModuleType.Basic,
-            Amount = _faker.Random.Decimal(10, 1000),
+            Amount = _faker.Random.Decimal(10, 1000)
         };
 
         var moduleModels = new List<ModuleModel>
@@ -141,14 +151,14 @@ public class OrderServiceTests
             {
                 Id = moduleId,
                 Amount = moduleAmount,
-                Type = ModuleType.Accounting,
+                Type = ModuleType.Accounting
             },
             new()
             {
                 Id = basicModuleResponse.Id,
                 Amount = basicModuleResponse.Amount,
-                Type = ModuleType.Basic,
-            },
+                Type = ModuleType.Basic
+            }
         };
 
         var expectedOrder = new OrderModel
@@ -156,7 +166,7 @@ public class OrderServiceTests
             Id = Guid.NewGuid(),
             UserId = userId,
             Status = OrderStatus.Approved,
-            TotalAmount = moduleAmount + basicModuleResponse.Amount,
+            TotalAmount = moduleAmount + basicModuleResponse.Amount
         };
 
         _userServiceMock
@@ -186,9 +196,12 @@ public class OrderServiceTests
         // Act
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(result.Data, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result.Data, Is.Not.Null);
+        });
 
         _orderRepositoryMock.Verify(
             x =>
@@ -220,7 +233,7 @@ public class OrderServiceTests
 
         var request = new OrderRequest
         {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = basicModuleId } },
+            Details = new List<OrderDetailRequest> { new() { ModuleId = basicModuleId } }
         };
 
         var moduleResponses = new List<ModuleResponse>
@@ -229,8 +242,8 @@ public class OrderServiceTests
             {
                 Id = basicModuleId,
                 Amount = moduleAmount,
-                Type = ModuleType.Basic,
-            },
+                Type = ModuleType.Basic
+            }
         };
 
         var moduleModels = new List<ModuleModel>
@@ -239,8 +252,8 @@ public class OrderServiceTests
             {
                 Id = basicModuleId,
                 Amount = moduleAmount,
-                Type = ModuleType.Basic,
-            },
+                Type = ModuleType.Basic
+            }
         };
 
         _userServiceMock

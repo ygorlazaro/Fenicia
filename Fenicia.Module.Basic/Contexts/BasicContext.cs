@@ -1,4 +1,3 @@
-using Fenicia.Common.Api.Providers;
 using Fenicia.Common.Database;
 using Fenicia.Module.Basic.Domains.Address;
 using Fenicia.Module.Basic.Domains.Customer;
@@ -15,9 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Contexts;
 
 public class BasicContext(
-    DbContextOptions<BasicContext> options,
-    TenantProvider tenantProvider,
-    IConfiguration configuration
+    DbContextOptions<BasicContext> options
 ) : DbContext(options)
 {
     public DbSet<StateModel> States { get; set; } = null!;

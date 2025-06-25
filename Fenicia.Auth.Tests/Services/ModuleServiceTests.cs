@@ -1,11 +1,15 @@
 using System.Net;
+
 using AutoMapper;
+
 using Bogus;
 
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Common;
 using Fenicia.Common.Enums;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -39,7 +43,7 @@ public class ModuleServiceTests
         var modules = new List<ModuleModel>
         {
             new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() },
-            new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() },
+            new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() }
         };
         var expectedResponse = modules
             .Select(m => new ModuleResponse { Id = m.Id, Name = m.Name })
@@ -52,9 +56,12 @@ public class ModuleServiceTests
         // Act
         var result = await _sut.GetAllOrderedAsync();
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.Data, Is.EqualTo(expectedResponse));
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        });
     }
 
     [Test]
@@ -76,9 +83,12 @@ public class ModuleServiceTests
         // Act
         var result = await _sut.GetModulesToOrderAsync(moduleIds);
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.Data, Is.EqualTo(expectedResponse));
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        });
     }
 
     [Test]
@@ -90,13 +100,13 @@ public class ModuleServiceTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Commerce.ProductName(),
-            Type = moduleType,
+            Type = moduleType
         };
         var expectedResponse = new ModuleResponse
         {
             Id = module.Id,
             Name = module.Name,
-            Type = moduleType,
+            Type = moduleType
         };
 
         _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType)).ReturnsAsync(module);
@@ -106,27 +116,33 @@ public class ModuleServiceTests
         // Act
         var result = await _sut.GetModuleByTypeAsync(moduleType);
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.Data, Is.EqualTo(expectedResponse));
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        });
     }
 
     [Test]
     public async Task GetModuleByTypeAsync_WhenModuleDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var moduleType = ModuleType.Ecommerce;
+        const ModuleType moduleType = ModuleType.Ecommerce;
 
         _moduleRepositoryMock
             .Setup(x => x.GetModuleByTypeAsync(moduleType))
-            .ReturnsAsync((ModuleModel)null);
+            .ReturnsAsync((ModuleModel)null!);
 
         // Act
         var result = await _sut.GetModuleByTypeAsync(moduleType);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-        Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
+        });
     }
 
     [Test]
@@ -140,8 +156,11 @@ public class ModuleServiceTests
         // Act
         var result = await _sut.CountAsync();
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedCount));
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.Data, Is.EqualTo(expectedCount));
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        });
     }
 }

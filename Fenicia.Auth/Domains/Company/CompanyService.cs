@@ -16,7 +16,7 @@ public class CompanyService(
 {
     public async Task<ApiResponse<CompanyResponse>> GetByCnpjAsync(string cnpj)
     {
-        logger.LogInformation("Getting company {cnpj}", [cnpj]);
+        logger.LogInformation("Getting company {cnpj}", cnpj);
         var company = await companyRepository.GetByCnpjAsync(cnpj);
 
         if (company is null)
@@ -39,7 +39,7 @@ public class CompanyService(
         int perPage = 10
     )
     {
-        logger.LogInformation("Getting companies by user {userId}", [userId]);
+        logger.LogInformation("Getting companies by user {userId}", userId);
         var companies = await companyRepository.GetByUserIdAsync(userId, page, perPage);
         var response = mapper.Map<List<CompanyResponse>>(companies);
 
@@ -52,13 +52,13 @@ public class CompanyService(
         CompanyUpdateRequest company
     )
     {
-        logger.LogInformation("Patching company {companyId}", [companyId]);
+        logger.LogInformation("Patching company {companyId}", companyId);
 
         var existing = await companyRepository.CheckCompanyExistsAsync(companyId);
 
         if (!existing)
         {
-            logger.LogWarning("Company {companyId} does not exist", [companyId]);
+            logger.LogWarning("Company {companyId} does not exist", companyId);
 
             return new ApiResponse<CompanyResponse>(
                 null,
@@ -71,7 +71,7 @@ public class CompanyService(
 
         if (!hasAdminRole.Data)
         {
-            logger.LogWarning("User {userId} does not have admin role", [userId]);
+            logger.LogWarning("User {userId} does not have admin role", userId);
 
             return new ApiResponse<CompanyResponse>(
                 null,

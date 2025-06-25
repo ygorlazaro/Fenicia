@@ -33,9 +33,7 @@ public class OrderService(
         if (!existingUser.Data)
         {
             logger.LogWarning(
-                "User {userId} does not exist in company {companyId}",
-                [userId, companyId]
-            );
+                "User {userId} does not exist in company {companyId}", userId, companyId);
 
             return new ApiResponse<OrderResponse>(
                 null,
@@ -75,7 +73,7 @@ public class OrderService(
             UserId = userId,
             TotalAmount = totalAmount,
             Details = details,
-            CompanyId = companyId,
+            CompanyId = companyId
         };
 
         await orderRepository.SaveOrderAsync(order);

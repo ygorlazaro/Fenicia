@@ -1,6 +1,6 @@
 using System.Net;
+
 using AutoMapper;
-using Bogus;
 
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.OrderDetail;
@@ -8,6 +8,7 @@ using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Enums;
 
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -18,7 +19,6 @@ public class SubscriptionServiceTests
     private Mock<ILogger<SubscriptionService>> _loggerMock;
     private Mock<ISubscriptionRepository> _subscriptionRepositoryMock;
     private SubscriptionService _sut;
-    private Faker _faker;
 
     [SetUp]
     public void Setup()
@@ -31,7 +31,6 @@ public class SubscriptionServiceTests
             _loggerMock.Object,
             _subscriptionRepositoryMock.Object
         );
-        _faker = new Faker();
     }
 
     [Test]
@@ -42,7 +41,7 @@ public class SubscriptionServiceTests
         var orderDetails = new List<OrderDetailModel>
         {
             new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() },
-            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() },
+            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() }
         };
 
         var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
@@ -84,9 +83,12 @@ public class SubscriptionServiceTests
         // Act
         var result = await _sut.CreateCreditsForOrderAsync(order, emptyDetails, companyId);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(result.Data, Is.Null);
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Data, Is.Null);
+        });
 
         _subscriptionRepositoryMock.Verify(
             x => x.SaveSubscription(It.IsAny<SubscriptionModel>()),
@@ -103,7 +105,7 @@ public class SubscriptionServiceTests
         {
             Guid.NewGuid(),
             Guid.NewGuid(),
-            Guid.NewGuid(),
+            Guid.NewGuid()
         };
 
         _subscriptionRepositoryMock
@@ -146,12 +148,12 @@ public class SubscriptionServiceTests
         var companyId = Guid.NewGuid();
         var orderDetails = new List<OrderDetailModel>
         {
-            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() },
+            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() }
         };
 
         var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
 
-        SubscriptionModel capturedSubscription = null;
+        SubscriptionModel capturedSubscription = null!;
         _subscriptionRepositoryMock
             .Setup(x => x.SaveSubscription(It.IsAny<SubscriptionModel>()))
             .Callback<SubscriptionModel>(s => capturedSubscription = s);
@@ -164,10 +166,13 @@ public class SubscriptionServiceTests
         Assert.That(capturedSubscription.Credits, Has.Count.EqualTo(1));
 
         var credit = capturedSubscription.Credits.First();
-        Assert.That(credit.StartDate.Date, Is.EqualTo(DateTime.Now.Date));
-        Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.Now.AddMonths(1).Date));
-        Assert.That(credit.IsActive, Is.True);
-        Assert.That(credit.OrderDetailId, Is.EqualTo(orderDetails[0].Id));
-        Assert.That(credit.ModuleId, Is.EqualTo(orderDetails[0].ModuleId));
+        Assert.Multiple(() =>
+        {
+            Assert.That(credit.StartDate.Date, Is.EqualTo(DateTime.Now.Date));
+            Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.Now.AddMonths(1).Date));
+            Assert.That(credit.IsActive, Is.True);
+            Assert.That(credit.OrderDetailId, Is.EqualTo(orderDetails[0].Id));
+            Assert.That(credit.ModuleId, Is.EqualTo(orderDetails[0].ModuleId));
+        });
     }
 }

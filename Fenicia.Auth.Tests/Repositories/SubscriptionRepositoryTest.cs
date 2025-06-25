@@ -1,4 +1,5 @@
 using Bogus;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Enums;
@@ -30,8 +31,8 @@ public class SubscriptionRepositoryTest
     private void SetupFakers()
     {
         _subscriptionGenerator = new Faker<SubscriptionModel>()
-            .RuleFor(s => s.Id, f => Guid.NewGuid())
-            .RuleFor(s => s.CompanyId, f => Guid.NewGuid())
+            .RuleFor(s => s.Id, _ => Guid.NewGuid())
+            .RuleFor(s => s.CompanyId, _ => Guid.NewGuid())
             .RuleFor(s => s.StartDate, f => f.Date.Past())
             .RuleFor(s => s.EndDate, f => f.Date.Future())
             .RuleFor(s => s.Status, SubscriptionStatus.Active);
@@ -56,8 +57,11 @@ public class SubscriptionRepositoryTest
         // Assert
         var savedSubscription = await _context.Subscriptions.FindAsync(subscription.Id);
         Assert.That(savedSubscription, Is.Not.Null);
-        Assert.That(savedSubscription!.Id, Is.EqualTo(subscription.Id));
-        Assert.That(savedSubscription.CompanyId, Is.EqualTo(subscription.CompanyId));
+        Assert.Multiple(() =>
+        {
+            Assert.That(savedSubscription!.Id, Is.EqualTo(subscription.Id));
+            Assert.That(savedSubscription.CompanyId, Is.EqualTo(subscription.CompanyId));
+        });
     }
 
     [Test]

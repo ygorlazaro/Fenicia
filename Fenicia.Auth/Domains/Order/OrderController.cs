@@ -36,7 +36,7 @@ public class OrderController(ILogger<OrderController> logger, IOrderService orde
             return StatusCode((int)order.StatusCode, order.Message);
         }
 
-        logger.LogInformation("New order made - {userId}", [userId]);
+        logger.LogInformation("New order made - {userId}", userId);
 
         return Ok(order.Data);
     }

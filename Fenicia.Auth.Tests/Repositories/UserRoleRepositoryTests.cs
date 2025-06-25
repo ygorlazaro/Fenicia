@@ -1,4 +1,5 @@
 using Bogus;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.UserRole;
@@ -31,14 +32,14 @@ public class UserRoleRepositoryTests
     private void SetupFakers()
     {
         _roleGenerator = new Faker<RoleModel>()
-            .RuleFor(r => r.Id, f => Guid.NewGuid())
+            .RuleFor(r => r.Id, _ => Guid.NewGuid())
             .RuleFor(r => r.Name, f => f.Name.JobTitle());
 
         _userRoleGenerator = new Faker<UserRoleModel>()
-            .RuleFor(ur => ur.Id, f => Guid.NewGuid())
-            .RuleFor(ur => ur.UserId, f => Guid.NewGuid())
-            .RuleFor(ur => ur.Role, f => _roleGenerator.Generate())
-            .RuleFor(ur => ur.CompanyId, f => Guid.NewGuid());
+            .RuleFor(ur => ur.Id, _ => Guid.NewGuid())
+            .RuleFor(ur => ur.UserId, _ => Guid.NewGuid())
+            .RuleFor(ur => ur.Role, _ => _roleGenerator.Generate())
+            .RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
     }
 
     [TearDown]
@@ -61,7 +62,7 @@ public class UserRoleRepositoryTests
                     .RuleFor(ur => ur.UserId, userId)
                     .RuleFor(
                         ur => ur.Role,
-                        f => _roleGenerator.Clone().RuleFor(r => r.Name, role).Generate()
+                        _ => _roleGenerator.Clone().RuleFor(r => r.Name, role).Generate()
                     )
                     .Generate()
             )
@@ -75,7 +76,7 @@ public class UserRoleRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Empty);
-        Assert.That(result.Length, Is.EqualTo(roles.Length));
+        Assert.That(result, Has.Length.EqualTo(roles.Length));
         Assert.That(result, Is.EquivalentTo(roles));
     }
 
@@ -141,7 +142,7 @@ public class UserRoleRepositoryTests
             .RuleFor(ur => ur.CompanyId, companyId)
             .RuleFor(
                 ur => ur.Role,
-                f => _roleGenerator.Clone().RuleFor(r => r.Name, roleName).Generate()
+                _ => _roleGenerator.Clone().RuleFor(r => r.Name, roleName).Generate()
             )
             .Generate();
 
@@ -168,7 +169,7 @@ public class UserRoleRepositoryTests
             .RuleFor(ur => ur.CompanyId, companyId)
             .RuleFor(
                 ur => ur.Role,
-                f => _roleGenerator.Clone().RuleFor(r => r.Name, "DifferentRole").Generate()
+                _ => _roleGenerator.Clone().RuleFor(r => r.Name, "DifferentRole").Generate()
             )
             .Generate();
 

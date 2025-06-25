@@ -4,7 +4,9 @@ using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Common;
 using Fenicia.Common.Enums;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -39,7 +41,7 @@ public class SubscriptionCreditServiceTests
         var expectedModuleTypes = new List<ModuleType>
         {
             ModuleType.Accounting,
-            ModuleType.Contracts,
+            ModuleType.Contracts
         };
 
         _subscriptionServiceMock
@@ -82,10 +84,13 @@ public class SubscriptionCreditServiceTests
         // Act
         var result = await _sut.GetActiveModulesTypesAsync(companyId);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-        Assert.That(result.Message, Is.EqualTo(errorMessage));
-        Assert.That(result.Data, Is.Null);
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(result.Message, Is.EqualTo(errorMessage));
+            Assert.That(result.Data, Is.Null);
+        });
 
         _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId), Times.Once);
         _subscriptionCreditRepositoryMock.Verify(

@@ -42,7 +42,7 @@ public class SubscriptionService(
                 IsActive = true,
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddMonths(1),
-                OrderDetailId = d.Id,
+                OrderDetailId = d.Id
             })
             .ToList();
 
@@ -53,7 +53,7 @@ public class SubscriptionService(
             StartDate = DateTime.Now,
             EndDate = DateTime.Now.AddMonths(1),
             OrderId = order.Id,
-            Credits = credits,
+            Credits = credits
         };
 
         await subscriptionRepository.SaveSubscription(subscription);

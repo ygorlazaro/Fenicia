@@ -1,4 +1,5 @@
 using Bogus;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.RefreshToken;
 
@@ -42,7 +43,7 @@ public class RefreshTokenRepositoryTests
             UserId = Guid.NewGuid(),
             Token = _faker.Random.Hash(),
             ExpirationDate = DateTime.Now.AddDays(7),
-            IsActive = true,
+            IsActive = true
         };
 
         // Act
@@ -52,10 +53,13 @@ public class RefreshTokenRepositoryTests
         // Assert
         var savedToken = await _context.RefreshTokens.FindAsync(refreshToken.Id);
         Assert.That(savedToken, Is.Not.Null);
-        Assert.That(savedToken.Token, Is.EqualTo(refreshToken.Token));
-        Assert.That(savedToken.UserId, Is.EqualTo(refreshToken.UserId));
-        Assert.That(savedToken.ExpirationDate, Is.EqualTo(refreshToken.ExpirationDate));
-        Assert.That(savedToken.IsActive, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(savedToken.Token, Is.EqualTo(refreshToken.Token));
+            Assert.That(savedToken.UserId, Is.EqualTo(refreshToken.UserId));
+            Assert.That(savedToken.ExpirationDate, Is.EqualTo(refreshToken.ExpirationDate));
+            Assert.That(savedToken.IsActive, Is.True);
+        });
     }
 
     [Test]
@@ -70,7 +74,7 @@ public class RefreshTokenRepositoryTests
             UserId = userId,
             Token = token,
             ExpirationDate = DateTime.Now.AddDays(7),
-            IsActive = true,
+            IsActive = true
         };
 
         await _context.RefreshTokens.AddAsync(refreshToken);
@@ -95,7 +99,7 @@ public class RefreshTokenRepositoryTests
             UserId = userId,
             Token = token,
             ExpirationDate = DateTime.Now.AddDays(-1), // Expired
-            IsActive = true,
+            IsActive = true
         };
 
         await _context.RefreshTokens.AddAsync(refreshToken);
@@ -120,7 +124,7 @@ public class RefreshTokenRepositoryTests
             UserId = userId,
             Token = token,
             ExpirationDate = DateTime.Now.AddDays(7),
-            IsActive = false,
+            IsActive = false
         };
 
         await _context.RefreshTokens.AddAsync(refreshToken);
@@ -146,7 +150,7 @@ public class RefreshTokenRepositoryTests
             UserId = userId,
             Token = token,
             ExpirationDate = DateTime.Now.AddDays(7),
-            IsActive = true,
+            IsActive = true
         };
 
         await _context.RefreshTokens.AddAsync(refreshToken);
@@ -170,7 +174,7 @@ public class RefreshTokenRepositoryTests
             UserId = Guid.NewGuid(),
             Token = token,
             ExpirationDate = DateTime.Now.AddDays(7),
-            IsActive = true,
+            IsActive = true
         };
 
         await _context.RefreshTokens.AddAsync(refreshToken);
@@ -186,7 +190,7 @@ public class RefreshTokenRepositoryTests
     }
 
     [Test]
-    public async Task InvalidateRefreshTokenAsync_HandlesNonExistentToken()
+    public void InvalidateRefreshTokenAsync_HandlesNonExistentToken()
     {
         // Arrange
         var nonExistentToken = _faker.Random.Hash();

@@ -1,5 +1,3 @@
-using System.Net.Http.Json;
-
 using Fenicia.Auth.Domains.User;
 
 namespace Fenicia.Web.Providers.Auth;
