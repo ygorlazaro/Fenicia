@@ -2,6 +2,7 @@ using System.Net;
 
 using AutoMapper;
 
+using Fenicia.Auth.Domains.DataCache;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 
@@ -11,12 +12,23 @@ public class CompanyService(
     IMapper mapper,
     ILogger<CompanyService> logger,
     ICompanyRepository companyRepository,
-    IUserRoleService userRoleService
+    IUserRoleService userRoleService,
+    IDataCacheService dataCacheService
 ) : ICompanyService
 {
     public async Task<ApiResponse<CompanyResponse>> GetByCnpjAsync(string cnpj)
     {
         logger.LogInformation("Getting company {cnpj}", cnpj);
+
+        var cached = await dataCacheService.GetAsync<ApiResponse<CompanyResponse>>($"company:{cnpj}");
+
+        if (cached is not null)
+        {
+            logger.LogInformation("Returned from cache");
+
+            return cached;
+        }
+
         var company = await companyRepository.GetByCnpjAsync(cnpj);
 
         if (company is null)
@@ -28,9 +40,11 @@ public class CompanyService(
             );
         }
 
-        var response = mapper.Map<CompanyResponse>(company);
+        var response = new ApiResponse<CompanyResponse>(mapper.Map<CompanyResponse>(company));
 
-        return new ApiResponse<CompanyResponse>(response);
+        await dataCacheService.SetAsync($"company:{cnpj}", response, TimeSpan.FromHours(1));
+
+        return response;
     }
 
     public async Task<ApiResponse<List<CompanyResponse>>> GetByUserIdAsync(
@@ -40,10 +54,22 @@ public class CompanyService(
     )
     {
         logger.LogInformation("Getting companies by user {userId}", userId);
-        var companies = await companyRepository.GetByUserIdAsync(userId, page, perPage);
-        var response = mapper.Map<List<CompanyResponse>>(companies);
 
-        return new ApiResponse<List<CompanyResponse>>(response);
+        var cached = await dataCacheService.GetAsync<ApiResponse<List<CompanyResponse>>>($"company-userid:{userId}");
+
+        if (cached is not null)
+        {
+            logger.LogInformation("Returned from cache");
+
+            return cached;
+        }
+
+        var companies = await companyRepository.GetByUserIdAsync(userId, page, perPage);
+        var response = new ApiResponse<List<CompanyResponse>>(mapper.Map<List<CompanyResponse>>(companies));
+
+        await dataCacheService.SetAsync($"company-userid:{userId}", response, TimeSpan.FromHours(1));
+
+        return response;
     }
 
     public async Task<ApiResponse<CompanyResponse>> PatchAsync(

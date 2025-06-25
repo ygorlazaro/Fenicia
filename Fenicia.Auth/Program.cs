@@ -5,6 +5,7 @@ using AspNetCoreRateLimit;
 
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.DataCache;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Module;
@@ -81,6 +82,7 @@ public static class Program
 
         // Dependency Injection
         builder.Services.AddTransient<ICompanyService, CompanyService>();
+        builder.Services.AddTransient<IDataCacheService, RedisDataCacheService>();
         builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();
         builder.Services.AddTransient<ILoginAttemptService, RedisLoginAttemptService>();
         builder.Services.AddTransient<IModuleService, ModuleService>();
