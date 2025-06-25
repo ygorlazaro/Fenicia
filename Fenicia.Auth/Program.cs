@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Module;
@@ -14,10 +15,13 @@ using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.Api.Middlewares;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 using Scalar.AspNetCore;
+
 using Serilog;
 
 namespace Fenicia.Auth;
@@ -96,7 +100,7 @@ public static class Program
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateAudience = false
                 };
             });
 
@@ -124,7 +128,7 @@ public static class Program
 
                 x.Authentication = new ScalarAuthenticationOptions
                 {
-                    PreferredSecurityScheme = "Bearer",
+                    PreferredSecuritySchemes = ["Bearer "]
                 };
             });
         }

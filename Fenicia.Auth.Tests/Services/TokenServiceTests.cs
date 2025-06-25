@@ -1,11 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
+
 using Bogus;
 
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Enums;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -40,7 +43,7 @@ public class TokenServiceTests
         {
             Id = Guid.NewGuid(),
             Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "Admin", "User" };
@@ -56,18 +59,21 @@ public class TokenServiceTests
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(result.Data);
 
-        // Verify standard claims
-        Assert.That(
-            token.Claims.First(c => c.Type == "userId").Value,
-            Is.EqualTo(user.Id.ToString())
-        );
-        Assert.That(token.Claims.First(c => c.Type == "email").Value, Is.EqualTo(user.Email));
-        Assert.That(token.Claims.First(c => c.Type == "unique_name").Value, Is.EqualTo(user.Name));
-        Assert.That(
-            token.Claims.First(c => c.Type == "companyId").Value,
-            Is.EqualTo(companyId.ToString())
-        );
-        Assert.That(token.Claims.Any(c => c.Type == JwtRegisteredClaimNames.Jti), Is.True);
+        Assert.Multiple(() =>
+        {
+            // Verify standard claims
+            Assert.That(
+                token.Claims.First(c => c.Type == "userId").Value,
+                Is.EqualTo(user.Id.ToString())
+            );
+            Assert.That(token.Claims.First(c => c.Type == "email").Value, Is.EqualTo(user.Email));
+            Assert.That(token.Claims.First(c => c.Type == "unique_name").Value, Is.EqualTo(user.Name));
+            Assert.That(
+                token.Claims.First(c => c.Type == "companyId").Value,
+                Is.EqualTo(companyId.ToString())
+            );
+            Assert.That(token.Claims.Any(c => c.Type == JwtRegisteredClaimNames.Jti), Is.True);
+        });
 
         // Verify roles
         var roleClaims = token.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();
@@ -89,7 +95,7 @@ public class TokenServiceTests
         {
             Id = Guid.NewGuid(),
             Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "God" };
@@ -119,7 +125,7 @@ public class TokenServiceTests
         {
             Id = Guid.NewGuid(),
             Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "User" };
@@ -145,7 +151,7 @@ public class TokenServiceTests
         {
             Id = Guid.NewGuid(),
             Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "User" };
@@ -167,13 +173,13 @@ public class TokenServiceTests
     public void GenerateToken_WithoutJwtSecret_ThrowsInvalidOperationException()
     {
         // Arrange
-        _configurationMock.Setup(x => x["Jwt:Secret"]).Returns((string)null);
+        _configurationMock.Setup(x => x["Jwt:Secret"]).Returns((string)null!);
 
         var user = new UserResponse
         {
             Id = Guid.NewGuid(),
             Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "User" };

@@ -20,7 +20,7 @@ public class RefreshTokenService(
         var refreshToken = new RefreshTokenModel
         {
             Token = Convert.ToBase64String(randomNumber),
-            UserId = userId,
+            UserId = userId
         };
 
         refreshTokenRepository.Add(refreshToken);

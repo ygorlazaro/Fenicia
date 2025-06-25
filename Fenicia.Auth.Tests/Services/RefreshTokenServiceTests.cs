@@ -1,9 +1,11 @@
 using System.Text.RegularExpressions;
+
 using Bogus;
 
 using Fenicia.Auth.Domains.RefreshToken;
 
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -38,7 +40,7 @@ public class RefreshTokenServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Data, Is.Not.Null);
-            Assert.That(result.Data.Length, Is.EqualTo(44)); // Base64 encoded 32 bytes = 44 characters
+            Assert.That(result.Data?.Length, Is.EqualTo(44)); // Base64 encoded 32 bytes = 44 characters
             Assert.That(result.Data, Does.Match(base64Pattern));
         });
 
@@ -98,16 +100,16 @@ public class RefreshTokenServiceTests
         var tokens = new HashSet<string>();
 
         // Act
-        for (int i = 0; i < _faker.Random.Int(500, 1000); i++) // Random number of iterations for better coverage
+        for (var i = 0; i < _faker.Random.Int(500, 1000); i++) // Random number of iterations for better coverage
         {
             var result = await _sut.GenerateRefreshTokenAsync(userId);
-            tokens.Add(result.Data);
+            tokens.Add(result.Data!);
         }
 
         // Assert
         Assert.That(
-            tokens.Count,
-            Is.EqualTo(tokens.Count),
+            tokens,
+            Has.Count.EqualTo(tokens.Count),
             "Generated tokens should all be unique"
         );
     }
@@ -145,7 +147,7 @@ public class RefreshTokenServiceTests
 
         // Assert
         Assert.That(result.Data, Is.Not.Null);
-        Assert.That(result.Data.Length, Is.EqualTo(44));
+        Assert.That(result.Data, Has.Length.EqualTo(44));
     }
 
     [Test]
@@ -159,7 +161,7 @@ public class RefreshTokenServiceTests
         foreach (var userId in userIds)
         {
             var result = await _sut.GenerateRefreshTokenAsync(userId);
-            generatedTokens.Add((userId, result.Data));
+            generatedTokens.Add((userId, result.Data!));
         }
 
         // Assert

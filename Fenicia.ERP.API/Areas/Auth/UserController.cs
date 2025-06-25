@@ -1,4 +1,5 @@
 ﻿using Fenicia.Common.Api;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +8,7 @@ namespace Fenicia.ERP.API.Areas.Auth;
 [Authorize]
 [Route("[controller]")]
 [ApiController]
-public class UserController() : ControllerBase
+public class UserController : ControllerBase
 {
     [HttpGet]
     public IActionResult GetAsync()

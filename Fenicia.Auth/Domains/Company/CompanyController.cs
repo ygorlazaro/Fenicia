@@ -81,7 +81,7 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
             return StatusCode((int)response.StatusCode, response.Message);
         }
 
-        logger.LogInformation("Company updated - {id}", [id]);
+        logger.LogInformation("Company updated - {id}", id);
 
         return Ok(response.Data);
     }

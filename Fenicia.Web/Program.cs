@@ -1,6 +1,8 @@
 using Blazored.LocalStorage;
+
 using Fenicia.Web.Components;
 using Fenicia.Web.Providers.Auth;
+
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.Extensions.FileProviders;
 
@@ -60,7 +62,7 @@ app.UseStaticFiles(
         FileProvider = new PhysicalFileProvider(
             Path.Combine(builder.Environment.ContentRootPath, "wwwroot")
         ),
-        RequestPath = "",
+        RequestPath = ""
     }
 );
 

@@ -11,6 +11,7 @@ using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Database;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Contexts;

@@ -1,4 +1,5 @@
 using Fenicia.Common.Api.Providers;
+
 using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.Api.Middlewares;

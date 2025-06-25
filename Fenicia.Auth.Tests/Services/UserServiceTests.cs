@@ -1,5 +1,7 @@
 using System.Net;
+
 using AutoMapper;
+
 using Bogus;
 
 using Fenicia.Auth.Domains.Company;
@@ -9,7 +11,9 @@ using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -58,7 +62,7 @@ public class UserServiceTests
         {
             Email = _faker.Internet.Email(),
             Password = _faker.Internet.Password(),
-            Cnpj = _faker.Random.String2(14, "0123456789"),
+            Cnpj = _faker.Random.String2(14, "0123456789")
         };
 
         var user = new UserModel
@@ -66,14 +70,14 @@ public class UserServiceTests
             Id = Guid.NewGuid(),
             Email = request.Email,
             Password = "hashedPassword",
-            Name = _faker.Name.FullName(),
+            Name = _faker.Name.FullName()
         };
 
         var expectedResponse = new UserResponse
         {
             Id = user.Id,
             Email = user.Email,
-            Name = user.Name,
+            Name = user.Name
         };
 
         _userRepositoryMock
@@ -101,19 +105,22 @@ public class UserServiceTests
         {
             Email = _faker.Internet.Email(),
             Password = _faker.Internet.Password(),
-            Cnpj = _faker.Random.String2(14, "0123456789"),
+            Cnpj = _faker.Random.String2(14, "0123456789")
         };
 
         _userRepositoryMock
             .Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj))
-            .ReturnsAsync((UserModel)null);
+            .ReturnsAsync((UserModel)null!);
 
         // Act
         var result = await _sut.GetForLoginAsync(request);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(result.Data, Is.Null);
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Data, Is.Null);
+        });
     }
 
     [Test]
@@ -128,8 +135,8 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789"),
-            },
+                Cnpj = _faker.Random.String2(14, "0123456789")
+            }
         };
 
         var hashedPassword = "hashedPassword";
@@ -139,14 +146,14 @@ public class UserServiceTests
             Id = Guid.NewGuid(),
             Email = request.Email,
             Password = hashedPassword,
-            Name = request.Name,
+            Name = request.Name
         };
 
         var expectedResponse = new UserResponse
         {
             Id = user.Id,
             Email = user.Email,
-            Name = user.Name,
+            Name = user.Name
         };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email)).ReturnsAsync(false);
@@ -181,8 +188,8 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789"),
-            },
+                Cnpj = _faker.Random.String2(14, "0123456789")
+            }
         };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email)).ReturnsAsync(true);
@@ -190,9 +197,12 @@ public class UserServiceTests
         // Act
         var result = await _sut.CreateNewUserAsync(request);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-        Assert.That(result.Data, Is.Null);
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(result.Data, Is.Null);
+        });
     }
 
     [Test]
@@ -223,14 +233,14 @@ public class UserServiceTests
         {
             Id = userId,
             Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName(),
+            Name = _faker.Name.FullName()
         };
 
         var expectedResponse = new UserResponse
         {
             Id = user.Id,
             Email = user.Email,
-            Name = user.Name,
+            Name = user.Name
         };
 
         _userRepositoryMock.Setup(x => x.GetUserForRefreshTokenAsync(userId)).ReturnsAsync(user);
@@ -252,14 +262,17 @@ public class UserServiceTests
 
         _userRepositoryMock
             .Setup(x => x.GetUserForRefreshTokenAsync(userId))
-            .ReturnsAsync((UserModel)null);
+            .ReturnsAsync((UserModel)null!);
 
         // Act
         var result = await _sut.GetUserForRefreshAsync(userId);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-        Assert.That(result.Data, Is.Null);
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+            Assert.That(result.Data, Is.Null);
+        });
     }
 
     [Test]
@@ -274,15 +287,15 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789"),
-            },
+                Cnpj = _faker.Random.String2(14, "0123456789")
+            }
         };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email)).ReturnsAsync(false);
         _companyRepositoryMock
             .Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj))
             .ReturnsAsync(false);
-        _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync()).ReturnsAsync((RoleModel)null);
+        _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync()).ReturnsAsync((RoleModel)null!);
         _securityServiceMock
             .Setup(x => x.HashPassword(request.Password))
             .Returns(new ApiResponse<string>("hashedPassword"));
@@ -290,8 +303,11 @@ public class UserServiceTests
         // Act
         var result = await _sut.CreateNewUserAsync(request);
 
-        // Assert
-        Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
-        Assert.That(result.Data, Is.Null);
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+            Assert.That(result.Data, Is.Null);
+        });
     }
 }

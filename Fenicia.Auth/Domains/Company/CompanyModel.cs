@@ -24,10 +24,13 @@ public class CompanyModel : BaseModel
     [Required]
     public bool IsActive { get; set; } = true;
 
+    [MaxLength(32)]
     public string? Logo { get; set; } = null!;
 
+    [MaxLength(5)]
     public string TimeZone { get; set; } = TimeZoneInfo.Local.StandardName;
 
+    [MaxLength(10)]
     public string Language { get; set; } = "pt-BR";
 
     public Guid? AddressId { get; set; }

@@ -1,4 +1,5 @@
 using Bogus;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.User;
@@ -33,20 +34,20 @@ public class UserRepositoryTests
     private void SetupFakers()
     {
         _userGenerator = new Faker<UserModel>()
-            .RuleFor(u => u.Id, f => Guid.NewGuid())
+            .RuleFor(u => u.Id, _ => Guid.NewGuid())
             .RuleFor(u => u.Email, f => f.Internet.Email())
             .RuleFor(u => u.Name, f => f.Name.FullName())
             .RuleFor(u => u.Password, f => f.Internet.Password());
 
         _companyGenerator = new Faker<CompanyModel>()
-            .RuleFor(c => c.Id, f => Guid.NewGuid())
+            .RuleFor(c => c.Id, _ => Guid.NewGuid())
             .RuleFor(c => c.Name, f => f.Company.CompanyName())
             .RuleFor(c => c.Cnpj, f => f.Random.ReplaceNumbers("##.###.###/####-##"));
 
         _userRoleGenerator = new Faker<UserRoleModel>()
-            .RuleFor(ur => ur.Id, f => Guid.NewGuid())
-            .RuleFor(ur => ur.UserId, f => Guid.NewGuid())
-            .RuleFor(ur => ur.CompanyId, f => Guid.NewGuid());
+            .RuleFor(ur => ur.Id, _ => Guid.NewGuid())
+            .RuleFor(ur => ur.UserId, _ => Guid.NewGuid())
+            .RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
     }
 
     [TearDown]
@@ -78,8 +79,11 @@ public class UserRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Id, Is.EqualTo(user.Id));
-        Assert.That(result.Email, Is.EqualTo(user.Email));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result!.Id, Is.EqualTo(user.Id));
+            Assert.That(result.Email, Is.EqualTo(user.Email));
+        });
     }
 
     [Test]
@@ -105,9 +109,12 @@ public class UserRepositoryTests
         // Act
         var result = _sut.Add(user);
 
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(_context.Users.Local, Does.Contain(user));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(_context.Users.Local, Does.Contain(user));
+        });
     }
 
     [Test]
@@ -168,8 +175,11 @@ public class UserRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Id, Is.EqualTo(user.Id));
-        Assert.That(result.Email, Is.EqualTo(user.Email));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result!.Id, Is.EqualTo(user.Id));
+            Assert.That(result.Email, Is.EqualTo(user.Email));
+        });
     }
 
     [Test]

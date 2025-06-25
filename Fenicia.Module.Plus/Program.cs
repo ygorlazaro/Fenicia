@@ -1,11 +1,14 @@
 using System.Text;
+
 using Fenicia.Common;
 using Fenicia.Common.Api.Middlewares;
 using Fenicia.Common.Api.Providers;
 using Fenicia.Module.Plus.Contexts;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 using Scalar.AspNetCore;
 
 namespace Fenicia.Module.Plus;
@@ -74,7 +77,7 @@ public class Program
                     ValidIssuer = "AuthService",
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = true,
+                    ValidateLifetime = true
                 };
             });
 
@@ -92,7 +95,7 @@ public class Program
 
                 x.Authentication = new ScalarAuthenticationOptions
                 {
-                    PreferredSecurityScheme = "Bearer",
+                    PreferredSecuritySchemes = ["Bearer "]
                 };
             });
         }

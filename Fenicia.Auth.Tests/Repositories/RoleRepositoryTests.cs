@@ -43,8 +43,11 @@ public class RoleRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Name, Is.EqualTo("Admin"));
-        Assert.That(result.Id, Is.EqualTo(adminRole.Id));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Name, Is.EqualTo("Admin"));
+            Assert.That(result.Id, Is.EqualTo(adminRole.Id));
+        });
     }
 
     [Test]
@@ -81,7 +84,7 @@ public class RoleRepositoryTests
         {
             new RoleModel { Id = Guid.NewGuid(), Name = "User" },
             new RoleModel { Id = Guid.NewGuid(), Name = "Admin" },
-            new RoleModel { Id = Guid.NewGuid(), Name = "Manager" },
+            new RoleModel { Id = Guid.NewGuid(), Name = "Manager" }
         };
 
         await _context.Roles.AddRangeAsync(roles);

@@ -1,4 +1,5 @@
 using Bogus;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.UserRole;
@@ -41,7 +42,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789"),
+            Cnpj = _faker.Random.String2(14, "0123456789")
         };
         await _context.Companies.AddAsync(company);
         await _context.SaveChangesAsync();
@@ -71,7 +72,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789"),
+            Cnpj = _faker.Random.String2(14, "0123456789")
         };
         await _context.Companies.AddAsync(company);
         await _context.SaveChangesAsync();
@@ -91,18 +92,21 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789"),
+            Cnpj = _faker.Random.String2(14, "0123456789")
         };
 
         // Act
-        var result = _sut.Add(company);
+        _sut.Add(company);
         await _sut.SaveAsync();
 
         // Assert
         var savedCompany = await _context.Companies.FindAsync(company.Id);
         Assert.That(savedCompany, Is.Not.Null);
-        Assert.That(savedCompany.Name, Is.EqualTo(company.Name));
-        Assert.That(savedCompany.Cnpj, Is.EqualTo(company.Cnpj));
+        Assert.Multiple(() =>
+        {
+            Assert.That(savedCompany.Name, Is.EqualTo(company.Name));
+            Assert.That(savedCompany.Cnpj, Is.EqualTo(company.Cnpj));
+        });
     }
 
     [Test]
@@ -113,7 +117,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789"),
+            Cnpj = _faker.Random.String2(14, "0123456789")
         };
         await _context.Companies.AddAsync(company);
         await _context.SaveChangesAsync();
@@ -123,8 +127,11 @@ public class CompanyRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Id, Is.EqualTo(company.Id));
-        Assert.That(result.Cnpj, Is.EqualTo(company.Cnpj));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Id, Is.EqualTo(company.Id));
+            Assert.That(result.Cnpj, Is.EqualTo(company.Cnpj));
+        });
     }
 
     [Test]
@@ -135,13 +142,13 @@ public class CompanyRepositoryTests
         var companies = new List<CompanyModel>();
         var userRoles = new List<UserRoleModel>();
 
-        for (int i = 0; i < 15; i++)
+        for (var i = 0; i < 15; i++)
         {
             var company = new CompanyModel
             {
                 Id = Guid.NewGuid(),
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789"),
+                Cnpj = _faker.Random.String2(14, "0123456789")
             };
             companies.Add(company);
 
@@ -149,7 +156,7 @@ public class CompanyRepositoryTests
             {
                 UserId = userId,
                 CompanyId = company.Id,
-                Company = company,
+                Company = company
             };
             userRoles.Add(userRole);
         }
@@ -162,9 +169,12 @@ public class CompanyRepositoryTests
         var page1 = await _sut.GetByUserIdAsync(userId, page: 1, perPage: 10);
         var page2 = await _sut.GetByUserIdAsync(userId, page: 2, perPage: 10);
 
-        // Assert
-        Assert.That(page1, Has.Count.EqualTo(10));
-        Assert.That(page2, Has.Count.EqualTo(5));
+        Assert.Multiple(() =>
+        {
+            // Assert
+            Assert.That(page1, Has.Count.EqualTo(10));
+            Assert.That(page2, Has.Count.EqualTo(5));
+        });
     }
 
     [Test]
@@ -176,13 +186,13 @@ public class CompanyRepositoryTests
         var companies = new List<CompanyModel>();
         var userRoles = new List<UserRoleModel>();
 
-        for (int i = 0; i < expectedCount; i++)
+        for (var i = 0; i < expectedCount; i++)
         {
             var company = new CompanyModel
             {
                 Id = Guid.NewGuid(),
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789"),
+                Cnpj = _faker.Random.String2(14, "0123456789")
             };
             companies.Add(company);
 
@@ -190,7 +200,7 @@ public class CompanyRepositoryTests
             {
                 UserId = userId,
                 CompanyId = company.Id,
-                Company = company,
+                Company = company
             };
             userRoles.Add(userRole);
         }
@@ -214,7 +224,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789"),
+            Cnpj = _faker.Random.String2(14, "0123456789")
         };
         await _context.Companies.AddAsync(company);
         await _context.SaveChangesAsync();
@@ -223,7 +233,7 @@ public class CompanyRepositoryTests
         company.Name = updatedName;
 
         // Act
-        var result = _sut.PatchAsync(company);
+        _sut.PatchAsync(company);
         await _sut.SaveAsync();
 
         // Assert

@@ -33,7 +33,7 @@ public class SignUpController(ILogger<SignUpController> logger, IUserService use
             return StatusCode((int)userResponse.StatusCode, userResponse.Message);
         }
 
-        logger.LogInformation("New user - {email}", [request.Email]);
+        logger.LogInformation("New user - {email}", request.Email);
 
         return Ok(userResponse.Data);
     }

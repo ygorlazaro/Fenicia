@@ -1,4 +1,5 @@
 using Fenicia.Common.Database;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Contexts;

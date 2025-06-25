@@ -1,5 +1,7 @@
 using System.Net;
+
 using Microsoft.AspNetCore.Http;
+
 using Newtonsoft.Json;
 
 namespace Fenicia.Common.Api.Middlewares;
@@ -25,7 +27,7 @@ public class ExceptionMiddleware(RequestDelegate next)
 
         return context.Response.WriteAsync(
             JsonConvert.SerializeObject(
-                new { StatusCode = context.Response.StatusCode, Message = ex.Message }
+                new { context.Response.StatusCode, ex.Message }
             )
         );
     }

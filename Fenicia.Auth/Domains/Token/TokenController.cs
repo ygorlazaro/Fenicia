@@ -46,7 +46,7 @@ public class TokenController(
 
         if (company.Data is null)
         {
-            logger.LogInformation("Invalid login - {email}", [request.Email]);
+            logger.LogInformation("Invalid login - {email}", request.Email);
             return StatusCode((int)company.StatusCode, company.Message);
         }
 
@@ -115,7 +115,7 @@ public class TokenController(
 
         if (roles.Data.Length == 0)
         {
-            logger.LogInformation("User without role - {email}", [user.Email]);
+            logger.LogInformation("User without role - {email}", user.Email);
             return BadRequest(TextConstants.UserWithoutRoles);
         }
 
@@ -140,7 +140,7 @@ public class TokenController(
             return StatusCode((int)refreshToken.StatusCode, refreshToken.Message);
         }
 
-        logger.LogInformation("User logged in - {email}", [user.Email]);
+        logger.LogInformation("User logged in - {email}", user.Email);
 
         return Ok(new TokenResponse { Token = token.Data, RefreshToken = refreshToken.Data });
     }

@@ -7,22 +7,22 @@
 
 <h3>Companies</h3>
 
-@if (isLoading)
+@if (_isLoading)
 {
     <p>Loading companies...</p>
 }
-else if (loadError is not null)
+else if (_loadError is not null)
 {
-    <p class="text-danger">Error loading companies: @loadError</p>
+    <p class="text-danger">Error loading companies: @_loadError</p>
 }
-else if (companies is null || !companies.Any())
+else if (_companies is null || !_companies.Any())
 {
     <p>No companies found.</p>
 }
 else
 {
     <ul>
-        @foreach (var company in companies)
+        @foreach (var company in _companies)
         {
             <li>@company.Name</li>
         }
@@ -30,23 +30,23 @@ else
 }
 
 @code {
-    private IEnumerable<CompanyResponse>? companies;
-    private bool isLoading = true;
-    private string? loadError;
+    private IEnumerable<CompanyResponse>? _companies;
+    private bool _isLoading = true;
+    private string? _loadError;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            companies = await CompanyProvider.GetCompaniesAsync();
+            _companies = await CompanyProvider.GetCompaniesAsync();
         }
         catch (Exception ex)
         {
-            loadError = ex.Message;
+            _loadError = ex.Message;
         }
         finally
         {
-            isLoading = false;
+            _isLoading = false;
         }
     }
 }

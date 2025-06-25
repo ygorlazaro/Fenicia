@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Fenicia.Common.Database;
