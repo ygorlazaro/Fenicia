@@ -4,14 +4,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.Api.Middlewares;
 
-public class TenantMiddleware
+public class TenantMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public TenantMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+    private readonly RequestDelegate _next = next;
 
     public async Task Invoke(HttpContext context, TenantProvider tenantProvider)
     {

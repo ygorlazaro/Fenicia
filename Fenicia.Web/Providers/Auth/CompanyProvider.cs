@@ -3,14 +3,9 @@ using Fenicia.Common;
 
 namespace Fenicia.Web.Providers.Auth;
 
-public class CompanyProvider
+public class CompanyProvider(HttpClient httpClient)
 {
-    private readonly HttpClient _httpClient;
-
-    public CompanyProvider(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
+    private readonly HttpClient _httpClient = httpClient;
 
     public async Task<IEnumerable<CompanyResponse>?> GetCompaniesAsync()
     {
