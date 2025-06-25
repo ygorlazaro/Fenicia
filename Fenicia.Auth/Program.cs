@@ -1,6 +1,8 @@
 using System.Text;
 using System.Text.Json.Serialization;
 
+using AspNetCoreRateLimit;
+
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.ForgotPassword;
@@ -34,25 +36,31 @@ public static class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Host.UseSerilog(
-            (context, loggerConfiguration) =>
-            {
-                loggerConfiguration.WriteTo.Console();
-                loggerConfiguration.ReadFrom.Configuration(context.Configuration);
-            }
-        );
+        builder.Host.UseSerilog((context, loggerConfiguration) =>
+        {
+            loggerConfiguration.WriteTo.Console();
+            loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+        });
 
         var configuration = builder.Configuration;
 
-        Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateLogger();
 
-        var key = Encoding.ASCII.GetBytes(
-            configuration["Jwt:Secret"]
-                ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret)
-        );
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]
+            ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+
+        // Rate Limiting setup (AspNetCoreRateLimit)
+        builder.Services.AddMemoryCache();
+        builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
+        builder.Services.Configure<IpRateLimitPolicies>(configuration.GetSection("IpRateLimitPolicies"));
+        builder.Services.AddInMemoryRateLimiting();
+        builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
         var connectionString = configuration.GetConnectionString("AuthConnection");
 
+        // Dependency Injection
         builder.Services.AddTransient<ICompanyService, CompanyService>();
         builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();
         builder.Services.AddTransient<IModuleService, ModuleService>();
@@ -71,10 +79,7 @@ public static class Program
         builder.Services.AddTransient<IOrderRepository, OrderRepository>();
         builder.Services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
         builder.Services.AddTransient<IRoleRepository, RoleRepository>();
-        builder.Services.AddTransient<
-            ISubscriptionCreditRepository,
-            SubscriptionCreditRepository
-        >();
+        builder.Services.AddTransient<ISubscriptionCreditRepository, SubscriptionCreditRepository>();
         builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
         builder.Services.AddTransient<IUserRepository, UserRepository>();
         builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
@@ -86,42 +91,40 @@ public static class Program
         builder.Services.AddDbContext<AuthContext>(x =>
         {
             x.UseNpgsql(connectionString)
-                .EnableSensitiveDataLogging()
-                .UseSnakeCaseNamingConvention();
+             .EnableSensitiveDataLogging()
+             .UseSnakeCaseNamingConvention();
         });
 
-        builder
-            .Services.AddAuthentication(x =>
+        builder.Services.AddAuthentication(x =>
+        {
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(x =>
+        {
+            x.RequireHttpsMetadata = false;
+            x.SaveToken = true;
+            x.ClaimsIssuer = "AuthService";
+            x.TokenValidationParameters = new TokenValidationParameters
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.ClaimsIssuer = "AuthService";
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+        });
 
-        builder
-            .Services.AddControllers()
+        builder.Services.AddControllers()
             .AddJsonOptions(x =>
             {
                 x.JsonSerializerOptions.AllowTrailingCommas = false;
                 x.JsonSerializerOptions.MaxDepth = 0;
-                x.JsonSerializerOptions.DefaultIgnoreCondition =
-                    JsonIgnoreCondition.WhenWritingNull;
+                x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             });
+
         builder.Services.AddOpenApi();
 
         var app = builder.Build();
+
         app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionMiddleware>();
 
@@ -130,7 +133,9 @@ public static class Program
             app.MapOpenApi();
             app.MapScalarApiReference(x =>
             {
-                x.WithDarkModeToggle(true).WithTheme(ScalarTheme.Purple).WithClientButton(true);
+                x.WithDarkModeToggle(true)
+                 .WithTheme(ScalarTheme.Purple)
+                 .WithClientButton(true);
 
                 x.Authentication = new ScalarAuthenticationOptions
                 {
@@ -141,7 +146,7 @@ public static class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
-
+        app.UseIpRateLimiting(); // <- importante: precisa estar aqui
         app.MapControllers();
 
         app.Run();
