@@ -4,14 +4,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.Api.Middlewares;
 
-public class RoleGodRequirementMiddleware
+public class RoleGodRequirementMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public RoleGodRequirementMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+    private readonly RequestDelegate _next = next;
 
     public async Task InvokeAsync(HttpContext context)
     {

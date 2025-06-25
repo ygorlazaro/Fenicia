@@ -29,6 +29,8 @@ using Scalar.AspNetCore;
 
 using Serilog;
 
+using StackExchange.Redis;
+
 namespace Fenicia.Auth;
 
 public static class Program
@@ -37,10 +39,18 @@ public static class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Host.UseSerilog((context, loggerConfiguration) =>
+        builder.Host.UseSerilog((context, config) =>
         {
-            loggerConfiguration.WriteTo.Console();
-            loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+            config.ReadFrom.Configuration(context.Configuration);
+
+            var seqUrl = context.Configuration["Seq:Url"];
+            if (!string.IsNullOrWhiteSpace(seqUrl))
+            {
+                config.Enrich.FromLogContext()
+                    .Enrich.WithEnvironmentUserName()
+                    .WriteTo.Console().
+                    WriteTo.Seq(seqUrl);
+            }
         });
 
         var configuration = builder.Configuration;
@@ -61,10 +71,18 @@ public static class Program
 
         var connectionString = configuration.GetConnectionString("AuthConnection");
 
+        builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
+        {
+            var config = ConfigurationOptions.Parse("localhost", true);
+            config.ConnectRetry = 3;
+            config.ConnectTimeout = 5000;
+            return ConnectionMultiplexer.Connect(config);
+        });
+
         // Dependency Injection
         builder.Services.AddTransient<ICompanyService, CompanyService>();
         builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();
-        builder.Services.AddTransient<ILoginAttemptService, LoginAttemptService>();
+        builder.Services.AddTransient<ILoginAttemptService, RedisLoginAttemptService>();
         builder.Services.AddTransient<IModuleService, ModuleService>();
         builder.Services.AddTransient<IOrderService, OrderService>();
         builder.Services.AddTransient<IRefreshTokenService, RefreshTokenService>();
@@ -152,6 +170,10 @@ public static class Program
 
         app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionMiddleware>();
+        app.UseMiddleware<CorrelationIdMiddleware>();
+
+        app.UseSerilogRequestLogging();
+
 
         if (app.Environment.IsDevelopment())
         {

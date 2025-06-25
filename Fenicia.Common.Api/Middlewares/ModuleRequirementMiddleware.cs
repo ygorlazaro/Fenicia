@@ -4,16 +4,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.Api.Middlewares;
 
-public class ModuleRequirementMiddleware
+public class ModuleRequirementMiddleware(RequestDelegate next, string requiredModule)
 {
-    private readonly RequestDelegate _next;
-    private readonly string _requiredModule;
-
-    public ModuleRequirementMiddleware(RequestDelegate next, string requiredModule)
-    {
-        _next = next;
-        _requiredModule = requiredModule;
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly string _requiredModule = requiredModule;
 
     public async Task InvokeAsync(HttpContext context)
     {
