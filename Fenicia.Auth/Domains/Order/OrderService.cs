@@ -68,7 +68,7 @@ public class OrderService(
 
         var order = new OrderModel
         {
-            SaleDate = DateTime.Now,
+            SaleDate = DateTime.UtcNow,
             Status = OrderStatus.Approved,
             UserId = userId,
             TotalAmount = totalAmount,

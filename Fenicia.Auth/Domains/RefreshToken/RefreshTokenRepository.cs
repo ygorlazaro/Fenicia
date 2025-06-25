@@ -18,7 +18,7 @@ public class RefreshTokenRepository(AuthContext authContext) : IRefreshTokenRepo
 
     public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken)
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var query =
             from token in authContext.RefreshTokens

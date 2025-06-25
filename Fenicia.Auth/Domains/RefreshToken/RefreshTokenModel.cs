@@ -15,13 +15,14 @@ public class RefreshTokenModel : BaseModel
     public string Token { get; set; } = null!;
 
     [Required]
-    public DateTime ExpirationDate { get; set; } = DateTime.Now.AddDays(7);
+    public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(7);
 
     [Required]
     public Guid UserId { get; set; }
 
     [Required]
     public bool IsActive { get; set; } = true;
+
 
     [ForeignKey("UserId")]
     [JsonIgnore]

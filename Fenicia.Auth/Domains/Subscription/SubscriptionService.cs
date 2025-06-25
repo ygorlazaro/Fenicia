@@ -40,8 +40,8 @@ public class SubscriptionService(
             {
                 ModuleId = d.ModuleId,
                 IsActive = true,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddMonths(1),
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddMonths(1),
                 OrderDetailId = d.Id
             })
             .ToList();
@@ -50,8 +50,8 @@ public class SubscriptionService(
         {
             Status = SubscriptionStatus.Active,
             CompanyId = companyId,
-            StartDate = DateTime.Now,
-            EndDate = DateTime.Now.AddMonths(1),
+            StartDate = DateTime.UtcNow,
+            EndDate = DateTime.UtcNow.AddMonths(1),
             OrderId = order.Id,
             Credits = credits
         };

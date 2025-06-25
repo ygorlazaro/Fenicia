@@ -69,7 +69,7 @@ public class SubscriptionRepositoryTest
     {
         // Arrange
         var companyId = Guid.NewGuid();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var validSubscription = _subscriptionGenerator
             .Clone()
@@ -95,7 +95,7 @@ public class SubscriptionRepositoryTest
     {
         // Arrange
         var companyId = Guid.NewGuid();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var expiredSubscription = _subscriptionGenerator
             .Clone()
@@ -119,7 +119,7 @@ public class SubscriptionRepositoryTest
     {
         // Arrange
         var companyId = Guid.NewGuid();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var futureSubscription = _subscriptionGenerator
             .Clone()
@@ -143,7 +143,7 @@ public class SubscriptionRepositoryTest
     {
         // Arrange
         var companyId = Guid.NewGuid();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var inactiveSubscription = _subscriptionGenerator
             .Clone()
@@ -169,7 +169,7 @@ public class SubscriptionRepositoryTest
         // Arrange
         var companyId = Guid.NewGuid();
         var differentCompanyId = Guid.NewGuid();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var subscription = _subscriptionGenerator
             .Clone()

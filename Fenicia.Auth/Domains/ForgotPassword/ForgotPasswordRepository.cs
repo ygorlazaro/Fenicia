@@ -8,7 +8,7 @@ public class ForgotPasswordRepository(AuthContext authContext) : IForgotPassword
 {
     public async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code)
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         var query = from forgotPassword in authContext.ForgottenPasswords
                     where forgotPassword.UserId == userId && forgotPassword.Code == code
                     && forgotPassword.IsActive

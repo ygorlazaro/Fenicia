@@ -7,7 +7,7 @@ using Fenicia.Common.Database;
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
 [Table("forgotten_passwords")]
-public class ForgotPasswordModel: BaseModel
+public class ForgotPasswordModel : BaseModel
 {
     [Required]
     public Guid UserId { get; set; }
@@ -15,7 +15,7 @@ public class ForgotPasswordModel: BaseModel
     [Required]
     public string Code { get; set; } = null!;
 
-    public DateTime ExpirationDate { get; set; } = DateTime.Now.AddDays(1);
+    public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(1);
 
     public bool IsActive { get; set; } = true;
 

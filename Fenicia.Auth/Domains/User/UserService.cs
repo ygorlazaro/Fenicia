@@ -3,6 +3,7 @@ using System.Net;
 using AutoMapper;
 
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Token;
@@ -18,35 +19,48 @@ public class UserService(
     IRoleRepository roleRepository,
     IUserRoleRepository userRoleRepository,
     ICompanyRepository companyRepository,
-    ISecurityService securityService
+    ISecurityService securityService,
+    ILoginAttemptService loginAttemptService
 ) : IUserService
 {
     public async Task<ApiResponse<UserResponse>> GetForLoginAsync(TokenRequest request)
     {
         logger.LogInformation("Getting user for login");
+
+        var attempts = await loginAttemptService.GetAttemptsAsync(request.Email);
+
+        if (attempts >= 5)
+        {
+            logger.LogWarning("User blocked temporarily - {email}", request.Email);
+            return new ApiResponse<UserResponse>(
+                null,
+                HttpStatusCode.TooManyRequests,
+                "Muitas tentativas. Tente novamente mais tarde."
+            );
+        }
+
         var user = await userRepository.GetByEmailAndCnpjAsync(request.Email, request.Cnpj);
 
         if (user is null)
         {
-            logger.LogInformation("Invalid login - {email}", request.Email);
-
-            return new ApiResponse<UserResponse>(
-                null,
-                HttpStatusCode.BadRequest,
-                TextConstants.InvalidUsernameOrPassword
-            );
+            logger.LogWarning("Invalid login - {email}", request.Email);
+            await loginAttemptService.IncrementAttemptsAsync(request.Email);
+            await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)));
+            return new ApiResponse<UserResponse>(null, HttpStatusCode.BadRequest, TextConstants.InvalidUsernameOrPassword);
         }
 
         var isValidPassword = securityService.VerifyPassword(request.Password, user.Password);
 
         if (isValidPassword.Data)
         {
+            await loginAttemptService.ResetAttemptsAsync(request.Email);
             var response = mapper.Map<UserResponse>(user);
-
             return new ApiResponse<UserResponse>(response);
         }
 
-        logger.LogInformation("Invalid login - {email}", request.Email);
+        logger.LogWarning("Invalid password - {email}", request.Email);
+        await loginAttemptService.IncrementAttemptsAsync(request.Email);
+        await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)));
 
         return new ApiResponse<UserResponse>(
             null,

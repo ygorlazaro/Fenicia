@@ -85,6 +85,8 @@ public class TokenController(
             return BadRequest("Invalid client request");
         }
 
+        await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken);
+
         var userResponse = await userService.GetUserForRefreshAsync(request.UserId);
 
         if (userResponse.Data is null)
@@ -94,7 +96,6 @@ public class TokenController(
 
         var response = await PopulateTokenAsync(userResponse.Data, request.CompanyId);
 
-        await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken);
 
         return response;
     }

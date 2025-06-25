@@ -16,7 +16,7 @@ public class SubscriptionRepository(AuthContext authContext) : ISubscriptionRepo
 
     public async Task<List<Guid>> GetValidSubscriptionAsync(Guid companyId)
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var subscriptions =
             from subscription in authContext.Subscriptions

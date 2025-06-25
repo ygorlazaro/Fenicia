@@ -168,8 +168,8 @@ public class SubscriptionServiceTests
         var credit = capturedSubscription.Credits.First();
         Assert.Multiple(() =>
         {
-            Assert.That(credit.StartDate.Date, Is.EqualTo(DateTime.Now.Date));
-            Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.Now.AddMonths(1).Date));
+            Assert.That(credit.StartDate.Date, Is.EqualTo(DateTime.UtcNow.Date));
+            Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.UtcNow.AddMonths(1).Date));
             Assert.That(credit.IsActive, Is.True);
             Assert.That(credit.OrderDetailId, Is.EqualTo(orderDetails[0].Id));
             Assert.That(credit.ModuleId, Is.EqualTo(orderDetails[0].ModuleId));
