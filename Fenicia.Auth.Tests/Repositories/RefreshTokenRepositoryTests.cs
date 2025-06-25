@@ -42,7 +42,7 @@ public class RefreshTokenRepositoryTests
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             Token = _faker.Random.Hash(),
-            ExpirationDate = DateTime.Now.AddDays(7),
+            ExpirationDate = DateTime.UtcNow.AddDays(7),
             IsActive = true
         };
 
@@ -73,7 +73,7 @@ public class RefreshTokenRepositoryTests
             Id = Guid.NewGuid(),
             UserId = userId,
             Token = token,
-            ExpirationDate = DateTime.Now.AddDays(7),
+            ExpirationDate = DateTime.UtcNow.AddDays(7),
             IsActive = true
         };
 
@@ -98,7 +98,7 @@ public class RefreshTokenRepositoryTests
             Id = Guid.NewGuid(),
             UserId = userId,
             Token = token,
-            ExpirationDate = DateTime.Now.AddDays(-1), // Expired
+            ExpirationDate = DateTime.UtcNow.AddDays(-1), // Expired
             IsActive = true
         };
 
@@ -123,7 +123,7 @@ public class RefreshTokenRepositoryTests
             Id = Guid.NewGuid(),
             UserId = userId,
             Token = token,
-            ExpirationDate = DateTime.Now.AddDays(7),
+            ExpirationDate = DateTime.UtcNow.AddDays(7),
             IsActive = false
         };
 
@@ -149,7 +149,7 @@ public class RefreshTokenRepositoryTests
             Id = Guid.NewGuid(),
             UserId = userId,
             Token = token,
-            ExpirationDate = DateTime.Now.AddDays(7),
+            ExpirationDate = DateTime.UtcNow.AddDays(7),
             IsActive = true
         };
 
@@ -173,7 +173,7 @@ public class RefreshTokenRepositoryTests
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             Token = token,
-            ExpirationDate = DateTime.Now.AddDays(7),
+            ExpirationDate = DateTime.UtcNow.AddDays(7),
             IsActive = true
         };
 

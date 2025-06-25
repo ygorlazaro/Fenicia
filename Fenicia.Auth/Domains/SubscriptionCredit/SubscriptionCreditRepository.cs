@@ -9,7 +9,7 @@ public class SubscriptionCreditRepository(AuthContext authContext) : ISubscripti
 {
     public async Task<List<ModuleType>> GetValidModulesTypesAsync(List<Guid> subscriptions)
     {
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var query =
             from credit in authContext.SubscriptionCredits

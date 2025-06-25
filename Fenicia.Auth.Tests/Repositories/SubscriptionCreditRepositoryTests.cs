@@ -58,7 +58,7 @@ public class SubscriptionCreditRepositoryTests
     {
         // Arrange
         var subscriptionIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var modules = _moduleGenerator.Generate(3);
         var credits = subscriptionIds
@@ -103,7 +103,7 @@ public class SubscriptionCreditRepositoryTests
     {
         // Arrange
         var subscription = Guid.NewGuid();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var module = _moduleGenerator.Generate();
         var credit = _creditGenerator
@@ -131,7 +131,7 @@ public class SubscriptionCreditRepositoryTests
     {
         // Arrange
         var subscription = Guid.NewGuid();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var module = _moduleGenerator.Generate();
         var credit = _creditGenerator
@@ -158,7 +158,7 @@ public class SubscriptionCreditRepositoryTests
     {
         // Arrange
         var subscription = Guid.NewGuid();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var module = _moduleGenerator.Generate();
         var credit = _creditGenerator
@@ -185,7 +185,7 @@ public class SubscriptionCreditRepositoryTests
     {
         // Arrange
         var subscriptions = new Faker().Make(2, () => Guid.NewGuid());
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var module = _moduleGenerator.Generate();
         var credits = subscriptions
@@ -217,7 +217,7 @@ public class SubscriptionCreditRepositoryTests
     {
         // Arrange
         var subscription = Guid.NewGuid();
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var moduleTypes = new[] { ModuleType.Accounting, ModuleType.Hr, ModuleType.Ecommerce };
         var modules = moduleTypes

@@ -6,6 +6,7 @@ using AspNetCoreRateLimit;
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.ForgotPassword;
+using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.RefreshToken;
@@ -63,6 +64,7 @@ public static class Program
         // Dependency Injection
         builder.Services.AddTransient<ICompanyService, CompanyService>();
         builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();
+        builder.Services.AddTransient<ILoginAttemptService, LoginAttemptService>();
         builder.Services.AddTransient<IModuleService, ModuleService>();
         builder.Services.AddTransient<IOrderService, OrderService>();
         builder.Services.AddTransient<IRefreshTokenService, RefreshTokenService>();
@@ -95,6 +97,27 @@ public static class Program
              .UseSnakeCaseNamingConvention();
         });
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("RestrictedCors", policy =>
+            {
+                policy
+                    .WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+
+            options.AddPolicy("DevCors", policy =>
+            {
+                policy
+                    .WithOrigins("http://localhost:5144", "http://127.0.0.1:5144")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
+
         builder.Services.AddAuthentication(x =>
         {
             x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -109,7 +132,9 @@ public static class Program
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = false,
-                ValidateAudience = false
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
             };
         });
 
@@ -143,6 +168,30 @@ public static class Program
                 };
             });
         }
+
+        app.UseHttpsRedirection();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseCors("DevCors");
+        }
+        else
+        {
+            app.UseCors("RestrictedCors");
+        }
+
+        app.UseHsts();
+        app.UseXContentTypeOptions();
+        app.UseReferrerPolicy(opts => opts.NoReferrer());
+        app.UseXXssProtection(options => options.EnabledWithBlockMode());
+        app.UseXfo(options => options.Deny());
+        app.UseCsp(opts => opts
+            .BlockAllMixedContent()
+            .StyleSources(s => s.Self())
+            .ScriptSources(s => s.Self())
+            .FontSources(s => s.Self())
+            .ImageSources(s => s.Self().CustomSources("data:"))
+            .DefaultSources(s => s.Self())
+        );
 
         app.UseAuthentication();
         app.UseAuthorization();
