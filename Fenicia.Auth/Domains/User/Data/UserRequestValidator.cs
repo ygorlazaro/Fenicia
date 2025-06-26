@@ -1,13 +1,25 @@
-using Fenicia.Auth.Domains.Company.Logic;
+using Fenicia.Auth.Domains.Company.Data;
 
 using FluentValidation;
 
 namespace Fenicia.Auth.Domains.User.Data;
 
+using Microsoft.Extensions.Logging;
+
+/// <summary>
+/// Validator for user registration requests
+/// </summary>
 public class UserRequestValidator : AbstractValidator<UserRequest>
 {
-    public UserRequestValidator()
+    private readonly ILogger<UserRequestValidator> _logger;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UserRequestValidator"/> class
+    /// </summary>
+    /// <param name="logger">The logger instance</param>
+    public UserRequestValidator(ILogger<UserRequestValidator> logger)
     {
+        _logger = logger;
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
             .EmailAddress().WithMessage("Email must be a valid email address.");

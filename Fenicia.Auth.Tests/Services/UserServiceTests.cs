@@ -4,12 +4,13 @@ using AutoMapper;
 
 using Bogus;
 
+using Fenicia.Auth.Domains.Company.Data;
 using Fenicia.Auth.Domains.Company.Logic;
 using Fenicia.Auth.Domains.LoginAttempt.Logic;
 using Fenicia.Auth.Domains.Role.Data;
 using Fenicia.Auth.Domains.Role.Logic;
 using Fenicia.Auth.Domains.Security.Logic;
-using Fenicia.Auth.Domains.Token.Logic;
+using Fenicia.Auth.Domains.Token.Data;
 using Fenicia.Auth.Domains.User.Data;
 using Fenicia.Auth.Domains.User.Logic;
 using Fenicia.Auth.Domains.UserRole.Logic;

@@ -37,44 +37,199 @@ using StackExchange.Redis;
 
 namespace Fenicia.Auth;
 
+/// <summary>
+/// Main program class containing application configuration and startup logic
+/// </summary>
 public static class Program
 {
+    /// <summary>
+    /// Application entry point that configures and starts the web application
+    /// </summary>
+    /// <param name="args">Command line arguments</param>
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
-        builder.Host.UseSerilog((context, config) =>
-        {
-            config.ReadFrom.Configuration(context.Configuration);
-
-            var seqUrl = context.Configuration["Seq:Url"];
-            if (!string.IsNullOrWhiteSpace(seqUrl))
-            {
-                config.Enrich.FromLogContext()
-                    .Enrich.WithEnvironmentUserName()
-                    .WriteTo.Console().
-                    WriteTo.Seq(seqUrl);
-            }
-        });
-
         var configuration = builder.Configuration;
 
-        Log.Logger = new LoggerConfiguration()
-            .WriteTo.Console()
-            .CreateLogger();
+        BuildLogging(builder);
+        BuildRateLimiting(builder, configuration);
+        BuildDependencyInjection(builder);
+        BuildDatabaseConnection(configuration, builder);
+        BuildCors(builder);
+        BuildControllers(configuration, builder);
 
+        StartApplication(builder);
+    }
+
+    /// <summary>
+    /// Configures and starts the web application with middleware and security settings
+    /// </summary>
+    /// <param name="builder">The web application builder</param>
+    private static void StartApplication(WebApplicationBuilder builder)
+    {
+        var app = builder.Build();
+
+        app.UseMiddleware<RequestLoggingMiddleware>();
+        app.UseMiddleware<ExceptionMiddleware>();
+        app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseResponseCompression();
+
+        app.UseSerilogRequestLogging();
+
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapOpenApi();
+            app.MapScalarApiReference(x =>
+            {
+                x.WithDarkModeToggle(true)
+                    .WithTheme(ScalarTheme.Purple)
+                    .WithClientButton(true);
+
+                x.Authentication = new ScalarAuthenticationOptions
+                {
+                    PreferredSecuritySchemes = ["Bearer "]
+                };
+            });
+        }
+
+        app.UseHttpsRedirection();
+        app.UseCors(app.Environment.IsDevelopment() ? "DevCors" : "RestrictedCors");
+
+        app.UseHsts();
+        app.UseXContentTypeOptions();
+        app.UseReferrerPolicy(opts => opts.NoReferrer());
+        app.UseXXssProtection(options => options.EnabledWithBlockMode());
+        app.UseXfo(options => options.Deny());
+        // app.UseCsp(opts => opts
+        //     .BlockAllMixedContent()
+        //     .StyleSources(s => s.Self())
+        //     .ScriptSources(s => s.Self())
+        //     .FontSources(s => s.Self())
+        //     .ImageSources(s => s.Self().CustomSources("data:"))
+        //     .DefaultSources(s => s.Self())
+        // );
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseIpRateLimiting();
+        app.MapControllers();
+
+        app.Run();
+    }
+
+    /// <summary>
+    /// Configures controllers, authentication, and API behavior
+    /// </summary>
+    /// <param name="configuration">Application configuration</param>
+    /// <param name="builder">The web application builder</param>
+    private static void BuildControllers(ConfigurationManager configuration, WebApplicationBuilder builder)
+    {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]
-            ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+                                          ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+        builder.Services.AddAuthentication(x =>
+        {
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(x =>
+        {
+            x.RequireHttpsMetadata = false;
+            x.SaveToken = true;
+            x.ClaimsIssuer = "AuthService";
+            x.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        });
 
-        // Rate Limiting setup (AspNetCoreRateLimit)
-        builder.Services.AddMemoryCache();
-        builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
-        builder.Services.Configure<IpRateLimitPolicies>(configuration.GetSection("IpRateLimitPolicies"));
-        builder.Services.AddInMemoryRateLimiting();
-        builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+        builder.Services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var problemDetails = new ValidationProblemDetails(context.ModelState)
+                {
+                    Type = "https://tools.ietf.org/html/rfc7807",
+                    Title = "Um ou mais erros de validação ocorreram.",
+                    Status = StatusCodes.Status400BadRequest,
+                    Instance = context.HttpContext.Request.Path
+                };
 
+                return new BadRequestObjectResult(problemDetails)
+                {
+                    ContentTypes = { "application/problem+json" }
+                };
+            };
+        });
+
+        builder.Services.AddControllers()
+            .AddJsonOptions(x =>
+            {
+                x.JsonSerializerOptions.AllowTrailingCommas = false;
+                x.JsonSerializerOptions.MaxDepth = 0;
+                x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            })
+            .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AuthProfiles>());
+
+
+        builder.Services.AddOpenApi();
+    }
+
+    /// <summary>
+    /// Configures Cross-Origin Resource Sharing (CORS) policies
+    /// </summary>
+    /// <param name="builder">The web application builder</param>
+    private static void BuildCors(WebApplicationBuilder builder)
+    {
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("RestrictedCors", policy =>
+            {
+                policy
+                    .WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+
+            options.AddPolicy("DevCors", policy =>
+            {
+                policy
+                    .WithOrigins("http://localhost:5144", "http://127.0.0.1:5144")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
+    }
+
+    /// <summary>
+    /// Configures database connection and context
+    /// </summary>
+    /// <param name="configuration">Application configuration</param>
+    /// <param name="builder">The web application builder</param>
+    private static void BuildDatabaseConnection(ConfigurationManager configuration, WebApplicationBuilder builder)
+    {
         var connectionString = configuration.GetConnectionString("AuthConnection");
 
+        builder.Services.AddDbContextPool<AuthContext>(x =>
+        {
+            x.UseNpgsql(connectionString)
+                .EnableSensitiveDataLogging()
+                .UseSnakeCaseNamingConvention();
+        });
+    }
+
+    /// <summary>
+    /// Configures dependency injection for services and repositories
+    /// </summary>
+    /// <param name="builder">The web application builder</param>
+    private static void BuildDependencyInjection(WebApplicationBuilder builder)
+    {
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
             var config = ConfigurationOptions.Parse("localhost", true);
@@ -117,141 +272,46 @@ public static class Program
         });
 
         builder.Services.AddAutoMapper(typeof(Program));
+    }
 
-        builder.Services.AddDbContextPool<AuthContext>(x =>
+    /// <summary>
+    /// Configures IP-based rate limiting
+    /// </summary>
+    /// <param name="builder">The web application builder</param>
+    /// <param name="configuration">Application configuration</param>
+    private static void BuildRateLimiting(WebApplicationBuilder builder, ConfigurationManager configuration)
+    {
+        // Rate Limiting setup (AspNetCoreRateLimit)
+        builder.Services.AddMemoryCache();
+        builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
+        builder.Services.Configure<IpRateLimitPolicies>(configuration.GetSection("IpRateLimitPolicies"));
+        builder.Services.AddInMemoryRateLimiting();
+        builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+    }
+
+    /// <summary>
+    /// Configures application logging using Serilog
+    /// </summary>
+    /// <param name="builder">The web application builder</param>
+    private static void BuildLogging(WebApplicationBuilder builder)
+    {
+        builder.Host.UseSerilog((context, config) =>
         {
-            x.UseNpgsql(connectionString)
-             .EnableSensitiveDataLogging()
-             .UseSnakeCaseNamingConvention();
+            config.ReadFrom.Configuration(context.Configuration);
+
+            var seqUrl = context.Configuration["Seq:Url"];
+            if (!string.IsNullOrWhiteSpace(seqUrl))
+            {
+                config.Enrich.FromLogContext()
+                    .Enrich.WithEnvironmentUserName()
+                    .WriteTo.Console().
+                    WriteTo.Seq(seqUrl);
+            }
         });
 
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("RestrictedCors", policy =>
-            {
-                policy
-                    .WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
 
-            options.AddPolicy("DevCors", policy =>
-            {
-                policy
-                    .WithOrigins("http://localhost:5144", "http://127.0.0.1:5144")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
-        });
-
-        builder.Services.AddAuthentication(x =>
-        {
-            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(x =>
-        {
-            x.RequireHttpsMetadata = false;
-            x.SaveToken = true;
-            x.ClaimsIssuer = "AuthService";
-            x.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
-        });
-
-        builder.Services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.InvalidModelStateResponseFactory = context =>
-                {
-                    var problemDetails = new ValidationProblemDetails(context.ModelState)
-                    {
-                        Type = "https://tools.ietf.org/html/rfc7807",
-                        Title = "Um ou mais erros de validação ocorreram.",
-                        Status = StatusCodes.Status400BadRequest,
-                        Instance = context.HttpContext.Request.Path
-                    };
-
-                    return new BadRequestObjectResult(problemDetails)
-                    {
-                        ContentTypes = { "application/problem+json" }
-                    };
-                };
-            });
-
-        builder.Services.AddControllers()
-            .AddJsonOptions(x =>
-            {
-                x.JsonSerializerOptions.AllowTrailingCommas = false;
-                x.JsonSerializerOptions.MaxDepth = 0;
-                x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-            })
-        .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AuthProfiles>());
-
-
-        builder.Services.AddOpenApi();
-
-        var app = builder.Build();
-
-        app.UseMiddleware<RequestLoggingMiddleware>();
-        app.UseMiddleware<ExceptionMiddleware>();
-        app.UseMiddleware<CorrelationIdMiddleware>();
-        app.UseResponseCompression();
-
-        app.UseSerilogRequestLogging();
-
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-            app.MapScalarApiReference(x =>
-            {
-                x.WithDarkModeToggle(true)
-                 .WithTheme(ScalarTheme.Purple)
-                 .WithClientButton(true);
-
-                x.Authentication = new ScalarAuthenticationOptions
-                {
-                    PreferredSecuritySchemes = ["Bearer "]
-                };
-            });
-        }
-
-        app.UseHttpsRedirection();
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseCors("DevCors");
-        }
-        else
-        {
-            app.UseCors("RestrictedCors");
-        }
-
-        app.UseHsts();
-        app.UseXContentTypeOptions();
-        app.UseReferrerPolicy(opts => opts.NoReferrer());
-        app.UseXXssProtection(options => options.EnabledWithBlockMode());
-        app.UseXfo(options => options.Deny());
-        app.UseCsp(opts => opts
-            .BlockAllMixedContent()
-            .StyleSources(s => s.Self())
-            .ScriptSources(s => s.Self())
-            .FontSources(s => s.Self())
-            .ImageSources(s => s.Self().CustomSources("data:"))
-            .DefaultSources(s => s.Self())
-        );
-
-        app.UseAuthentication();
-        app.UseAuthorization();
-        app.UseIpRateLimiting(); // <- importante: precisa estar aqui
-        app.MapControllers();
-
-        app.Run();
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateLogger();
     }
 }

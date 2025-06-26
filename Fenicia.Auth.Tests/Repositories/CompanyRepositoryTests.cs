@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Contexts;
+using Fenicia.Auth.Domains.Company.Data;
 using Fenicia.Auth.Domains.Company.Logic;
 using Fenicia.Auth.Domains.UserRole.Data;
 

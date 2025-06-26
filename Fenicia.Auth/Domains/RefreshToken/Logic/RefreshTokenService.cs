@@ -5,14 +5,25 @@ using Fenicia.Common;
 
 namespace Fenicia.Auth.Domains.RefreshToken.Logic;
 
-public class RefreshTokenService(
+/// <summary>
+/// Service responsible for managing refresh tokens operations
+/// </summary>
+public sealed class RefreshTokenService(
     ILogger<RefreshTokenService> logger,
     IRefreshTokenRepository refreshTokenRepository
 ) : IRefreshTokenService
 {
-    public async Task<ApiResponse<string>> GenerateRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
+/// <summary>
+/// Generates a new refresh token for the specified user
+/// </summary>
+/// <param name="userId">The ID of the user</param>
+/// <param name="cancellationToken">Cancellation token</param>
+/// <returns>API response containing the generated refresh token</returns>
+public async Task<ApiResponse<string>> GenerateRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
+{
+    try
     {
-        logger.LogInformation("Generating refresh token");
+        logger.LogInformation("Starting refresh token generation for user {UserId}", userId);
         var randomNumber = new byte[32];
 
         using var rng = RandomNumberGenerator.Create();
@@ -28,20 +39,60 @@ public class RefreshTokenService(
 
         await refreshTokenRepository.SaveChangesAsync(cancellationToken);
 
+        logger.LogInformation("Successfully generated refresh token for user {UserId}", userId);
         return new ApiResponse<string>(refreshToken.Token);
     }
-
-    public async Task<ApiResponse<bool>> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
+    catch (Exception ex)
     {
-        var response = await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
-
-        return new ApiResponse<bool>(response);
+        logger.LogError(ex, "Error generating refresh token for user {UserId}", userId);
+        throw;
+    }
     }
 
+    /// <summary>
+    /// Validates a refresh token for the specified user
+    /// </summary>
+    /// <param name="userId">The ID of the user</param>
+    /// <param name="refreshToken">The refresh token to validate</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>API response indicating whether the token is valid</returns>
+    public async Task<ApiResponse<bool>> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
+    {
+        try
+        {
+            logger.LogInformation("Validating refresh token for user {UserId}", userId);
+            var response = await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
+
+            logger.LogInformation("Token validation result for user {UserId}: {IsValid}", userId, response);
+            return new ApiResponse<bool>(response);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error validating refresh token for user {UserId}", userId);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Invalidates the specified refresh token
+    /// </summary>
+    /// <param name="refreshToken">The refresh token to invalidate</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>API response indicating the operation result</returns>
     public async Task<ApiResponse<object>> InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        await refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken, cancellationToken);
+        try
+        {
+            logger.LogInformation("Invalidating refresh token");
+            await refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken, cancellationToken);
 
-        return new ApiResponse<object>(null);
+            logger.LogInformation("Successfully invalidated refresh token");
+            return new ApiResponse<object>(null);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error invalidating refresh token");
+            throw;
+        }
     }
 }

@@ -37,8 +37,4 @@
     <ProjectReference Include="..\Fenicia.Common.Externals.Email\Fenicia.Common.Externals.Email.csproj" />
     <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Domains\Company\Data\" />
-    <Folder Include="Domains\Token\Data\" />
-  </ItemGroup>
 </Project>
