@@ -1,5 +1,4 @@
 using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Role.Data;
 using Fenicia.Auth.Domains.Role.Logic;
 
@@ -12,6 +11,7 @@ public class RoleRepositoryTests
     private AuthContext _context;
     private RoleRepository _sut;
     private DbContextOptions<AuthContext> _options;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
@@ -37,11 +37,11 @@ public class RoleRepositoryTests
         // Arrange
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
 
-        await _context.Roles.AddAsync(adminRole);
-        await _context.SaveChangesAsync();
+        await _context.Roles.AddAsync(adminRole, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetAdminRoleAsync();
+        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -58,11 +58,11 @@ public class RoleRepositoryTests
         // Arrange
         var nonAdminRole = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
 
-        await _context.Roles.AddAsync(nonAdminRole);
-        await _context.SaveChangesAsync();
+        await _context.Roles.AddAsync(nonAdminRole, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetAdminRoleAsync();
+        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -72,7 +72,7 @@ public class RoleRepositoryTests
     public async Task GetAdminRoleAsync_ReturnsNull_WhenRolesTableIsEmpty()
     {
         // Act
-        var result = await _sut.GetAdminRoleAsync();
+        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -89,11 +89,11 @@ public class RoleRepositoryTests
             new RoleModel { Id = Guid.NewGuid(), Name = "Manager" }
         };
 
-        await _context.Roles.AddRangeAsync(roles);
-        await _context.SaveChangesAsync();
+        await _context.Roles.AddRangeAsync(roles, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetAdminRoleAsync();
+        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -106,11 +106,11 @@ public class RoleRepositoryTests
         // Arrange
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "ADMIN" };
 
-        await _context.Roles.AddAsync(adminRole);
-        await _context.SaveChangesAsync();
+        await _context.Roles.AddAsync(adminRole, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetAdminRoleAsync();
+        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null, "GetAdminRoleAsync should be case sensitive");

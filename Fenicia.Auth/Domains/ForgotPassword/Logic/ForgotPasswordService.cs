@@ -3,7 +3,6 @@ using System.Net;
 using AutoMapper;
 
 using Fenicia.Auth.Domains.ForgotPassword.Data;
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Logic;
 using Fenicia.Common;
 

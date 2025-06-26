@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.OrderDetail;
 using Fenicia.Auth.Domains.OrderDetail.Data;
 
 namespace Fenicia.Auth.Domains.Order.Data;

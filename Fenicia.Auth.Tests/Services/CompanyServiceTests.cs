@@ -4,9 +4,8 @@ using AutoMapper;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.DataCache;
 using Fenicia.Auth.Domains.UserRole.Logic;
 using Fenicia.Common;
 
@@ -20,8 +19,10 @@ public class CompanyServiceTests
 {
     private Mock<IMapper> _mapperMock;
     private Mock<ILogger<CompanyService>> _loggerMock;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private Mock<ICompanyRepository> _companyRepositoryMock;
     private Mock<IUserRoleService> _userRoleServiceMock;
+    private Mock<IDataCacheService> _dataCacheServiceMock;
     private CompanyService _sut;
     private Faker _faker;
 
@@ -32,11 +33,13 @@ public class CompanyServiceTests
         _loggerMock = new Mock<ILogger<CompanyService>>();
         _companyRepositoryMock = new Mock<ICompanyRepository>();
         _userRoleServiceMock = new Mock<IUserRoleService>();
+        _dataCacheServiceMock = new Mock<IDataCacheService>();
         _sut = new CompanyService(
             _mapperMock.Object,
             _loggerMock.Object,
             _companyRepositoryMock.Object,
-            _userRoleServiceMock.Object
+            _userRoleServiceMock.Object,
+            _dataCacheServiceMock.Object
         );
         _faker = new Faker();
     }
@@ -49,12 +52,12 @@ public class CompanyServiceTests
         var companyModel = new CompanyModel { Cnpj = cnpj };
         var expectedResponse = new CompanyResponse { Cnpj = cnpj };
 
-        _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj)).ReturnsAsync(companyModel);
+        _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, _cancellationToken)).ReturnsAsync(companyModel);
 
         _mapperMock.Setup(x => x.Map<CompanyResponse>(companyModel)).Returns(expectedResponse);
 
         // Act
-        var result = await _sut.GetByCnpjAsync(cnpj);
+        var result = await _sut.GetByCnpjAsync(cnpj, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -70,10 +73,10 @@ public class CompanyServiceTests
         // Arrange
         var cnpj = _faker.Random.String2(14, "0123456789");
 
-        _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj)).ReturnsAsync((CompanyModel)null!);
+        _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, _cancellationToken)).ReturnsAsync((CompanyModel)null!);
 
         // Act
-        var result = await _sut.GetByCnpjAsync(cnpj);
+        var result = await _sut.GetByCnpjAsync(cnpj, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -96,13 +99,13 @@ public class CompanyServiceTests
         var expectedResponse = companies.Select(c => new CompanyResponse { Id = c.Id }).ToList();
 
         _companyRepositoryMock
-            .Setup(x => x.GetByUserIdAsync(userId, 1, 10))
+            .Setup(x => x.GetByUserIdAsync(userId,_cancellationToken, 1, 10))
             .ReturnsAsync(companies);
 
         _mapperMock.Setup(x => x.Map<List<CompanyResponse>>(companies)).Returns(expectedResponse);
 
         // Act
-        var result = await _sut.GetByUserIdAsync(userId);
+        var result = await _sut.GetByUserIdAsync(userId, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -122,10 +125,10 @@ public class CompanyServiceTests
         var companyModel = new CompanyModel { Id = companyId, Name = updateRequest.Name };
         var expectedResponse = new CompanyResponse { Id = companyId, Name = updateRequest.Name };
 
-        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId)).ReturnsAsync(true);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, _cancellationToken)).ReturnsAsync(true);
 
         _userRoleServiceMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, "Admin"))
+            .Setup(x => x.HasRoleAsync(userId, companyId, "Admin", _cancellationToken))
             .ReturnsAsync(new ApiResponse<bool>(true));
 
         _mapperMock.Setup(x => x.Map<CompanyModel>(updateRequest)).Returns(companyModel);
@@ -134,12 +137,12 @@ public class CompanyServiceTests
             .Setup(x => x.PatchAsync(It.IsAny<CompanyModel>()))
             .Returns(companyModel);
 
-        _companyRepositoryMock.Setup(x => x.SaveAsync()).ReturnsAsync(1);
+        _companyRepositoryMock.Setup(x => x.SaveAsync(_cancellationToken)).ReturnsAsync(1);
 
         _mapperMock.Setup(x => x.Map<CompanyResponse>(companyModel)).Returns(expectedResponse);
 
         // Act
-        var result = await _sut.PatchAsync(companyId, userId, updateRequest);
+        var result = await _sut.PatchAsync(companyId, userId, updateRequest, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -157,10 +160,10 @@ public class CompanyServiceTests
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
 
-        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId)).ReturnsAsync(false);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, _cancellationToken)).ReturnsAsync(false);
 
         // Act
-        var result = await _sut.PatchAsync(companyId, userId, updateRequest);
+        var result = await _sut.PatchAsync(companyId, userId, updateRequest, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -178,14 +181,14 @@ public class CompanyServiceTests
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
 
-        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId)).ReturnsAsync(true);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, _cancellationToken)).ReturnsAsync(true);
 
         _userRoleServiceMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, "Admin"))
+            .Setup(x => x.HasRoleAsync(userId, companyId, "Admin", _cancellationToken))
             .ReturnsAsync(new ApiResponse<bool>(false));
 
         // Act
-        var result = await _sut.PatchAsync(companyId, userId, updateRequest);
+        var result = await _sut.PatchAsync(companyId, userId, updateRequest, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -202,10 +205,10 @@ public class CompanyServiceTests
         var userId = Guid.NewGuid();
         var expectedCount = _faker.Random.Int(1, 100);
 
-        _companyRepositoryMock.Setup(x => x.CountByUserIdAsync(userId)).ReturnsAsync(expectedCount);
+        _companyRepositoryMock.Setup(x => x.CountByUserIdAsync(userId, _cancellationToken)).ReturnsAsync(expectedCount);
 
         // Act
-        var result = await _sut.CountByUserIdAsync(userId);
+        var result = await _sut.CountByUserIdAsync(userId, _cancellationToken);
 
         Assert.Multiple(() =>
         {

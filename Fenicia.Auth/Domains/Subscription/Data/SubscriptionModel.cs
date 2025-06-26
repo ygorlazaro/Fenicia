@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 
 using Fenicia.Auth.Domains.Company.Logic;
 using Fenicia.Auth.Domains.Order.Data;
-using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Auth.Domains.SubscriptionCredit.Data;
 using Fenicia.Auth.Enums;
 using Fenicia.Common.Database;

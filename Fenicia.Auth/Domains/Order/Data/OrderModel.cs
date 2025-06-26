@@ -3,11 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.OrderDetail;
 using Fenicia.Auth.Domains.OrderDetail.Data;
-using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.Data;
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Data;
 using Fenicia.Auth.Enums;
 using Fenicia.Common.Database;

@@ -1,9 +1,9 @@
 using Bogus;
 
 using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.Data;
 using Fenicia.Auth.Domains.Order.Logic;
+using Fenicia.Auth.Domains.OrderDetail.Data;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +15,7 @@ public class OrderRepositoryTests
     private OrderRepository _sut;
     private Faker _faker;
     private DbContextOptions<AuthContext> _options;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
@@ -47,13 +48,13 @@ public class OrderRepositoryTests
         };
 
         // Act
-        var result = await _sut.SaveOrderAsync(order);
+        var result = await _sut.SaveOrderAsync(order, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Id, Is.EqualTo(order.Id));
 
-        var savedOrder = await _context.Orders.FindAsync(order.Id);
+        var savedOrder = await _context.Orders.FindAsync([order.Id], _cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
         Assert.Multiple(() =>
         {
@@ -74,20 +75,18 @@ public class OrderRepositoryTests
         };
 
         // Act
-        await _sut.SaveOrderAsync(order);
+        await _sut.SaveOrderAsync(order, _cancellationToken);
 
         // Assert
-        using (var context = new AuthContext(_options))
+        await using var context = new AuthContext(_options);
+        var savedOrder = await context.Orders.FindAsync([order.Id], _cancellationToken);
+        Assert.That(savedOrder, Is.Not.Null);
+        Assert.Multiple(() =>
         {
-            var savedOrder = await context.Orders.FindAsync(order.Id);
-            Assert.That(savedOrder, Is.Not.Null);
-            Assert.Multiple(() =>
-            {
-                Assert.That(savedOrder.Id, Is.EqualTo(order.Id));
-                Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
-                Assert.That(savedOrder.UserId, Is.EqualTo(order.UserId));
-            });
-        }
+            Assert.That(savedOrder.Id, Is.EqualTo(order.Id));
+            Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
+            Assert.That(savedOrder.UserId, Is.EqualTo(order.UserId));
+        });
     }
 
     [Test]
@@ -101,13 +100,13 @@ public class OrderRepositoryTests
             UserId = Guid.NewGuid(),
             Details =
             [
-                new()
+                new OrderDetailModel
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
                     Amount = _faker.Random.Int(1, 10)
                 },
-                new()
+                new OrderDetailModel
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
@@ -117,7 +116,7 @@ public class OrderRepositoryTests
         };
 
         // Act
-        var result = await _sut.SaveOrderAsync(order);
+        var result = await _sut.SaveOrderAsync(order, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -125,7 +124,7 @@ public class OrderRepositoryTests
 
         var savedOrder = await _context
             .Orders.Include(o => o.Details)
-            .FirstOrDefaultAsync(o => o.Id == order.Id);
+            .FirstOrDefaultAsync(o => o.Id == order.Id, _cancellationToken);
 
         Assert.That(savedOrder, Is.Not.Null);
         Assert.That(savedOrder.Details, Has.Count.EqualTo(2));

@@ -5,7 +5,6 @@ using AutoMapper;
 using Fenicia.Auth.Domains.Order.Data;
 using Fenicia.Auth.Domains.OrderDetail.Data;
 using Fenicia.Auth.Domains.Subscription.Data;
-using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Auth.Domains.SubscriptionCredit.Data;
 using Fenicia.Auth.Enums;
 using Fenicia.Common;

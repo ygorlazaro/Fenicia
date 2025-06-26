@@ -1,7 +1,6 @@
 @page "/Login"
 @using Fenicia.Web.Providers.Auth
 @using Blazored.LocalStorage
-@using Fenicia.Auth.Domains.Token
 @using Fenicia.Auth.Domains.Token.Logic
 @inject ILocalStorageService LocalStorage
 @inject TokenProvider TokenProvider
@@ -72,7 +71,7 @@
 
 @code {
 
-    private TokenRequest _tokenRequest = new()
+    private readonly TokenRequest _tokenRequest = new()
     {
         Cnpj = "23351185000184",
         Email = "ygor@ygorlazaro.com",

@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Auth.Domains.State;
 using Fenicia.Auth.Domains.State.Data;
 using Fenicia.Common.Database;
 

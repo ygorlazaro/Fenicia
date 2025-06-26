@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 
 using Fenicia.Auth.Domains.Order.Data;
 using Fenicia.Auth.Domains.RefreshToken.Data;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Data;
 using Fenicia.Common.Database;
 

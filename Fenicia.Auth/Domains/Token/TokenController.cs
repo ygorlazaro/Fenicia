@@ -1,17 +1,12 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.Data;
 using Fenicia.Auth.Domains.RefreshToken.Logic;
-using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Auth.Domains.SubscriptionCredit.Logic;
 using Fenicia.Auth.Domains.Token.Logic;
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Data;
 using Fenicia.Auth.Domains.User.Logic;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Logic;
 using Fenicia.Common;
 

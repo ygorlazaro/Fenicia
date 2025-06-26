@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.Data;
 using Fenicia.Auth.Domains.RefreshToken.Logic;
 
@@ -18,6 +17,7 @@ public class RefreshTokenServiceTests
     private Mock<IRefreshTokenRepository> _refreshTokenRepositoryMock;
     private RefreshTokenService _sut;
     private Faker _faker;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
@@ -36,7 +36,7 @@ public class RefreshTokenServiceTests
         var base64Pattern = @"^[a-zA-Z0-9+/]*={0,2}$";
 
         // Act
-        var result = await _sut.GenerateRefreshTokenAsync(userId);
+        var result = await _sut.GenerateRefreshTokenAsync(userId, _cancellationToken);
 
         // Assert
         Assert.Multiple(() =>
@@ -51,7 +51,7 @@ public class RefreshTokenServiceTests
             Times.Once
         );
 
-        _refreshTokenRepositoryMock.Verify(x => x.SaveChangesAsync(), Times.Once);
+        _refreshTokenRepositoryMock.Verify(x => x.SaveChangesAsync(_cancellationToken), Times.Once);
     }
 
     [Test]
@@ -63,16 +63,16 @@ public class RefreshTokenServiceTests
         var expectedResult = _faker.Random.Bool();
 
         _refreshTokenRepositoryMock
-            .Setup(x => x.ValidateTokenAsync(userId, refreshToken))
+            .Setup(x => x.ValidateTokenAsync(userId, refreshToken, _cancellationToken))
             .ReturnsAsync(expectedResult);
 
         // Act
-        var result = await _sut.ValidateTokenAsync(userId, refreshToken);
+        var result = await _sut.ValidateTokenAsync(userId, refreshToken, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedResult));
         _refreshTokenRepositoryMock.Verify(
-            x => x.ValidateTokenAsync(userId, refreshToken),
+            x => x.ValidateTokenAsync(userId, refreshToken, _cancellationToken),
             Times.Once
         );
     }
@@ -84,12 +84,12 @@ public class RefreshTokenServiceTests
         var refreshToken = _faker.Random.AlphaNumeric(44); // Simulating Base64 token length
 
         // Act
-        var result = await _sut.InvalidateRefreshTokenAsync(refreshToken);
+        var result = await _sut.InvalidateRefreshTokenAsync(refreshToken, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.Null);
         _refreshTokenRepositoryMock.Verify(
-            x => x.InvalidateRefreshTokenAsync(refreshToken),
+            x => x.InvalidateRefreshTokenAsync(refreshToken, _cancellationToken),
             Times.Once
         );
     }
@@ -104,7 +104,7 @@ public class RefreshTokenServiceTests
         // Act
         for (var i = 0; i < _faker.Random.Int(500, 1000); i++) // Random number of iterations for better coverage
         {
-            var result = await _sut.GenerateRefreshTokenAsync(userId);
+            var result = await _sut.GenerateRefreshTokenAsync(userId, _cancellationToken);
             tokens.Add(result.Data!);
         }
 
@@ -126,11 +126,11 @@ public class RefreshTokenServiceTests
         var refreshToken = _faker.Random.AlphaNumeric(44);
 
         _refreshTokenRepositoryMock
-            .Setup(x => x.ValidateTokenAsync(userId, refreshToken))
+            .Setup(x => x.ValidateTokenAsync(userId, refreshToken, _cancellationToken))
             .ReturnsAsync(expectedResult);
 
         // Act
-        var result = await _sut.ValidateTokenAsync(userId, refreshToken);
+        var result = await _sut.ValidateTokenAsync(userId, refreshToken, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedResult));
@@ -142,10 +142,10 @@ public class RefreshTokenServiceTests
         // Arrange
         var userId = _faker.Random.Guid();
 
-        _refreshTokenRepositoryMock.Setup(x => x.SaveChangesAsync());
+        _refreshTokenRepositoryMock.Setup(x => x.SaveChangesAsync(_cancellationToken));
 
         // Act
-        var result = await _sut.GenerateRefreshTokenAsync(userId);
+        var result = await _sut.GenerateRefreshTokenAsync(userId, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.Not.Null);
@@ -162,7 +162,7 @@ public class RefreshTokenServiceTests
         // Act
         foreach (var userId in userIds)
         {
-            var result = await _sut.GenerateRefreshTokenAsync(userId);
+            var result = await _sut.GenerateRefreshTokenAsync(userId, _cancellationToken);
             generatedTokens.Add((userId, result.Data!));
         }
 
@@ -194,14 +194,14 @@ public class RefreshTokenServiceTests
         // Act
         foreach (var token in refreshTokens)
         {
-            await _sut.InvalidateRefreshTokenAsync(token);
+            await _sut.InvalidateRefreshTokenAsync(token, _cancellationToken);
         }
 
         // Assert
         foreach (var token in refreshTokens)
         {
             _refreshTokenRepositoryMock.Verify(
-                x => x.InvalidateRefreshTokenAsync(token),
+                x => x.InvalidateRefreshTokenAsync(token, _cancellationToken),
                 Times.Once
             );
         }
