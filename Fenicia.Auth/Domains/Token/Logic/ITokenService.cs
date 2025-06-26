@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Data;
 using Fenicia.Common;
 using Fenicia.Common.Enums;

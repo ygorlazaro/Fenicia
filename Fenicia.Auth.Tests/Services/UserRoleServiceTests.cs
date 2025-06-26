@@ -1,6 +1,5 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Logic;
 
 using Microsoft.Extensions.Logging;
@@ -15,6 +14,7 @@ public class UserRoleServiceTests
     private Mock<IUserRoleRepository> _userRoleRepositoryMock;
     private UserRoleService _sut;
     private Faker _faker;
+    private CancellationToken _cancellationToken;
 
     [SetUp]
     public void Setup()
@@ -23,6 +23,7 @@ public class UserRoleServiceTests
         _userRoleRepositoryMock = new Mock<IUserRoleRepository>();
         _sut = new UserRoleService(_loggerMock.Object, _userRoleRepositoryMock.Object);
         _faker = new Faker();
+        _cancellationToken = CancellationToken.None;
     }
 
     [Test]
@@ -33,16 +34,16 @@ public class UserRoleServiceTests
         var expectedRoles = new[] { "Admin", "User", "Manager" };
 
         _userRoleRepositoryMock
-            .Setup(x => x.GetRolesByUserAsync(userId))
+            .Setup(x => x.GetRolesByUserAsync(userId, _cancellationToken))
             .ReturnsAsync(expectedRoles);
 
         // Act
-        var result = await _sut.GetRolesByUserAsync(userId);
+        var result = await _sut.GetRolesByUserAsync(userId, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedRoles));
 
-        _userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId), Times.Once);
+        _userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId, _cancellationToken), Times.Once);
     }
 
     [Test]
@@ -52,15 +53,15 @@ public class UserRoleServiceTests
         var userId = Guid.NewGuid();
         var emptyRoles = Array.Empty<string>();
 
-        _userRoleRepositoryMock.Setup(x => x.GetRolesByUserAsync(userId)).ReturnsAsync(emptyRoles);
+        _userRoleRepositoryMock.Setup(x => x.GetRolesByUserAsync(userId, _cancellationToken)).ReturnsAsync(emptyRoles);
 
         // Act
-        var result = await _sut.GetRolesByUserAsync(userId);
+        var result = await _sut.GetRolesByUserAsync(userId, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.Empty);
 
-        _userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId), Times.Once);
+        _userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId, _cancellationToken), Times.Once);
     }
 
     [Test]
@@ -72,16 +73,16 @@ public class UserRoleServiceTests
         var role = _faker.Random.ArrayElement(["Admin", "User", "Manager"]);
 
         _userRoleRepositoryMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, role))
+            .Setup(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken))
             .ReturnsAsync(true);
 
         // Act
-        var result = await _sut.HasRoleAsync(userId, companyId, role);
+        var result = await _sut.HasRoleAsync(userId, companyId, role, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.True);
 
-        _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role), Times.Once);
+        _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken), Times.Once);
     }
 
     [Test]
@@ -93,16 +94,16 @@ public class UserRoleServiceTests
         var role = "NonExistentRole";
 
         _userRoleRepositoryMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, role))
+            .Setup(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken))
             .ReturnsAsync(false);
 
         // Act
-        var result = await _sut.HasRoleAsync(userId, companyId, role);
+        var result = await _sut.HasRoleAsync(userId, companyId, role, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.False);
 
-        _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role), Times.Once);
+        _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken), Times.Once);
     }
 
     [TestCase("Admin")]
@@ -115,15 +116,15 @@ public class UserRoleServiceTests
         var companyId = Guid.NewGuid();
 
         _userRoleRepositoryMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, role))
+            .Setup(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken))
             .ReturnsAsync(true);
 
         // Act
-        var result = await _sut.HasRoleAsync(userId, companyId, role);
+        var result = await _sut.HasRoleAsync(userId, companyId, role, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.True);
 
-        _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role), Times.Once);
+        _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken), Times.Once);
     }
 }

@@ -8,7 +8,6 @@ using Fenicia.Auth.Domains.Role.Logic;
 using Fenicia.Auth.Domains.Security.Logic;
 using Fenicia.Auth.Domains.Token.Logic;
 using Fenicia.Auth.Domains.User.Data;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Data;
 using Fenicia.Auth.Domains.UserRole.Logic;
 using Fenicia.Common;

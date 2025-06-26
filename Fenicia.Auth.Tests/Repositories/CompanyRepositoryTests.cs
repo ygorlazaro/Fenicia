@@ -1,9 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Data;
 
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +14,7 @@ public class CompanyRepositoryTests
     private CompanyRepository _sut;
     private Faker _faker;
     private DbContextOptions<AuthContext> _options;
+    private CancellationToken _cancellationToken;
 
     [SetUp]
     public void Setup()
@@ -27,6 +26,7 @@ public class CompanyRepositoryTests
         _context = new AuthContext(_options);
         _sut = new CompanyRepository(_context);
         _faker = new Faker();
+        _cancellationToken = CancellationToken.None;
     }
 
     [TearDown]
@@ -46,11 +46,11 @@ public class CompanyRepositoryTests
             Name = _faker.Company.CompanyName(),
             Cnpj = _faker.Random.String2(14, "0123456789")
         };
-        await _context.Companies.AddAsync(company);
-        await _context.SaveChangesAsync();
+        await _context.Companies.AddAsync(company, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.CheckCompanyExistsAsync(company.Id);
+        var result = await _sut.CheckCompanyExistsAsync(company.Id, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -60,7 +60,7 @@ public class CompanyRepositoryTests
     public async Task CheckCompanyExistsAsync_ById_ReturnsFalse_WhenNotExists()
     {
         // Act
-        var result = await _sut.CheckCompanyExistsAsync(Guid.NewGuid());
+        var result = await _sut.CheckCompanyExistsAsync(Guid.NewGuid(), _cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -76,11 +76,11 @@ public class CompanyRepositoryTests
             Name = _faker.Company.CompanyName(),
             Cnpj = _faker.Random.String2(14, "0123456789")
         };
-        await _context.Companies.AddAsync(company);
-        await _context.SaveChangesAsync();
+        await _context.Companies.AddAsync(company, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.CheckCompanyExistsAsync(company.Cnpj);
+        var result = await _sut.CheckCompanyExistsAsync(company.Cnpj, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -99,10 +99,10 @@ public class CompanyRepositoryTests
 
         // Act
         _sut.Add(company);
-        await _sut.SaveAsync();
+        await _sut.SaveAsync(_cancellationToken);
 
         // Assert
-        var savedCompany = await _context.Companies.FindAsync(company.Id);
+        var savedCompany = await _context.Companies.FindAsync([company.Id], _cancellationToken);
         Assert.That(savedCompany, Is.Not.Null);
         Assert.Multiple(() =>
         {
@@ -121,11 +121,11 @@ public class CompanyRepositoryTests
             Name = _faker.Company.CompanyName(),
             Cnpj = _faker.Random.String2(14, "0123456789")
         };
-        await _context.Companies.AddAsync(company);
-        await _context.SaveChangesAsync();
+        await _context.Companies.AddAsync(company, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetByCnpjAsync(company.Cnpj);
+        var result = await _sut.GetByCnpjAsync(company.Cnpj, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -163,13 +163,13 @@ public class CompanyRepositoryTests
             userRoles.Add(userRole);
         }
 
-        await _context.Companies.AddRangeAsync(companies);
-        await _context.UserRoles.AddRangeAsync(userRoles);
-        await _context.SaveChangesAsync();
+        await _context.Companies.AddRangeAsync(companies, _cancellationToken);
+        await _context.UserRoles.AddRangeAsync(userRoles, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var page1 = await _sut.GetByUserIdAsync(userId, page: 1, perPage: 10);
-        var page2 = await _sut.GetByUserIdAsync(userId, page: 2, perPage: 10);
+        var page1 = await _sut.GetByUserIdAsync(userId,_cancellationToken, page: 1, perPage: 10);
+        var page2 = await _sut.GetByUserIdAsync(userId, _cancellationToken, page: 2, perPage: 10);
 
         Assert.Multiple(() =>
         {
@@ -207,12 +207,12 @@ public class CompanyRepositoryTests
             userRoles.Add(userRole);
         }
 
-        await _context.Companies.AddRangeAsync(companies);
-        await _context.UserRoles.AddRangeAsync(userRoles);
-        await _context.SaveChangesAsync();
+        await _context.Companies.AddRangeAsync(companies, _cancellationToken);
+        await _context.UserRoles.AddRangeAsync(userRoles, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var count = await _sut.CountByUserIdAsync(userId);
+        var count = await _sut.CountByUserIdAsync(userId, _cancellationToken);
 
         // Assert
         Assert.That(count, Is.EqualTo(expectedCount));
@@ -228,18 +228,18 @@ public class CompanyRepositoryTests
             Name = _faker.Company.CompanyName(),
             Cnpj = _faker.Random.String2(14, "0123456789")
         };
-        await _context.Companies.AddAsync(company);
-        await _context.SaveChangesAsync();
+        await _context.Companies.AddAsync(company, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         var updatedName = _faker.Company.CompanyName();
         company.Name = updatedName;
 
         // Act
         _sut.PatchAsync(company);
-        await _sut.SaveAsync();
+        await _sut.SaveAsync(_cancellationToken);
 
         // Assert
-        var updatedCompany = await _context.Companies.FindAsync(company.Id);
+        var updatedCompany = await _context.Companies.FindAsync([company.Id], _cancellationToken);
         Assert.That(updatedCompany, Is.Not.Null);
         Assert.That(updatedCompany.Name, Is.EqualTo(updatedName));
     }
@@ -251,7 +251,7 @@ public class CompanyRepositoryTests
         var userId = Guid.NewGuid();
 
         // Act
-        var result = await _sut.GetByUserIdAsync(userId);
+        var result = await _sut.GetByUserIdAsync(userId, cancellationToken: _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);

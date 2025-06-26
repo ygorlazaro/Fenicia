@@ -1,9 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Role.Data;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Data;
 using Fenicia.Auth.Domains.UserRole.Logic;
 
@@ -18,6 +16,7 @@ public class UserRoleRepositoryTests
     private DbContextOptions<AuthContext> _options;
     private Faker<UserRoleModel> _userRoleGenerator;
     private Faker<RoleModel> _roleGenerator;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
@@ -71,11 +70,11 @@ public class UserRoleRepositoryTests
             )
             .ToList();
 
-        await _context.UserRoles.AddRangeAsync(userRoles);
-        await _context.SaveChangesAsync();
+        await _context.UserRoles.AddRangeAsync(userRoles, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetRolesByUserAsync(userId);
+        var result = await _sut.GetRolesByUserAsync(userId, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -90,7 +89,7 @@ public class UserRoleRepositoryTests
         var userId = Guid.NewGuid();
 
         // Act
-        var result = await _sut.GetRolesByUserAsync(userId);
+        var result = await _sut.GetRolesByUserAsync(userId, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -108,11 +107,11 @@ public class UserRoleRepositoryTests
             .RuleFor(ur => ur.CompanyId, companyId)
             .Generate();
 
-        await _context.UserRoles.AddAsync(userRole);
-        await _context.SaveChangesAsync();
+        await _context.UserRoles.AddAsync(userRole, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.ExistsInCompanyAsync(userId, companyId);
+        var result = await _sut.ExistsInCompanyAsync(userId, companyId, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -126,7 +125,7 @@ public class UserRoleRepositoryTests
         var companyId = Guid.NewGuid();
 
         // Act
-        var result = await _sut.ExistsInCompanyAsync(userId, companyId);
+        var result = await _sut.ExistsInCompanyAsync(userId, companyId,_cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -138,7 +137,7 @@ public class UserRoleRepositoryTests
         // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var roleName = "Admin";
+        const string roleName = "Admin";
         var userRole = _userRoleGenerator
             .Clone()
             .RuleFor(ur => ur.UserId, userId)
@@ -149,11 +148,11 @@ public class UserRoleRepositoryTests
             )
             .Generate();
 
-        await _context.UserRoles.AddAsync(userRole);
-        await _context.SaveChangesAsync();
+        await _context.UserRoles.AddAsync(userRole, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.HasRoleAsync(userId, companyId, roleName);
+        var result = await _sut.HasRoleAsync(userId, companyId, roleName,_cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -165,7 +164,7 @@ public class UserRoleRepositoryTests
         // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var roleName = "Admin";
+        const string roleName = "Admin";
         var userRole = _userRoleGenerator
             .Clone()
             .RuleFor(ur => ur.UserId, userId)
@@ -176,11 +175,11 @@ public class UserRoleRepositoryTests
             )
             .Generate();
 
-        await _context.UserRoles.AddAsync(userRole);
-        await _context.SaveChangesAsync();
+        await _context.UserRoles.AddAsync(userRole, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.HasRoleAsync(userId, companyId, roleName);
+        var result = await _sut.HasRoleAsync(userId, companyId, roleName, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -195,7 +194,7 @@ public class UserRoleRepositoryTests
         var roleName = "Admin";
 
         // Act
-        var result = await _sut.HasRoleAsync(userId, companyId, roleName);
+        var result = await _sut.HasRoleAsync(userId, companyId, roleName, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);

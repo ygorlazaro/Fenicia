@@ -4,17 +4,12 @@ using AutoMapper;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.Data;
 using Fenicia.Auth.Domains.Module.Logic;
-using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.Data;
 using Fenicia.Auth.Domains.Order.Logic;
-using Fenicia.Auth.Domains.OrderDetail;
 using Fenicia.Auth.Domains.OrderDetail.Data;
-using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.Logic;
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Logic;
 using Fenicia.Auth.Enums;
 using Fenicia.Common;
@@ -36,6 +31,7 @@ public class OrderServiceTests
     private Mock<IUserService> _userServiceMock;
     private OrderService _sut;
     private Faker _faker;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
@@ -68,11 +64,11 @@ public class OrderServiceTests
         var request = new OrderRequest { Details = new List<OrderDetailRequest>() };
 
         _userServiceMock
-            .Setup(x => x.ExistsInCompanyAsync(userId, companyId))
+            .Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken))
             .ReturnsAsync(new ApiResponse<bool>(false));
 
         // Act
-        var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
+        var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -97,21 +93,21 @@ public class OrderServiceTests
         var emptyModulesList = new List<ModuleResponse>();
 
         _userServiceMock
-            .Setup(x => x.ExistsInCompanyAsync(userId, companyId))
+            .Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken))
             .ReturnsAsync(new ApiResponse<bool>(true));
 
         _moduleServiceMock
-            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), TODO))
+            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken))
             .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(emptyModulesList));
 
         _moduleServiceMock
-            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, TODO))
+            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken))
             .ReturnsAsync(new ApiResponse<ModuleResponse>(null));
 
         _mapperMock.Setup(x => x.Map<List<ModuleModel>>(emptyModulesList)).Returns([]);
 
         // Act
-        var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
+        var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -177,15 +173,15 @@ public class OrderServiceTests
         };
 
         _userServiceMock
-            .Setup(x => x.ExistsInCompanyAsync(userId, companyId))
+            .Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken))
             .ReturnsAsync(new ApiResponse<bool>(true));
 
         _moduleServiceMock
-            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), TODO))
+            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken))
             .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
         _moduleServiceMock
-            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, TODO))
+            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken))
             .ReturnsAsync(new ApiResponse<ModuleResponse>(basicModuleResponse));
 
         _mapperMock
@@ -201,7 +197,7 @@ public class OrderServiceTests
             .Returns(new OrderResponse { Id = expectedOrder.Id });
 
         // Act
-        var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
+        var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -213,7 +209,8 @@ public class OrderServiceTests
         _orderRepositoryMock.Verify(
             x =>
                 x.SaveOrderAsync(
-                    It.Is<OrderModel>(o => o.UserId == userId && o.Status == OrderStatus.Approved)
+                    It.Is<OrderModel>(o => o.UserId == userId && o.Status == OrderStatus.Approved),
+                    _cancellationToken
                 ),
             Times.Once
         );
@@ -223,7 +220,7 @@ public class OrderServiceTests
                 x.CreateCreditsForOrderAsync(
                     It.IsAny<OrderModel>(),
                     It.IsAny<List<OrderDetailModel>>(),
-                    companyId
+                    companyId, _cancellationToken
                 ),
             Times.Once
         );
@@ -264,11 +261,11 @@ public class OrderServiceTests
         };
 
         _userServiceMock
-            .Setup(x => x.ExistsInCompanyAsync(userId, companyId))
+            .Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken))
             .ReturnsAsync(new ApiResponse<bool>(true));
 
         _moduleServiceMock
-            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), TODO))
+            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken))
             .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
         _mapperMock.Setup(x => x.Map<List<ModuleModel>>(moduleResponses)).Returns(moduleModels);
@@ -278,10 +275,10 @@ public class OrderServiceTests
             .Returns(new OrderResponse { Id = Guid.NewGuid() });
 
         // Act
-        var result = await _sut.CreateNewOrderAsync(userId, companyId, request);
+        var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        _moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, TODO), Times.Never);
+        _moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken), Times.Never);
     }
 }

@@ -4,7 +4,6 @@ using AutoMapper;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.Data;
 using Fenicia.Auth.Domains.Module.Logic;
 using Fenicia.Common;
@@ -23,6 +22,7 @@ public class ModuleServiceTests
     private Mock<IModuleRepository> _moduleRepositoryMock;
     private ModuleService _sut;
     private Faker _faker;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
@@ -51,12 +51,12 @@ public class ModuleServiceTests
             .Select(m => new ModuleResponse { Id = m.Id, Name = m.Name })
             .ToList();
 
-        _moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(page: 1, perPage: 10)).ReturnsAsync(modules);
+        _moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(_cancellationToken, 1, 10)).ReturnsAsync(modules);
 
         _mapperMock.Setup(x => x.Map<List<ModuleResponse>>(modules)).Returns(expectedResponse);
 
         // Act
-        var result = await _sut.GetAllOrderedAsync();
+        var result = await _sut.GetAllOrderedAsync(_cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -78,12 +78,12 @@ public class ModuleServiceTests
             .Select(m => new ModuleResponse { Id = m.Id, Name = m.Name })
             .ToList();
 
-        _moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIds)).ReturnsAsync(modules);
+        _moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIds, _cancellationToken)).ReturnsAsync(modules);
 
         _mapperMock.Setup(x => x.Map<List<ModuleResponse>>(modules)).Returns(expectedResponse);
 
         // Act
-        var result = await _sut.GetModulesToOrderAsync(moduleIds, TODO);
+        var result = await _sut.GetModulesToOrderAsync(moduleIds, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -111,12 +111,12 @@ public class ModuleServiceTests
             Type = moduleType
         };
 
-        _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType)).ReturnsAsync(module);
+        _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, _cancellationToken)).ReturnsAsync(module);
 
         _mapperMock.Setup(x => x.Map<ModuleResponse>(module)).Returns(expectedResponse);
 
         // Act
-        var result = await _sut.GetModuleByTypeAsync(moduleType, TODO);
+        var result = await _sut.GetModuleByTypeAsync(moduleType, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -133,11 +133,11 @@ public class ModuleServiceTests
         const ModuleType moduleType = ModuleType.Ecommerce;
 
         _moduleRepositoryMock
-            .Setup(x => x.GetModuleByTypeAsync(moduleType))
+            .Setup(x => x.GetModuleByTypeAsync(moduleType, _cancellationToken))
             .ReturnsAsync((ModuleModel)null!);
 
         // Act
-        var result = await _sut.GetModuleByTypeAsync(moduleType, TODO);
+        var result = await _sut.GetModuleByTypeAsync(moduleType, _cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -153,10 +153,10 @@ public class ModuleServiceTests
         // Arrange
         var expectedCount = _faker.Random.Int(1, 100);
 
-        _moduleRepositoryMock.Setup(x => x.CountAsync()).ReturnsAsync(expectedCount);
+        _moduleRepositoryMock.Setup(x => x.CountAsync(_cancellationToken)).ReturnsAsync(expectedCount);
 
         // Act
-        var result = await _sut.CountAsync();
+        var result = await _sut.CountAsync(_cancellationToken);
 
         Assert.Multiple(() =>
         {

@@ -1,12 +1,9 @@
 using Bogus;
 
 using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Data;
 using Fenicia.Auth.Domains.User.Logic;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Data;
 
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +18,7 @@ public class UserRepositoryTests
     private Faker<UserModel> _userGenerator;
     private Faker<CompanyModel> _companyGenerator;
     private Faker<UserRoleModel> _userRoleGenerator;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
@@ -73,13 +71,13 @@ public class UserRepositoryTests
             .RuleFor(ur => ur.CompanyId, company.Id)
             .Generate();
 
-        await _context.Users.AddAsync(user);
-        await _context.Companies.AddAsync(company);
-        await _context.UserRoles.AddAsync(userRole);
-        await _context.SaveChangesAsync();
+        await _context.Users.AddAsync(user, _cancellationToken);
+        await _context.Companies.AddAsync(company, _cancellationToken);
+        await _context.UserRoles.AddAsync(userRole, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetByEmailAndCnpjAsync(user.Email, company.Cnpj);
+        var result = await _sut.GetByEmailAndCnpjAsync(user.Email, company.Cnpj, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -94,11 +92,11 @@ public class UserRepositoryTests
     public async Task GetByEmailAndCnpjAsync_WhenUserDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var nonExistentEmail = "nonexistent@example.com";
-        var nonExistentCnpj = "00.000.000/0000-00";
+        const string nonExistentEmail = "nonexistent@example.com";
+        const string nonExistentCnpj = "00.000.000/0000-00";
 
         // Act
-        var result = await _sut.GetByEmailAndCnpjAsync(nonExistentEmail, nonExistentCnpj);
+        var result = await _sut.GetByEmailAndCnpjAsync(nonExistentEmail, nonExistentCnpj, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -129,11 +127,11 @@ public class UserRepositoryTests
         _sut.Add(user);
 
         // Act
-        var saveResult = await _sut.SaveAsync();
+        var saveResult = await _sut.SaveAsync(_cancellationToken);
 
         // Assert
         Assert.That(saveResult, Is.GreaterThan(0));
-        var savedUser = await _context.Users.FindAsync(user.Id);
+        var savedUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == user.Id, _cancellationToken);
         Assert.That(savedUser, Is.Not.Null);
         Assert.That(savedUser!.Email, Is.EqualTo(user.Email));
     }
@@ -143,11 +141,11 @@ public class UserRepositoryTests
     {
         // Arrange
         var user = _userGenerator.Generate();
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
+        await _context.Users.AddAsync(user, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.CheckUserExistsAsync(user.Email);
+        var result = await _sut.CheckUserExistsAsync(user.Email, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -160,7 +158,7 @@ public class UserRepositoryTests
         var nonExistentEmail = "nonexistent@example.com";
 
         // Act
-        var result = await _sut.CheckUserExistsAsync(nonExistentEmail);
+        var result = await _sut.CheckUserExistsAsync(nonExistentEmail, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -171,11 +169,11 @@ public class UserRepositoryTests
     {
         // Arrange
         var user = _userGenerator.Generate();
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
+        await _context.Users.AddAsync(user, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetUserForRefreshTokenAsync(user.Id);
+        var result = await _sut.GetUserForRefreshTokenAsync(user.Id, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -193,7 +191,7 @@ public class UserRepositoryTests
         var nonExistentUserId = Guid.NewGuid();
 
         // Act
-        var result = await _sut.GetUserForRefreshTokenAsync(nonExistentUserId);
+        var result = await _sut.GetUserForRefreshTokenAsync(nonExistentUserId, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);

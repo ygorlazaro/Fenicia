@@ -3,7 +3,6 @@ using System.Net;
 using AutoMapper;
 
 using Fenicia.Auth.Domains.DataCache;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Auth.Domains.UserRole.Logic;
 using Fenicia.Common;
 

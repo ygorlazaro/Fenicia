@@ -1,6 +1,5 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Data;
 using Fenicia.Auth.Domains.User.Logic;
 

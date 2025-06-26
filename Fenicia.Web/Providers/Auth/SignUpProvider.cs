@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.Data;
 
 namespace Fenicia.Web.Providers.Auth;
