@@ -1,11 +1,17 @@
 using AutoMapper;
 
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Company.Logic;
 using Fenicia.Auth.Domains.ForgotPassword;
+using Fenicia.Auth.Domains.ForgotPassword.Data;
 using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Module.Data;
 using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.Order.Data;
 using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.Subscription.Data;
 using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.User.Data;
 
 namespace Fenicia.Auth;
 

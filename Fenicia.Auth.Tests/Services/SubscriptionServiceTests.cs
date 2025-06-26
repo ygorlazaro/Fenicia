@@ -3,8 +3,12 @@ using System.Net;
 using AutoMapper;
 
 using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.Order.Data;
 using Fenicia.Auth.Domains.OrderDetail;
+using Fenicia.Auth.Domains.OrderDetail.Data;
 using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.Subscription.Data;
+using Fenicia.Auth.Domains.Subscription.Logic;
 using Fenicia.Auth.Enums;
 
 using Microsoft.Extensions.Logging;
@@ -113,7 +117,7 @@ public class SubscriptionServiceTests
             .ReturnsAsync(expectedSubscriptions);
 
         // Act
-        var result = await _sut.GetValidSubscriptionsAsync(companyId);
+        var result = await _sut.GetValidSubscriptionsAsync(companyId, TODO);
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedSubscriptions));
@@ -133,7 +137,7 @@ public class SubscriptionServiceTests
             .ReturnsAsync(emptyList);
 
         // Act
-        var result = await _sut.GetValidSubscriptionsAsync(companyId);
+        var result = await _sut.GetValidSubscriptionsAsync(companyId, TODO);
 
         // Assert
         Assert.That(result.Data, Is.Empty);

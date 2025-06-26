@@ -1,5 +1,7 @@
 using System.Net.Mime;
 
+using Fenicia.Auth.Domains.Order.Data;
+using Fenicia.Auth.Domains.Order.Logic;
 using Fenicia.Common.Api;
 
 using Microsoft.AspNetCore.Authorization;
@@ -24,12 +26,12 @@ public class OrderController(ILogger<OrderController> logger, IOrderService orde
     [HttpPost]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(OrderRequest request)
+    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(OrderRequest request, CancellationToken cancellationToken)
     {
         var userId = ClaimReader.UserId(User);
         var companyId = ClaimReader.CompanyId(User);
 
-        var order = await orderService.CreateNewOrderAsync(userId, companyId, request);
+        var order = await orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
 
         if (order.Data is null)
         {

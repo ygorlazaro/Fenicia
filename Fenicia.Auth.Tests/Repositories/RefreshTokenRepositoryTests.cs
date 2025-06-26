@@ -2,6 +2,8 @@ using Bogus;
 
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.RefreshToken.Data;
+using Fenicia.Auth.Domains.RefreshToken.Logic;
 
 using Microsoft.EntityFrameworkCore;
 

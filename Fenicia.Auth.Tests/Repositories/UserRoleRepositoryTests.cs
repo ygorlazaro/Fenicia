@@ -2,7 +2,10 @@ using Bogus;
 
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Role.Data;
 using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.UserRole.Data;
+using Fenicia.Auth.Domains.UserRole.Logic;
 
 using Microsoft.EntityFrameworkCore;
 

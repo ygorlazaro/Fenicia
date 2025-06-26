@@ -3,6 +3,8 @@ using System.Text.RegularExpressions;
 using Bogus;
 
 using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.RefreshToken.Data;
+using Fenicia.Auth.Domains.RefreshToken.Logic;
 
 using Microsoft.Extensions.Logging;
 

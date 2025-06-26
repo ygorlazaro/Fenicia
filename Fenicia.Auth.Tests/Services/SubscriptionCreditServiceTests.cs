@@ -1,7 +1,9 @@
 using System.Net;
 
 using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.Subscription.Logic;
 using Fenicia.Auth.Domains.SubscriptionCredit;
+using Fenicia.Auth.Domains.SubscriptionCredit.Logic;
 using Fenicia.Common;
 using Fenicia.Common.Enums;
 
@@ -45,7 +47,7 @@ public class SubscriptionCreditServiceTests
         };
 
         _subscriptionServiceMock
-            .Setup(x => x.GetValidSubscriptionsAsync(companyId))
+            .Setup(x => x.GetValidSubscriptionsAsync(companyId, TODO))
             .ReturnsAsync(new ApiResponse<List<Guid>>(validSubscriptions)); // Replace object with your actual type
 
         _subscriptionCreditRepositoryMock
@@ -53,12 +55,12 @@ public class SubscriptionCreditServiceTests
             .ReturnsAsync(expectedModuleTypes);
 
         // Act
-        var result = await _sut.GetActiveModulesTypesAsync(companyId);
+        var result = await _sut.GetActiveModulesTypesAsync(companyId, TODO);
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedModuleTypes));
 
-        _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId), Times.Once);
+        _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, TODO), Times.Once);
         _subscriptionCreditRepositoryMock.Verify(
             x => x.GetValidModulesTypesAsync(validSubscriptions),
             Times.Once
@@ -78,11 +80,11 @@ public class SubscriptionCreditServiceTests
         );
 
         _subscriptionServiceMock
-            .Setup(x => x.GetValidSubscriptionsAsync(companyId))
+            .Setup(x => x.GetValidSubscriptionsAsync(companyId, TODO))
             .ReturnsAsync(errorResponse);
 
         // Act
-        var result = await _sut.GetActiveModulesTypesAsync(companyId);
+        var result = await _sut.GetActiveModulesTypesAsync(companyId, TODO);
 
         Assert.Multiple(() =>
         {
@@ -92,7 +94,7 @@ public class SubscriptionCreditServiceTests
             Assert.That(result.Data, Is.Null);
         });
 
-        _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId), Times.Once);
+        _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, TODO), Times.Once);
         _subscriptionCreditRepositoryMock.Verify(
             x => x.GetValidModulesTypesAsync(It.IsAny<List<Guid>>()),
             Times.Never
@@ -108,7 +110,7 @@ public class SubscriptionCreditServiceTests
         var emptyModuleTypes = new List<ModuleType>();
 
         _subscriptionServiceMock
-            .Setup(x => x.GetValidSubscriptionsAsync(companyId))
+            .Setup(x => x.GetValidSubscriptionsAsync(companyId, TODO))
             .ReturnsAsync(new ApiResponse<List<Guid>>(validSubscriptions));
 
         _subscriptionCreditRepositoryMock
@@ -116,12 +118,12 @@ public class SubscriptionCreditServiceTests
             .ReturnsAsync(emptyModuleTypes);
 
         // Act
-        var result = await _sut.GetActiveModulesTypesAsync(companyId);
+        var result = await _sut.GetActiveModulesTypesAsync(companyId, TODO);
 
         // Assert
         Assert.That(result.Data, Is.Empty);
 
-        _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId), Times.Once);
+        _subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, TODO), Times.Once);
         _subscriptionCreditRepositoryMock.Verify(
             x => x.GetValidModulesTypesAsync(validSubscriptions),
             Times.Once

@@ -5,10 +5,17 @@ using AutoMapper;
 using Bogus;
 
 using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Module.Data;
+using Fenicia.Auth.Domains.Module.Logic;
 using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.Order.Data;
+using Fenicia.Auth.Domains.Order.Logic;
 using Fenicia.Auth.Domains.OrderDetail;
+using Fenicia.Auth.Domains.OrderDetail.Data;
 using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.Subscription.Logic;
 using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.User.Logic;
 using Fenicia.Auth.Enums;
 using Fenicia.Common;
 using Fenicia.Common.Enums;
@@ -94,11 +101,11 @@ public class OrderServiceTests
             .ReturnsAsync(new ApiResponse<bool>(true));
 
         _moduleServiceMock
-            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>()))
+            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), TODO))
             .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(emptyModulesList));
 
         _moduleServiceMock
-            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic))
+            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, TODO))
             .ReturnsAsync(new ApiResponse<ModuleResponse>(null));
 
         _mapperMock.Setup(x => x.Map<List<ModuleModel>>(emptyModulesList)).Returns([]);
@@ -174,11 +181,11 @@ public class OrderServiceTests
             .ReturnsAsync(new ApiResponse<bool>(true));
 
         _moduleServiceMock
-            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>()))
+            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), TODO))
             .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
         _moduleServiceMock
-            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic))
+            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, TODO))
             .ReturnsAsync(new ApiResponse<ModuleResponse>(basicModuleResponse));
 
         _mapperMock
@@ -261,7 +268,7 @@ public class OrderServiceTests
             .ReturnsAsync(new ApiResponse<bool>(true));
 
         _moduleServiceMock
-            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>()))
+            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), TODO))
             .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
         _mapperMock.Setup(x => x.Map<List<ModuleModel>>(moduleResponses)).Returns(moduleModels);
@@ -275,6 +282,6 @@ public class OrderServiceTests
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        _moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic), Times.Never);
+        _moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, TODO), Times.Never);
     }
 }

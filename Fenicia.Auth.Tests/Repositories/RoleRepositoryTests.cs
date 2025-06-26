@@ -1,5 +1,7 @@
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Role.Data;
+using Fenicia.Auth.Domains.Role.Logic;
 
 using Microsoft.EntityFrameworkCore;
 

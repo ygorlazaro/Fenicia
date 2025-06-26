@@ -5,6 +5,8 @@ using AutoMapper;
 using Bogus;
 
 using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Module.Data;
+using Fenicia.Auth.Domains.Module.Logic;
 using Fenicia.Common;
 using Fenicia.Common.Enums;
 
@@ -49,7 +51,7 @@ public class ModuleServiceTests
             .Select(m => new ModuleResponse { Id = m.Id, Name = m.Name })
             .ToList();
 
-        _moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(1, 10)).ReturnsAsync(modules);
+        _moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(page: 1, perPage: 10)).ReturnsAsync(modules);
 
         _mapperMock.Setup(x => x.Map<List<ModuleResponse>>(modules)).Returns(expectedResponse);
 
@@ -81,7 +83,7 @@ public class ModuleServiceTests
         _mapperMock.Setup(x => x.Map<List<ModuleResponse>>(modules)).Returns(expectedResponse);
 
         // Act
-        var result = await _sut.GetModulesToOrderAsync(moduleIds);
+        var result = await _sut.GetModulesToOrderAsync(moduleIds, TODO);
 
         Assert.Multiple(() =>
         {
@@ -114,7 +116,7 @@ public class ModuleServiceTests
         _mapperMock.Setup(x => x.Map<ModuleResponse>(module)).Returns(expectedResponse);
 
         // Act
-        var result = await _sut.GetModuleByTypeAsync(moduleType);
+        var result = await _sut.GetModuleByTypeAsync(moduleType, TODO);
 
         Assert.Multiple(() =>
         {
@@ -135,7 +137,7 @@ public class ModuleServiceTests
             .ReturnsAsync((ModuleModel)null!);
 
         // Act
-        var result = await _sut.GetModuleByTypeAsync(moduleType);
+        var result = await _sut.GetModuleByTypeAsync(moduleType, TODO);
 
         Assert.Multiple(() =>
         {

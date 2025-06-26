@@ -3,6 +3,7 @@ using System.Net;
 using Bogus;
 
 using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.Security.Logic;
 
 namespace Fenicia.Auth.Tests.Services;
 
@@ -149,7 +150,10 @@ public class SecurityServiceTests
             for (var j = 0; j < passwordCount; j++)
             {
                 if (i == j)
+                {
                     continue;
+                }
+
                 var incorrectResult = _sut.VerifyPassword(passwords[i], hashedPasswords[j]!);
                 Assert.That(
                     incorrectResult.Data,

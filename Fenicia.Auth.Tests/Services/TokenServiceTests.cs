@@ -3,7 +3,9 @@ using System.IdentityModel.Tokens.Jwt;
 using Bogus;
 
 using Fenicia.Auth.Domains.Token;
+using Fenicia.Auth.Domains.Token.Logic;
 using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.User.Data;
 using Fenicia.Common.Enums;
 
 using Microsoft.Extensions.Configuration;

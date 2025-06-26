@@ -5,7 +5,9 @@ using AutoMapper;
 using Bogus;
 
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Company.Logic;
 using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.UserRole.Logic;
 using Fenicia.Common;
 
 using Microsoft.Extensions.Logging;

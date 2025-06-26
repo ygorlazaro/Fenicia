@@ -1,6 +1,8 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.User.Data;
+using Fenicia.Auth.Domains.User.Logic;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,9 +26,9 @@ public class SignUpController(ILogger<SignUpController> logger, IUserService use
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UserResponse>> CreateNewUserAsync(UserRequest request)
+    public async Task<ActionResult<UserResponse>> CreateNewUserAsync(UserRequest request, CancellationToken cancellationToken)
     {
-        var userResponse = await userService.CreateNewUserAsync(request);
+        var userResponse = await userService.CreateNewUserAsync(request, cancellationToken);
 
         if (userResponse.Data is null)
         {
