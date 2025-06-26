@@ -84,7 +84,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("addresses", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Company.CompanyModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Company.Data.CompanyModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -149,7 +149,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("companies", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.ForgotPassword.ForgotPasswordModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.ForgotPassword.Data.ForgotPasswordModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -158,7 +158,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("code");
 
                     b.Property<DateTime>("Created")
@@ -194,7 +195,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("forgotten_passwords", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Module.ModuleModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Module.Data.ModuleModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -202,7 +203,8 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnName("id");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
                         .HasColumnName("amount");
 
                     b.Property<DateTime>("Created")
@@ -233,7 +235,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("modules", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Order.OrderModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Order.Data.OrderModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -261,7 +263,7 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnName("status");
 
                     b.Property<decimal>("TotalAmount")
-                        .HasColumnType("numeric")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("total_amount");
 
                     b.Property<DateTime?>("Updated")
@@ -284,7 +286,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("orders", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.OrderDetail.OrderDetailModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.OrderDetail.Data.OrderDetailModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -292,7 +294,7 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnName("id");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric")
+                        .HasColumnType("decimal(18,2)")
                         .HasColumnName("amount");
 
                     b.Property<DateTime>("Created")
@@ -327,7 +329,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("order_details", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.RefreshToken.RefreshTokenModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.RefreshToken.Data.RefreshTokenModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -373,7 +375,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("refresh_tokens", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Role.RoleModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Role.Data.RoleModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -404,7 +406,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("roles", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.State.StateModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.State.Data.StateModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -441,7 +443,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("states", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Subscription.SubscriptionModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Subscription.Data.SubscriptionModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -493,7 +495,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("subscriptions", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.SubscriptionCredit.SubscriptionCreditModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.SubscriptionCredit.Data.SubscriptionCreditModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -552,7 +554,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("subscription_credits", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.User.UserModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.User.Data.UserModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -595,7 +597,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.UserRole.UserRoleModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.UserRole.Data.UserRoleModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -643,7 +645,7 @@ namespace Fenicia.Auth.Migrations
 
             modelBuilder.Entity("Fenicia.Auth.Domains.Address.AddressModel", b =>
                 {
-                    b.HasOne("Fenicia.Auth.Domains.State.StateModel", "State")
+                    b.HasOne("Fenicia.Auth.Domains.State.Data.StateModel", "State")
                         .WithMany("Addresses")
                         .HasForeignKey("StateId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -653,7 +655,7 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("State");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Company.CompanyModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Company.Data.CompanyModel", b =>
                 {
                     b.HasOne("Fenicia.Auth.Domains.Address.AddressModel", "Address")
                         .WithMany()
@@ -663,9 +665,9 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Address");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.ForgotPassword.ForgotPasswordModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.ForgotPassword.Data.ForgotPasswordModel", b =>
                 {
-                    b.HasOne("Fenicia.Auth.Domains.User.UserModel", "User")
+                    b.HasOne("Fenicia.Auth.Domains.User.Data.UserModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -675,16 +677,16 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Order.OrderModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Order.Data.OrderModel", b =>
                 {
-                    b.HasOne("Fenicia.Auth.Domains.Company.CompanyModel", "Company")
+                    b.HasOne("Fenicia.Auth.Domains.Company.Data.CompanyModel", "Company")
                         .WithMany("Orders")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_orders_companies_company_id");
 
-                    b.HasOne("Fenicia.Auth.Domains.User.UserModel", "User")
+                    b.HasOne("Fenicia.Auth.Domains.User.Data.UserModel", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -696,16 +698,16 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.OrderDetail.OrderDetailModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.OrderDetail.Data.OrderDetailModel", b =>
                 {
-                    b.HasOne("Fenicia.Auth.Domains.Module.ModuleModel", "Module")
+                    b.HasOne("Fenicia.Auth.Domains.Module.Data.ModuleModel", "Module")
                         .WithMany("OrderDetails")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_order_details_modules_module_id");
 
-                    b.HasOne("Fenicia.Auth.Domains.Order.OrderModel", "Order")
+                    b.HasOne("Fenicia.Auth.Domains.Order.Data.OrderModel", "Order")
                         .WithMany("Details")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -717,9 +719,9 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.RefreshToken.RefreshTokenModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.RefreshToken.Data.RefreshTokenModel", b =>
                 {
-                    b.HasOne("Fenicia.Auth.Domains.User.UserModel", "User")
+                    b.HasOne("Fenicia.Auth.Domains.User.Data.UserModel", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -729,18 +731,18 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Subscription.SubscriptionModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Subscription.Data.SubscriptionModel", b =>
                 {
-                    b.HasOne("Fenicia.Auth.Domains.Company.CompanyModel", "Company")
+                    b.HasOne("Fenicia.Auth.Domains.Company.Data.CompanyModel", "Company")
                         .WithMany("Subscriptions")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_subscriptions_companies_company_id");
 
-                    b.HasOne("Fenicia.Auth.Domains.Order.OrderModel", "Order")
+                    b.HasOne("Fenicia.Auth.Domains.Order.Data.OrderModel", "Order")
                         .WithOne("Subscription")
-                        .HasForeignKey("Fenicia.Auth.Domains.Subscription.SubscriptionModel", "OrderId")
+                        .HasForeignKey("Fenicia.Auth.Domains.Subscription.Data.SubscriptionModel", "OrderId")
                         .HasConstraintName("fk_subscriptions_orders_order_id");
 
                     b.Navigation("Company");
@@ -748,21 +750,21 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.SubscriptionCredit.SubscriptionCreditModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.SubscriptionCredit.Data.SubscriptionCreditModel", b =>
                 {
-                    b.HasOne("Fenicia.Auth.Domains.Module.ModuleModel", "Module")
-                        .WithMany("SubscriptioCredits")
+                    b.HasOne("Fenicia.Auth.Domains.Module.Data.ModuleModel", "Module")
+                        .WithMany("SubscriptionCredits")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_subscription_credits_modules_module_id");
 
-                    b.HasOne("Fenicia.Auth.Domains.OrderDetail.OrderDetailModel", "OrderDetail")
+                    b.HasOne("Fenicia.Auth.Domains.OrderDetail.Data.OrderDetailModel", "OrderDetail")
                         .WithOne("SubscriptionCredit")
-                        .HasForeignKey("Fenicia.Auth.Domains.SubscriptionCredit.SubscriptionCreditModel", "OrderDetailId")
+                        .HasForeignKey("Fenicia.Auth.Domains.SubscriptionCredit.Data.SubscriptionCreditModel", "OrderDetailId")
                         .HasConstraintName("fk_subscription_credits_order_details_order_detail_id");
 
-                    b.HasOne("Fenicia.Auth.Domains.Subscription.SubscriptionModel", "Subscription")
+                    b.HasOne("Fenicia.Auth.Domains.Subscription.Data.SubscriptionModel", "Subscription")
                         .WithMany("Credits")
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -776,23 +778,23 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Subscription");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.UserRole.UserRoleModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.UserRole.Data.UserRoleModel", b =>
                 {
-                    b.HasOne("Fenicia.Auth.Domains.Company.CompanyModel", "Company")
+                    b.HasOne("Fenicia.Auth.Domains.Company.Data.CompanyModel", "Company")
                         .WithMany("UsersRoles")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_users_roles_companies_company_id");
 
-                    b.HasOne("Fenicia.Auth.Domains.Role.RoleModel", "Role")
+                    b.HasOne("Fenicia.Auth.Domains.Role.Data.RoleModel", "Role")
                         .WithMany("UsersRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_users_roles_roles_role_id");
 
-                    b.HasOne("Fenicia.Auth.Domains.User.UserModel", "User")
+                    b.HasOne("Fenicia.Auth.Domains.User.Data.UserModel", "User")
                         .WithMany("UsersRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -806,7 +808,7 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Company.CompanyModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Company.Data.CompanyModel", b =>
                 {
                     b.Navigation("Orders");
 
@@ -815,41 +817,41 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("UsersRoles");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Module.ModuleModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Module.Data.ModuleModel", b =>
                 {
                     b.Navigation("OrderDetails");
 
-                    b.Navigation("SubscriptioCredits");
+                    b.Navigation("SubscriptionCredits");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Order.OrderModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Order.Data.OrderModel", b =>
                 {
                     b.Navigation("Details");
 
                     b.Navigation("Subscription");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.OrderDetail.OrderDetailModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.OrderDetail.Data.OrderDetailModel", b =>
                 {
                     b.Navigation("SubscriptionCredit");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Role.RoleModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Role.Data.RoleModel", b =>
                 {
                     b.Navigation("UsersRoles");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.State.StateModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.State.Data.StateModel", b =>
                 {
                     b.Navigation("Addresses");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.Subscription.SubscriptionModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.Subscription.Data.SubscriptionModel", b =>
                 {
                     b.Navigation("Credits");
                 });
 
-            modelBuilder.Entity("Fenicia.Auth.Domains.User.UserModel", b =>
+            modelBuilder.Entity("Fenicia.Auth.Domains.User.Data.UserModel", b =>
                 {
                     b.Navigation("Orders");
 

@@ -41,4 +41,11 @@ public interface IModuleService
     /// <param name="cancellationToken">The cancellation token to cancel the operation if needed</param>
     /// <returns>ApiResponse containing the total count of modules</returns>
     Task<ApiResponse<int>> CountAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Loads modules into the database
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation if needed</param>
+    /// <returns>Object containing the loaded module information</returns>
+    Task<ApiResponse<List<ModuleResponse>>> LoadModulesAtDatabaseAsync(CancellationToken cancellationToken);
 }

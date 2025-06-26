@@ -44,4 +44,12 @@ public interface IModuleRepository
     /// <param name="cancellationToken">Token to cancel the operation if needed</param>
     /// <returns>The total count of modules</returns>
     Task<int> CountAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Loads modules into the database
+    /// </summary>
+    /// <param name="modules">List of module models to load into database</param>
+    /// <param name="cancellationToken">Token to cancel the operation if needed</param>
+    /// <returns>Object containing the loaded module information</returns>
+    Task<List<ModuleModel>> LoadModulesAtDatabaseAsync(List<ModuleModel> modules, CancellationToken cancellationToken);
 }
