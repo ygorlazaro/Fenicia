@@ -1,14 +1,14 @@
-using Fenicia.Auth.Domains.Subscription.Data;
-
 namespace Fenicia.Auth.Domains.Subscription.Logic;
 
+using Data;
+
 /// <summary>
-/// Represents a repository for managing subscription-related operations.
+///     Represents a repository for managing subscription-related operations.
 /// </summary>
 public interface ISubscriptionRepository
 {
     /// <summary>
-    /// Asynchronously saves a subscription to the repository.
+    ///     Asynchronously saves a subscription to the repository.
     /// </summary>
     /// <param name="subscription">The subscription model to save.</param>
     /// <param name="cancellationToken">A token to cancel the operation if needed.</param>
@@ -18,7 +18,7 @@ public interface ISubscriptionRepository
     Task SaveSubscriptionAsync(SubscriptionModel subscription, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Asynchronously retrieves a list of valid subscription IDs for a specific company.
+    ///     Asynchronously retrieves a list of valid subscription IDs for a specific company.
     /// </summary>
     /// <param name="companyId">The ID of the company to get subscriptions for.</param>
     /// <param name="cancellationToken">A token to cancel the operation if needed.</param>

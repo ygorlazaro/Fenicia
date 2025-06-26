@@ -1,8 +1,8 @@
-using Fenicia.Common.Database;
+namespace Fenicia.Module.Contracts.Contexts;
+
+using Common.Database;
 
 using Microsoft.EntityFrameworkCore;
-
-namespace Fenicia.Module.Contracts.Contexts;
 
 public class ContractsContext(DbContextOptions<ContractsContext> options) : DbContext(options)
 {

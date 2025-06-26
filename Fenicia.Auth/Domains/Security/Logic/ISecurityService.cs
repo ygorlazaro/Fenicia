@@ -1,21 +1,21 @@
-using Fenicia.Common;
-
 namespace Fenicia.Auth.Domains.Security.Logic;
 
+using Common;
+
 /// <summary>
-/// Provides security-related services for password hashing and verification.
+///     Provides security-related services for password hashing and verification.
 /// </summary>
 public interface ISecurityService
 {
     /// <summary>
-    /// Hashes a plain text password using a secure hashing algorithm.
+    ///     Hashes a plain text password using a secure hashing algorithm.
     /// </summary>
     /// <param name="password">The plain text password to hash.</param>
     /// <returns>An ApiResponse containing the hashed password string if successful, or error details if failed.</returns>
     ApiResponse<string> HashPassword(string password);
 
     /// <summary>
-    /// Verifies if a plain text password matches its hashed version.
+    ///     Verifies if a plain text password matches its hashed version.
     /// </summary>
     /// <param name="password">The plain text password to verify.</param>
     /// <param name="hashedPassword">The hashed password to compare against.</param>

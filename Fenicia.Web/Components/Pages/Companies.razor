@@ -1,7 +1,8 @@
 @page "/companies"
 @using Fenicia.Auth.Domains.Company.Data
+@using Fenicia.Web.Providers.Auth
 
-@inject Fenicia.Web.Providers.Auth.CompanyProvider CompanyProvider
+@inject CompanyProvider CompanyProvider
 
 <PageTitle>Companies</PageTitle>
 
@@ -49,4 +50,5 @@ else
             _isLoading = false;
         }
     }
+
 }

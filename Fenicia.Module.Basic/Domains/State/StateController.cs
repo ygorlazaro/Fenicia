@@ -1,11 +1,11 @@
+namespace Fenicia.Module.Basic.Domains.State;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fenicia.Module.Basic.Domains.State;
-
 [Authorize]
 [ApiController]
-[Route("[controller]")]
+[Route(template: "[controller]")]
 public class StateController(IStateService stateProvider) : ControllerBase
 {
     [HttpGet]

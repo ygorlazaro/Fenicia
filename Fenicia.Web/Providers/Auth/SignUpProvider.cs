@@ -1,6 +1,8 @@
-using Fenicia.Auth.Domains.User.Data;
-
 namespace Fenicia.Web.Providers.Auth;
+
+using System.Net;
+
+using Fenicia.Auth.Domains.User.Data;
 
 public class SignUpProvider(HttpClient httpClient)
 {
@@ -8,7 +10,7 @@ public class SignUpProvider(HttpClient httpClient)
     {
         try
         {
-            var response = await httpClient.PostAsJsonAsync("SignUp", request);
+            var response = await httpClient.PostAsJsonAsync(requestUri: "SignUp", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -16,7 +18,7 @@ public class SignUpProvider(HttpClient httpClient)
             }
 
             var errorMessage = await response.Content.ReadAsStringAsync();
-            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            if (response.StatusCode == HttpStatusCode.BadRequest)
             {
                 throw new HttpRequestException($"Sign up failed: {errorMessage}");
             }

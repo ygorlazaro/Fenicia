@@ -1,22 +1,21 @@
-using AutoMapper;
-using Microsoft.Extensions.Logging;
-
-using Fenicia.Auth.Domains.Company.Data;
-using Fenicia.Auth.Domains.ForgotPassword.Data;
-using Fenicia.Auth.Domains.Module.Data;
-using Fenicia.Auth.Domains.Order.Data;
-using Fenicia.Auth.Domains.Subscription.Data;
-using Fenicia.Auth.Domains.User.Data;
-
 namespace Fenicia.Auth;
 
+using AutoMapper;
+
+using Domains.Company.Data;
+using Domains.ForgotPassword.Data;
+using Domains.Module.Data;
+using Domains.Order.Data;
+using Domains.Subscription.Data;
+using Domains.User.Data;
+
 /// <summary>
-/// Defines AutoMapper profile configurations for authentication-related domain models
+///     Defines AutoMapper profile configurations for authentication-related domain models
 /// </summary>
 public class AuthProfiles : Profile
 {
     /// <summary>
-    /// Initializes a new instance of the AuthProfiles class and configures all the mapping profiles
+    ///     Initializes a new instance of the AuthProfiles class and configures all the mapping profiles
     /// </summary>
     public AuthProfiles()
     {

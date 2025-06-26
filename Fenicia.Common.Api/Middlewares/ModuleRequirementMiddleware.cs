@@ -1,8 +1,8 @@
+namespace Fenicia.Common.Api.Middlewares;
+
 using System.Text.Json;
 
 using Microsoft.AspNetCore.Http;
-
-namespace Fenicia.Common.Api.Middlewares;
 
 public class ModuleRequirementMiddleware(RequestDelegate next, string requiredModule)
 {
@@ -11,12 +11,12 @@ public class ModuleRequirementMiddleware(RequestDelegate next, string requiredMo
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var moduleClaim = context.User.FindFirst("module");
+        var moduleClaim = context.User.FindFirst(type: "module");
 
         if (moduleClaim == null)
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync("Missing 'module' claim.");
+            await context.Response.WriteAsync(text: "Missing 'module' claim.");
             return;
         }
 
@@ -24,22 +24,17 @@ public class ModuleRequirementMiddleware(RequestDelegate next, string requiredMo
         {
             var modules = JsonSerializer.Deserialize<List<string>>(moduleClaim.Value);
 
-            if (
-                modules is null
-                || !modules.Contains(_requiredModule, StringComparer.OrdinalIgnoreCase)
-            )
+            if (modules is null || !modules.Contains(_requiredModule, StringComparer.OrdinalIgnoreCase))
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await context.Response.WriteAsync(
-                    $"Access to module '{_requiredModule}' is forbidden."
-                );
+                await context.Response.WriteAsync($"Access to module '{_requiredModule}' is forbidden.");
                 return;
             }
         }
         catch
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync("Invalid 'module' claim format.");
+            await context.Response.WriteAsync(text: "Invalid 'module' claim format.");
             return;
         }
 

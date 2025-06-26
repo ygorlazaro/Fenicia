@@ -1,17 +1,19 @@
+namespace Fenicia.Module.Basic.Domains.Product;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using Fenicia.Common.Database;
-using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.StockMovement;
+using Common.Database;
 
-namespace Fenicia.Module.Basic.Domains.Product;
+using ProductCategory;
 
-[Table("products")]
+using StockMovement;
+
+[Table(name: "products")]
 public class ProductModel : BaseModel
 {
     [Required]
-    [MaxLength(50)]
+    [MaxLength(length: 50)]
     public string Name { get; set; } = null!;
 
     public decimal CostPrice { get; set; }
@@ -23,7 +25,7 @@ public class ProductModel : BaseModel
     [Required]
     public Guid CategoryId { get; set; }
 
-    [ForeignKey("CategoryId")]
+    [ForeignKey(name: "CategoryId")]
     public virtual ProductCategoryModel Category { get; set; } = null!;
 
     public virtual List<StockMovementModel> StockMovements { get; set; } = null!;

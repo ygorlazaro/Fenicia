@@ -1,8 +1,8 @@
+namespace Fenicia.Common.Api.Middlewares;
+
 using System.Text.Json;
 
 using Microsoft.AspNetCore.Http;
-
-namespace Fenicia.Common.Api.Middlewares;
 
 public class RoleGodRequirementMiddleware(RequestDelegate next)
 {
@@ -10,12 +10,12 @@ public class RoleGodRequirementMiddleware(RequestDelegate next)
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var roleClaim = context.User.FindFirst("role");
+        var roleClaim = context.User.FindFirst(type: "role");
 
         if (roleClaim == null)
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync("Missing 'role' claim.");
+            await context.Response.WriteAsync(text: "Missing 'role' claim.");
             return;
         }
 
@@ -34,7 +34,7 @@ public class RoleGodRequirementMiddleware(RequestDelegate next)
         catch
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync("Invalid 'role' claim format.");
+            await context.Response.WriteAsync(text: "Invalid 'role' claim format.");
             return;
         }
 

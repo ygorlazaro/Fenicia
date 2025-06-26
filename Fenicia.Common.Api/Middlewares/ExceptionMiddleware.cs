@@ -1,8 +1,8 @@
+namespace Fenicia.Common.Api.Middlewares;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
-namespace Fenicia.Common.Api.Middlewares;
 
 public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
 {
@@ -14,16 +14,16 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Erro não tratado");
+            logger.LogError(ex, message: "Erro não tratado");
 
             var problem = new ProblemDetails
-            {
-                Type = "https://tools.ietf.org/html/rfc7807",
-                Title = "Erro interno",
-                Status = 500,
-                Detail = ex.Message,
-                Instance = context.Request.Path
-            };
+                          {
+                              Type = "https://tools.ietf.org/html/rfc7807",
+                              Title = "Erro interno",
+                              Status = 500,
+                              Detail = ex.Message,
+                              Instance = context.Request.Path
+                          };
 
             context.Response.StatusCode = 500;
             context.Response.ContentType = "application/problem+json";

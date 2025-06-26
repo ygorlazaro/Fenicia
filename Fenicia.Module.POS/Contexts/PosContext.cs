@@ -1,8 +1,8 @@
-using Fenicia.Common.Database;
+namespace Fenicia.Module.POS.Contexts;
+
+using Common.Database;
 
 using Microsoft.EntityFrameworkCore;
-
-namespace Fenicia.Module.POS.Contexts;
 
 public class PosContext(DbContextOptions<PosContext> options) : DbContext(options)
 {

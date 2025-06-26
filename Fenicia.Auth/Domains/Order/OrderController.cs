@@ -1,28 +1,28 @@
+namespace Fenicia.Auth.Domains.Order;
+
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Order.Data;
-using Fenicia.Auth.Domains.Order.Logic;
-using Fenicia.Common.Api;
+using Common.Api;
+
+using Data;
+
+using Logic;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fenicia.Auth.Domains.Order;
-
 /// <summary>
-/// Controller responsible for managing order-related operations
+///     Controller responsible for managing order-related operations
 /// </summary>
 [Authorize]
 [ApiController]
-[Route("[controller]")]
+[Route(template: "[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController(
-    ILogger<OrderController> logger,
-    IOrderService orderService) : ControllerBase
+public class OrderController(ILogger<OrderController> logger, IOrderService orderService) : ControllerBase
 {
     /// <summary>
-    /// Creates a new order for the authenticated user's company
+    ///     Creates a new order for the authenticated user's company
     /// </summary>
     /// <param name="request">The order creation details</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
@@ -38,7 +38,7 @@ public class OrderController(
     {
         try
         {
-            logger.LogInformation("Creating new order for request {@Request}", request);
+            logger.LogInformation(message: "Creating new order for request {@Request}", request);
 
             var userId = ClaimReader.UserId(User);
             var companyId = ClaimReader.CompanyId(User);
@@ -47,16 +47,16 @@ public class OrderController(
 
             if (order.Data is null)
             {
-                logger.LogWarning("Order creation failed: {Message}", order.Message);
+                logger.LogWarning(message: "Order creation failed: {Message}", order.Message);
                 return StatusCode((int)order.Status, order.Message);
             }
 
-            logger.LogInformation("New order created successfully for user {UserId}", userId);
+            logger.LogInformation(message: "New order created successfully for user {UserId}", userId);
             return Ok(order.Data);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while creating order");
+            logger.LogError(ex, message: "Unexpected error while creating order");
             throw;
         }
     }

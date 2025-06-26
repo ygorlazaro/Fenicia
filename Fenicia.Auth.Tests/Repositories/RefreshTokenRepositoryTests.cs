@@ -1,27 +1,26 @@
+namespace Fenicia.Auth.Tests.Repositories;
+
 using Bogus;
 
-using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.RefreshToken.Data;
-using Fenicia.Auth.Domains.RefreshToken.Logic;
+using Contexts;
+
+using Domains.RefreshToken.Data;
+using Domains.RefreshToken.Logic;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Tests.Repositories;
-
 public class RefreshTokenRepositoryTests
 {
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private AuthContext _context;
-    private RefreshTokenRepository _sut;
     private Faker _faker;
     private DbContextOptions<AuthContext> _options;
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private RefreshTokenRepository _sut;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
-            .Options;
+        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
         _context = new AuthContext(_options);
         _sut = new RefreshTokenRepository(_context);
@@ -40,13 +39,13 @@ public class RefreshTokenRepositoryTests
     {
         // Arrange
         var refreshToken = new RefreshTokenModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Token = _faker.Random.Hash(),
-            ExpirationDate = DateTime.UtcNow.AddDays(7),
-            IsActive = true
-        };
+                           {
+                               Id = Guid.NewGuid(),
+                               UserId = Guid.NewGuid(),
+                               Token = _faker.Random.Hash(),
+                               ExpirationDate = DateTime.UtcNow.AddDays(value: 7),
+                               IsActive = true
+                           };
 
         // Act
         _sut.Add(refreshToken);
@@ -71,13 +70,13 @@ public class RefreshTokenRepositoryTests
         var userId = Guid.NewGuid();
         var token = _faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Token = token,
-            ExpirationDate = DateTime.UtcNow.AddDays(7),
-            IsActive = true
-        };
+                           {
+                               Id = Guid.NewGuid(),
+                               UserId = userId,
+                               Token = token,
+                               ExpirationDate = DateTime.UtcNow.AddDays(value: 7),
+                               IsActive = true
+                           };
 
         await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -96,13 +95,13 @@ public class RefreshTokenRepositoryTests
         var userId = Guid.NewGuid();
         var token = _faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Token = token,
-            ExpirationDate = DateTime.UtcNow.AddDays(-1), // Expired
-            IsActive = true
-        };
+                           {
+                               Id = Guid.NewGuid(),
+                               UserId = userId,
+                               Token = token,
+                               ExpirationDate = DateTime.UtcNow.AddDays(value: -1), // Expired
+                               IsActive = true
+                           };
 
         await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -121,13 +120,13 @@ public class RefreshTokenRepositoryTests
         var userId = Guid.NewGuid();
         var token = _faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Token = token,
-            ExpirationDate = DateTime.UtcNow.AddDays(7),
-            IsActive = false
-        };
+                           {
+                               Id = Guid.NewGuid(),
+                               UserId = userId,
+                               Token = token,
+                               ExpirationDate = DateTime.UtcNow.AddDays(value: 7),
+                               IsActive = false
+                           };
 
         await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -147,13 +146,13 @@ public class RefreshTokenRepositoryTests
         var wrongUserId = Guid.NewGuid();
         var token = _faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Token = token,
-            ExpirationDate = DateTime.UtcNow.AddDays(7),
-            IsActive = true
-        };
+                           {
+                               Id = Guid.NewGuid(),
+                               UserId = userId,
+                               Token = token,
+                               ExpirationDate = DateTime.UtcNow.AddDays(value: 7),
+                               IsActive = true
+                           };
 
         await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -171,13 +170,13 @@ public class RefreshTokenRepositoryTests
         // Arrange
         var token = _faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Token = token,
-            ExpirationDate = DateTime.UtcNow.AddDays(7),
-            IsActive = true
-        };
+                           {
+                               Id = Guid.NewGuid(),
+                               UserId = Guid.NewGuid(),
+                               Token = token,
+                               ExpirationDate = DateTime.UtcNow.AddDays(value: 7),
+                               IsActive = true
+                           };
 
         await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);

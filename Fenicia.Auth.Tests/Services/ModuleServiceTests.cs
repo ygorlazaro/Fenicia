@@ -1,28 +1,29 @@
+namespace Fenicia.Auth.Tests.Services;
+
 using System.Net;
 
 using AutoMapper;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Module.Data;
-using Fenicia.Auth.Domains.Module.Logic;
-using Fenicia.Common;
-using Fenicia.Common.Enums;
+using Common;
+using Common.Enums;
+
+using Domains.Module.Data;
+using Domains.Module.Logic;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace Fenicia.Auth.Tests.Services;
-
 public class ModuleServiceTests
 {
-    private Mock<IMapper> _mapperMock;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private Faker _faker;
     private Mock<ILogger<ModuleService>> _loggerMock;
+    private Mock<IMapper> _mapperMock;
     private Mock<IModuleRepository> _moduleRepositoryMock;
     private ModuleService _sut;
-    private Faker _faker;
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
@@ -30,11 +31,7 @@ public class ModuleServiceTests
         _mapperMock = new Mock<IMapper>();
         _loggerMock = new Mock<ILogger<ModuleService>>();
         _moduleRepositoryMock = new Mock<IModuleRepository>();
-        _sut = new ModuleService(
-            _mapperMock.Object,
-            _loggerMock.Object,
-            _moduleRepositoryMock.Object
-        );
+        _sut = new ModuleService(_mapperMock.Object, _loggerMock.Object, _moduleRepositoryMock.Object);
         _faker = new Faker();
     }
 
@@ -43,13 +40,11 @@ public class ModuleServiceTests
     {
         // Arrange
         var modules = new List<ModuleModel>
-        {
-            new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() },
-            new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() }
-        };
-        var expectedResponse = modules
-            .Select(m => new ModuleResponse { Id = m.Id, Name = m.Name })
-            .ToList();
+                      {
+                          new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() },
+                          new() { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() }
+                      };
+        var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
         _moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(_cancellationToken, 1, 10)).ReturnsAsync(modules);
 
@@ -71,12 +66,8 @@ public class ModuleServiceTests
     {
         // Arrange
         var moduleIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-        var modules = moduleIds
-            .Select(id => new ModuleModel { Id = id, Name = _faker.Commerce.ProductName() })
-            .ToList();
-        var expectedResponse = modules
-            .Select(m => new ModuleResponse { Id = m.Id, Name = m.Name })
-            .ToList();
+        var modules = moduleIds.Select(id => new ModuleModel { Id = id, Name = _faker.Commerce.ProductName() }).ToList();
+        var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
         _moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIds, _cancellationToken)).ReturnsAsync(modules);
 
@@ -99,17 +90,17 @@ public class ModuleServiceTests
         // Arrange
         var moduleType = ModuleType.Ecommerce;
         var module = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Commerce.ProductName(),
-            Type = moduleType
-        };
+                     {
+                         Id = Guid.NewGuid(),
+                         Name = _faker.Commerce.ProductName(),
+                         Type = moduleType
+                     };
         var expectedResponse = new ModuleResponse
-        {
-            Id = module.Id,
-            Name = module.Name,
-            Type = moduleType
-        };
+                               {
+                                   Id = module.Id,
+                                   Name = module.Name,
+                                   Type = moduleType
+                               };
 
         _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, _cancellationToken)).ReturnsAsync(module);
 
@@ -132,9 +123,7 @@ public class ModuleServiceTests
         // Arrange
         const ModuleType moduleType = ModuleType.Ecommerce;
 
-        _moduleRepositoryMock
-            .Setup(x => x.GetModuleByTypeAsync(moduleType, _cancellationToken))
-            .ReturnsAsync((ModuleModel)null!);
+        _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, _cancellationToken)).ReturnsAsync((ModuleModel)null!);
 
         // Act
         var result = await _sut.GetModuleByTypeAsync(moduleType, _cancellationToken);
@@ -151,7 +140,7 @@ public class ModuleServiceTests
     public async Task CountAsync_ReturnsCount()
     {
         // Arrange
-        var expectedCount = _faker.Random.Int(1, 100);
+        var expectedCount = _faker.Random.Int(min: 1, max: 100);
 
         _moduleRepositoryMock.Setup(x => x.CountAsync(_cancellationToken)).ReturnsAsync(expectedCount);
 

@@ -1,29 +1,30 @@
+namespace Fenicia.Auth.Domains.DataCache;
+
 using System.Text.Json;
 
 using StackExchange.Redis;
 
-namespace Fenicia.Auth.Domains.DataCache;
-
 /// <summary>
-/// Redis implementation of data cache service that provides caching functionality using Redis database.
-/// This service handles storage, retrieval, and removal of cached items using Redis as the backend.
+///     Redis implementation of data cache service that provides caching functionality using Redis database.
+///     This service handles storage, retrieval, and removal of cached items using Redis as the backend.
 /// </summary>
 /// <remarks>
-/// The service uses JSON serialization for storing complex objects and provides default expiration time of 10 minutes.
-/// All operations are performed asynchronously and include error handling with logging.
+///     The service uses JSON serialization for storing complex objects and provides default expiration time of 10 minutes.
+///     All operations are performed asynchronously and include error handling with logging.
 /// </remarks>
 /// <param name="redis">Redis connection multiplexer instance for database operations.</param>
 /// <param name="logger">Logger instance for tracking operations and errors.</param>
 public class RedisDataCacheService(IConnectionMultiplexer redis, ILogger<RedisDataCacheService> logger) : IDataCacheService
 {
-    private readonly IDatabase _db = redis.GetDatabase();
     /// <summary>
-    /// Default expiration time for cached items (10 minutes).
+    ///     Default expiration time for cached items (10 minutes).
     /// </summary>
-    private static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan DefaultExpiration = TimeSpan.FromMinutes(minutes: 10);
+
+    private readonly IDatabase _db = redis.GetDatabase();
 
     /// <summary>
-    /// Retrieves a cached item by its key.
+    ///     Retrieves a cached item by its key.
     /// </summary>
     /// <typeparam name="T">Type of the cached item.</typeparam>
     /// <param name="key">The key of the cached item to retrieve.</param>
@@ -35,32 +36,32 @@ public class RedisDataCacheService(IConnectionMultiplexer redis, ILogger<RedisDa
             var value = await _db.StringGetAsync(key);
             if (!value.HasValue)
             {
-                logger.LogDebug("Cache miss for key: {Key}", key);
+                logger.LogDebug(message: "Cache miss for key: {Key}", key);
                 return default;
             }
 
-            logger.LogDebug("Cache hit for key: {Key}", key);
+            logger.LogDebug(message: "Cache hit for key: {Key}", key);
             return JsonSerializer.Deserialize<T>(value!);
         }
         catch (RedisConnectionException ex)
         {
-            logger.LogError(ex, "Redis connection error while getting key: {Key}", key);
+            logger.LogError(ex, message: "Redis connection error while getting key: {Key}", key);
             throw;
         }
         catch (JsonException ex)
         {
-            logger.LogError(ex, "JSON deserialization error for key: {Key}", key);
+            logger.LogError(ex, message: "JSON deserialization error for key: {Key}", key);
             throw;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while getting key: {Key}", key);
+            logger.LogError(ex, message: "Unexpected error while getting key: {Key}", key);
             throw;
         }
     }
 
     /// <summary>
-    /// Stores an item in the cache with the specified key.
+    ///     Stores an item in the cache with the specified key.
     /// </summary>
     /// <typeparam name="T">Type of the item to cache.</typeparam>
     /// <param name="key">The key to store the item under.</param>
@@ -72,28 +73,28 @@ public class RedisDataCacheService(IConnectionMultiplexer redis, ILogger<RedisDa
         try
         {
             var json = JsonSerializer.Serialize(data);
-            await _db.StringSetAsync(key, json, expiration ?? DefaultExpiration);
-            logger.LogDebug("Successfully cached item with key: {Key}", key);
+            await _db.StringSetAsync(key, json, expiration ?? RedisDataCacheService.DefaultExpiration);
+            logger.LogDebug(message: "Successfully cached item with key: {Key}", key);
         }
         catch (RedisConnectionException ex)
         {
-            logger.LogError(ex, "Redis connection error while setting key: {Key}", key);
+            logger.LogError(ex, message: "Redis connection error while setting key: {Key}", key);
             throw;
         }
         catch (JsonException ex)
         {
-            logger.LogError(ex, "JSON serialization error for key: {Key}", key);
+            logger.LogError(ex, message: "JSON serialization error for key: {Key}", key);
             throw;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while setting key: {Key}", key);
+            logger.LogError(ex, message: "Unexpected error while setting key: {Key}", key);
             throw;
         }
     }
 
     /// <summary>
-    /// Removes an item from the cache by its key.
+    ///     Removes an item from the cache by its key.
     /// </summary>
     /// <param name="key">The key of the item to remove.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
@@ -106,12 +107,12 @@ public class RedisDataCacheService(IConnectionMultiplexer redis, ILogger<RedisDa
         }
         catch (RedisConnectionException ex)
         {
-            logger.LogError(ex, "Redis connection error while removing key: {Key}", key);
+            logger.LogError(ex, message: "Redis connection error while removing key: {Key}", key);
             throw;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while removing key: {Key}", key);
+            logger.LogError(ex, message: "Unexpected error while removing key: {Key}", key);
             throw;
         }
     }

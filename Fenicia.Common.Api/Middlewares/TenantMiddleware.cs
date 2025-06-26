@@ -1,8 +1,8 @@
-using Fenicia.Common.Api.Providers;
+namespace Fenicia.Common.Api.Middlewares;
 
 using Microsoft.AspNetCore.Http;
 
-namespace Fenicia.Common.Api.Middlewares;
+using Providers;
 
 public class TenantMiddleware(RequestDelegate next)
 {
@@ -12,7 +12,7 @@ public class TenantMiddleware(RequestDelegate next)
     {
         if (context.User.Identity?.IsAuthenticated == true)
         {
-            var tenantId = context.User.FindFirst("companyId")?.Value;
+            var tenantId = context.User.FindFirst(type: "companyId")?.Value;
             if (!string.IsNullOrWhiteSpace(tenantId))
             {
                 tenantProvider.SetTenant(tenantId);

@@ -1,8 +1,8 @@
-using Fenicia.Common.Database;
+namespace Fenicia.Module.Ecommerce.Contexts;
+
+using Common.Database;
 
 using Microsoft.EntityFrameworkCore;
-
-namespace Fenicia.Module.Ecommerce.Contexts;
 
 public class EcommerceContext(DbContextOptions<EcommerceContext> options) : DbContext(options)
 {

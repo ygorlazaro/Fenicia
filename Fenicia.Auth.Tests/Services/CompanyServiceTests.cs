@@ -1,31 +1,32 @@
+namespace Fenicia.Auth.Tests.Services;
+
 using System.Net;
 
 using AutoMapper;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Company.Data;
-using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.DataCache;
-using Fenicia.Auth.Domains.UserRole.Logic;
-using Fenicia.Common;
+using Common;
+
+using Domains.Company.Data;
+using Domains.Company.Logic;
+using Domains.DataCache;
+using Domains.UserRole.Logic;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace Fenicia.Auth.Tests.Services;
-
 public class CompanyServiceTests
 {
-    private Mock<IMapper> _mapperMock;
-    private Mock<ILogger<CompanyService>> _loggerMock;
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private Mock<ICompanyRepository> _companyRepositoryMock;
-    private Mock<IUserRoleService> _userRoleServiceMock;
     private Mock<IDataCacheService> _dataCacheServiceMock;
-    private CompanyService _sut;
     private Faker _faker;
+    private Mock<ILogger<CompanyService>> _loggerMock;
+    private Mock<IMapper> _mapperMock;
+    private CompanyService _sut;
+    private Mock<IUserRoleService> _userRoleServiceMock;
 
     [SetUp]
     public void Setup()
@@ -35,13 +36,7 @@ public class CompanyServiceTests
         _companyRepositoryMock = new Mock<ICompanyRepository>();
         _userRoleServiceMock = new Mock<IUserRoleService>();
         _dataCacheServiceMock = new Mock<IDataCacheService>();
-        _sut = new CompanyService(
-            _mapperMock.Object,
-            _loggerMock.Object,
-            _companyRepositoryMock.Object,
-            _userRoleServiceMock.Object,
-            _dataCacheServiceMock.Object
-        );
+        _sut = new CompanyService(_mapperMock.Object, _loggerMock.Object, _companyRepositoryMock.Object, _userRoleServiceMock.Object, _dataCacheServiceMock.Object);
         _faker = new Faker();
     }
 
@@ -49,7 +44,7 @@ public class CompanyServiceTests
     public async Task GetByCnpjAsync_WhenCompanyExists_ReturnsCompany()
     {
         // Arrange
-        var cnpj = _faker.Random.String2(14, "0123456789");
+        var cnpj = _faker.Random.String2(length: 14, chars: "0123456789");
         var companyModel = new CompanyModel { Cnpj = cnpj };
         var expectedResponse = new CompanyResponse { Cnpj = cnpj };
 
@@ -72,7 +67,7 @@ public class CompanyServiceTests
     public async Task GetByCnpjAsync_WhenCompanyDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var cnpj = _faker.Random.String2(14, "0123456789");
+        var cnpj = _faker.Random.String2(length: 14, chars: "0123456789");
 
         _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, _cancellationToken)).ReturnsAsync((CompanyModel)null!);
 
@@ -93,15 +88,13 @@ public class CompanyServiceTests
         // Arrange
         var userId = Guid.NewGuid();
         var companies = new List<CompanyModel>
-        {
-            new() { Id = Guid.NewGuid() },
-            new() { Id = Guid.NewGuid() }
-        };
+                        {
+                            new() { Id = Guid.NewGuid() },
+                            new() { Id = Guid.NewGuid() }
+                        };
         var expectedResponse = companies.Select(c => new CompanyResponse { Id = c.Id }).ToList();
 
-        _companyRepositoryMock
-            .Setup(x => x.GetByUserIdAsync(userId,_cancellationToken, 1, 10))
-            .ReturnsAsync(companies);
+        _companyRepositoryMock.Setup(x => x.GetByUserIdAsync(userId, _cancellationToken, 1, 10)).ReturnsAsync(companies);
 
         _mapperMock.Setup(x => x.Map<List<CompanyResponse>>(companies)).Returns(expectedResponse);
 
@@ -126,19 +119,15 @@ public class CompanyServiceTests
         var companyModel = new CompanyModel { Id = companyId, Name = updateRequest.Name };
         var expectedResponse = new CompanyResponse { Id = companyId, Name = updateRequest.Name };
 
-        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, _cancellationToken)).ReturnsAsync(true);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, _cancellationToken)).ReturnsAsync(value: true);
 
-        _userRoleServiceMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, "Admin", _cancellationToken))
-            .ReturnsAsync(new ApiResponse<bool>(true));
+        _userRoleServiceMock.Setup(x => x.HasRoleAsync(userId, companyId, "Admin", _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
         _mapperMock.Setup(x => x.Map<CompanyModel>(updateRequest)).Returns(companyModel);
 
-        _companyRepositoryMock
-            .Setup(x => x.PatchAsync(It.IsAny<CompanyModel>()))
-            .Returns(companyModel);
+        _companyRepositoryMock.Setup(x => x.PatchAsync(It.IsAny<CompanyModel>())).Returns(companyModel);
 
-        _companyRepositoryMock.Setup(x => x.SaveAsync(_cancellationToken)).ReturnsAsync(1);
+        _companyRepositoryMock.Setup(x => x.SaveAsync(_cancellationToken)).ReturnsAsync(value: 1);
 
         _mapperMock.Setup(x => x.Map<CompanyResponse>(companyModel)).Returns(expectedResponse);
 
@@ -161,7 +150,7 @@ public class CompanyServiceTests
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
 
-        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, _cancellationToken)).ReturnsAsync(false);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, _cancellationToken)).ReturnsAsync(value: false);
 
         // Act
         var result = await _sut.PatchAsync(companyId, userId, updateRequest, _cancellationToken);
@@ -182,11 +171,9 @@ public class CompanyServiceTests
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
 
-        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, _cancellationToken)).ReturnsAsync(true);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, _cancellationToken)).ReturnsAsync(value: true);
 
-        _userRoleServiceMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, "Admin", _cancellationToken))
-            .ReturnsAsync(new ApiResponse<bool>(false));
+        _userRoleServiceMock.Setup(x => x.HasRoleAsync(userId, companyId, "Admin", _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: false));
 
         // Act
         var result = await _sut.PatchAsync(companyId, userId, updateRequest, _cancellationToken);
@@ -204,7 +191,7 @@ public class CompanyServiceTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var expectedCount = _faker.Random.Int(1, 100);
+        var expectedCount = _faker.Random.Int(min: 1, max: 100);
 
         _companyRepositoryMock.Setup(x => x.CountByUserIdAsync(userId, _cancellationToken)).ReturnsAsync(expectedCount);
 

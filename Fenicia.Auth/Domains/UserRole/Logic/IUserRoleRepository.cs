@@ -1,12 +1,12 @@
 namespace Fenicia.Auth.Domains.UserRole.Logic;
 
 /// <summary>
-/// Represents a repository for managing user roles.
+///     Represents a repository for managing user roles.
 /// </summary>
 public interface IUserRoleRepository
 {
     /// <summary>
-    /// Retrieves all roles associated with a specific user.
+    ///     Retrieves all roles associated with a specific user.
     /// </summary>
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
@@ -16,7 +16,7 @@ public interface IUserRoleRepository
     Task<string[]> GetRolesByUserAsync(Guid userId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Checks if a user exists within a specific company.
+    ///     Checks if a user exists within a specific company.
     /// </summary>
     /// <param name="userId">The unique identifier of the user.</param>
     /// <param name="companyId">The unique identifier of the company.</param>
@@ -27,7 +27,7 @@ public interface IUserRoleRepository
     Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Verifies if a user has a specific role within a company.
+    ///     Verifies if a user has a specific role within a company.
     /// </summary>
     /// <param name="guid">The unique identifier of the user.</param>
     /// <param name="companyId">The unique identifier of the company.</param>

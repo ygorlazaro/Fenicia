@@ -1,8 +1,8 @@
-using Fenicia.Common.Database;
+namespace Fenicia.Module.Accounting.Contexts;
+
+using Common.Database;
 
 using Microsoft.EntityFrameworkCore;
-
-namespace Fenicia.Module.Accounting.Contexts;
 
 public class AccountingContext(DbContextOptions<AccountingContext> options) : DbContext(options)
 {

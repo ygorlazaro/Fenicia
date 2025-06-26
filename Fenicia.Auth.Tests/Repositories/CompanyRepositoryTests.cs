@@ -1,31 +1,34 @@
+namespace Fenicia.Auth.Tests.Repositories;
+
 using Bogus;
 
-using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Company.Data;
-using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.UserRole.Data;
+using Contexts;
+
+using Domains.Company.Data;
+using Domains.Company.Logic;
+using Domains.UserRole.Data;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace Fenicia.Auth.Tests.Repositories;
+using Moq;
 
 public class CompanyRepositoryTests
 {
+    private CancellationToken _cancellationToken;
     private AuthContext _context;
-    private CompanyRepository _sut;
     private Faker _faker;
     private DbContextOptions<AuthContext> _options;
-    private CancellationToken _cancellationToken;
+    private CompanyRepository _sut;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
-            .Options;
+        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        var mockLogger = new Mock<ILogger<CompanyRepository>>().Object;
 
         _context = new AuthContext(_options);
-        _sut = new CompanyRepository(_context);
+        _sut = new CompanyRepository(_context, mockLogger);
         _faker = new Faker();
         _cancellationToken = CancellationToken.None;
     }
@@ -42,11 +45,11 @@ public class CompanyRepositoryTests
     {
         // Arrange
         var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
-        };
+                      {
+                          Id = Guid.NewGuid(),
+                          Name = _faker.Company.CompanyName(),
+                          Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                      };
         await _context.Companies.AddAsync(company, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
 
@@ -72,11 +75,11 @@ public class CompanyRepositoryTests
     {
         // Arrange
         var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
-        };
+                      {
+                          Id = Guid.NewGuid(),
+                          Name = _faker.Company.CompanyName(),
+                          Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                      };
         await _context.Companies.AddAsync(company, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
 
@@ -92,11 +95,11 @@ public class CompanyRepositoryTests
     {
         // Arrange
         var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
-        };
+                      {
+                          Id = Guid.NewGuid(),
+                          Name = _faker.Company.CompanyName(),
+                          Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                      };
 
         // Act
         _sut.Add(company);
@@ -117,11 +120,11 @@ public class CompanyRepositoryTests
     {
         // Arrange
         var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
-        };
+                      {
+                          Id = Guid.NewGuid(),
+                          Name = _faker.Company.CompanyName(),
+                          Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                      };
         await _context.Companies.AddAsync(company, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
 
@@ -148,19 +151,19 @@ public class CompanyRepositoryTests
         for (var i = 0; i < 15; i++)
         {
             var company = new CompanyModel
-            {
-                Id = Guid.NewGuid(),
-                Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
-            };
+                          {
+                              Id = Guid.NewGuid(),
+                              Name = _faker.Company.CompanyName(),
+                              Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                          };
             companies.Add(company);
 
             var userRole = new UserRoleModel
-            {
-                UserId = userId,
-                CompanyId = company.Id,
-                Company = company
-            };
+                           {
+                               UserId = userId,
+                               CompanyId = company.Id,
+                               Company = company
+                           };
             userRoles.Add(userRole);
         }
 
@@ -169,14 +172,14 @@ public class CompanyRepositoryTests
         await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var page1 = await _sut.GetByUserIdAsync(userId,_cancellationToken, page: 1, perPage: 10);
+        var page1 = await _sut.GetByUserIdAsync(userId, _cancellationToken, page: 1, perPage: 10);
         var page2 = await _sut.GetByUserIdAsync(userId, _cancellationToken, page: 2, perPage: 10);
 
         Assert.Multiple(() =>
         {
             // Assert
-            Assert.That(page1, Has.Count.EqualTo(10));
-            Assert.That(page2, Has.Count.EqualTo(5));
+            Assert.That(page1, Has.Count.EqualTo(expected: 10));
+            Assert.That(page2, Has.Count.EqualTo(expected: 5));
         });
     }
 
@@ -192,19 +195,19 @@ public class CompanyRepositoryTests
         for (var i = 0; i < expectedCount; i++)
         {
             var company = new CompanyModel
-            {
-                Id = Guid.NewGuid(),
-                Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
-            };
+                          {
+                              Id = Guid.NewGuid(),
+                              Name = _faker.Company.CompanyName(),
+                              Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                          };
             companies.Add(company);
 
             var userRole = new UserRoleModel
-            {
-                UserId = userId,
-                CompanyId = company.Id,
-                Company = company
-            };
+                           {
+                               UserId = userId,
+                               CompanyId = company.Id,
+                               Company = company
+                           };
             userRoles.Add(userRole);
         }
 
@@ -224,11 +227,11 @@ public class CompanyRepositoryTests
     {
         // Arrange
         var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
-        };
+                      {
+                          Id = Guid.NewGuid(),
+                          Name = _faker.Company.CompanyName(),
+                          Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                      };
         await _context.Companies.AddAsync(company, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
 
@@ -252,7 +255,7 @@ public class CompanyRepositoryTests
         var userId = Guid.NewGuid();
 
         // Act
-        var result = await _sut.GetByUserIdAsync(userId, cancellationToken: _cancellationToken);
+        var result = await _sut.GetByUserIdAsync(userId, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);

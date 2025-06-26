@@ -1,8 +1,8 @@
-using Fenicia.Module.Basic.Contexts;
+namespace Fenicia.Module.Basic.Domains.State;
+
+using Contexts;
 
 using Microsoft.EntityFrameworkCore;
-
-namespace Fenicia.Module.Basic.Domains.State;
 
 public class StateRepository(BasicContext basicContext) : IStateRepository
 {

@@ -1,31 +1,34 @@
+namespace Fenicia.Auth.Tests.Repositories;
+
 using Bogus;
 
-using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Order.Data;
-using Fenicia.Auth.Domains.Order.Logic;
-using Fenicia.Auth.Domains.OrderDetail.Data;
+using Contexts;
+
+using Domains.Order.Data;
+using Domains.Order.Logic;
+using Domains.OrderDetail.Data;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace Fenicia.Auth.Tests.Repositories;
+using Moq;
 
 public class OrderRepositoryTests
 {
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private AuthContext _context;
-    private OrderRepository _sut;
     private Faker _faker;
     private DbContextOptions<AuthContext> _options;
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private OrderRepository _sut;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
-            .Options;
+        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
+        var mockLogger = new Mock<ILogger<OrderRepository>>().Object;
         _context = new AuthContext(_options);
-        _sut = new OrderRepository(_context);
+        _sut = new OrderRepository(_context, mockLogger);
         _faker = new Faker();
     }
 
@@ -41,11 +44,11 @@ public class OrderRepositoryTests
     {
         // Arrange
         var order = new OrderModel
-        {
-            Id = Guid.NewGuid(),
-            CompanyId = Guid.NewGuid(),
-            UserId = Guid.NewGuid()
-        };
+                    {
+                        Id = Guid.NewGuid(),
+                        CompanyId = Guid.NewGuid(),
+                        UserId = Guid.NewGuid()
+                    };
 
         // Act
         var result = await _sut.SaveOrderAsync(order, _cancellationToken);
@@ -68,11 +71,11 @@ public class OrderRepositoryTests
     {
         // Arrange
         var order = new OrderModel
-        {
-            Id = Guid.NewGuid(),
-            CompanyId = Guid.NewGuid(),
-            UserId = Guid.NewGuid()
-        };
+                    {
+                        Id = Guid.NewGuid(),
+                        CompanyId = Guid.NewGuid(),
+                        UserId = Guid.NewGuid()
+                    };
 
         // Act
         await _sut.SaveOrderAsync(order, _cancellationToken);
@@ -94,43 +97,38 @@ public class OrderRepositoryTests
     {
         // Arrange
         var order = new OrderModel
-        {
-            Id = Guid.NewGuid(),
-            CompanyId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Details =
-            [
-                new OrderDetailModel
-                {
-                    Id = Guid.NewGuid(),
-                    ModuleId = Guid.NewGuid(),
-                    Amount = _faker.Random.Int(1, 10)
-                },
-                new OrderDetailModel
-                {
-                    Id = Guid.NewGuid(),
-                    ModuleId = Guid.NewGuid(),
-                    Amount = _faker.Random.Int(1, 10)
-                }
-            ]
-        };
+                    {
+                        Id = Guid.NewGuid(),
+                        CompanyId = Guid.NewGuid(),
+                        UserId = Guid.NewGuid(),
+                        Details =
+                        [
+                            new OrderDetailModel
+                            {
+                                Id = Guid.NewGuid(),
+                                ModuleId = Guid.NewGuid(),
+                                Amount = _faker.Random.Int(min: 1, max: 10)
+                            },
+                            new OrderDetailModel
+                            {
+                                Id = Guid.NewGuid(),
+                                ModuleId = Guid.NewGuid(),
+                                Amount = _faker.Random.Int(min: 1, max: 10)
+                            }
+                        ]
+                    };
 
         // Act
         var result = await _sut.SaveOrderAsync(order, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Details, Has.Count.EqualTo(2));
+        Assert.That(result.Details, Has.Count.EqualTo(expected: 2));
 
-        var savedOrder = await _context
-            .Orders.Include(o => o.Details)
-            .FirstOrDefaultAsync(o => o.Id == order.Id, _cancellationToken);
+        var savedOrder = await _context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == order.Id, _cancellationToken);
 
         Assert.That(savedOrder, Is.Not.Null);
-        Assert.That(savedOrder.Details, Has.Count.EqualTo(2));
-        Assert.That(
-            savedOrder.Details.Select(i => i.Id),
-            Is.EquivalentTo(order.Details.Select(i => i.Id))
-        );
+        Assert.That(savedOrder.Details, Has.Count.EqualTo(expected: 2));
+        Assert.That(savedOrder.Details.Select(i => i.Id), Is.EquivalentTo(order.Details.Select(i => i.Id)));
     }
 }
