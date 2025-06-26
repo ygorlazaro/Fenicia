@@ -22,7 +22,10 @@ using Fenicia.Common;
 using Fenicia.Common.Api.Middlewares;
 using Fenicia.Common.Externals.Email;
 
+using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -108,9 +111,14 @@ public static class Program
 
         builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
 
+        builder.Services.AddResponseCompression(config =>
+        {
+            config.EnableForHttps = true;
+        });
+
         builder.Services.AddAutoMapper(typeof(Program));
 
-        builder.Services.AddDbContext<AuthContext>(x =>
+        builder.Services.AddDbContextPool<AuthContext>(x =>
         {
             x.UseNpgsql(connectionString)
              .EnableSensitiveDataLogging()
@@ -158,13 +166,34 @@ public static class Program
             };
         });
 
+        builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetails = new ValidationProblemDetails(context.ModelState)
+                    {
+                        Type = "https://tools.ietf.org/html/rfc7807",
+                        Title = "Um ou mais erros de validação ocorreram.",
+                        Status = StatusCodes.Status400BadRequest,
+                        Instance = context.HttpContext.Request.Path
+                    };
+
+                    return new BadRequestObjectResult(problemDetails)
+                    {
+                        ContentTypes = { "application/problem+json" }
+                    };
+                };
+            });
+
         builder.Services.AddControllers()
             .AddJsonOptions(x =>
             {
                 x.JsonSerializerOptions.AllowTrailingCommas = false;
                 x.JsonSerializerOptions.MaxDepth = 0;
                 x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-            });
+            })
+        .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AuthProfiles>());
+
 
         builder.Services.AddOpenApi();
 
@@ -173,6 +202,7 @@ public static class Program
         app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionMiddleware>();
         app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseResponseCompression();
 
         app.UseSerilogRequestLogging();
 

@@ -1,34 +1,34 @@
-using System.Net;
-
 using Microsoft.AspNetCore.Http;
-
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Fenicia.Common.Api.Middlewares;
 
-public class ExceptionMiddleware(RequestDelegate next)
+public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
 {
-    public async Task InvokeAsync(HttpContext httpContext)
+    public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await next(httpContext);
+            await next(context);
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(httpContext, ex);
+            logger.LogError(ex, "Erro não tratado");
+
+            var problem = new ProblemDetails
+            {
+                Type = "https://tools.ietf.org/html/rfc7807",
+                Title = "Erro interno",
+                Status = 500,
+                Detail = ex.Message,
+                Instance = context.Request.Path
+            };
+
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "application/problem+json";
+
+            await context.Response.WriteAsJsonAsync(problem);
         }
-    }
-
-    private Task HandleExceptionAsync(HttpContext context, Exception ex)
-    {
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Response.ContentType = "application/json";
-
-        return context.Response.WriteAsync(
-            JsonConvert.SerializeObject(
-                new { context.Response.StatusCode, ex.Message }
-            )
-        );
     }
 }

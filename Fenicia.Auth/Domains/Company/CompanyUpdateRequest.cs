@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Fenicia.Auth.Domains.Company;
 
 /// <summary>
@@ -11,8 +9,6 @@ public class CompanyUpdateRequest
     /// The name of the company
     /// </summary>
     /// <example>Acme Corporation</example>
-    [MaxLength(50)]
-    [Required]
     public string Name { get; set; } = null!;
 
     public string Timezone { get; set; } = null!;
