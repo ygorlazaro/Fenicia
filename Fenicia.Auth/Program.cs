@@ -20,6 +20,7 @@ using Domains.Order.Logic;
 using Domains.RefreshToken.Logic;
 using Domains.Role.Logic;
 using Domains.Security.Logic;
+using Domains.State.Logic;
 using Domains.Subscription.Logic;
 using Domains.SubscriptionCredit.Logic;
 using Domains.Token.Logic;
@@ -225,6 +226,7 @@ public static class Program
         builder.Services.AddTransient<ISecurityService, SecurityService>();
         builder.Services.AddTransient<ISubscriptionCreditService, SubscriptionCreditService>();
         builder.Services.AddTransient<ISubscriptionService, SubscriptionService>();
+        builder.Services.AddTransient<IStateService, StateService>();
         builder.Services.AddTransient<ITokenService, TokenService>();
         builder.Services.AddTransient<IUserRoleService, UserRoleService>();
         builder.Services.AddTransient<IUserService, UserService>();
@@ -237,6 +239,7 @@ public static class Program
         builder.Services.AddTransient<IRoleRepository, RoleRepository>();
         builder.Services.AddTransient<ISubscriptionCreditRepository, SubscriptionCreditRepository>();
         builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
+        builder.Services.AddTransient<IStateRepository, StateRepository>();
         builder.Services.AddTransient<IUserRepository, UserRepository>();
         builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
 

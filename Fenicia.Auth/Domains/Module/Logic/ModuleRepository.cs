@@ -58,4 +58,17 @@ public class ModuleRepository(AuthContext authContext) : IModuleRepository
     {
         return await authContext.Modules.CountAsync(cancellationToken);
     }
+
+    /// <summary>
+    ///     Loads a list of modules into the database
+    /// </summary>
+    /// <param name="modules">List of module models to load</param>
+    /// <param name="cancellationToken">The cancellation token to cancel operation if needed</param>
+    /// <returns>List of loaded modules ordered by type</returns>
+    public async Task<List<ModuleModel>> LoadModulesAtDatabaseAsync(List<ModuleModel> modules, CancellationToken cancellationToken)
+    {
+        await authContext.Modules.AddRangeAsync(modules, cancellationToken);
+        await authContext.SaveChangesAsync(cancellationToken);
+        return await authContext.Modules.OrderBy(m => m.Type).ToListAsync(cancellationToken);
+    }
 }

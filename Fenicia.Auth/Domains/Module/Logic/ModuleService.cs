@@ -119,4 +119,29 @@ public class ModuleService(IMapper mapper, ILogger<ModuleService> logger, IModul
             throw;
         }
     }
+
+    public async Task<ApiResponse<List<ModuleResponse>>> LoadModulesAtDatabaseAsync(CancellationToken cancellationToken)
+    {
+        var modulesToSave = new List<ModuleModel>
+                            {
+                                new() { Name = "ERP", Amount = -1, Type = ModuleType.Erp },
+                                new() { Name = "Auth", Amount = 10, Type = ModuleType.Auth },
+                                new() { Name = "Basic", Amount = 20, Type = ModuleType.Basic },
+                                new() { Name = "Social Network", Amount = 20, Type = ModuleType.SocialNetwork },
+                                new() { Name = "Project", Amount = 20, Type = ModuleType.Project },
+                                new() { Name = "Performance Evaluation", Amount = 20, Type = ModuleType.PerformanceEvaluation },
+                                new() { Name = "Accounting", Amount = 20, Type = ModuleType.Accounting },
+                                new() { Name = "HR", Amount = 20, Type = ModuleType.Hr },
+                                new() { Name = "POS", Amount = 20, Type = ModuleType.Pos },
+                                new() { Name = "Contracts", Amount = 20, Type = ModuleType.Contracts },
+                                new() { Name = "Ecommerce", Amount = 20, Type = ModuleType.Ecommerce },
+                                new() { Name = "Customer Support", Amount = 20, Type = ModuleType.CustomerSupport },
+                                new() { Name = "Plus", Amount = 20, Type = ModuleType.Plus }
+                            };
+
+        var response = await moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, cancellationToken);
+        var mapped = mapper.Map<List<ModuleResponse>>(response);
+
+        return new ApiResponse<List<ModuleResponse>>(mapped);
+    }
 }

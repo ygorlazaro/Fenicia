@@ -6,6 +6,7 @@ using Domains.Company.Data;
 using Domains.ForgotPassword.Data;
 using Domains.Module.Data;
 using Domains.Order.Data;
+using Domains.State.Data;
 using Domains.Subscription.Data;
 using Domains.User.Data;
 
@@ -40,5 +41,7 @@ public class AuthProfiles : Profile
         CreateMap<ForgotPasswordRequest, ForgotPasswordModel>().ReverseMap();
         CreateMap<ForgotPasswordResponse, ForgotPasswordModel>().ReverseMap();
         CreateMap<ForgotPasswordRequestReset, ForgotPasswordModel>().ReverseMap();
+
+        CreateMap<StateResponse, StateModel>().ReverseMap();
     }
 }
