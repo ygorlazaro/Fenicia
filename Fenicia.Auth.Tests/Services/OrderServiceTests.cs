@@ -1,37 +1,39 @@
+namespace Fenicia.Auth.Tests.Services;
+
 using System.Net;
 
 using AutoMapper;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Module.Data;
-using Fenicia.Auth.Domains.Module.Logic;
-using Fenicia.Auth.Domains.Order.Data;
-using Fenicia.Auth.Domains.Order.Logic;
-using Fenicia.Auth.Domains.OrderDetail.Data;
-using Fenicia.Auth.Domains.Subscription.Logic;
-using Fenicia.Auth.Domains.User.Logic;
-using Fenicia.Auth.Enums;
-using Fenicia.Common;
-using Fenicia.Common.Enums;
+using Common;
+using Common.Enums;
+
+using Domains.Module.Data;
+using Domains.Module.Logic;
+using Domains.Order.Data;
+using Domains.Order.Logic;
+using Domains.OrderDetail.Data;
+using Domains.Subscription.Logic;
+using Domains.User.Logic;
+
+using Enums;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace Fenicia.Auth.Tests.Services;
-
 public class OrderServiceTests
 {
-    private Mock<IMapper> _mapperMock;
-    private Mock<ILogger<OrderService>> _loggerMock;
-    private Mock<IOrderRepository> _orderRepositoryMock;
-    private Mock<IModuleService> _moduleServiceMock;
-    private Mock<ISubscriptionService> _subscriptionServiceMock;
-    private Mock<IUserService> _userServiceMock;
-    private OrderService _sut;
-    private Faker _faker;
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private Faker _faker;
+    private Mock<ILogger<OrderService>> _loggerMock;
+    private Mock<IMapper> _mapperMock;
+    private Mock<IModuleService> _moduleServiceMock;
+    private Mock<IOrderRepository> _orderRepositoryMock;
+    private Mock<ISubscriptionService> _subscriptionServiceMock;
+    private OrderService _sut;
+    private Mock<IUserService> _userServiceMock;
 
     [SetUp]
     public void Setup()
@@ -43,14 +45,7 @@ public class OrderServiceTests
         _subscriptionServiceMock = new Mock<ISubscriptionService>();
         _userServiceMock = new Mock<IUserService>();
 
-        _sut = new OrderService(
-            _mapperMock.Object,
-            _loggerMock.Object,
-            _orderRepositoryMock.Object,
-            _moduleServiceMock.Object,
-            _subscriptionServiceMock.Object,
-            _userServiceMock.Object
-        );
+        _sut = new OrderService(_mapperMock.Object, _loggerMock.Object, _orderRepositoryMock.Object, _moduleServiceMock.Object, _subscriptionServiceMock.Object, _userServiceMock.Object);
 
         _faker = new Faker();
     }
@@ -63,9 +58,7 @@ public class OrderServiceTests
         var companyId = Guid.NewGuid();
         var request = new OrderRequest { Details = new List<OrderDetailRequest>() };
 
-        _userServiceMock
-            .Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken))
-            .ReturnsAsync(new ApiResponse<bool>(false));
+        _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: false));
 
         // Act
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
@@ -86,23 +79,17 @@ public class OrderServiceTests
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest
-        {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
-        };
+                      {
+                          Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
+                      };
 
         var emptyModulesList = new List<ModuleResponse>();
 
-        _userServiceMock
-            .Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken))
-            .ReturnsAsync(new ApiResponse<bool>(true));
+        _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
-        _moduleServiceMock
-            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken))
-            .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(emptyModulesList));
+        _moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(emptyModulesList));
 
-        _moduleServiceMock
-            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken))
-            .ReturnsAsync(new ApiResponse<ModuleResponse>(null));
+        _moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken)).ReturnsAsync(new ApiResponse<ModuleResponse>(data: null));
 
         _mapperMock.Setup(x => x.Map<List<ModuleModel>>(emptyModulesList)).Returns([]);
 
@@ -124,77 +111,65 @@ public class OrderServiceTests
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
-        var moduleAmount = _faker.Random.Decimal(10, 1000);
+        var moduleAmount = _faker.Random.Decimal(min: 10, max: 1000);
 
         var request = new OrderRequest
-        {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
-        };
+                      {
+                          Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
+                      };
 
         var moduleResponses = new List<ModuleResponse>
-        {
-            new()
-            {
-                Id = moduleId,
-                Amount = moduleAmount,
-                Type = ModuleType.Accounting
-            }
-        };
+                              {
+                                  new()
+                                  {
+                                      Id = moduleId,
+                                      Amount = moduleAmount,
+                                      Type = ModuleType.Accounting
+                                  }
+                              };
 
         var basicModuleResponse = new ModuleResponse
-        {
-            Id = Guid.NewGuid(),
-            Type = ModuleType.Basic,
-            Amount = _faker.Random.Decimal(10, 1000)
-        };
+                                  {
+                                      Id = Guid.NewGuid(),
+                                      Type = ModuleType.Basic,
+                                      Amount = _faker.Random.Decimal(min: 10, max: 1000)
+                                  };
 
         var moduleModels = new List<ModuleModel>
-        {
-            new()
-            {
-                Id = moduleId,
-                Amount = moduleAmount,
-                Type = ModuleType.Accounting
-            },
-            new()
-            {
-                Id = basicModuleResponse.Id,
-                Amount = basicModuleResponse.Amount,
-                Type = ModuleType.Basic
-            }
-        };
+                           {
+                               new()
+                               {
+                                   Id = moduleId,
+                                   Amount = moduleAmount,
+                                   Type = ModuleType.Accounting
+                               },
+                               new()
+                               {
+                                   Id = basicModuleResponse.Id,
+                                   Amount = basicModuleResponse.Amount,
+                                   Type = ModuleType.Basic
+                               }
+                           };
 
         var expectedOrder = new OrderModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Status = OrderStatus.Approved,
-            TotalAmount = moduleAmount + basicModuleResponse.Amount
-        };
+                            {
+                                Id = Guid.NewGuid(),
+                                UserId = userId,
+                                Status = OrderStatus.Approved,
+                                TotalAmount = moduleAmount + basicModuleResponse.Amount
+                            };
 
-        _userServiceMock
-            .Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken))
-            .ReturnsAsync(new ApiResponse<bool>(true));
+        _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
-        _moduleServiceMock
-            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken))
-            .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
+        _moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
-        _moduleServiceMock
-            .Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken))
-            .ReturnsAsync(new ApiResponse<ModuleResponse>(basicModuleResponse));
+        _moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken)).ReturnsAsync(new ApiResponse<ModuleResponse>(basicModuleResponse));
 
-        _mapperMock
-            .Setup(x => x.Map<List<ModuleModel>>(moduleResponses))
-            .Returns(moduleModels.Where(m => m.Type != ModuleType.Basic).ToList());
+        _mapperMock.Setup(x => x.Map<List<ModuleModel>>(moduleResponses)).Returns(moduleModels.Where(m => m.Type != ModuleType.Basic).ToList());
 
-        _mapperMock
-            .Setup(x => x.Map<List<ModuleModel>>(It.Is<List<ModuleResponse>>(l => l.Count == 2)))
-            .Returns(moduleModels);
+        _mapperMock.Setup(x => x.Map<List<ModuleModel>>(It.Is<List<ModuleResponse>>(l => l.Count == 2))).Returns(moduleModels);
 
-        _mapperMock
-            .Setup(x => x.Map<OrderResponse>(It.IsAny<OrderModel>()))
-            .Returns(new OrderResponse { Id = expectedOrder.Id });
+        _mapperMock.Setup(x => x.Map<OrderResponse>(It.IsAny<OrderModel>())).Returns(new OrderResponse { Id = expectedOrder.Id });
 
         // Act
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
@@ -206,24 +181,9 @@ public class OrderServiceTests
             Assert.That(result.Data, Is.Not.Null);
         });
 
-        _orderRepositoryMock.Verify(
-            x =>
-                x.SaveOrderAsync(
-                    It.Is<OrderModel>(o => o.UserId == userId && o.Status == OrderStatus.Approved),
-                    _cancellationToken
-                ),
-            Times.Once
-        );
+        _orderRepositoryMock.Verify(x => x.SaveOrderAsync(It.Is<OrderModel>(o => o.UserId == userId && o.Status == OrderStatus.Approved), _cancellationToken), Times.Once);
 
-        _subscriptionServiceMock.Verify(
-            x =>
-                x.CreateCreditsForOrderAsync(
-                    It.IsAny<OrderModel>(),
-                    It.IsAny<List<OrderDetailModel>>(),
-                    companyId, _cancellationToken
-                ),
-            Times.Once
-        );
+        _subscriptionServiceMock.Verify(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, _cancellationToken), Times.Once);
     }
 
     [Test]
@@ -233,46 +193,40 @@ public class OrderServiceTests
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var basicModuleId = Guid.NewGuid();
-        var moduleAmount = _faker.Random.Decimal(10, 1000);
+        var moduleAmount = _faker.Random.Decimal(min: 10, max: 1000);
 
         var request = new OrderRequest
-        {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = basicModuleId } }
-        };
+                      {
+                          Details = new List<OrderDetailRequest> { new() { ModuleId = basicModuleId } }
+                      };
 
         var moduleResponses = new List<ModuleResponse>
-        {
-            new()
-            {
-                Id = basicModuleId,
-                Amount = moduleAmount,
-                Type = ModuleType.Basic
-            }
-        };
+                              {
+                                  new()
+                                  {
+                                      Id = basicModuleId,
+                                      Amount = moduleAmount,
+                                      Type = ModuleType.Basic
+                                  }
+                              };
 
         var moduleModels = new List<ModuleModel>
-        {
-            new()
-            {
-                Id = basicModuleId,
-                Amount = moduleAmount,
-                Type = ModuleType.Basic
-            }
-        };
+                           {
+                               new()
+                               {
+                                   Id = basicModuleId,
+                                   Amount = moduleAmount,
+                                   Type = ModuleType.Basic
+                               }
+                           };
 
-        _userServiceMock
-            .Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken))
-            .ReturnsAsync(new ApiResponse<bool>(true));
+        _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
-        _moduleServiceMock
-            .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken))
-            .ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
+        _moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
         _mapperMock.Setup(x => x.Map<List<ModuleModel>>(moduleResponses)).Returns(moduleModels);
 
-        _mapperMock
-            .Setup(x => x.Map<OrderResponse>(It.IsAny<OrderModel>()))
-            .Returns(new OrderResponse { Id = Guid.NewGuid() });
+        _mapperMock.Setup(x => x.Map<OrderResponse>(It.IsAny<OrderModel>())).Returns(new OrderResponse { Id = Guid.NewGuid() });
 
         // Act
         var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);

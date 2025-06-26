@@ -1,14 +1,14 @@
-using Fenicia.Auth.Domains.Order.Data;
-
 namespace Fenicia.Auth.Domains.Order.Logic;
 
+using Data;
+
 /// <summary>
-/// Represents a repository for managing order-related operations in the system.
+///     Represents a repository for managing order-related operations in the system.
 /// </summary>
 public interface IOrderRepository
 {
     /// <summary>
-    /// Asynchronously saves an order to the repository.
+    ///     Asynchronously saves an order to the repository.
     /// </summary>
     /// <param name="order">The order model to be saved. Must not be null.</param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the save operation.</param>

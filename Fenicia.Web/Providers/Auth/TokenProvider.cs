@@ -1,7 +1,9 @@
+namespace Fenicia.Web.Providers.Auth;
+
+using System.Net;
+
 using Fenicia.Auth.Domains.RefreshToken.Data;
 using Fenicia.Auth.Domains.Token.Data;
-
-namespace Fenicia.Web.Providers.Auth;
 
 public class TokenProvider(HttpClient httpClient)
 {
@@ -9,7 +11,7 @@ public class TokenProvider(HttpClient httpClient)
     {
         try
         {
-            var response = await httpClient.PostAsJsonAsync("Token", request);
+            var response = await httpClient.PostAsJsonAsync(requestUri: "Token", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -17,7 +19,7 @@ public class TokenProvider(HttpClient httpClient)
             }
 
             var errorMessage = await response.Content.ReadAsStringAsync();
-            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            if (response.StatusCode == HttpStatusCode.BadRequest)
             {
                 throw new HttpRequestException($"Login failed: {errorMessage}");
             }
@@ -34,7 +36,7 @@ public class TokenProvider(HttpClient httpClient)
     {
         try
         {
-            var response = await httpClient.PostAsJsonAsync("Token/refresh", request);
+            var response = await httpClient.PostAsJsonAsync(requestUri: "Token/refresh", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -48,7 +50,7 @@ public class TokenProvider(HttpClient httpClient)
         catch (Exception ex)
         {
             // Log the exception if you have a logging mechanism
-            throw new HttpRequestException("Failed to refresh token", ex);
+            throw new HttpRequestException(message: "Failed to refresh token", ex);
         }
     }
 }

@@ -1,18 +1,22 @@
-using System.Security.Claims;
+﻿namespace Fenicia.Common.Api;
 
-namespace Fenicia.Common.Api;
+using System.Security.Claims;
 
 public static class ClaimReader
 {
-    public static Guid UserId(ClaimsPrincipal user) => GetGuidClaimValue(user, "userId");
+    public static Guid UserId(ClaimsPrincipal user)
+    {
+        return ClaimReader.GetGuidClaimValue(user, claimType: "userId");
+    }
 
-    public static Guid CompanyId(ClaimsPrincipal user) => GetGuidClaimValue(user, "companyId");
+    public static Guid CompanyId(ClaimsPrincipal user)
+    {
+        return ClaimReader.GetGuidClaimValue(user, claimType: "companyId");
+    }
 
     private static Guid GetGuidClaimValue(ClaimsPrincipal user, string claimType)
     {
-        var claim = user.Claims.FirstOrDefault(claimToSearch =>
-            string.Equals(claimToSearch.Type, claimType, StringComparison.Ordinal)
-        );
+        var claim = user.Claims.FirstOrDefault(claimToSearch => string.Equals(claimToSearch.Type, claimType, StringComparison.Ordinal));
 
         return claim == null ? throw new UnauthorizedAccessException() : Guid.Parse(claim.Value);
     }

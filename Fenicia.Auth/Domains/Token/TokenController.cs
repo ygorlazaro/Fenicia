@@ -1,40 +1,39 @@
+namespace Fenicia.Auth.Domains.Token;
+
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.RefreshToken.Data;
-using Fenicia.Auth.Domains.RefreshToken.Logic;
-using Fenicia.Auth.Domains.SubscriptionCredit.Logic;
-using Fenicia.Auth.Domains.Token.Data;
-using Fenicia.Auth.Domains.Token.Logic;
-using Fenicia.Auth.Domains.User.Data;
-using Fenicia.Auth.Domains.User.Logic;
-using Fenicia.Auth.Domains.UserRole.Logic;
-using Fenicia.Common;
+using Common;
+
+using Company.Logic;
+
+using Data;
+
+using Logic;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fenicia.Auth.Domains.Token;
+using RefreshToken.Data;
+using RefreshToken.Logic;
+
+using SubscriptionCredit.Logic;
+
+using User.Data;
+using User.Logic;
+
+using UserRole.Logic;
 
 /// <summary>
-/// Controller responsible for handling token-related operations
+///     Controller responsible for handling token-related operations
 /// </summary>
 [Authorize]
-[Route("[controller]")]
+[Route(template: "[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class TokenController(
-    ILogger<TokenController> logger,
-    ITokenService tokenService,
-    IRefreshTokenService refreshTokenService,
-    IUserService userService,
-    IUserRoleService userRoleService,
-    ICompanyService companyService,
-    ISubscriptionCreditService subscriptionCreditService
-) : ControllerBase
+public class TokenController(ILogger<TokenController> logger, ITokenService tokenService, IRefreshTokenService refreshTokenService, IUserService userService, IUserRoleService userRoleService, ICompanyService companyService, ISubscriptionCreditService subscriptionCreditService) : ControllerBase
 {
     /// <summary>
-    /// Generates an authentication token for the user
+    ///     Generates an authentication token for the user
     /// </summary>
     /// <param name="request">The token request containing credentials</param>
     /// <param name="cancellationToken"></param>
@@ -51,13 +50,13 @@ public class TokenController(
     {
         try
         {
-            logger.LogInformation("Starting token generation for user {Email}", request.Email);
+            logger.LogInformation(message: "Starting token generation for user {Email}", request.Email);
 
             var company = await companyService.GetByCnpjAsync(request.Cnpj, cancellationToken);
 
             if (company.Data is null)
             {
-                logger.LogWarning("Company not found for CNPJ {Cnpj}", request.Cnpj);
+                logger.LogWarning(message: "Company not found for CNPJ {Cnpj}", request.Cnpj);
                 return StatusCode((int)company.Status, company.Message);
             }
 
@@ -65,7 +64,7 @@ public class TokenController(
 
             if (userResponse.Data is null)
             {
-                logger.LogWarning("User not found or invalid credentials for {Email}", request.Email);
+                logger.LogWarning(message: "User not found or invalid credentials for {Email}", request.Email);
                 return StatusCode((int)userResponse.Status, userResponse.Message);
             }
 
@@ -75,38 +74,34 @@ public class TokenController(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error generating token for user {Email}", request.Email);
+            logger.LogError(ex, message: "Error generating token for user {Email}", request.Email);
             throw;
         }
     }
 
     /// <summary>
-    /// Gemerate a new authentication token for the user
+    ///     Gemerate a new authentication token for the user
     /// </summary>
     /// <param name="request">The refresh token request containing the refresh token</param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Returns the authentication token</response>
     [HttpPost]
     [AllowAnonymous]
-    [Route("refresh")]
+    [Route(template: "refresh")]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TokenResponse>> Refresh(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation("Starting token refresh for user {UserId}", request.UserId);
+            logger.LogInformation(message: "Starting token refresh for user {UserId}", request.UserId);
 
-            var isValidToken = await refreshTokenService.ValidateTokenAsync(
-                request.UserId,
-                request.RefreshToken,
-                cancellationToken
-            );
+            var isValidToken = await refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
 
             if (!isValidToken.Data)
             {
-                logger.LogWarning("Invalid refresh token for user {UserId}", request.UserId);
-                return BadRequest("Invalid client request");
+                logger.LogWarning(message: "Invalid refresh token for user {UserId}", request.UserId);
+                return BadRequest(error: "Invalid client request");
             }
 
             await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, cancellationToken);
@@ -115,7 +110,7 @@ public class TokenController(
 
             if (userResponse.Data is null)
             {
-                logger.LogWarning("User not found for refresh token {UserId}", request.UserId);
+                logger.LogWarning(message: "User not found for refresh token {UserId}", request.UserId);
                 return BadRequest(TextConstants.PermissionDenied);
             }
 
@@ -125,36 +120,35 @@ public class TokenController(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error refreshing token for user {UserId}", request.UserId);
+            logger.LogError(ex, message: "Error refreshing token for user {UserId}", request.UserId);
             throw;
         }
     }
 
-            /// <summary>
-            /// Populates and generates a new token response with user information
-            /// </summary>
-            /// <param name="user">User information</param>
-            /// <param name="companyId">Company identifier</param>
-            /// <param name="cancellationToken">Cancellation token</param>
-            /// <returns>Token response containing authentication and refresh tokens</returns>
-    private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(UserResponse user,
-        Guid companyId, CancellationToken cancellationToken)
+    /// <summary>
+    ///     Populates and generates a new token response with user information
+    /// </summary>
+    /// <param name="user">User information</param>
+    /// <param name="companyId">Company identifier</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Token response containing authentication and refresh tokens</returns>
+    private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(UserResponse user, Guid companyId, CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation("Populating token for user {Email}", user.Email);
+            logger.LogInformation(message: "Populating token for user {Email}", user.Email);
 
             var roles = await userRoleService.GetRolesByUserAsync(user.Id, cancellationToken);
 
             if (roles.Data is null)
             {
-                logger.LogWarning("Unable to retrieve roles for user {Email}", user.Email);
+                logger.LogWarning(message: "Unable to retrieve roles for user {Email}", user.Email);
                 return StatusCode((int)roles.Status, roles.Message);
             }
 
             if (roles.Data.Length == 0)
             {
-                logger.LogWarning("User {Email} has no assigned roles", user.Email);
+                logger.LogWarning(message: "User {Email} has no assigned roles", user.Email);
                 return BadRequest(TextConstants.UserWithoutRoles);
             }
 
@@ -162,7 +156,7 @@ public class TokenController(
 
             if (modules.Data is null)
             {
-                logger.LogWarning("Unable to retrieve active modules for company {CompanyId}", companyId);
+                logger.LogWarning(message: "Unable to retrieve active modules for company {CompanyId}", companyId);
                 return StatusCode((int)modules.Status, modules.Message);
             }
 
@@ -170,7 +164,7 @@ public class TokenController(
 
             if (token.Data is null)
             {
-                logger.LogWarning("Failed to generate token for user {Email}", user.Email);
+                logger.LogWarning(message: "Failed to generate token for user {Email}", user.Email);
                 return StatusCode((int)token.Status, token.Message);
             }
 
@@ -178,17 +172,17 @@ public class TokenController(
 
             if (refreshToken.Data is null)
             {
-                logger.LogWarning("Failed to generate refresh token for user {Email}", user.Email);
+                logger.LogWarning(message: "Failed to generate refresh token for user {Email}", user.Email);
                 return StatusCode((int)refreshToken.Status, refreshToken.Message);
             }
 
-            logger.LogInformation("Successfully generated tokens for user {Email}", user.Email);
+            logger.LogInformation(message: "Successfully generated tokens for user {Email}", user.Email);
 
             return Ok(new TokenResponse { Token = token.Data, RefreshToken = refreshToken.Data });
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error populating token for user {Email}", user.Email);
+            logger.LogError(ex, message: "Error populating token for user {Email}", user.Email);
             throw;
         }
     }

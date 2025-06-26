@@ -1,7 +1,7 @@
 @page "/Login"
-@using Fenicia.Web.Providers.Auth
 @using Blazored.LocalStorage
 @using Fenicia.Auth.Domains.Token.Data
+@using Fenicia.Web.Providers.Auth
 @inject ILocalStorageService LocalStorage
 @inject TokenProvider TokenProvider
 @inject NavigationManager NavigationManager
@@ -23,37 +23,38 @@
                     <form @onsubmit="HandleSubmit" @onsubmit:preventDefault>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
-                            <input type="email" 
-                                   id="email" 
-                                   class="form-control" 
-                                   @bind="_tokenRequest.Email" 
-                                   required />
+                            <input type="email"
+                                   id="email"
+                                   class="form-control"
+                                   @bind="_tokenRequest.Email"
+                                   required/>
                         </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" 
-                                   id="password" 
-                                   class="form-control" 
-                                   @bind="_tokenRequest.Password" 
-                                   required />
+                            <input type="password"
+                                   id="password"
+                                   class="form-control"
+                                   @bind="_tokenRequest.Password"
+                                   required/>
                         </div>
 
                         <div class="mb-3">
                             <label for="cnpj" class="form-label">CNPJ</label>
-                            <input type="text" 
-                                   id="cnpj" 
-                                   class="form-control" 
-                                   @bind="_tokenRequest.Cnpj" 
-                                   maxlength="14" 
-                                   required />
+                            <input type="text"
+                                   id="cnpj"
+                                   class="form-control"
+                                   @bind="_tokenRequest.Cnpj"
+                                   maxlength="14"
+                                   required/>
                         </div>
 
                         <div class="text-center">
                             <button class="btn btn-primary" disabled="@_isLoading">
                                 @if (_isLoading)
                                 {
-                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    <span class="spinner-border spinner-border-sm me-1" role="status"
+                                          aria-hidden="true"></span>
                                     <span>Loading...</span>
                                 }
                                 else
@@ -72,18 +73,19 @@
 @code {
 
     private readonly TokenRequest _tokenRequest = new()
-    {
-        Cnpj = "23351185000184",
-        Email = "ygor@ygorlazaro.com",
-        Password = "Age14rjy"
-    };
+                                                  {
+                                                      Cnpj = "23351185000184",
+                                                      Email = "ygor@ygorlazaro.com",
+                                                      Password = "Age14rjy"
+                                                  };
+
     private bool _isLoading;
     private string? _errorMessage;
 
     protected override void OnInitialized()
     {
-        LocalStorage.RemoveItemAsync("authToken");
-        LocalStorage.RemoveItemAsync("refreshToken");
+        LocalStorage.RemoveItemAsync(key: "authToken");
+        LocalStorage.RemoveItemAsync(key: "refreshToken");
     }
 
     private async Task HandleSubmit()
@@ -93,21 +95,19 @@
             _isLoading = true;
             _errorMessage = null;
 
-            if (string.IsNullOrWhiteSpace(_tokenRequest.Email) ||
-                string.IsNullOrWhiteSpace(_tokenRequest.Password) ||
-                string.IsNullOrWhiteSpace(_tokenRequest.Cnpj))
+            if (string.IsNullOrWhiteSpace(_tokenRequest.Email) || string.IsNullOrWhiteSpace(_tokenRequest.Password) || string.IsNullOrWhiteSpace(_tokenRequest.Cnpj))
             {
                 _errorMessage = "Please fill in all required fields.";
                 return;
             }
 
             var response = await TokenProvider.GetTokenAsync(_tokenRequest);
-            
+
             if (response != null)
             {
-                await LocalStorage.SetItemAsync("authToken", response.Token);
-                await LocalStorage.SetItemAsync("refreshToken", response.RefreshToken);
-                NavigationManager.NavigateTo("/home", true);
+                await LocalStorage.SetItemAsync(key: "authToken", response.Token);
+                await LocalStorage.SetItemAsync(key: "refreshToken", response.RefreshToken);
+                NavigationManager.NavigateTo(uri: "/home", forceLoad: true);
             }
             else
             {
@@ -130,4 +130,5 @@
             StateHasChanged();
         }
     }
+
 }

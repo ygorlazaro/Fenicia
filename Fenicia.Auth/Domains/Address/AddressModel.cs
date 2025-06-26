@@ -1,62 +1,63 @@
+namespace Fenicia.Auth.Domains.Address;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Auth.Domains.State.Data;
-using Fenicia.Common.Database;
+using Common.Database;
 
-namespace Fenicia.Auth.Domains.Address;
+using State.Data;
 
 /// <summary>
-/// Represents an address entity in the system
+///     Represents an address entity in the system
 /// </summary>
-[Table("addresses")]
+[Table(name: "addresses")]
 public class AddressModel : BaseModel
 {
     /// <summary>
-    /// Gets or sets the street name
+    ///     Gets or sets the street name
     /// </summary>
     [Required]
-    [MaxLength(100)]
+    [MaxLength(length: 100)]
     public string Street { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the address number
+    ///     Gets or sets the address number
     /// </summary>
     [Required]
-    [MaxLength(10)]
+    [MaxLength(length: 10)]
     public string Number { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the address complement
+    ///     Gets or sets the address complement
     /// </summary>
-    [MaxLength(10)]
+    [MaxLength(length: 10)]
     public string Complement { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the ZIP code
+    ///     Gets or sets the ZIP code
     /// </summary>
     [Required]
-    [MaxLength(9)]
+    [MaxLength(length: 9)]
     public string ZipCode { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the state identifier
+    ///     Gets or sets the state identifier
     /// </summary>
     [Required]
     public Guid StateId { get; set; }
 
     /// <summary>
-    /// Gets or sets the city name
+    ///     Gets or sets the city name
     /// </summary>
     [Required]
-    [MaxLength(30)]
+    [MaxLength(length: 30)]
     public string City { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the associated state
+    ///     Gets or sets the associated state
     /// </summary>
-    [ForeignKey(nameof(StateId))]
+    [ForeignKey(nameof(AddressModel.StateId))]
     [JsonIgnore]
     public virtual StateModel State { get; set; } = null!;
 }

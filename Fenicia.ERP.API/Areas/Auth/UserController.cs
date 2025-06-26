@@ -1,20 +1,20 @@
-using Fenicia.Common.Api;
+namespace Fenicia.ERP.API.Areas.Auth;
+
+using Common.Api;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fenicia.ERP.API.Areas.Auth;
-
 [Authorize]
-[Route("[controller]")]
+[Route(template: "[controller]")]
 [ApiController]
 public class UserController : ControllerBase
 {
     [HttpGet]
     public IActionResult GetAsync()
     {
-        ClaimReader.ValidateRole(User, "Admin");
+        ClaimReader.ValidateRole(User, roleToSearch: "Admin");
 
-        return Ok("Sucesso");
+        return Ok(value: "Sucesso");
     }
 }

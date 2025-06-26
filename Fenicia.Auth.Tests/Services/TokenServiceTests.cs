@@ -1,31 +1,32 @@
+namespace Fenicia.Auth.Tests.Services;
+
 using System.IdentityModel.Tokens.Jwt;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Token.Logic;
-using Fenicia.Auth.Domains.User.Data;
-using Fenicia.Common.Enums;
+using Common.Enums;
+
+using Domains.Token.Logic;
+using Domains.User.Data;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace Fenicia.Auth.Tests.Services;
-
 public class TokenServiceTests
 {
-    private Mock<IConfiguration> _configurationMock;
-    private Mock<ILogger<TokenService>> _loggerMock;
-    private TokenService _sut;
-    private Faker _faker;
-    private string _jwtSecret;
+    private Mock<IConfiguration> _configurationMock = null!;
+    private Faker _faker = null!;
+    private string _jwtSecret = null!;
+    private Mock<ILogger<TokenService>> _loggerMock = null!;
+    private TokenService _sut = null!;
 
     [SetUp]
     public void Setup()
     {
         _faker = new Faker();
-        _jwtSecret = _faker.Random.AlphaNumeric(32);
+        _jwtSecret = _faker.Random.AlphaNumeric(length: 32);
 
         _configurationMock = new Mock<IConfiguration>();
         _configurationMock.Setup(x => x["Jwt:Secret"]).Returns(_jwtSecret);
@@ -40,11 +41,11 @@ public class TokenServiceTests
     {
         // Arrange
         var user = new UserResponse
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName()
-        };
+                   {
+                       Id = Guid.NewGuid(),
+                       Email = _faker.Internet.Email(),
+                       Name = _faker.Name.FullName()
+                   };
 
         var roles = new[] { "Admin", "User" };
         var companyId = Guid.NewGuid();
@@ -62,16 +63,10 @@ public class TokenServiceTests
         Assert.Multiple(() =>
         {
             // Verify standard claims
-            Assert.That(
-                token.Claims.First(c => c.Type == "userId").Value,
-                Is.EqualTo(user.Id.ToString())
-            );
+            Assert.That(token.Claims.First(c => c.Type == "userId").Value, Is.EqualTo(user.Id.ToString()));
             Assert.That(token.Claims.First(c => c.Type == "email").Value, Is.EqualTo(user.Email));
             Assert.That(token.Claims.First(c => c.Type == "unique_name").Value, Is.EqualTo(user.Name));
-            Assert.That(
-                token.Claims.First(c => c.Type == "companyId").Value,
-                Is.EqualTo(companyId.ToString())
-            );
+            Assert.That(token.Claims.First(c => c.Type == "companyId").Value, Is.EqualTo(companyId.ToString()));
             Assert.That(token.Claims.Any(c => c.Type == JwtRegisteredClaimNames.Jti), Is.True);
         });
 
@@ -80,10 +75,7 @@ public class TokenServiceTests
         Assert.That(roleClaims, Is.EquivalentTo(roles));
 
         // Verify modules
-        var moduleClaims = token
-            .Claims.Where(c => c.Type == "module")
-            .Select(c => c.Value)
-            .ToList();
+        var moduleClaims = token.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
         Assert.That(moduleClaims, Is.EquivalentTo(modules.Select(m => m.ToString())));
     }
 
@@ -92,11 +84,11 @@ public class TokenServiceTests
     {
         // Arrange
         var user = new UserResponse
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName()
-        };
+                   {
+                       Id = Guid.NewGuid(),
+                       Email = _faker.Internet.Email(),
+                       Name = _faker.Name.FullName()
+                   };
 
         var roles = new[] { "God" };
         var companyId = Guid.NewGuid();
@@ -109,11 +101,8 @@ public class TokenServiceTests
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(result.Data);
 
-        var moduleClaims = token
-            .Claims.Where(c => c.Type == "module")
-            .Select(c => c.Value)
-            .ToList();
-        Assert.That(moduleClaims, Does.Contain("erp"));
+        var moduleClaims = token.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
+        Assert.That(moduleClaims, Does.Contain(expected: "erp"));
         Assert.That(moduleClaims, Does.Contain(ModuleType.Accounting.ToString()));
     }
 
@@ -122,11 +111,11 @@ public class TokenServiceTests
     {
         // Arrange
         var user = new UserResponse
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName()
-        };
+                   {
+                       Id = Guid.NewGuid(),
+                       Email = _faker.Internet.Email(),
+                       Name = _faker.Name.FullName()
+                   };
 
         var roles = new[] { "User" };
         var companyId = Guid.NewGuid();
@@ -139,8 +128,8 @@ public class TokenServiceTests
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(result.Data);
 
-        var expectedExpiration = DateTime.UtcNow.AddHours(3);
-        Assert.That(token.ValidTo, Is.EqualTo(expectedExpiration).Within(TimeSpan.FromSeconds(5)));
+        var expectedExpiration = DateTime.UtcNow.AddHours(value: 3);
+        Assert.That(token.ValidTo, Is.EqualTo(expectedExpiration).Within(TimeSpan.FromSeconds(seconds: 5)));
     }
 
     [Test]
@@ -148,11 +137,11 @@ public class TokenServiceTests
     {
         // Arrange
         var user = new UserResponse
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName()
-        };
+                   {
+                       Id = Guid.NewGuid(),
+                       Email = _faker.Internet.Email(),
+                       Name = _faker.Name.FullName()
+                   };
 
         var roles = new[] { "User" };
         var companyId = Guid.NewGuid();
@@ -176,19 +165,17 @@ public class TokenServiceTests
         _configurationMock.Setup(x => x["Jwt:Secret"]).Returns((string)null!);
 
         var user = new UserResponse
-        {
-            Id = Guid.NewGuid(),
-            Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName()
-        };
+                   {
+                       Id = Guid.NewGuid(),
+                       Email = _faker.Internet.Email(),
+                       Name = _faker.Name.FullName()
+                   };
 
         var roles = new[] { "User" };
         var companyId = Guid.NewGuid();
         var modules = new List<ModuleType> { ModuleType.Accounting };
 
         // Assert
-        Assert.Throws<InvalidOperationException>(() =>
-            _sut.GenerateToken(user, roles, companyId, modules)
-        );
+        Assert.Throws<InvalidOperationException>(() => _sut.GenerateToken(user, roles, companyId, modules));
     }
 }

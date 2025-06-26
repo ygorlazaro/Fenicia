@@ -1,27 +1,30 @@
-using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Role.Data;
-using Fenicia.Auth.Domains.Role.Logic;
+namespace Fenicia.Auth.Tests.Repositories;
+
+using Contexts;
+
+using Domains.Role.Data;
+using Domains.Role.Logic;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace Fenicia.Auth.Tests.Repositories;
+using Moq;
 
 public class RoleRepositoryTests
 {
-    private AuthContext _context;
-    private RoleRepository _sut;
-    private DbContextOptions<AuthContext> _options;
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private AuthContext _context;
+    private DbContextOptions<AuthContext> _options;
+    private RoleRepository _sut;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
-            .Options;
+        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        var mockLogger = new Mock<ILogger<RoleRepository>>().Object;
 
         _context = new AuthContext(_options);
-        _sut = new RoleRepository(_context);
+        _sut = new RoleRepository(_context, mockLogger);
     }
 
     [TearDown]
@@ -47,7 +50,7 @@ public class RoleRepositoryTests
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.Name, Is.EqualTo("Admin"));
+            Assert.That(result.Name, Is.EqualTo(expected: "Admin"));
             Assert.That(result.Id, Is.EqualTo(adminRole.Id));
         });
     }
@@ -83,11 +86,11 @@ public class RoleRepositoryTests
     {
         // Arrange
         var roles = new[]
-        {
-            new RoleModel { Id = Guid.NewGuid(), Name = "User" },
-            new RoleModel { Id = Guid.NewGuid(), Name = "Admin" },
-            new RoleModel { Id = Guid.NewGuid(), Name = "Manager" }
-        };
+                    {
+                        new RoleModel { Id = Guid.NewGuid(), Name = "User" },
+                        new RoleModel { Id = Guid.NewGuid(), Name = "Admin" },
+                        new RoleModel { Id = Guid.NewGuid(), Name = "Manager" }
+                    };
 
         await _context.Roles.AddRangeAsync(roles, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -97,7 +100,7 @@ public class RoleRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Name, Is.EqualTo("Admin"));
+        Assert.That(result.Name, Is.EqualTo(expected: "Admin"));
     }
 
     [Test]
@@ -113,6 +116,6 @@ public class RoleRepositoryTests
         var result = await _sut.GetAdminRoleAsync(_cancellationToken);
 
         // Assert
-        Assert.That(result, Is.Null, "GetAdminRoleAsync should be case sensitive");
+        Assert.That(result, Is.Null, message: "GetAdminRoleAsync should be case sensitive");
     }
 }

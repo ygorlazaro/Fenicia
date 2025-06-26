@@ -1,8 +1,8 @@
-using Fenicia.Common.Database;
+namespace Fenicia.Module.Plus.Contexts;
+
+using Common.Database;
 
 using Microsoft.EntityFrameworkCore;
-
-namespace Fenicia.Module.Plus.Contexts;
 
 public class PlusContext(DbContextOptions<PlusContext> options) : DbContext(options)
 {

@@ -1,26 +1,30 @@
+namespace Fenicia.Auth;
+
 using System.Text;
 using System.Text.Json.Serialization;
 
 using AspNetCoreRateLimit;
 
-using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.DataCache;
-using Fenicia.Auth.Domains.ForgotPassword.Logic;
-using Fenicia.Auth.Domains.LoginAttempt.Logic;
-using Fenicia.Auth.Domains.Module.Logic;
-using Fenicia.Auth.Domains.Order.Logic;
-using Fenicia.Auth.Domains.RefreshToken.Logic;
-using Fenicia.Auth.Domains.Role.Logic;
-using Fenicia.Auth.Domains.Security.Logic;
-using Fenicia.Auth.Domains.Subscription.Logic;
-using Fenicia.Auth.Domains.SubscriptionCredit.Logic;
-using Fenicia.Auth.Domains.Token.Logic;
-using Fenicia.Auth.Domains.User.Logic;
-using Fenicia.Auth.Domains.UserRole.Logic;
-using Fenicia.Common;
-using Fenicia.Common.Api.Middlewares;
-using Fenicia.Common.Externals.Email;
+using Common;
+using Common.Api.Middlewares;
+using Common.Externals.Email;
+
+using Contexts;
+
+using Domains.Company.Logic;
+using Domains.DataCache;
+using Domains.ForgotPassword.Logic;
+using Domains.LoginAttempt.Logic;
+using Domains.Module.Logic;
+using Domains.Order.Logic;
+using Domains.RefreshToken.Logic;
+using Domains.Role.Logic;
+using Domains.Security.Logic;
+using Domains.Subscription.Logic;
+using Domains.SubscriptionCredit.Logic;
+using Domains.Token.Logic;
+using Domains.User.Logic;
+using Domains.UserRole.Logic;
 
 using FluentValidation.AspNetCore;
 
@@ -35,15 +39,13 @@ using Serilog;
 
 using StackExchange.Redis;
 
-namespace Fenicia.Auth;
-
 /// <summary>
-/// Main program class containing application configuration and startup logic
+///     Main program class containing application configuration and startup logic
 /// </summary>
 public static class Program
 {
     /// <summary>
-    /// Application entry point that configures and starts the web application
+    ///     Application entry point that configures and starts the web application
     /// </summary>
     /// <param name="args">Command line arguments</param>
     public static void Main(string[] args)
@@ -51,18 +53,18 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
 
-        BuildLogging(builder);
-        BuildRateLimiting(builder, configuration);
-        BuildDependencyInjection(builder);
-        BuildDatabaseConnection(configuration, builder);
-        BuildCors(builder);
-        BuildControllers(configuration, builder);
+        Program.BuildLogging(builder);
+        Program.BuildRateLimiting(builder, configuration);
+        Program.BuildDependencyInjection(builder);
+        Program.BuildDatabaseConnection(configuration, builder);
+        Program.BuildCors(builder);
+        Program.BuildControllers(configuration, builder);
 
-        StartApplication(builder);
+        Program.StartApplication(builder);
     }
 
     /// <summary>
-    /// Configures and starts the web application with middleware and security settings
+    ///     Configures and starts the web application with middleware and security settings
     /// </summary>
     /// <param name="builder">The web application builder</param>
     private static void StartApplication(WebApplicationBuilder builder)
@@ -76,20 +78,17 @@ public static class Program
 
         app.UseSerilogRequestLogging();
 
-
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
             app.MapScalarApiReference(x =>
             {
-                x.WithDarkModeToggle(true)
-                    .WithTheme(ScalarTheme.Purple)
-                    .WithClientButton(true);
+                x.WithDarkModeToggle(showDarkModeToggle: true).WithTheme(ScalarTheme.Purple).WithClientButton(showButton: true);
 
                 x.Authentication = new ScalarAuthenticationOptions
-                {
-                    PreferredSecuritySchemes = ["Bearer "]
-                };
+                                   {
+                                       PreferredSecuritySchemes = ["Bearer "]
+                                   };
             });
         }
 
@@ -119,14 +118,13 @@ public static class Program
     }
 
     /// <summary>
-    /// Configures controllers, authentication, and API behavior
+    ///     Configures controllers, authentication, and API behavior
     /// </summary>
     /// <param name="configuration">Application configuration</param>
     /// <param name="builder">The web application builder</param>
     private static void BuildControllers(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]
-                                          ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+        var key = Encoding.ASCII.GetBytes(configuration[key: "Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
         builder.Services.AddAuthentication(x =>
         {
             x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -137,14 +135,14 @@ public static class Program
             x.SaveToken = true;
             x.ClaimsIssuer = "AuthService";
             x.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
+                                          {
+                                              ValidateIssuerSigningKey = true,
+                                              IssuerSigningKey = new SymmetricSecurityKey(key),
+                                              ValidateIssuer = false,
+                                              ValidateAudience = false,
+                                              ValidateLifetime = true,
+                                              ClockSkew = TimeSpan.Zero
+                                          };
         });
 
         builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -152,87 +150,65 @@ public static class Program
             options.InvalidModelStateResponseFactory = context =>
             {
                 var problemDetails = new ValidationProblemDetails(context.ModelState)
-                {
-                    Type = "https://tools.ietf.org/html/rfc7807",
-                    Title = "Um ou mais erros de validação ocorreram.",
-                    Status = StatusCodes.Status400BadRequest,
-                    Instance = context.HttpContext.Request.Path
-                };
+                                     {
+                                         Type = "https://tools.ietf.org/html/rfc7807",
+                                         Title = "Um ou mais erros de validação ocorreram.",
+                                         Status = StatusCodes.Status400BadRequest,
+                                         Instance = context.HttpContext.Request.Path
+                                     };
 
                 return new BadRequestObjectResult(problemDetails)
-                {
-                    ContentTypes = { "application/problem+json" }
-                };
+                       {
+                           ContentTypes = { "application/problem+json" }
+                       };
             };
         });
 
-        builder.Services.AddControllers()
-            .AddJsonOptions(x =>
-            {
-                x.JsonSerializerOptions.AllowTrailingCommas = false;
-                x.JsonSerializerOptions.MaxDepth = 0;
-                x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-            })
-            .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AuthProfiles>());
-
+        builder.Services.AddControllers().AddJsonOptions(x =>
+        {
+            x.JsonSerializerOptions.AllowTrailingCommas = false;
+            x.JsonSerializerOptions.MaxDepth = 0;
+            x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        }).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AuthProfiles>());
 
         builder.Services.AddOpenApi();
     }
 
     /// <summary>
-    /// Configures Cross-Origin Resource Sharing (CORS) policies
+    ///     Configures Cross-Origin Resource Sharing (CORS) policies
     /// </summary>
     /// <param name="builder">The web application builder</param>
     private static void BuildCors(WebApplicationBuilder builder)
     {
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("RestrictedCors", policy =>
-            {
-                policy
-                    .WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
+            options.AddPolicy(name: "RestrictedCors", policy => { policy.WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
 
-            options.AddPolicy("DevCors", policy =>
-            {
-                policy
-                    .WithOrigins("http://localhost:5144", "http://127.0.0.1:5144")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
+            options.AddPolicy(name: "DevCors", policy => { policy.WithOrigins("http://localhost:5144", "http://127.0.0.1:5144").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
         });
     }
 
     /// <summary>
-    /// Configures database connection and context
+    ///     Configures database connection and context
     /// </summary>
     /// <param name="configuration">Application configuration</param>
     /// <param name="builder">The web application builder</param>
     private static void BuildDatabaseConnection(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
-        var connectionString = configuration.GetConnectionString("AuthConnection");
+        var connectionString = configuration.GetConnectionString(name: "AuthConnection");
 
-        builder.Services.AddDbContextPool<AuthContext>(x =>
-        {
-            x.UseNpgsql(connectionString)
-                .EnableSensitiveDataLogging()
-                .UseSnakeCaseNamingConvention();
-        });
+        builder.Services.AddDbContextPool<AuthContext>(x => { x.UseNpgsql(connectionString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention(); });
     }
 
     /// <summary>
-    /// Configures dependency injection for services and repositories
+    ///     Configures dependency injection for services and repositories
     /// </summary>
     /// <param name="builder">The web application builder</param>
     private static void BuildDependencyInjection(WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
-            var config = ConfigurationOptions.Parse("localhost", true);
+            var config = ConfigurationOptions.Parse(configuration: "localhost", ignoreUnknown: true);
             config.ConnectRetry = 3;
             config.ConnectTimeout = 5000;
             return ConnectionMultiplexer.Connect(config);
@@ -266,16 +242,13 @@ public static class Program
 
         builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
 
-        builder.Services.AddResponseCompression(config =>
-        {
-            config.EnableForHttps = true;
-        });
+        builder.Services.AddResponseCompression(config => { config.EnableForHttps = true; });
 
         builder.Services.AddAutoMapper(typeof(Program));
     }
 
     /// <summary>
-    /// Configures IP-based rate limiting
+    ///     Configures IP-based rate limiting
     /// </summary>
     /// <param name="builder">The web application builder</param>
     /// <param name="configuration">Application configuration</param>
@@ -283,14 +256,14 @@ public static class Program
     {
         // Rate Limiting setup (AspNetCoreRateLimit)
         builder.Services.AddMemoryCache();
-        builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
-        builder.Services.Configure<IpRateLimitPolicies>(configuration.GetSection("IpRateLimitPolicies"));
+        builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection(key: "IpRateLimiting"));
+        builder.Services.Configure<IpRateLimitPolicies>(configuration.GetSection(key: "IpRateLimitPolicies"));
         builder.Services.AddInMemoryRateLimiting();
         builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
     }
 
     /// <summary>
-    /// Configures application logging using Serilog
+    ///     Configures application logging using Serilog
     /// </summary>
     /// <param name="builder">The web application builder</param>
     private static void BuildLogging(WebApplicationBuilder builder)
@@ -299,19 +272,13 @@ public static class Program
         {
             config.ReadFrom.Configuration(context.Configuration);
 
-            var seqUrl = context.Configuration["Seq:Url"];
+            var seqUrl = context.Configuration[key: "Seq:Url"];
             if (!string.IsNullOrWhiteSpace(seqUrl))
             {
-                config.Enrich.FromLogContext()
-                    .Enrich.WithEnvironmentUserName()
-                    .WriteTo.Console().
-                    WriteTo.Seq(seqUrl);
+                config.Enrich.FromLogContext().Enrich.WithEnvironmentUserName().WriteTo.Console().WriteTo.Seq(seqUrl);
             }
         });
 
-
-        Log.Logger = new LoggerConfiguration()
-            .WriteTo.Console()
-            .CreateLogger();
+        Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
     }
 }

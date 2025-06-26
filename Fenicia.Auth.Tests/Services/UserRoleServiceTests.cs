@@ -1,20 +1,20 @@
+namespace Fenicia.Auth.Tests.Services;
+
 using Bogus;
 
-using Fenicia.Auth.Domains.UserRole.Logic;
+using Domains.UserRole.Logic;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace Fenicia.Auth.Tests.Services;
-
 public class UserRoleServiceTests
 {
-    private Mock<ILogger<UserRoleService>> _loggerMock;
-    private Mock<IUserRoleRepository> _userRoleRepositoryMock;
-    private UserRoleService _sut;
-    private Faker _faker;
     private CancellationToken _cancellationToken;
+    private Faker _faker;
+    private Mock<ILogger<UserRoleService>> _loggerMock;
+    private UserRoleService _sut;
+    private Mock<IUserRoleRepository> _userRoleRepositoryMock;
 
     [SetUp]
     public void Setup()
@@ -33,9 +33,7 @@ public class UserRoleServiceTests
         var userId = Guid.NewGuid();
         var expectedRoles = new[] { "Admin", "User", "Manager" };
 
-        _userRoleRepositoryMock
-            .Setup(x => x.GetRolesByUserAsync(userId, _cancellationToken))
-            .ReturnsAsync(expectedRoles);
+        _userRoleRepositoryMock.Setup(x => x.GetRolesByUserAsync(userId, _cancellationToken)).ReturnsAsync(expectedRoles);
 
         // Act
         var result = await _sut.GetRolesByUserAsync(userId, _cancellationToken);
@@ -72,9 +70,7 @@ public class UserRoleServiceTests
         var companyId = Guid.NewGuid();
         var role = _faker.Random.ArrayElement(["Admin", "User", "Manager"]);
 
-        _userRoleRepositoryMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken))
-            .ReturnsAsync(true);
+        _userRoleRepositoryMock.Setup(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken)).ReturnsAsync(value: true);
 
         // Act
         var result = await _sut.HasRoleAsync(userId, companyId, role, _cancellationToken);
@@ -93,9 +89,7 @@ public class UserRoleServiceTests
         var companyId = Guid.NewGuid();
         var role = "NonExistentRole";
 
-        _userRoleRepositoryMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken))
-            .ReturnsAsync(false);
+        _userRoleRepositoryMock.Setup(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken)).ReturnsAsync(value: false);
 
         // Act
         var result = await _sut.HasRoleAsync(userId, companyId, role, _cancellationToken);
@@ -106,18 +100,16 @@ public class UserRoleServiceTests
         _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken), Times.Once);
     }
 
-    [TestCase("Admin")]
-    [TestCase("User")]
-    [TestCase("Manager")]
+    [TestCase(arg: "Admin")]
+    [TestCase(arg: "User")]
+    [TestCase(arg: "Manager")]
     public async Task HasRoleAsync_WithDifferentRoles_ValidatesCorrectly(string role)
     {
         // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
-        _userRoleRepositoryMock
-            .Setup(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken))
-            .ReturnsAsync(true);
+        _userRoleRepositoryMock.Setup(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken)).ReturnsAsync(value: true);
 
         // Act
         var result = await _sut.HasRoleAsync(userId, companyId, role, _cancellationToken);

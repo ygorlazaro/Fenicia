@@ -1,39 +1,39 @@
+namespace Fenicia.Auth.Domains.Token.Data;
+
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
-namespace Fenicia.Auth.Domains.Token.Data;
-
 /// <summary>
-/// Response model containing the authentication token and refresh token for user authentication.
+///     Response model containing the authentication token and refresh token for user authentication.
 /// </summary>
 /// <remarks>
-/// This class represents the response returned after successful authentication,
-/// containing both the main JWT token and a refresh token for maintaining session.
+///     This class represents the response returned after successful authentication,
+///     containing both the main JWT token and a refresh token for maintaining session.
 /// </remarks>
 [DataContract]
 public class TokenResponse
 {
     /// <summary>
-    /// The JWT authentication token used for authorizing requests.
+    ///     The JWT authentication token used for authorizing requests.
     /// </summary>
     /// <example>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</example>
     /// <remarks>
-    /// This token should be included in the Authorization header of subsequent requests.
+    ///     This token should be included in the Authorization header of subsequent requests.
     /// </remarks>
     [Required]
-    [StringLength(2048)]
+    [StringLength(maximumLength: 2048)]
     [DataMember(Name = "token")]
     public string Token { get; set; } = null!;
 
     /// <summary>
-    /// The JWT refresh token used for obtaining new authentication tokens.
+    ///     The JWT refresh token used for obtaining new authentication tokens.
     /// </summary>
     /// <example>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</example>
     /// <remarks>
-    /// This token is used to request a new authentication token when the current one expires.
+    ///     This token is used to request a new authentication token when the current one expires.
     /// </remarks>
     [Required]
-    [StringLength(2048)]
+    [StringLength(maximumLength: 2048)]
     [DataMember(Name = "refreshToken")]
     public string RefreshToken { get; set; } = null!;
 }

@@ -1,12 +1,10 @@
-using Fenicia.Common.Database;
+namespace Fenicia.Module.Projects.Contexts;
+
+using Common.Database;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Module.Projects.Contexts;
-
-public class ProjectContext(
-    DbContextOptions<ProjectContext> options
-) : DbContext(options)
+public class ProjectContext(DbContextOptions<ProjectContext> options) : DbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

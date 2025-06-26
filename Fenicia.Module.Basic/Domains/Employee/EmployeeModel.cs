@@ -1,20 +1,22 @@
+namespace Fenicia.Module.Basic.Domains.Employee;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using Fenicia.Common.Database;
-using Fenicia.Module.Basic.Domains.Address;
-using Fenicia.Module.Basic.Domains.Position;
+using Address;
 
-namespace Fenicia.Module.Basic.Domains.Employee;
+using Common.Database;
 
-[Table("employees")]
+using Position;
+
+[Table(name: "employees")]
 public class EmployeeModel : BaseModel
 {
     [Required]
-    [MaxLength(50)]
+    [MaxLength(length: 50)]
     public string Name { get; set; } = null!;
 
-    [MaxLength(14)]
+    [MaxLength(length: 14)]
     public string? Cpf { get; set; } = null!;
 
     public Guid AddressId { get; set; }
@@ -22,9 +24,9 @@ public class EmployeeModel : BaseModel
     [Required]
     public Guid PositionId { get; set; }
 
-    [ForeignKey("PositionId")]
+    [ForeignKey(name: "PositionId")]
     public virtual PositionModel Position { get; set; } = null!;
 
-    [ForeignKey("AddressId")]
+    [ForeignKey(name: "AddressId")]
     public virtual AddressModel Address { get; set; } = null!;
 }

@@ -1,55 +1,48 @@
+namespace Fenicia.Auth.Tests.Repositories;
+
 using Bogus;
 
-using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Company.Data;
-using Fenicia.Auth.Domains.User.Data;
-using Fenicia.Auth.Domains.User.Logic;
-using Fenicia.Auth.Domains.UserRole.Data;
+using Contexts;
+
+using Domains.Company.Data;
+using Domains.User.Data;
+using Domains.User.Logic;
+using Domains.UserRole.Data;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace Fenicia.Auth.Tests.Repositories;
+using Moq;
 
 public class UserRepositoryTests
 {
-    private AuthContext _context;
-    private UserRepository _sut;
-    private DbContextOptions<AuthContext> _options;
-    private Faker<UserModel> _userGenerator;
-    private Faker<CompanyModel> _companyGenerator;
-    private Faker<UserRoleModel> _userRoleGenerator;
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private Faker<CompanyModel> _companyGenerator;
+    private AuthContext _context;
+    private DbContextOptions<AuthContext> _options;
+    private UserRepository _sut;
+    private Faker<UserModel> _userGenerator;
+    private Faker<UserRoleModel> _userRoleGenerator;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
-            .Options;
+        var mockLogger = new Mock<ILogger<UserRepository>>().Object;
+        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
         _context = new AuthContext(_options);
-        _sut = new UserRepository(_context);
+        _sut = new UserRepository(_context, mockLogger);
 
         SetupFakers();
     }
 
     private void SetupFakers()
     {
-        _userGenerator = new Faker<UserModel>()
-            .RuleFor(u => u.Id, _ => Guid.NewGuid())
-            .RuleFor(u => u.Email, f => f.Internet.Email())
-            .RuleFor(u => u.Name, f => f.Name.FullName())
-            .RuleFor(u => u.Password, f => f.Internet.Password());
+        _userGenerator = new Faker<UserModel>().RuleFor(u => u.Id, _ => Guid.NewGuid()).RuleFor(u => u.Email, f => f.Internet.Email()).RuleFor(u => u.Name, f => f.Name.FullName()).RuleFor(u => u.Password, f => f.Internet.Password());
 
-        _companyGenerator = new Faker<CompanyModel>()
-            .RuleFor(c => c.Id, _ => Guid.NewGuid())
-            .RuleFor(c => c.Name, f => f.Company.CompanyName())
-            .RuleFor(c => c.Cnpj, f => f.Random.ReplaceNumbers("##.###.###/####-##"));
+        _companyGenerator = new Faker<CompanyModel>().RuleFor(c => c.Id, _ => Guid.NewGuid()).RuleFor(c => c.Name, f => f.Company.CompanyName()).RuleFor(c => c.Cnpj, f => f.Random.ReplaceNumbers(format: "##.###.###/####-##"));
 
-        _userRoleGenerator = new Faker<UserRoleModel>()
-            .RuleFor(ur => ur.Id, _ => Guid.NewGuid())
-            .RuleFor(ur => ur.UserId, _ => Guid.NewGuid())
-            .RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
+        _userRoleGenerator = new Faker<UserRoleModel>().RuleFor(ur => ur.Id, _ => Guid.NewGuid()).RuleFor(ur => ur.UserId, _ => Guid.NewGuid()).RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
     }
 
     [TearDown]
@@ -65,11 +58,7 @@ public class UserRepositoryTests
         // Arrange
         var user = _userGenerator.Generate();
         var company = _companyGenerator.Generate();
-        var userRole = _userRoleGenerator
-            .Clone()
-            .RuleFor(ur => ur.UserId, user.Id)
-            .RuleFor(ur => ur.CompanyId, company.Id)
-            .Generate();
+        var userRole = _userRoleGenerator.Clone().RuleFor(ur => ur.UserId, user.Id).RuleFor(ur => ur.CompanyId, company.Id).Generate();
 
         await _context.Users.AddAsync(user, _cancellationToken);
         await _context.Companies.AddAsync(company, _cancellationToken);
@@ -130,7 +119,7 @@ public class UserRepositoryTests
         var saveResult = await _sut.SaveAsync(_cancellationToken);
 
         // Assert
-        Assert.That(saveResult, Is.GreaterThan(0));
+        Assert.That(saveResult, Is.GreaterThan(expected: 0));
         var savedUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == user.Id, _cancellationToken);
         Assert.That(savedUser, Is.Not.Null);
         Assert.That(savedUser!.Email, Is.EqualTo(user.Email));

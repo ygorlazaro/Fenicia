@@ -1,20 +1,21 @@
+namespace Fenicia.Module.Basic.Domains.State;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using Fenicia.Common.Database;
-using Fenicia.Module.Basic.Domains.Address;
+using Address;
 
-namespace Fenicia.Module.Basic.Domains.State;
+using Common.Database;
 
-[Table("states")]
+[Table(name: "states")]
 public class StateModel : BaseModel
 {
     [Required]
-    [MaxLength(30)]
+    [MaxLength(length: 30)]
     public string Name { get; set; } = null!;
 
     [Required]
-    [MaxLength(2)]
+    [MaxLength(length: 2)]
     public string Uf { get; set; } = null!;
 
     public virtual List<AddressModel> Addresses { get; set; } = null!;

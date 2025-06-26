@@ -1,21 +1,20 @@
-using Fenicia.Common.Database;
-using Fenicia.Module.Basic.Domains.Address;
-using Fenicia.Module.Basic.Domains.Customer;
-using Fenicia.Module.Basic.Domains.Employee;
-using Fenicia.Module.Basic.Domains.Position;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.State;
-using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.Supplier;
+namespace Fenicia.Module.Basic.Contexts;
+
+using Common.Database;
+
+using Domains.Address;
+using Domains.Customer;
+using Domains.Employee;
+using Domains.Position;
+using Domains.Product;
+using Domains.ProductCategory;
+using Domains.State;
+using Domains.StockMovement;
+using Domains.Supplier;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Module.Basic.Contexts;
-
-public class BasicContext(
-    DbContextOptions<BasicContext> options
-) : DbContext(options)
+public class BasicContext(DbContextOptions<BasicContext> options) : DbContext(options)
 {
     public DbSet<StateModel> States { get; set; } = null!;
 

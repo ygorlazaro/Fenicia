@@ -1,7 +1,8 @@
-using Fenicia.Auth.Domains.Company.Data;
-using Fenicia.Common;
-
 namespace Fenicia.Web.Providers.Auth;
+
+using Common;
+
+using Fenicia.Auth.Domains.Company.Data;
 
 public class CompanyProvider(HttpClient httpClient)
 {
@@ -11,12 +12,13 @@ public class CompanyProvider(HttpClient httpClient)
     {
         try
         {
-            var response = await _httpClient.GetAsync("company");
+            var response = await _httpClient.GetAsync(requestUri: "company");
             if (response.IsSuccessStatusCode)
             {
                 var pagination = await response.Content.ReadFromJsonAsync<Pagination<IEnumerable<CompanyResponse>>>();
                 return pagination?.Data;
             }
+
             var errorMessage = await response.Content.ReadAsStringAsync();
             throw new HttpRequestException($"Failed to get companies: {errorMessage}");
         }

@@ -1,47 +1,43 @@
+namespace Fenicia.Auth.Tests.Repositories;
+
 using Bogus;
 
-using Fenicia.Auth.Contexts;
-using Fenicia.Auth.Domains.Role.Data;
-using Fenicia.Auth.Domains.UserRole.Data;
-using Fenicia.Auth.Domains.UserRole.Logic;
+using Contexts;
+
+using Domains.Role.Data;
+using Domains.UserRole.Data;
+using Domains.UserRole.Logic;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace Fenicia.Auth.Tests.Repositories;
+using Moq;
 
 public class UserRoleRepositoryTests
 {
-    private AuthContext _context;
-    private UserRoleRepository _sut;
-    private DbContextOptions<AuthContext> _options;
-    private Faker<UserRoleModel> _userRoleGenerator;
-    private Faker<RoleModel> _roleGenerator;
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private AuthContext _context;
+    private DbContextOptions<AuthContext> _options;
+    private Faker<RoleModel> _roleGenerator;
+    private UserRoleRepository _sut;
+    private Faker<UserRoleModel> _userRoleGenerator;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: $"TestDb_{Guid.NewGuid()}")
-            .Options;
-
+        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        var mockLogger = new Mock<ILogger<UserRoleRepository>>().Object;
         _context = new AuthContext(_options);
-        _sut = new UserRoleRepository(_context);
+        _sut = new UserRoleRepository(_context, mockLogger);
 
         SetupFakers();
     }
 
     private void SetupFakers()
     {
-        _roleGenerator = new Faker<RoleModel>()
-            .RuleFor(r => r.Id, _ => Guid.NewGuid())
-            .RuleFor(r => r.Name, f => f.Name.JobTitle());
+        _roleGenerator = new Faker<RoleModel>().RuleFor(r => r.Id, _ => Guid.NewGuid()).RuleFor(r => r.Name, f => f.Name.JobTitle());
 
-        _userRoleGenerator = new Faker<UserRoleModel>()
-            .RuleFor(ur => ur.Id, _ => Guid.NewGuid())
-            .RuleFor(ur => ur.UserId, _ => Guid.NewGuid())
-            .RuleFor(ur => ur.Role, _ => _roleGenerator.Generate())
-            .RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
+        _userRoleGenerator = new Faker<UserRoleModel>().RuleFor(ur => ur.Id, _ => Guid.NewGuid()).RuleFor(ur => ur.UserId, _ => Guid.NewGuid()).RuleFor(ur => ur.Role, _ => _roleGenerator.Generate()).RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
     }
 
     [TearDown]
@@ -57,18 +53,7 @@ public class UserRoleRepositoryTests
         // Arrange
         var userId = Guid.NewGuid();
         var roles = new[] { "Admin", "User", "Manager" };
-        var userRoles = roles
-            .Select(role =>
-                _userRoleGenerator
-                    .Clone()
-                    .RuleFor(ur => ur.UserId, userId)
-                    .RuleFor(
-                        ur => ur.Role,
-                        _ => _roleGenerator.Clone().RuleFor(r => r.Name, role).Generate()
-                    )
-                    .Generate()
-            )
-            .ToList();
+        var userRoles = roles.Select(role => _userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.Role, _ => _roleGenerator.Clone().RuleFor(r => r.Name, role).Generate()).Generate()).ToList();
 
         await _context.UserRoles.AddRangeAsync(userRoles, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -101,11 +86,7 @@ public class UserRoleRepositoryTests
         // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var userRole = _userRoleGenerator
-            .Clone()
-            .RuleFor(ur => ur.UserId, userId)
-            .RuleFor(ur => ur.CompanyId, companyId)
-            .Generate();
+        var userRole = _userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.CompanyId, companyId).Generate();
 
         await _context.UserRoles.AddAsync(userRole, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -125,7 +106,7 @@ public class UserRoleRepositoryTests
         var companyId = Guid.NewGuid();
 
         // Act
-        var result = await _sut.ExistsInCompanyAsync(userId, companyId,_cancellationToken);
+        var result = await _sut.ExistsInCompanyAsync(userId, companyId, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -138,21 +119,13 @@ public class UserRoleRepositoryTests
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         const string roleName = "Admin";
-        var userRole = _userRoleGenerator
-            .Clone()
-            .RuleFor(ur => ur.UserId, userId)
-            .RuleFor(ur => ur.CompanyId, companyId)
-            .RuleFor(
-                ur => ur.Role,
-                _ => _roleGenerator.Clone().RuleFor(r => r.Name, roleName).Generate()
-            )
-            .Generate();
+        var userRole = _userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.CompanyId, companyId).RuleFor(ur => ur.Role, _ => _roleGenerator.Clone().RuleFor(r => r.Name, roleName).Generate()).Generate();
 
         await _context.UserRoles.AddAsync(userRole, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.HasRoleAsync(userId, companyId, roleName,_cancellationToken);
+        var result = await _sut.HasRoleAsync(userId, companyId, roleName, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -165,15 +138,7 @@ public class UserRoleRepositoryTests
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         const string roleName = "Admin";
-        var userRole = _userRoleGenerator
-            .Clone()
-            .RuleFor(ur => ur.UserId, userId)
-            .RuleFor(ur => ur.CompanyId, companyId)
-            .RuleFor(
-                ur => ur.Role,
-                _ => _roleGenerator.Clone().RuleFor(r => r.Name, "DifferentRole").Generate()
-            )
-            .Generate();
+        var userRole = _userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.CompanyId, companyId).RuleFor(ur => ur.Role, _ => _roleGenerator.Clone().RuleFor(r => r.Name, value: "DifferentRole").Generate()).Generate();
 
         await _context.UserRoles.AddAsync(userRole, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);

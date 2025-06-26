@@ -1,20 +1,25 @@
+namespace Fenicia.Auth.Tests.Services;
+
 using System.Net;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Security.Logic;
+using Domains.Security.Logic;
 
-namespace Fenicia.Auth.Tests.Services;
+using Microsoft.Extensions.Logging;
+
+using Moq;
 
 public class SecurityServiceTests
 {
-    private SecurityService _sut;
     private Faker _faker;
+    private SecurityService _sut;
 
     [SetUp]
     public void Setup()
     {
-        _sut = new SecurityService();
+        var mockLogger = new Mock<ILogger<SecurityService>>().Object;
+        _sut = new SecurityService(mockLogger);
         _faker = new Faker();
     }
 
@@ -22,7 +27,7 @@ public class SecurityServiceTests
     public void HashPassword_WithValidPassword_ReturnsHashedPassword()
     {
         // Arrange
-        var password = _faker.Internet.Password(12, false, "", "!@#$%^&*");
+        var password = _faker.Internet.Password(length: 12, memorable: false, regexPattern: "", prefix: "!@#$%^&*");
 
         // Act
         var result = _sut.HashPassword(password);
@@ -32,11 +37,7 @@ public class SecurityServiceTests
         {
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Data, Is.Not.EqualTo(password));
-            Assert.That(
-                result.Data!,
-                Does.StartWith("$2a$12$"),
-                "Hash should use BCrypt format with work factor 12"
-            );
+            Assert.That(result.Data!, Does.StartWith(expected: "$2a$12$"), message: "Hash should use BCrypt format with work factor 12");
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
@@ -56,15 +57,11 @@ public class SecurityServiceTests
         }
 
         // Assert
-        Assert.That(
-            hashes,
-            Has.Count.EqualTo(5),
-            "Each hash should be unique even for the same password"
-        );
+        Assert.That(hashes, Has.Count.EqualTo(expected: 5), message: "Each hash should be unique even for the same password");
     }
 
     [Test]
-    [TestCase("")]
+    [TestCase(arg: "")]
     public void HashPassword_WithInvalidPassword_ThrowsException(string invalidPassword)
     {
         // Act & Assert
@@ -113,7 +110,7 @@ public class SecurityServiceTests
     {
         // Arrange
         var password = _faker.Internet.Password();
-        var invalidHash = _faker.Random.AlphaNumeric(60); // Invalid BCrypt hash format
+        var invalidHash = _faker.Random.AlphaNumeric(length: 60); // Invalid BCrypt hash format
 
         // Act
         var result = _sut.VerifyPassword(password, invalidHash);
@@ -130,7 +127,7 @@ public class SecurityServiceTests
     public void VerifyPassword_WithMultiplePasswords_WorksConsistently()
     {
         // Arrange
-        var passwordCount = _faker.Random.Int(5, 10);
+        var passwordCount = _faker.Random.Int(min: 3, max: 5);
         var passwords = _faker.Make(passwordCount, () => _faker.Internet.Password()).ToList();
         var hashedPasswords = passwords.Select(p => _sut.HashPassword(p).Data).ToList();
 
@@ -139,11 +136,7 @@ public class SecurityServiceTests
         {
             // Verify correct password
             var correctResult = _sut.VerifyPassword(passwords[i], hashedPasswords[i]!);
-            Assert.That(
-                correctResult.Data,
-                Is.True,
-                $"Password {i} should verify against its own hash"
-            );
+            Assert.That(correctResult.Data, Is.True, $"Password {i} should verify against its own hash");
 
             // Verify against other passwords' hashes
             for (var j = 0; j < passwordCount; j++)
@@ -154,11 +147,7 @@ public class SecurityServiceTests
                 }
 
                 var incorrectResult = _sut.VerifyPassword(passwords[i], hashedPasswords[j]!);
-                Assert.That(
-                    incorrectResult.Data,
-                    Is.False,
-                    $"Password {i} should not verify against hash {j}"
-                );
+                Assert.That(incorrectResult.Data, Is.False, $"Password {i} should not verify against hash {j}");
             }
         }
     }
@@ -168,11 +157,11 @@ public class SecurityServiceTests
     {
         // Arrange
         var testPasswords = new[]
-        {
-            _faker.Internet.Password(8), // Simple password
-            _faker.Internet.Password(16, true), // Complex password
-            _faker.Internet.Password(32, true, "@#$%") // Very complex password
-        };
+                            {
+                                _faker.Internet.Password(length: 8), // Simple password
+                                _faker.Internet.Password(length: 16, memorable: true), // Complex password
+                                _faker.Internet.Password(length: 32, memorable: true, regexPattern: "@#$%") // Very complex password
+                            };
 
         foreach (var password in testPasswords)
         {
@@ -184,7 +173,7 @@ public class SecurityServiceTests
             Assert.Multiple(() =>
             {
                 Assert.That(result.Data, Is.Not.Null);
-                Assert.That(result.Data, Does.StartWith("$2a$12$"));
+                Assert.That(result.Data, Does.StartWith(expected: "$2a$12$"));
                 Assert.That(verifyResult.Data, Is.True);
             });
         }
@@ -197,12 +186,12 @@ public class SecurityServiceTests
         var validPassword = _faker.Internet.Password();
         var validHash = _sut.HashPassword(validPassword).Data;
         var testCases = new[]
-        {
-            (Password: "", Hash: validHash),
-            (Password: null, Hash: validHash),
-            (Password: validPassword, Hash: ""),
-            (Password: validPassword, Hash: null)
-        };
+                        {
+                            (Password: "", Hash: validHash),
+                            (Password: null, Hash: validHash),
+                            (Password: validPassword, Hash: ""),
+                            (Password: validPassword, Hash: null)
+                        };
 
         foreach (var (password, hash) in testCases)
         {

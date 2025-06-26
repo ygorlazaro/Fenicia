@@ -1,56 +1,57 @@
+namespace Fenicia.Auth.Domains.RefreshToken.Data;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Auth.Domains.User.Data;
-using Fenicia.Common.Database;
+using Common.Database;
 
-namespace Fenicia.Auth.Domains.RefreshToken.Data;
+using User.Data;
 
 /// <summary>
-/// Represents a refresh token entity in the authentication system.
-/// Used for maintaining user sessions and implementing token-based authentication.
+///     Represents a refresh token entity in the authentication system.
+///     Used for maintaining user sessions and implementing token-based authentication.
 /// </summary>
-[Table("refresh_tokens")]
+[Table(name: "refresh_tokens")]
 public class RefreshTokenModel : BaseModel
 {
     /// <summary>
-    /// Gets or sets the refresh token string value.
+    ///     Gets or sets the refresh token string value.
     /// </summary>
     [Required(ErrorMessage = "Token is required")]
-    [MaxLength(256, ErrorMessage = "Token cannot exceed 256 characters")]
-    [Column("token")]
+    [MaxLength(length: 256, ErrorMessage = "Token cannot exceed 256 characters")]
+    [Column(name: "token")]
     public string Token { get; set; } = null!;
 
     /// <summary>
-    /// Gets or sets the expiration date of the refresh token.
-    /// Default value is set to 7 days from creation.
+    ///     Gets or sets the expiration date of the refresh token.
+    ///     Default value is set to 7 days from creation.
     /// </summary>
     [Required(ErrorMessage = "Expiration date is required")]
-    [Column("expiration_date")]
+    [Column(name: "expiration_date")]
     [DataType(DataType.DateTime)]
-    public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(7);
+    public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(value: 7);
 
     /// <summary>
-    /// Gets or sets the ID of the user associated with this refresh token.
+    ///     Gets or sets the ID of the user associated with this refresh token.
     /// </summary>
     [Required(ErrorMessage = "User ID is required")]
-    [Column("user_id")]
+    [Column(name: "user_id")]
     public Guid UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets whether the refresh token is active.
-    /// Inactive tokens cannot be used for authentication.
+    ///     Gets or sets whether the refresh token is active.
+    ///     Inactive tokens cannot be used for authentication.
     /// </summary>
     [Required(ErrorMessage = "IsActive status is required")]
-    [Column("is_active")]
+    [Column(name: "is_active")]
     public bool IsActive { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the associated user entity.
-    /// This is a navigation property for Entity Framework.
+    ///     Gets or sets the associated user entity.
+    ///     This is a navigation property for Entity Framework.
     /// </summary>
-    [ForeignKey("UserId")]
+    [ForeignKey(name: "UserId")]
     [JsonIgnore]
     public virtual UserModel User { get; set; } = null!;
 }

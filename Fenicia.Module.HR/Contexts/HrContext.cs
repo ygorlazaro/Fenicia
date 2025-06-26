@@ -1,8 +1,8 @@
-using Fenicia.Common.Database;
+namespace Fenicia.Module.HR.Contexts;
+
+using Common.Database;
 
 using Microsoft.EntityFrameworkCore;
-
-namespace Fenicia.Module.HR.Contexts;
 
 public class HrContext(DbContextOptions<HrContext> options) : DbContext(options)
 {

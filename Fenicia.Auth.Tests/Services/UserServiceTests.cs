@@ -1,40 +1,41 @@
+namespace Fenicia.Auth.Tests.Services;
+
 using System.Net;
 
 using AutoMapper;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Company.Data;
-using Fenicia.Auth.Domains.Company.Logic;
-using Fenicia.Auth.Domains.LoginAttempt.Logic;
-using Fenicia.Auth.Domains.Role.Data;
-using Fenicia.Auth.Domains.Role.Logic;
-using Fenicia.Auth.Domains.Security.Logic;
-using Fenicia.Auth.Domains.Token.Data;
-using Fenicia.Auth.Domains.User.Data;
-using Fenicia.Auth.Domains.User.Logic;
-using Fenicia.Auth.Domains.UserRole.Logic;
-using Fenicia.Common;
+using Common;
+
+using Domains.Company.Data;
+using Domains.Company.Logic;
+using Domains.LoginAttempt.Logic;
+using Domains.Role.Data;
+using Domains.Role.Logic;
+using Domains.Security.Logic;
+using Domains.Token.Data;
+using Domains.User.Data;
+using Domains.User.Logic;
+using Domains.UserRole.Logic;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace Fenicia.Auth.Tests.Services;
-
 public class UserServiceTests
 {
-    private Mock<IMapper> _mapperMock;
-    private Mock<ILogger<UserService>> _loggerMock;
-    private Mock<IUserRepository> _userRepositoryMock;
-    private Mock<IRoleRepository> _roleRepositoryMock;
-    private Mock<IUserRoleRepository> _userRoleRepositoryMock;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private Mock<ICompanyRepository> _companyRepositoryMock;
+    private Faker _faker;
+    private Mock<ILogger<UserService>> _loggerMock;
+    private Mock<ILoginAttemptService> _loginAttemptServiceMock;
+    private Mock<IMapper> _mapperMock;
+    private Mock<IRoleRepository> _roleRepositoryMock;
     private Mock<ISecurityService> _securityServiceMock;
     private UserService _sut;
-    private Faker _faker;
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
-    private Mock<ILoginAttemptService> _loginAttemptServiceMock;
+    private Mock<IUserRepository> _userRepositoryMock;
+    private Mock<IUserRoleRepository> _userRoleRepositoryMock;
 
     [SetUp]
     public void Setup()
@@ -48,16 +49,7 @@ public class UserServiceTests
         _securityServiceMock = new Mock<ISecurityService>();
         _loginAttemptServiceMock = new Mock<ILoginAttemptService>();
 
-        _sut = new UserService(
-            _mapperMock.Object,
-            _loggerMock.Object,
-            _userRepositoryMock.Object,
-            _roleRepositoryMock.Object,
-            _userRoleRepositoryMock.Object,
-            _companyRepositoryMock.Object,
-            _securityServiceMock.Object,
-            _loginAttemptServiceMock.Object
-        );
+        _sut = new UserService(_mapperMock.Object, _loggerMock.Object, _userRepositoryMock.Object, _roleRepositoryMock.Object, _userRoleRepositoryMock.Object, _companyRepositoryMock.Object, _securityServiceMock.Object, _loginAttemptServiceMock.Object);
 
         _faker = new Faker();
     }
@@ -67,34 +59,30 @@ public class UserServiceTests
     {
         // Arrange
         var request = new TokenRequest
-        {
-            Email = _faker.Internet.Email(),
-            Password = _faker.Internet.Password(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
-        };
+                      {
+                          Email = _faker.Internet.Email(),
+                          Password = _faker.Internet.Password(),
+                          Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                      };
 
         var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = request.Email,
-            Password = "hashedPassword",
-            Name = _faker.Name.FullName()
-        };
+                   {
+                       Id = Guid.NewGuid(),
+                       Email = request.Email,
+                       Password = "hashedPassword",
+                       Name = _faker.Name.FullName()
+                   };
 
         var expectedResponse = new UserResponse
-        {
-            Id = user.Id,
-            Email = user.Email,
-            Name = user.Name
-        };
+                               {
+                                   Id = user.Id,
+                                   Email = user.Email,
+                                   Name = user.Name
+                               };
 
-        _userRepositoryMock
-            .Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, _cancellationToken))
-            .ReturnsAsync(user);
+        _userRepositoryMock.Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, _cancellationToken)).ReturnsAsync(user);
 
-        _securityServiceMock
-            .Setup(x => x.VerifyPassword(request.Password, user.Password))
-            .Returns(new ApiResponse<bool>(true));
+        _securityServiceMock.Setup(x => x.VerifyPassword(request.Password, user.Password)).Returns(new ApiResponse<bool>(data: true));
 
         _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
 
@@ -110,15 +98,13 @@ public class UserServiceTests
     {
         // Arrange
         var request = new TokenRequest
-        {
-            Email = _faker.Internet.Email(),
-            Password = _faker.Internet.Password(),
-            Cnpj = _faker.Random.String2(14, "0123456789")
-        };
+                      {
+                          Email = _faker.Internet.Email(),
+                          Password = _faker.Internet.Password(),
+                          Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                      };
 
-        _userRepositoryMock
-            .Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, _cancellationToken))
-            .ReturnsAsync((UserModel)null!);
+        _userRepositoryMock.Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, _cancellationToken)).ReturnsAsync((UserModel)null!);
 
         // Act
         var result = await _sut.GetForLoginAsync(request, _cancellationToken);
@@ -136,41 +122,37 @@ public class UserServiceTests
     {
         // Arrange
         var request = new UserRequest
-        {
-            Email = _faker.Internet.Email(),
-            Password = _faker.Internet.Password(),
-            Name = _faker.Name.FullName(),
-            Company = new CompanyRequest
-            {
-                Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
-            }
-        };
+                      {
+                          Email = _faker.Internet.Email(),
+                          Password = _faker.Internet.Password(),
+                          Name = _faker.Name.FullName(),
+                          Company = new CompanyRequest
+                                    {
+                                        Name = _faker.Company.CompanyName(),
+                                        Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                                    }
+                      };
 
         var hashedPassword = "hashedPassword";
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
         var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = request.Email,
-            Password = hashedPassword,
-            Name = request.Name
-        };
+                   {
+                       Id = Guid.NewGuid(),
+                       Email = request.Email,
+                       Password = hashedPassword,
+                       Name = request.Name
+                   };
 
         var expectedResponse = new UserResponse
-        {
-            Id = user.Id,
-            Email = user.Email,
-            Name = user.Name
-        };
+                               {
+                                   Id = user.Id,
+                                   Email = user.Email,
+                                   Name = user.Name
+                               };
 
-        _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(false);
-        _companyRepositoryMock
-            .Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, _cancellationToken))
-            .ReturnsAsync(false);
-        _securityServiceMock
-            .Setup(x => x.HashPassword(request.Password))
-            .Returns(new ApiResponse<string>(hashedPassword));
+        _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(value: false);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, _cancellationToken)).ReturnsAsync(value: false);
+        _securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(new ApiResponse<string>(hashedPassword));
         _userRepositoryMock.Setup(x => x.Add(It.IsAny<UserModel>())).Returns(user);
         _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(_cancellationToken)).ReturnsAsync(adminRole);
         _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
@@ -189,18 +171,18 @@ public class UserServiceTests
     {
         // Arrange
         var request = new UserRequest
-        {
-            Email = _faker.Internet.Email(),
-            Password = _faker.Internet.Password(),
-            Name = _faker.Name.FullName(),
-            Company = new CompanyRequest
-            {
-                Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
-            }
-        };
+                      {
+                          Email = _faker.Internet.Email(),
+                          Password = _faker.Internet.Password(),
+                          Name = _faker.Name.FullName(),
+                          Company = new CompanyRequest
+                                    {
+                                        Name = _faker.Company.CompanyName(),
+                                        Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                                    }
+                      };
 
-        _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(true);
+        _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(value: true);
 
         // Act
         var result = await _sut.CreateNewUserAsync(request, _cancellationToken);
@@ -221,9 +203,7 @@ public class UserServiceTests
         var companyId = Guid.NewGuid();
         var exists = true;
 
-        _userRoleRepositoryMock
-            .Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken))
-            .ReturnsAsync(exists);
+        _userRoleRepositoryMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(exists);
 
         // Act
         var result = await _sut.ExistsInCompanyAsync(userId, companyId, _cancellationToken);
@@ -238,18 +218,18 @@ public class UserServiceTests
         // Arrange
         var userId = Guid.NewGuid();
         var user = new UserModel
-        {
-            Id = userId,
-            Email = _faker.Internet.Email(),
-            Name = _faker.Name.FullName()
-        };
+                   {
+                       Id = userId,
+                       Email = _faker.Internet.Email(),
+                       Name = _faker.Name.FullName()
+                   };
 
         var expectedResponse = new UserResponse
-        {
-            Id = user.Id,
-            Email = user.Email,
-            Name = user.Name
-        };
+                               {
+                                   Id = user.Id,
+                                   Email = user.Email,
+                                   Name = user.Name
+                               };
 
         _userRepositoryMock.Setup(x => x.GetUserForRefreshTokenAsync(userId, _cancellationToken)).ReturnsAsync(user);
 
@@ -268,9 +248,7 @@ public class UserServiceTests
         // Arrange
         var userId = Guid.NewGuid();
 
-        _userRepositoryMock
-            .Setup(x => x.GetUserForRefreshTokenAsync(userId, _cancellationToken))
-            .ReturnsAsync((UserModel)null!);
+        _userRepositoryMock.Setup(x => x.GetUserForRefreshTokenAsync(userId, _cancellationToken)).ReturnsAsync((UserModel)null!);
 
         // Act
         var result = await _sut.GetUserForRefreshAsync(userId, _cancellationToken);
@@ -288,25 +266,21 @@ public class UserServiceTests
     {
         // Arrange
         var request = new UserRequest
-        {
-            Email = _faker.Internet.Email(),
-            Password = _faker.Internet.Password(),
-            Name = _faker.Name.FullName(),
-            Company = new CompanyRequest
-            {
-                Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(14, "0123456789")
-            }
-        };
+                      {
+                          Email = _faker.Internet.Email(),
+                          Password = _faker.Internet.Password(),
+                          Name = _faker.Name.FullName(),
+                          Company = new CompanyRequest
+                                    {
+                                        Name = _faker.Company.CompanyName(),
+                                        Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                                    }
+                      };
 
-        _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(false);
-        _companyRepositoryMock
-            .Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, _cancellationToken))
-            .ReturnsAsync(false);
+        _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(value: false);
+        _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, _cancellationToken)).ReturnsAsync(value: false);
         _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(_cancellationToken)).ReturnsAsync((RoleModel)null!);
-        _securityServiceMock
-            .Setup(x => x.HashPassword(request.Password))
-            .Returns(new ApiResponse<string>("hashedPassword"));
+        _securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(new ApiResponse<string>(data: "hashedPassword"));
 
         // Act
         var result = await _sut.CreateNewUserAsync(request, _cancellationToken);
