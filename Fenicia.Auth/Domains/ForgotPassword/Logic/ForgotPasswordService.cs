@@ -8,12 +8,21 @@ using Fenicia.Common;
 
 namespace Fenicia.Auth.Domains.ForgotPassword.Logic;
 
+    /// <summary>
+    /// Service for handling password reset and forgot password functionality.
+    /// </summary>
 public class ForgotPasswordService(
     IMapper mapper,
     ILogger<ForgotPasswordService> logger,
     IForgotPasswordRepository forgotPasswordRepository,
     IUserService userService) : IForgotPasswordService
 {
+            /// <summary>
+            /// Resets the password for a user using the provided reset code.
+            /// </summary>
+            /// <param name="request">The password reset request containing email, code, and new password.</param>
+            /// <param name="cancellationToken">Cancellation token for the operation.</param>
+            /// <returns>API response containing the result of the password reset operation.</returns>
     public async Task<ApiResponse<ForgotPasswordResponse>> ResetPasswordAsync(
         ForgotPasswordRequestReset request, CancellationToken cancellationToken)
     {
@@ -43,6 +52,12 @@ public class ForgotPasswordService(
         return new ApiResponse<ForgotPasswordResponse>(mapper.Map<ForgotPasswordResponse>(currentCode));
     }
 
+            /// <summary>
+            /// Saves a forgot password request and generates a reset code.
+            /// </summary>
+            /// <param name="forgotPassword">The forgot password request containing the user's email.</param>
+            /// <param name="cancellationToken">Cancellation token for the operation.</param>
+            /// <returns>API response containing the generated forgot password record.</returns>
     public async Task<ApiResponse<ForgotPasswordResponse>> SaveForgotPasswordAsync(
         ForgotPasswordRequest forgotPassword, CancellationToken cancellationToken)
     {

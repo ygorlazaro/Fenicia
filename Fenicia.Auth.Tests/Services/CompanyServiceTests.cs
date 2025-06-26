@@ -4,6 +4,7 @@ using AutoMapper;
 
 using Bogus;
 
+using Fenicia.Auth.Domains.Company.Data;
 using Fenicia.Auth.Domains.Company.Logic;
 using Fenicia.Auth.Domains.DataCache;
 using Fenicia.Auth.Domains.UserRole.Logic;

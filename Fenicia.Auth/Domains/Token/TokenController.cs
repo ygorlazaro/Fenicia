@@ -4,6 +4,7 @@ using Fenicia.Auth.Domains.Company.Logic;
 using Fenicia.Auth.Domains.RefreshToken.Data;
 using Fenicia.Auth.Domains.RefreshToken.Logic;
 using Fenicia.Auth.Domains.SubscriptionCredit.Logic;
+using Fenicia.Auth.Domains.Token.Data;
 using Fenicia.Auth.Domains.Token.Logic;
 using Fenicia.Auth.Domains.User.Data;
 using Fenicia.Auth.Domains.User.Logic;
@@ -15,6 +16,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Token;
 
+/// <summary>
+/// Controller responsible for handling token-related operations
+/// </summary>
 [Authorize]
 [Route("[controller]")]
 [ApiController]
@@ -45,24 +49,35 @@ public class TokenController(
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<TokenResponse>> PostAsync(TokenRequest request, CancellationToken cancellationToken)
     {
-        var company = await companyService.GetByCnpjAsync(request.Cnpj, cancellationToken);
-
-        if (company.Data is null)
+        try
         {
-            logger.LogInformation("Invalid login - {email}", request.Email);
-            return StatusCode((int)company.Status, company.Message);
+            logger.LogInformation("Starting token generation for user {Email}", request.Email);
+
+            var company = await companyService.GetByCnpjAsync(request.Cnpj, cancellationToken);
+
+            if (company.Data is null)
+            {
+                logger.LogWarning("Company not found for CNPJ {Cnpj}", request.Cnpj);
+                return StatusCode((int)company.Status, company.Message);
+            }
+
+            var userResponse = await userService.GetForLoginAsync(request, cancellationToken);
+
+            if (userResponse.Data is null)
+            {
+                logger.LogWarning("User not found or invalid credentials for {Email}", request.Email);
+                return StatusCode((int)userResponse.Status, userResponse.Message);
+            }
+
+            var response = await PopulateTokenAsync(userResponse.Data, company.Data.Id, cancellationToken);
+
+            return response;
         }
-
-        var userResponse = await userService.GetForLoginAsync(request, cancellationToken);
-
-        if (userResponse.Data is null)
+        catch (Exception ex)
         {
-            return StatusCode((int)userResponse.Status, userResponse.Message);
+            logger.LogError(ex, "Error generating token for user {Email}", request.Email);
+            throw;
         }
-
-        var response = await PopulateTokenAsync(userResponse.Data, company.Data.Id, cancellationToken);
-
-        return response;
     }
 
     /// <summary>
@@ -78,73 +93,103 @@ public class TokenController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TokenResponse>> Refresh(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Refreshing token");
-
-        var isValidToken = await refreshTokenService.ValidateTokenAsync(
-            request.UserId,
-            request.RefreshToken,
-            cancellationToken
-        );
-
-        if (!isValidToken.Data)
+        try
         {
-            return BadRequest("Invalid client request");
+            logger.LogInformation("Starting token refresh for user {UserId}", request.UserId);
+
+            var isValidToken = await refreshTokenService.ValidateTokenAsync(
+                request.UserId,
+                request.RefreshToken,
+                cancellationToken
+            );
+
+            if (!isValidToken.Data)
+            {
+                logger.LogWarning("Invalid refresh token for user {UserId}", request.UserId);
+                return BadRequest("Invalid client request");
+            }
+
+            await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, cancellationToken);
+
+            var userResponse = await userService.GetUserForRefreshAsync(request.UserId, cancellationToken);
+
+            if (userResponse.Data is null)
+            {
+                logger.LogWarning("User not found for refresh token {UserId}", request.UserId);
+                return BadRequest(TextConstants.PermissionDenied);
+            }
+
+            var response = await PopulateTokenAsync(userResponse.Data, request.CompanyId, cancellationToken);
+
+            return response;
         }
-
-        await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, cancellationToken);
-
-        var userResponse = await userService.GetUserForRefreshAsync(request.UserId, cancellationToken);
-
-        if (userResponse.Data is null)
+        catch (Exception ex)
         {
-            return BadRequest(TextConstants.PermissionDenied);
+            logger.LogError(ex, "Error refreshing token for user {UserId}", request.UserId);
+            throw;
         }
-
-        var response = await PopulateTokenAsync(userResponse.Data, request.CompanyId, cancellationToken);
-
-
-        return response;
     }
 
+            /// <summary>
+            /// Populates and generates a new token response with user information
+            /// </summary>
+            /// <param name="user">User information</param>
+            /// <param name="companyId">Company identifier</param>
+            /// <param name="cancellationToken">Cancellation token</param>
+            /// <returns>Token response containing authentication and refresh tokens</returns>
     private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(UserResponse user,
         Guid companyId, CancellationToken cancellationToken)
     {
-        var roles = await userRoleService.GetRolesByUserAsync(user.Id, cancellationToken);
-
-        if (roles.Data is null)
+        try
         {
-            return StatusCode((int)roles.Status, roles.Message);
-        }
+            logger.LogInformation("Populating token for user {Email}", user.Email);
 
-        if (roles.Data.Length == 0)
+            var roles = await userRoleService.GetRolesByUserAsync(user.Id, cancellationToken);
+
+            if (roles.Data is null)
+            {
+                logger.LogWarning("Unable to retrieve roles for user {Email}", user.Email);
+                return StatusCode((int)roles.Status, roles.Message);
+            }
+
+            if (roles.Data.Length == 0)
+            {
+                logger.LogWarning("User {Email} has no assigned roles", user.Email);
+                return BadRequest(TextConstants.UserWithoutRoles);
+            }
+
+            var modules = await subscriptionCreditService.GetActiveModulesTypesAsync(companyId, cancellationToken);
+
+            if (modules.Data is null)
+            {
+                logger.LogWarning("Unable to retrieve active modules for company {CompanyId}", companyId);
+                return StatusCode((int)modules.Status, modules.Message);
+            }
+
+            var token = tokenService.GenerateToken(user, roles.Data, companyId, modules.Data);
+
+            if (token.Data is null)
+            {
+                logger.LogWarning("Failed to generate token for user {Email}", user.Email);
+                return StatusCode((int)token.Status, token.Message);
+            }
+
+            var refreshToken = await refreshTokenService.GenerateRefreshTokenAsync(user.Id, cancellationToken);
+
+            if (refreshToken.Data is null)
+            {
+                logger.LogWarning("Failed to generate refresh token for user {Email}", user.Email);
+                return StatusCode((int)refreshToken.Status, refreshToken.Message);
+            }
+
+            logger.LogInformation("Successfully generated tokens for user {Email}", user.Email);
+
+            return Ok(new TokenResponse { Token = token.Data, RefreshToken = refreshToken.Data });
+        }
+        catch (Exception ex)
         {
-            logger.LogInformation("User without role - {email}", user.Email);
-            return BadRequest(TextConstants.UserWithoutRoles);
+            logger.LogError(ex, "Error populating token for user {Email}", user.Email);
+            throw;
         }
-
-        var modules = await subscriptionCreditService.GetActiveModulesTypesAsync(companyId, cancellationToken);
-
-        if (modules.Data is null)
-        {
-            return StatusCode((int)modules.Status, modules.Message);
-        }
-
-        var token = tokenService.GenerateToken(user, roles.Data, companyId, modules.Data);
-
-        if (token.Data is null)
-        {
-            return StatusCode((int)token.Status, token.Message);
-        }
-
-        var refreshToken = await refreshTokenService.GenerateRefreshTokenAsync(user.Id, cancellationToken);
-
-        if (refreshToken.Data is null)
-        {
-            return StatusCode((int)refreshToken.Status, refreshToken.Message);
-        }
-
-        logger.LogInformation("User logged in - {email}", user.Email);
-
-        return Ok(new TokenResponse { Token = token.Data, RefreshToken = refreshToken.Data });
     }
 }

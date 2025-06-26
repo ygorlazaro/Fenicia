@@ -2,11 +2,12 @@ using System.Net;
 
 using AutoMapper;
 
+using Fenicia.Auth.Domains.Company.Data;
 using Fenicia.Auth.Domains.Company.Logic;
 using Fenicia.Auth.Domains.LoginAttempt.Logic;
 using Fenicia.Auth.Domains.Role.Logic;
 using Fenicia.Auth.Domains.Security.Logic;
-using Fenicia.Auth.Domains.Token.Logic;
+using Fenicia.Auth.Domains.Token.Data;
 using Fenicia.Auth.Domains.User.Data;
 using Fenicia.Auth.Domains.UserRole.Data;
 using Fenicia.Auth.Domains.UserRole.Logic;
@@ -14,6 +15,9 @@ using Fenicia.Common;
 
 namespace Fenicia.Auth.Domains.User.Logic;
 
+/// <summary>
+/// Service responsible for managing user-related operations
+/// </summary>
 public class UserService(
     IMapper mapper,
     ILogger<UserService> logger,
@@ -25,12 +29,18 @@ public class UserService(
     ILoginAttemptService loginAttemptService
 ) : IUserService
 {
+    /// <summary>
+    /// Authenticates user for login based on provided credentials
+    /// </summary>
+    /// <param name="request">Token request containing login credentials</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>API response containing user information if authentication is successful</returns>
     public async Task<ApiResponse<UserResponse>> GetForLoginAsync(TokenRequest request,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Getting user for login");
+            logger.LogInformation("Starting login process for user {Email}", request.Email);
 
-        var attempts = await loginAttemptService.GetAttemptsAsync(request.Email, cancellationToken);
+            var attempts = await loginAttemptService.GetAttemptsAsync(request.Email, cancellationToken);
 
         if (attempts >= 5)
         {
@@ -72,10 +82,16 @@ public class UserService(
         );
     }
 
+    /// <summary>
+    /// Creates a new user with associated company and admin role
+    /// </summary>
+    /// <param name="request">User creation request details</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>API response containing created user information</returns>
     public async Task<ApiResponse<UserResponse>> CreateNewUserAsync(UserRequest request,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Creating new user");
+            logger.LogInformation("Starting user creation process for {Email}", request.Email);
         var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email, cancellationToken);
         var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(
             request.Company.Cnpj, cancellationToken
@@ -146,18 +162,31 @@ public class UserService(
         return new ApiResponse<UserResponse>(response);
     }
 
+    /// <summary>
+    /// Checks if a user exists in a specific company
+    /// </summary>
+    /// <param name="userId">User identifier</param>
+    /// <param name="companyId">Company identifier</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>API response indicating if user exists in company</returns>
     public async Task<ApiResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Checking if user exists in company");
+            logger.LogInformation("Verifying user {UserId} existence in company {CompanyId}", userId, companyId);
         var response = await userRoleRepository.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
         return new ApiResponse<bool>(response);
     }
 
+    /// <summary>
+    /// Retrieves user information for token refresh
+    /// </summary>
+    /// <param name="userId">User identifier</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>API response containing user information</returns>
     public async Task<ApiResponse<UserResponse>> GetUserForRefreshAsync(Guid userId, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Getting user for refresh");
+            logger.LogInformation("Retrieving user {UserId} information for token refresh", userId);
         var user = await userRepository.GetUserForRefreshTokenAsync(userId, cancellationToken);
         var response = mapper.Map<UserResponse>(user);
 
@@ -173,10 +202,16 @@ public class UserService(
         return new ApiResponse<UserResponse>(response);
     }
 
+    /// <summary>
+    /// Retrieves user ID based on email address
+    /// </summary>
+    /// <param name="email">User's email address</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>API response containing user ID</returns>
     public async Task<ApiResponse<UserResponse>> GetUserIdFromEmailAsync(string email,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Finding id of user {email}", email);
+            logger.LogInformation("Retrieving user ID for email {Email}", email);
 
         var userId = await userRepository.GetUserIdFromEmailAsync(email, cancellationToken);
 
@@ -195,10 +230,17 @@ public class UserService(
 
     }
 
+    /// <summary>
+    /// Changes user's password
+    /// </summary>
+    /// <param name="userId">User identifier</param>
+    /// <param name="password">New password</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>API response containing updated user information</returns>
     public async Task<ApiResponse<UserResponse>> ChangePasswordAsync(Guid userId, string password,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Changing password for user {userId}", userId);
+            logger.LogInformation("Initiating password change for user {UserId}", userId);
         var user = await userRepository.GetByIdAsync(userId, cancellationToken);
 
 

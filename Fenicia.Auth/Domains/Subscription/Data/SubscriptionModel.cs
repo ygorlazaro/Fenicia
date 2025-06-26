@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Auth.Domains.Company.Logic;
+using Fenicia.Auth.Domains.Company.Data;
 using Fenicia.Auth.Domains.Order.Data;
 using Fenicia.Auth.Domains.SubscriptionCredit.Data;
 using Fenicia.Auth.Enums;
@@ -10,31 +10,59 @@ using Fenicia.Common.Database;
 
 namespace Fenicia.Auth.Domains.Subscription.Data;
 
+/// <summary>
+/// Represents a subscription model in the system.
+/// </summary>
+
 [Table("subscriptions")]
 public class SubscriptionModel : BaseModel
 {
-    [Required]
-    public SubscriptionStatus Status { get; set; }
+/// <summary>
+/// Gets or sets the current status of the subscription.
+/// </summary>
+[Required(ErrorMessage = "Subscription status is required")]
+public SubscriptionStatus Status { get; set; }
 
-    [Required]
-    public Guid CompanyId { get; set; }
+/// <summary>
+/// Gets or sets the unique identifier of the company associated with this subscription.
+/// </summary>
+[Required(ErrorMessage = "Company ID is required")]
+public Guid CompanyId { get; set; }
 
-    [Required]
-    public DateTime StartDate { get; set; }
+/// <summary>
+/// Gets or sets the start date of the subscription.
+/// </summary>
+[Required(ErrorMessage = "Start date is required")]
+public DateTime StartDate { get; set; }
 
-    [Required]
-    public DateTime EndDate { get; set; }
+/// <summary>
+/// Gets or sets the end date of the subscription.
+/// </summary>
+[Required(ErrorMessage = "End date is required")]
+public DateTime EndDate { get; set; }
 
+/// <summary>
+/// Gets or sets the optional order identifier associated with this subscription.
+/// </summary>
     public Guid? OrderId { get; set; }
 
+    /// <summary>
+    /// Gets or sets the associated company model.
+    /// </summary>
     [JsonIgnore]
     [ForeignKey(nameof(CompanyId))]
     public CompanyModel Company { get; set; } = null!;
 
+    /// <summary>
+    /// Gets or sets the associated order model.
+    /// </summary>
     [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
     public virtual OrderModel? Order { get; set; }
 
+    /// <summary>
+    /// Gets or sets the list of subscription credits associated with this subscription.
+    /// </summary>
     [JsonIgnore]
     public virtual List<SubscriptionCreditModel> Credits { get; set; } = null!;
 }

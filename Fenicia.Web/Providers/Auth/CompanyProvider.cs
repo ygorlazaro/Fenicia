@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Company.Logic;
+using Fenicia.Auth.Domains.Company.Data;
 using Fenicia.Common;
 
 namespace Fenicia.Web.Providers.Auth;

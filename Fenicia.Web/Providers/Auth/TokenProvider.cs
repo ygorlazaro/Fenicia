@@ -1,5 +1,5 @@
 using Fenicia.Auth.Domains.RefreshToken.Data;
-using Fenicia.Auth.Domains.Token.Logic;
+using Fenicia.Auth.Domains.Token.Data;
 
 namespace Fenicia.Web.Providers.Auth;
 
