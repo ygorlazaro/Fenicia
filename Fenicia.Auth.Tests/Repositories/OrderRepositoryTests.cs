@@ -2,6 +2,8 @@ using Bogus;
 
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.Order.Data;
+using Fenicia.Auth.Domains.Order.Logic;
 
 using Microsoft.EntityFrameworkCore;
 

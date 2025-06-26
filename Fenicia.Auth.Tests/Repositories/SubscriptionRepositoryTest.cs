@@ -2,6 +2,8 @@ using Bogus;
 
 using Fenicia.Auth.Contexts;
 using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.Subscription.Data;
+using Fenicia.Auth.Domains.Subscription.Logic;
 using Fenicia.Auth.Enums;
 
 using Microsoft.EntityFrameworkCore;

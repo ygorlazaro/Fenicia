@@ -1,5 +1,7 @@
 using System.Net.Mime;
 
+using Fenicia.Auth.Domains.Module.Data;
+using Fenicia.Auth.Domains.Module.Logic;
 using Fenicia.Common;
 
 using Microsoft.AspNetCore.Authorization;
@@ -24,11 +26,12 @@ public class ModuleController(ILogger<ModuleController> logger, IModuleService m
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<ModuleResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<Pagination<List<ModuleResponse>>>> GetAllModulesAsync(
-        [FromQuery] PaginationQuery query
+        [FromQuery] PaginationQuery query,
+        CancellationToken cancellationToken
     )
     {
-        var modules = await moduleService.GetAllOrderedAsync(query.Page, query.PerPage);
-        var total = await moduleService.CountAsync();
+        var modules = await moduleService.GetAllOrderedAsync(cancellationToken, query.Page, query.PerPage);
+        var total = await moduleService.CountAsync(cancellationToken);
 
         if (modules.Data is null)
         {

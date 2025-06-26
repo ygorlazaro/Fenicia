@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Auth.Domains.UserRole.Logic;
 
 using Microsoft.Extensions.Logging;
 

@@ -1,4 +1,4 @@
-﻿using brevo_csharp.Api;
+using brevo_csharp.Api;
 using brevo_csharp.Model;
 
 using Fenicia.Common.Enums;

@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Auth.Domains.Company.Logic;
 using Fenicia.Common;
 using Fenicia.Common.Api;
 
@@ -24,12 +25,13 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<CompanyResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser(
-        [FromQuery] PaginationQuery query
+        [FromQuery] PaginationQuery query,
+        CancellationToken cancellationToken
     )
     {
         var userId = ClaimReader.UserId(User);
-        var companies = await companyService.GetByUserIdAsync(userId, query.Page, query.PerPage);
-        var total = await companyService.CountByUserIdAsync(userId);
+        var companies = await companyService.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage);
+        var total = await companyService.CountByUserIdAsync(userId, cancellationToken);
 
         logger.LogInformation("Getting companies");
 
@@ -53,6 +55,7 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
     /// </summary>
     /// <param name="request">The company information to update</param>
     /// <param name="id">The ID of the company to update</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>The updated company information</returns>
     /// <response code="200">Returns the updated company information</response>
     /// <response code="400">If the request is invalid or update fails</response>
@@ -63,7 +66,8 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CompanyResponse>> PatchAsync(
         [FromBody] CompanyUpdateRequest request,
-        [FromRoute] Guid id
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken
     )
     {
         var userId = ClaimReader.UserId(User);
@@ -74,7 +78,7 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
             return Unauthorized();
         }
 
-        var response = await companyService.PatchAsync(id, userId, request);
+        var response = await companyService.PatchAsync(id, userId, request, cancellationToken);
 
         if (response.Data is null)
         {
