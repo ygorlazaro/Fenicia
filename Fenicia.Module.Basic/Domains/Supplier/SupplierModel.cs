@@ -18,7 +18,10 @@ public class SupplierModel : BaseModel
     public string? Cpf { get; set; } = null!;
 
     [Required]
-    public Guid AddressId { get; set; }
+    public Guid AddressId
+    {
+        get; set;
+    }
 
     [ForeignKey(name: "AddressId")]
     public virtual AddressModel Address { get; set; } = null!;

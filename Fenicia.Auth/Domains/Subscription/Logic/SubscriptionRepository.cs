@@ -8,17 +8,8 @@ using Enums;
 
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>
-///     Repository for managing subscription data operations
-/// </summary>
 public class SubscriptionRepository(AuthContext authContext, ILogger<SubscriptionRepository> logger) : ISubscriptionRepository
 {
-    /// <summary>
-    ///     Saves a new subscription to the database
-    /// </summary>
-    /// <param name="subscription">The subscription model to save</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>A task representing the asynchronous operation</returns>
     public async Task SaveSubscriptionAsync(SubscriptionModel subscription, CancellationToken cancellationToken)
     {
         try
@@ -35,12 +26,6 @@ public class SubscriptionRepository(AuthContext authContext, ILogger<Subscriptio
         }
     }
 
-    /// <summary>
-    ///     Retrieves valid subscriptions for a company
-    /// </summary>
-    /// <param name="companyId">The ID of the company</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>List of valid subscription IDs</returns>
     public async Task<List<Guid>> GetValidSubscriptionAsync(Guid companyId, CancellationToken cancellationToken)
     {
         try

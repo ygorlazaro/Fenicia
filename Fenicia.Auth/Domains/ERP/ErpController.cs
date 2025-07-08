@@ -16,11 +16,6 @@ using State.Logic;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ErpController(IModuleService moduleService, IStateService stateService) : ControllerBase
 {
-    /// <summary>
-    ///     Loads ERP system information including modules and states
-    /// </summary>
-    /// <param name="cancellationToken">Token to cancel the asynchronous operation</param>
-    /// <returns>OK response containing modules and states information</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(object))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

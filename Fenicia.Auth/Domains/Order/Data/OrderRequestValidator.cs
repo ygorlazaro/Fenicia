@@ -2,17 +2,10 @@ namespace Fenicia.Auth.Domains.Order.Data;
 
 using FluentValidation;
 
-/// <summary>
-///     Validator for the OrderRequest class that ensures all required data is present and valid
-/// </summary>
 public class OrderRequestValidator : AbstractValidator<OrderRequest>
 {
     private readonly ILogger<OrderRequestValidator> _logger;
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="OrderRequestValidator" /> class
-    /// </summary>
-    /// <param name="logger">The logger instance for validation operations</param>
     public OrderRequestValidator(ILogger<OrderRequestValidator> logger)
     {
         _logger = logger;

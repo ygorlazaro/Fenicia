@@ -1,10 +1,8 @@
 namespace Fenicia.Auth.Domains.State.Logic;
 
-using AutoMapper;
-
 using Data;
 
-public class StateService(IMapper mapper, IStateRepository stateRepository) : IStateService
+public class StateService(IStateRepository stateRepository) : IStateService
 {
     public async Task<List<StateResponse>> LoadStatesAtDatabaseAsync(CancellationToken cancellationToken)
     {
@@ -40,7 +38,8 @@ public class StateService(IMapper mapper, IStateRepository stateRepository) : IS
                      };
 
         var response = await stateRepository.LoadStatesAtDatabaseAsync(states, cancellationToken);
+        var mapped = StateResponse.Convert(response);
 
-        return mapper.Map<List<StateResponse>>(response);
+        return mapped;
     }
 }

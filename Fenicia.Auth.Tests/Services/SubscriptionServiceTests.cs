@@ -2,8 +2,6 @@ namespace Fenicia.Auth.Tests.Services;
 
 using System.Net;
 
-using AutoMapper;
-
 using Domains.Order.Data;
 using Domains.OrderDetail.Data;
 using Domains.Subscription.Data;
@@ -19,17 +17,15 @@ public class SubscriptionServiceTests
 {
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private Mock<ILogger<SubscriptionService>> _loggerMock;
-    private Mock<IMapper> _mapperMock;
     private Mock<ISubscriptionRepository> _subscriptionRepositoryMock;
     private SubscriptionService _sut;
 
     [SetUp]
     public void Setup()
     {
-        _mapperMock = new Mock<IMapper>();
         _loggerMock = new Mock<ILogger<SubscriptionService>>();
         _subscriptionRepositoryMock = new Mock<ISubscriptionRepository>();
-        _sut = new SubscriptionService(_mapperMock.Object, _loggerMock.Object, _subscriptionRepositoryMock.Object);
+        _sut = new SubscriptionService(_loggerMock.Object, _subscriptionRepositoryMock.Object);
     }
 
     [Test]
@@ -46,8 +42,6 @@ public class SubscriptionServiceTests
         var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
 
         var expectedResponse = new SubscriptionResponse();
-
-        _mapperMock.Setup(x => x.Map<SubscriptionResponse>(It.IsAny<SubscriptionModel>())).Returns(expectedResponse);
 
         // Act
         var result = await _sut.CreateCreditsForOrderAsync(order, orderDetails, companyId, _cancellationToken);

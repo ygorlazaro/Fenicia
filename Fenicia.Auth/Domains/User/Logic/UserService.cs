@@ -2,8 +2,6 @@ namespace Fenicia.Auth.Domains.User.Logic;
 
 using System.Net;
 
-using AutoMapper;
-
 using Common;
 
 using Company.Data;
@@ -22,17 +20,8 @@ using Token.Data;
 using UserRole.Data;
 using UserRole.Logic;
 
-/// <summary>
-///     Service responsible for managing user-related operations
-/// </summary>
-public class UserService(IMapper mapper, ILogger<UserService> logger, IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository, ISecurityService securityService, ILoginAttemptService loginAttemptService) : IUserService
+public class UserService(ILogger<UserService> logger, IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository, ISecurityService securityService, ILoginAttemptService loginAttemptService) : IUserService
 {
-    /// <summary>
-    ///     Authenticates user for login based on provided credentials
-    /// </summary>
-    /// <param name="request">Token request containing login credentials</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>API response containing user information if authentication is successful</returns>
     public async Task<ApiResponse<UserResponse>> GetForLoginAsync(TokenRequest request, CancellationToken cancellationToken)
     {
         logger.LogInformation(message: "Starting login process for user {Email}", request.Email);
@@ -60,7 +49,7 @@ public class UserService(IMapper mapper, ILogger<UserService> logger, IUserRepos
         if (isValidPassword.Data)
         {
             await loginAttemptService.ResetAttemptsAsync(request.Email, cancellationToken);
-            var response = mapper.Map<UserResponse>(user);
+            var response = UserResponse.Convert(user);
             return new ApiResponse<UserResponse>(response);
         }
 
@@ -71,12 +60,6 @@ public class UserService(IMapper mapper, ILogger<UserService> logger, IUserRepos
         return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.InvalidUsernameOrPassword);
     }
 
-    /// <summary>
-    ///     Creates a new user with associated company and admin role
-    /// </summary>
-    /// <param name="request">User creation request details</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>API response containing created user information</returns>
     public async Task<ApiResponse<UserResponse>> CreateNewUserAsync(UserRequest request, CancellationToken cancellationToken)
     {
         logger.LogInformation(message: "Starting user creation process for {Email}", request.Email);
@@ -129,18 +112,11 @@ public class UserService(IMapper mapper, ILogger<UserService> logger, IUserRepos
 
         await userRepository.SaveAsync(cancellationToken);
 
-        var response = mapper.Map<UserResponse>(user);
+        var response = UserResponse.Convert(user);
 
         return new ApiResponse<UserResponse>(response);
     }
 
-    /// <summary>
-    ///     Checks if a user exists in a specific company
-    /// </summary>
-    /// <param name="userId">User identifier</param>
-    /// <param name="companyId">Company identifier</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>API response indicating if user exists in company</returns>
     public async Task<ApiResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
         logger.LogInformation(message: "Verifying user {UserId} existence in company {CompanyId}", userId, companyId);
@@ -149,32 +125,21 @@ public class UserService(IMapper mapper, ILogger<UserService> logger, IUserRepos
         return new ApiResponse<bool>(response);
     }
 
-    /// <summary>
-    ///     Retrieves user information for token refresh
-    /// </summary>
-    /// <param name="userId">User identifier</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>API response containing user information</returns>
     public async Task<ApiResponse<UserResponse>> GetUserForRefreshAsync(Guid userId, CancellationToken cancellationToken)
     {
         logger.LogInformation(message: "Retrieving user {UserId} information for token refresh", userId);
         var user = await userRepository.GetUserForRefreshTokenAsync(userId, cancellationToken);
-        var response = mapper.Map<UserResponse>(user);
 
         if (user is null)
         {
             return new ApiResponse<UserResponse>(data: null, HttpStatusCode.Unauthorized, TextConstants.PermissionDenied);
         }
 
+        var response = UserResponse.Convert(user);
+
         return new ApiResponse<UserResponse>(response);
     }
 
-    /// <summary>
-    ///     Retrieves user ID based on email address
-    /// </summary>
-    /// <param name="email">User's email address</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>API response containing user ID</returns>
     public async Task<ApiResponse<UserResponse>> GetUserIdFromEmailAsync(string email, CancellationToken cancellationToken)
     {
         logger.LogInformation(message: "Retrieving user ID for email {Email}", email);
@@ -194,13 +159,6 @@ public class UserService(IMapper mapper, ILogger<UserService> logger, IUserRepos
         return new ApiResponse<UserResponse>(response);
     }
 
-    /// <summary>
-    ///     Changes user's password
-    /// </summary>
-    /// <param name="userId">User identifier</param>
-    /// <param name="password">New password</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>API response containing updated user information</returns>
     public async Task<ApiResponse<UserResponse>> ChangePasswordAsync(Guid userId, string password, CancellationToken cancellationToken)
     {
         logger.LogInformation(message: "Initiating password change for user {UserId}", userId);
@@ -217,6 +175,8 @@ public class UserService(IMapper mapper, ILogger<UserService> logger, IUserRepos
         user.Password = hashedPassword!;
         await userRepository.SaveAsync(cancellationToken);
 
-        return new ApiResponse<UserResponse>(mapper.Map<UserResponse>(user));
+        var mapped = UserResponse.Convert(user);
+
+        return new ApiResponse<UserResponse>(mapped);
     }
 }

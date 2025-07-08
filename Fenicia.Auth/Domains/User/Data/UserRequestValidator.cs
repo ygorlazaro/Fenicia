@@ -4,17 +4,10 @@ using Company.Data;
 
 using FluentValidation;
 
-/// <summary>
-///     Validator for user registration requests
-/// </summary>
 public class UserRequestValidator : AbstractValidator<UserRequest>
 {
     private readonly ILogger<UserRequestValidator> _logger;
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="UserRequestValidator" /> class
-    /// </summary>
-    /// <param name="logger">The logger instance</param>
     public UserRequestValidator(ILogger<UserRequestValidator> logger)
     {
         _logger = logger;

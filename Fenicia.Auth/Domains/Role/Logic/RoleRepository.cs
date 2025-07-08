@@ -6,16 +6,8 @@ using Data;
 
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>
-///     Repository for managing role-related operations in the authentication system
-/// </summary>
 public class RoleRepository(AuthContext authContext, ILogger<RoleRepository> logger) : IRoleRepository
 {
-    /// <summary>
-    ///     Retrieves the Admin role from the database
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token to cancel the operation if needed</param>
-    /// <returns>The Admin role model if found, null otherwise</returns>
     public async Task<RoleModel?> GetAdminRoleAsync(CancellationToken cancellationToken)
     {
         try

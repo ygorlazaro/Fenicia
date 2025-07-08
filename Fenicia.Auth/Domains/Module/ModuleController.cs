@@ -11,9 +11,6 @@ using Logic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-/// <summary>
-///     Controller responsible for managing module-related operations
-/// </summary>
 [Authorize]
 [ApiController]
 [Route(template: "[controller]")]
@@ -24,26 +21,12 @@ public class ModuleController : ControllerBase
     private readonly ILogger<ModuleController> _logger;
     private readonly IModuleService _moduleService;
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="ModuleController" /> class
-    /// </summary>
-    /// <param name="logger">The logger instance for recording module-related activities</param>
-    /// <param name="moduleService">The service handling module business logic</param>
     public ModuleController(ILogger<ModuleController> logger, IModuleService moduleService)
     {
         _logger = logger;
         _moduleService = moduleService;
     }
 
-    /// <summary>
-    ///     Retrieves all available modules in the system with pagination support
-    /// </summary>
-    /// <param name="query">The pagination parameters including page number and items per page</param>
-    /// <param name="cancellationToken">Token for cancelling the operation if needed</param>
-    /// <returns>A paginated list of module responses</returns>
-    /// <response code="200">Returns the paginated list of all modules</response>
-    /// <response code="401">If the user is not authenticated</response>
-    /// <response code="500">If there was an internal server error during the operation</response>
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(Pagination<List<ModuleResponse>>), StatusCodes.Status200OK)]

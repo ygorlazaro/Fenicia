@@ -8,22 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using User.Data;
 using User.Logic;
 
-/// <summary>
-///     Controller responsible for user registration operations
-/// </summary>
 [AllowAnonymous]
 [Route(template: "[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 public class SignUpController(ILogger<SignUpController> logger, IUserService userService) : ControllerBase
 {
-    /// <summary>
-    ///     Creates a new user account
-    /// </summary>
-    /// <param name="request">The user registration information</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <response code="200">Returns the created user information</response>
-    /// <response code="400">If the user creation fails</response>
     [HttpPost]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

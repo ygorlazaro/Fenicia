@@ -40,15 +40,8 @@ using Serilog;
 
 using StackExchange.Redis;
 
-/// <summary>
-///     Main program class containing application configuration and startup logic
-/// </summary>
 public static class Program
 {
-    /// <summary>
-    ///     Application entry point that configures and starts the web application
-    /// </summary>
-    /// <param name="args">Command line arguments</param>
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -64,10 +57,6 @@ public static class Program
         Program.StartApplication(builder);
     }
 
-    /// <summary>
-    ///     Configures and starts the web application with middleware and security settings
-    /// </summary>
-    /// <param name="builder">The web application builder</param>
     private static void StartApplication(WebApplicationBuilder builder)
     {
         var app = builder.Build();
@@ -118,11 +107,6 @@ public static class Program
         app.Run();
     }
 
-    /// <summary>
-    ///     Configures controllers, authentication, and API behavior
-    /// </summary>
-    /// <param name="configuration">Application configuration</param>
-    /// <param name="builder">The web application builder</param>
     private static void BuildControllers(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
         var key = Encoding.ASCII.GetBytes(configuration[key: "Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
@@ -170,30 +154,21 @@ public static class Program
             x.JsonSerializerOptions.AllowTrailingCommas = false;
             x.JsonSerializerOptions.MaxDepth = 0;
             x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        }).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AuthProfiles>());
+        }).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AuthContext>());
 
         builder.Services.AddOpenApi();
     }
 
-    /// <summary>
-    ///     Configures Cross-Origin Resource Sharing (CORS) policies
-    /// </summary>
-    /// <param name="builder">The web application builder</param>
     private static void BuildCors(WebApplicationBuilder builder)
     {
         builder.Services.AddCors(options =>
         {
             options.AddPolicy(name: "RestrictedCors", policy => { policy.WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
 
-            options.AddPolicy(name: "DevCors", policy => { policy.WithOrigins("http://localhost:5144", "http://127.0.0.1:5144").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
+            options.AddPolicy(name: "DevCors", policy => { policy.WithOrigins("http://localhost:5144", "http://localhost:5034", "http://127.0.0.1:5144").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
         });
     }
 
-    /// <summary>
-    ///     Configures database connection and context
-    /// </summary>
-    /// <param name="configuration">Application configuration</param>
-    /// <param name="builder">The web application builder</param>
     private static void BuildDatabaseConnection(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
         var connectionString = configuration.GetConnectionString(name: "AuthConnection");
@@ -201,10 +176,6 @@ public static class Program
         builder.Services.AddDbContextPool<AuthContext>(x => { x.UseNpgsql(connectionString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention(); });
     }
 
-    /// <summary>
-    ///     Configures dependency injection for services and repositories
-    /// </summary>
-    /// <param name="builder">The web application builder</param>
     private static void BuildDependencyInjection(WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
@@ -215,7 +186,6 @@ public static class Program
             return ConnectionMultiplexer.Connect(config);
         });
 
-        // Dependency Injection
         builder.Services.AddTransient<ICompanyService, CompanyService>();
         builder.Services.AddTransient<IDataCacheService, RedisDataCacheService>();
         builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();
@@ -246,18 +216,10 @@ public static class Program
         builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
 
         builder.Services.AddResponseCompression(config => { config.EnableForHttps = true; });
-
-        builder.Services.AddAutoMapper(typeof(Program));
     }
 
-    /// <summary>
-    ///     Configures IP-based rate limiting
-    /// </summary>
-    /// <param name="builder">The web application builder</param>
-    /// <param name="configuration">Application configuration</param>
     private static void BuildRateLimiting(WebApplicationBuilder builder, ConfigurationManager configuration)
     {
-        // Rate Limiting setup (AspNetCoreRateLimit)
         builder.Services.AddMemoryCache();
         builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection(key: "IpRateLimiting"));
         builder.Services.Configure<IpRateLimitPolicies>(configuration.GetSection(key: "IpRateLimitPolicies"));
@@ -265,10 +227,6 @@ public static class Program
         builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
     }
 
-    /// <summary>
-    ///     Configures application logging using Serilog
-    /// </summary>
-    /// <param name="builder">The web application builder</param>
     private static void BuildLogging(WebApplicationBuilder builder)
     {
         builder.Host.UseSerilog((context, config) =>

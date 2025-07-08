@@ -2,37 +2,17 @@ namespace Fenicia.Auth.Domains.LoginAttempt.Logic;
 
 using Microsoft.Extensions.Caching.Memory;
 
-/// <summary>
-///     Service responsible for managing login attempts and their tracking.
-/// </summary>
 public class LoginAttemptService(IMemoryCache cache) : ILoginAttemptService
 {
-    /// <summary>
-    ///     The expiration time in minutes for login attempt records.
-    /// </summary>
     private const int ExpirationMinutes = 15;
 
-    /// <summary>
-    ///     The prefix used for cache keys related to login attempts.
-    /// </summary>
     private const string KeyPrefix = "login-attempt:";
 
-    /// <summary>
-    ///     Gets the number of login attempts for the specified email address.
-    /// </summary>
-    /// <param name="email">The email address to check.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The number of login attempts made by the email address.</returns>
     public Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
         return Task.FromResult(cache.TryGetValue(LoginAttemptService.GetKey(email), out int attempts) ? attempts : 0);
     }
 
-    /// <summary>
-    ///     Increments the number of login attempts for the specified email address.
-    /// </summary>
-    /// <param name="email">The email address to increment attempts for.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
     public Task IncrementAttemptsAsync(string email)
     {
         var key = LoginAttemptService.GetKey(email);
@@ -48,23 +28,12 @@ public class LoginAttemptService(IMemoryCache cache) : ILoginAttemptService
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    ///     Resets the login attempts counter for the specified email address.
-    /// </summary>
-    /// <param name="email">The email address to reset attempts for.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
     public Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
         cache.Remove(LoginAttemptService.GetKey(email));
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    ///     Generates a cache key for the specified email address.
-    /// </summary>
-    /// <param name="email">The email address to generate a key for.</param>
-    /// <returns>A cache key string.</returns>
     private static string GetKey(string email)
     {
         return $"{LoginAttemptService.KeyPrefix}{email.ToLower()}";

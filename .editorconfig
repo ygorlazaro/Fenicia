@@ -13,10 +13,25 @@ indent_size = 4
 # ❌ Desabilitar quebra de linha automática
 max_line_length = 10000
 
-# ✅ Preferência de estilo
+# ✅ Preferências de estilo
 csharp_style_prefer_trailing_commas = false:suggestion
-csharp_prefer_braces = true:error
-csharp_style_allow_embedded_statements_on_same_line_experimental = false:suggestion
 
-# Se quiser evitar warnings sobre linhas longas no IDE
+# ✅ Sempre usar chaves em if, for, etc.
+csharp_prefer_braces = true:error
+
+# ❌ Não permitir statements embutidos na mesma linha (força quebra de linha e mantém 1TBS)
+csharp_style_allow_embedded_statements_on_same_line_experimental = false:suggestion
+dotnet_style_allow_embedded_statements_on_same_line = false:suggestion
+
+# ✅ Usar 1TBS (default no C#, mas reforçado)
+csharp_new_line_before_open_brace = all
+
+# ❌ Não preservar blocos de uma linha (expande para multilinha)
+csharp_preserve_single_line_blocks = false
+csharp_preserve_single_line_statements = false
+
+# ✅ Namespace no estilo file-scoped (opcional, mas recomendado)
+csharp_style_namespace_declarations = file_scoped:suggestion
+
+# ✅ Se quiser evitar warnings sobre linhas longas no IDE
 dotnet_diagnostic.IDE0059.severity = none

@@ -16,14 +16,26 @@ public class ProductModel : BaseModel
     [MaxLength(length: 50)]
     public string Name { get; set; } = null!;
 
-    public decimal CostPrice { get; set; }
+    public decimal CostPrice
+    {
+        get; set;
+    }
 
-    public decimal SellingPrice { get; set; }
+    public decimal SellingPrice
+    {
+        get; set;
+    }
 
-    public int Quantity { get; set; }
+    public int Quantity
+    {
+        get; set;
+    }
 
     [Required]
-    public Guid CategoryId { get; set; }
+    public Guid CategoryId
+    {
+        get; set;
+    }
 
     [ForeignKey(name: "CategoryId")]
     public virtual ProductCategoryModel Category { get; set; } = null!;

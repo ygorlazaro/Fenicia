@@ -4,45 +4,38 @@ using System.ComponentModel.DataAnnotations;
 
 using Enums;
 
-/// <summary>
-///     Represents a response model containing order information and details
-/// </summary>
-/// <remarks>
-///     This class is used to transfer order data from the service layer to the client
-/// </remarks>
 public class OrderResponse
 {
-    /// <summary>
-    ///     Gets or sets the unique identifier of the order
-    /// </summary>
-    /// <example>550e8400-e29b-41d4-a716-446655440000</example>
     [Required]
-    public Guid Id { get; set; }
+    public Guid Id
+    {
+        get; set;
+    }
 
-    /// <summary>
-    ///     Gets or sets the date when the order was created
-    /// </summary>
-    /// <example>2025-06-03T10:00:00Z</example>
     [Required]
     [DataType(DataType.DateTime)]
-    public DateTime SaleDate { get; set; }
+    public DateTime SaleDate
+    {
+        get; set;
+    }
 
-    /// <summary>
-    ///     Gets or sets the current status of the order
-    /// </summary>
-    /// <remarks>
-    ///     Represents the current state of the order in its lifecycle
-    /// </remarks>
     [Required]
     [EnumDataType(typeof(OrderStatus))]
-    public OrderStatus Status { get; set; }
+    public OrderStatus Status
+    {
+        get; set;
+    }
 
-    /// <summary>
-    ///     Gets or sets the total monetary amount of the order
-    /// </summary>
-    /// <example>299.99</example>
     [Required]
     [Range(minimum: 0, double.MaxValue)]
     [DataType(DataType.Currency)]
-    public decimal TotalAmount { get; set; }
+    public decimal TotalAmount
+    {
+        get; set;
+    }
+
+    public static OrderResponse? Convert(OrderModel order)
+    {
+        return new OrderResponse() { Id = order.Id, SaleDate = order.SaleDate, Status = order.Status, TotalAmount = order.TotalAmount };
+    }
 }

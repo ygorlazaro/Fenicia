@@ -6,19 +6,10 @@ using Contexts;
 
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>
-///     Repository for managing subscription credits and their associated modules
-/// </summary>
 public class SubscriptionCreditRepository(AuthContext authContext) : ISubscriptionCreditRepository
 {
     private readonly ILogger<SubscriptionCreditRepository> _logger = LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<SubscriptionCreditRepository>();
 
-    /// <summary>
-    ///     Retrieves a list of valid module types for the given subscriptions
-    /// </summary>
-    /// <param name="subscriptions">List of subscription IDs to check</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>A list of valid ModuleType values</returns>
     public async Task<List<ModuleType>> GetValidModulesTypesAsync(List<Guid> subscriptions, CancellationToken cancellationToken)
     {
         try

@@ -2,8 +2,6 @@ namespace Fenicia.Auth.Tests.Services;
 
 using System.Net;
 
-using AutoMapper;
-
 using Bogus;
 
 using Common;
@@ -21,17 +19,15 @@ public class ModuleServiceTests
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private Faker _faker;
     private Mock<ILogger<ModuleService>> _loggerMock;
-    private Mock<IMapper> _mapperMock;
     private Mock<IModuleRepository> _moduleRepositoryMock;
     private ModuleService _sut;
 
     [SetUp]
     public void Setup()
     {
-        _mapperMock = new Mock<IMapper>();
         _loggerMock = new Mock<ILogger<ModuleService>>();
         _moduleRepositoryMock = new Mock<IModuleRepository>();
-        _sut = new ModuleService(_mapperMock.Object, _loggerMock.Object, _moduleRepositoryMock.Object);
+        _sut = new ModuleService(_loggerMock.Object, _moduleRepositoryMock.Object);
         _faker = new Faker();
     }
 
@@ -47,8 +43,6 @@ public class ModuleServiceTests
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
         _moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(_cancellationToken, 1, 10)).ReturnsAsync(modules);
-
-        _mapperMock.Setup(x => x.Map<List<ModuleResponse>>(modules)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetAllOrderedAsync(_cancellationToken);
@@ -70,8 +64,6 @@ public class ModuleServiceTests
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
         _moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIds, _cancellationToken)).ReturnsAsync(modules);
-
-        _mapperMock.Setup(x => x.Map<List<ModuleResponse>>(modules)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetModulesToOrderAsync(moduleIds, _cancellationToken);
@@ -103,8 +95,6 @@ public class ModuleServiceTests
         };
 
         _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, _cancellationToken)).ReturnsAsync(module);
-
-        _mapperMock.Setup(x => x.Map<ModuleResponse>(module)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetModuleByTypeAsync(moduleType, _cancellationToken);
