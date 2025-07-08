@@ -41,11 +41,11 @@ public class TokenServiceTests
     {
         // Arrange
         var user = new UserResponse
-                   {
-                       Id = Guid.NewGuid(),
-                       Email = _faker.Internet.Email(),
-                       Name = _faker.Name.FullName()
-                   };
+        {
+            Id = Guid.NewGuid(),
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
+        };
 
         var roles = new[] { "Admin", "User" };
         var companyId = Guid.NewGuid();
@@ -84,11 +84,11 @@ public class TokenServiceTests
     {
         // Arrange
         var user = new UserResponse
-                   {
-                       Id = Guid.NewGuid(),
-                       Email = _faker.Internet.Email(),
-                       Name = _faker.Name.FullName()
-                   };
+        {
+            Id = Guid.NewGuid(),
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
+        };
 
         var roles = new[] { "God" };
         var companyId = Guid.NewGuid();
@@ -111,11 +111,11 @@ public class TokenServiceTests
     {
         // Arrange
         var user = new UserResponse
-                   {
-                       Id = Guid.NewGuid(),
-                       Email = _faker.Internet.Email(),
-                       Name = _faker.Name.FullName()
-                   };
+        {
+            Id = Guid.NewGuid(),
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
+        };
 
         var roles = new[] { "User" };
         var companyId = Guid.NewGuid();
@@ -137,11 +137,11 @@ public class TokenServiceTests
     {
         // Arrange
         var user = new UserResponse
-                   {
-                       Id = Guid.NewGuid(),
-                       Email = _faker.Internet.Email(),
-                       Name = _faker.Name.FullName()
-                   };
+        {
+            Id = Guid.NewGuid(),
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
+        };
 
         var roles = new[] { "User" };
         var companyId = Guid.NewGuid();
@@ -165,11 +165,11 @@ public class TokenServiceTests
         _configurationMock.Setup(x => x["Jwt:Secret"]).Returns((string)null!);
 
         var user = new UserResponse
-                   {
-                       Id = Guid.NewGuid(),
-                       Email = _faker.Internet.Email(),
-                       Name = _faker.Name.FullName()
-                   };
+        {
+            Id = Guid.NewGuid(),
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
+        };
 
         var roles = new[] { "User" };
         var companyId = Guid.NewGuid();

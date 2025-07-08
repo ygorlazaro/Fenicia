@@ -90,17 +90,17 @@ public class ModuleServiceTests
         // Arrange
         var moduleType = ModuleType.Ecommerce;
         var module = new ModuleModel
-                     {
-                         Id = Guid.NewGuid(),
-                         Name = _faker.Commerce.ProductName(),
-                         Type = moduleType
-                     };
+        {
+            Id = Guid.NewGuid(),
+            Name = _faker.Commerce.ProductName(),
+            Type = moduleType
+        };
         var expectedResponse = new ModuleResponse
-                               {
-                                   Id = module.Id,
-                                   Name = module.Name,
-                                   Type = moduleType
-                               };
+        {
+            Id = module.Id,
+            Name = module.Name,
+            Type = moduleType
+        };
 
         _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, _cancellationToken)).ReturnsAsync(module);
 

@@ -39,9 +39,9 @@ public class LoginAttemptService(IMemoryCache cache) : ILoginAttemptService
         var current = cache.TryGetValue(key, out int count) ? count + 1 : 1;
 
         var options = new MemoryCacheEntryOptions
-                      {
-                          AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(LoginAttemptService.ExpirationMinutes)
-                      };
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(LoginAttemptService.ExpirationMinutes)
+        };
 
         cache.Set(key, current, options);
 

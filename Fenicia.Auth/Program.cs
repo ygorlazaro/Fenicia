@@ -87,9 +87,9 @@ public static class Program
                 x.WithDarkModeToggle(showDarkModeToggle: true).WithTheme(ScalarTheme.Purple).WithClientButton(showButton: true);
 
                 x.Authentication = new ScalarAuthenticationOptions
-                                   {
-                                       PreferredSecuritySchemes = ["Bearer "]
-                                   };
+                {
+                    PreferredSecuritySchemes = ["Bearer "]
+                };
             });
         }
 
@@ -136,14 +136,14 @@ public static class Program
             x.SaveToken = true;
             x.ClaimsIssuer = "AuthService";
             x.TokenValidationParameters = new TokenValidationParameters
-                                          {
-                                              ValidateIssuerSigningKey = true,
-                                              IssuerSigningKey = new SymmetricSecurityKey(key),
-                                              ValidateIssuer = false,
-                                              ValidateAudience = false,
-                                              ValidateLifetime = true,
-                                              ClockSkew = TimeSpan.Zero
-                                          };
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
         });
 
         builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -151,17 +151,17 @@ public static class Program
             options.InvalidModelStateResponseFactory = context =>
             {
                 var problemDetails = new ValidationProblemDetails(context.ModelState)
-                                     {
-                                         Type = "https://tools.ietf.org/html/rfc7807",
-                                         Title = "Um ou mais erros de validação ocorreram.",
-                                         Status = StatusCodes.Status400BadRequest,
-                                         Instance = context.HttpContext.Request.Path
-                                     };
+                {
+                    Type = "https://tools.ietf.org/html/rfc7807",
+                    Title = "Um ou mais erros de validação ocorreram.",
+                    Status = StatusCodes.Status400BadRequest,
+                    Instance = context.HttpContext.Request.Path
+                };
 
                 return new BadRequestObjectResult(problemDetails)
-                       {
-                           ContentTypes = { "application/problem+json" }
-                       };
+                {
+                    ContentTypes = { "application/problem+json" }
+                };
             };
         });
 

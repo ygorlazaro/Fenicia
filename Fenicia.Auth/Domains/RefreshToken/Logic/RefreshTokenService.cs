@@ -28,10 +28,10 @@ public sealed class RefreshTokenService(ILogger<RefreshTokenService> logger, IRe
             rng.GetBytes(randomNumber);
 
             var refreshToken = new RefreshTokenModel
-                               {
-                                   Token = Convert.ToBase64String(randomNumber),
-                                   UserId = userId
-                               };
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                UserId = userId
+            };
 
             refreshTokenRepository.Add(refreshToken);
 

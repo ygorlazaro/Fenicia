@@ -59,14 +59,14 @@ public class Program
             x.RequireHttpsMetadata = false;
             x.SaveToken = true;
             x.TokenValidationParameters = new TokenValidationParameters
-                                          {
-                                              ValidateIssuerSigningKey = true,
-                                              IssuerSigningKey = new SymmetricSecurityKey(key),
-                                              ValidIssuer = "AuthService",
-                                              ValidateIssuer = false,
-                                              ValidateAudience = false,
-                                              ValidateLifetime = true
-                                          };
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidIssuer = "AuthService",
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true
+            };
         });
 
         builder.Services.AddControllers();
@@ -82,9 +82,9 @@ public class Program
                 x.WithDarkModeToggle(showDarkModeToggle: true).WithTheme(ScalarTheme.BluePlanet).WithClientButton(showButton: true);
 
                 x.Authentication = new ScalarAuthenticationOptions
-                                   {
-                                       PreferredSecuritySchemes = ["Bearer "]
-                                   };
+                {
+                    PreferredSecuritySchemes = ["Bearer "]
+                };
             });
         }
 

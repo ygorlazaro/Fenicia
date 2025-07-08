@@ -59,26 +59,26 @@ public class UserServiceTests
     {
         // Arrange
         var request = new TokenRequest
-                      {
-                          Email = _faker.Internet.Email(),
-                          Password = _faker.Internet.Password(),
-                          Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
-                      };
+        {
+            Email = _faker.Internet.Email(),
+            Password = _faker.Internet.Password(),
+            Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+        };
 
         var user = new UserModel
-                   {
-                       Id = Guid.NewGuid(),
-                       Email = request.Email,
-                       Password = "hashedPassword",
-                       Name = _faker.Name.FullName()
-                   };
+        {
+            Id = Guid.NewGuid(),
+            Email = request.Email,
+            Password = "hashedPassword",
+            Name = _faker.Name.FullName()
+        };
 
         var expectedResponse = new UserResponse
-                               {
-                                   Id = user.Id,
-                                   Email = user.Email,
-                                   Name = user.Name
-                               };
+        {
+            Id = user.Id,
+            Email = user.Email,
+            Name = user.Name
+        };
 
         _userRepositoryMock.Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, _cancellationToken)).ReturnsAsync(user);
 
@@ -98,11 +98,11 @@ public class UserServiceTests
     {
         // Arrange
         var request = new TokenRequest
-                      {
-                          Email = _faker.Internet.Email(),
-                          Password = _faker.Internet.Password(),
-                          Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
-                      };
+        {
+            Email = _faker.Internet.Email(),
+            Password = _faker.Internet.Password(),
+            Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+        };
 
         _userRepositoryMock.Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, _cancellationToken)).ReturnsAsync((UserModel)null!);
 
@@ -122,33 +122,33 @@ public class UserServiceTests
     {
         // Arrange
         var request = new UserRequest
-                      {
-                          Email = _faker.Internet.Email(),
-                          Password = _faker.Internet.Password(),
-                          Name = _faker.Name.FullName(),
-                          Company = new CompanyRequest
-                                    {
-                                        Name = _faker.Company.CompanyName(),
-                                        Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
-                                    }
-                      };
+        {
+            Email = _faker.Internet.Email(),
+            Password = _faker.Internet.Password(),
+            Name = _faker.Name.FullName(),
+            Company = new CompanyRequest
+            {
+                Name = _faker.Company.CompanyName(),
+                Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            }
+        };
 
         var hashedPassword = "hashedPassword";
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
         var user = new UserModel
-                   {
-                       Id = Guid.NewGuid(),
-                       Email = request.Email,
-                       Password = hashedPassword,
-                       Name = request.Name
-                   };
+        {
+            Id = Guid.NewGuid(),
+            Email = request.Email,
+            Password = hashedPassword,
+            Name = request.Name
+        };
 
         var expectedResponse = new UserResponse
-                               {
-                                   Id = user.Id,
-                                   Email = user.Email,
-                                   Name = user.Name
-                               };
+        {
+            Id = user.Id,
+            Email = user.Email,
+            Name = user.Name
+        };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(value: false);
         _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, _cancellationToken)).ReturnsAsync(value: false);
@@ -171,16 +171,16 @@ public class UserServiceTests
     {
         // Arrange
         var request = new UserRequest
-                      {
-                          Email = _faker.Internet.Email(),
-                          Password = _faker.Internet.Password(),
-                          Name = _faker.Name.FullName(),
-                          Company = new CompanyRequest
-                                    {
-                                        Name = _faker.Company.CompanyName(),
-                                        Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
-                                    }
-                      };
+        {
+            Email = _faker.Internet.Email(),
+            Password = _faker.Internet.Password(),
+            Name = _faker.Name.FullName(),
+            Company = new CompanyRequest
+            {
+                Name = _faker.Company.CompanyName(),
+                Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            }
+        };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(value: true);
 
@@ -218,18 +218,18 @@ public class UserServiceTests
         // Arrange
         var userId = Guid.NewGuid();
         var user = new UserModel
-                   {
-                       Id = userId,
-                       Email = _faker.Internet.Email(),
-                       Name = _faker.Name.FullName()
-                   };
+        {
+            Id = userId,
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
+        };
 
         var expectedResponse = new UserResponse
-                               {
-                                   Id = user.Id,
-                                   Email = user.Email,
-                                   Name = user.Name
-                               };
+        {
+            Id = user.Id,
+            Email = user.Email,
+            Name = user.Name
+        };
 
         _userRepositoryMock.Setup(x => x.GetUserForRefreshTokenAsync(userId, _cancellationToken)).ReturnsAsync(user);
 
@@ -266,16 +266,16 @@ public class UserServiceTests
     {
         // Arrange
         var request = new UserRequest
-                      {
-                          Email = _faker.Internet.Email(),
-                          Password = _faker.Internet.Password(),
-                          Name = _faker.Name.FullName(),
-                          Company = new CompanyRequest
-                                    {
-                                        Name = _faker.Company.CompanyName(),
-                                        Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
-                                    }
-                      };
+        {
+            Email = _faker.Internet.Email(),
+            Password = _faker.Internet.Password(),
+            Name = _faker.Name.FullName(),
+            Company = new CompanyRequest
+            {
+                Name = _faker.Company.CompanyName(),
+                Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            }
+        };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(value: false);
         _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, _cancellationToken)).ReturnsAsync(value: false);

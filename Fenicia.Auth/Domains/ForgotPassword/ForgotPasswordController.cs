@@ -42,10 +42,10 @@ public class ForgotPasswordController(ILogger<ForgotPasswordController> logger, 
             logger.LogInformation(message: "Password recovery process completed with status: {Status}", response.Status);
 
             return response.Data switch
-                   {
-                       null => StatusCode((int)response.Status, response.Message),
-                       _ => Ok(response)
-                   };
+            {
+                null => StatusCode((int)response.Status, response.Message),
+                _ => Ok(response)
+            };
         }
         catch (Exception ex)
         {
@@ -74,10 +74,10 @@ public class ForgotPasswordController(ILogger<ForgotPasswordController> logger, 
             logger.LogInformation(message: "Password reset process completed with status: {Status}", response.Status);
 
             return response.Data switch
-                   {
-                       null => StatusCode((int)response.Status, response.Message),
-                       _ => Ok(response)
-                   };
+            {
+                null => StatusCode((int)response.Status, response.Message),
+                _ => Ok(response)
+            };
         }
         catch (Exception ex)
         {

@@ -17,13 +17,13 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
             logger.LogError(ex, message: "Erro não tratado");
 
             var problem = new ProblemDetails
-                          {
-                              Type = "https://tools.ietf.org/html/rfc7807",
-                              Title = "Erro interno",
-                              Status = 500,
-                              Detail = ex.Message,
-                              Instance = context.Request.Path
-                          };
+            {
+                Type = "https://tools.ietf.org/html/rfc7807",
+                Title = "Erro interno",
+                Status = 500,
+                Detail = ex.Message,
+                Instance = context.Request.Path
+            };
 
             context.Response.StatusCode = 500;
             context.Response.ContentType = "application/problem+json";

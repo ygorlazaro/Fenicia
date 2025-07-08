@@ -79,9 +79,9 @@ public class OrderServiceTests
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest
-                      {
-                          Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
-                      };
+        {
+            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
+        };
 
         var emptyModulesList = new List<ModuleResponse>();
 
@@ -114,9 +114,9 @@ public class OrderServiceTests
         var moduleAmount = _faker.Random.Decimal(min: 10, max: 1000);
 
         var request = new OrderRequest
-                      {
-                          Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
-                      };
+        {
+            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
+        };
 
         var moduleResponses = new List<ModuleResponse>
                               {
@@ -129,11 +129,11 @@ public class OrderServiceTests
                               };
 
         var basicModuleResponse = new ModuleResponse
-                                  {
-                                      Id = Guid.NewGuid(),
-                                      Type = ModuleType.Basic,
-                                      Amount = _faker.Random.Decimal(min: 10, max: 1000)
-                                  };
+        {
+            Id = Guid.NewGuid(),
+            Type = ModuleType.Basic,
+            Amount = _faker.Random.Decimal(min: 10, max: 1000)
+        };
 
         var moduleModels = new List<ModuleModel>
                            {
@@ -152,12 +152,12 @@ public class OrderServiceTests
                            };
 
         var expectedOrder = new OrderModel
-                            {
-                                Id = Guid.NewGuid(),
-                                UserId = userId,
-                                Status = OrderStatus.Approved,
-                                TotalAmount = moduleAmount + basicModuleResponse.Amount
-                            };
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Status = OrderStatus.Approved,
+            TotalAmount = moduleAmount + basicModuleResponse.Amount
+        };
 
         _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
@@ -196,9 +196,9 @@ public class OrderServiceTests
         var moduleAmount = _faker.Random.Decimal(min: 10, max: 1000);
 
         var request = new OrderRequest
-                      {
-                          Details = new List<OrderDetailRequest> { new() { ModuleId = basicModuleId } }
-                      };
+        {
+            Details = new List<OrderDetailRequest> { new() { ModuleId = basicModuleId } }
+        };
 
         var moduleResponses = new List<ModuleResponse>
                               {
