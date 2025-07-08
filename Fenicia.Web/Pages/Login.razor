@@ -1,0 +1,56 @@
+@page "/login"
+@layout EmptyLayout
+@using Fenicia.Web.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+
+<h3>Login</h3>
+
+<EditForm Model="@_loginRequest" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Email:</label>
+        <InputText @bind-Value="_loginRequest.Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Password:</label>
+        <InputText @bind-Value="_loginRequest.Password" type="password" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>CNPJ:</label>
+        <InputText @bind-Value="_loginRequest.Cnpj" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private readonly LoginRequest _loginRequest = new();
+
+    private async Task HandleLogin()
+    {
+        var response = await Http.PostAsJsonAsync(requestUri: "http://localhost:5144/token", _loginRequest);
+        if (response.IsSuccessStatusCode)
+        {
+            var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();
+            if (tokenResponse?.Token != null)
+            {
+                await JSRuntime.InvokeVoidAsync(identifier: "localStorage.setItem", "authToken", tokenResponse.Token);
+                Navigation.NavigateTo(uri: "/");
+            }
+        }
+        else
+        {
+            // Handle error
+        }
+    }
+
+    public class TokenResponse
+    {
+        public string? Token { get; set; }
+        public string? RefreshToken { get; set; }
+    }
+}
