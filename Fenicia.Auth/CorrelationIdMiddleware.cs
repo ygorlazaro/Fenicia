@@ -3,17 +3,8 @@ namespace Fenicia.Auth;
 using Serilog;
 using Serilog.Context;
 
-/// <summary>
-///     Middleware that handles correlation ID for request tracing.
-/// </summary>
-/// <param name="next">The next middleware delegate in the pipeline.</param>
 public sealed class CorrelationIdMiddleware(RequestDelegate next)
 {
-    /// <summary>
-    ///     Processes HTTP request by adding correlation ID to the request and response headers.
-    /// </summary>
-    /// <param name="context">The HTTP context for the request.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task InvokeAsync(HttpContext context)
     {
         const string CorrelationIdHeader = "X-Correlation-ID";

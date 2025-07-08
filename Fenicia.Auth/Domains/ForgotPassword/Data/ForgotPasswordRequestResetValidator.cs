@@ -2,17 +2,10 @@ namespace Fenicia.Auth.Domains.ForgotPassword.Data;
 
 using FluentValidation;
 
-/// <summary>
-///     Validates password reset requests ensuring all required fields are properly formatted
-/// </summary>
 public class ForgotPasswordRequestResetValidator : AbstractValidator<ForgotPasswordRequestReset>
 {
     private readonly ILogger<ForgotPasswordRequestResetValidator> _logger;
 
-    /// <summary>
-    ///     Initializes a new instance of the validator with validation rules for email, code and password
-    /// </summary>
-    /// <param name="logger">Logger instance for validation events</param>
     public ForgotPasswordRequestResetValidator(ILogger<ForgotPasswordRequestResetValidator> logger)
     {
         _logger = logger;

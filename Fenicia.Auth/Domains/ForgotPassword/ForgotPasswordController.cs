@@ -9,12 +9,6 @@ using Logic;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-/// <summary>
-///     Handles password recovery and reset operations for users
-/// </summary>
-/// <remarks>
-///     This controller provides endpoints for initiating password recovery and completing password reset
-/// </remarks>
 [ApiController]
 [AllowAnonymous]
 [Route(template: "[controller]")]
@@ -22,12 +16,6 @@ using Microsoft.AspNetCore.Mvc;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ForgotPasswordController(ILogger<ForgotPasswordController> logger, IForgotPasswordService forgotPasswordService) : ControllerBase
 {
-    /// <summary>
-    ///     Initiates the password recovery process for a user
-    /// </summary>
-    /// <param name="request">The password recovery request details</param>
-    /// <param name="cancellationToken">Cancellation token for handling cancellation requests</param>
-    /// <returns>Action result indicating the success or failure of the operation</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -54,12 +42,6 @@ public class ForgotPasswordController(ILogger<ForgotPasswordController> logger, 
         }
     }
 
-    /// <summary>
-    ///     Resets the user's password using the provided reset token
-    /// </summary>
-    /// <param name="request">The password reset request containing the new password and reset token</param>
-    /// <param name="cancellationToken">Cancellation token for handling cancellation requests</param>
-    /// <returns>Action result indicating the success or failure of the password reset</returns>
     [HttpPost(template: "reset")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

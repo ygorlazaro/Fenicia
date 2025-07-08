@@ -6,26 +6,14 @@ using Data;
 
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>
-///     Repository for managing refresh tokens in the database.
-/// </summary>
 public sealed class RefreshTokenRepository(AuthContext authContext) : IRefreshTokenRepository
 {
-    /// <summary>
-    ///     Adds a new refresh token to the database context.
-    /// </summary>
-    /// <param name="refreshToken">The refresh token model to add.</param>
     public void Add(RefreshTokenModel refreshToken)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
         authContext.RefreshTokens.Add(refreshToken);
     }
 
-    /// <summary>
-    ///     Saves all pending changes in the database context.
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
         try
@@ -38,13 +26,6 @@ public sealed class RefreshTokenRepository(AuthContext authContext) : IRefreshTo
         }
     }
 
-    /// <summary>
-    ///     Validates if a refresh token is valid for a specific user.
-    /// </summary>
-    /// <param name="userId">The user identifier.</param>
-    /// <param name="refreshToken">The refresh token to validate.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>True if the token is valid, false otherwise.</returns>
     public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
@@ -63,12 +44,6 @@ public sealed class RefreshTokenRepository(AuthContext authContext) : IRefreshTo
         }
     }
 
-    /// <summary>
-    ///     Invalidates a refresh token.
-    /// </summary>
-    /// <param name="refreshToken">The refresh token to invalidate.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);

@@ -11,19 +11,8 @@ using Microsoft.IdentityModel.Tokens;
 
 using User.Data;
 
-/// <summary>
-///     Service responsible for JWT token generation and management
-/// </summary>
 public class TokenService(IConfiguration configuration, ILogger<TokenService> logger) : ITokenService
 {
-    /// <summary>
-    ///     Generates a JWT token for the specified user
-    /// </summary>
-    /// <param name="user">User information</param>
-    /// <param name="roles">User roles</param>
-    /// <param name="companyId">Company identifier</param>
-    /// <param name="modules">Accessible modules</param>
-    /// <returns>API response containing the generated token</returns>
     public ApiResponse<string> GenerateToken(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
     {
         try
@@ -59,14 +48,6 @@ public class TokenService(IConfiguration configuration, ILogger<TokenService> lo
         }
     }
 
-    /// <summary>
-    ///     Generates the claims for the JWT token
-    /// </summary>
-    /// <param name="user">User information</param>
-    /// <param name="roles">User roles</param>
-    /// <param name="companyId">Company identifier</param>
-    /// <param name="modules">Accessible modules</param>
-    /// <returns>List of claims</returns>
     private List<Claim> GenerateClaims(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
     {
         var authClaims = new List<Claim>

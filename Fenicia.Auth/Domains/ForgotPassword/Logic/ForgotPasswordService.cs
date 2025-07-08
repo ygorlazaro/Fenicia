@@ -2,25 +2,14 @@ namespace Fenicia.Auth.Domains.ForgotPassword.Logic;
 
 using System.Net;
 
-using AutoMapper;
-
 using Common;
 
 using Data;
 
 using User.Logic;
 
-/// <summary>
-///     Service for handling password reset and forgot password functionality.
-/// </summary>
-public class ForgotPasswordService(IMapper mapper, ILogger<ForgotPasswordService> logger, IForgotPasswordRepository forgotPasswordRepository, IUserService userService) : IForgotPasswordService
+public class ForgotPasswordService(ILogger<ForgotPasswordService> logger, IForgotPasswordRepository forgotPasswordRepository, IUserService userService) : IForgotPasswordService
 {
-    /// <summary>
-    ///     Resets the password for a user using the provided reset code.
-    /// </summary>
-    /// <param name="request">The password reset request containing email, code, and new password.</param>
-    /// <param name="cancellationToken">Cancellation token for the operation.</param>
-    /// <returns>API response containing the result of the password reset operation.</returns>
     public async Task<ApiResponse<ForgotPasswordResponse>> ResetPasswordAsync(ForgotPasswordRequestReset request, CancellationToken cancellationToken)
     {
         logger.LogInformation(message: "Resetting password for user {email}", request.Email);
@@ -44,15 +33,9 @@ public class ForgotPasswordService(IMapper mapper, ILogger<ForgotPasswordService
         await userService.ChangePasswordAsync(currentCode.UserId, request.Password, cancellationToken);
         await forgotPasswordRepository.InvalidateCodeAsync(currentCode.Id, cancellationToken);
 
-        return new ApiResponse<ForgotPasswordResponse>(mapper.Map<ForgotPasswordResponse>(currentCode));
+        return new ApiResponse<ForgotPasswordResponse>(ForgotPasswordResponse.Convert(currentCode));
     }
 
-    /// <summary>
-    ///     Saves a forgot password request and generates a reset code.
-    /// </summary>
-    /// <param name="forgotPassword">The forgot password request containing the user's email.</param>
-    /// <param name="cancellationToken">Cancellation token for the operation.</param>
-    /// <returns>API response containing the generated forgot password record.</returns>
     public async Task<ApiResponse<ForgotPasswordResponse>> SaveForgotPasswordAsync(ForgotPasswordRequest forgotPassword, CancellationToken cancellationToken)
     {
         logger.LogInformation(message: "Saving forgot password for user {email}", forgotPassword.Email);
@@ -72,7 +55,8 @@ public class ForgotPasswordService(IMapper mapper, ILogger<ForgotPasswordService
         };
 
         var response = await forgotPasswordRepository.SaveForgotPasswordAsync(request, cancellationToken);
+        var mapped = ForgotPasswordResponse.Convert(response);
 
-        return mapper.Map<ApiResponse<ForgotPasswordResponse>>(response);
+        return new ApiResponse<ForgotPasswordResponse>(mapped);
     }
 }

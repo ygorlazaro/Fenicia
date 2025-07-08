@@ -2,8 +2,6 @@ namespace Fenicia.Auth.Tests.Services;
 
 using System.Net;
 
-using AutoMapper;
-
 using Bogus;
 
 using Common;
@@ -24,19 +22,17 @@ public class CompanyServiceTests
     private Mock<IDataCacheService> _dataCacheServiceMock;
     private Faker _faker;
     private Mock<ILogger<CompanyService>> _loggerMock;
-    private Mock<IMapper> _mapperMock;
     private CompanyService _sut;
     private Mock<IUserRoleService> _userRoleServiceMock;
 
     [SetUp]
     public void Setup()
     {
-        _mapperMock = new Mock<IMapper>();
         _loggerMock = new Mock<ILogger<CompanyService>>();
         _companyRepositoryMock = new Mock<ICompanyRepository>();
         _userRoleServiceMock = new Mock<IUserRoleService>();
         _dataCacheServiceMock = new Mock<IDataCacheService>();
-        _sut = new CompanyService(_mapperMock.Object, _loggerMock.Object, _companyRepositoryMock.Object, _userRoleServiceMock.Object, _dataCacheServiceMock.Object);
+        _sut = new CompanyService(_loggerMock.Object, _companyRepositoryMock.Object, _userRoleServiceMock.Object, _dataCacheServiceMock.Object);
         _faker = new Faker();
     }
 
@@ -49,8 +45,6 @@ public class CompanyServiceTests
         var expectedResponse = new CompanyResponse { Cnpj = cnpj };
 
         _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, _cancellationToken)).ReturnsAsync(companyModel);
-
-        _mapperMock.Setup(x => x.Map<CompanyResponse>(companyModel)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetByCnpjAsync(cnpj, _cancellationToken);
@@ -96,8 +90,6 @@ public class CompanyServiceTests
 
         _companyRepositoryMock.Setup(x => x.GetByUserIdAsync(userId, _cancellationToken, 1, 10)).ReturnsAsync(companies);
 
-        _mapperMock.Setup(x => x.Map<List<CompanyResponse>>(companies)).Returns(expectedResponse);
-
         // Act
         var result = await _sut.GetByUserIdAsync(userId, _cancellationToken);
 
@@ -123,13 +115,9 @@ public class CompanyServiceTests
 
         _userRoleServiceMock.Setup(x => x.HasRoleAsync(userId, companyId, "Admin", _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
-        _mapperMock.Setup(x => x.Map<CompanyModel>(updateRequest)).Returns(companyModel);
-
         _companyRepositoryMock.Setup(x => x.PatchAsync(It.IsAny<CompanyModel>())).Returns(companyModel);
 
         _companyRepositoryMock.Setup(x => x.SaveAsync(_cancellationToken)).ReturnsAsync(value: 1);
-
-        _mapperMock.Setup(x => x.Map<CompanyResponse>(companyModel)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.PatchAsync(companyId, userId, updateRequest, _cancellationToken);

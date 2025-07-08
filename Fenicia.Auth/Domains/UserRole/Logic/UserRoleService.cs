@@ -2,20 +2,8 @@ namespace Fenicia.Auth.Domains.UserRole.Logic;
 
 using Common;
 
-/// <summary>
-///     Service responsible for managing user role operations and interactions
-/// </summary>
-/// <remarks>
-///     This service provides functionality for retrieving and validating user roles
-/// </remarks>
 public class UserRoleService(ILogger<UserRoleService> logger, IUserRoleRepository userRoleRepository) : IUserRoleService
 {
-    /// <summary>
-    ///     Retrieves all roles associated with a specific user
-    /// </summary>
-    /// <param name="userId">The unique identifier of the user</param>
-    /// <param name="cancellationToken">Token to cancel the operation if needed</param>
-    /// <returns>API response containing an array of role names</returns>
     public async Task<ApiResponse<string[]>> GetRolesByUserAsync(Guid userId, CancellationToken cancellationToken)
     {
         try
@@ -34,14 +22,6 @@ public class UserRoleService(ILogger<UserRoleService> logger, IUserRoleRepositor
         }
     }
 
-    /// <summary>
-    ///     Checks if a user has a specific role within a company
-    /// </summary>
-    /// <param name="userId">The unique identifier of the user</param>
-    /// <param name="companyId">The unique identifier of the company</param>
-    /// <param name="role">The role name to check</param>
-    /// <param name="cancellationToken">Token to cancel the operation if needed</param>
-    /// <returns>API response indicating whether the user has the specified role</returns>
     public async Task<ApiResponse<bool>> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken cancellationToken)
     {
         try

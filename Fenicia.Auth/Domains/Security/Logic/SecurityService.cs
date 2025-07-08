@@ -6,28 +6,15 @@ using BCrypt.Net;
 
 using Common;
 
-/// <summary>
-///     Service responsible for handling security-related operations such as password hashing and verification
-/// </summary>
 public class SecurityService : ISecurityService
 {
     private readonly ILogger<SecurityService> _logger;
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="SecurityService" /> class
-    /// </summary>
-    /// <param name="logger">The logger instance</param>
     public SecurityService(ILogger<SecurityService> logger)
     {
         _logger = logger;
     }
 
-    /// <summary>
-    ///     Hashes the provided password using BCrypt algorithm
-    /// </summary>
-    /// <param name="password">The password to hash</param>
-    /// <returns>ApiResponse containing the hashed password</returns>
-    /// <exception cref="ArgumentException">Thrown when password is null or empty</exception>
     public ApiResponse<string> HashPassword(string password)
     {
         try
@@ -56,12 +43,6 @@ public class SecurityService : ISecurityService
         }
     }
 
-    /// <summary>
-    ///     Verifies if the provided password matches the hashed password
-    /// </summary>
-    /// <param name="password">The plain text password to verify</param>
-    /// <param name="hashedPassword">The hashed password to compare against</param>
-    /// <returns>ApiResponse containing the verification result</returns>
     public ApiResponse<bool> VerifyPassword(string password, string hashedPassword)
     {
         try

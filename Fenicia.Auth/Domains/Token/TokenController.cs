@@ -23,23 +23,12 @@ using User.Logic;
 
 using UserRole.Logic;
 
-/// <summary>
-///     Controller responsible for handling token-related operations
-/// </summary>
 [Authorize]
 [Route(template: "[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 public class TokenController(ILogger<TokenController> logger, ITokenService tokenService, IRefreshTokenService refreshTokenService, IUserService userService, IUserRoleService userRoleService, ICompanyService companyService, ISubscriptionCreditService subscriptionCreditService) : ControllerBase
 {
-    /// <summary>
-    ///     Generates an authentication token for the user
-    /// </summary>
-    /// <param name="request">The token request containing credentials</param>
-    /// <param name="cancellationToken"></param>
-    /// <response code="200">Returns the authentication token</response>
-    /// <response code="400">If the user has no roles assigned</response>
-    /// <response code="404">If the company is not found</response>
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
@@ -79,12 +68,6 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
         }
     }
 
-    /// <summary>
-    ///     Gemerate a new authentication token for the user
-    /// </summary>
-    /// <param name="request">The refresh token request containing the refresh token</param>
-    /// <param name="cancellationToken"></param>
-    /// <response code="200">Returns the authentication token</response>
     [HttpPost]
     [AllowAnonymous]
     [Route(template: "refresh")]
@@ -125,13 +108,6 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
         }
     }
 
-    /// <summary>
-    ///     Populates and generates a new token response with user information
-    /// </summary>
-    /// <param name="user">User information</param>
-    /// <param name="companyId">Company identifier</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Token response containing authentication and refresh tokens</returns>
     private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(UserResponse user, Guid companyId, CancellationToken cancellationToken)
     {
         try

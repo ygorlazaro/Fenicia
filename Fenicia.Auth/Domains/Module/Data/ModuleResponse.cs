@@ -5,49 +5,49 @@ using System.Text.Json.Serialization;
 
 using Common.Enums;
 
-/// <summary>
-///     Represents a response model containing module information for API responses
-/// </summary>
-/// <remarks>
-///     This class is used to transfer module data between the service layer and API controllers
-/// </remarks>
 [Serializable]
 public class ModuleResponse
 {
-    /// <summary>
-    ///     Gets or sets the unique identifier for the module
-    /// </summary>
-    /// <value>A globally unique identifier (GUID) that uniquely identifies this module</value>
-    /// <example>550e8400-e29b-41d4-a716-446655440000</example>
     [Required]
     [JsonPropertyName(name: "id")]
-    public Guid Id { get; set; }
+    public Guid Id
+    {
+        get; set;
+    }
 
-    /// <summary>
-    ///     Gets or sets the name of the module
-    /// </summary>
-    /// <value>The human-readable name of the module</value>
-    /// <example>Analytics Pro</example>
     [Required]
     [StringLength(maximumLength: 30)]
     [JsonPropertyName(name: "name")]
     public string Name { get; set; } = null!;
 
-    /// <summary>
-    ///     Gets or sets the price of the module
-    /// </summary>
-    /// <value>The decimal amount representing the module's price</value>
-    /// <example>199.99</example>
     [Required]
     [Range(minimum: 0, maximum: 999999.99)]
     [JsonPropertyName(name: "amount")]
-    public decimal Amount { get; set; }
+    public decimal Amount
+    {
+        get; set;
+    }
 
-    /// <summary>
-    ///     Gets or sets the type classification of the module
-    /// </summary>
-    /// <value>An enumeration value representing the module's type category</value>
     [Required]
     [JsonPropertyName(name: "type")]
-    public ModuleType Type { get; set; }
+    public ModuleType Type
+    {
+        get; set;
+    }
+
+    public static ModuleResponse Convert(ModuleModel module)
+    {
+        return new ModuleResponse
+        {
+            Id = module.Id,
+            Name = module.Name,
+            Amount = module.Amount,
+            Type = module.Type
+        };
+    }
+
+    public static List<ModuleResponse> Convert(List<ModuleModel> modules)
+    {
+        return modules.Select(ModuleResponse.Convert).ToList();
+    }
 }

@@ -6,19 +6,8 @@ using Data;
 
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>
-///     Repository for managing forgot password functionality and database operations
-/// </summary>
-/// <param name="authContext">The authentication database context</param>
 public class ForgotPasswordRepository(AuthContext authContext, ILogger<ForgotPasswordRepository> logger) : IForgotPasswordRepository
 {
-    /// <summary>
-    ///     Retrieves a forgot password model based on user ID and verification code
-    /// </summary>
-    /// <param name="userId">The ID of the user requesting password reset</param>
-    /// <param name="code">The verification code sent to the user</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The forgot password model if found and valid; otherwise null</returns>
     public async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken cancellationToken)
     {
         try
@@ -41,12 +30,6 @@ public class ForgotPasswordRepository(AuthContext authContext, ILogger<ForgotPas
         }
     }
 
-    /// <summary>
-    ///     Invalidates a forgot password code
-    /// </summary>
-    /// <param name="id">The ID of the forgot password record to invalidate</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>A task representing the asynchronous operation</returns>
     public async Task InvalidateCodeAsync(Guid id, CancellationToken cancellationToken)
     {
         try
@@ -70,12 +53,6 @@ public class ForgotPasswordRepository(AuthContext authContext, ILogger<ForgotPas
         }
     }
 
-    /// <summary>
-    ///     Saves a new forgot password request
-    /// </summary>
-    /// <param name="forgotPassword">The forgot password model to save</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The saved forgot password model</returns>
     public async Task<ForgotPasswordModel> SaveForgotPasswordAsync(ForgotPasswordModel forgotPassword, CancellationToken cancellationToken)
     {
         try

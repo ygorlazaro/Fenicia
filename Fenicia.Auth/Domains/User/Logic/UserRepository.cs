@@ -6,18 +6,8 @@ using Data;
 
 using Microsoft.EntityFrameworkCore;
 
-/// <summary>
-///     Repository for managing user-related database operations
-/// </summary>
 public class UserRepository(AuthContext authContext, ILogger<UserRepository> logger) : IUserRepository
 {
-    /// <summary>
-    ///     Retrieves a user by email and company CNPJ
-    /// </summary>
-    /// <param name="email">User's email address</param>
-    /// <param name="cnpj">Company's CNPJ</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>User model if found, null otherwise</returns>
     public async Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj, CancellationToken cancellationToken)
     {
         try
@@ -40,11 +30,6 @@ public class UserRepository(AuthContext authContext, ILogger<UserRepository> log
         }
     }
 
-    /// <summary>
-    ///     Adds a new user to the database context
-    /// </summary>
-    /// <param name="userRequest">User model to add</param>
-    /// <returns>Added user model</returns>
     public UserModel Add(UserModel userRequest)
     {
         logger.LogInformation(message: "Adding new user with email: {Email}", userRequest.Email);
@@ -52,11 +37,6 @@ public class UserRepository(AuthContext authContext, ILogger<UserRepository> log
         return userRequest;
     }
 
-    /// <summary>
-    ///     Saves changes to the database
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Number of affected records</returns>
     public async Task<int> SaveAsync(CancellationToken cancellationToken)
     {
         try
@@ -72,12 +52,6 @@ public class UserRepository(AuthContext authContext, ILogger<UserRepository> log
         }
     }
 
-    /// <summary>
-    ///     Checks if a user with the specified email exists
-    /// </summary>
-    /// <param name="email">Email to check</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>True if user exists, false otherwise</returns>
     public async Task<bool> CheckUserExistsAsync(string email, CancellationToken cancellationToken)
     {
         try
@@ -93,12 +67,6 @@ public class UserRepository(AuthContext authContext, ILogger<UserRepository> log
         }
     }
 
-    /// <summary>
-    ///     Retrieves a user for refresh token validation
-    /// </summary>
-    /// <param name="userId">User's unique identifier</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>User model if found, null otherwise</returns>
     public async Task<UserModel?> GetUserForRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
     {
         try
@@ -118,12 +86,6 @@ public class UserRepository(AuthContext authContext, ILogger<UserRepository> log
         }
     }
 
-    /// <summary>
-    ///     Retrieves a user's ID by their email address
-    /// </summary>
-    /// <param name="email">User's email address</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>User's ID if found, null otherwise</returns>
     public async Task<Guid?> GetUserIdFromEmailAsync(string email, CancellationToken cancellationToken)
     {
         try
@@ -143,12 +105,6 @@ public class UserRepository(AuthContext authContext, ILogger<UserRepository> log
         }
     }
 
-    /// <summary>
-    ///     Retrieves a user by their ID
-    /// </summary>
-    /// <param name="userId">User's unique identifier</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>User model if found, null otherwise</returns>
     public async Task<UserModel?> GetByIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         try

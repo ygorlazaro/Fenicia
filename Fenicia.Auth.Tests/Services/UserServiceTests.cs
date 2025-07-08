@@ -2,8 +2,6 @@ namespace Fenicia.Auth.Tests.Services;
 
 using System.Net;
 
-using AutoMapper;
-
 using Bogus;
 
 using Common;
@@ -30,7 +28,6 @@ public class UserServiceTests
     private Faker _faker;
     private Mock<ILogger<UserService>> _loggerMock;
     private Mock<ILoginAttemptService> _loginAttemptServiceMock;
-    private Mock<IMapper> _mapperMock;
     private Mock<IRoleRepository> _roleRepositoryMock;
     private Mock<ISecurityService> _securityServiceMock;
     private UserService _sut;
@@ -40,7 +37,6 @@ public class UserServiceTests
     [SetUp]
     public void Setup()
     {
-        _mapperMock = new Mock<IMapper>();
         _loggerMock = new Mock<ILogger<UserService>>();
         _userRepositoryMock = new Mock<IUserRepository>();
         _roleRepositoryMock = new Mock<IRoleRepository>();
@@ -49,7 +45,7 @@ public class UserServiceTests
         _securityServiceMock = new Mock<ISecurityService>();
         _loginAttemptServiceMock = new Mock<ILoginAttemptService>();
 
-        _sut = new UserService(_mapperMock.Object, _loggerMock.Object, _userRepositoryMock.Object, _roleRepositoryMock.Object, _userRoleRepositoryMock.Object, _companyRepositoryMock.Object, _securityServiceMock.Object, _loginAttemptServiceMock.Object);
+        _sut = new UserService(_loggerMock.Object, _userRepositoryMock.Object, _roleRepositoryMock.Object, _userRoleRepositoryMock.Object, _companyRepositoryMock.Object, _securityServiceMock.Object, _loginAttemptServiceMock.Object);
 
         _faker = new Faker();
     }
@@ -83,8 +79,6 @@ public class UserServiceTests
         _userRepositoryMock.Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, _cancellationToken)).ReturnsAsync(user);
 
         _securityServiceMock.Setup(x => x.VerifyPassword(request.Password, user.Password)).Returns(new ApiResponse<bool>(data: true));
-
-        _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetForLoginAsync(request, _cancellationToken);
@@ -155,7 +149,6 @@ public class UserServiceTests
         _securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(new ApiResponse<string>(hashedPassword));
         _userRepositoryMock.Setup(x => x.Add(It.IsAny<UserModel>())).Returns(user);
         _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(_cancellationToken)).ReturnsAsync(adminRole);
-        _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.CreateNewUserAsync(request, _cancellationToken);
@@ -232,8 +225,6 @@ public class UserServiceTests
         };
 
         _userRepositoryMock.Setup(x => x.GetUserForRefreshTokenAsync(userId, _cancellationToken)).ReturnsAsync(user);
-
-        _mapperMock.Setup(x => x.Map<UserResponse>(user)).Returns(expectedResponse);
 
         // Act
         var result = await _sut.GetUserForRefreshAsync(userId, _cancellationToken);

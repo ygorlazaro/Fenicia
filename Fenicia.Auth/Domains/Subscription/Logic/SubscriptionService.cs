@@ -2,8 +2,6 @@ namespace Fenicia.Auth.Domains.Subscription.Logic;
 
 using System.Net;
 
-using AutoMapper;
-
 using Common;
 
 using Data;
@@ -16,19 +14,8 @@ using OrderDetail.Data;
 
 using SubscriptionCredit.Data;
 
-/// <summary>
-///     Service responsible for managing subscriptions and subscription credits
-/// </summary>
-public sealed class SubscriptionService(IMapper mapper, ILogger<SubscriptionService> logger, ISubscriptionRepository subscriptionRepository) : ISubscriptionService
+public sealed class SubscriptionService(ILogger<SubscriptionService> logger, ISubscriptionRepository subscriptionRepository) : ISubscriptionService
 {
-    /// <summary>
-    ///     Creates subscription credits for a given order
-    /// </summary>
-    /// <param name="order">The order model</param>
-    /// <param name="details">List of order details</param>
-    /// <param name="companyId">The company identifier</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>API response containing the subscription response</returns>
     public async Task<ApiResponse<SubscriptionResponse>> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details, Guid companyId, CancellationToken cancellationToken)
     {
         try
@@ -63,7 +50,7 @@ public sealed class SubscriptionService(IMapper mapper, ILogger<SubscriptionServ
             await subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken);
             logger.LogInformation(message: "Successfully saved subscription for order {OrderId}", order.Id);
 
-            var response = mapper.Map<SubscriptionResponse>(subscription);
+            var response = SubscriptionResponse.Convert(subscription);
             return new ApiResponse<SubscriptionResponse>(response);
         }
         catch (Exception ex)
@@ -73,12 +60,6 @@ public sealed class SubscriptionService(IMapper mapper, ILogger<SubscriptionServ
         }
     }
 
-    /// <summary>
-    ///     Retrieves all valid subscriptions for a company
-    /// </summary>
-    /// <param name="companyId">The company identifier</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>API response containing list of valid subscription identifiers</returns>
     public async Task<ApiResponse<List<Guid>>> GetValidSubscriptionsAsync(Guid companyId, CancellationToken cancellationToken)
     {
         try

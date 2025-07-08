@@ -4,17 +4,10 @@ using FluentValidation;
 
 using OrderDetail.Data;
 
-/// <summary>
-///     Validator for OrderDetailRequest to ensure data integrity and business rules compliance
-/// </summary>
 public class OrderDetailRequestValidator : AbstractValidator<OrderDetailRequest>
 {
     private readonly ILogger<OrderDetailRequestValidator> _logger;
 
-    /// <summary>
-    ///     Initializes a new instance of the OrderDetailRequestValidator class and sets up validation rules
-    /// </summary>
-    /// <param name="logger">Logger instance for validation operations</param>
     public OrderDetailRequestValidator(ILogger<OrderDetailRequestValidator> logger)
     {
         _logger = logger;

@@ -28,7 +28,10 @@ public class AddressModel : BaseModel
     public string ZipCode { get; set; } = null!;
 
     [Required]
-    public Guid StateId { get; set; }
+    public Guid StateId
+    {
+        get; set;
+    }
 
     [Required]
     [MaxLength(length: 30)]

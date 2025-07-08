@@ -19,10 +19,16 @@ public class EmployeeModel : BaseModel
     [MaxLength(length: 14)]
     public string? Cpf { get; set; } = null!;
 
-    public Guid AddressId { get; set; }
+    public Guid AddressId
+    {
+        get; set;
+    }
 
     [Required]
-    public Guid PositionId { get; set; }
+    public Guid PositionId
+    {
+        get; set;
+    }
 
     [ForeignKey(name: "PositionId")]
     public virtual PositionModel Position { get; set; } = null!;
