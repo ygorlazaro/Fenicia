@@ -65,11 +65,11 @@ public class ForgotPasswordService(IMapper mapper, ILogger<ForgotPasswordService
 
         var code = Guid.NewGuid().ToString().Replace(oldValue: "-", string.Empty)[..6];
         var request = new ForgotPasswordModel
-                      {
-                          Code = code,
-                          IsActive = true,
-                          UserId = userId.Data.Id
-                      };
+        {
+            Code = code,
+            IsActive = true,
+            UserId = userId.Data.Id
+        };
 
         var response = await forgotPasswordRepository.SaveForgotPasswordAsync(request, cancellationToken);
 

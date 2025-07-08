@@ -66,14 +66,14 @@ public sealed class OrderService(IMapper mapper, ILogger<OrderService> logger, I
             var details = modules.Data.Select(m => new OrderDetailModel { ModuleId = m.Id, Amount = m.Amount }).ToList();
 
             var order = new OrderModel
-                        {
-                            SaleDate = DateTime.UtcNow,
-                            Status = OrderStatus.Approved,
-                            UserId = userId,
-                            TotalAmount = totalAmount,
-                            Details = details,
-                            CompanyId = companyId
-                        };
+            {
+                SaleDate = DateTime.UtcNow,
+                Status = OrderStatus.Approved,
+                UserId = userId,
+                TotalAmount = totalAmount,
+                Details = details,
+                CompanyId = companyId
+            };
 
             await orderRepository.SaveOrderAsync(order, cancellationToken);
             await subscriptionService.CreateCreditsForOrderAsync(order, details, companyId, cancellationToken);

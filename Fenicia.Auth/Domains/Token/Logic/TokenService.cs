@@ -34,11 +34,11 @@ public class TokenService(IConfiguration configuration, ILogger<TokenService> lo
             var authClaims = GenerateClaims(user, roles, companyId, modules);
             var authSigningKey = new SymmetricSecurityKey(key);
             var tokenDescriptor = new SecurityTokenDescriptor
-                                  {
-                                      Expires = DateTime.UtcNow.AddHours(value: 3),
-                                      SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
-                                      Subject = new ClaimsIdentity(authClaims)
-                                  };
+            {
+                Expires = DateTime.UtcNow.AddHours(value: 3),
+                SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
+                Subject = new ClaimsIdentity(authClaims)
+            };
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);

@@ -4,7 +4,7 @@ using AutoMapper;
 
 using Data;
 
-public class StateService(IMapper mapper, IStateRepository stateRepository): IStateService
+public class StateService(IMapper mapper, IStateRepository stateRepository) : IStateService
 {
     public async Task<List<StateResponse>> LoadStatesAtDatabaseAsync(CancellationToken cancellationToken)
     {

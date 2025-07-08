@@ -100,11 +100,11 @@ public class UserService(IMapper mapper, ILogger<UserService> logger, IUserRepos
         var hashedPassword = securityService.HashPassword(request.Password).Data;
 
         var userRequest = new UserModel
-                          {
-                              Email = request.Email,
-                              Password = hashedPassword!,
-                              Name = request.Name
-                          };
+        {
+            Email = request.Email,
+            Password = hashedPassword!,
+            Name = request.Name
+        };
 
         var user = userRepository.Add(userRequest);
         var company = companyRepository.Add(new CompanyModel { Name = request.Company.Name, Cnpj = request.Company.Cnpj });
@@ -187,9 +187,9 @@ public class UserService(IMapper mapper, ILogger<UserService> logger, IUserRepos
         }
 
         var response = new UserResponse
-                       {
-                           Id = userId.Value
-                       };
+        {
+            Id = userId.Value
+        };
 
         return new ApiResponse<UserResponse>(response);
     }

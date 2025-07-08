@@ -1,4 +1,4 @@
-﻿namespace Fenicia.Common.Database;
+namespace Fenicia.Common.Database;
 
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;

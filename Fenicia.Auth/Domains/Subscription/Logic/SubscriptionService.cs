@@ -42,23 +42,23 @@ public sealed class SubscriptionService(IMapper mapper, ILogger<SubscriptionServ
             }
 
             var credits = order.Details.Select(d => new SubscriptionCreditModel
-                                                    {
-                                                        ModuleId = d.ModuleId,
-                                                        IsActive = true,
-                                                        StartDate = DateTime.UtcNow,
-                                                        EndDate = DateTime.UtcNow.AddMonths(months: 1),
-                                                        OrderDetailId = d.Id
-                                                    }).ToList();
+            {
+                ModuleId = d.ModuleId,
+                IsActive = true,
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddMonths(months: 1),
+                OrderDetailId = d.Id
+            }).ToList();
 
             var subscription = new SubscriptionModel
-                               {
-                                   Status = SubscriptionStatus.Active,
-                                   CompanyId = companyId,
-                                   StartDate = DateTime.UtcNow,
-                                   EndDate = DateTime.UtcNow.AddMonths(months: 1),
-                                   OrderId = order.Id,
-                                   Credits = credits
-                               };
+            {
+                Status = SubscriptionStatus.Active,
+                CompanyId = companyId,
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddMonths(months: 1),
+                OrderId = order.Id,
+                Credits = credits
+            };
 
             await subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken);
             logger.LogInformation(message: "Successfully saved subscription for order {OrderId}", order.Id);

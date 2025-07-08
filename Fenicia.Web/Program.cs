@@ -42,10 +42,10 @@ app.UseStaticFiles();
 
 // Configure additional static file middleware for wwwroot
 app.UseStaticFiles(new StaticFileOptions
-                   {
-                       FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, path2: "wwwroot")),
-                       RequestPath = ""
-                   });
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, path2: "wwwroot")),
+    RequestPath = ""
+});
 
 app.UseAntiforgery();
 

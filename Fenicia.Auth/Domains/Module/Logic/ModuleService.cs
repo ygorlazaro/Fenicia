@@ -9,10 +9,12 @@ using Common.Enums;
 
 using Data;
 
+using DataCache;
+
 /// <summary>
 ///     Service responsible for managing module-related operations
 /// </summary>
-public class ModuleService(IMapper mapper, ILogger<ModuleService> logger, IModuleRepository moduleRepository) : IModuleService
+public class ModuleService(IMapper mapper, ILogger<ModuleService> logger, IModuleRepository moduleRepository, IDataCacheService dataCacheService) : IModuleService
 {
     /// <summary>
     ///     Retrieves a paginated list of all modules ordered by type
@@ -25,12 +27,23 @@ public class ModuleService(IMapper mapper, ILogger<ModuleService> logger, IModul
     {
         try
         {
+            const string key = "modules";
+            var cached = await dataCacheService.GetAsync<List<ModuleResponse>>(key);
+
+            if (cached is not null)
+            {
+                return new ApiResponse<List<ModuleResponse>>(cached);
+            }
+
             logger.LogInformation(message: "Getting all modules with page {Page} and items per page {PerPage}", page, perPage);
 
             var modules = await moduleRepository.GetAllOrderedAsync(cancellationToken, page, perPage);
             logger.LogDebug(message: "Retrieved {Count} modules from repository", modules.Count);
 
             var response = mapper.Map<List<ModuleResponse>>(modules);
+
+            await dataCacheService.SetAsync(key, response, TimeSpan.FromDays(value: 1));
+
             return new ApiResponse<List<ModuleResponse>>(response);
         }
         catch (Exception ex)
@@ -57,6 +70,7 @@ public class ModuleService(IMapper mapper, ILogger<ModuleService> logger, IModul
             logger.LogDebug(message: "Retrieved {Count} modules from repository", modules.Count);
 
             var response = mapper.Map<List<ModuleResponse>>(modules);
+
             return new ApiResponse<List<ModuleResponse>>(response);
         }
         catch (Exception ex)

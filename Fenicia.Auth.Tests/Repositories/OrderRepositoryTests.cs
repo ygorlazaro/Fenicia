@@ -44,11 +44,11 @@ public class OrderRepositoryTests
     {
         // Arrange
         var order = new OrderModel
-                    {
-                        Id = Guid.NewGuid(),
-                        CompanyId = Guid.NewGuid(),
-                        UserId = Guid.NewGuid()
-                    };
+        {
+            Id = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid(),
+            UserId = Guid.NewGuid()
+        };
 
         // Act
         var result = await _sut.SaveOrderAsync(order, _cancellationToken);
@@ -71,11 +71,11 @@ public class OrderRepositoryTests
     {
         // Arrange
         var order = new OrderModel
-                    {
-                        Id = Guid.NewGuid(),
-                        CompanyId = Guid.NewGuid(),
-                        UserId = Guid.NewGuid()
-                    };
+        {
+            Id = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid(),
+            UserId = Guid.NewGuid()
+        };
 
         // Act
         await _sut.SaveOrderAsync(order, _cancellationToken);
@@ -97,11 +97,11 @@ public class OrderRepositoryTests
     {
         // Arrange
         var order = new OrderModel
-                    {
-                        Id = Guid.NewGuid(),
-                        CompanyId = Guid.NewGuid(),
-                        UserId = Guid.NewGuid(),
-                        Details =
+        {
+            Id = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            Details =
                         [
                             new OrderDetailModel
                             {
@@ -116,7 +116,7 @@ public class OrderRepositoryTests
                                 Amount = _faker.Random.Int(min: 1, max: 10)
                             }
                         ]
-                    };
+        };
 
         // Act
         var result = await _sut.SaveOrderAsync(order, _cancellationToken);
