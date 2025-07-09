@@ -154,7 +154,7 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
 
             logger.LogInformation(message: "Successfully generated tokens for user {Email}", user.Email);
 
-            return Ok(new TokenResponse { Token = token.Data, RefreshToken = refreshToken.Data });
+            return Ok(new TokenResponse { AccessToken = token.Data, RefreshToken = refreshToken.Data });
         }
         catch (Exception ex)
         {

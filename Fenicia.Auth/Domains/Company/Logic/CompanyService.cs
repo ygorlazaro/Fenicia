@@ -10,22 +10,12 @@ using DataCache;
 
 using UserRole.Logic;
 
-public class CompanyService(ILogger<CompanyService> logger, ICompanyRepository companyRepository, IUserRoleService userRoleService, IDataCacheService dataCacheService) : ICompanyService
+public class CompanyService(ILogger<CompanyService> logger, ICompanyRepository companyRepository, IUserRoleService userRoleService) : ICompanyService
 {
     public async Task<ApiResponse<CompanyResponse>> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation(message: "Getting company with CNPJ: {cnpj}", cnpj);
-
-            var cached = await dataCacheService.GetAsync<ApiResponse<CompanyResponse>>($"company:{cnpj}");
-
-            if (cached is not null)
-            {
-                logger.LogInformation(message: "Company with CNPJ: {cnpj} returned from cache", cnpj);
-                return cached;
-            }
-
             logger.LogInformation(message: "Fetching company with CNPJ: {cnpj} from repository", cnpj);
             var company = await companyRepository.GetByCnpjAsync(cnpj, cancellationToken);
 
@@ -37,9 +27,6 @@ public class CompanyService(ILogger<CompanyService> logger, ICompanyRepository c
 
             var mapped = CompanyResponse.Convert(company);
             var response = new ApiResponse<CompanyResponse>(mapped);
-
-            logger.LogInformation(message: "Caching company data for CNPJ: {cnpj}", cnpj);
-            await dataCacheService.SetAsync($"company:{cnpj}", response, TimeSpan.FromHours(hours: 1));
 
             return response;
         }
@@ -56,21 +43,12 @@ public class CompanyService(ILogger<CompanyService> logger, ICompanyRepository c
         {
             logger.LogInformation(message: "Getting companies for user: {userId}, page: {page}, items per page: {perPage}", userId, page, perPage);
 
-            var cached = await dataCacheService.GetAsync<ApiResponse<List<CompanyResponse>>>($"company-userid:{userId}");
-
-            if (cached is not null)
-            {
-                logger.LogInformation(message: "Companies for user: {userId} returned from cache", userId);
-                return cached;
-            }
-
             logger.LogInformation(message: "Fetching companies for user: {userId} from repository", userId);
             var companies = await companyRepository.GetByUserIdAsync(userId, cancellationToken, page, perPage);
             var mapped = CompanyResponse.Convert(companies);
             var response = new ApiResponse<List<CompanyResponse>>(mapped);
 
             logger.LogInformation(message: "Caching companies data for user: {userId}", userId);
-            await dataCacheService.SetAsync($"company-userid:{userId}", response, TimeSpan.FromHours(hours: 1));
 
             return response;
         }

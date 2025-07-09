@@ -20,7 +20,7 @@ public class SubscriptionCreditService(ILogger<SubscriptionCreditService> logger
             if (validSubscriptions.Data is null)
             {
                 logger.LogWarning(message: "No valid subscriptions found for company {CompanyId}", companyId);
-                return new ApiResponse<List<ModuleType>>(data: null, validSubscriptions.Status, validSubscriptions.Message);
+                return new ApiResponse<List<ModuleType>>(data: null, validSubscriptions.Status, validSubscriptions.Message.Message);
             }
 
             logger.LogDebug(message: "Found {Count} valid subscriptions for company {CompanyId}", validSubscriptions.Data.Count, companyId);
