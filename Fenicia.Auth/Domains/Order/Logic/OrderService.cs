@@ -38,7 +38,7 @@ public sealed class OrderService(ILogger<OrderService> logger, IOrderRepository 
 
             if (modules.Data is null)
             {
-                return new ApiResponse<OrderResponse>(data: null, modules.Status, modules.Message);
+                return new ApiResponse<OrderResponse>(data: null, modules.Status, modules.Message.Message);
             }
 
             if (modules.Data.Count == 0)
@@ -87,7 +87,7 @@ public sealed class OrderService(ILogger<OrderService> logger, IOrderRepository 
 
             if (modules.Data is null)
             {
-                return new ApiResponse<List<ModuleModel>>(data: null, modules.Status, modules.Message);
+                return new ApiResponse<List<ModuleModel>>(data: null, modules.Status, modules.Message.Message);
             }
 
             if (modules.Data.Any(m => m.Type == ModuleType.Basic))

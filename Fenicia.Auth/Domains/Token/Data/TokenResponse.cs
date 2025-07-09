@@ -9,7 +9,7 @@ public class TokenResponse
     [Required]
     [StringLength(maximumLength: 2048)]
     [DataMember(Name = "token")]
-    public string Token { get; set; } = null!;
+    public string AccessToken { get; set; } = null!;
 
     [Required]
     [StringLength(maximumLength: 2048)]

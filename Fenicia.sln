@@ -54,8 +54,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{21
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Externals.Email", "Fenicia.Common.Externals.Email\Fenicia.Common.Externals.Email.csproj", "{15A64760-2D36-4FE7-80A9-85DCEFADD74C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Web", "Fenicia.Web\Fenicia.Web.csproj", "{8D3151A8-E85D-4790-B196-A341B78921A5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -294,18 +292,6 @@ Global
 		{15A64760-2D36-4FE7-80A9-85DCEFADD74C}.Release|x64.Build.0 = Release|Any CPU
 		{15A64760-2D36-4FE7-80A9-85DCEFADD74C}.Release|x86.ActiveCfg = Release|Any CPU
 		{15A64760-2D36-4FE7-80A9-85DCEFADD74C}.Release|x86.Build.0 = Release|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Debug|x64.Build.0 = Debug|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Debug|x86.Build.0 = Debug|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Release|x64.ActiveCfg = Release|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Release|x64.Build.0 = Release|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Release|x86.ActiveCfg = Release|Any CPU
-		{8D3151A8-E85D-4790-B196-A341B78921A5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -329,6 +315,5 @@ Global
 		{A64F251B-B834-429E-99C0-C828317429B0} = {6431FB8F-7EEE-4524-8079-F16B01D3280A}
 		{0617EB4F-A799-4D11-980E-014BE1D3D9D8} = {A64F251B-B834-429E-99C0-C828317429B0}
 		{15A64760-2D36-4FE7-80A9-85DCEFADD74C} = {58817977-A1E2-4B96-BE8B-E014348C0A95}
-		{8D3151A8-E85D-4790-B196-A341B78921A5} = {21D690EC-EBC6-46E6-9479-AD7CF91FE9D1}
 	EndGlobalSection
 EndGlobal

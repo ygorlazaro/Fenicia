@@ -43,7 +43,7 @@ public class ForgotPasswordService(ILogger<ForgotPasswordService> logger, IForgo
 
         if (userId.Data is null)
         {
-            return new ApiResponse<ForgotPasswordResponse>(data: null, userId.Status, userId.Message);
+            return new ApiResponse<ForgotPasswordResponse>(data: null, userId.Status, userId.Message.Message);
         }
 
         var code = Guid.NewGuid().ToString().Replace(oldValue: "-", string.Empty)[..6];
