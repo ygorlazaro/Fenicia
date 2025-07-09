@@ -1,13 +1,13 @@
 'use client'
 
+import { NinjaAnonymousForm } from "@/components/NinjaAnonymousForm";
 import { NinjaButton } from "@/components/NinjaButton";
 import { NinjaInput } from "@/components/NinjaInput";
+import { NinjaLink } from "@/components/NinjaLink";
 import { NinjaMessage } from "@/components/NinjaMessage";
 import { SignUpService } from "@/services/SignUpService";
 import { SignUpRequest } from "@/types/requests/SignUpRequest";
-import Image from "next/image";
-import Link from "next/link";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const signUpService = new SignUpService();
@@ -41,27 +41,19 @@ export default function Home() {
     }
 
     return (
-        <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-            <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        <NinjaAnonymousForm>
+            <NinjaInput label="Name" value={request.name} onChange={(value => setRequest({ ...request, name: value }))} />
+            <NinjaInput label="Email" value={request.email} type="email" onChange={(value => setRequest({ ...request, email: value }))} />
+            <NinjaInput label="Password" value={request.password} type="password" onChange={(value => setRequest({ ...request, password: value }))} />
 
-                <div className="flex flex-col gap-4">
-                    <Image src="/logo.jpeg" alt="Logo" width={100} height={100} className="mx-auto" />
+            <NinjaInput label="Company Name" value={request.company.name} onChange={(value => setRequest({ ...request, company: { ...request.company, name: value } }))} />
+            <NinjaInput label="CNPJ" value={request.company.cnpj} onChange={(value => setRequest({ ...request, company: { ...request.company, cnpj: value } }))} />
 
-                    <NinjaInput label="Name" value={request.name}  onChange={(value => setRequest({ ...request, name: value }))} />
-                    <NinjaInput label="Email" value={request.email} type="email" onChange={(value => setRequest({ ...request, email: value }))} />
-                    <NinjaInput label="Password" value={request.password} type="password" onChange={(value => setRequest({ ...request, password: value }))} />
-                    
-                    <NinjaInput label="Company Name" value={request.company.name} onChange={(value => setRequest({ ...request, company: { ...request.company, name: value } }))} />
-                    <NinjaInput label="CNPJ" value={request.company.cnpj} onChange={(value => setRequest({ ...request, company: { ...request.company, cnpj: value } }))} />
+            <NinjaButton label="SignUp" onClick={handleSubmit} />
 
-                    <NinjaButton label="SignUp" onClick={handleSubmit} />
-                    
-                    <Link href="/">Login</Link>
+            <NinjaLink label="Login" href="/" className="self-end" />
 
-                    <NinjaMessage message={message} />
-                </div>
-
-            </main>
-        </div>
+            <NinjaMessage message={message} />
+        </NinjaAnonymousForm>
     );
 }

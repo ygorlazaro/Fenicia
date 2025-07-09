@@ -1,15 +1,16 @@
 'use client'
 
-import React, { useState } from "react";
-import { TokenRequest } from "@/types/requests/TokenRequest";
-import { NinjaInput } from "@/components/NinjaInput";
+import { NinjaAnonymousForm } from "@/components/NinjaAnonymousForm";
 import { NinjaButton } from "@/components/NinjaButton";
-import Image from "next/image";
-import { TokenService } from "@/services/TokenService";
-import Link from "next/link";
+import { NinjaInput } from "@/components/NinjaInput";
+import { NinjaLink } from "@/components/NinjaLink";
 import { NinjaMessage } from "@/components/NinjaMessage";
-import { setToken } from "@/logic/token";
+import { NinjaTitle } from "@/components/NinjaTitle";
+import { setToken, setUser } from "@/logic/token";
+import { TokenService } from "@/services/TokenService";
+import { TokenRequest } from "@/types/requests/TokenRequest";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const tokenService = new TokenService();
 
@@ -20,17 +21,23 @@ export default function Home() {
     cnpj: "23351185000184"
   });
   const [message, setMessage] = useState<string | undefined>();
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const handleSubmit = () => {
     const submit = (async () => {
       try {
+        setLoading(true);
         const token = await tokenService.getToken(request);
-        
+
         setToken(token.accessToken);
+        setUser(token.user);
         router.push("/dashboard")
       } catch (error: any) {
         setMessage(error.response?.data.message);
+      }
+      finally {
+        setLoading(false);
       }
     })
 
@@ -39,26 +46,19 @@ export default function Home() {
 
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <NinjaAnonymousForm>
+      <NinjaTitle label="Login" />
 
-        <div className="flex flex-col gap-4">
-          <Image src="/logo.jpeg" alt="Logo" width={100} height={100} className="mx-auto" />
+      <NinjaInput required label="Email" value={request.email} type="email" onChange={(value => setRequest({ ...request, email: value }))} />
+      <NinjaInput required label="Password" value={request.password} type="password" onChange={(value => setRequest({ ...request, password: value }))} />
+      <NinjaInput required label="CNPJ" value={request.cnpj} onChange={(value => setRequest({ ...request, cnpj: value }))} />
 
-          <NinjaInput label="Email" value={request.email} type="email" onChange={(value => setRequest({ ...request, email: value }))} />
-          <NinjaInput label="Password" value={request.password} type="password" onChange={(value => setRequest({ ...request, password: value }))} />
-          <NinjaInput label="CNPJ" value={request.cnpj} onChange={(value => setRequest({ ...request, cnpj: value }))} />
-          
-          <NinjaButton label="Login" onClick={handleSubmit} />
-          
-          <Link href="/signup">
-            Signup
-          </Link>
+      <NinjaButton label="Login" onClick={handleSubmit} loading={loading} />
 
-          <NinjaMessage message={message} />
-        </div>
-        
-      </main>
-    </div>
+      <NinjaLink label="Sign Up" href="/signup" className="self-end" />
+
+      <NinjaMessage message={message} />
+
+    </NinjaAnonymousForm>
   );
 }
