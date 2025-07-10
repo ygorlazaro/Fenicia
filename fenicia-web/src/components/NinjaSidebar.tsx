@@ -1,19 +1,45 @@
 "use client";
 
-import { modules } from "@/helpers/modules";
+import { LinkModule, linkModules } from "@/helpers/modules";
 import { getUser, removeToken, removeUser } from "@/logic/token";
+import { UserService } from "@/services/UserService";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NinjaButton } from "./NinjaButton";
 import { NinjaLink } from "./NinjaLink";
 
+const userService = new UserService();
+
 export const NinjaSideBar = () => {
+    const [modules, setModules] = useState<LinkModule[]>([]);
     const [selectedModule, setSelectedModule] = useState<string | null>(null);
     const [modulesMenu, setModulesMenu] = useState(false);
     const [profileMenu, setProfileMenu] = useState(false);
+    const [, setLoading] = useState(false);
 
     const user = getUser();
     const router = useRouter();
+
+    useEffect(() => {
+        const loadModules = async () => {
+            try {
+                setLoading(true);
+
+                const response = await userService.modules();
+                const allowedModules = linkModules.filter(module => response.data.find(m => m.type === module.type));
+
+                setModules(allowedModules);
+
+            } catch (error) {
+                console.error(error)
+            }
+            finally {
+                setLoading(false);
+            }
+        }
+
+        loadModules();
+    }, [])
 
     const signOut = () => {
         removeUser();
