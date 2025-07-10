@@ -16,4 +16,5 @@ public interface IModuleService
     Task<ApiResponse<int>> CountAsync(CancellationToken cancellationToken);
 
     Task<ApiResponse<List<ModuleResponse>>> LoadModulesAtDatabaseAsync(CancellationToken cancellationToken);
+    Task<ApiResponse<List<ModuleResponse>>> GetUserModulesAsync(Guid user, Guid companyId, CancellationToken cancellationToken);
 }

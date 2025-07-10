@@ -5,7 +5,6 @@ import { NinjaButton } from "@/components/NinjaButton";
 import { NinjaInput } from "@/components/NinjaInput";
 import { NinjaLink } from "@/components/NinjaLink";
 import { NinjaMessage } from "@/components/NinjaMessage";
-import { NinjaTitle } from "@/components/NinjaTitle";
 import { setToken, setUser } from "@/logic/token";
 import { TokenService } from "@/services/TokenService";
 import { TokenRequest } from "@/types/requests/TokenRequest";
@@ -46,8 +45,7 @@ export default function Home() {
 
 
   return (
-    <NinjaAnonymousForm>
-      <NinjaTitle label="Login" />
+    <NinjaAnonymousForm title="Login">
 
       <NinjaInput required label="Email" value={request.email} type="email" onChange={(value => setRequest({ ...request, email: value }))} />
       <NinjaInput required label="Password" value={request.password} type="password" onChange={(value => setRequest({ ...request, password: value }))} />

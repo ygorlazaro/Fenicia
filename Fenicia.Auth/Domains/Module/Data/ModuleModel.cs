@@ -52,6 +52,7 @@ public class ModuleModel : BaseModel
     {
         return new ModuleModel
         {
+            Id = module.Id,
             Name = module.Name,
             Amount = module.Amount,
             Type = module.Type

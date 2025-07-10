@@ -1,17 +1,17 @@
-export interface ModuleRoute{ 
+export interface LinkModuleRoute { 
     name: string,
     href: string
 }
 
-export interface Module { 
+export interface LinkModule { 
     name: string,
     type: number;
     isSelected: boolean;
-    routes: ModuleRoute[]
+    routes: LinkModuleRoute[]
 }
 
 
-export const modules: Module[] = [{
+export const linkModules: LinkModule[] = [{
     name: "Basic",
     isSelected: false,
     type: 1,

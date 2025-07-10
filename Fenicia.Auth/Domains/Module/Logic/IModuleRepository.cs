@@ -17,4 +17,6 @@ public interface IModuleRepository
     Task<int> CountAsync(CancellationToken cancellationToken);
 
     Task<List<ModuleModel>> LoadModulesAtDatabaseAsync(List<ModuleModel> modules, CancellationToken cancellationToken);
+
+    Task<List<ModuleModel>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken cancellationToken);
 }

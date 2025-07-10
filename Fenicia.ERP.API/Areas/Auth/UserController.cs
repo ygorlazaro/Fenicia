@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 [Route(template: "[controller]")]
 [ApiController]
-public class UserController : ControllerBase
+public class UserController() : ControllerBase
 {
     [HttpGet]
     public IActionResult GetAsync()

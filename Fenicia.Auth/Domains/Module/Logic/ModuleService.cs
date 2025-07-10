@@ -13,8 +13,6 @@ public class ModuleService(ILogger<ModuleService> logger, IModuleRepository modu
     {
         try
         {
-            const string key = "modules";
-
             logger.LogInformation(message: "Getting all modules with page {Page} and items per page {PerPage}", page, perPage);
 
             var modules = await moduleRepository.GetAllOrderedAsync(cancellationToken, page, perPage);
@@ -116,6 +114,15 @@ public class ModuleService(ILogger<ModuleService> logger, IModuleRepository modu
 
         var response = await moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, cancellationToken);
         var mapped = ModuleResponse.Convert(response);
+
+        return new ApiResponse<List<ModuleResponse>>(mapped);
+    }
+
+    public async Task<ApiResponse<List<ModuleResponse>>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
+    {
+        var userModules = await moduleRepository.GetUserModulesAsync(userId, companyId, cancellationToken);
+
+        var mapped = ModuleResponse.Convert(userModules);
 
         return new ApiResponse<List<ModuleResponse>>(mapped);
     }

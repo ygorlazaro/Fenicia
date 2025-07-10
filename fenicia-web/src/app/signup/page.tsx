@@ -41,7 +41,7 @@ export default function Home() {
     }
 
     return (
-        <NinjaAnonymousForm>
+        <NinjaAnonymousForm title="Sign Up">
             <NinjaInput label="Name" value={request.name} onChange={(value => setRequest({ ...request, name: value }))} />
             <NinjaInput label="Email" value={request.email} type="email" onChange={(value => setRequest({ ...request, email: value }))} />
             <NinjaInput label="Password" value={request.password} type="password" onChange={(value => setRequest({ ...request, password: value }))} />
