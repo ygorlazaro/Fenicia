@@ -1,0 +1,30 @@
+name: .NET Build & Test
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/dotnet/sdk:9.0-alpine
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Fenicia.sln
+
+      - name: Build
+        run: dotnet build Fenicia.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Fenicia.sln --configuration Release --no-build --verbosity normal
