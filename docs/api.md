@@ -1,8 +1,9 @@
 # API Reference
 
-API documentation is available via OpenAPI/Swagger when running the services locally.
+Each module exposes its own REST API, documented via OpenAPI/Swagger when running locally.
 
-- Auth endpoints: `/swagger` or `/openapi`
-- Other modules: see their respective Swagger docs
+- **Auth Service**: `/swagger` or `/openapi` (login, JWT, permissions, tenants)
+- **Basic Module**: `/swagger` (clients, products, stock, etc.)
+- **Other Modules**: See their respective Swagger docs for endpoints
 
-> Add more detailed API docs here as the project evolves.
+> Add more detailed API docs here as the project evolves. See [Modules](modules.md) for business context.
