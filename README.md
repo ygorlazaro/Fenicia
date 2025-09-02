@@ -1,40 +1,55 @@
 
+
 # Fenicia SaaS Platform – Auth Service
 
-Este é o serviço de autenticação e autorização da plataforma **Fenicia**, um sistema SaaS modular e multi-tenant. O `AuthService` centraliza o gerenciamento de usuários, empresas, planos de assinatura e geração de tokens JWT utilizados por todos os serviços da plataforma.
+<a href="https://discord.gg/RNuSz2t4wm" target="_blank"><img src="https://img.shields.io/discord/1245739632657489950?label=Join%20our%20Discord&logo=discord&style=for-the-badge" alt="Discord"></a>
+
+![Build Status](https://img.shields.io/github/actions/workflow/status/ygorlazaro/Fenicia/ci.yml?branch=develop&style=for-the-badge)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen?style=for-the-badge)
+![Coverage](https://img.shields.io/badge/coverage-unknown-lightgrey?style=for-the-badge)
 
 ---
 
-## 🧩 Arquitetura do Projeto
-
-- **Multi-tenant por banco de dados**: Cada empresa possui seu próprio banco (isolamento físico).
-- **Modularidade**: Cada funcionalidade é um microserviço desacoplado (ex: Auth, Basic, Social, RH...).
-- **JWT centralizado**: O `AuthService` é o único responsável por autenticar usuários e emitir tokens válidos para os demais módulos.
-- **Claims do JWT**:
-  - `sub` (ID do usuário)
-  - `companyId` (ID da empresa)
-  - `modules` (array com módulos assinados)
-  - `tenantId` (usado para montar a string de conexão dos serviços)
+**[CONTRIBUTING.md](CONTRIBUTING.md) | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | [LICENSE](LICENSE) | [SECURITY.md](SECURITY.md) | [LINKEDIN.MD](LINKEDIN.MD) | [LINKEDIN_EN.MD](LINKEDIN_EN.MD) | [Docs](docs/README.md)**
 
 ---
 
-## 🚀 Como rodar a aplicação localmente
+## 🌐 Demo & Showcase
 
-### Pré-requisitos
+> At future
+
+---
+
+## 🧩 Project Architecture
+
+- **Multi-tenant by database**: Each company has its own database (physical isolation).
+- **Modularity**: Each feature is a decoupled microservice (e.g., Auth, Basic, Social, HR, etc.).
+- **Centralized JWT**: `AuthService` is the only service responsible for authenticating users and issuing valid tokens for other modules.
+- **JWT Claims**:
+  - `sub` (User ID)
+  - `companyId` (Company ID)
+  - `modules` (array with subscribed modules)
+  - `tenantId` (used to build the connection string for services)
+
+---
+
+## 🚀 How to run locally
+
+### Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download)
 - [PostgreSQL](https://www.postgresql.org/download/)
-- [RabbitMQ (opcional, mas recomendado)](https://www.rabbitmq.com/download.html)
-- [Docker (opcional, para facilitar o setup)]
+- [RabbitMQ (optional, but recommended)](https://www.rabbitmq.com/download.html)
+- [Docker (optional, for easier setup)]
 
 ---
 
-### 🔧 Configuração
+### 🔧 Configuration
 
-1. **Crie o banco de dados base (admin/central)**:
-   Esse banco é onde o `AuthService` opera e armazena informações como usuários, empresas e tokens.
+1. **Create the base database (admin/central)**:
+   This is where `AuthService` operates and stores information such as users, companies, and tokens.
 
-2. **Configure a string de conexão** no arquivo `appsettings.Development.json`:
+2. **Configure the connection string** in `appsettings.Development.json`:
 
 ```json
 {
@@ -45,28 +60,28 @@ Este é o serviço de autenticação e autorização da plataforma **Fenicia**, 
   "Jwt": {
     "Issuer": "fenicia-auth",
     "Audience": "fenicia-clients",
-    "Secret": "segredo-super-seguro"
+    "Secret": "super-secret-key"
   }
 }
 ```
 
-3. **Rodar as migrations** para o banco do Auth:
+3. **Run migrations** for the Auth database:
 
 ```bash
 dotnet ef database update --project Fenicia.Module.Auth
 ```
 
-Para rodar migrations de tenants:
+To run tenant migrations:
 
 ```bash
 dotnet run --project Fenicia.Module.Auth -- --migrate-tenants
 ```
 
-*(Isso executará uma lógica que percorre todos os tenants registrados e roda as migrations para cada um.)*
+*(This will execute logic that iterates all registered tenants and runs migrations for each one.)*
 
 ---
 
-## 🏁 Executando a aplicação
+## 🏁 Running the application
 
 ```bash
 dotnet run --project Fenicia.Module.Auth
@@ -74,41 +89,41 @@ dotnet run --project Fenicia.Module.Auth
 
 ---
 
-## 🛠 Estrutura do Projeto
+## 🛠 Project Structure
 
-- `Fenicia.Common`: Contém utilitários, interfaces e providers reutilizados pelos módulos.
-- `Fenicia.Module.Auth`: Responsável por:
-  - Cadastro/login de usuários
-  - Criação de empresas
-  - Assinatura de módulos
-  - Geração de JWT
-- `Fenicia.Module.Basic` (e demais): Consomem o JWT gerado pelo Auth e acessam seus próprios bancos via `tenantId`.
-
----
-
-## 🔐 Segurança
-
-- Tokens JWT são obrigatórios para qualquer requisição aos módulos.
-- Middleware de autorização valida se o token possui permissão para o módulo acessado (`Claim: modules`).
-- Multi-tenancy configurado via string de conexão dinâmica, baseada no `tenantId` presente no token.
+- `Fenicia.Common`: Utilities, interfaces, and providers reused by modules.
+- `Fenicia.Module.Auth`: Responsible for:
+  - User registration/login
+  - Company creation
+  - Module subscription
+  - JWT generation
+- `Fenicia.Module.Basic` (and others): Consume the JWT generated by Auth and access their own databases via `tenantId`.
 
 ---
 
-## 📬 Comunicação entre serviços
+## 🔐 Security
 
-- Utiliza RabbitMQ para eventos internos e integração entre módulos.
-- Exemplo: Quando uma nova empresa é criada no `AuthService`, um evento pode ser enviado para o `BasicService` inicializar dados padrões no banco da empresa.
-
----
-
-## ✅ TODO Futuro
-
-- [ ] Rate limit e lockout após muitas tentativas de login
-- [ ] Painel de administração para gerenciar empresas e módulos
-- [ ] Integração com gateways de pagamento para billing
+- JWT tokens are required for any request to modules.
+- Authorization middleware checks if the token has permission for the accessed module (`Claim: modules`).
+- Multi-tenancy configured via dynamic connection string, based on the `tenantId` in the token.
 
 ---
 
-## 📄 Licença
+## 📬 Service Communication
 
-Este projeto é livre para uso e distribuição privada durante o desenvolvimento. Direitos reservados à equipe Fenicia.
+- Uses RabbitMQ for internal events and module integration.
+- Example: When a new company is created in `AuthService`, an event can be sent to `BasicService` to initialize default data in the company's database.
+
+---
+
+## ✅ TODO / Roadmap
+
+- [ ] Rate limit and lockout after many login attempts
+- [ ] Admin panel to manage companies and modules
+- [ ] Integration with payment gateways for billing
+
+---
+
+## 📄 License
+
+This project is free for use and private distribution during development. All rights reserved to the Fenicia team.
