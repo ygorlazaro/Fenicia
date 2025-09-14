@@ -6,12 +6,12 @@ public static class ClaimReader
 {
     public static Guid UserId(ClaimsPrincipal user)
     {
-        return ClaimReader.GetGuidClaimValue(user, claimType: "userId");
+        return GetGuidClaimValue(user, "userId");
     }
 
     public static Guid CompanyId(ClaimsPrincipal user)
     {
-        return ClaimReader.GetGuidClaimValue(user, claimType: "companyId");
+        return GetGuidClaimValue(user, "companyId");
     }
 
     private static Guid GetGuidClaimValue(ClaimsPrincipal user, string claimType)
@@ -23,7 +23,7 @@ public static class ClaimReader
 
     public static string[] Modules(ClaimsPrincipal user)
     {
-        return user.Claims.Where(x => x.Type == "module").Select(x => x.Value).ToArray();
+        return [.. user.Claims.Where(x => x.Type == "module").Select(x => x.Value)];
     }
 
     public static void ValidateRole(ClaimsPrincipal user, string roleToSearch)

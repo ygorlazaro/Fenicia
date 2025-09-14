@@ -4,7 +4,8 @@ using System.Text.RegularExpressions;
 
 using Bogus;
 
-using Domains.RefreshToken.Data;
+using Common.Database.Models.Auth;
+
 using Domains.RefreshToken.Logic;
 
 using Microsoft.Extensions.Logging;
@@ -98,7 +99,7 @@ public class RefreshTokenServiceTests
         }
 
         // Assert
-        Assert.That(tokens, Has.Count.EqualTo(tokens.Count), message: "Generated tokens should all be unique");
+        Assert.That(tokens, Has.Count.EqualTo(tokens.Count), "Generated tokens should all be unique");
     }
 
     [Test]
@@ -152,9 +153,9 @@ public class RefreshTokenServiceTests
         // Assert
         Assert.Multiple(() =>
         {
-            Assert.That(generatedTokens.Select(x => x.Token).Distinct().Count(), Is.EqualTo(generatedTokens.Count), message: "All generated tokens should be unique");
-            Assert.That(generatedTokens.All(x => x.Token.Length == 44), message: "All tokens should be 44 characters long");
-            Assert.That(generatedTokens.All(x => Regex.IsMatch(x.Token, pattern: @"^[a-zA-Z0-9+/]*={0,2}$")), message: "All tokens should be valid Base64 strings");
+            Assert.That(generatedTokens.Select(x => x.Token).Distinct().Count(), Is.EqualTo(generatedTokens.Count), "All generated tokens should be unique");
+            Assert.That(generatedTokens.All(x => x.Token.Length == 44), "All tokens should be 44 characters long");
+            Assert.That(generatedTokens.All(x => Regex.IsMatch(x.Token, @"^[a-zA-Z0-9+/]*={0,2}$")), "All tokens should be valid Base64 strings");
         });
     }
 

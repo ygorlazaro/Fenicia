@@ -1,6 +1,6 @@
 namespace Fenicia.Auth.Domains.State.Logic;
 
-using Data;
+using Common.Database.Responses;
 
 public interface IStateService
 {

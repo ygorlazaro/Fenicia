@@ -1,16 +1,22 @@
 namespace Fenicia.Auth.Domains.State.Logic;
 
-using Contexts;
+using Common.Database.Contexts;
+using Common.Database.Models.Auth;
 
-using Data;
-
-public class StateRepository(AuthContext authContext) : IStateRepository
+public class StateRepository : IStateRepository
 {
+    private readonly AuthContext _authContext;
+
+    public StateRepository(AuthContext authContext)
+    {
+        _authContext = authContext;
+    }
+
     public async Task<List<StateModel>> LoadStatesAtDatabaseAsync(List<StateModel> states, CancellationToken cancellationToken)
     {
-        authContext.States.AddRange(states);
+        _authContext.States.AddRange(states);
 
-        await authContext.SaveChangesAsync(cancellationToken);
+        await _authContext.SaveChangesAsync(cancellationToken);
 
         return states;
     }

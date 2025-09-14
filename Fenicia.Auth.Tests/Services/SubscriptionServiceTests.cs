@@ -2,12 +2,12 @@ namespace Fenicia.Auth.Tests.Services;
 
 using System.Net;
 
-using Domains.Order.Data;
-using Domains.OrderDetail.Data;
-using Domains.Subscription.Data;
+using Common.Database.Responses;
+
 using Domains.Subscription.Logic;
 
-using Enums;
+using Fenicia.Common.Database.Models.Auth;
+using Common.Enums;
 
 using Microsoft.Extensions.Logging;
 

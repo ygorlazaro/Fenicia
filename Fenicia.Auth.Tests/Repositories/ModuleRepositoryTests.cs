@@ -4,10 +4,10 @@ using Bogus;
 
 using Common.Enums;
 
-using Contexts;
-
-using Domains.Module.Data;
 using Domains.Module.Logic;
+
+using Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -64,7 +64,7 @@ public class ModuleRepositoryTests
             Assert.That(page1, Has.Count.EqualTo(expected: 10));
             Assert.That(page2, Has.Count.EqualTo(expected: 5));
         });
-        Assert.That(page1, Is.Ordered.By(propertyName: "Type"));
+        Assert.That(page1, Is.Ordered.By("Type"));
     }
 
     [Test]
@@ -110,7 +110,7 @@ public class ModuleRepositoryTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Select(m => m.Id), Is.EquivalentTo(requestedIds));
-            Assert.That(result, Is.Ordered.By(propertyName: "Type"));
+            Assert.That(result, Is.Ordered.By("Type"));
         });
     }
 

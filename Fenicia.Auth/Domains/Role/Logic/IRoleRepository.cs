@@ -1,6 +1,6 @@
 namespace Fenicia.Auth.Domains.Role.Logic;
 
-using Data;
+using Common.Database.Models.Auth;
 
 public interface IRoleRepository
 {

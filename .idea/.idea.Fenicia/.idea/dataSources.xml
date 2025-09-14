@@ -14,14 +14,6 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="fenicia-basic-gatoninja@localhost" uuid="2e502202-22e6-45c0-8b0b-da2b9aa5469a">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <configured-by-url>true</configured-by-url>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost/fenicia-basic-gatoninja?password=postgres&amp;user=postgres</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
     <data-source source="LOCAL" name="0@localhost" uuid="d0a3ace1-72da-4083-a02b-05626544bef5">
       <driver-ref>redis</driver-ref>
       <synchronize>true</synchronize>

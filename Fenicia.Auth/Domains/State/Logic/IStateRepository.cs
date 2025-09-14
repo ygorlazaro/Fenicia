@@ -1,6 +1,6 @@
 namespace Fenicia.Auth.Domains.State.Logic;
 
-using Fenicia.Auth.Domains.State.Data;
+using Common.Database.Models.Auth;
 
 public interface IStateRepository
 {

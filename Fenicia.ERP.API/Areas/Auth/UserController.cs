@@ -6,15 +6,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Authorize]
-[Route(template: "[controller]")]
+[Route("[controller]")]
 [ApiController]
-public class UserController() : ControllerBase
+public class UserController : ControllerBase
 {
     [HttpGet]
     public IActionResult GetAsync()
     {
-        ClaimReader.ValidateRole(User, roleToSearch: "Admin");
+        ClaimReader.ValidateRole(User, "Admin");
 
-        return Ok(value: "Sucesso");
+        return Ok("Sucesso");
     }
 }

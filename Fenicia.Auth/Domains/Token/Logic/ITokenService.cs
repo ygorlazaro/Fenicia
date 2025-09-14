@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using Common;
 using Common.Enums;
 
-using User.Data;
+using Common.Database.Responses;
 
 public interface ITokenService
 {

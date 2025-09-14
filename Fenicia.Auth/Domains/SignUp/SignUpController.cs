@@ -2,18 +2,29 @@ namespace Fenicia.Auth.Domains.SignUp;
 
 using System.Net.Mime;
 
+using Common.Database.Requests;
+using Common.Database.Responses;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using User.Data;
 using User.Logic;
 
 [AllowAnonymous]
-[Route(template: "[controller]")]
+[Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class SignUpController(ILogger<SignUpController> logger, IUserService userService) : ControllerBase
+public class SignUpController : ControllerBase
 {
+    private readonly ILogger<SignUpController> _logger;
+    private readonly IUserService _userService;
+
+    public SignUpController(ILogger<SignUpController> logger, IUserService userService)
+    {
+        _logger = logger;
+        _userService = userService;
+    }
+
     [HttpPost]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -22,23 +33,23 @@ public class SignUpController(ILogger<SignUpController> logger, IUserService use
     {
         try
         {
-            logger.LogInformation(message: "Starting user creation process for email: {Email}", request.Email);
+            _logger.LogInformation("Starting user creation process for email: {Email}", request.Email);
 
-            var userResponse = await userService.CreateNewUserAsync(request, cancellationToken);
+            var userResponse = await _userService.CreateNewUserAsync(request, cancellationToken);
 
             if (userResponse.Data is null)
             {
-                logger.LogWarning(message: "User creation failed for email: {Email}. Status: {Status}, Message: {Message}", request.Email, userResponse.Status, userResponse.Message);
+                _logger.LogWarning("User creation failed for email: {Email}. Status: {Status}, Message: {Message}", request.Email, userResponse.Status, userResponse.Message);
                 return StatusCode((int)userResponse.Status, userResponse.Message);
             }
 
-            logger.LogInformation(message: "Successfully created new user with email: {Email}", request.Email);
+            _logger.LogInformation("Successfully created new user with email: {Email}", request.Email);
             return Ok(userResponse.Data);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error occurred while creating user with email: {Email}", request.Email);
-            return StatusCode(StatusCodes.Status500InternalServerError, value: "An unexpected error occurred while processing your request.");
+            _logger.LogError(ex, "Error occurred while creating user with email: {Email}", request.Email);
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
         }
     }
 }

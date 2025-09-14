@@ -3,16 +3,24 @@ namespace Fenicia.Auth.Domains.RefreshToken.Logic;
 using System.Security.Cryptography;
 
 using Common;
+using Common.Database.Models.Auth;
 
-using Data;
-
-public sealed class RefreshTokenService(ILogger<RefreshTokenService> logger, IRefreshTokenRepository refreshTokenRepository) : IRefreshTokenService
+public sealed class RefreshTokenService : IRefreshTokenService
 {
+    private readonly ILogger<RefreshTokenService> _logger;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
+
+    public RefreshTokenService(ILogger<RefreshTokenService> logger, IRefreshTokenRepository refreshTokenRepository)
+    {
+        _logger = logger;
+        _refreshTokenRepository = refreshTokenRepository;
+    }
+
     public async Task<ApiResponse<string>> GenerateRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation(message: "Starting refresh token generation for user {UserId}", userId);
+            _logger.LogInformation("Starting refresh token generation for user {UserId}", userId);
             var randomNumber = new byte[32];
 
             using var rng = RandomNumberGenerator.Create();
@@ -24,16 +32,16 @@ public sealed class RefreshTokenService(ILogger<RefreshTokenService> logger, IRe
                 UserId = userId
             };
 
-            refreshTokenRepository.Add(refreshToken);
+            _refreshTokenRepository.Add(refreshToken);
 
-            await refreshTokenRepository.SaveChangesAsync(cancellationToken);
+            await _refreshTokenRepository.SaveChangesAsync(cancellationToken);
 
-            logger.LogInformation(message: "Successfully generated refresh token for user {UserId}", userId);
+            _logger.LogInformation("Successfully generated refresh token for user {UserId}", userId);
             return new ApiResponse<string>(refreshToken.Token);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error generating refresh token for user {UserId}", userId);
+            _logger.LogError(ex, "Error generating refresh token for user {UserId}", userId);
             throw;
         }
     }
@@ -42,15 +50,15 @@ public sealed class RefreshTokenService(ILogger<RefreshTokenService> logger, IRe
     {
         try
         {
-            logger.LogInformation(message: "Validating refresh token for user {UserId}", userId);
-            var response = await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
+            _logger.LogInformation("Validating refresh token for user {UserId}", userId);
+            var response = await _refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
 
-            logger.LogInformation(message: "Token validation result for user {UserId}: {IsValid}", userId, response);
+            _logger.LogInformation("Token validation result for user {UserId}: {IsValid}", userId, response);
             return new ApiResponse<bool>(response);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error validating refresh token for user {UserId}", userId);
+            _logger.LogError(ex, "Error validating refresh token for user {UserId}", userId);
             throw;
         }
     }
@@ -59,15 +67,15 @@ public sealed class RefreshTokenService(ILogger<RefreshTokenService> logger, IRe
     {
         try
         {
-            logger.LogInformation(message: "Invalidating refresh token");
-            await refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken, cancellationToken);
+            _logger.LogInformation("Invalidating refresh token");
+            await _refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken, cancellationToken);
 
-            logger.LogInformation(message: "Successfully invalidated refresh token");
+            _logger.LogInformation("Successfully invalidated refresh token");
             return new ApiResponse<object>(data: null);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error invalidating refresh token");
+            _logger.LogError(ex, "Error invalidating refresh token");
             throw;
         }
     }
