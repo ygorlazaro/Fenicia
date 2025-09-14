@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Fenicia.Common.Database\Fenicia.Common.Database.csproj" />
+    <ProjectReference Include="..\Fenicia.Module.Basic\Fenicia.Module.Basic.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

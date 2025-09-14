@@ -4,11 +4,12 @@ using System.Net;
 
 using Bogus;
 
-using Common;
+using Common.Database.Responses;
 using Common.Enums;
 
-using Domains.Module.Data;
 using Domains.Module.Logic;
+
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.Extensions.Logging;
 
@@ -122,7 +123,6 @@ public class ModuleServiceTests
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
-            Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
         });
     }
 

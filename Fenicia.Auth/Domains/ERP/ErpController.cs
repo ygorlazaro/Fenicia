@@ -11,18 +11,27 @@ using State.Logic;
 
 [Authorize(Roles = "God")]
 [ApiController]
-[Route(template: "[controller]")]
+[Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ErpController(IModuleService moduleService, IStateService stateService) : ControllerBase
+public class ErpController : ControllerBase
 {
+    private readonly IModuleService _moduleService;
+    private readonly IStateService _stateService;
+
+    public ErpController(IModuleService moduleService, IStateService stateService)
+    {
+        _moduleService = moduleService;
+        _stateService = stateService;
+    }
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(object))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LoadInfoAsync(CancellationToken cancellationToken)
     {
-        var modules = await moduleService.LoadModulesAtDatabaseAsync(cancellationToken);
-        var states = await stateService.LoadStatesAtDatabaseAsync(cancellationToken);
+        var modules = await _moduleService.LoadModulesAtDatabaseAsync(cancellationToken);
+        var states = await _stateService.LoadStatesAtDatabaseAsync(cancellationToken);
 
         var response = new
         {

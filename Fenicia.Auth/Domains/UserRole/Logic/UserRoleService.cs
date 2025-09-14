@@ -2,22 +2,31 @@ namespace Fenicia.Auth.Domains.UserRole.Logic;
 
 using Common;
 
-public class UserRoleService(ILogger<UserRoleService> logger, IUserRoleRepository userRoleRepository) : IUserRoleService
+public class UserRoleService : IUserRoleService
 {
+    private readonly ILogger<UserRoleService> _logger;
+    private readonly IUserRoleRepository _userRoleRepository;
+
+    public UserRoleService(ILogger<UserRoleService> logger, IUserRoleRepository userRoleRepository)
+    {
+        _logger = logger;
+        _userRoleRepository = userRoleRepository;
+    }
+
     public async Task<ApiResponse<string[]>> GetRolesByUserAsync(Guid userId, CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation(message: "Starting to retrieve roles for user {UserId}", userId);
+            _logger.LogInformation("Starting to retrieve roles for user {UserId}", userId);
 
-            var roles = await userRoleRepository.GetRolesByUserAsync(userId, cancellationToken);
+            var roles = await _userRoleRepository.GetRolesByUserAsync(userId, cancellationToken);
 
-            logger.LogInformation(message: "Successfully retrieved {RoleCount} roles for user {UserId}", roles.Length, userId);
+            _logger.LogInformation("Successfully retrieved {RoleCount} roles for user {UserId}", roles.Length, userId);
             return new ApiResponse<string[]>(roles);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error retrieving roles for user {UserId}", userId);
+            _logger.LogError(ex, "Error retrieving roles for user {UserId}", userId);
             throw;
         }
     }
@@ -26,16 +35,16 @@ public class UserRoleService(ILogger<UserRoleService> logger, IUserRoleRepositor
     {
         try
         {
-            logger.LogInformation(message: "Checking if user {UserId} has role {Role} in company {CompanyId}", userId, role, companyId);
+            _logger.LogInformation("Checking if user {UserId} has role {Role} in company {CompanyId}", userId, role, companyId);
 
-            var response = await userRoleRepository.HasRoleAsync(userId, companyId, role, cancellationToken);
+            var response = await _userRoleRepository.HasRoleAsync(userId, companyId, role, cancellationToken);
 
-            logger.LogInformation(message: "Role check completed for user {UserId}. Has role {Role}: {HasRole}", userId, role, response);
+            _logger.LogInformation("Role check completed for user {UserId}. Has role {Role}: {HasRole}", userId, role, response);
             return new ApiResponse<bool>(response);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error checking role {Role} for user {UserId} in company {CompanyId}", role, userId, companyId);
+            _logger.LogError(ex, "Error checking role {Role} for user {UserId} in company {CompanyId}", role, userId, companyId);
             throw;
         }
     }

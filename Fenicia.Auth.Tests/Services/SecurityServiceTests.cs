@@ -27,7 +27,7 @@ public class SecurityServiceTests
     public void HashPassword_WithValidPassword_ReturnsHashedPassword()
     {
         // Arrange
-        var password = _faker.Internet.Password(length: 12, memorable: false, regexPattern: "", prefix: "!@#$%^&*");
+        var password = _faker.Internet.Password(length: 12, memorable: false, "", "!@#$%^&*");
 
         // Act
         var result = _sut.HashPassword(password);
@@ -37,7 +37,7 @@ public class SecurityServiceTests
         {
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Data, Is.Not.EqualTo(password));
-            Assert.That(result.Data!, Does.StartWith(expected: "$2a$12$"), message: "Hash should use BCrypt format with work factor 12");
+            Assert.That(result.Data!, Does.StartWith("$2a$12$"), "Hash should use BCrypt format with work factor 12");
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         });
     }
@@ -57,11 +57,11 @@ public class SecurityServiceTests
         }
 
         // Assert
-        Assert.That(hashes, Has.Count.EqualTo(expected: 5), message: "Each hash should be unique even for the same password");
+        Assert.That(hashes, Has.Count.EqualTo(expected: 5), "Each hash should be unique even for the same password");
     }
 
     [Test]
-    [TestCase(arg: "")]
+    [TestCase("")]
     public void HashPassword_WithInvalidPassword_ThrowsException(string invalidPassword)
     {
         // Act & Assert
@@ -160,7 +160,7 @@ public class SecurityServiceTests
                             {
                                 _faker.Internet.Password(length: 8), // Simple password
                                 _faker.Internet.Password(length: 16, memorable: true), // Complex password
-                                _faker.Internet.Password(length: 32, memorable: true, regexPattern: "@#$%") // Very complex password
+                                _faker.Internet.Password(length: 32, memorable: true, "@#$%") // Very complex password
                             };
 
         foreach (var password in testPasswords)
@@ -173,7 +173,7 @@ public class SecurityServiceTests
             Assert.Multiple(() =>
             {
                 Assert.That(result.Data, Is.Not.Null);
-                Assert.That(result.Data, Does.StartWith(expected: "$2a$12$"));
+                Assert.That(result.Data, Does.StartWith("$2a$12$"));
                 Assert.That(verifyResult.Data, Is.True);
             });
         }

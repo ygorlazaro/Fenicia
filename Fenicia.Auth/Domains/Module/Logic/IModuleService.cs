@@ -1,9 +1,8 @@
 namespace Fenicia.Auth.Domains.Module.Logic;
 
 using Common;
+using Common.Database.Responses;
 using Common.Enums;
-
-using Data;
 
 public interface IModuleService
 {

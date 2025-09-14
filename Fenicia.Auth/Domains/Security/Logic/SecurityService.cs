@@ -21,7 +21,7 @@ public class SecurityService : ISecurityService
         {
             if (string.IsNullOrEmpty(password))
             {
-                _logger.LogError(message: "Attempt to hash null or empty password");
+                _logger.LogError("Attempt to hash null or empty password");
                 throw new ArgumentException(TextConstants.InvalidPassword);
             }
 
@@ -29,16 +29,16 @@ public class SecurityService : ISecurityService
 
             if (hashed == null)
             {
-                _logger.LogError(message: "BCrypt failed to generate hash");
-                throw new Exception(message: "Error hashing password");
+                _logger.LogError("BCrypt failed to generate hash");
+                throw new Exception("Error hashing password");
             }
 
-            _logger.LogInformation(message: "Password hashed successfully");
+            _logger.LogInformation("Password hashed successfully");
             return new ApiResponse<string>(hashed);
         }
         catch (Exception ex) when (ex is not ArgumentException)
         {
-            _logger.LogError(ex, message: "Unexpected error while hashing password");
+            _logger.LogError(ex, "Unexpected error while hashing password");
             throw;
         }
     }
@@ -49,18 +49,18 @@ public class SecurityService : ISecurityService
         {
             if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword))
             {
-                _logger.LogError(message: "Attempt to verify with null or empty password/hash");
+                _logger.LogError("Attempt to verify with null or empty password/hash");
                 throw new ArgumentException(TextConstants.InvalidPassword);
             }
 
             var result = BCrypt.Verify(password, hashedPassword);
 
-            _logger.LogInformation(message: "Password verification completed");
+            _logger.LogInformation("Password verification completed");
             return new ApiResponse<bool>(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, message: "Error during password verification");
+            _logger.LogError(ex, "Error during password verification");
             return new ApiResponse<bool>(data: false, HttpStatusCode.InternalServerError);
         }
     }

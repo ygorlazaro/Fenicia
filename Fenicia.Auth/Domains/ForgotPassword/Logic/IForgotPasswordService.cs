@@ -1,8 +1,8 @@
 namespace Fenicia.Auth.Domains.ForgotPassword.Logic;
 
 using Common;
-
-using Data;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
 public interface IForgotPasswordService
 {

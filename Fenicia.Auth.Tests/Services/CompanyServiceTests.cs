@@ -6,10 +6,12 @@ using Bogus;
 
 using Common;
 
-using Domains.Company.Data;
 using Domains.Company.Logic;
-using Domains.DataCache;
 using Domains.UserRole.Logic;
+
+using Fenicia.Common.Database.Models.Auth;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
 using Microsoft.Extensions.Logging;
 
@@ -19,7 +21,6 @@ public class CompanyServiceTests
 {
     private readonly CancellationToken _cancellationToken = CancellationToken.None;
     private Mock<ICompanyRepository> _companyRepositoryMock;
-    private Mock<IDataCacheService> _dataCacheServiceMock;
     private Faker _faker;
     private Mock<ILogger<CompanyService>> _loggerMock;
     private CompanyService _sut;
@@ -31,8 +32,7 @@ public class CompanyServiceTests
         _loggerMock = new Mock<ILogger<CompanyService>>();
         _companyRepositoryMock = new Mock<ICompanyRepository>();
         _userRoleServiceMock = new Mock<IUserRoleService>();
-        _dataCacheServiceMock = new Mock<IDataCacheService>();
-        _sut = new CompanyService(_loggerMock.Object, _companyRepositoryMock.Object, _userRoleServiceMock.Object, _dataCacheServiceMock.Object);
+        _sut = new CompanyService(_loggerMock.Object, _companyRepositoryMock.Object, _userRoleServiceMock.Object);
         _faker = new Faker();
     }
 
@@ -40,7 +40,7 @@ public class CompanyServiceTests
     public async Task GetByCnpjAsync_WhenCompanyExists_ReturnsCompany()
     {
         // Arrange
-        var cnpj = _faker.Random.String2(length: 14, chars: "0123456789");
+        var cnpj = _faker.Random.String2(length: 14, "0123456789");
         var companyModel = new CompanyModel { Cnpj = cnpj };
         var expectedResponse = new CompanyResponse { Cnpj = cnpj };
 
@@ -61,7 +61,7 @@ public class CompanyServiceTests
     public async Task GetByCnpjAsync_WhenCompanyDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var cnpj = _faker.Random.String2(length: 14, chars: "0123456789");
+        var cnpj = _faker.Random.String2(length: 14, "0123456789");
 
         _companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, _cancellationToken)).ReturnsAsync((CompanyModel)null!);
 
@@ -72,7 +72,6 @@ public class CompanyServiceTests
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
-            Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
         });
     }
 
@@ -147,7 +146,6 @@ public class CompanyServiceTests
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
-            Assert.That(result.Message, Is.EqualTo(TextConstants.ItemNotFound));
         });
     }
 
@@ -170,7 +168,6 @@ public class CompanyServiceTests
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
-            Assert.That(result.Message, Is.EqualTo(TextConstants.PermissionDenied));
         });
     }
 

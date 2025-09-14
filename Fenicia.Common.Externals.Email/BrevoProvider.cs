@@ -15,7 +15,7 @@ public class BrevoProvider : IBrevoProvider
         {
             ApiKey =
                          {
-                             [key: "api-key"] = "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"
+                             ["api-key"] = "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"
                          }
         };
 

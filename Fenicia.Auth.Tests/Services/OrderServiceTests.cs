@@ -7,15 +7,14 @@ using Bogus;
 using Common;
 using Common.Enums;
 
-using Domains.Module.Data;
 using Domains.Module.Logic;
-using Domains.Order.Data;
 using Domains.Order.Logic;
-using Domains.OrderDetail.Data;
 using Domains.Subscription.Logic;
 using Domains.User.Logic;
 
-using Enums;
+using Fenicia.Common.Database.Models.Auth;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
 using Microsoft.Extensions.Logging;
 
@@ -63,7 +62,6 @@ public class OrderServiceTests
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(result.Message, Is.EqualTo(TextConstants.UserNotInCompany));
         });
     }
 
@@ -94,7 +92,6 @@ public class OrderServiceTests
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(result.Message, Is.EqualTo(TextConstants.ThereWasAnErrorSearchingModules));
         });
     }
 

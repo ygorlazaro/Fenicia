@@ -100,9 +100,9 @@ public class UserRoleServiceTests
         _userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, _cancellationToken), Times.Once);
     }
 
-    [TestCase(arg: "Admin")]
-    [TestCase(arg: "User")]
-    [TestCase(arg: "Manager")]
+    [TestCase("Admin")]
+    [TestCase("User")]
+    [TestCase("Manager")]
     public async Task HasRoleAsync_WithDifferentRoles_ValidatesCorrectly(string role)
     {
         // Arrange
