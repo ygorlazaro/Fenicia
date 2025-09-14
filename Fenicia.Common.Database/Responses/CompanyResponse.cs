@@ -48,6 +48,6 @@ public class CompanyResponse
 
     public static List<CompanyResponse> Convert(List<CompanyModel> companies)
     {
-        return [.. companies.Select(Convert)];
+        return [.. companies.Select(CompanyResponse.Convert)];
     }
 }

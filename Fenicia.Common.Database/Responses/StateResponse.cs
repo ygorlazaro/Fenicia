@@ -26,6 +26,6 @@ public class StateResponse
 
     public static List<StateResponse> Convert(List<StateModel> state)
     {
-        return [.. state.Select(Convert)];
+        return [.. state.Select(StateResponse.Convert)];
     }
 }

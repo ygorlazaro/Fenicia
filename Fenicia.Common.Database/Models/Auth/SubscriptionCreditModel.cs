@@ -53,15 +53,15 @@ public class SubscriptionCreditModel : BaseModel
     }
 
     [JsonIgnore]
-    [ForeignKey(nameof(ModuleId))]
+    [ForeignKey(nameof(SubscriptionCreditModel.ModuleId))]
     public virtual ModuleModel Module { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey(nameof(SubscriptionId))]
+    [ForeignKey(nameof(SubscriptionCreditModel.SubscriptionId))]
     public virtual SubscriptionModel Subscription { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey(nameof(OrderDetailId))]
+    [ForeignKey(nameof(SubscriptionCreditModel.OrderDetailId))]
     public virtual OrderDetailModel? OrderDetail
     {
         get; set;

@@ -53,7 +53,7 @@ public class RedisDataCacheService : IDataCacheService
         try
         {
             var json = JsonSerializer.Serialize(data);
-            await _db.StringSetAsync(key, json, expiration ?? DefaultExpiration);
+            await _db.StringSetAsync(key, json, expiration ?? RedisDataCacheService.DefaultExpiration);
             _logger.LogDebug("Successfully cached item with key: {Key}", key);
         }
         catch (RedisConnectionException ex)

@@ -17,17 +17,17 @@ public class LoginAttemptService : ILoginAttemptService
 
     public Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        return Task.FromResult(_cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0);
+        return Task.FromResult(_cache.TryGetValue(LoginAttemptService.GetKey(email), out int attempts) ? attempts : 0);
     }
 
     public Task IncrementAttemptsAsync(string email)
     {
-        var key = GetKey(email);
+        var key = LoginAttemptService.GetKey(email);
         var current = _cache.TryGetValue(key, out int count) ? count + 1 : 1;
 
         var options = new MemoryCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(ExpirationMinutes)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(LoginAttemptService.ExpirationMinutes)
         };
 
         _cache.Set(key, current, options);
@@ -37,12 +37,12 @@ public class LoginAttemptService : ILoginAttemptService
 
     public Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        _cache.Remove(GetKey(email));
+        _cache.Remove(LoginAttemptService.GetKey(email));
         return Task.CompletedTask;
     }
 
     private static string GetKey(string email)
     {
-        return $"{KeyPrefix}{email.ToLower()}";
+        return $"{LoginAttemptService.KeyPrefix}{email.ToLower()}";
     }
 }

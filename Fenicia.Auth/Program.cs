@@ -53,14 +53,14 @@ public static class Program
 
         var configuration = AppSettingsReader.GetConfiguration();
 
-        BuildLogging(builder);
-        BuildRateLimiting(builder, configuration);
-        BuildDependencyInjection(builder);
-        BuildDatabaseConnection(configuration, builder);
-        BuildCors(builder);
-        BuildControllers(configuration, builder);
+        Program.BuildLogging(builder);
+        Program.BuildRateLimiting(builder, configuration);
+        Program.BuildDependencyInjection(builder);
+        Program.BuildDatabaseConnection(configuration, builder);
+        Program.BuildCors(builder);
+        Program.BuildControllers(configuration, builder);
 
-        StartApplication(builder);
+        Program.StartApplication(builder);
     }
 
     private static void StartApplication(WebApplicationBuilder builder)

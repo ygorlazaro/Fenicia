@@ -44,3 +44,6 @@ dotnet_diagnostic.IDE0130.severity = error
 
 # IDE0005: Using directive is unnecessary.
 dotnet_diagnostic.IDE0005.severity = error
+
+# IDE0002: Simplify Member Access
+dotnet_diagnostic.IDE0002.severity = none

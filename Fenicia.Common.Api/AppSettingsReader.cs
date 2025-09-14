@@ -6,7 +6,7 @@ public static class AppSettingsReader
 {
     public static string? GetConnectionString(string connectionStringName)
     {
-        var configuration = GetConfiguration();
+        var configuration = AppSettingsReader.GetConfiguration();
         return configuration.GetConnectionString(connectionStringName);
     }
 
