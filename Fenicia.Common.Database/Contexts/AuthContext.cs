@@ -29,7 +29,7 @@ public class AuthContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
-        AddSoftDeleteSupport(modelBuilder);
+        AuthContext.AddSoftDeleteSupport(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }

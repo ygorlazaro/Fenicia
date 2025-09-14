@@ -5,8 +5,8 @@ using System.Net;
 using Common;
 using Common.Enums;
 
-using Domains.Subscription.Logic;
-using Domains.SubscriptionCredit.Logic;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.SubscriptionCredit;
 
 using Microsoft.Extensions.Logging;
 

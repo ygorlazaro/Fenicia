@@ -34,7 +34,7 @@ public class AddressModel : BaseModel
     [MaxLength(length: 30)]
     public string City { get; set; } = null!;
 
-    [ForeignKey(nameof(StateId))]
+    [ForeignKey(nameof(AddressModel.StateId))]
     [JsonIgnore]
     public virtual StateModel State { get; set; } = null!;
 }

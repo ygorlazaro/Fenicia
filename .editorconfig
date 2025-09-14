@@ -35,3 +35,15 @@ csharp_style_namespace_declarations = file_scoped:suggestion
 
 # ✅ Se quiser evitar warnings sobre linhas longas no IDE
 dotnet_diagnostic.IDE0059.severity = none
+
+# IDE0290: Use primary constructor
+dotnet_diagnostic.IDE0290.severity = none
+
+# IDE0130: Namespace does not match folder structure
+dotnet_diagnostic.IDE0130.severity = error
+
+# IDE0005: Using directive is unnecessary.
+dotnet_diagnostic.IDE0005.severity = error
+
+# IDE0002: Simplify Member Access
+dotnet_diagnostic.IDE0002.severity = none

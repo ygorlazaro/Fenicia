@@ -2,11 +2,9 @@ namespace Fenicia.Auth.Domains.Order;
 
 using System.Net.Mime;
 
-using Common.Api;
+using Common.API;
 using Common.Database.Requests;
 using Common.Database.Responses;
-
-using Logic;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +46,7 @@ public class OrderController : ControllerBase
                 return StatusCode((int)order.Status, order.Message);
             }
 
-            _logger.LogInformation("New order created successfully for user {UserId}", userId);
+            _logger.LogInformation("New order created successfully for user {UserID}", userId);
             return Ok(order.Data);
         }
         catch (Exception ex)

@@ -7,11 +7,6 @@ using Bogus;
 using Common;
 using Common.Enums;
 
-using Domains.Module.Logic;
-using Domains.Order.Logic;
-using Domains.Subscription.Logic;
-using Domains.User.Logic;
-
 using Fenicia.Common.Database.Models.Auth;
 using Common.Database.Requests;
 using Common.Database.Responses;
@@ -19,6 +14,10 @@ using Common.Database.Responses;
 using Microsoft.Extensions.Logging;
 
 using Moq;
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.User;
 
 public class OrderServiceTests
 {
@@ -51,7 +50,7 @@ public class OrderServiceTests
         // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var request = new OrderRequest { Details = new List<OrderDetailRequest>() };
+        var request = new OrderRequest { Details = [] };
 
         _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: false));
 
@@ -74,7 +73,7 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest
         {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
+            Details = [new OrderDetailRequest { ModuleId = moduleId }]
         };
 
         var emptyModulesList = new List<ModuleResponse>();
@@ -106,7 +105,7 @@ public class OrderServiceTests
 
         var request = new OrderRequest
         {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
+            Details = [new OrderDetailRequest { ModuleId = moduleId }]
         };
 
         var moduleResponses = new List<ModuleResponse>
@@ -182,7 +181,7 @@ public class OrderServiceTests
 
         var request = new OrderRequest
         {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = basicModuleId } }
+            Details = [new OrderDetailRequest { ModuleId = basicModuleId }]
         };
 
         var moduleResponses = new List<ModuleResponse>

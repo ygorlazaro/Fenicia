@@ -4,12 +4,11 @@ using Bogus;
 
 using Common.Enums;
 
-using Domains.Module.Logic;
-
 using Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Auth.Domains.Module;
 
 public class ModuleRepositoryTests
 {
@@ -82,7 +81,7 @@ public class ModuleRepositoryTests
     {
         // Arrange
         var modules = new List<ModuleModel>();
-        var requestedIds = new List<Guid>();
+        var requestedIDs = new List<Guid>();
 
         for (var i = 0; i < 5; i++)
         {
@@ -95,7 +94,7 @@ public class ModuleRepositoryTests
             modules.Add(module);
             if (i < 3) // Request only first 3 modules
             {
-                requestedIds.Add(module.Id);
+                requestedIDs.Add(module.Id);
             }
         }
 
@@ -103,25 +102,25 @@ public class ModuleRepositoryTests
         await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetManyOrdersAsync(requestedIds, _cancellationToken);
+        var result = await _sut.GetManyOrdersAsync(requestedIDs, _cancellationToken);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(expected: 3));
         Assert.Multiple(() =>
         {
-            Assert.That(result.Select(m => m.Id), Is.EquivalentTo(requestedIds));
+            Assert.That(result.Select(m => m.Id), Is.EquivalentTo(requestedIDs));
             Assert.That(result, Is.Ordered.By("Type"));
         });
     }
 
     [Test]
-    public async Task GetManyOrdersAsync_ReturnsEmptyList_WhenNoMatchingIds()
+    public async Task GetManyOrdersAsync_ReturnsEmptyList_WhenNoMatchingIDs()
     {
         // Arrange
-        var nonExistentIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
+        var nonExistentIDs = new[] { Guid.NewGuid(), Guid.NewGuid() };
 
         // Act
-        var result = await _sut.GetManyOrdersAsync(nonExistentIds, _cancellationToken);
+        var result = await _sut.GetManyOrdersAsync(nonExistentIDs, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);

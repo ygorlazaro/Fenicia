@@ -50,6 +50,6 @@ public class ModuleResponse
 
     public static List<ModuleResponse> Convert(List<ModuleModel> modules)
     {
-        return [.. modules.Select(Convert)];
+        return [.. modules.Select(ModuleResponse.Convert)];
     }
 }

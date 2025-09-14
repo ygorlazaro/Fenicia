@@ -9,7 +9,7 @@ public static class SoftDeleteQueryExtension
 {
     public static void AddSoftDeleteQueryFilter(this IMutableEntityType entityData)
     {
-        var methodToCall = typeof(SoftDeleteQueryExtension).GetMethod(nameof(GetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)?.MakeGenericMethod(entityData.ClrType);
+        var methodToCall = typeof(SoftDeleteQueryExtension).GetMethod(nameof(SoftDeleteQueryExtension.GetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)?.MakeGenericMethod(entityData.ClrType);
 
         if (methodToCall is null)
         {

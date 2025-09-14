@@ -12,12 +12,12 @@ public class StateResponse
     public string Name
     {
         get; set;
-    }
+    } = default!;
 
     public string Uf
     {
         get; set;
-    }
+    } = default!;
 
     public static StateResponse Convert(StateModel state)
     {
@@ -26,6 +26,6 @@ public class StateResponse
 
     public static List<StateResponse> Convert(List<StateModel> state)
     {
-        return [.. state.Select(Convert)];
+        return [.. state.Select(StateResponse.Convert)];
     }
 }

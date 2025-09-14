@@ -8,13 +8,12 @@ using Common;
 using Common.Database.Requests;
 using Common.Database.Responses;
 
-using Domains.Company.Logic;
-using Domains.LoginAttempt.Logic;
-using Domains.Role.Logic;
-using Domains.Security.Logic;
-using Domains.User.Logic;
-using Domains.UserRole.Logic;
-
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.LoginAttempt;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.Extensions.Logging;

@@ -33,7 +33,7 @@ public class AddressModel : BaseModel
     [MaxLength(length: 30)]
     public string City { get; set; } = null!;
 
-    [ForeignKey("StateId")]
+    [ForeignKey(nameof(AddressModel.StateId))]
     public virtual StateModel State { get; set; } = null!;
 
     public virtual List<CustomerModel> Customers { get; set; } = null!;
