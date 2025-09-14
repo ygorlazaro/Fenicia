@@ -2,11 +2,10 @@ namespace Fenicia.Auth.Tests.Repositories;
 
 using Bogus;
 
-using Contexts;
-
-using Domains.Order.Data;
 using Domains.Order.Logic;
-using Domains.OrderDetail.Data;
+
+using Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

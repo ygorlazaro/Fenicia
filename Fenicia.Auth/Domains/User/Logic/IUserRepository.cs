@@ -1,6 +1,6 @@
 namespace Fenicia.Auth.Domains.User.Logic;
 
-using Data;
+using Fenicia.Common.Database.Models.Auth;
 
 public interface IUserRepository
 {

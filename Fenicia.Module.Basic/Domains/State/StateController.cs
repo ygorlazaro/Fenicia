@@ -5,13 +5,20 @@ using Microsoft.AspNetCore.Mvc;
 
 [Authorize]
 [ApiController]
-[Route(template: "[controller]")]
-public class StateController(IStateService stateProvider) : ControllerBase
+[Route("[controller]")]
+public class StateController : ControllerBase
 {
+    private readonly IStateService _stateProvider;
+
+    public StateController(IStateService stateProvider)
+    {
+        _stateProvider = stateProvider;
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAllAsync()
     {
-        var states = await stateProvider.GetAllAsync();
+        var states = await _stateProvider.GetAllAsync();
 
         return Ok(states);
     }

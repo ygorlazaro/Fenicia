@@ -4,19 +4,25 @@ using System.Text.Json;
 
 using Microsoft.AspNetCore.Http;
 
-public class ModuleRequirementMiddleware(RequestDelegate next, string requiredModule)
+public class ModuleRequirementMiddleware
 {
-    private readonly RequestDelegate _next = next;
-    private readonly string _requiredModule = requiredModule;
+    private readonly RequestDelegate _next;
+    private readonly string _requiredModule;
+
+    public ModuleRequirementMiddleware(RequestDelegate next, string requiredModule)
+    {
+        _next = next;
+        _requiredModule = requiredModule;
+    }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var moduleClaim = context.User.FindFirst(type: "module");
+        var moduleClaim = context.User.FindFirst("module");
 
         if (moduleClaim == null)
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync(text: "Missing 'module' claim.");
+            await context.Response.WriteAsync("Missing 'module' claim.");
             return;
         }
 
@@ -34,7 +40,7 @@ public class ModuleRequirementMiddleware(RequestDelegate next, string requiredMo
         catch
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync(text: "Invalid 'module' claim format.");
+            await context.Response.WriteAsync("Invalid 'module' claim format.");
             return;
         }
 

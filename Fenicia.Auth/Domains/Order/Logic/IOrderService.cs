@@ -1,8 +1,8 @@
 namespace Fenicia.Auth.Domains.Order.Logic;
 
 using Common;
-
-using Data;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
 public interface IOrderService
 {

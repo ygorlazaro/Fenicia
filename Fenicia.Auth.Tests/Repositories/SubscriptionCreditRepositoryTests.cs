@@ -4,11 +4,10 @@ using Bogus;
 
 using Common.Enums;
 
-using Contexts;
-
-using Domains.Module.Data;
-using Domains.SubscriptionCredit.Data;
 using Domains.SubscriptionCredit.Logic;
+
+using Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -61,7 +60,7 @@ public class SubscriptionCreditRepositoryTests
         await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetValidModulesTypesAsync(subscriptionIds.ToList(), _cancellationToken);
+        var result = await _sut.GetValidModulesTypesAsync([.. subscriptionIds], _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -75,7 +74,7 @@ public class SubscriptionCreditRepositoryTests
         var nonExistentSubscriptions = new Faker().Make(count: 3, Guid.NewGuid);
 
         // Act
-        var result = await _sut.GetValidModulesTypesAsync(nonExistentSubscriptions.ToList(), _cancellationToken);
+        var result = await _sut.GetValidModulesTypesAsync([.. nonExistentSubscriptions], _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -159,7 +158,7 @@ public class SubscriptionCreditRepositoryTests
         await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetValidModulesTypesAsync(subscriptions.ToList(), _cancellationToken);
+        var result = await _sut.GetValidModulesTypesAsync([.. subscriptions], _cancellationToken);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(expected: 1));

@@ -3,20 +3,30 @@ namespace Fenicia.Auth.Domains.Module.Logic;
 using System.Net;
 
 using Common;
+using Common.Database.Responses;
 using Common.Enums;
 
-using Data;
+using Fenicia.Common.Database.Models.Auth;
 
-public class ModuleService(ILogger<ModuleService> logger, IModuleRepository moduleRepository) : IModuleService
+public class ModuleService : IModuleService
 {
+    private readonly ILogger<ModuleService> _logger;
+    private readonly IModuleRepository _moduleRepository;
+
+    public ModuleService(ILogger<ModuleService> logger, IModuleRepository moduleRepository)
+    {
+        _logger = logger;
+        _moduleRepository = moduleRepository;
+    }
+
     public async Task<ApiResponse<List<ModuleResponse>>> GetAllOrderedAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10)
     {
         try
         {
-            logger.LogInformation(message: "Getting all modules with page {Page} and items per page {PerPage}", page, perPage);
+            _logger.LogInformation("Getting all modules with page {Page} and items per page {PerPage}", page, perPage);
 
-            var modules = await moduleRepository.GetAllOrderedAsync(cancellationToken, page, perPage);
-            logger.LogDebug(message: "Retrieved {Count} modules from repository", modules.Count);
+            var modules = await _moduleRepository.GetAllOrderedAsync(cancellationToken, page, perPage);
+            _logger.LogDebug("Retrieved {Count} modules from repository", modules.Count);
 
             var mapped = ModuleResponse.Convert(modules);
 
@@ -24,7 +34,7 @@ public class ModuleService(ILogger<ModuleService> logger, IModuleRepository modu
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error occurred while getting all modules");
+            _logger.LogError(ex, "Error occurred while getting all modules");
             throw;
         }
     }
@@ -33,11 +43,11 @@ public class ModuleService(ILogger<ModuleService> logger, IModuleRepository modu
     {
         try
         {
-            var enumerable = request as Guid[] ?? request.ToArray();
-            logger.LogInformation(message: "Getting modules to order for {Count} module IDs", enumerable.Length);
+            var enumerable = request as Guid[] ?? [.. request];
+            _logger.LogInformation("Getting modules to order for {Count} module IDs", enumerable.Length);
 
-            var modules = await moduleRepository.GetManyOrdersAsync(enumerable, cancellationToken);
-            logger.LogDebug(message: "Retrieved {Count} modules from repository", modules.Count);
+            var modules = await _moduleRepository.GetManyOrdersAsync(enumerable, cancellationToken);
+            _logger.LogDebug("Retrieved {Count} modules from repository", modules.Count);
 
             var response = ModuleResponse.Convert(modules);
 
@@ -45,7 +55,7 @@ public class ModuleService(ILogger<ModuleService> logger, IModuleRepository modu
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error occurred while getting modules to order");
+            _logger.LogError(ex, "Error occurred while getting modules to order");
             throw;
         }
     }
@@ -54,23 +64,23 @@ public class ModuleService(ILogger<ModuleService> logger, IModuleRepository modu
     {
         try
         {
-            logger.LogInformation(message: "Getting module by type {ModuleType}", moduleType);
+            _logger.LogInformation("Getting module by type {ModuleType}", moduleType);
 
-            var module = await moduleRepository.GetModuleByTypeAsync(moduleType, cancellationToken);
+            var module = await _moduleRepository.GetModuleByTypeAsync(moduleType, cancellationToken);
 
             if (module is null)
             {
-                logger.LogWarning(message: "Module not found for type {ModuleType}", moduleType);
+                _logger.LogWarning("Module not found for type {ModuleType}", moduleType);
                 return new ApiResponse<ModuleResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
             }
 
-            logger.LogDebug(message: "Module found for type {ModuleType}", moduleType);
+            _logger.LogDebug("Module found for type {ModuleType}", moduleType);
             var response = ModuleResponse.Convert(module);
             return new ApiResponse<ModuleResponse>(response);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error occurred while getting module by type {ModuleType}", moduleType);
+            _logger.LogError(ex, "Error occurred while getting module by type {ModuleType}", moduleType);
             throw;
         }
     }
@@ -79,16 +89,16 @@ public class ModuleService(ILogger<ModuleService> logger, IModuleRepository modu
     {
         try
         {
-            logger.LogInformation(message: "Counting total number of modules");
+            _logger.LogInformation("Counting total number of modules");
 
-            var response = await moduleRepository.CountAsync(cancellationToken);
-            logger.LogDebug(message: "Total module count: {Count}", response);
+            var response = await _moduleRepository.CountAsync(cancellationToken);
+            _logger.LogDebug("Total module count: {Count}", response);
 
             return new ApiResponse<int>(response);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error occurred while counting modules");
+            _logger.LogError(ex, "Error occurred while counting modules");
             throw;
         }
     }
@@ -112,7 +122,7 @@ public class ModuleService(ILogger<ModuleService> logger, IModuleRepository modu
                                 new() { Name = "Plus", Amount = 20, Type = ModuleType.Plus }
                             };
 
-        var response = await moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, cancellationToken);
+        var response = await _moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, cancellationToken);
         var mapped = ModuleResponse.Convert(response);
 
         return new ApiResponse<List<ModuleResponse>>(mapped);
@@ -120,7 +130,7 @@ public class ModuleService(ILogger<ModuleService> logger, IModuleRepository modu
 
     public async Task<ApiResponse<List<ModuleResponse>>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
-        var userModules = await moduleRepository.GetUserModulesAsync(userId, companyId, cancellationToken);
+        var userModules = await _moduleRepository.GetUserModulesAsync(userId, companyId, cancellationToken);
 
         var mapped = ModuleResponse.Convert(userModules);
 

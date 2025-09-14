@@ -1,10 +1,8 @@
 namespace Fenicia.Auth.Domains.User.Logic;
 
 using Common;
-
-using Data;
-
-using Token.Data;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
 public interface IUserService
 {

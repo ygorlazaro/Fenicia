@@ -1,8 +1,8 @@
 namespace Fenicia.Auth.Tests.Repositories;
 
-using Contexts;
+using Common.Database.Contexts;
+using Common.Database.Models.Auth;
 
-using Domains.Role.Data;
 using Domains.Role.Logic;
 
 using Microsoft.EntityFrameworkCore;
@@ -50,7 +50,7 @@ public class RoleRepositoryTests
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
-            Assert.That(result.Name, Is.EqualTo(expected: "Admin"));
+            Assert.That(result.Name, Is.EqualTo("Admin"));
             Assert.That(result.Id, Is.EqualTo(adminRole.Id));
         });
     }
@@ -100,7 +100,7 @@ public class RoleRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Name, Is.EqualTo(expected: "Admin"));
+        Assert.That(result.Name, Is.EqualTo("Admin"));
     }
 
     [Test]
@@ -116,6 +116,6 @@ public class RoleRepositoryTests
         var result = await _sut.GetAdminRoleAsync(_cancellationToken);
 
         // Assert
-        Assert.That(result, Is.Null, message: "GetAdminRoleAsync should be case sensitive");
+        Assert.That(result, Is.Null, "GetAdminRoleAsync should be case sensitive");
     }
 }

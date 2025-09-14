@@ -1,0 +1,12 @@
+namespace Fenicia.Common.Database.Requests;
+
+using System.ComponentModel.DataAnnotations;
+
+public class ForgotPasswordRequest
+{
+    [Required(ErrorMessage = "Email address is required")]
+    [EmailAddress(ErrorMessage = "Invalid email address format")]
+    [StringLength(maximumLength: 256, ErrorMessage = "Email address cannot exceed 256 characters")]
+    [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Email address format is invalid")]
+    public string Email { get; set; } = null!;
+}

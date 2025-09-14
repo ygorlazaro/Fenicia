@@ -2,40 +2,47 @@ namespace Fenicia.Auth.Domains.LoginAttempt.Logic;
 
 using Microsoft.Extensions.Caching.Memory;
 
-public class LoginAttemptService(IMemoryCache cache) : ILoginAttemptService
+public class LoginAttemptService : ILoginAttemptService
 {
+    private readonly IMemoryCache _cache;
+
+    public LoginAttemptService(IMemoryCache cache)
+    {
+        _cache = cache;
+    }
+
     private const int ExpirationMinutes = 15;
 
     private const string KeyPrefix = "login-attempt:";
 
     public Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        return Task.FromResult(cache.TryGetValue(LoginAttemptService.GetKey(email), out int attempts) ? attempts : 0);
+        return Task.FromResult(_cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0);
     }
 
     public Task IncrementAttemptsAsync(string email)
     {
-        var key = LoginAttemptService.GetKey(email);
-        var current = cache.TryGetValue(key, out int count) ? count + 1 : 1;
+        var key = GetKey(email);
+        var current = _cache.TryGetValue(key, out int count) ? count + 1 : 1;
 
         var options = new MemoryCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(LoginAttemptService.ExpirationMinutes)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(ExpirationMinutes)
         };
 
-        cache.Set(key, current, options);
+        _cache.Set(key, current, options);
 
         return Task.CompletedTask;
     }
 
     public Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        cache.Remove(LoginAttemptService.GetKey(email));
+        _cache.Remove(GetKey(email));
         return Task.CompletedTask;
     }
 
     private static string GetKey(string email)
     {
-        return $"{LoginAttemptService.KeyPrefix}{email.ToLower()}";
+        return $"{KeyPrefix}{email.ToLower()}";
     }
 }

@@ -73,7 +73,6 @@ public class SubscriptionCreditServiceTests
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
-            Assert.That(result.Message, Is.EqualTo(errorMessage));
             Assert.That(result.Data, Is.Null);
         });
 

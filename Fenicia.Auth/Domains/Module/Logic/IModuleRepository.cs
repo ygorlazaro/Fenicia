@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Common.Enums;
 
-using Data;
+using Fenicia.Common.Database.Models.Auth;
 
 public interface IModuleRepository
 {
