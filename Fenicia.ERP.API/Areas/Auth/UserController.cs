@@ -1,6 +1,6 @@
 namespace Fenicia.ERP.API.Areas.Auth;
 
-using Common.Api;
+using Common.API;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

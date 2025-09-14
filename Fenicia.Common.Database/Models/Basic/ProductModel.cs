@@ -33,7 +33,7 @@ public class ProductModel : BaseModel
         get; set;
     }
 
-    [ForeignKey("CategoryId")]
+    [ForeignKey(nameof(ProductModel.CategoryId))]
     public virtual ProductCategoryModel Category { get; set; } = null!;
 
     public virtual List<StockMovementModel> StockMovements { get; set; } = null!;

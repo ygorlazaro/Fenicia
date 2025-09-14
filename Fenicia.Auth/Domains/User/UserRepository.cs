@@ -83,14 +83,14 @@ public class UserRepository : IUserRepository
             var user = await _authContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
             if (user == null)
             {
-                _logger.LogInformation("User not found for refresh token with ID: {UserId}", userId);
+                _logger.LogInformation("User not found for refresh token with ID: {UserID}", userId);
             }
 
             return user;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving user for refresh token with ID: {UserId}", userId);
+            _logger.LogError(ex, "Error retrieving user for refresh token with ID: {UserID}", userId);
             throw;
         }
     }
@@ -100,6 +100,7 @@ public class UserRepository : IUserRepository
         try
         {
             var userId = await _authContext.Users.Where(u => u.Email == email).Select(u => u.Id).FirstOrDefaultAsync(cancellationToken);
+
             if (userId == Guid.Empty)
             {
                 _logger.LogInformation("No user ID found for email: {Email}", email);
@@ -121,14 +122,14 @@ public class UserRepository : IUserRepository
             var user = await _authContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
             if (user == null)
             {
-                _logger.LogInformation("User not found with ID: {UserId}", userId);
+                _logger.LogInformation("User not found with ID: {UserID}", userId);
             }
 
             return user;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving user with ID: {UserId}", userId);
+            _logger.LogError(ex, "Error retrieving user with ID: {UserID}", userId);
             throw;
         }
     }

@@ -1,4 +1,4 @@
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +30,7 @@ public class UserController : ControllerBase
         var userId = ClaimReader.UserId(User);
         var companyId = ClaimReader.CompanyId(User);
 
-        _logger.LogWarning("Getting log for the user {userId}", userId);
+        _logger.LogWarning("Getting log for the user {userID}", userId);
 
         var response = await _moduleService.GetUserModulesAsync(userId, companyId, cancellationToken);
         return Ok(response);

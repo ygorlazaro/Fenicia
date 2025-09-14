@@ -50,7 +50,7 @@ public class OrderServiceTests
         // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var request = new OrderRequest { Details = new List<OrderDetailRequest>() };
+        var request = new OrderRequest { Details = [] };
 
         _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: false));
 
@@ -73,7 +73,7 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest
         {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
+            Details = [new OrderDetailRequest { ModuleId = moduleId }]
         };
 
         var emptyModulesList = new List<ModuleResponse>();
@@ -105,7 +105,7 @@ public class OrderServiceTests
 
         var request = new OrderRequest
         {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = moduleId } }
+            Details = [new OrderDetailRequest { ModuleId = moduleId }]
         };
 
         var moduleResponses = new List<ModuleResponse>
@@ -181,7 +181,7 @@ public class OrderServiceTests
 
         var request = new OrderRequest
         {
-            Details = new List<OrderDetailRequest> { new() { ModuleId = basicModuleId } }
+            Details = [new OrderDetailRequest { ModuleId = basicModuleId }]
         };
 
         var moduleResponses = new List<ModuleResponse>

@@ -19,4 +19,6 @@ public interface ICompanyRepository
     CompanyModel PatchAsync(CompanyModel company);
 
     Task<int> CountByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+
+    Task<List<Guid>> GetCompaniesAsync(Guid userId, CancellationToken cancellationToken);
 }

@@ -11,4 +11,5 @@ public interface ICompanyService
     Task<ApiResponse<List<CompanyResponse>>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken, int page = 1, int perPage = 10);
     Task<ApiResponse<CompanyResponse?>> PatchAsync(Guid companyId, Guid userId, CompanyUpdateRequest company, CancellationToken cancellationToken);
     Task<ApiResponse<int>> CountByUserIdAsync(Guid userId, CancellationToken cancellationToken);
+    Task<List<Guid>> GetCompaniesAsync(Guid userId, CancellationToken cancellationToken);
 }

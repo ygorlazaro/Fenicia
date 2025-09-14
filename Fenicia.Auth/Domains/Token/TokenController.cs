@@ -88,13 +88,13 @@ public class TokenController : ControllerBase
     {
         try
         {
-            _logger.LogInformation("Starting token refresh for user {UserId}", request.UserId);
+            _logger.LogInformation("Starting token refresh for user {UserID}", request.UserId);
 
             var isValidToken = await _refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
 
             if (!isValidToken.Data)
             {
-                _logger.LogWarning("Invalid refresh token for user {UserId}", request.UserId);
+                _logger.LogWarning("Invalid refresh token for user {UserID}", request.UserId);
                 return BadRequest("Invalid client request");
             }
 
@@ -104,7 +104,7 @@ public class TokenController : ControllerBase
 
             if (userResponse.Data is null)
             {
-                _logger.LogWarning("User not found for refresh token {UserId}", request.UserId);
+                _logger.LogWarning("User not found for refresh token {UserID}", request.UserId);
                 return BadRequest(TextConstants.PermissionDenied);
             }
 
@@ -114,7 +114,7 @@ public class TokenController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error refreshing token for user {UserId}", request.UserId);
+            _logger.LogError(ex, "Error refreshing token for user {UserID}", request.UserId);
             throw;
         }
     }
@@ -143,7 +143,7 @@ public class TokenController : ControllerBase
 
             if (modules.Data is null)
             {
-                _logger.LogWarning("Unable to retrieve active modules for company {CompanyId}", companyId);
+                _logger.LogWarning("Unable to retrieve active modules for company {CompanyID}", companyId);
                 return StatusCode((int)modules.Status, modules.Message);
             }
 

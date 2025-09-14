@@ -1,4 +1,4 @@
-namespace Fenicia.Common.Api.Middlewares;
+namespace Fenicia.Common.API.Middlewares;
 
 using System.Text.Json;
 
@@ -27,7 +27,7 @@ public class RoleGodRequirementMiddleware
         try
         {
             var roles = JsonSerializer.Deserialize<List<string>>(roleClaim.Value);
-            var requiredRole = "Admin";
+            const string requiredRole = "Admin";
 
             if (roles is null || !roles.Contains(requiredRole, StringComparer.OrdinalIgnoreCase))
             {

@@ -23,11 +23,11 @@ public sealed class SubscriptionService : ISubscriptionService
     {
         try
         {
-            _logger.LogInformation("Starting credit creation for order {OrderId}", order.Id);
+            _logger.LogInformation("Starting credit creation for order {OrderID}", order.Id);
 
             if (details.Count == 0)
             {
-                _logger.LogWarning("No modules found for order {OrderId}", order.Id);
+                _logger.LogWarning("No modules found for order {OrderID}", order.Id);
                 return new ApiResponse<SubscriptionResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorAddingModules);
             }
 
@@ -51,14 +51,14 @@ public sealed class SubscriptionService : ISubscriptionService
             };
 
             await _subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken);
-            _logger.LogInformation("Successfully saved subscription for order {OrderId}", order.Id);
+            _logger.LogInformation("Successfully saved subscription for order {OrderID}", order.Id);
 
             var response = SubscriptionResponse.Convert(subscription);
             return new ApiResponse<SubscriptionResponse>(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating credits for order {OrderId}", order.Id);
+            _logger.LogError(ex, "Error creating credits for order {OrderID}", order.Id);
             throw;
         }
     }
@@ -67,15 +67,15 @@ public sealed class SubscriptionService : ISubscriptionService
     {
         try
         {
-            _logger.LogInformation("Retrieving valid subscriptions for company {CompanyId}", companyId);
+            _logger.LogInformation("Retrieving valid subscriptions for company {CompanyID}", companyId);
             var response = await _subscriptionRepository.GetValidSubscriptionAsync(companyId, cancellationToken);
-            _logger.LogInformation("Found {Count} valid subscriptions for company {CompanyId}", response.Count, companyId);
+            _logger.LogInformation("Found {Count} valid subscriptions for company {CompanyID}", response.Count, companyId);
 
             return new ApiResponse<List<Guid>>(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving valid subscriptions for company {CompanyId}", companyId);
+            _logger.LogError(ex, "Error retrieving valid subscriptions for company {CompanyID}", companyId);
             throw;
         }
     }

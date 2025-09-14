@@ -33,12 +33,12 @@ public sealed class OrderService : IOrderService
     {
         try
         {
-            _logger.LogInformation("Starting order creation process for user {UserId} in company {CompanyId}", userId, companyId);
+            _logger.LogInformation("Starting order creation process for user {UserID} in company {CompanyID}", userId, companyId);
             var existingUser = await _userService.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
             if (!existingUser.Data)
             {
-                _logger.LogWarning("User {userId} does not exist in company {companyId}", userId, companyId);
+                _logger.LogWarning("User {userID} does not exist in company {companyID}", userId, companyId);
 
                 return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.UserNotInCompany);
             }
@@ -76,12 +76,12 @@ public sealed class OrderService : IOrderService
 
             var response = OrderResponse.Convert(order);
 
-            _logger.LogInformation("Order created successfully for user {UserId}", userId);
+            _logger.LogInformation("Order created successfully for user {UserID}", userId);
             return new ApiResponse<OrderResponse>(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating order for user {UserId} in company {CompanyId}", userId, companyId);
+            _logger.LogError(ex, "Error creating order for user {UserID} in company {CompanyID}", userId, companyId);
             return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.InternalServerError, "An error occurred while creating the order");
         }
     }

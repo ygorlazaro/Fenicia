@@ -3,6 +3,8 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AssemblyName>Fenicia.Common.API</AssemblyName>
+        <RootNamespace>Fenicia.Common.API</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />

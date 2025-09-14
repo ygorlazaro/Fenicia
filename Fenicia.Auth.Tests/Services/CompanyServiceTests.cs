@@ -75,7 +75,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task GetByUserIdAsync_ReturnsCompanies()
+    public async Task GetByUserIDAsync_ReturnsCompanies()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -171,7 +171,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task CountByUserIdAsync_ReturnsCount()
+    public async Task CountByUserIDAsync_ReturnsCount()
     {
         // Arrange
         var userId = Guid.NewGuid();
