@@ -7,8 +7,7 @@ using Bogus;
 using Common.Database.Responses;
 using Common.Enums;
 
-using Domains.Module.Logic;
-
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.Extensions.Logging;

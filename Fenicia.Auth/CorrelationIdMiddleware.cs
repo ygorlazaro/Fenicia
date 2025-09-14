@@ -21,7 +21,7 @@ public sealed class CorrelationIdMiddleware
             if (!context.Request.Headers.TryGetValue(correlationIdHeader, out var correlationId))
             {
                 correlationId = Guid.NewGuid().ToString();
-                context.Request.Headers.Add(correlationIdHeader, correlationId);
+                context.Request.Headers.Append(correlationIdHeader, correlationId);
                 Log.Information("Generated new correlation ID: {CorrelationId}", correlationId);
             }
 

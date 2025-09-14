@@ -4,8 +4,6 @@ using System.Net.Mime;
 
 using Common.Database.Requests;
 
-using Logic;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

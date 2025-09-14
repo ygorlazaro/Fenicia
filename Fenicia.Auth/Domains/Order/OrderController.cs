@@ -6,8 +6,6 @@ using Common.Api;
 using Common.Database.Requests;
 using Common.Database.Responses;
 
-using Logic;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

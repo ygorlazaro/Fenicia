@@ -12,7 +12,7 @@ public class ErrorResponse
 
 public class ApiResponse<T>
 {
-    public ApiResponse(T? data, HttpStatusCode status = HttpStatusCode.OK, string message = "")
+    public ApiResponse(T? data, HttpStatusCode status = HttpStatusCode.OK, string? message = "")
     {
         Data = data;
         Status = status;

@@ -4,12 +4,11 @@ using Bogus;
 
 using Common.Enums;
 
-using Domains.Module.Logic;
-
 using Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Auth.Domains.Module;
 
 public class ModuleRepositoryTests
 {

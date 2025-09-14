@@ -6,9 +6,6 @@ using Bogus;
 
 using Common;
 
-using Domains.Company.Logic;
-using Domains.UserRole.Logic;
-
 using Fenicia.Common.Database.Models.Auth;
 using Common.Database.Requests;
 using Common.Database.Responses;
@@ -16,6 +13,8 @@ using Common.Database.Responses;
 using Microsoft.Extensions.Logging;
 
 using Moq;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.UserRole;
 
 public class CompanyServiceTests
 {

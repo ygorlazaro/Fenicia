@@ -7,11 +7,6 @@ using Bogus;
 using Common;
 using Common.Enums;
 
-using Domains.Module.Logic;
-using Domains.Order.Logic;
-using Domains.Subscription.Logic;
-using Domains.User.Logic;
-
 using Fenicia.Common.Database.Models.Auth;
 using Common.Database.Requests;
 using Common.Database.Responses;
@@ -19,6 +14,10 @@ using Common.Database.Responses;
 using Microsoft.Extensions.Logging;
 
 using Moq;
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.User;
 
 public class OrderServiceTests
 {

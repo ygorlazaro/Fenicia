@@ -7,7 +7,7 @@ using Bogus;
 using Common.Database.Responses;
 using Common.Enums;
 
-using Domains.Token.Logic;
+using Fenicia.Auth.Domains.Token;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -33,7 +33,7 @@ public class TokenServiceTests
 
         _loggerMock = new Mock<ILogger<TokenService>>();
 
-        _sut = new TokenService(_configurationMock.Object, _loggerMock.Object);
+        _sut = new TokenService(_loggerMock.Object);
     }
 
     [Test]
