@@ -59,7 +59,7 @@ public class CompanyModel : BaseModel
     [JsonIgnore]
     public virtual List<SubscriptionModel> Subscriptions { get; set; } = null!;
 
-    [ForeignKey(nameof(AddressId))]
+    [ForeignKey(nameof(CompanyModel.AddressId))]
     [JsonIgnore]
     public virtual AddressModel? Address
     {

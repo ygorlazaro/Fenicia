@@ -6,9 +6,6 @@ using Bogus;
 
 using Common;
 
-using Domains.Company.Logic;
-using Domains.UserRole.Logic;
-
 using Fenicia.Common.Database.Models.Auth;
 using Common.Database.Requests;
 using Common.Database.Responses;
@@ -16,6 +13,8 @@ using Common.Database.Responses;
 using Microsoft.Extensions.Logging;
 
 using Moq;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.UserRole;
 
 public class CompanyServiceTests
 {
@@ -76,7 +75,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task GetByUserIdAsync_ReturnsCompanies()
+    public async Task GetByUserIDAsync_ReturnsCompanies()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -172,7 +171,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task CountByUserIdAsync_ReturnsCount()
+    public async Task CountByUserIDAsync_ReturnsCount()
     {
         // Arrange
         var userId = Guid.NewGuid();

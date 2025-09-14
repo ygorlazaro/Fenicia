@@ -57,6 +57,6 @@ public class ModuleModel : BaseModel
 
     public static List<ModuleModel> Convert(List<ModuleResponse> modules)
     {
-        return [.. modules.Select(Convert)];
+        return [.. modules.Select(ModuleModel.Convert)];
     }
 }

@@ -1,22 +1,26 @@
-using Fenicia.Auth.Domains.Module.Logic;
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Common;
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
+using Fenicia.Common.Migrations.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Migrations;
 
-[Authorize]
+[Authorize(Roles = "God")]
 [Route("[controller]")]
 [ApiController]
 public class MigrationController : ControllerBase
 {
     private readonly IModuleService _moduleService;
 
-    public MigrationController(IModuleService moduleService)
+    private readonly IMigrationService _migrationService;
+
+    public MigrationController(IModuleService moduleService, IMigrationService migrationService)
     {
         _moduleService = moduleService;
+        _migrationService = migrationService;
     }
 
     [HttpPost]
@@ -32,9 +36,7 @@ public class MigrationController : ControllerBase
             return NotFound(TextConstants.ThereWasAnErrorSearchingModules);
         }
 
-        var migrationService = new MigrationService();
-
-        await migrationService.RunMigrationsAsync(modules, companyId, cancellationToken);
+        await _migrationService.RunMigrationsAsync(modules, companyId, cancellationToken);
 
         return Ok();
     }

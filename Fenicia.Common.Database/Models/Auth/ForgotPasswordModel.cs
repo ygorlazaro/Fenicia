@@ -34,7 +34,7 @@ public class ForgotPasswordModel : BaseModel
     [Display(Name = "Is Active")]
     public bool IsActive { get; set; } = true;
 
-    [ForeignKey(nameof(UserId))]
+    [ForeignKey(nameof(ForgotPasswordModel.UserId))]
     [Display(Name = "User")]
     public virtual UserModel User { get; set; } = null!;
 }

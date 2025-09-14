@@ -6,28 +6,29 @@ using System.Text.Json.Serialization;
 using AspNetCoreRateLimit;
 
 using Common;
-using Common.Api;
-using Common.Api.Middlewares;
+using Common.API;
+using Common.API.Middlewares;
 using Common.Database.Contexts;
 using Common.Externals.Email;
 
-using Domains.Company.Logic;
 using Domains.DataCache;
-using Domains.ForgotPassword.Logic;
 using Domains.LoginAttempt.Logic;
-using Domains.Module.Logic;
-using Domains.Order.Logic;
-using Domains.RefreshToken.Logic;
-using Domains.Role.Logic;
-using Domains.Security.Logic;
-using Domains.State.Logic;
-using Domains.Subscription.Logic;
-using Domains.SubscriptionCredit.Logic;
-using Domains.Token.Logic;
-using Domains.User.Logic;
-using Domains.UserRole.Logic;
 
-using FluentValidation.AspNetCore;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.ForgotPassword;
+using Fenicia.Auth.Domains.LoginAttempt;
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.State;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.SubscriptionCredit;
+using Fenicia.Auth.Domains.Token;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Common.Migrations.Services;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -44,22 +45,27 @@ public static class Program
 {
     public static void Main(string[] args)
     {
+        // Build configuration from Fenicia.Common.Api/appsettings.json
+        var configBuilder = new ConfigurationManager();
+        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+        if (!File.Exists(commonApiSettingsPath))
+        {
+            throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
+        }
+        configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
+        var configuration = configBuilder;
+
         var builder = WebApplication.CreateBuilder(args);
-        var assemblyLocation = typeof(AppSettingsReader).Assembly.Location;
-        var directoryName = Path.GetDirectoryName(assemblyLocation);
+        builder.Configuration.AddConfiguration(configuration);
 
-        ArgumentNullException.ThrowIfNull(directoryName);
+        Program.BuildLogging(builder);
+        Program.BuildRateLimiting(builder, configuration);
+        Program.BuildDependencyInjection(builder);
+        Program.BuildDatabaseConnection(configuration, builder);
+        Program.BuildCors(builder);
+        Program.BuildControllers(configuration, builder);
 
-        var configuration = AppSettingsReader.GetConfiguration();
-
-        BuildLogging(builder);
-        BuildRateLimiting(builder, configuration);
-        BuildDependencyInjection(builder);
-        BuildDatabaseConnection(configuration, builder);
-        BuildCors(builder);
-        BuildControllers(configuration, builder);
-
-        StartApplication(builder);
+        Program.StartApplication(builder);
     }
 
     private static void StartApplication(WebApplicationBuilder builder)
@@ -95,14 +101,6 @@ public static class Program
         app.UseReferrerPolicy(opts => opts.NoReferrer());
         app.UseXXssProtection(options => options.EnabledWithBlockMode());
         app.UseXfo(options => options.Deny());
-        // app.UseCsp(opts => opts
-        //     .BlockAllMixedContent()
-        //     .StyleSources(s => s.Self())
-        //     .ScriptSources(s => s.Self())
-        //     .FontSources(s => s.Self())
-        //     .ImageSources(s => s.Self().CustomSources("data:"))
-        //     .DefaultSources(s => s.Self())
-        // );
 
         app.UseAuthentication();
         app.UseAuthorization();
@@ -159,7 +157,7 @@ public static class Program
             x.JsonSerializerOptions.AllowTrailingCommas = false;
             x.JsonSerializerOptions.MaxDepth = 0;
             x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        }).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AuthContext>());
+        });
 
         builder.Services.AddOpenApi();
     }
@@ -176,7 +174,7 @@ public static class Program
 
     private static void BuildDatabaseConnection(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
-        var connectionString = configuration.GetConnectionString("AuthConnection");
+        var connectionString = configuration.GetConnectionString("Auth");
 
         builder.Services.AddDbContextPool<AuthContext>(x => x.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention());
     }

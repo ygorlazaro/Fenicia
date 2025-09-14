@@ -3,8 +3,8 @@ namespace Fenicia.Module.Ecommerce;
 using System.Text;
 
 using Common;
-using Common.Api.Middlewares;
-using Common.Api.Providers;
+using Common.API.Middlewares;
+using Common.API.Providers;
 using Common.Database.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,8 +25,18 @@ public class Program
             Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
         }
 
+        // Load shared configuration from Fenicia.Common.Api/appsettings.json
+        var configBuilder = new ConfigurationManager();
+        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+        if (!File.Exists(commonApiSettingsPath))
+        {
+            throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
+        }
+        configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
+        var configuration = configBuilder;
+
         var builder = WebApplication.CreateBuilder(args);
-        var configuration = builder.Configuration;
+        builder.Configuration.AddConfiguration(configuration);
 
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
 
@@ -39,7 +49,7 @@ public class Program
 
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
 
-            var connString = config.GetConnectionString("EcommerceConnection")?.Replace("{tenant}", tenantId);
+            var connString = config.GetConnectionString("EcommerceSupport")?.Replace("{tenant}", tenantId);
 
             if (string.IsNullOrWhiteSpace(connString))
             {

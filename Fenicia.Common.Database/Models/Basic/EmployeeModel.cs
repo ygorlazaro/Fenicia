@@ -26,9 +26,9 @@ public class EmployeeModel : BaseModel
         get; set;
     }
 
-    [ForeignKey("PositionId")]
+    [ForeignKey(nameof(EmployeeModel.PositionId))]
     public virtual PositionModel Position { get; set; } = null!;
 
-    [ForeignKey("AddressId")]
+    [ForeignKey(nameof(EmployeeModel.AddressId))]
     public virtual AddressModel Address { get; set; } = null!;
 }

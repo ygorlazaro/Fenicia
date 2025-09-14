@@ -4,7 +4,7 @@ using System.Net;
 
 using Bogus;
 
-using Domains.Security.Logic;
+using Fenicia.Auth.Domains.Security;
 
 using Microsoft.Extensions.Logging;
 

@@ -1,4 +1,4 @@
-namespace Fenicia.Common.Api.Middlewares;
+namespace Fenicia.Common.API.Middlewares;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -16,10 +16,7 @@ public class RequestLoggingMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        if (context is null)
-        {
-            throw new ArgumentNullException(nameof(context));
-        }
+        ArgumentNullException.ThrowIfNull(context);
 
         try
         {

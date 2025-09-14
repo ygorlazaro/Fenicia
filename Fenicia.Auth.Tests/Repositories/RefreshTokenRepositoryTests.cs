@@ -2,12 +2,11 @@ namespace Fenicia.Auth.Tests.Repositories;
 
 using Bogus;
 
-using Domains.RefreshToken.Logic;
-
 using Common.Database.Contexts;
 using Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Auth.Domains.RefreshToken;
 
 public class RefreshTokenRepositoryTests
 {

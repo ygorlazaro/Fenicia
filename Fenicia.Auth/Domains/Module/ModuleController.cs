@@ -5,8 +5,6 @@ using System.Net.Mime;
 using Common;
 using Common.Database.Responses;
 
-using Logic;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

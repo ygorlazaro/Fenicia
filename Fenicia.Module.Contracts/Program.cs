@@ -3,8 +3,8 @@ namespace Fenicia.Module.Contracts;
 using System.Text;
 
 using Common;
-using Common.Api.Middlewares;
-using Common.Api.Providers;
+using Common.API.Middlewares;
+using Common.API.Providers;
 using Common.Database.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,7 +39,7 @@ public class Program
 
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
 
-            var connString = config.GetConnectionString("ContractsConnection")?.Replace("{tenant}", tenantId);
+            var connString = config.GetConnectionString("Contracts")?.Replace("{tenant}", tenantId);
 
             if (string.IsNullOrWhiteSpace(connString))
             {
