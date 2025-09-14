@@ -6,7 +6,7 @@ using Bogus;
 
 using Common.Database.Models.Auth;
 
-using Domains.RefreshToken.Logic;
+using Fenicia.Auth.Domains.RefreshToken;
 
 using Microsoft.Extensions.Logging;
 

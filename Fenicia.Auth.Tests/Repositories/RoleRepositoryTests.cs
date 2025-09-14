@@ -3,7 +3,7 @@ namespace Fenicia.Auth.Tests.Repositories;
 using Common.Database.Contexts;
 using Common.Database.Models.Auth;
 
-using Domains.Role.Logic;
+using Fenicia.Auth.Domains.Role;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

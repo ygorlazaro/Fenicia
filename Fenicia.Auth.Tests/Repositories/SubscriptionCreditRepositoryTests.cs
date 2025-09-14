@@ -4,12 +4,11 @@ using Bogus;
 
 using Common.Enums;
 
-using Domains.SubscriptionCredit.Logic;
-
 using Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Auth.Domains.SubscriptionCredit;
 
 public class SubscriptionCreditRepositoryTests
 {

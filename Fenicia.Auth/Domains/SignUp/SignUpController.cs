@@ -5,10 +5,10 @@ using System.Net.Mime;
 using Common.Database.Requests;
 using Common.Database.Responses;
 
+using Fenicia.Auth.Domains.User;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-using User.Logic;
 
 [AllowAnonymous]
 [Route("[controller]")]

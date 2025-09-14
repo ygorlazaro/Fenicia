@@ -4,14 +4,13 @@ using System.Net;
 
 using Common.Database.Responses;
 
-using Domains.Subscription.Logic;
-
 using Fenicia.Common.Database.Models.Auth;
 using Common.Enums;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
+using Fenicia.Auth.Domains.Subscription;
 
 public class SubscriptionServiceTests
 {

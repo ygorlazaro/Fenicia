@@ -5,23 +5,15 @@ using System.Net.Mime;
 using Common;
 using Common.Database.Requests;
 
-using Company.Logic;
-
 using Common.Database.Responses;
-
-using Logic;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-using RefreshToken.Data;
-using RefreshToken.Logic;
-
-using SubscriptionCredit.Logic;
-
-using User.Logic;
-
-using UserRole.Logic;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.SubscriptionCredit;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
 
 [Authorize]
 [Route("[controller]")]

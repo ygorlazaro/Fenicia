@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.Module.Logic;
 using Fenicia.Common.Api;
 
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fenicia.Auth.Domains.User;
 
 using Common.Database.Responses;
+
+using Fenicia.Auth.Domains.Module;
 
 [Authorize]
 [Route("[controller]")]
