@@ -2,11 +2,10 @@ namespace Fenicia.Auth.Tests.Repositories;
 
 using Bogus;
 
-using Contexts;
-
-using Domains.Role.Data;
-using Domains.UserRole.Data;
 using Domains.UserRole.Logic;
+
+using Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -138,7 +137,7 @@ public class UserRoleRepositoryTests
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         const string roleName = "Admin";
-        var userRole = _userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.CompanyId, companyId).RuleFor(ur => ur.Role, _ => _roleGenerator.Clone().RuleFor(r => r.Name, value: "DifferentRole").Generate()).Generate();
+        var userRole = _userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.CompanyId, companyId).RuleFor(ur => ur.Role, _ => _roleGenerator.Clone().RuleFor(r => r.Name, "DifferentRole").Generate()).Generate();
 
         await _context.UserRoles.AddAsync(userRole, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);

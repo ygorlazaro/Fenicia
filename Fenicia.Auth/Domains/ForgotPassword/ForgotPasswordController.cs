@@ -2,7 +2,7 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 
 using System.Net.Mime;
 
-using Data;
+using Common.Database.Requests;
 
 using Logic;
 
@@ -11,11 +11,20 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [AllowAnonymous]
-[Route(template: "[controller]")]
+[Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ForgotPasswordController(ILogger<ForgotPasswordController> logger, IForgotPasswordService forgotPasswordService) : ControllerBase
+public class ForgotPasswordController : ControllerBase
 {
+    private readonly ILogger<ForgotPasswordController> _logger;
+    private readonly IForgotPasswordService _forgotPasswordService;
+
+    public ForgotPasswordController(ILogger<ForgotPasswordController> logger, IForgotPasswordService forgotPasswordService)
+    {
+        _logger = logger;
+        _forgotPasswordService = forgotPasswordService;
+    }
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -23,11 +32,11 @@ public class ForgotPasswordController(ILogger<ForgotPasswordController> logger, 
     {
         try
         {
-            logger.LogInformation(message: "Starting password recovery process for user request");
+            _logger.LogInformation("Starting password recovery process for user request");
 
-            var response = await forgotPasswordService.SaveForgotPasswordAsync(request, cancellationToken);
+            var response = await _forgotPasswordService.SaveForgotPasswordAsync(request, cancellationToken);
 
-            logger.LogInformation(message: "Password recovery process completed with status: {Status}", response.Status);
+            _logger.LogInformation("Password recovery process completed with status: {Status}", response.Status);
 
             return response.Data switch
             {
@@ -37,23 +46,23 @@ public class ForgotPasswordController(ILogger<ForgotPasswordController> logger, 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error during password recovery process");
+            _logger.LogError(ex, "Error during password recovery process");
             throw;
         }
     }
 
-    [HttpPost(template: "reset")]
+    [HttpPost("reset")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ResetPassword([FromBody] ForgotPasswordRequestReset request, CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation(message: "Starting password reset process");
+            _logger.LogInformation("Starting password reset process");
 
-            var response = await forgotPasswordService.ResetPasswordAsync(request, cancellationToken);
+            var response = await _forgotPasswordService.ResetPasswordAsync(request, cancellationToken);
 
-            logger.LogInformation(message: "Password reset process completed with status: {Status}", response.Status);
+            _logger.LogInformation("Password reset process completed with status: {Status}", response.Status);
 
             return response.Data switch
             {
@@ -63,7 +72,7 @@ public class ForgotPasswordController(ILogger<ForgotPasswordController> logger, 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error during password reset process");
+            _logger.LogError(ex, "Error during password reset process");
             throw;
         }
     }

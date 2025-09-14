@@ -10,9 +10,16 @@ public class ErrorResponse
     }
 }
 
-public class ApiResponse<T>(T? data, HttpStatusCode status = HttpStatusCode.OK, string message = "")
+public class ApiResponse<T>
 {
-    public T? Data { get; set; } = data;
-    public HttpStatusCode Status { get; set; } = status;
-    public ErrorResponse Message { get; set; } = new ErrorResponse { Message = message };
+    public ApiResponse(T? data, HttpStatusCode status = HttpStatusCode.OK, string message = "")
+    {
+        Data = data;
+        Status = status;
+        Message = new ErrorResponse { Message = message };
+    }
+
+    public T? Data { get; set; }
+    public HttpStatusCode Status { get; set; }
+    public ErrorResponse Message { get; set; }
 }

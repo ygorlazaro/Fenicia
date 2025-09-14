@@ -4,15 +4,11 @@ using FluentValidation;
 
 public class RefreshTokenRequestValidator : AbstractValidator<RefreshTokenRequest>
 {
-    private readonly ILogger<RefreshTokenRequestValidator> _logger;
-
-    public RefreshTokenRequestValidator(ILogger<RefreshTokenRequestValidator> logger)
+    public RefreshTokenRequestValidator()
     {
-        _logger = logger;
-
-        RuleFor(x => x.AccessToken).NotEmpty().WithMessage(errorMessage: "AccessToken is required.");
-        RuleFor(x => x.RefreshToken).NotEmpty().WithMessage(errorMessage: "RefreshToken is required.");
+        RuleFor(x => x.AccessToken).NotEmpty().WithMessage("AccessToken is required.");
+        RuleFor(x => x.RefreshToken).NotEmpty().WithMessage("RefreshToken is required.");
         RuleFor(x => x.UserId);
-        RuleFor(x => x.CompanyId).NotEmpty().WithMessage(errorMessage: "CompanyId is required.");
+        RuleFor(x => x.CompanyId).NotEmpty().WithMessage("CompanyId is required.");
     }
 }

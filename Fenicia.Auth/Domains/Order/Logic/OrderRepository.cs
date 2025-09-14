@@ -1,29 +1,37 @@
 namespace Fenicia.Auth.Domains.Order.Logic;
 
-using Contexts;
+using Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 
-using Data;
-
-public class OrderRepository(AuthContext authContext, ILogger<OrderRepository> logger) : IOrderRepository
+public class OrderRepository : IOrderRepository
 {
+    private readonly AuthContext _authContext;
+    private readonly ILogger<OrderRepository> _logger;
+
+    public OrderRepository(AuthContext authContext, ILogger<OrderRepository> logger)
+    {
+        _authContext = authContext;
+        _logger = logger;
+    }
+
     public async Task<OrderModel> SaveOrderAsync(OrderModel order, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(order);
 
         try
         {
-            logger.LogInformation(message: "Saving order {OrderId} to database", order.Id);
+            _logger.LogInformation("Saving order {OrderId} to database", order.Id);
 
-            authContext.Orders.Add(order);
-            await authContext.SaveChangesAsync(cancellationToken);
+            _authContext.Orders.Add(order);
+            await _authContext.SaveChangesAsync(cancellationToken);
 
-            logger.LogInformation(message: "Successfully saved order {OrderId}", order.Id);
+            _logger.LogInformation("Successfully saved order {OrderId}", order.Id);
             return order;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Failed to save order {OrderId}", order.Id);
-            throw new InvalidOperationException(message: "Failed to save order to database", ex);
+            _logger.LogError(ex, "Failed to save order {OrderId}", order.Id);
+            throw new InvalidOperationException("Failed to save order to database", ex);
         }
     }
 }

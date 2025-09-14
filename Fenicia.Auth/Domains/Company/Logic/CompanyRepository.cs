@@ -1,22 +1,30 @@
 namespace Fenicia.Auth.Domains.Company.Logic;
 
-using Contexts;
-
-using Data;
+using Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
-public class CompanyRepository(AuthContext authContext, ILogger<CompanyRepository> logger) : ICompanyRepository
+public class CompanyRepository : ICompanyRepository
 {
+    private readonly AuthContext _authContext;
+    private readonly ILogger<CompanyRepository> _logger;
+
+    public CompanyRepository(AuthContext authContext, ILogger<CompanyRepository> logger)
+    {
+        _authContext = authContext;
+        _logger = logger;
+    }
+
     public async Task<bool> CheckCompanyExistsAsync(Guid companyId, CancellationToken cancellationToken)
     {
         try
         {
-            return await authContext.Companies.AnyAsync(c => c.Id == companyId, cancellationToken);
+            return await _authContext.Companies.AnyAsync(c => c.Id == companyId, cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error checking company existence by ID {CompanyId}", companyId);
+            _logger.LogError(ex, "Error checking company existence by ID {CompanyId}", companyId);
             throw;
         }
     }
@@ -25,19 +33,19 @@ public class CompanyRepository(AuthContext authContext, ILogger<CompanyRepositor
     {
         try
         {
-            return await authContext.Companies.AnyAsync(c => c.Cnpj == cnpj, cancellationToken);
+            return await _authContext.Companies.AnyAsync(c => c.Cnpj == cnpj, cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error checking company existence by CNPJ {Cnpj}", cnpj);
+            _logger.LogError(ex, "Error checking company existence by CNPJ {Cnpj}", cnpj);
             throw;
         }
     }
 
     public CompanyModel Add(CompanyModel company)
     {
-        logger.LogInformation(message: "Adding new company with CNPJ {Cnpj}", company.Cnpj);
-        authContext.Companies.Add(company);
+        _logger.LogInformation("Adding new company with CNPJ {Cnpj}", company.Cnpj);
+        _authContext.Companies.Add(company);
         return company;
     }
 
@@ -45,11 +53,11 @@ public class CompanyRepository(AuthContext authContext, ILogger<CompanyRepositor
     {
         try
         {
-            return await authContext.SaveChangesAsync(cancellationToken);
+            return await _authContext.SaveChangesAsync(cancellationToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error saving changes to database");
+            _logger.LogError(ex, "Error saving changes to database");
             throw;
         }
     }
@@ -58,17 +66,17 @@ public class CompanyRepository(AuthContext authContext, ILogger<CompanyRepositor
     {
         try
         {
-            var company = await authContext.Companies.FirstOrDefaultAsync(c => c.Cnpj == cnpj, cancellationToken);
+            var company = await _authContext.Companies.FirstOrDefaultAsync(c => c.Cnpj == cnpj, cancellationToken);
             if (company == null)
             {
-                logger.LogInformation(message: "Company not found for CNPJ {Cnpj}", cnpj);
+                _logger.LogInformation("Company not found for CNPJ {Cnpj}", cnpj);
             }
 
             return company;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error retrieving company by CNPJ {Cnpj}", cnpj);
+            _logger.LogError(ex, "Error retrieving company by CNPJ {Cnpj}", cnpj);
             throw;
         }
     }
@@ -82,7 +90,7 @@ public class CompanyRepository(AuthContext authContext, ILogger<CompanyRepositor
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error retrieving companies for user {UserId}", userId);
+            _logger.LogError(ex, "Error retrieving companies for user {UserId}", userId);
             throw;
         }
     }
@@ -95,21 +103,21 @@ public class CompanyRepository(AuthContext authContext, ILogger<CompanyRepositor
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error counting companies for user {UserId}", userId);
+            _logger.LogError(ex, "Error counting companies for user {UserId}", userId);
             throw;
         }
     }
 
     public CompanyModel PatchAsync(CompanyModel company)
     {
-        logger.LogInformation(message: "Updating company with ID {CompanyId}", company.Id);
-        authContext.Entry(company).State = EntityState.Modified;
+        _logger.LogInformation("Updating company with ID {CompanyId}", company.Id);
+        _authContext.Entry(company).State = EntityState.Modified;
         return company;
     }
 
     private IQueryable<CompanyModel> QueryFromUserId(Guid userId)
     {
-        var query = from company in authContext.Companies join userRoles in authContext.UserRoles on company.Id equals userRoles.CompanyId where userRoles.UserId == userId select company;
+        var query = from company in _authContext.Companies join userRoles in _authContext.UserRoles on company.Id equals userRoles.CompanyId where userRoles.UserId == userId select company;
         return query;
     }
 }

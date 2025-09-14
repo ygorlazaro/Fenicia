@@ -5,17 +5,17 @@ using System.Net;
 using Bogus;
 
 using Common;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
-using Domains.Company.Data;
 using Domains.Company.Logic;
 using Domains.LoginAttempt.Logic;
-using Domains.Role.Data;
 using Domains.Role.Logic;
 using Domains.Security.Logic;
-using Domains.Token.Data;
-using Domains.User.Data;
 using Domains.User.Logic;
 using Domains.UserRole.Logic;
+
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.Extensions.Logging;
 
@@ -58,7 +58,7 @@ public class UserServiceTests
         {
             Email = _faker.Internet.Email(),
             Password = _faker.Internet.Password(),
-            Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            Cnpj = _faker.Random.String2(length: 14, "0123456789")
         };
 
         var user = new UserModel
@@ -95,7 +95,7 @@ public class UserServiceTests
         {
             Email = _faker.Internet.Email(),
             Password = _faker.Internet.Password(),
-            Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            Cnpj = _faker.Random.String2(length: 14, "0123456789")
         };
 
         _userRepositoryMock.Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, _cancellationToken)).ReturnsAsync((UserModel)null!);
@@ -123,7 +123,7 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                Cnpj = _faker.Random.String2(length: 14, "0123456789")
             }
         };
 
@@ -171,7 +171,7 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                Cnpj = _faker.Random.String2(length: 14, "0123456789")
             }
         };
 
@@ -264,14 +264,14 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                Cnpj = _faker.Random.String2(length: 14, "0123456789")
             }
         };
 
         _userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, _cancellationToken)).ReturnsAsync(value: false);
         _companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, _cancellationToken)).ReturnsAsync(value: false);
         _roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(_cancellationToken)).ReturnsAsync((RoleModel)null!);
-        _securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(new ApiResponse<string>(data: "hashedPassword"));
+        _securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(new ApiResponse<string>("hashedPassword"));
 
         // Act
         var result = await _sut.CreateNewUserAsync(request, _cancellationToken);

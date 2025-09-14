@@ -17,7 +17,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
 
-        var key = Encoding.ASCII.GetBytes(configuration[key: "Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
 
         builder.Services.AddAuthentication(x =>
         {

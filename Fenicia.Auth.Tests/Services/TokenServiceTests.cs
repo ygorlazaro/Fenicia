@@ -4,10 +4,10 @@ using System.IdentityModel.Tokens.Jwt;
 
 using Bogus;
 
+using Common.Database.Responses;
 using Common.Enums;
 
 using Domains.Token.Logic;
-using Domains.User.Data;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -102,7 +102,7 @@ public class TokenServiceTests
         var token = handler.ReadJwtToken(result.Data);
 
         var moduleClaims = token.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
-        Assert.That(moduleClaims, Does.Contain(expected: "erp"));
+        Assert.That(moduleClaims, Does.Contain("erp"));
         Assert.That(moduleClaims, Does.Contain(ModuleType.Accounting.ToString()));
     }
 

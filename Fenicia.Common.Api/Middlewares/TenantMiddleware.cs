@@ -4,15 +4,20 @@ using Microsoft.AspNetCore.Http;
 
 using Providers;
 
-public class TenantMiddleware(RequestDelegate next)
+public class TenantMiddleware
 {
-    private readonly RequestDelegate _next = next;
+    private readonly RequestDelegate _next;
+
+    public TenantMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
 
     public async Task Invoke(HttpContext context, TenantProvider tenantProvider)
     {
         if (context.User.Identity?.IsAuthenticated == true)
         {
-            var tenantId = context.User.FindFirst(type: "companyId")?.Value;
+            var tenantId = context.User.FindFirst("companyId")?.Value;
             if (!string.IsNullOrWhiteSpace(tenantId))
             {
                 tenantProvider.SetTenant(tenantId);

@@ -3,10 +3,11 @@ namespace Fenicia.Auth.Domains.Token;
 using System.Net.Mime;
 
 using Common;
+using Common.Database.Requests;
 
 using Company.Logic;
 
-using Data;
+using Common.Database.Responses;
 
 using Logic;
 
@@ -18,17 +19,35 @@ using RefreshToken.Logic;
 
 using SubscriptionCredit.Logic;
 
-using User.Data;
 using User.Logic;
 
 using UserRole.Logic;
 
 [Authorize]
-[Route(template: "[controller]")]
+[Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class TokenController(ILogger<TokenController> logger, ITokenService tokenService, IRefreshTokenService refreshTokenService, IUserService userService, IUserRoleService userRoleService, ICompanyService companyService, ISubscriptionCreditService subscriptionCreditService) : ControllerBase
+public class TokenController : ControllerBase
 {
+    private readonly ILogger<TokenController> _logger;
+    private readonly ITokenService _tokenService;
+    private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IUserService _userService;
+    private readonly IUserRoleService _userRoleService;
+    private readonly ICompanyService _companyService;
+    private readonly ISubscriptionCreditService _subscriptionCreditService;
+
+    public TokenController(ILogger<TokenController> logger, ITokenService tokenService, IRefreshTokenService refreshTokenService, IUserService userService, IUserRoleService userRoleService, ICompanyService companyService, ISubscriptionCreditService subscriptionCreditService)
+    {
+        _logger = logger;
+        _tokenService = tokenService;
+        _refreshTokenService = refreshTokenService;
+        _userService = userService;
+        _userRoleService = userRoleService;
+        _companyService = companyService;
+        _subscriptionCreditService = subscriptionCreditService;
+    }
+
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
@@ -39,21 +58,21 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
     {
         try
         {
-            logger.LogInformation(message: "Starting token generation for user {Email}", request.Email);
+            _logger.LogInformation("Starting token generation for user {Email}", request.Email);
 
-            var company = await companyService.GetByCnpjAsync(request.Cnpj, cancellationToken);
+            var company = await _companyService.GetByCnpjAsync(request.Cnpj, cancellationToken);
 
             if (company.Data is null)
             {
-                logger.LogWarning(message: "Company not found for CNPJ {Cnpj}", request.Cnpj);
+                _logger.LogWarning("Company not found for CNPJ {Cnpj}", request.Cnpj);
                 return StatusCode((int)company.Status, company.Message);
             }
 
-            var userResponse = await userService.GetForLoginAsync(request, cancellationToken);
+            var userResponse = await _userService.GetForLoginAsync(request, cancellationToken);
 
             if (userResponse.Data is null)
             {
-                logger.LogWarning(message: "User not found or invalid credentials for {Email}", request.Email);
+                _logger.LogWarning("User not found or invalid credentials for {Email}", request.Email);
                 return StatusCode((int)userResponse.Status, userResponse.Message);
             }
 
@@ -63,37 +82,37 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error generating token for user {Email}", request.Email);
+            _logger.LogError(ex, "Error generating token for user {Email}", request.Email);
             throw;
         }
     }
 
     [HttpPost]
     [AllowAnonymous]
-    [Route(template: "refresh")]
+    [Route("refresh")]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TokenResponse>> Refresh(RefreshTokenRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation(message: "Starting token refresh for user {UserId}", request.UserId);
+            _logger.LogInformation("Starting token refresh for user {UserId}", request.UserId);
 
-            var isValidToken = await refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
+            var isValidToken = await _refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
 
             if (!isValidToken.Data)
             {
-                logger.LogWarning(message: "Invalid refresh token for user {UserId}", request.UserId);
-                return BadRequest(error: "Invalid client request");
+                _logger.LogWarning("Invalid refresh token for user {UserId}", request.UserId);
+                return BadRequest("Invalid client request");
             }
 
-            await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, cancellationToken);
+            await _refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, cancellationToken);
 
-            var userResponse = await userService.GetUserForRefreshAsync(request.UserId, cancellationToken);
+            var userResponse = await _userService.GetUserForRefreshAsync(request.UserId, cancellationToken);
 
             if (userResponse.Data is null)
             {
-                logger.LogWarning(message: "User not found for refresh token {UserId}", request.UserId);
+                _logger.LogWarning("User not found for refresh token {UserId}", request.UserId);
                 return BadRequest(TextConstants.PermissionDenied);
             }
 
@@ -103,7 +122,7 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error refreshing token for user {UserId}", request.UserId);
+            _logger.LogError(ex, "Error refreshing token for user {UserId}", request.UserId);
             throw;
         }
     }
@@ -112,47 +131,47 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
     {
         try
         {
-            logger.LogInformation(message: "Populating token for user {Email}", user.Email);
+            _logger.LogInformation("Populating token for user {Email}", user.Email);
 
-            var roles = await userRoleService.GetRolesByUserAsync(user.Id, cancellationToken);
+            var roles = await _userRoleService.GetRolesByUserAsync(user.Id, cancellationToken);
 
             if (roles.Data is null)
             {
-                logger.LogWarning(message: "Unable to retrieve roles for user {Email}", user.Email);
+                _logger.LogWarning("Unable to retrieve roles for user {Email}", user.Email);
                 return StatusCode((int)roles.Status, roles.Message);
             }
 
             if (roles.Data.Length == 0)
             {
-                logger.LogWarning(message: "User {Email} has no assigned roles", user.Email);
+                _logger.LogWarning("User {Email} has no assigned roles", user.Email);
                 return BadRequest(TextConstants.UserWithoutRoles);
             }
 
-            var modules = await subscriptionCreditService.GetActiveModulesTypesAsync(companyId, cancellationToken);
+            var modules = await _subscriptionCreditService.GetActiveModulesTypesAsync(companyId, cancellationToken);
 
             if (modules.Data is null)
             {
-                logger.LogWarning(message: "Unable to retrieve active modules for company {CompanyId}", companyId);
+                _logger.LogWarning("Unable to retrieve active modules for company {CompanyId}", companyId);
                 return StatusCode((int)modules.Status, modules.Message);
             }
 
-            var token = tokenService.GenerateToken(user, roles.Data, companyId, modules.Data);
+            var token = _tokenService.GenerateToken(user, roles.Data, companyId, modules.Data);
 
             if (token.Data is null)
             {
-                logger.LogWarning(message: "Failed to generate token for user {Email}", user.Email);
+                _logger.LogWarning("Failed to generate token for user {Email}", user.Email);
                 return StatusCode((int)token.Status, token.Message);
             }
 
-            var refreshToken = await refreshTokenService.GenerateRefreshTokenAsync(user.Id, cancellationToken);
+            var refreshToken = await _refreshTokenService.GenerateRefreshTokenAsync(user.Id, cancellationToken);
 
             if (refreshToken.Data is null)
             {
-                logger.LogWarning(message: "Failed to generate refresh token for user {Email}", user.Email);
+                _logger.LogWarning("Failed to generate refresh token for user {Email}", user.Email);
                 return StatusCode((int)refreshToken.Status, refreshToken.Message);
             }
 
-            logger.LogInformation(message: "Successfully generated tokens for user {Email}", user.Email);
+            _logger.LogInformation("Successfully generated tokens for user {Email}", user.Email);
 
             return Ok(new TokenResponse
             {
@@ -168,7 +187,7 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, message: "Error populating token for user {Email}", user.Email);
+            _logger.LogError(ex, "Error populating token for user {Email}", user.Email);
             throw;
         }
     }

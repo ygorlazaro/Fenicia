@@ -3,11 +3,12 @@ namespace Fenicia.Auth.Domains.User.Logic;
 using System.Net;
 
 using Common;
+using Common.Database.Requests;
 
-using Company.Data;
 using Company.Logic;
 
-using Data;
+using Fenicia.Common.Database.Models.Auth;
+using Common.Database.Responses;
 
 using LoginAttempt.Logic;
 
@@ -15,46 +16,62 @@ using Role.Logic;
 
 using Security.Logic;
 
-using Token.Data;
-
-using UserRole.Data;
 using UserRole.Logic;
 
-public class UserService(ILogger<UserService> logger, IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository, ISecurityService securityService, ILoginAttemptService loginAttemptService) : IUserService
+public class UserService : IUserService
 {
+    private readonly ILogger<UserService> _logger;
+    private readonly IUserRepository _userRepository;
+    private readonly IRoleRepository _roleRepository;
+    private readonly IUserRoleRepository _userRoleRepository;
+    private readonly ICompanyRepository _companyRepository;
+    private readonly ISecurityService _securityService;
+    private readonly ILoginAttemptService _loginAttemptService;
+
+    public UserService(ILogger<UserService> logger, IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository, ISecurityService securityService, ILoginAttemptService loginAttemptService)
+    {
+        _logger = logger;
+        _userRepository = userRepository;
+        _roleRepository = roleRepository;
+        _userRoleRepository = userRoleRepository;
+        _companyRepository = companyRepository;
+        _securityService = securityService;
+        _loginAttemptService = loginAttemptService;
+    }
+
     public async Task<ApiResponse<UserResponse>> GetForLoginAsync(TokenRequest request, CancellationToken cancellationToken)
     {
-        logger.LogInformation(message: "Starting login process for user {Email}", request.Email);
+        _logger.LogInformation("Starting login process for user {Email}", request.Email);
 
-        var attempts = await loginAttemptService.GetAttemptsAsync(request.Email, cancellationToken);
+        var attempts = await _loginAttemptService.GetAttemptsAsync(request.Email, cancellationToken);
 
         if (attempts >= 5)
         {
-            logger.LogWarning(message: "User blocked temporarily - {email}", request.Email);
-            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.TooManyRequests, message: "Muitas tentativas. Tente novamente mais tarde.");
+            _logger.LogWarning("User blocked temporarily - {email}", request.Email);
+            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.TooManyRequests, "Muitas tentativas. Tente novamente mais tarde.");
         }
 
-        var user = await userRepository.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, cancellationToken);
+        var user = await _userRepository.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, cancellationToken);
 
         if (user is null)
         {
-            logger.LogWarning(message: "Invalid login - {email}", request.Email);
-            await loginAttemptService.IncrementAttemptsAsync(request.Email);
+            _logger.LogWarning("Invalid login - {email}", request.Email);
+            await _loginAttemptService.IncrementAttemptsAsync(request.Email);
             await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, val2: 5)), cancellationToken);
             return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.InvalidUsernameOrPassword);
         }
 
-        var isValidPassword = securityService.VerifyPassword(request.Password, user.Password);
+        var isValidPassword = _securityService.VerifyPassword(request.Password, user.Password);
 
         if (isValidPassword.Data)
         {
-            await loginAttemptService.ResetAttemptsAsync(request.Email, cancellationToken);
+            await _loginAttemptService.ResetAttemptsAsync(request.Email, cancellationToken);
             var response = UserResponse.Convert(user);
             return new ApiResponse<UserResponse>(response);
         }
 
-        logger.LogWarning(message: "Invalid password - {email}", request.Email);
-        await loginAttemptService.IncrementAttemptsAsync(request.Email);
+        _logger.LogWarning("Invalid password - {email}", request.Email);
+        await _loginAttemptService.IncrementAttemptsAsync(request.Email);
         await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, val2: 5)), cancellationToken);
 
         return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.InvalidUsernameOrPassword);
@@ -62,25 +79,25 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
 
     public async Task<ApiResponse<UserResponse>> CreateNewUserAsync(UserRequest request, CancellationToken cancellationToken)
     {
-        logger.LogInformation(message: "Starting user creation process for {Email}", request.Email);
-        var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email, cancellationToken);
-        var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.Cnpj, cancellationToken);
+        _logger.LogInformation("Starting user creation process for {Email}", request.Email);
+        var isExistingUser = await _userRepository.CheckUserExistsAsync(request.Email, cancellationToken);
+        var isExistingCompany = await _companyRepository.CheckCompanyExistsAsync(request.Company.Cnpj, cancellationToken);
 
         if (isExistingUser)
         {
-            logger.LogInformation(message: "User already exists - {email}", request.Email);
+            _logger.LogInformation("User already exists - {email}", request.Email);
 
             return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.EmailExists);
         }
 
         if (isExistingCompany)
         {
-            logger.LogInformation(message: "Company already exists - {cnpj}", request.Company.Cnpj);
+            _logger.LogInformation("Company already exists - {cnpj}", request.Company.Cnpj);
 
             return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.CompanyExists);
         }
 
-        var hashedPassword = securityService.HashPassword(request.Password).Data;
+        var hashedPassword = _securityService.HashPassword(request.Password).Data;
 
         var userRequest = new UserModel
         {
@@ -89,13 +106,13 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
             Name = request.Name
         };
 
-        var user = userRepository.Add(userRequest);
-        var company = companyRepository.Add(new CompanyModel { Name = request.Company.Name, Cnpj = request.Company.Cnpj });
-        var adminRole = await roleRepository.GetAdminRoleAsync(cancellationToken);
+        var user = _userRepository.Add(userRequest);
+        var company = _companyRepository.Add(new CompanyModel { Name = request.Company.Name, Cnpj = request.Company.Cnpj });
+        var adminRole = await _roleRepository.GetAdminRoleAsync(cancellationToken);
 
         if (adminRole is null)
         {
-            logger.LogCritical(message: "Missing admin role. Please check database.");
+            _logger.LogCritical("Missing admin role. Please check database.");
 
             return new ApiResponse<UserResponse>(data: null, HttpStatusCode.InternalServerError, TextConstants.MissingAdminRole);
         }
@@ -110,7 +127,7 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
             }
         ];
 
-        await userRepository.SaveAsync(cancellationToken);
+        await _userRepository.SaveAsync(cancellationToken);
 
         var response = UserResponse.Convert(user);
 
@@ -119,16 +136,16 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
 
     public async Task<ApiResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
-        logger.LogInformation(message: "Verifying user {UserId} existence in company {CompanyId}", userId, companyId);
-        var response = await userRoleRepository.ExistsInCompanyAsync(userId, companyId, cancellationToken);
+        _logger.LogInformation("Verifying user {UserId} existence in company {CompanyId}", userId, companyId);
+        var response = await _userRoleRepository.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
         return new ApiResponse<bool>(response);
     }
 
     public async Task<ApiResponse<UserResponse>> GetUserForRefreshAsync(Guid userId, CancellationToken cancellationToken)
     {
-        logger.LogInformation(message: "Retrieving user {UserId} information for token refresh", userId);
-        var user = await userRepository.GetUserForRefreshTokenAsync(userId, cancellationToken);
+        _logger.LogInformation("Retrieving user {UserId} information for token refresh", userId);
+        var user = await _userRepository.GetUserForRefreshTokenAsync(userId, cancellationToken);
 
         if (user is null)
         {
@@ -142,9 +159,9 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
 
     public async Task<ApiResponse<UserResponse>> GetUserIdFromEmailAsync(string email, CancellationToken cancellationToken)
     {
-        logger.LogInformation(message: "Retrieving user ID for email {Email}", email);
+        _logger.LogInformation("Retrieving user ID for email {Email}", email);
 
-        var userId = await userRepository.GetUserIdFromEmailAsync(email, cancellationToken);
+        var userId = await _userRepository.GetUserIdFromEmailAsync(email, cancellationToken);
 
         if (userId is null)
         {
@@ -161,19 +178,19 @@ public class UserService(ILogger<UserService> logger, IUserRepository userReposi
 
     public async Task<ApiResponse<UserResponse>> ChangePasswordAsync(Guid userId, string password, CancellationToken cancellationToken)
     {
-        logger.LogInformation(message: "Initiating password change for user {UserId}", userId);
-        var user = await userRepository.GetByIdAsync(userId, cancellationToken);
+        _logger.LogInformation("Initiating password change for user {UserId}", userId);
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
         if (user is null)
         {
-            logger.LogInformation(message: "User not found {userId}", userId);
+            _logger.LogInformation("User not found {userId}", userId);
 
             return new ApiResponse<UserResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
         }
 
-        var hashedPassword = securityService.HashPassword(password).Data;
+        var hashedPassword = _securityService.HashPassword(password).Data;
         user.Password = hashedPassword!;
-        await userRepository.SaveAsync(cancellationToken);
+        await _userRepository.SaveAsync(cancellationToken);
 
         var mapped = UserResponse.Convert(user);
 

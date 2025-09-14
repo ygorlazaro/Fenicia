@@ -2,7 +2,8 @@ namespace Fenicia.Auth.Domains.Company.Logic;
 
 using Common;
 
-using Data;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
 public interface ICompanyService
 {

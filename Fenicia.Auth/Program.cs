@@ -6,10 +6,10 @@ using System.Text.Json.Serialization;
 using AspNetCoreRateLimit;
 
 using Common;
+using Common.Api;
 using Common.Api.Middlewares;
+using Common.Database.Contexts;
 using Common.Externals.Email;
-
-using Contexts;
 
 using Domains.Company.Logic;
 using Domains.DataCache;
@@ -45,16 +45,21 @@ public static class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        var configuration = builder.Configuration;
+        var assemblyLocation = typeof(AppSettingsReader).Assembly.Location;
+        var directoryName = Path.GetDirectoryName(assemblyLocation);
 
-        Program.BuildLogging(builder);
-        Program.BuildRateLimiting(builder, configuration);
-        Program.BuildDependencyInjection(builder);
-        Program.BuildDatabaseConnection(configuration, builder);
-        Program.BuildCors(builder);
-        Program.BuildControllers(configuration, builder);
+        ArgumentNullException.ThrowIfNull(directoryName);
 
-        Program.StartApplication(builder);
+        var configuration = AppSettingsReader.GetConfiguration();
+
+        BuildLogging(builder);
+        BuildRateLimiting(builder, configuration);
+        BuildDependencyInjection(builder);
+        BuildDatabaseConnection(configuration, builder);
+        BuildCors(builder);
+        BuildControllers(configuration, builder);
+
+        StartApplication(builder);
     }
 
     private static void StartApplication(WebApplicationBuilder builder)
@@ -109,7 +114,7 @@ public static class Program
 
     private static void BuildControllers(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
-        var key = Encoding.ASCII.GetBytes(configuration[key: "Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
         builder.Services.AddAuthentication(x =>
         {
             x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -163,24 +168,24 @@ public static class Program
     {
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy(name: "RestrictedCors", policy => { policy.WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
+            options.AddPolicy("RestrictedCors", policy => { policy.WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
 
-            options.AddPolicy(name: "DevCors", policy => { policy.WithOrigins("http://localhost:5144", "http://localhost:3000", "http://127.0.0.1:5144").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
+            options.AddPolicy("DevCors", policy => { policy.WithOrigins("http://localhost:5144", "http://localhost:3000", "http://127.0.0.1:5144").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
         });
     }
 
     private static void BuildDatabaseConnection(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
-        var connectionString = configuration.GetConnectionString(name: "AuthConnection");
+        var connectionString = configuration.GetConnectionString("AuthConnection");
 
-        builder.Services.AddDbContextPool<AuthContext>(x => { x.UseNpgsql(connectionString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention(); });
+        builder.Services.AddDbContextPool<AuthContext>(x => x.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention());
     }
 
     private static void BuildDependencyInjection(WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
-            var config = ConfigurationOptions.Parse(configuration: "localhost", ignoreUnknown: true);
+            var config = ConfigurationOptions.Parse("localhost", ignoreUnknown: true);
             config.ConnectRetry = 3;
             config.ConnectTimeout = 5000;
             return ConnectionMultiplexer.Connect(config);
@@ -200,6 +205,7 @@ public static class Program
         builder.Services.AddTransient<ITokenService, TokenService>();
         builder.Services.AddTransient<IUserRoleService, UserRoleService>();
         builder.Services.AddTransient<IUserService, UserService>();
+        builder.Services.AddTransient<IMigrationService, MigrationService>();
 
         builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
         builder.Services.AddTransient<IForgotPasswordRepository, ForgotPasswordRepository>();
@@ -221,8 +227,8 @@ public static class Program
     private static void BuildRateLimiting(WebApplicationBuilder builder, ConfigurationManager configuration)
     {
         builder.Services.AddMemoryCache();
-        builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection(key: "IpRateLimiting"));
-        builder.Services.Configure<IpRateLimitPolicies>(configuration.GetSection(key: "IpRateLimitPolicies"));
+        builder.Services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
+        builder.Services.Configure<IpRateLimitPolicies>(configuration.GetSection("IpRateLimitPolicies"));
         builder.Services.AddInMemoryRateLimiting();
         builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
     }
@@ -233,7 +239,7 @@ public static class Program
         {
             config.ReadFrom.Configuration(context.Configuration);
 
-            var seqUrl = context.Configuration[key: "Seq:Url"];
+            var seqUrl = context.Configuration["Seq:Url"];
             if (!string.IsNullOrWhiteSpace(seqUrl))
             {
                 config.Enrich.FromLogContext().Enrich.WithEnvironmentUserName().WriteTo.Console().WriteTo.Seq(seqUrl);

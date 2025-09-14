@@ -6,9 +6,9 @@ using Common;
 using Common.Api.Middlewares;
 using Common.Api.Providers;
 
-using Contexts;
-
 using Domains.State;
+
+using Common.Database.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -20,18 +20,18 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var tenantArg = args.FirstOrDefault(x => x.StartsWith(value: "--tenant="));
+        var tenantArg = args.FirstOrDefault(x => x.StartsWith("--tenant="));
         if (tenantArg is not null)
         {
-            var tenantId = tenantArg.Split(separator: "=")[1];
+            var tenantId = tenantArg.Split("=")[1];
 
-            Environment.SetEnvironmentVariable(variable: "TENANT_ID", tenantId);
+            Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
         }
 
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
 
-        var key = Encoding.ASCII.GetBytes(configuration[key: "Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
 
         builder.Services.AddScoped<TenantProvider>();
         builder.Services.AddTransient<IStateService, StateService>();
@@ -42,16 +42,16 @@ public class Program
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
 
-            var tenantId = Environment.GetEnvironmentVariable(variable: "TENANT_ID") ?? tenantProvider.TenantId;
+            var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
 
-            var connString = config.GetConnectionString(name: "BasicConnection")?.Replace(oldValue: "{tenant}", tenantId);
+            var connString = config.GetConnectionString("BasicConnection")?.Replace("{tenant}", tenantId);
 
             if (string.IsNullOrWhiteSpace(connString))
             {
-                throw new Exception(message: "Connection string inválida");
+                throw new Exception("Connection string inválida");
             }
 
-            options.UseNpgsql(connString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
+            options.UseNpgsql(connString, b => b.MigrationsAssembly("Fenicia.Module.Basic")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });
 
         builder.Services.AddAuthentication(x =>
@@ -96,7 +96,7 @@ public class Program
         app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
 
-        app.UseWhen(context => context.Request.Path.StartsWithSegments(other: "/basic"), appBuilder => appBuilder.UseModuleRequirement(moduleName: "basic"));
+        app.UseWhen(context => context.Request.Path.StartsWithSegments("/basic"), appBuilder => appBuilder.UseModuleRequirement("basic"));
 
         app.MapControllers();
 

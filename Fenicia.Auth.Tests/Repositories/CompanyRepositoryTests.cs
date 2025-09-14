@@ -2,11 +2,10 @@ namespace Fenicia.Auth.Tests.Repositories;
 
 using Bogus;
 
-using Contexts;
-
-using Domains.Company.Data;
 using Domains.Company.Logic;
-using Domains.UserRole.Data;
+
+using Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -48,7 +47,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            Cnpj = _faker.Random.String2(length: 14, "0123456789")
         };
         await _context.Companies.AddAsync(company, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -78,7 +77,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            Cnpj = _faker.Random.String2(length: 14, "0123456789")
         };
         await _context.Companies.AddAsync(company, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -98,7 +97,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            Cnpj = _faker.Random.String2(length: 14, "0123456789")
         };
 
         // Act
@@ -123,7 +122,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            Cnpj = _faker.Random.String2(length: 14, "0123456789")
         };
         await _context.Companies.AddAsync(company, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
@@ -154,7 +153,7 @@ public class CompanyRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                Cnpj = _faker.Random.String2(length: 14, "0123456789")
             };
             companies.Add(company);
 
@@ -198,7 +197,7 @@ public class CompanyRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Name = _faker.Company.CompanyName(),
-                Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+                Cnpj = _faker.Random.String2(length: 14, "0123456789")
             };
             companies.Add(company);
 
@@ -230,7 +229,7 @@ public class CompanyRepositoryTests
         {
             Id = Guid.NewGuid(),
             Name = _faker.Company.CompanyName(),
-            Cnpj = _faker.Random.String2(length: 14, chars: "0123456789")
+            Cnpj = _faker.Random.String2(length: 14, "0123456789")
         };
         await _context.Companies.AddAsync(company, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
