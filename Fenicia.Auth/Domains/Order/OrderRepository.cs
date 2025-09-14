@@ -21,17 +21,17 @@ public class OrderRepository : IOrderRepository
 
         try
         {
-            _logger.LogInformation("Saving order {OrderId} to database", order.Id);
+            _logger.LogInformation("Saving order {OrderID} to database", order.Id);
 
             _authContext.Orders.Add(order);
             await _authContext.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation("Successfully saved order {OrderId}", order.Id);
+            _logger.LogInformation("Successfully saved order {OrderID}", order.Id);
             return order;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to save order {OrderId}", order.Id);
+            _logger.LogError(ex, "Failed to save order {OrderID}", order.Id);
             throw new InvalidOperationException("Failed to save order to database", ex);
         }
     }

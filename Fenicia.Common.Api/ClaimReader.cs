@@ -1,4 +1,4 @@
-namespace Fenicia.Common.Api;
+namespace Fenicia.Common.API;
 
 using System.Security.Claims;
 

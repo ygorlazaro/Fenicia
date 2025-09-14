@@ -39,7 +39,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CheckCompanyExistsAsync_ById_ReturnsTrue_WhenExists()
+    public async Task CheckCompanyExistsAsync_ByID_ReturnsTrue_WhenExists()
     {
         // Arrange
         var company = new CompanyModel
@@ -59,7 +59,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CheckCompanyExistsAsync_ById_ReturnsFalse_WhenNotExists()
+    public async Task CheckCompanyExistsAsync_ByID_ReturnsFalse_WhenNotExists()
     {
         // Act
         var result = await _sut.CheckCompanyExistsAsync(Guid.NewGuid(), _cancellationToken);
@@ -139,7 +139,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task GetByUserIdAsync_ReturnsCompanies_WithPagination()
+    public async Task GetByUserIDAsync_ReturnsCompanies_WithPagination()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -182,7 +182,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CountByUserIdAsync_ReturnsCorrectCount()
+    public async Task CountByUserIDAsync_ReturnsCorrectCount()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -247,7 +247,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task GetByUserIdAsync_ReturnsEmptyList_WhenUserHasNoCompanies()
+    public async Task GetByUserIDAsync_ReturnsEmptyList_WhenUserHasNoCompanies()
     {
         // Arrange
         var userId = Guid.NewGuid();

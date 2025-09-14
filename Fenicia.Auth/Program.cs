@@ -6,8 +6,8 @@ using System.Text.Json.Serialization;
 using AspNetCoreRateLimit;
 
 using Common;
-using Common.Api;
-using Common.Api.Middlewares;
+using Common.API;
+using Common.API.Middlewares;
 using Common.Database.Contexts;
 using Common.Externals.Email;
 
@@ -45,13 +45,18 @@ public static class Program
 {
     public static void Main(string[] args)
     {
+        // Build configuration from Fenicia.Common.Api/appsettings.json
+        var configBuilder = new ConfigurationManager();
+        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+        if (!File.Exists(commonApiSettingsPath))
+        {
+            throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
+        }
+        configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
+        var configuration = configBuilder;
+
         var builder = WebApplication.CreateBuilder(args);
-        var assemblyLocation = typeof(AppSettingsReader).Assembly.Location;
-        var directoryName = Path.GetDirectoryName(assemblyLocation);
-
-        ArgumentNullException.ThrowIfNull(directoryName);
-
-        var configuration = AppSettingsReader.GetConfiguration();
+        builder.Configuration.AddConfiguration(configuration);
 
         Program.BuildLogging(builder);
         Program.BuildRateLimiting(builder, configuration);
@@ -169,7 +174,7 @@ public static class Program
 
     private static void BuildDatabaseConnection(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
-        var connectionString = configuration.GetConnectionString("AuthConnection");
+        var connectionString = configuration.GetConnectionString("Auth");
 
         builder.Services.AddDbContextPool<AuthContext>(x => x.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention());
     }

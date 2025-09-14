@@ -48,18 +48,18 @@ public class SubscriptionCreditRepositoryTests
     public async Task GetValidModulesTypesAsync_ReturnsValidModules()
     {
         // Arrange
-        var subscriptionIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
+        var subscriptionIDs = new[] { Guid.NewGuid(), Guid.NewGuid() };
         var now = DateTime.UtcNow;
 
         var modules = _moduleGenerator.Generate(count: 3);
-        var credits = subscriptionIds.Select(subscriptionId => _creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscriptionId).RuleFor(c => c.ModuleId, f => f.PickRandom(modules).Id).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate()).ToList();
+        var credits = subscriptionIDs.Select(subscriptionId => _creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscriptionId).RuleFor(c => c.ModuleId, f => f.PickRandom(modules).Id).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate()).ToList();
 
         await _context.Modules.AddRangeAsync(modules, _cancellationToken);
         await _context.SubscriptionCredits.AddRangeAsync(credits, _cancellationToken);
         await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await _sut.GetValidModulesTypesAsync([.. subscriptionIds], _cancellationToken);
+        var result = await _sut.GetValidModulesTypesAsync([.. subscriptionIDs], _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Empty);

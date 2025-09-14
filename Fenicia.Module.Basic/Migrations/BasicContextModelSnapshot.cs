@@ -17,14 +17,14 @@ namespace Fenicia.Module.Basic.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.AddressModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -55,7 +55,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("character varying(10)")
                         .HasColumnName("number");
 
-                    b.Property<Guid>("StateId")
+                    b.Property<Guid>("StateID")
                         .HasColumnType("uuid")
                         .HasColumnName("state_id");
 
@@ -75,10 +75,10 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("character varying(9)")
                         .HasColumnName("zip_code");
 
-                    b.HasKey("Id")
+                    b.HasKey("ID")
                         .HasName("pk_addresses");
 
-                    b.HasIndex("StateId")
+                    b.HasIndex("StateID")
                         .HasDatabaseName("ix_addresses_state_id");
 
                     b.ToTable("addresses", (string)null);
@@ -86,16 +86,16 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.CustomerModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("AddressId")
+                    b.Property<Guid>("AddressID")
                         .HasColumnType("uuid")
                         .HasColumnName("address_id");
 
-                    b.Property<string>("Cpf")
+                    b.Property<string>("CPF")
                         .HasMaxLength(14)
                         .HasColumnType("character varying(14)")
                         .HasColumnName("cpf");
@@ -118,10 +118,10 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("Id")
+                    b.HasKey("ID")
                         .HasName("pk_customers");
 
-                    b.HasIndex("AddressId")
+                    b.HasIndex("AddressID")
                         .HasDatabaseName("ix_customers_address_id");
 
                     b.ToTable("customers", (string)null);
@@ -129,16 +129,16 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.EmployeeModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("AddressId")
+                    b.Property<Guid>("AddressID")
                         .HasColumnType("uuid")
                         .HasColumnName("address_id");
 
-                    b.Property<string>("Cpf")
+                    b.Property<string>("CPF")
                         .HasMaxLength(14)
                         .HasColumnType("character varying(14)")
                         .HasColumnName("cpf");
@@ -157,7 +157,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
 
-                    b.Property<Guid>("PositionId")
+                    b.Property<Guid>("PositionID")
                         .HasColumnType("uuid")
                         .HasColumnName("position_id");
 
@@ -165,13 +165,13 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("Id")
+                    b.HasKey("ID")
                         .HasName("pk_employees");
 
-                    b.HasIndex("AddressId")
+                    b.HasIndex("AddressID")
                         .HasDatabaseName("ix_employees_address_id");
 
-                    b.HasIndex("PositionId")
+                    b.HasIndex("PositionID")
                         .HasDatabaseName("ix_employees_position_id");
 
                     b.ToTable("employees", (string)null);
@@ -179,7 +179,7 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.PositionModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -202,7 +202,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("Id")
+                    b.HasKey("ID")
                         .HasName("pk_positions");
 
                     b.ToTable("positions", (string)null);
@@ -210,7 +210,7 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.ProductCategoryModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -233,7 +233,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("Id")
+                    b.HasKey("ID")
                         .HasName("pk_product_categories");
 
                     b.ToTable("product_categories", (string)null);
@@ -241,12 +241,12 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.ProductModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("CategoryID")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
@@ -280,10 +280,10 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("Id")
+                    b.HasKey("ID")
                         .HasName("pk_products");
 
-                    b.HasIndex("CategoryId")
+                    b.HasIndex("CategoryID")
                         .HasDatabaseName("ix_products_category_id");
 
                     b.ToTable("products", (string)null);
@@ -291,7 +291,7 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.StateModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -310,7 +310,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("name");
 
-                    b.Property<string>("Uf")
+                    b.Property<string>("UF")
                         .IsRequired()
                         .HasMaxLength(2)
                         .HasColumnType("character varying(2)")
@@ -320,7 +320,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("Id")
+                    b.HasKey("ID")
                         .HasName("pk_states");
 
                     b.ToTable("states", (string)null);
@@ -328,7 +328,7 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.StockMovementModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -349,7 +349,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("price");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<Guid>("ProductID")
                         .HasColumnType("uuid")
                         .HasColumnName("product_id");
 
@@ -361,10 +361,10 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("Id")
+                    b.HasKey("ID")
                         .HasName("pk_stock_movements");
 
-                    b.HasIndex("ProductId")
+                    b.HasIndex("ProductID")
                         .HasDatabaseName("ix_stock_movements_product_id");
 
                     b.ToTable("stock_movements", (string)null);
@@ -372,16 +372,16 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.SupplierModel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("AddressId")
+                    b.Property<Guid>("AddressID")
                         .HasColumnType("uuid")
                         .HasColumnName("address_id");
 
-                    b.Property<string>("Cpf")
+                    b.Property<string>("CPF")
                         .HasMaxLength(14)
                         .HasColumnType("character varying(14)")
                         .HasColumnName("cpf");
@@ -404,10 +404,10 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("Id")
+                    b.HasKey("ID")
                         .HasName("pk_suppliers");
 
-                    b.HasIndex("AddressId")
+                    b.HasIndex("AddressID")
                         .HasDatabaseName("ix_suppliers_address_id");
 
                     b.ToTable("suppliers", (string)null);
@@ -417,7 +417,7 @@ namespace Fenicia.Module.Basic.Migrations
                 {
                     b.HasOne("Fenicia.Common.Database.Models.Basic.StateModel", "State")
                         .WithMany("Addresses")
-                        .HasForeignKey("StateId")
+                        .HasForeignKey("StateID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_addresses_states_state_id");
@@ -429,7 +429,7 @@ namespace Fenicia.Module.Basic.Migrations
                 {
                     b.HasOne("Fenicia.Common.Database.Models.Basic.AddressModel", "Address")
                         .WithMany("Customers")
-                        .HasForeignKey("AddressId")
+                        .HasForeignKey("AddressID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_customers_addresses_address_id");
@@ -441,14 +441,14 @@ namespace Fenicia.Module.Basic.Migrations
                 {
                     b.HasOne("Fenicia.Common.Database.Models.Basic.AddressModel", "Address")
                         .WithMany()
-                        .HasForeignKey("AddressId")
+                        .HasForeignKey("AddressID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_employees_addresses_address_id");
 
                     b.HasOne("Fenicia.Common.Database.Models.Basic.PositionModel", "Position")
                         .WithMany("Employees")
-                        .HasForeignKey("PositionId")
+                        .HasForeignKey("PositionID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_employees_positions_position_id");
@@ -462,7 +462,7 @@ namespace Fenicia.Module.Basic.Migrations
                 {
                     b.HasOne("Fenicia.Common.Database.Models.Basic.ProductCategoryModel", "Category")
                         .WithMany("Products")
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_products_product_categories_category_id");
@@ -474,7 +474,7 @@ namespace Fenicia.Module.Basic.Migrations
                 {
                     b.HasOne("Fenicia.Common.Database.Models.Basic.ProductModel", "Product")
                         .WithMany("StockMovements")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_stock_movements_products_product_id");
@@ -486,7 +486,7 @@ namespace Fenicia.Module.Basic.Migrations
                 {
                     b.HasOne("Fenicia.Common.Database.Models.Basic.AddressModel", "Address")
                         .WithMany()
-                        .HasForeignKey("AddressId")
+                        .HasForeignKey("AddressID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_suppliers_addresses_address_id");

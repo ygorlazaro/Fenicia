@@ -24,31 +24,31 @@ public class SubscriptionCreditService : ISubscriptionCreditService
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            _logger.LogInformation("Getting active modules types for company {CompanyId}", companyId);
+            _logger.LogInformation("Getting active modules types for company {CompanyID}", companyId);
 
             var validSubscriptions = await _subscriptionService.GetValidSubscriptionsAsync(companyId, cancellationToken);
 
             if (validSubscriptions.Data is null)
             {
-                _logger.LogWarning("No valid subscriptions found for company {CompanyId}", companyId);
+                _logger.LogWarning("No valid subscriptions found for company {CompanyID}", companyId);
                 return new ApiResponse<List<ModuleType>>(data: null, validSubscriptions.Status, validSubscriptions.Message.Message ?? string.Empty);
             }
 
-            _logger.LogDebug("Found {Count} valid subscriptions for company {CompanyId}", validSubscriptions.Data.Count, companyId);
+            _logger.LogDebug("Found {Count} valid subscriptions for company {CompanyID}", validSubscriptions.Data.Count, companyId);
 
             var validModules = await _subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions.Data, cancellationToken);
 
-            _logger.LogInformation("Retrieved {Count} active module types for company {CompanyId}", validModules.Count, companyId);
+            _logger.LogInformation("Retrieved {Count} active module types for company {CompanyID}", validModules.Count, companyId);
             return new ApiResponse<List<ModuleType>>(validModules);
         }
         catch (OperationCanceledException)
         {
-            _logger.LogWarning("Operation was cancelled while getting active modules for company {CompanyId}", companyId);
+            _logger.LogWarning("Operation was cancelled while getting active modules for company {CompanyID}", companyId);
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting active modules for company {CompanyId}", companyId);
+            _logger.LogError(ex, "Error getting active modules for company {CompanyID}", companyId);
             throw;
         }
     }

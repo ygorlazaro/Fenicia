@@ -20,7 +20,7 @@ public sealed class RefreshTokenService : IRefreshTokenService
     {
         try
         {
-            _logger.LogInformation("Starting refresh token generation for user {UserId}", userId);
+            _logger.LogInformation("Starting refresh token generation for user {UserID}", userId);
             var randomNumber = new byte[32];
 
             using var rng = RandomNumberGenerator.Create();
@@ -36,12 +36,12 @@ public sealed class RefreshTokenService : IRefreshTokenService
 
             await _refreshTokenRepository.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation("Successfully generated refresh token for user {UserId}", userId);
+            _logger.LogInformation("Successfully generated refresh token for user {UserID}", userId);
             return new ApiResponse<string>(refreshToken.Token);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating refresh token for user {UserId}", userId);
+            _logger.LogError(ex, "Error generating refresh token for user {UserID}", userId);
             throw;
         }
     }
@@ -50,15 +50,15 @@ public sealed class RefreshTokenService : IRefreshTokenService
     {
         try
         {
-            _logger.LogInformation("Validating refresh token for user {UserId}", userId);
+            _logger.LogInformation("Validating refresh token for user {UserID}", userId);
             var response = await _refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
 
-            _logger.LogInformation("Token validation result for user {UserId}: {IsValid}", userId, response);
+            _logger.LogInformation("Token validation result for user {UserID}: {IsValid}", userId, response);
             return new ApiResponse<bool>(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error validating refresh token for user {UserId}", userId);
+            _logger.LogError(ex, "Error validating refresh token for user {UserID}", userId);
             throw;
         }
     }

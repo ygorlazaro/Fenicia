@@ -1,4 +1,4 @@
-namespace Fenicia.Common.Api.Providers;
+namespace Fenicia.Common.API.Providers;
 
 public class TenantProvider
 {

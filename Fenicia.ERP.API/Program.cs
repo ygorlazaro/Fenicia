@@ -3,7 +3,7 @@ namespace Fenicia.ERP.API;
 using System.Text;
 
 using Common;
-using Common.Api.Middlewares;
+using Common.API.Middlewares;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

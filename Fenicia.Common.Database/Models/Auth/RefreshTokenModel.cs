@@ -30,7 +30,7 @@ public class RefreshTokenModel : BaseModel
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
 
-    [ForeignKey("UserId")]
+    [ForeignKey(nameof(RefreshTokenModel.UserId))]
     [JsonIgnore]
     public virtual UserModel User { get; set; } = null!;
 }

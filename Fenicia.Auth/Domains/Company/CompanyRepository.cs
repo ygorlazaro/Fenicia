@@ -25,7 +25,7 @@ public class CompanyRepository : ICompanyRepository
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error checking company existence by ID {CompanyId}", companyId);
+            _logger.LogError(ex, "Error checking company existence by ID {CompanyID}", companyId);
             throw;
         }
     }
@@ -91,7 +91,7 @@ public class CompanyRepository : ICompanyRepository
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving companies for user {UserId}", userId);
+            _logger.LogError(ex, "Error retrieving companies for user {UserID}", userId);
             throw;
         }
     }
@@ -104,14 +104,14 @@ public class CompanyRepository : ICompanyRepository
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error counting companies for user {UserId}", userId);
+            _logger.LogError(ex, "Error counting companies for user {UserID}", userId);
             throw;
         }
     }
 
     public CompanyModel PatchAsync(CompanyModel company)
     {
-        _logger.LogInformation("Updating company with ID {CompanyId}", company.Id);
+        _logger.LogInformation("Updating company with ID {CompanyID}", company.Id);
         _authContext.Entry(company).State = EntityState.Modified;
         return company;
     }
@@ -120,5 +120,14 @@ public class CompanyRepository : ICompanyRepository
     {
         var query = from company in _authContext.Companies join userRoles in _authContext.UserRoles on company.Id equals userRoles.CompanyId where userRoles.UserId == userId select company;
         return query;
+    }
+
+    public async Task<List<Guid>> GetCompaniesAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var query = from company in _authContext.Companies
+                    join userCompany in _authContext.UserRoles on company.Id equals userCompany.CompanyId
+                    select userCompany.CompanyId;
+
+        return await query.ToListAsync(cancellationToken: cancellationToken);
     }
 }

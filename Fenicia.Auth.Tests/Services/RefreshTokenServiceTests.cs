@@ -140,11 +140,11 @@ public class RefreshTokenServiceTests
     public async Task GenerateRefreshTokenAsync_MultipleCalls_GeneratesDistinctTokens()
     {
         // Arrange
-        var userIds = _faker.Make(count: 5, () => _faker.Random.Guid()).ToList();
-        var generatedTokens = new List<(Guid UserId, string Token)>();
+        var userIDs = _faker.Make(count: 5, () => _faker.Random.Guid()).ToList();
+        var generatedTokens = new List<(Guid UserID, string Token)>();
 
         // Act
-        foreach (var userId in userIds)
+        foreach (var userId in userIDs)
         {
             var result = await _sut.GenerateRefreshTokenAsync(userId, _cancellationToken);
             generatedTokens.Add((userId, result.Data!));

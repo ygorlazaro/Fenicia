@@ -21,14 +21,14 @@ public class SubscriptionRepository : ISubscriptionRepository
     {
         try
         {
-            _logger.LogInformation("Saving subscription for company {CompanyId}", subscription.CompanyId);
+            _logger.LogInformation("Saving subscription for company {CompanyID}", subscription.CompanyId);
             _authContext.Subscriptions.Add(subscription);
             await _authContext.SaveChangesAsync(cancellationToken);
-            _logger.LogInformation("Successfully saved subscription {SubscriptionId} for company {CompanyId}", subscription.Id, subscription.CompanyId);
+            _logger.LogInformation("Successfully saved subscription {SubscriptionID} for company {CompanyID}", subscription.Id, subscription.CompanyId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving subscription for company {CompanyId}", subscription.CompanyId);
+            _logger.LogError(ex, "Error saving subscription for company {CompanyID}", subscription.CompanyId);
             throw;
         }
     }
@@ -37,18 +37,18 @@ public class SubscriptionRepository : ISubscriptionRepository
     {
         try
         {
-            _logger.LogInformation("Retrieving valid subscriptions for company {CompanyId}", companyId);
+            _logger.LogInformation("Retrieving valid subscriptions for company {CompanyID}", companyId);
             var now = DateTime.UtcNow;
 
             var subscriptions = from subscription in _authContext.Subscriptions where subscription.CompanyId == companyId && now >= subscription.StartDate && now <= subscription.EndDate && subscription.Status == SubscriptionStatus.Active select subscription.Id;
 
             var result = await subscriptions.ToListAsync(cancellationToken);
-            _logger.LogInformation("Found {Count} valid subscriptions for company {CompanyId}", result.Count, companyId);
+            _logger.LogInformation("Found {Count} valid subscriptions for company {CompanyID}", result.Count, companyId);
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving valid subscriptions for company {CompanyId}", companyId);
+            _logger.LogError(ex, "Error retrieving valid subscriptions for company {CompanyID}", companyId);
             throw;
         }
     }

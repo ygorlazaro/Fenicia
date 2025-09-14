@@ -59,14 +59,14 @@ public class ModuleServiceTests
     public async Task GetModulesToOrderAsync_ReturnsRequestedModules()
     {
         // Arrange
-        var moduleIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-        var modules = moduleIds.Select(id => new ModuleModel { Id = id, Name = _faker.Commerce.ProductName() }).ToList();
+        var moduleIDs = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+        var modules = moduleIDs.Select(id => new ModuleModel { Id = id, Name = _faker.Commerce.ProductName() }).ToList();
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
-        _moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIds, _cancellationToken)).ReturnsAsync(modules);
+        _moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIDs, _cancellationToken)).ReturnsAsync(modules);
 
         // Act
-        var result = await _sut.GetModulesToOrderAsync(moduleIds, _cancellationToken);
+        var result = await _sut.GetModulesToOrderAsync(moduleIDs, _cancellationToken);
 
         Assert.Multiple(() =>
         {

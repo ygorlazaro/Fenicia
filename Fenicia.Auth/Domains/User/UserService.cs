@@ -131,7 +131,7 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Verifying user {UserId} existence in company {CompanyId}", userId, companyId);
+        _logger.LogInformation("Verifying user {UserID} existence in company {CompanyID}", userId, companyId);
         var response = await _userRoleRepository.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
         return new ApiResponse<bool>(response);
@@ -139,7 +139,7 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<UserResponse>> GetUserForRefreshAsync(Guid userId, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Retrieving user {UserId} information for token refresh", userId);
+        _logger.LogInformation("Retrieving user {UserID} information for token refresh", userId);
         var user = await _userRepository.GetUserForRefreshTokenAsync(userId, cancellationToken);
 
         if (user is null)
@@ -173,12 +173,12 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<UserResponse>> ChangePasswordAsync(Guid userId, string password, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Initiating password change for user {UserId}", userId);
+        _logger.LogInformation("Initiating password change for user {UserID}", userId);
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
         if (user is null)
         {
-            _logger.LogInformation("User not found {userId}", userId);
+            _logger.LogInformation("User not found {userID}", userId);
 
             return new ApiResponse<UserResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
         }

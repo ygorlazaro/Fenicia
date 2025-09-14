@@ -1,6 +1,6 @@
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Common;
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
 using Fenicia.Common.Migrations.Services;
 
 using Microsoft.AspNetCore.Authorization;

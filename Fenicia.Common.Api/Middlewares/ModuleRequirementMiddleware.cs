@@ -1,4 +1,4 @@
-namespace Fenicia.Common.Api.Middlewares;
+namespace Fenicia.Common.API.Middlewares;
 
 using System.Text.Json;
 

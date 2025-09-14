@@ -10,7 +10,7 @@ using Common.Enums;
 using Common.Database.Responses;
 
 using Microsoft.IdentityModel.Tokens;
-using Fenicia.Common.Api;
+using Common.API;
 
 public class TokenService : ITokenService
 {
@@ -27,7 +27,7 @@ public class TokenService : ITokenService
     {
         try
         {
-            _logger.LogInformation("Starting token generation for user {UserId}", user.Id);
+            _logger.LogInformation("Starting token generation for user {UserID}", user.Id);
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
 
             var authClaims = GenerateClaims(user, roles, companyId, modules);
@@ -44,17 +44,17 @@ public class TokenService : ITokenService
 
             var finalToken = tokenHandler.WriteToken(token);
 
-            _logger.LogInformation("Token successfully generated for user {UserId}", user.Id);
+            _logger.LogInformation("Token successfully generated for user {UserID}", user.Id);
             return new ApiResponse<string>(finalToken);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating token for user {UserId}", user.Id);
+            _logger.LogError(ex, "Error generating token for user {UserID}", user.Id);
             throw;
         }
         finally
         {
-            _logger.LogDebug("Token generation process completed for user {UserId}", user.Id);
+            _logger.LogDebug("Token generation process completed for user {UserID}", user.Id);
         }
     }
 
@@ -77,7 +77,7 @@ public class TokenService : ITokenService
             return authClaims;
         }
 
-        _logger.LogDebug("Adding ERP module access for God role user {UserId}", user.Id);
+        _logger.LogDebug("Adding ERP module access for God role user {UserID}", user.Id);
         authClaims.Add(new Claim("module", "erp"));
 
         return authClaims;
