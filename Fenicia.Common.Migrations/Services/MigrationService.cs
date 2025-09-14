@@ -13,13 +13,13 @@ public class MigrationService : IMigrationService
     {
         foreach (var module in modules)
         {
-            var connectionString = GetConnectionString(module.Type, companyId);
+            var connectionString = MigrationService.GetConnectionString(module.Type, companyId);
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new DbUpdateException($"No connection string for {module.Type}");
             }
 
-            var (dbContextType, migrationsAssembly) = GetModuleDbInfo(module.Type);
+            var (dbContextType, migrationsAssembly) = MigrationService.GetModuleDbInfo(module.Type);
 
             var optionsBuilderType = typeof(DbContextOptionsBuilder<>).MakeGenericType(dbContextType);
             var optionsBuilder = (DbContextOptionsBuilder)Activator.CreateInstance(optionsBuilderType)!;

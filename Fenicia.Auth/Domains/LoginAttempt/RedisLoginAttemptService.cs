@@ -17,14 +17,14 @@ public class RedisLoginAttemptService : ILoginAttemptService
 
     public async Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        var key = GetKey(email);
+        var key = RedisLoginAttemptService.GetKey(email);
         var attempts = await _db.StringGetAsync(key);
         return attempts.HasValue ? (int)attempts : 0;
     }
 
     public async Task IncrementAttemptsAsync(string email)
     {
-        var key = GetKey(email);
+        var key = RedisLoginAttemptService.GetKey(email);
         var current = await _db.StringIncrementAsync(key);
         if (current == 1)
         {
@@ -34,7 +34,7 @@ public class RedisLoginAttemptService : ILoginAttemptService
 
     public async Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        await _db.KeyDeleteAsync(GetKey(email));
+        await _db.KeyDeleteAsync(RedisLoginAttemptService.GetKey(email));
     }
 
     private static string GetKey(string email)

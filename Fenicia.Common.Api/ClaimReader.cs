@@ -6,12 +6,12 @@ public static class ClaimReader
 {
     public static Guid UserId(ClaimsPrincipal user)
     {
-        return GetGuidClaimValue(user, "userId");
+        return ClaimReader.GetGuidClaimValue(user, "userId");
     }
 
     public static Guid CompanyId(ClaimsPrincipal user)
     {
-        return GetGuidClaimValue(user, "companyId");
+        return ClaimReader.GetGuidClaimValue(user, "companyId");
     }
 
     private static Guid GetGuidClaimValue(ClaimsPrincipal user, string claimType)
