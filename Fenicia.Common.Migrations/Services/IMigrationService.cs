@@ -1,8 +1,8 @@
-namespace Fenicia.Common.Migrations.Services;
+using Fenicia.Common.Enums;
 
-using Fenicia.Common.Database.Responses;
+namespace Fenicia.Common.Migrations.Services;
 
 public interface IMigrationService
 {
-    Task RunMigrationsAsync(List<ModuleResponse> modules, Guid companyId, CancellationToken cancellationToken);
+    Task RunMigrationsAsync(Guid companyId, List<ModuleType> moduleTypes, CancellationToken cancellationToken);
 }
