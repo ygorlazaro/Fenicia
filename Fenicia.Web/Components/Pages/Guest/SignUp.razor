@@ -1,0 +1,33 @@
+@page "/signup"
+@using Fenicia.Web.Components.Atoms
+@using Fenicia.Web.Components.Layout
+
+@layout GuestLayout
+
+<PageTitle>Fenicia - Sign Up</PageTitle>
+
+<div class="container">
+    <div class="rows col-3 mx-auto pt-4">
+        <img src="images/logo25.jpeg" />
+    </div>
+    <div class="rows col-6 mx-auto">
+
+        <NinjaCard Title="Sign Up">
+        
+            <NinjaInput Label="Name" Placeholder="Name" Type="text" />
+            <NinjaInput Label="Email" Placeholder="Email" Type="email" />
+            <NinjaInput Label="Password" Placeholder="Password" Type="text" />
+            <NinjaInput Label="CNPJ" Placeholder="CNPJ" Type="text" />
+            <NinjaInput Label="Company Name" Placeholder="Company Name" Type="text" />
+
+            <NinjaButton Text="Sign up" LinkTo="/" />
+            <NinjaButton Text="Login" LinkTo="/login"/>
+
+        </NinjaCard>
+    </div>
+    
+</div>
+
+@code { 
+    
+}
