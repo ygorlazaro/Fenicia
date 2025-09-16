@@ -6,7 +6,6 @@ using System.Text.Json.Serialization;
 using AspNetCoreRateLimit;
 
 using Common;
-using Common.API;
 using Common.API.Middlewares;
 using Common.Database.Contexts;
 using Common.Externals.Email;

@@ -1,6 +1,5 @@
-using Fenicia.Auth.Domains.Module;
-using Fenicia.Common;
-using Fenicia.Common.API;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Common.Migrations.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -13,30 +12,24 @@ namespace Fenicia.Auth.Domains.Migrations;
 [ApiController]
 public class MigrationController : ControllerBase
 {
-    private readonly IModuleService _moduleService;
-
     private readonly IMigrationService _migrationService;
+    private readonly ISubscriptionCreditService _subscriptionCreditService;
+    private readonly ICompanyService _companyService;
 
-    public MigrationController(IModuleService moduleService, IMigrationService migrationService)
+    public MigrationController(IMigrationService migrationService, ISubscriptionCreditService subscriptionCreditService, ICompanyService companyService)
     {
-        _moduleService = moduleService;
         _migrationService = migrationService;
+        _subscriptionCreditService = subscriptionCreditService;
+        _companyService = companyService;
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostNewMigrationAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> PostNewMigrationAsync([FromBody] string cnpj, CancellationToken cancellationToken)
     {
-        var userId = ClaimReader.UserId(User);
-        var companyId = ClaimReader.CompanyId(User);
-        var modulesResponse = await _moduleService.GetUserModulesAsync(userId, companyId, cancellationToken);
-        var modules = modulesResponse.Data ?? [];
+        var company = await _companyService.GetByCnpjAsync(cnpj, cancellationToken);
+        var credits = await _subscriptionCreditService.GetActiveModulesTypesAsync(company.Data!.Id, cancellationToken);
 
-        if (modules.Count == 0)
-        {
-            return NotFound(TextConstants.ThereWasAnErrorSearchingModules);
-        }
-
-        await _migrationService.RunMigrationsAsync(modules, companyId, cancellationToken);
+        await _migrationService.RunMigrationsAsync(company.Data.Id, credits.Data!, cancellationToken);
 
         return Ok();
     }

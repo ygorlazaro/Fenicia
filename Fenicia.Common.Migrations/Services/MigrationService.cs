@@ -1,18 +1,18 @@
 using Fenicia.Common.Database.Contexts;
-using Fenicia.Common.Database.Responses;
 using Fenicia.Common.Enums;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Fenicia.Common.Migrations.Services;
 
 public class MigrationService : IMigrationService
 {
-    public async Task RunMigrationsAsync(List<ModuleResponse> modules, Guid companyId, CancellationToken cancellationToken)
+    public async Task RunMigrationsAsync(Guid companyId, List<ModuleType> moduleTypes, CancellationToken cancellationToken)
     {
-        foreach (var module in modules.Where(module => module.Type != ModuleType.Erp && module.Type != ModuleType.Auth))
+        foreach (var module in moduleTypes.Where(module => module == ModuleType.Basic))
         {
-            var (dbContextType, migrationsAssembly, connectionStringName) = MigrationService.GetModuleDbInfo(module.Type);
+            var (dbContextType, migrationsAssembly, connectionStringName) = MigrationService.GetModuleDbInfo(module);
 
             // Get the real connection string from appsettings.json
             var rawConnectionString = Fenicia.Common.API.AppSettingsReader.GetConnectionString(connectionStringName);
@@ -28,7 +28,8 @@ public class MigrationService : IMigrationService
             var optionsBuilder = (DbContextOptionsBuilder)Activator.CreateInstance(optionsBuilderType)!;
 
             optionsBuilder.UseNpgsql(connectionString, npgsql =>
-                                         npgsql.MigrationsAssembly(migrationsAssembly));
+                                         npgsql.MigrationsAssembly(migrationsAssembly))
+                                         .ConfigureWarnings(x => x.Ignore(RelationalEventId.PendingModelChangesWarning));
 
             var options = optionsBuilder.Options;
 
@@ -56,4 +57,5 @@ public class MigrationService : IMigrationService
             _ => throw new NotSupportedException($"Module {type} not supported")
         };
     }
+
 }
