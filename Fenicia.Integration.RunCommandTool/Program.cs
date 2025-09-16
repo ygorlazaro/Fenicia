@@ -9,10 +9,6 @@ var godEmail = AnsiConsole.Prompt(new TextPrompt<string>("Enter god email: "));
 var godPassword = AnsiConsole.Prompt(new TextPrompt<string>("Enter god password: ").Secret());
 var godCnpj = AnsiConsole.Prompt(new TextPrompt<string>("Enter god cnpj: "));
 
-godEmail = "ygor@ygorlazaro.com";
-godPassword = "Age14rjy";
-godCnpj = "23351185000184";
-
 AnsiConsole.WriteLine("Getting token...");
 
 var tokenProvider = new TokenProvider(baseUrl);
