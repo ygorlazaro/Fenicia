@@ -48,6 +48,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Migrations",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Integration.RunCommandTool", "Fenicia.Integration.RunCommandTool\Fenicia.Integration.RunCommandTool.csproj", "{ED753193-5DD3-49F1-B7E5-F2C7666D535F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Web", "Fenicia.Web\Fenicia.Web.csproj", "{37A38F00-11E2-436E-BF42-B566A70091C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -310,6 +312,18 @@ Global
 		{ED753193-5DD3-49F1-B7E5-F2C7666D535F}.Release|x64.Build.0 = Release|Any CPU
 		{ED753193-5DD3-49F1-B7E5-F2C7666D535F}.Release|x86.ActiveCfg = Release|Any CPU
 		{ED753193-5DD3-49F1-B7E5-F2C7666D535F}.Release|x86.Build.0 = Release|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Debug|x64.Build.0 = Debug|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Debug|x86.Build.0 = Debug|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Release|x64.ActiveCfg = Release|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Release|x64.Build.0 = Release|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Release|x86.ActiveCfg = Release|Any CPU
+		{37A38F00-11E2-436E-BF42-B566A70091C6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
