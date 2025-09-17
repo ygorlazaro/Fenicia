@@ -8,11 +8,11 @@ using Common;
 
 public class SecurityService : ISecurityService
 {
-    private readonly ILogger<SecurityService> _logger;
+    private readonly ILogger<SecurityService> logger;
 
     public SecurityService(ILogger<SecurityService> logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
     public ApiResponse<string> HashPassword(string password)
@@ -21,7 +21,7 @@ public class SecurityService : ISecurityService
         {
             if (string.IsNullOrEmpty(password))
             {
-                _logger.LogError("Attempt to hash null or empty password");
+                this.logger.LogError("Attempt to hash null or empty password");
                 throw new ArgumentException(TextConstants.InvalidPassword);
             }
 
@@ -29,16 +29,16 @@ public class SecurityService : ISecurityService
 
             if (hashed == null)
             {
-                _logger.LogError("BCrypt failed to generate hash");
+                this.logger.LogError("BCrypt failed to generate hash");
                 throw new Exception("Error hashing password");
             }
 
-            _logger.LogInformation("Password hashed successfully");
+            this.logger.LogInformation("Password hashed successfully");
             return new ApiResponse<string>(hashed);
         }
         catch (Exception ex) when (ex is not ArgumentException)
         {
-            _logger.LogError(ex, "Unexpected error while hashing password");
+            this.logger.LogError(ex, "Unexpected error while hashing password");
             throw;
         }
     }
@@ -49,18 +49,18 @@ public class SecurityService : ISecurityService
         {
             if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword))
             {
-                _logger.LogError("Attempt to verify with null or empty password/hash");
+                this.logger.LogError("Attempt to verify with null or empty password/hash");
                 throw new ArgumentException(TextConstants.InvalidPassword);
             }
 
             var result = BCrypt.Verify(password, hashedPassword);
 
-            _logger.LogInformation("Password verification completed");
+            this.logger.LogInformation("Password verification completed");
             return new ApiResponse<bool>(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during password verification");
+            this.logger.LogError(ex, "Error during password verification");
             return new ApiResponse<bool>(data: false, HttpStatusCode.InternalServerError);
         }
     }

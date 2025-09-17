@@ -13,7 +13,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
 app.UseAntiforgery();
 
 app.MapStaticAssets();

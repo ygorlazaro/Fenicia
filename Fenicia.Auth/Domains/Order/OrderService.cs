@@ -14,36 +14,36 @@ using Fenicia.Auth.Domains.User;
 
 public sealed class OrderService : IOrderService
 {
-    private readonly ILogger<OrderService> _logger;
-    private readonly IOrderRepository _orderRepository;
-    private readonly IModuleService _moduleService;
-    private readonly ISubscriptionService _subscriptionService;
-    private readonly IUserService _userService;
+    private readonly ILogger<OrderService> logger;
+    private readonly IOrderRepository orderRepository;
+    private readonly IModuleService moduleService;
+    private readonly ISubscriptionService subscriptionService;
+    private readonly IUserService userService;
 
     public OrderService(ILogger<OrderService> logger, IOrderRepository orderRepository, IModuleService moduleService, ISubscriptionService subscriptionService, IUserService userService)
     {
-        _logger = logger;
-        _orderRepository = orderRepository;
-        _moduleService = moduleService;
-        _subscriptionService = subscriptionService;
-        _userService = userService;
+        this.logger = logger;
+        this.orderRepository = orderRepository;
+        this.moduleService = moduleService;
+        this.subscriptionService = subscriptionService;
+        this.userService = userService;
     }
 
     public async Task<ApiResponse<OrderResponse>> CreateNewOrderAsync(Guid userId, Guid companyId, OrderRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            _logger.LogInformation("Starting order creation process for user {UserID} in company {CompanyID}", userId, companyId);
-            var existingUser = await _userService.ExistsInCompanyAsync(userId, companyId, cancellationToken);
+            this.logger.LogInformation("Starting order creation process for user {UserID} in company {CompanyID}", userId, companyId);
+            var existingUser = await this.userService.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
             if (!existingUser.Data)
             {
-                _logger.LogWarning("User {userID} does not exist in company {companyID}", userId, companyId);
+                this.logger.LogWarning("User {userID} does not exist in company {companyID}", userId, companyId);
 
                 return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.UserNotInCompany);
             }
 
-            var modules = await PopulateModules(request, cancellationToken);
+            var modules = await this.PopulateModules(request, cancellationToken);
 
             if (modules.Data is null)
             {
@@ -52,7 +52,7 @@ public sealed class OrderService : IOrderService
 
             if (modules.Data.Count == 0)
             {
-                _logger.LogWarning("There was an error searching modules");
+                this.logger.LogWarning("There was an error searching modules");
 
                 return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorSearchingModules);
             }
@@ -71,17 +71,17 @@ public sealed class OrderService : IOrderService
                 CompanyId = companyId
             };
 
-            await _orderRepository.SaveOrderAsync(order, cancellationToken);
-            await _subscriptionService.CreateCreditsForOrderAsync(order, details, companyId, cancellationToken);
+            await this.orderRepository.SaveOrderAsync(order, cancellationToken);
+            await this.subscriptionService.CreateCreditsForOrderAsync(order, details, companyId, cancellationToken);
 
             var response = OrderResponse.Convert(order);
 
-            _logger.LogInformation("Order created successfully for user {UserID}", userId);
+            this.logger.LogInformation("Order created successfully for user {UserID}", userId);
             return new ApiResponse<OrderResponse>(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating order for user {UserID} in company {CompanyID}", userId, companyId);
+            this.logger.LogError(ex, "Error creating order for user {UserID} in company {CompanyID}", userId, companyId);
             return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.InternalServerError, "An error occurred while creating the order");
         }
     }
@@ -90,9 +90,9 @@ public sealed class OrderService : IOrderService
     {
         try
         {
-            _logger.LogDebug("Starting to populate modules for order request");
+            this.logger.LogDebug("Starting to populate modules for order request");
             var uniqueModules = request.Details.Select(d => d.ModuleId).Distinct();
-            var modules = await _moduleService.GetModulesToOrderAsync(uniqueModules, cancellationToken);
+            var modules = await this.moduleService.GetModulesToOrderAsync(uniqueModules, cancellationToken);
 
             if (modules.Data is null)
             {
@@ -106,7 +106,7 @@ public sealed class OrderService : IOrderService
                 return new ApiResponse<List<ModuleModel>>(response);
             }
 
-            var basicModule = await _moduleService.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken);
+            var basicModule = await this.moduleService.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken);
 
             if (basicModule.Data is null)
             {
@@ -117,12 +117,12 @@ public sealed class OrderService : IOrderService
 
             var finalResponse = ModuleModel.Convert(modules.Data);
 
-            _logger.LogInformation("Modules populated successfully");
+            this.logger.LogInformation("Modules populated successfully");
             return new ApiResponse<List<ModuleModel>>(finalResponse);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error populating modules for order request");
+            this.logger.LogError(ex, "Error populating modules for order request");
             return new ApiResponse<List<ModuleModel>>(data: null, HttpStatusCode.InternalServerError, "An error occurred while populating modules");
         }
     }

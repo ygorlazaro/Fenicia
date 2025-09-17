@@ -14,13 +14,13 @@ using Microsoft.AspNetCore.Mvc;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ForgotPasswordController : ControllerBase
 {
-    private readonly ILogger<ForgotPasswordController> _logger;
-    private readonly IForgotPasswordService _forgotPasswordService;
+    private readonly ILogger<ForgotPasswordController> logger;
+    private readonly IForgotPasswordService forgotPasswordService;
 
     public ForgotPasswordController(ILogger<ForgotPasswordController> logger, IForgotPasswordService forgotPasswordService)
     {
-        _logger = logger;
-        _forgotPasswordService = forgotPasswordService;
+        this.logger = logger;
+        this.forgotPasswordService = forgotPasswordService;
     }
 
     [HttpPost]
@@ -30,21 +30,21 @@ public class ForgotPasswordController : ControllerBase
     {
         try
         {
-            _logger.LogInformation("Starting password recovery process for user request");
+            this.logger.LogInformation("Starting password recovery process for user request");
 
-            var response = await _forgotPasswordService.SaveForgotPasswordAsync(request, cancellationToken);
+            var response = await this.forgotPasswordService.SaveForgotPasswordAsync(request, cancellationToken);
 
-            _logger.LogInformation("Password recovery process completed with status: {Status}", response.Status);
+            this.logger.LogInformation("Password recovery process completed with status: {Status}", response.Status);
 
             return response.Data switch
             {
-                null => StatusCode((int)response.Status, response.Message),
-                _ => Ok(response)
+                null => this.StatusCode((int)response.Status, response.Message),
+                _ => this.Ok(response)
             };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during password recovery process");
+            this.logger.LogError(ex, "Error during password recovery process");
             throw;
         }
     }
@@ -56,21 +56,21 @@ public class ForgotPasswordController : ControllerBase
     {
         try
         {
-            _logger.LogInformation("Starting password reset process");
+            this.logger.LogInformation("Starting password reset process");
 
-            var response = await _forgotPasswordService.ResetPasswordAsync(request, cancellationToken);
+            var response = await this.forgotPasswordService.ResetPasswordAsync(request, cancellationToken);
 
-            _logger.LogInformation("Password reset process completed with status: {Status}", response.Status);
+            this.logger.LogInformation("Password reset process completed with status: {Status}", response.Status);
 
             return response.Data switch
             {
-                null => StatusCode((int)response.Status, response.Message),
-                _ => Ok(response)
+                null => this.StatusCode((int)response.Status, response.Message),
+                _ => this.Ok(response)
             };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during password reset process");
+            this.logger.LogError(ex, "Error during password reset process");
             throw;
         }
     }

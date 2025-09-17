@@ -11,8 +11,10 @@ public static class AppSettingsReader
         {
             dir = dir.Parent;
         }
+
         return dir?.FullName;
     }
+
     public static string? GetConnectionString(string connectionStringName)
     {
         var configuration = AppSettingsReader.GetConfiguration();

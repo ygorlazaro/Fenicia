@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class EcommerceContext : DbContext
 {
-    public EcommerceContext(DbContextOptions<EcommerceContext> options) : base(options)
+    public EcommerceContext(DbContextOptions<EcommerceContext> options)
+        : base(options)
     {
     }
 
