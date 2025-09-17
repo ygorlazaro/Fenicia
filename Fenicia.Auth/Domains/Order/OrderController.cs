@@ -16,13 +16,13 @@ using Microsoft.AspNetCore.Mvc;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class OrderController : ControllerBase
 {
-    private readonly ILogger<OrderController> _logger;
-    private readonly IOrderService _orderService;
+    private readonly ILogger<OrderController> logger;
+    private readonly IOrderService orderService;
 
     public OrderController(ILogger<OrderController> logger, IOrderService orderService)
     {
-        _logger = logger;
-        _orderService = orderService;
+        this.logger = logger;
+        this.orderService = orderService;
     }
 
     [HttpPost]
@@ -33,25 +33,25 @@ public class OrderController : ControllerBase
     {
         try
         {
-            _logger.LogInformation("Creating new order for request {@Request}", request);
+            this.logger.LogInformation("Creating new order for request {@Request}", request);
 
-            var userId = ClaimReader.UserId(User);
-            var companyId = ClaimReader.CompanyId(User);
+            var userId = ClaimReader.UserId(this.User);
+            var companyId = ClaimReader.CompanyId(this.User);
 
-            var order = await _orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
+            var order = await this.orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
 
             if (order.Data is null)
             {
-                _logger.LogWarning("Order creation failed: {Message}", order.Message);
-                return StatusCode((int)order.Status, order.Message);
+                this.logger.LogWarning("Order creation failed: {Message}", order.Message);
+                return this.StatusCode((int)order.Status, order.Message);
             }
 
-            _logger.LogInformation("New order created successfully for user {UserID}", userId);
-            return Ok(order.Data);
+            this.logger.LogInformation("New order created successfully for user {UserID}", userId);
+            return this.Ok(order.Data);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error while creating order");
+            this.logger.LogError(ex, "Unexpected error while creating order");
             throw;
         }
     }

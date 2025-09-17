@@ -12,12 +12,14 @@ public class StateResponse
     public string Name
     {
         get; set;
-    } = default!;
+    }
+= default!;
 
     public string Uf
     {
         get; set;
-    } = default!;
+    }
+= default!;
 
     public static StateResponse Convert(StateModel state)
     {

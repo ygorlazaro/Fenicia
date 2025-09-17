@@ -9,6 +9,6 @@ public class TenantProvider
 
     public void SetTenant(string tenantId)
     {
-        TenantId = tenantId;
+        this.TenantId = tenantId;
     }
 }

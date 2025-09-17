@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class PosContext : DbContext
 {
-    public PosContext(DbContextOptions<PosContext> options) : base(options)
+    public PosContext(DbContextOptions<PosContext> options)
+        : base(options)
     {
     }
 

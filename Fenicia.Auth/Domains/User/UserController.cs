@@ -1,9 +1,8 @@
-using Fenicia.Common.API;
+namespace Fenicia.Auth.Domains.User;
 
+using Fenicia.Common.API;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-namespace Fenicia.Auth.Domains.User;
 
 using Common.Database.Responses;
 
@@ -14,25 +13,25 @@ using Fenicia.Auth.Domains.Module;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly ILogger<UserController> _logger;
-    private readonly IModuleService _moduleService;
+    private readonly ILogger<UserController> logger;
+    private readonly IModuleService moduleService;
 
     public UserController(ILogger<UserController> logger, IModuleService moduleService)
     {
-        _logger = logger;
-        _moduleService = moduleService;
+        this.logger = logger;
+        this.moduleService = moduleService;
     }
 
     [HttpGet("module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
     public async Task<ActionResult<ModuleResponse>> GetUserModulesAsync(CancellationToken cancellationToken)
     {
-        var userId = ClaimReader.UserId(User);
-        var companyId = ClaimReader.CompanyId(User);
+        var userId = ClaimReader.UserId(this.User);
+        var companyId = ClaimReader.CompanyId(this.User);
 
-        _logger.LogWarning("Getting log for the user {userID}", userId);
+        this.logger.LogWarning("Getting log for the user {userID}", userId);
 
-        var response = await _moduleService.GetUserModulesAsync(userId, companyId, cancellationToken);
-        return Ok(response);
+        var response = await this.moduleService.GetUserModulesAsync(userId, companyId, cancellationToken);
+        return this.Ok(response);
     }
 }

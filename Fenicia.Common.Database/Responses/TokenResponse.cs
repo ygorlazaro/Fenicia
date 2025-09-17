@@ -20,5 +20,6 @@ public class TokenResponse
     {
         get;
         set;
-    } = null!;
+    }
+= null!;
 }
