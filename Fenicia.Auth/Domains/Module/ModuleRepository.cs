@@ -45,21 +45,34 @@ public class ModuleRepository : IModuleRepository
         return await this.authContext.Modules.OrderBy(m => m.Type).ToListAsync(cancellationToken);
     }
 
-    public Task<List<ModuleModel>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
+    public async Task<List<ModuleModel>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
+    {
+        var query = this.ValidModuleBySubscriptionQuery(userId, companyId);
+
+        return await query.Distinct().ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<ModuleModel>> GetModuleAndSubmoduleAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
+    {
+        var query = this.ValidModuleBySubscriptionQuery(userId, companyId);
+
+        return await query.Include(m => m.Submodules).ToListAsync(cancellationToken);
+    }
+
+    private IQueryable<ModuleModel> ValidModuleBySubscriptionQuery(Guid userId, Guid companyId)
     {
         var now = DateTime.Now;
-        var query = from module in this.authContext.Modules
-                    join subscriptionCredit in this.authContext.SubscriptionCredits on module.Id equals subscriptionCredit.ModuleId
-                    join subscription in this.authContext.Subscriptions on subscriptionCredit.SubscriptionId equals subscription.Id
-                    join userRole in this.authContext.UserRoles on subscription.CompanyId equals userRole.CompanyId
-                    where userRole.UserId == userId
-                    && subscription.CompanyId == companyId
-                    && subscription.Status == SubscriptionStatus.Active
-                    && now >= subscription.StartDate && now <= subscription.EndDate
-                    && subscriptionCredit.IsActive
-                    && now >= subscriptionCredit.StartDate && now <= subscriptionCredit.EndDate
-                    select module;
 
-        return query.Distinct().ToListAsync(cancellationToken);
+        return from module in this.authContext.Modules
+               join subscriptionCredit in this.authContext.SubscriptionCredits on module.Id equals subscriptionCredit.ModuleId
+               join subscription in this.authContext.Subscriptions on subscriptionCredit.SubscriptionId equals subscription.Id
+               join userRole in this.authContext.UserRoles on subscription.CompanyId equals userRole.CompanyId
+               where userRole.UserId == userId
+               && subscription.CompanyId == companyId
+               && subscription.Status == SubscriptionStatus.Active
+               && now >= subscription.StartDate && now <= subscription.EndDate
+               && subscriptionCredit.IsActive
+               && now >= subscriptionCredit.StartDate && now <= subscriptionCredit.EndDate
+               select module;
     }
 }

@@ -11,34 +11,34 @@ using Enums;
 [Table("orders")]
 public class OrderModel : BaseModel
 {
-    [Required(ErrorMessage = "User ID is required")]
+    [Required]
     public Guid UserId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Company ID is required")]
+    [Required]
     public Guid CompanyId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Total amount is required")]
+    [Required]
     [Column(TypeName = "decimal(18,2)")]
-    [Range(minimum: 0, double.MaxValue, ErrorMessage = "Total amount must be greater than or equal to 0")]
+    [Range(0, double.MaxValue)]
     public decimal TotalAmount
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Sale date is required")]
+    [Required]
     [DataType(DataType.DateTime)]
     public DateTime SaleDate
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Order status is required")]
+    [Required]
     [EnumDataType(typeof(OrderStatus))]
     public OrderStatus Status
     {

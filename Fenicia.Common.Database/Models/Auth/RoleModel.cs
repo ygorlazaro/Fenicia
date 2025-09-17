@@ -9,16 +9,11 @@ using Database;
 [Table("roles")]
 public class RoleModel : BaseModel
 {
-    #region Properties
-
-    [Required(ErrorMessage = "Role name is required")]
-    [MaxLength(length: 10, ErrorMessage = "Role name cannot exceed 10 characters")]
+    [Required]
+    [MaxLength(10)]
     [Column("name")]
-    [Display(Name = "Role Name")]
     public string Name { get; set; } = null!;
 
     [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
-
-    #endregion
 }

@@ -19,7 +19,18 @@ public class ApiResponse<T>
         this.Message = new ErrorResponse { Message = message };
     }
 
-    public T? Data { get; set; }
-    public HttpStatusCode Status { get; set; }
-    public ErrorResponse Message { get; set; }
+    public T? Data
+    {
+        get; set;
+    }
+
+    public HttpStatusCode Status
+    {
+        get; set;
+    }
+
+    public ErrorResponse Message
+    {
+        get; set;
+    }
 }

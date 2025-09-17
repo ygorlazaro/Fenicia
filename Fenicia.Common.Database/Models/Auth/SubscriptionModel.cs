@@ -11,25 +11,25 @@ using Enums;
 [Table("subscriptions")]
 public class SubscriptionModel : BaseModel
 {
-    [Required(ErrorMessage = "Subscription status is required")]
+    [Required]
     public SubscriptionStatus Status
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Company ID is required")]
+    [Required]
     public Guid CompanyId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Start date is required")]
+    [Required]
     public DateTime StartDate
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "End date is required")]
+    [Required]
     public DateTime EndDate
     {
         get; set;
