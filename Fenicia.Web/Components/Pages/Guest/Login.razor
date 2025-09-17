@@ -1,4 +1,4 @@
-@page "/login"
+@page "/"
 @using Fenicia.Common.Database.Requests
 @using Fenicia.Web.Components.Layout
 @using Fenicia.Web.Providers.Auth
@@ -7,6 +7,7 @@
 @rendermode InteractiveServer
 
 @inject TokenProvider TokenProvider
+@inject NavigationManager Navigation
 
 
 @layout GuestLayout
@@ -71,5 +72,10 @@
     private async Task OnValidSubmit()
     {
         var userResponse = await TokenProvider.DoLoginAsync(model);
+
+        if (userResponse?.AccessToken is not null)
+        {
+            Navigation.NavigateTo("/home");
+        }
     }
 }
