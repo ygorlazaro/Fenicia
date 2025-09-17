@@ -31,7 +31,7 @@ public class UserController : ControllerBase
 
         this.logger.LogWarning("Getting log for the user {userID}", userId);
 
-        var response = await this.moduleService.GetUserModulesAsync(userId, companyId, cancellationToken);
+        var response = await this.moduleService.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
         return this.Ok(response);
     }
 }

@@ -136,4 +136,13 @@ public class ModuleService : IModuleService
 
         return new ApiResponse<List<ModuleResponse>>(mapped);
     }
+
+    public async Task<ApiResponse<List<ModuleResponse>>> GetModuleAndSubmoduleAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
+    {
+        var modules = await this.moduleRepository.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+
+        var mapped = ModuleResponse.Convert(modules);
+
+        return new ApiResponse<List<ModuleResponse>>(mapped);
+    }
 }

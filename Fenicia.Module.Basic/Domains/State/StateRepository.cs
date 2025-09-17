@@ -1,6 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.State;
 
 using Common.Database.Contexts;
+
 using Fenicia.Common.Database.Models.Basic;
 
 using Microsoft.EntityFrameworkCore;

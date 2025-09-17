@@ -9,25 +9,22 @@ using Database;
 [Table("users_roles")]
 public class UserRoleModel : BaseModel
 {
-    [Required(ErrorMessage = "User ID is required")]
+    [Required]
     [Column("user_id")]
-    [Display(Name = "User ID")]
     public Guid UserId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Role ID is required")]
+    [Required]
     [Column("role_id")]
-    [Display(Name = "Role ID")]
     public Guid RoleId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Company ID is required")]
+    [Required]
     [Column("company_id")]
-    [Display(Name = "Company ID")]
     public Guid CompanyId
     {
         get; set;
