@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class HrContext : DbContext
 {
-    public HrContext(DbContextOptions<HrContext> options) : base(options)
+    public HrContext(DbContextOptions<HrContext> options)
+        : base(options)
     {
     }
 

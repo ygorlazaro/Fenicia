@@ -1,16 +1,17 @@
+namespace Fenicia.Integration.RunCommandTool.Providers;
 
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 
-namespace Fenicia.Integration.RunCommandTool.Providers;
-
 public class OrderProvider : BaseProvider
 {
-    public OrderProvider(string baseUrl) : base(baseUrl)
+    public OrderProvider(string baseUrl)
+        : base(baseUrl)
     {
     }
 
-    public OrderProvider(string baseUrl, string accessToken) : base(baseUrl, accessToken)
+    public OrderProvider(string baseUrl, string accessToken)
+        : base(baseUrl, accessToken)
     {
     }
 
@@ -24,6 +25,6 @@ public class OrderProvider : BaseProvider
             })
         };
 
-        return await PostAsync<OrderResponse, OrderRequest>("order", orderRequest);
+        return await this.PostAsync<OrderResponse, OrderRequest>("order", orderRequest);
     }
 }

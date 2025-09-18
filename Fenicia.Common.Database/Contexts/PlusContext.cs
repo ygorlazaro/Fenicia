@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class PlusContext : DbContext
 {
-    public PlusContext(DbContextOptions<PlusContext> options) : base(options)
+    public PlusContext(DbContextOptions<PlusContext> options)
+        : base(options)
     {
     }
 

@@ -10,27 +10,27 @@ using Fenicia.Auth.Domains.RefreshToken;
 
 public class RefreshTokenRepositoryTests
 {
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
-    private AuthContext _context;
-    private Faker _faker;
-    private DbContextOptions<AuthContext> _options;
-    private RefreshTokenRepository _sut;
+    private readonly CancellationToken cancellationToken = CancellationToken.None;
+    private AuthContext context;
+    private Faker faker;
+    private DbContextOptions<AuthContext> options;
+    private RefreshTokenRepository sut;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
-        _context = new AuthContext(_options);
-        _sut = new RefreshTokenRepository(_context);
-        _faker = new Faker();
+        this.context = new AuthContext(this.options);
+        this.sut = new RefreshTokenRepository(this.context);
+        this.faker = new Faker();
     }
 
     [TearDown]
     public void TearDown()
     {
-        _context.Database.EnsureDeleted();
-        _context.Dispose();
+        this.context.Database.EnsureDeleted();
+        this.context.Dispose();
     }
 
     [Test]
@@ -41,17 +41,17 @@ public class RefreshTokenRepositoryTests
         {
             Id = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
-            Token = _faker.Random.Hash(),
+            Token = this.faker.Random.Hash(),
             ExpirationDate = DateTime.UtcNow.AddDays(value: 7),
             IsActive = true
         };
 
         // Act
-        _sut.Add(refreshToken);
-        await _sut.SaveChangesAsync(_cancellationToken);
+        this.sut.Add(refreshToken);
+        await this.sut.SaveChangesAsync(this.cancellationToken);
 
         // Assert
-        var savedToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Id == refreshToken.Id, _cancellationToken);
+        var savedToken = await this.context.RefreshTokens.FirstOrDefaultAsync(x => x.Id == refreshToken.Id, this.cancellationToken);
         Assert.That(savedToken, Is.Not.Null);
         Assert.Multiple(() =>
         {
@@ -67,7 +67,7 @@ public class RefreshTokenRepositoryTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var token = _faker.Random.Hash();
+        var token = this.faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
         {
             Id = Guid.NewGuid(),
@@ -77,11 +77,11 @@ public class RefreshTokenRepositoryTests
             IsActive = true
         };
 
-        await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.RefreshTokens.AddAsync(refreshToken, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.ValidateTokenAsync(userId, token, _cancellationToken);
+        var result = await this.sut.ValidateTokenAsync(userId, token, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -92,7 +92,7 @@ public class RefreshTokenRepositoryTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var token = _faker.Random.Hash();
+        var token = this.faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
         {
             Id = Guid.NewGuid(),
@@ -102,11 +102,11 @@ public class RefreshTokenRepositoryTests
             IsActive = true
         };
 
-        await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.RefreshTokens.AddAsync(refreshToken, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.ValidateTokenAsync(userId, token, _cancellationToken);
+        var result = await this.sut.ValidateTokenAsync(userId, token, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -117,7 +117,7 @@ public class RefreshTokenRepositoryTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var token = _faker.Random.Hash();
+        var token = this.faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
         {
             Id = Guid.NewGuid(),
@@ -127,11 +127,11 @@ public class RefreshTokenRepositoryTests
             IsActive = false
         };
 
-        await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.RefreshTokens.AddAsync(refreshToken, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.ValidateTokenAsync(userId, token, _cancellationToken);
+        var result = await this.sut.ValidateTokenAsync(userId, token, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -143,7 +143,7 @@ public class RefreshTokenRepositoryTests
         // Arrange
         var userId = Guid.NewGuid();
         var wrongUserId = Guid.NewGuid();
-        var token = _faker.Random.Hash();
+        var token = this.faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
         {
             Id = Guid.NewGuid(),
@@ -153,11 +153,11 @@ public class RefreshTokenRepositoryTests
             IsActive = true
         };
 
-        await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.RefreshTokens.AddAsync(refreshToken, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.ValidateTokenAsync(wrongUserId, token, _cancellationToken);
+        var result = await this.sut.ValidateTokenAsync(wrongUserId, token, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -167,7 +167,7 @@ public class RefreshTokenRepositoryTests
     public async Task InvalidateRefreshTokenAsync_DeactivatesToken()
     {
         // Arrange
-        var token = _faker.Random.Hash();
+        var token = this.faker.Random.Hash();
         var refreshToken = new RefreshTokenModel
         {
             Id = Guid.NewGuid(),
@@ -177,14 +177,14 @@ public class RefreshTokenRepositoryTests
             IsActive = true
         };
 
-        await _context.RefreshTokens.AddAsync(refreshToken, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.RefreshTokens.AddAsync(refreshToken, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        await _sut.InvalidateRefreshTokenAsync(token, _cancellationToken);
+        await this.sut.InvalidateRefreshTokenAsync(token, this.cancellationToken);
 
         // Assert
-        var updatedToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.Id == refreshToken.Id, _cancellationToken);
+        var updatedToken = await this.context.RefreshTokens.FirstOrDefaultAsync(x => x.Id == refreshToken.Id, this.cancellationToken);
         Assert.That(updatedToken, Is.Not.Null);
         Assert.That(updatedToken.IsActive, Is.False);
     }
@@ -193,10 +193,10 @@ public class RefreshTokenRepositoryTests
     public void InvalidateRefreshTokenAsync_HandlesNonExistentToken()
     {
         // Arrange
-        var nonExistentToken = _faker.Random.Hash();
+        var nonExistentToken = this.faker.Random.Hash();
 
         // Act & Assert
-        Assert.DoesNotThrowAsync(() => _sut.InvalidateRefreshTokenAsync(nonExistentToken, _cancellationToken));
+        Assert.DoesNotThrowAsync(() => this.sut.InvalidateRefreshTokenAsync(nonExistentToken, this.cancellationToken));
     }
 
     [Test]
@@ -204,10 +204,10 @@ public class RefreshTokenRepositoryTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var nonExistentToken = _faker.Random.Hash();
+        var nonExistentToken = this.faker.Random.Hash();
 
         // Act
-        var result = await _sut.ValidateTokenAsync(userId, nonExistentToken, _cancellationToken);
+        var result = await this.sut.ValidateTokenAsync(userId, nonExistentToken, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);

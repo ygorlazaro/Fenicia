@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class ContractsContext : DbContext
 {
-    public ContractsContext(DbContextOptions<ContractsContext> options) : base(options)
+    public ContractsContext(DbContextOptions<ContractsContext> options)
+        : base(options)
     {
     }
 

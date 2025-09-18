@@ -14,23 +14,23 @@ using Common.API;
 
 public class TokenService : ITokenService
 {
-    private readonly IConfiguration _configuration;
-    private readonly ILogger<TokenService> _logger;
+    private readonly IConfiguration configuration;
+    private readonly ILogger<TokenService> logger;
 
     public TokenService(ILogger<TokenService> logger)
     {
-        _configuration = AppSettingsReader.GetConfiguration();
-        _logger = logger;
+        this.configuration = AppSettingsReader.GetConfiguration();
+        this.logger = logger;
     }
 
     public ApiResponse<string> GenerateToken(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
     {
         try
         {
-            _logger.LogInformation("Starting token generation for user {UserID}", user.Id);
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
+            this.logger.LogInformation("Starting token generation for user {UserID}", user.Id);
+            var key = Encoding.ASCII.GetBytes(this.configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
 
-            var authClaims = GenerateClaims(user, roles, companyId, modules);
+            var authClaims = this.GenerateClaims(user, roles, companyId, modules);
             var authSigningKey = new SymmetricSecurityKey(key);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -44,17 +44,17 @@ public class TokenService : ITokenService
 
             var finalToken = tokenHandler.WriteToken(token);
 
-            _logger.LogInformation("Token successfully generated for user {UserID}", user.Id);
+            this.logger.LogInformation("Token successfully generated for user {UserID}", user.Id);
             return new ApiResponse<string>(finalToken);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating token for user {UserID}", user.Id);
+            this.logger.LogError(ex, "Error generating token for user {UserID}", user.Id);
             throw;
         }
         finally
         {
-            _logger.LogDebug("Token generation process completed for user {UserID}", user.Id);
+            this.logger.LogDebug("Token generation process completed for user {UserID}", user.Id);
         }
     }
 
@@ -62,11 +62,11 @@ public class TokenService : ITokenService
     {
         var authClaims = new List<Claim>
                          {
-                             new("userId", user.Id.ToString()),
-                             new(ClaimTypes.Email, user.Email),
-                             new(ClaimTypes.Name, user.Name),
-                             new("companyId", companyId.ToString()),
-                             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                             new ("userId", user.Id.ToString()),
+                             new (ClaimTypes.Email, user.Email),
+                             new (ClaimTypes.Name, user.Name),
+                             new ("companyId", companyId.ToString()),
+                             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                          };
 
         authClaims.AddRange(roles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
@@ -77,7 +77,7 @@ public class TokenService : ITokenService
             return authClaims;
         }
 
-        _logger.LogDebug("Adding ERP module access for God role user {UserID}", user.Id);
+        this.logger.LogDebug("Adding ERP module access for God role user {UserID}", user.Id);
         authClaims.Add(new Claim("module", "erp"));
 
         return authClaims;

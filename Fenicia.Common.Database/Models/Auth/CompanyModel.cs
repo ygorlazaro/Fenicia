@@ -11,42 +11,35 @@ using Requests;
 [Table("companies")]
 public class CompanyModel : BaseModel
 {
-    [Required(ErrorMessage = "Company name is required")]
-    [MaxLength(length: 50, ErrorMessage = "Company name cannot exceed 50 characters")]
-    [Display(Name = "Company Name")]
+    [Required]
+    [MaxLength(50)]
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [Required(ErrorMessage = "CNPJ is required")]
-    [MinLength(length: 14, ErrorMessage = "CNPJ must be 14 characters")]
-    [MaxLength(length: 14, ErrorMessage = "CNPJ must be 14 characters")]
-    [Display(Name = "CNPJ")]
+    [Required]
+    [MinLength(14)]
+    [MaxLength(14)]
     [Column("cnpj")]
     public string Cnpj { get; set; } = null!;
 
     [Required]
-    [Display(Name = "Active Status")]
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
 
-    [MaxLength(length: 32, ErrorMessage = "Logo file name cannot exceed 32 characters")]
-    [Display(Name = "Company Logo")]
+    [MaxLength(32)]
     [Column("logo")]
     public string? Logo { get; set; } = null!;
 
     [Required]
-    [MaxLength(length: 256, ErrorMessage = "Timezone cannot exceed 256 characters")]
-    [Display(Name = "Time Zone")]
+    [MaxLength(256)]
     [Column("time_zone")]
     public string TimeZone { get; set; } = TimeZoneInfo.Local.StandardName;
 
     [Required]
-    [MaxLength(length: 10, ErrorMessage = "Language code cannot exceed 10 characters")]
-    [Display(Name = "Language")]
+    [MaxLength(10)]
     [Column("language")]
     public string Language { get; set; } = "pt-BR";
 
-    [Display(Name = "Address ID")]
     [Column("address_id")]
     public Guid? AddressId
     {

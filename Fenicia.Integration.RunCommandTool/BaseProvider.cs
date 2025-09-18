@@ -1,25 +1,31 @@
+namespace Fenicia.Integration.RunCommandTool;
+
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
-namespace Fenicia.Integration.RunCommandTool;
-
 public abstract class BaseProvider
 {
-    private readonly HttpClient _client;
+    private readonly HttpClient client;
 
     protected BaseProvider(string baseUrl)
     {
-        _client = new HttpClient
+        this.client = new HttpClient
         {
             BaseAddress = new Uri(baseUrl)
         };
     }
 
-    protected BaseProvider(string baseUrl, string accessToken) : this(baseUrl)
+    protected BaseProvider(string baseUrl, string accessToken)
+        : this(baseUrl)
     {
-        SetToken(accessToken);
+        this.SetToken(accessToken);
+    }
+
+    public void SetToken(string accessToken)
+    {
+        this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
     }
 
     protected async Task<TResponse> PostAsync<TResponse, TRequest>(string route, TRequest request)
@@ -27,7 +33,7 @@ public abstract class BaseProvider
         using StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8,
                                       "application/json");
 
-        var response = await _client.PostAsync(route, content);
+        var response = await this.client.PostAsync(route, content);
 
         var deserialized = await response.Content.ReadFromJsonAsync<TResponse>();
 
@@ -36,20 +42,14 @@ public abstract class BaseProvider
         return deserialized;
     }
 
-    public void SetToken(string accessToken)
-    {
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-    }
-
     protected async Task<T> GetAsync<T>(string route)
     {
-        var response = await _client.GetAsync(route);
+        var response = await this.client.GetAsync(route);
 
         var data = await response.Content.ReadFromJsonAsync<T>();
 
         ArgumentNullException.ThrowIfNull(data);
 
         return data;
-
     }
 }

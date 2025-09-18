@@ -11,47 +11,47 @@ using Fenicia.Auth.Domains.User;
 
 public class ForgotPasswordService : IForgotPasswordService
 {
-    private readonly ILogger<ForgotPasswordService> _logger;
-    private readonly IForgotPasswordRepository _forgotPasswordRepository;
-    private readonly IUserService _userService;
+    private readonly ILogger<ForgotPasswordService> logger;
+    private readonly IForgotPasswordRepository forgotPasswordRepository;
+    private readonly IUserService userService;
 
     public ForgotPasswordService(ILogger<ForgotPasswordService> logger, IForgotPasswordRepository forgotPasswordRepository, IUserService userService)
     {
-        _logger = logger;
-        _forgotPasswordRepository = forgotPasswordRepository;
-        _userService = userService;
+        this.logger = logger;
+        this.forgotPasswordRepository = forgotPasswordRepository;
+        this.userService = userService;
     }
 
     public async Task<ApiResponse<ForgotPasswordResponse>> ResetPasswordAsync(ForgotPasswordRequestReset request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Resetting password for user {email}", request.Email);
-        var userId = await _userService.GetUserIdFromEmailAsync(request.Email, cancellationToken);
+        this.logger.LogInformation("Resetting password for user {email}", request.Email);
+        var userId = await this.userService.GetUserIdFromEmailAsync(request.Email, cancellationToken);
 
         if (userId.Data is null)
         {
-            _logger.LogWarning("User with email {email} not found", request.Email);
+            this.logger.LogWarning("User with email {email} not found", request.Email);
             return new ApiResponse<ForgotPasswordResponse>(data: null, HttpStatusCode.NotFound, TextConstants.InvalidUsernameOrPassword);
         }
 
-        var currentCode = await _forgotPasswordRepository.GetFromUserIdAndCodeAsync(userId.Data.Id, request.Code, cancellationToken);
+        var currentCode = await this.forgotPasswordRepository.GetFromUserIdAndCodeAsync(userId.Data.Id, request.Code, cancellationToken);
 
         if (currentCode is null)
         {
-            _logger.LogWarning("No code found for user {email}", request.Email);
+            this.logger.LogWarning("No code found for user {email}", request.Email);
 
             return new ApiResponse<ForgotPasswordResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ResetPasswordCodeNotFound);
         }
 
-        await _userService.ChangePasswordAsync(currentCode.UserId, request.Password, cancellationToken);
-        await _forgotPasswordRepository.InvalidateCodeAsync(currentCode.Id, cancellationToken);
+        await this.userService.ChangePasswordAsync(currentCode.UserId, request.Password, cancellationToken);
+        await this.forgotPasswordRepository.InvalidateCodeAsync(currentCode.Id, cancellationToken);
 
         return new ApiResponse<ForgotPasswordResponse>(ForgotPasswordResponse.Convert(currentCode));
     }
 
     public async Task<ApiResponse<ForgotPasswordResponse>> SaveForgotPasswordAsync(ForgotPasswordRequest forgotPassword, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Saving forgot password for user {email}", forgotPassword.Email);
-        var userId = await _userService.GetUserIdFromEmailAsync(forgotPassword.Email, cancellationToken);
+        this.logger.LogInformation("Saving forgot password for user {email}", forgotPassword.Email);
+        var userId = await this.userService.GetUserIdFromEmailAsync(forgotPassword.Email, cancellationToken);
 
         if (userId.Data is null)
         {
@@ -66,7 +66,7 @@ public class ForgotPasswordService : IForgotPasswordService
             UserId = userId.Data.Id
         };
 
-        var response = await _forgotPasswordRepository.SaveForgotPasswordAsync(request, cancellationToken);
+        var response = await this.forgotPasswordRepository.SaveForgotPasswordAsync(request, cancellationToken);
         var mapped = ForgotPasswordResponse.Convert(response);
 
         return new ApiResponse<ForgotPasswordResponse>(mapped);

@@ -8,18 +8,18 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class StateController : ControllerBase
 {
-    private readonly IStateService _stateProvider;
+    private readonly IStateService stateProvider;
 
     public StateController(IStateService stateProvider)
     {
-        _stateProvider = stateProvider;
+        this.stateProvider = stateProvider;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllAsync()
     {
-        var states = await _stateProvider.GetAllAsync();
+        var states = await this.stateProvider.GetAllAsync();
 
-        return Ok(states);
+        return this.Ok(states);
     }
 }

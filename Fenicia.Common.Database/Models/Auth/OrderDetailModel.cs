@@ -9,23 +9,23 @@ using Database;
 [Table("order_details")]
 public class OrderDetailModel : BaseModel
 {
-    [Required(ErrorMessage = "Order ID is required")]
+    [Required]
     [Column("order_id")]
     public Guid OrderId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Module ID is required")]
+    [Required]
     [Column("module_id")]
     public Guid ModuleId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Amount is required")]
+    [Required]
     [Column("amount", TypeName = "decimal(18,2)")]
-    [Range(minimum: 0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0")]
+    [Range(0.01, double.MaxValue)]
     public decimal Amount
     {
         get; set;

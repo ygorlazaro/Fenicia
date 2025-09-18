@@ -1,0 +1,16 @@
+{
+    "settings": {
+        "documentationRules": {
+            "companyName": "Gato Ninja",
+            "documentExposedElements": false,
+            "documentInternalElements": false
+        },
+        "layoutRules": {
+            "allowConsecutiveUsings": false,
+            "newlineAtEndOfFile": "require"
+        },
+        "orderingRules": {
+            "usingDirectivesPlacement": "outsideNamespace"
+        }
+    }
+}

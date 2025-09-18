@@ -1,10 +1,10 @@
+namespace Fenicia.Common.Migrations.Services;
+
 using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Enums;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-
-namespace Fenicia.Common.Migrations.Services;
 
 public class MigrationService : IMigrationService
 {
@@ -57,5 +57,4 @@ public class MigrationService : IMigrationService
             _ => throw new NotSupportedException($"Module {type} not supported")
         };
     }
-
 }
