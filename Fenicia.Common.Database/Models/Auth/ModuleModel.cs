@@ -15,14 +15,14 @@ using Responses;
 [Table("modules")]
 public class ModuleModel : BaseModel
 {
-    [Required(ErrorMessage = "Module name is required")]
-    [MaxLength(length: 30, ErrorMessage = "Module name cannot exceed 30 characters")]
-    [MinLength(length: 3, ErrorMessage = "Module name must be at least 3 characters")]
+    [Required]
+    [MaxLength(30)]
+    [MinLength(3)]
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [Required(ErrorMessage = "Amount is required")]
-    [Range(minimum: 0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0")]
+    [Required]
+    [Range(0.01, double.MaxValue)]
     [Column("amount")]
     [Precision(precision: 18, scale: 2)]
     public decimal Amount
@@ -30,7 +30,7 @@ public class ModuleModel : BaseModel
         get; set;
     }
 
-    [Required(ErrorMessage = "Module type is required")]
+    [Required]
     [Column("type")]
     [EnumDataType(typeof(ModuleType))]
     public ModuleType Type
@@ -43,6 +43,8 @@ public class ModuleModel : BaseModel
 
     [JsonIgnore]
     public virtual List<OrderDetailModel> OrderDetails { get; set; } = [];
+
+    public virtual List<SubmoduleModel> Submodules { get; set; } = [];
 
     public static ModuleModel Convert(ModuleResponse module)
     {

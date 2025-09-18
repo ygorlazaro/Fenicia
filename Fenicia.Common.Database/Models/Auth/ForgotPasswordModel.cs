@@ -8,33 +8,28 @@ using Database;
 [Table("forgotten_passwords")]
 public class ForgotPasswordModel : BaseModel
 {
-    [Required(ErrorMessage = "User ID is required")]
+    [Required]
     [Column("user_id")]
-    [Display(Name = "User ID")]
     public Guid UserId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Verification code is required")]
+    [Required]
     [Column("code")]
-    [StringLength(maximumLength: 100, MinimumLength = 6, ErrorMessage = "Code must be between 6 and 100 characters")]
-    [Display(Name = "Verification Code")]
+    [StringLength(maximumLength: 100, MinimumLength = 6)]
     [DataType(DataType.Text)]
     public string Code { get; set; } = null!;
 
     [Required]
     [Column("expiration_date")]
-    [Display(Name = "Expiration Date")]
     [DataType(DataType.DateTime)]
     public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(value: 1);
 
     [Required]
     [Column("is_active")]
-    [Display(Name = "Is Active")]
     public bool IsActive { get; set; } = true;
 
     [ForeignKey(nameof(ForgotPasswordModel.UserId))]
-    [Display(Name = "User")]
     public virtual UserModel User { get; set; } = null!;
 }

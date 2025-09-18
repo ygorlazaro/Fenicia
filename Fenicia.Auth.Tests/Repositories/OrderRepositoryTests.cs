@@ -13,28 +13,28 @@ using Fenicia.Auth.Domains.Order;
 
 public class OrderRepositoryTests
 {
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
-    private AuthContext _context;
-    private Faker _faker;
-    private DbContextOptions<AuthContext> _options;
-    private OrderRepository _sut;
+    private readonly CancellationToken cancellationToken = CancellationToken.None;
+    private AuthContext context;
+    private Faker faker;
+    private DbContextOptions<AuthContext> options;
+    private OrderRepository sut;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
         var mockLogger = new Mock<ILogger<OrderRepository>>().Object;
-        _context = new AuthContext(_options);
-        _sut = new OrderRepository(_context, mockLogger);
-        _faker = new Faker();
+        this.context = new AuthContext(this.options);
+        this.sut = new OrderRepository(this.context, mockLogger);
+        this.faker = new Faker();
     }
 
     [TearDown]
     public void TearDown()
     {
-        _context.Database.EnsureDeleted();
-        _context.Dispose();
+        this.context.Database.EnsureDeleted();
+        this.context.Dispose();
     }
 
     [Test]
@@ -49,13 +49,13 @@ public class OrderRepositoryTests
         };
 
         // Act
-        var result = await _sut.SaveOrderAsync(order, _cancellationToken);
+        var result = await this.sut.SaveOrderAsync(order, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Id, Is.EqualTo(order.Id));
 
-        var savedOrder = await _context.Orders.FindAsync([order.Id], _cancellationToken);
+        var savedOrder = await this.context.Orders.FindAsync([order.Id], this.cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
         Assert.Multiple(() =>
         {
@@ -76,11 +76,11 @@ public class OrderRepositoryTests
         };
 
         // Act
-        await _sut.SaveOrderAsync(order, _cancellationToken);
+        await this.sut.SaveOrderAsync(order, this.cancellationToken);
 
         // Assert
-        await using var context = new AuthContext(_options);
-        var savedOrder = await context.Orders.FindAsync([order.Id], _cancellationToken);
+        await using var context = new AuthContext(this.options);
+        var savedOrder = await context.Orders.FindAsync([order.Id], this.cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
         Assert.Multiple(() =>
         {
@@ -105,25 +105,26 @@ public class OrderRepositoryTests
                             {
                                 Id = Guid.NewGuid(),
                                 ModuleId = Guid.NewGuid(),
-                                Amount = _faker.Random.Int(min: 1, max: 10)
+                                Amount = this.faker.Random.Int(min: 1, max: 10)
                             },
                             new OrderDetailModel
                             {
                                 Id = Guid.NewGuid(),
                                 ModuleId = Guid.NewGuid(),
-                                Amount = _faker.Random.Int(min: 1, max: 10)
+                                Amount = this.faker.Random.Int(min: 1, max: 10)
                             }
+
                         ]
         };
 
         // Act
-        var result = await _sut.SaveOrderAsync(order, _cancellationToken);
+        var result = await this.sut.SaveOrderAsync(order, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Details, Has.Count.EqualTo(expected: 2));
 
-        var savedOrder = await _context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == order.Id, _cancellationToken);
+        var savedOrder = await this.context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == order.Id, this.cancellationToken);
 
         Assert.That(savedOrder, Is.Not.Null);
         Assert.That(savedOrder.Details, Has.Count.EqualTo(expected: 2));

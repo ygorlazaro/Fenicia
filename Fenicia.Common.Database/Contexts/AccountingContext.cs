@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class AccountingContext : DbContext
 {
-    public AccountingContext(DbContextOptions<AccountingContext> options) : base(options)
+    public AccountingContext(DbContextOptions<AccountingContext> options)
+        : base(options)
     {
     }
 

@@ -17,7 +17,7 @@ namespace Fenicia.Auth.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -443,6 +443,55 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("states", (string)null);
                 });
 
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Auth.SubmoduleModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("description");
+
+                    b.Property<Guid>("ModuleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("module_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Route")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("route");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.HasKey("Id")
+                        .HasName("pk_submodules");
+
+                    b.HasIndex("ModuleId")
+                        .HasDatabaseName("ix_submodules_module_id");
+
+                    b.ToTable("submodules", (string)null);
+                });
+
             modelBuilder.Entity("Fenicia.Common.Database.Models.Auth.SubscriptionCreditModel", b =>
                 {
                     b.Property<Guid>("Id")
@@ -731,6 +780,18 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Auth.SubmoduleModel", b =>
+                {
+                    b.HasOne("Fenicia.Common.Database.Models.Auth.ModuleModel", "Module")
+                        .WithMany("Submodules")
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_submodules_modules_module_id");
+
+                    b.Navigation("Module");
+                });
+
             modelBuilder.Entity("Fenicia.Common.Database.Models.Auth.SubscriptionCreditModel", b =>
                 {
                     b.HasOne("Fenicia.Common.Database.Models.Auth.ModuleModel", "Module")
@@ -820,6 +881,8 @@ namespace Fenicia.Auth.Migrations
             modelBuilder.Entity("Fenicia.Common.Database.Models.Auth.ModuleModel", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("Submodules");
 
                     b.Navigation("SubscriptionCredits");
                 });

@@ -15,13 +15,13 @@ using Microsoft.AspNetCore.Mvc;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ErpController : ControllerBase
 {
-    private readonly IModuleService _moduleService;
-    private readonly IStateService _stateService;
+    private readonly IModuleService moduleService;
+    private readonly IStateService stateService;
 
     public ErpController(IModuleService moduleService, IStateService stateService)
     {
-        _moduleService = moduleService;
-        _stateService = stateService;
+        this.moduleService = moduleService;
+        this.stateService = stateService;
     }
 
     [HttpGet]
@@ -29,8 +29,8 @@ public class ErpController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LoadInfoAsync(CancellationToken cancellationToken)
     {
-        var modules = await _moduleService.LoadModulesAtDatabaseAsync(cancellationToken);
-        var states = await _stateService.LoadStatesAtDatabaseAsync(cancellationToken);
+        var modules = await this.moduleService.LoadModulesAtDatabaseAsync(cancellationToken);
+        var states = await this.stateService.LoadStatesAtDatabaseAsync(cancellationToken);
 
         var response = new
         {
@@ -38,6 +38,6 @@ public class ErpController : ControllerBase
             States = states
         };
 
-        return Ok(response);
+        return this.Ok(response);
     }
 }

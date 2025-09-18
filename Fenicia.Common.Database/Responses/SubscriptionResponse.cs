@@ -10,13 +10,11 @@ using Models.Auth;
 [Serializable]
 public class SubscriptionResponse
 {
-    [Required]
     public Guid Id
     {
         get; set;
     }
 
-    [Required]
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public SubscriptionStatus Status
     {

@@ -21,27 +21,27 @@ using Fenicia.Auth.Domains.User;
 
 public class OrderServiceTests
 {
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
-    private Faker _faker;
-    private Mock<ILogger<OrderService>> _loggerMock;
-    private Mock<IModuleService> _moduleServiceMock;
-    private Mock<IOrderRepository> _orderRepositoryMock;
-    private Mock<ISubscriptionService> _subscriptionServiceMock;
-    private OrderService _sut;
-    private Mock<IUserService> _userServiceMock;
+    private readonly CancellationToken cancellationToken = CancellationToken.None;
+    private Faker faker;
+    private Mock<ILogger<OrderService>> loggerMock;
+    private Mock<IModuleService> moduleServiceMock;
+    private Mock<IOrderRepository> orderRepositoryMock;
+    private Mock<ISubscriptionService> subscriptionServiceMock;
+    private OrderService sut;
+    private Mock<IUserService> userServiceMock;
 
     [SetUp]
     public void Setup()
     {
-        _loggerMock = new Mock<ILogger<OrderService>>();
-        _orderRepositoryMock = new Mock<IOrderRepository>();
-        _moduleServiceMock = new Mock<IModuleService>();
-        _subscriptionServiceMock = new Mock<ISubscriptionService>();
-        _userServiceMock = new Mock<IUserService>();
+        this.loggerMock = new Mock<ILogger<OrderService>>();
+        this.orderRepositoryMock = new Mock<IOrderRepository>();
+        this.moduleServiceMock = new Mock<IModuleService>();
+        this.subscriptionServiceMock = new Mock<ISubscriptionService>();
+        this.userServiceMock = new Mock<IUserService>();
 
-        _sut = new OrderService(_loggerMock.Object, _orderRepositoryMock.Object, _moduleServiceMock.Object, _subscriptionServiceMock.Object, _userServiceMock.Object);
+        this.sut = new OrderService(this.loggerMock.Object, this.orderRepositoryMock.Object, this.moduleServiceMock.Object, this.subscriptionServiceMock.Object, this.userServiceMock.Object);
 
-        _faker = new Faker();
+        this.faker = new Faker();
     }
 
     [Test]
@@ -52,10 +52,10 @@ public class OrderServiceTests
         var companyId = Guid.NewGuid();
         var request = new OrderRequest { Details = [] };
 
-        _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: false));
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: false));
 
         // Act
-        var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
+        var result = await this.sut.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -78,14 +78,14 @@ public class OrderServiceTests
 
         var emptyModulesList = new List<ModuleResponse>();
 
-        _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
-        _moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(emptyModulesList));
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(emptyModulesList));
 
-        _moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken)).ReturnsAsync(new ApiResponse<ModuleResponse>(data: null));
+        this.moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken)).ReturnsAsync(new ApiResponse<ModuleResponse>(data: null));
 
         // Act
-        var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
+        var result = await this.sut.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -101,7 +101,7 @@ public class OrderServiceTests
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var moduleId = Guid.NewGuid();
-        var moduleAmount = _faker.Random.Decimal(min: 10, max: 1000);
+        var moduleAmount = this.faker.Random.Decimal(min: 10, max: 1000);
 
         var request = new OrderRequest
         {
@@ -110,7 +110,7 @@ public class OrderServiceTests
 
         var moduleResponses = new List<ModuleResponse>
                               {
-                                  new()
+                                  new ()
                                   {
                                       Id = moduleId,
                                       Amount = moduleAmount,
@@ -122,18 +122,18 @@ public class OrderServiceTests
         {
             Id = Guid.NewGuid(),
             Type = ModuleType.Basic,
-            Amount = _faker.Random.Decimal(min: 10, max: 1000)
+            Amount = this.faker.Random.Decimal(min: 10, max: 1000)
         };
 
         var moduleModels = new List<ModuleModel>
                            {
-                               new()
+                               new ()
                                {
                                    Id = moduleId,
                                    Amount = moduleAmount,
                                    Type = ModuleType.Accounting
                                },
-                               new()
+                               new ()
                                {
                                    Id = basicModuleResponse.Id,
                                    Amount = basicModuleResponse.Amount,
@@ -149,14 +149,14 @@ public class OrderServiceTests
             TotalAmount = moduleAmount + basicModuleResponse.Amount
         };
 
-        _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
-        _moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
-        _moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken)).ReturnsAsync(new ApiResponse<ModuleResponse>(basicModuleResponse));
+        this.moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken)).ReturnsAsync(new ApiResponse<ModuleResponse>(basicModuleResponse));
 
         // Act
-        var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
+        var result = await this.sut.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
         Assert.Multiple(() =>
         {
@@ -165,9 +165,9 @@ public class OrderServiceTests
             Assert.That(result.Data, Is.Not.Null);
         });
 
-        _orderRepositoryMock.Verify(x => x.SaveOrderAsync(It.Is<OrderModel>(o => o.UserId == userId && o.Status == OrderStatus.Approved), _cancellationToken), Times.Once);
+        this.orderRepositoryMock.Verify(x => x.SaveOrderAsync(It.Is<OrderModel>(o => o.UserId == userId && o.Status == OrderStatus.Approved), this.cancellationToken), Times.Once);
 
-        _subscriptionServiceMock.Verify(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, _cancellationToken), Times.Once);
+        this.subscriptionServiceMock.Verify(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, this.cancellationToken), Times.Once);
     }
 
     [Test]
@@ -177,7 +177,7 @@ public class OrderServiceTests
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var basicModuleId = Guid.NewGuid();
-        var moduleAmount = _faker.Random.Decimal(min: 10, max: 1000);
+        var moduleAmount = this.faker.Random.Decimal(min: 10, max: 1000);
 
         var request = new OrderRequest
         {
@@ -186,7 +186,7 @@ public class OrderServiceTests
 
         var moduleResponses = new List<ModuleResponse>
                               {
-                                  new()
+                                  new ()
                                   {
                                       Id = basicModuleId,
                                       Amount = moduleAmount,
@@ -196,7 +196,7 @@ public class OrderServiceTests
 
         var moduleModels = new List<ModuleModel>
                            {
-                               new()
+                               new ()
                                {
                                    Id = basicModuleId,
                                    Amount = moduleAmount,
@@ -204,15 +204,15 @@ public class OrderServiceTests
                                }
                            };
 
-        _userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, _cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
-        _moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), _cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
 
         // Act
-        var result = await _sut.CreateNewOrderAsync(userId, companyId, request, _cancellationToken);
+        var result = await this.sut.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
         // Assert
         Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        _moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, _cancellationToken), Times.Never);
+        this.moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken), Times.Never);
     }
 }
