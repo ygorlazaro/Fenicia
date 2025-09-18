@@ -9,44 +9,36 @@ using Database;
 [Table("subscription_credits")]
 public class SubscriptionCreditModel : BaseModel
 {
-    [Required(ErrorMessage = "Subscription ID is required")]
-    [Display(Name = "Subscription")]
+    [Required]
     public Guid SubscriptionId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Module ID is required")]
-    [Display(Name = "Module")]
+    [Required]
     public Guid ModuleId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Active status is required")]
-    [Display(Name = "Is Active")]
+    [Required]
     public bool IsActive
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "Start date is required")]
-    [Display(Name = "Start Date")]
-    [DataType(DataType.DateTime)]
+    [Required]
     public DateTime StartDate
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "End date is required")]
-    [Display(Name = "End Date")]
-    [DataType(DataType.DateTime)]
+    [Required]
     public DateTime EndDate
     {
         get; set;
     }
 
-    [Display(Name = "Order Detail")]
     public Guid? OrderDetailId
     {
         get; set;

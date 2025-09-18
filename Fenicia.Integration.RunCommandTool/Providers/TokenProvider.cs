@@ -1,13 +1,12 @@
-
+namespace Fenicia.Integration.RunCommandTool.Providers;
 
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 
-namespace Fenicia.Integration.RunCommandTool.Providers;
-
-public class TokenProvider: BaseProvider
+public class TokenProvider : BaseProvider
 {
-    public TokenProvider(string baseUrl): base(baseUrl)
+    public TokenProvider(string baseUrl)
+        : base(baseUrl)
     {
     }
 
@@ -20,6 +19,6 @@ public class TokenProvider: BaseProvider
             Password = password
         };
 
-        return await PostAsync<TokenResponse, TokenRequest>("token", tokenRequest);
+        return await this.PostAsync<TokenResponse, TokenRequest>("token", tokenRequest);
     }
 }

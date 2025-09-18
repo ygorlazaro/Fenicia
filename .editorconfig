@@ -47,3 +47,42 @@ dotnet_diagnostic.IDE0005.severity = error
 
 # IDE0002: Simplify Member Access
 dotnet_diagnostic.IDE0002.severity = none
+
+# ✅ Propriedades auto-implementadas { get; set; } na mesma linha
+csharp_style_prefer_auto_properties = true:error
+
+# ✅ Linha em branco antes de if, for, foreach, switch, return
+csharp_new_line_before_control_flow_statement = true:suggestion
+
+# ✅ Não permitir mais de uma linha em branco em sequência
+dotnet_style_allow_multiple_blank_lines = false:error
+
+# ✅ Variáveis sequenciais sem linhas em branco entre elas
+dotnet_style_sequential_variable_declarations_no_blank_lines = true:error
+
+# ✅ Sempre usar chaves em if, for, foreach, do, while (já está configurado)
+csharp_prefer_braces = true:error
+
+# Default severity for analyzer diagnostics with category 'StyleCop.CSharp.DocumentationRules'
+dotnet_analyzer_diagnostic.category-StyleCop.CSharp.DocumentationRules.severity = none
+
+# SA1413: Use trailing comma in multi-line initializers
+dotnet_diagnostic.SA1413.severity = none
+
+# SA1010: Opening square brackets should be spaced correctly
+dotnet_diagnostic.SA1010.severity = none
+
+# SA1011: Closing square brackets should be spaced correctly
+dotnet_diagnostic.SA1011.severity = none
+
+# IDE0003: Remove qualification
+dotnet_diagnostic.IDE0003.severity = none
+
+# SA1009: Closing parenthesis should be spaced correctly
+dotnet_diagnostic.SA1009.severity = none
+
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity = none
+
+# SA1000: Keywords should be spaced correctly
+dotnet_diagnostic.SA1000.severity = none

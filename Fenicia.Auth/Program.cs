@@ -11,7 +11,6 @@ using Common.Database.Contexts;
 using Common.Externals.Email;
 
 using Domains.DataCache;
-using Domains.LoginAttempt.Logic;
 
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.ForgotPassword;
@@ -51,6 +50,7 @@ public static class Program
         {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
+
         configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
         var configuration = configBuilder;
 

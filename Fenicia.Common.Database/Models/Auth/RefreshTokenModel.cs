@@ -9,24 +9,24 @@ using Database;
 [Table("refresh_tokens")]
 public class RefreshTokenModel : BaseModel
 {
-    [Required(ErrorMessage = "Token is required")]
-    [MaxLength(length: 256, ErrorMessage = "Token cannot exceed 256 characters")]
+    [Required]
+    [MaxLength(256)]
     [Column("token")]
     public string Token { get; set; } = null!;
 
-    [Required(ErrorMessage = "Expiration date is required")]
+    [Required]
     [Column("expiration_date")]
     [DataType(DataType.DateTime)]
     public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(value: 7);
 
-    [Required(ErrorMessage = "User ID is required")]
+    [Required]
     [Column("user_id")]
     public Guid UserId
     {
         get; set;
     }
 
-    [Required(ErrorMessage = "IsActive status is required")]
+    [Required]
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
 

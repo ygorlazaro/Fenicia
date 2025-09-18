@@ -12,27 +12,27 @@ using Fenicia.Auth.Domains.Module;
 
 public class ModuleRepositoryTests
 {
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
-    private AuthContext _context;
-    private Faker _faker;
-    private DbContextOptions<AuthContext> _options;
-    private ModuleRepository _sut;
+    private readonly CancellationToken cancellationToken = CancellationToken.None;
+    private AuthContext context;
+    private Faker faker;
+    private DbContextOptions<AuthContext> options;
+    private ModuleRepository sut;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
-        _context = new AuthContext(_options);
-        _sut = new ModuleRepository(_context);
-        _faker = new Faker();
+        this.context = new AuthContext(this.options);
+        this.sut = new ModuleRepository(this.context);
+        this.faker = new Faker();
     }
 
     [TearDown]
     public void TearDown()
     {
-        _context.Database.EnsureDeleted();
-        _context.Dispose();
+        this.context.Database.EnsureDeleted();
+        this.context.Dispose();
     }
 
     [Test]
@@ -46,16 +46,16 @@ public class ModuleRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)(i % 5),
-                Name = _faker.Commerce.ProductName()
+                Name = this.faker.Commerce.ProductName()
             });
         }
 
-        await _context.Modules.AddRangeAsync(modules, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var page1 = await _sut.GetAllOrderedAsync(_cancellationToken, page: 1, perPage: 10);
-        var page2 = await _sut.GetAllOrderedAsync(_cancellationToken, page: 2, perPage: 10);
+        var page1 = await this.sut.GetAllOrderedAsync(this.cancellationToken, page: 1, perPage: 10);
+        var page2 = await this.sut.GetAllOrderedAsync(this.cancellationToken, page: 2, perPage: 10);
 
         Assert.Multiple(() =>
         {
@@ -70,7 +70,7 @@ public class ModuleRepositoryTests
     public async Task GetAllOrderedAsync_ReturnsEmptyList_WhenNoModules()
     {
         // Act
-        var result = await _sut.GetAllOrderedAsync(_cancellationToken);
+        var result = await this.sut.GetAllOrderedAsync(this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -89,20 +89,20 @@ public class ModuleRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)i,
-                Name = _faker.Commerce.ProductName()
+                Name = this.faker.Commerce.ProductName()
             };
             modules.Add(module);
-            if (i < 3) // Request only first 3 modules
+            if (i < 3)
             {
                 requestedIDs.Add(module.Id);
             }
         }
 
-        await _context.Modules.AddRangeAsync(modules, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.GetManyOrdersAsync(requestedIDs, _cancellationToken);
+        var result = await this.sut.GetManyOrdersAsync(requestedIDs, this.cancellationToken);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(expected: 3));
@@ -120,7 +120,7 @@ public class ModuleRepositoryTests
         var nonExistentIDs = new[] { Guid.NewGuid(), Guid.NewGuid() };
 
         // Act
-        var result = await _sut.GetManyOrdersAsync(nonExistentIDs, _cancellationToken);
+        var result = await this.sut.GetManyOrdersAsync(nonExistentIDs, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -135,14 +135,14 @@ public class ModuleRepositoryTests
         {
             Id = Guid.NewGuid(),
             Type = moduleType,
-            Name = _faker.Commerce.ProductName()
+            Name = this.faker.Commerce.ProductName()
         };
 
-        await _context.Modules.AddAsync(module, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.Modules.AddAsync(module, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.GetModuleByTypeAsync(moduleType, _cancellationToken);
+        var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -157,7 +157,7 @@ public class ModuleRepositoryTests
     public async Task GetModuleByTypeAsync_ReturnsNull_WhenNotExists()
     {
         // Act
-        var result = await _sut.GetModuleByTypeAsync(ModuleType.Accounting, _cancellationToken);
+        var result = await this.sut.GetModuleByTypeAsync(ModuleType.Accounting, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -176,15 +176,15 @@ public class ModuleRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)i,
-                Name = _faker.Commerce.ProductName()
+                Name = this.faker.Commerce.ProductName()
             });
         }
 
-        await _context.Modules.AddRangeAsync(modules, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var count = await _sut.CountAsync(_cancellationToken);
+        var count = await this.sut.CountAsync(this.cancellationToken);
 
         // Assert
         Assert.That(count, Is.EqualTo(expectedCount));
@@ -194,7 +194,7 @@ public class ModuleRepositoryTests
     public async Task CountAsync_ReturnsZero_WhenNoModules()
     {
         // Act
-        var count = await _sut.CountAsync(_cancellationToken);
+        var count = await this.sut.CountAsync(this.cancellationToken);
 
         // Assert
         Assert.That(count, Is.Zero);
@@ -211,18 +211,18 @@ public class ModuleRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)(i % 5),
-                Name = _faker.Commerce.ProductName()
+                Name = this.faker.Commerce.ProductName()
             });
         }
 
-        await _context.Modules.AddRangeAsync(modules, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act & Assert
-        var page1Size5 = await _sut.GetAllOrderedAsync(_cancellationToken, page: 1, perPage: 5);
+        var page1Size5 = await this.sut.GetAllOrderedAsync(this.cancellationToken, page: 1, perPage: 5);
         Assert.That(page1Size5, Has.Count.EqualTo(expected: 5));
 
-        var page2Size15 = await _sut.GetAllOrderedAsync(_cancellationToken, page: 2, perPage: 15);
+        var page2Size15 = await this.sut.GetAllOrderedAsync(this.cancellationToken, page: 2, perPage: 15);
         Assert.That(page2Size15, Has.Count.EqualTo(expected: 10));
     }
 }

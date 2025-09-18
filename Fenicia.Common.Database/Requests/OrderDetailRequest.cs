@@ -4,8 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 public class OrderDetailRequest
 {
-    [Required(ErrorMessage = "Module ID is required")]
-    [Display(Name = "Module ID")]
+    [Required(ErrorMessage = "Module is required")]
     public Guid ModuleId
     {
         get; set;

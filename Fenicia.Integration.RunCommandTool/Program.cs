@@ -1,7 +1,10 @@
-﻿using Fenicia.Common.Database.Responses;
+﻿#pragma warning disable SA1200 // Using directives should be placed correctly
+using Fenicia.Common.Database.Responses;
+using Fenicia.Integration.RunCommandTool;
 using Fenicia.Integration.RunCommandTool.Providers;
 
 using Spectre.Console;
+#pragma warning restore SA1200 // Using directives should be placed correctly
 
 var baseUrl = "http://localhost:5144";
 
@@ -19,8 +22,9 @@ AnsiConsole.Clear();
 
 AnsiConsole.WriteLine("Token received!");
 
-var option = new SelectionOption(0, "");
-var choices = new SelectionOption[] {
+var option = new SelectionOption(0, string.Empty);
+var choices = new SelectionOption[]
+{
     new (0, "-- EXIT --"),
     new (1, "1 - Create new user with new company"),
     new (2, "2 - Create modules database for a company")
@@ -33,9 +37,9 @@ var userToken = new TokenResponse();
 do
 {
     option = AnsiConsole.Prompt(new SelectionPrompt<SelectionOption>()
-                        .Title("What to do?").AddChoices(choices).UseConverter(x => x.Description));
+                        .Title("What to do?").AddChoices(choices).UseConverter(x => x.description));
 
-    switch (option.Id)
+    switch (option.id)
     {
         case 1:
             var createdUser = await userProvider.CreateNewUserAsync(userMock);
@@ -56,8 +60,7 @@ do
                 .AddChoice(true)
                 .AddChoice(false)
                 .DefaultValue(true)
-                .WithConverter(x => x ? "y" : "n")
-            );
+                .WithConverter(x => x ? "y" : "n"));
 
             if (answer)
             {
@@ -71,7 +74,6 @@ do
             }
 
             userToken = await tokenProvider.DoLoginAsync(userMock.Email, userMock.Password, userMock.Company.Cnpj);
-
 
             break;
 
@@ -87,7 +89,5 @@ do
         default:
             break;
     }
-
-} while (option.Id != 0);
-
-public record SelectionOption(int Id, string Description);
+}
+while (option.id != 0);

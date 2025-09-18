@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class PerformanceEvaluationContext : DbContext
 {
-    public PerformanceEvaluationContext(DbContextOptions<PerformanceEvaluationContext> options) : base(options)
+    public PerformanceEvaluationContext(DbContextOptions<PerformanceEvaluationContext> options)
+        : base(options)
     {
     }
 
