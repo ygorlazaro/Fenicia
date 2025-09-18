@@ -73,9 +73,6 @@
     {
         var userResponse = await TokenProvider.DoLoginAsync(model);
 
-        if (userResponse?.AccessToken is not null)
-        {
-            Navigation.NavigateTo("/home");
-        }
+        Navigation.NavigateTo("/home");
     }
 }

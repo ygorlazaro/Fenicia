@@ -31,7 +31,7 @@ public class TokenProvider
         if (response.IsSuccessStatusCode)
         {
             var responseContent = await response.Content.ReadAsStringAsync();
-            var userResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<UserResponse>(responseContent);
+            var userResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<TokenResponse>(responseContent);
 
             return JsonSerializer.Deserialize<TokenResponse>(responseContent) ?? throw new NullReferenceException();
         }
