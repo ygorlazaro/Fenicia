@@ -32,6 +32,7 @@ public class Program
         {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
+
         configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
         var configuration = configBuilder;
 

@@ -8,7 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class BasicContext : DbContext
 {
-    public BasicContext(DbContextOptions<BasicContext> options) : base(options)
+    public BasicContext(DbContextOptions<BasicContext> options)
+        : base(options)
     {
     }
 

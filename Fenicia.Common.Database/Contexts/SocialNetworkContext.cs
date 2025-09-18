@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class SocialNetworkContext : DbContext
 {
-    public SocialNetworkContext(DbContextOptions<SocialNetworkContext> options) : base(options)
+    public SocialNetworkContext(DbContextOptions<SocialNetworkContext> options)
+        : base(options)
     {
     }
 

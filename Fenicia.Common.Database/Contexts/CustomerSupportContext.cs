@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class CustomerSupportContext : DbContext
 {
-    public CustomerSupportContext(DbContextOptions<CustomerSupportContext> options) : base(options)
+    public CustomerSupportContext(DbContextOptions<CustomerSupportContext> options)
+        : base(options)
     {
     }
 
