@@ -6,11 +6,11 @@ using Providers;
 
 public class TenantMiddleware
 {
-    private readonly RequestDelegate next;
+    private readonly RequestDelegate _next;
 
     public TenantMiddleware(RequestDelegate next)
     {
-        this.next = next;
+        this._next = next;
     }
 
     public async Task Invoke(HttpContext context, TenantProvider tenantProvider)
@@ -24,6 +24,6 @@ public class TenantMiddleware
             }
         }
 
-        await this.next(context);
+        await _next(context);
     }
 }

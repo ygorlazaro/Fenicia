@@ -10,24 +10,24 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 public class ApiAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private readonly HttpClient httpClient;
-    private readonly ILocalStorageService localStorage;
+    private readonly HttpClient _httpClient;
+    private readonly ILocalStorageService _localStorage;
 
     public ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
     {
-        this.httpClient = httpClient;
-        this.localStorage = localStorage;
+        this._httpClient = httpClient;
+        this._localStorage = localStorage;
     }
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var savedToken = await localStorage.GetItemAsync<string>("authToken");
+        var savedToken = await _localStorage.GetItemAsync<string>("authToken");
 
         if (string.IsNullOrWhiteSpace(savedToken))
         {
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
 
-        this.httpClient.DefaultRequestHeaders.Authorization =
+        _httpClient.DefaultRequestHeaders.Authorization =
              new AuthenticationHeaderValue("bearer", savedToken);
 
         return new AuthenticationState(new ClaimsPrincipal(
@@ -56,36 +56,36 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     {
         var claims = new List<Claim>();
         var payload = jwt.Split('.')[1];
-        var jsonBytes = this.ParseBase64WithoutPadding(payload);
+        var jsonBytes = ApiAuthenticationStateProvider.ParseBase64WithoutPadding(payload);
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
-        keyValuePairs.TryGetValue(ClaimTypes.Role, out object roles);
+        ArgumentNullException.ThrowIfNull(keyValuePairs);
 
-        if (roles != null)
+        keyValuePairs.TryGetValue(ClaimTypes.Role, out var roles);
+
+        ArgumentNullException.ThrowIfNull(roles);
+
+        if ((bool)roles.ToString()?.Trim().StartsWith($"["))
         {
-            if (roles.ToString().Trim().StartsWith("["))
-            {
-                var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
+            var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString() ?? string.Empty);
 
-                foreach (var parsedRole in parsedRoles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, parsedRole));
-                }
-            }
-            else
-            {
-                claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
-            }
+            ArgumentNullException.ThrowIfNull(parsedRoles);
 
-            keyValuePairs.Remove(ClaimTypes.Role);
+            claims.AddRange(parsedRoles.Select(parsedRole => new Claim(ClaimTypes.Role, parsedRole)));
+        }
+        else
+        {
+            claims.Add(new Claim(ClaimTypes.Role, roles.ToString() ?? string.Empty));
         }
 
-        claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
+        keyValuePairs.Remove(ClaimTypes.Role);
+
+        claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString() ?? string.Empty)));
 
         return claims;
     }
 
-    private byte[] ParseBase64WithoutPadding(string base64)
+    private static byte[] ParseBase64WithoutPadding(string base64)
     {
         switch (base64.Length % 4)
         {

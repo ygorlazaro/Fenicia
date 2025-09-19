@@ -6,13 +6,13 @@ using Fenicia.Common.Database.Models.Auth;
 
 public class OrderRepository : IOrderRepository
 {
-    private readonly AuthContext authContext;
-    private readonly ILogger<OrderRepository> logger;
+    private readonly AuthContext _authContext;
+    private readonly ILogger<OrderRepository> _logger;
 
     public OrderRepository(AuthContext authContext, ILogger<OrderRepository> logger)
     {
-        this.authContext = authContext;
-        this.logger = logger;
+        this._authContext = authContext;
+        this._logger = logger;
     }
 
     public async Task<OrderModel> SaveOrderAsync(OrderModel order, CancellationToken cancellationToken)
@@ -21,17 +21,17 @@ public class OrderRepository : IOrderRepository
 
         try
         {
-            this.logger.LogInformation("Saving order {OrderID} to database", order.Id);
+            _logger.LogInformation("Saving order {OrderID} to database", order.Id);
 
-            this.authContext.Orders.Add(order);
-            await this.authContext.SaveChangesAsync(cancellationToken);
+            _authContext.Orders.Add(order);
+            await _authContext.SaveChangesAsync(cancellationToken);
 
-            this.logger.LogInformation("Successfully saved order {OrderID}", order.Id);
+            _logger.LogInformation("Successfully saved order {OrderID}", order.Id);
             return order;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Failed to save order {OrderID}", order.Id);
+            _logger.LogError(ex, "Failed to save order {OrderID}", order.Id);
             throw new InvalidOperationException("Failed to save order to database", ex);
         }
     }

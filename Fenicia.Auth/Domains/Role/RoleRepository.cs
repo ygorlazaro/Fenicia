@@ -7,32 +7,32 @@ using Microsoft.EntityFrameworkCore;
 
 public class RoleRepository : IRoleRepository
 {
-    private readonly AuthContext authContext;
-    private readonly ILogger<RoleRepository> logger;
+    private readonly AuthContext _authContext;
+    private readonly ILogger<RoleRepository> _logger;
 
     public RoleRepository(AuthContext authContext, ILogger<RoleRepository> logger)
     {
-        this.authContext = authContext;
-        this.logger = logger;
+        this._authContext = authContext;
+        this._logger = logger;
     }
 
     public async Task<RoleModel?> GetAdminRoleAsync(CancellationToken cancellationToken)
     {
         try
         {
-            this.logger.LogInformation("Attempting to retrieve Admin role");
-            var adminRole = await this.authContext.Roles.Where(role => role.Name == "Admin").FirstOrDefaultAsync(cancellationToken);
+            _logger.LogInformation("Attempting to retrieve Admin role");
+            var adminRole = await _authContext.Roles.Where(role => role.Name == "Admin").FirstOrDefaultAsync(cancellationToken);
 
             if (adminRole == null)
             {
-                this.logger.LogWarning("Admin role not found in the database");
+                _logger.LogWarning("Admin role not found in the database");
             }
 
             return adminRole;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while retrieving Admin role");
+            _logger.LogError(ex, "Error occurred while retrieving Admin role");
             throw;
         }
     }

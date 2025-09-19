@@ -32,26 +32,26 @@ public class ModuleController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Retrieving modules with pagination: Page {Page}, Items per page {PerPage}", query.Page, query.PerPage);
+            logger.LogInformation("Retrieving modules with pagination: Page {Page}, Items per page {PerPage}", query.Page, query.PerPage);
 
-            var modules = await this.moduleService.GetAllOrderedAsync(cancellationToken, query.Page, query.PerPage);
-            var total = await this.moduleService.CountAsync(cancellationToken);
+            var modules = await moduleService.GetAllOrderedAsync(cancellationToken, query.Page, query.PerPage);
+            var total = await moduleService.CountAsync(cancellationToken);
 
             if (modules.Data is null)
             {
-                this.logger.LogWarning("No modules data found. Status: {Status}, Message: {Message}", modules.Status, modules.Message);
-                return this.StatusCode((int)modules.Status, modules.Message);
+                logger.LogWarning("No modules data found. Status: {Status}, Message: {Message}", modules.Status, modules.Message);
+                return StatusCode((int)modules.Status, modules.Message);
             }
 
             var pagination = new Pagination<List<ModuleResponse>>(modules.Data, total.Data, query.Page, query.PerPage);
 
-            this.logger.LogInformation("Successfully retrieved {Count} modules", modules.Data.Count);
-            return this.Ok(pagination);
+            logger.LogInformation("Successfully retrieved {Count} modules", modules.Data.Count);
+            return Ok(pagination);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while retrieving modules");
-            return this.StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request");
+            logger.LogError(ex, "Error occurred while retrieving modules");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request");
         }
     }
 }

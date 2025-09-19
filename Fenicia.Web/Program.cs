@@ -14,7 +14,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<HttpClient>();
 builder.Services.AddScoped<ApiAuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<TokenProvider>();
-builder.Services.AddScoped<SignUpProvider>();
+builder.Services.AddScoped<RegisterProvider>();
 
 var app = builder.Build();
 

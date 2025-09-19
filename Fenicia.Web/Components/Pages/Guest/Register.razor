@@ -1,12 +1,11 @@
-@page "/signup"
+@page "/register"
 @using Fenicia.Common.Database.Requests
 @using Fenicia.Web.Components.Layout
 @using Fenicia.Web.Providers.Auth
-@using Microsoft.Extensions.Hosting.Internal
 
 @rendermode InteractiveServer
 
-@inject SignUpProvider SignUpProvider
+@inject RegisterProvider RegisterProvider
 @inject NavigationManager NavigationManager;
 
 
@@ -21,7 +20,7 @@
     }
 </style>
 
-<PageTitle>Fenicia - Sign Up</PageTitle>
+<PageTitle>Fenicia - Register</PageTitle>
 
 <div class="container">
     <div class="row justify-content-center">
@@ -31,44 +30,44 @@
             </div>
             <div class="card mt-4 p-4 rounded-5">
                 <div class="card-body">
-                    <h2 class="card-title">Sign Up</h2>
-                    <EditForm Model="@model" OnValidSubmit="OnValidSubmit" FormName="LoginForm">
+                    <h2 class="card-title">Register</h2>
+                    <EditForm Model="@_model" OnValidSubmit="OnValidSubmit" FormName="LoginForm">
                         <DataAnnotationsValidator />
                         <div class="form-group">
                             <label for="companyName" class="control-label">Company Name</label>
                             <div class="input-group">
-                                <InputText id="companyName" @bind-Value="@model.Company.Name" class="form-control" />
+                                <InputText id="companyName" @bind-Value="@_model.Company.Name" class="form-control" />
                             </div>
-                            <ValidationMessage For="@(() => model.Company.Name)" class="text-danger" />
+                            <ValidationMessage For="@(() => _model.Company.Name)" class="text-danger" />
                         </div>
                         <div class="form-group">
                             <label for="cnpj" class="control-label">CNPJ</label>
                             <div class="input-group">
-                                <InputText id="cnpj" @bind-Value="@model.Company.Cnpj" class="form-control" />
+                                <InputText id="cnpj" @bind-Value="@_model.Company.Cnpj" class="form-control" />
                             </div>
-                            <ValidationMessage For="@(() => model.Company.Cnpj)" class="text-danger" />
+                            <ValidationMessage For="@(() => _model.Company.Cnpj)" class="text-danger" />
                         </div>
                         <div class="form-group">
                             <label for="name" class="control-label">Name</label>
                             <div class="input-group">
-                                <InputText id="name" @bind-Value="@model.Name" class="form-control" />
+                                <InputText id="name" @bind-Value="@_model.Name" class="form-control" />
                             </div>
-                            <ValidationMessage For="@(() => model.Email)" class="text-danger" />
+                            <ValidationMessage For="@(() => _model.Email)" class="text-danger" />
                         </div>
                         <div class="form-group">
                             <label for="email" class="control-label">Email</label>
                             <div class="input-group">
-                                <InputText id="email" @bind-Value="@model.Email" class="form-control" type="email" />
+                                <InputText id="email" @bind-Value="@_model.Email" class="form-control" type="email" />
                             </div>
-                            <ValidationMessage For="@(() => model.Email)" class="text-danger" />
+                            <ValidationMessage For="@(() => _model.Email)" class="text-danger" />
                         </div>
                         <div class="form-group">
                             <label for="password" class="control-label">Password</label>
                             <div class="input-group">
-                                <InputText id="password" @bind-Value="@model.Password" class="form-control"
+                                <InputText id="password" @bind-Value="@_model.Password" class="form-control"
                                     type="password" />
                             </div>
-                            <ValidationMessage For="@(() => model.Password)" class="text-danger" />
+                            <ValidationMessage For="@(() => _model.Password)" class="text-danger" />
                         </div>
                         <div class="form-group mt-3">
                             <button type="submit" class="btn btn-primary">Login</button>
@@ -81,11 +80,11 @@
 </div>
 
 @code {
-    private UserRequest model = new UserRequest() { Company = new() };
+    private readonly UserRequest _model = new() { Company = new CompanyRequest() };
 
     private async Task OnValidSubmit()
     {
-        await SignUpProvider.SignUpAsync(model);
+        await RegisterProvider.RegisterAsync(_model);
 
         NavigationManager.NavigateTo("/");
     }

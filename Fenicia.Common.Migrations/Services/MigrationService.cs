@@ -1,7 +1,7 @@
 namespace Fenicia.Common.Migrations.Services;
 
-using Fenicia.Common.Database.Contexts;
-using Fenicia.Common.Enums;
+using Database.Contexts;
+using Enums;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -15,7 +15,7 @@ public class MigrationService : IMigrationService
             var (dbContextType, migrationsAssembly, connectionStringName) = MigrationService.GetModuleDbInfo(module);
 
             // Get the real connection string from appsettings.json
-            var rawConnectionString = Fenicia.Common.API.AppSettingsReader.GetConnectionString(connectionStringName);
+            var rawConnectionString = API.AppSettingsReader.GetConnectionString(connectionStringName);
             if (string.IsNullOrWhiteSpace(rawConnectionString))
             {
                 throw new InvalidOperationException($"Connection string '{connectionStringName}' not found in appsettings.json");

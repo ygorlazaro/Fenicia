@@ -8,15 +8,15 @@ using Microsoft.EntityFrameworkCore;
 
 public class StateRepository : IStateRepository
 {
-    private readonly BasicContext basicContext;
+    private readonly BasicContext _basicContext;
 
     public StateRepository(BasicContext basicContext)
     {
-        this.basicContext = basicContext;
+        this._basicContext = basicContext;
     }
 
     public async Task<List<StateModel>> GetAllAsync()
     {
-        return await this.basicContext.States.OrderBy(s => s.Uf).ToListAsync();
+        return await _basicContext.States.OrderBy(s => s.Uf).ToListAsync();
     }
 }

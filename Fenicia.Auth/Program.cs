@@ -12,20 +12,20 @@ using Common.Externals.Email;
 
 using Domains.DataCache;
 
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.ForgotPassword;
-using Fenicia.Auth.Domains.LoginAttempt;
+using Domains.Company;
+using Domains.ForgotPassword;
+using Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Order;
-using Fenicia.Auth.Domains.RefreshToken;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.State;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.SubscriptionCredit;
-using Fenicia.Auth.Domains.Token;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
+using Domains.Order;
+using Domains.RefreshToken;
+using Domains.Role;
+using Domains.Security;
+using Domains.State;
+using Domains.Subscription;
+using Domains.SubscriptionCredit;
+using Domains.Token;
+using Domains.User;
+using Domains.UserRole;
 using Fenicia.Common.Migrations.Services;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;

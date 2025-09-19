@@ -6,24 +6,24 @@ using Microsoft.Extensions.Logging;
 
 public class ExceptionMiddleware
 {
-    private readonly RequestDelegate next;
-    private readonly ILogger<ExceptionMiddleware> logger;
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionMiddleware> _logger;
 
     public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
     {
-        this.next = next;
-        this.logger = logger;
+        this._next = next;
+        this._logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await this.next(context);
+            await _next(context);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Erro não tratado");
+            _logger.LogError(ex, "Erro não tratado");
 
             var problem = new ProblemDetails
             {

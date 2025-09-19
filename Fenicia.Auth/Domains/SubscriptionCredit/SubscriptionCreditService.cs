@@ -3,7 +3,7 @@ namespace Fenicia.Auth.Domains.SubscriptionCredit;
 using Common;
 using Common.Enums;
 
-using Fenicia.Auth.Domains.Subscription;
+using Subscription;
 
 public class SubscriptionCreditService : ISubscriptionCreditService
 {
@@ -24,31 +24,31 @@ public class SubscriptionCreditService : ISubscriptionCreditService
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.logger.LogInformation("Getting active modules types for company {CompanyID}", companyId);
+            logger.LogInformation("Getting active modules types for company {CompanyID}", companyId);
 
-            var validSubscriptions = await this.subscriptionService.GetValidSubscriptionsAsync(companyId, cancellationToken);
+            var validSubscriptions = await subscriptionService.GetValidSubscriptionsAsync(companyId, cancellationToken);
 
             if (validSubscriptions.Data is null)
             {
-                this.logger.LogWarning("No valid subscriptions found for company {CompanyID}", companyId);
+                logger.LogWarning("No valid subscriptions found for company {CompanyID}", companyId);
                 return new ApiResponse<List<ModuleType>>(data: null, validSubscriptions.Status, validSubscriptions.Message.Message ?? string.Empty);
             }
 
-            this.logger.LogDebug("Found {Count} valid subscriptions for company {CompanyID}", validSubscriptions.Data.Count, companyId);
+            logger.LogDebug("Found {Count} valid subscriptions for company {CompanyID}", validSubscriptions.Data.Count, companyId);
 
-            var validModules = await this.subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions.Data, cancellationToken);
+            var validModules = await subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions.Data, cancellationToken);
 
-            this.logger.LogInformation("Retrieved {Count} active module types for company {CompanyID}", validModules.Count, companyId);
+            logger.LogInformation("Retrieved {Count} active module types for company {CompanyID}", validModules.Count, companyId);
             return new ApiResponse<List<ModuleType>>(validModules);
         }
         catch (OperationCanceledException)
         {
-            this.logger.LogWarning("Operation was cancelled while getting active modules for company {CompanyID}", companyId);
+            logger.LogWarning("Operation was cancelled while getting active modules for company {CompanyID}", companyId);
             throw;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error getting active modules for company {CompanyID}", companyId);
+            logger.LogError(ex, "Error getting active modules for company {CompanyID}", companyId);
             throw;
         }
     }

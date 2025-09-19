@@ -10,8 +10,8 @@
         <AuthorizeView>
             <Authorized>
                 <div class="top-row px-4">
-                    @Username
-                    @Company
+                    @_username
+                    @_company
                     <NavLink href="/">Logout</NavLink>
                 </div>
 
@@ -21,7 +21,7 @@
             </Authorized>
             <NotAuthorized>
                 <NavLink href="/">Login</NavLink>
-                <NavLink href="/signup">Sign up</NavLink>
+                <NavLink href="/register">Register</NavLink>
             </NotAuthorized>
         </AuthorizeView>
 
@@ -35,7 +35,7 @@
 </div>
 
 @code {
-    private string Username = "Ygor";
+    private string _username = "Ygor";
 
-    private string Company = "Gato Ninja";
+    private string _company = "Gato Ninja";
 }

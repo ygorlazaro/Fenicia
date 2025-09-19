@@ -14,6 +14,6 @@ public class MigrationProvider : BaseProvider
 
     public async Task<object> CreateDatabasesAsync(string cnpj)
     {
-        return await this.PostAsync<object, string>("migration", cnpj);
+        return await PostAsync<object, string>("migration", cnpj);
     }
 }

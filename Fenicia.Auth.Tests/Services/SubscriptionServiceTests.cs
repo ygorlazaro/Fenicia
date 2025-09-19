@@ -10,21 +10,21 @@ using Common.Enums;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.Subscription;
+using Domains.Subscription;
 
 public class SubscriptionServiceTests
 {
-    private readonly CancellationToken cancellationToken = CancellationToken.None;
-    private Mock<ILogger<SubscriptionService>> loggerMock;
-    private Mock<ISubscriptionRepository> subscriptionRepositoryMock;
-    private SubscriptionService sut;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private Mock<ILogger<SubscriptionService>> _loggerMock;
+    private Mock<ISubscriptionRepository> _subscriptionRepositoryMock;
+    private SubscriptionService _sut;
 
     [SetUp]
     public void Setup()
     {
-        this.loggerMock = new Mock<ILogger<SubscriptionService>>();
-        this.subscriptionRepositoryMock = new Mock<ISubscriptionRepository>();
-        this.sut = new SubscriptionService(this.loggerMock.Object, this.subscriptionRepositoryMock.Object);
+        _loggerMock = new Mock<ILogger<SubscriptionService>>();
+        _subscriptionRepositoryMock = new Mock<ISubscriptionRepository>();
+        _sut = new SubscriptionService(_loggerMock.Object, _subscriptionRepositoryMock.Object);
     }
 
     [Test]
@@ -43,12 +43,12 @@ public class SubscriptionServiceTests
         var expectedResponse = new SubscriptionResponse();
 
         // Act
-        var result = await this.sut.CreateCreditsForOrderAsync(order, orderDetails, companyId, this.cancellationToken);
+        var result = await _sut.CreateCreditsForOrderAsync(order, orderDetails, companyId, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedResponse));
 
-        this.subscriptionRepositoryMock.Verify(x => x.SaveSubscriptionAsync(It.Is<SubscriptionModel>(s => s.CompanyId == companyId && s.OrderId == order.Id && s.Status == SubscriptionStatus.Active && s.Credits.Count == orderDetails.Count), this.cancellationToken), Times.Once);
+        _subscriptionRepositoryMock.Verify(x => x.SaveSubscriptionAsync(It.Is<SubscriptionModel>(s => s.CompanyId == companyId && s.OrderId == order.Id && s.Status == SubscriptionStatus.Active && s.Credits.Count == orderDetails.Count), _cancellationToken), Times.Once);
     }
 
     [Test]
@@ -60,16 +60,16 @@ public class SubscriptionServiceTests
         var emptyDetails = new List<OrderDetailModel>();
 
         // Act
-        var result = await this.sut.CreateCreditsForOrderAsync(order, emptyDetails, companyId, this.cancellationToken);
+        var result = await _sut.CreateCreditsForOrderAsync(order, emptyDetails, companyId, _cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(result.Data, Is.Null);
-        });
+        }
 
-        this.subscriptionRepositoryMock.Verify(x => x.SaveSubscriptionAsync(It.IsAny<SubscriptionModel>(), this.cancellationToken), Times.Never);
+        _subscriptionRepositoryMock.Verify(x => x.SaveSubscriptionAsync(It.IsAny<SubscriptionModel>(), _cancellationToken), Times.Never);
     }
 
     [Test]
@@ -84,15 +84,15 @@ public class SubscriptionServiceTests
                                         Guid.NewGuid()
                                     };
 
-        this.subscriptionRepositoryMock.Setup(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken)).ReturnsAsync(expectedSubscriptions);
+        _subscriptionRepositoryMock.Setup(x => x.GetValidSubscriptionAsync(companyId, _cancellationToken)).ReturnsAsync(expectedSubscriptions);
 
         // Act
-        var result = await this.sut.GetValidSubscriptionsAsync(companyId, this.cancellationToken);
+        var result = await _sut.GetValidSubscriptionsAsync(companyId, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.EqualTo(expectedSubscriptions));
 
-        this.subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken), Times.Once);
+        _subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, _cancellationToken), Times.Once);
     }
 
     [Test]
@@ -102,15 +102,15 @@ public class SubscriptionServiceTests
         var companyId = Guid.NewGuid();
         var emptyList = new List<Guid>();
 
-        this.subscriptionRepositoryMock.Setup(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken)).ReturnsAsync(emptyList);
+        _subscriptionRepositoryMock.Setup(x => x.GetValidSubscriptionAsync(companyId, _cancellationToken)).ReturnsAsync(emptyList);
 
         // Act
-        var result = await this.sut.GetValidSubscriptionsAsync(companyId, this.cancellationToken);
+        var result = await _sut.GetValidSubscriptionsAsync(companyId, _cancellationToken);
 
         // Assert
         Assert.That(result.Data, Is.Empty);
 
-        this.subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken), Times.Once);
+        _subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, _cancellationToken), Times.Once);
     }
 
     [Test]
@@ -126,23 +126,23 @@ public class SubscriptionServiceTests
         var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
 
         SubscriptionModel capturedSubscription = null!;
-        this.subscriptionRepositoryMock.Setup(x => x.SaveSubscriptionAsync(It.IsAny<SubscriptionModel>(), this.cancellationToken)).Callback<SubscriptionModel, CancellationToken>((s, _) => capturedSubscription = s);
+        _subscriptionRepositoryMock.Setup(x => x.SaveSubscriptionAsync(It.IsAny<SubscriptionModel>(), _cancellationToken)).Callback<SubscriptionModel, CancellationToken>((s, _) => capturedSubscription = s);
 
         // Act
-        await this.sut.CreateCreditsForOrderAsync(order, orderDetails, companyId, this.cancellationToken);
+        await _sut.CreateCreditsForOrderAsync(order, orderDetails, companyId, _cancellationToken);
 
         // Assert
         Assert.That(capturedSubscription, Is.Not.Null);
         Assert.That(capturedSubscription.Credits, Has.Count.EqualTo(expected: 1));
 
         var credit = capturedSubscription.Credits.First();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(credit.StartDate.Date, Is.EqualTo(DateTime.UtcNow.Date));
             Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.UtcNow.AddMonths(months: 1).Date));
             Assert.That(credit.IsActive, Is.True);
             Assert.That(credit.OrderDetailId, Is.EqualTo(orderDetails[index: 0].Id));
             Assert.That(credit.ModuleId, Is.EqualTo(orderDetails[index: 0].ModuleId));
-        });
+        }
     }
 }

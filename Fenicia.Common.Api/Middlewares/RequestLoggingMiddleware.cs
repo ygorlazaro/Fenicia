@@ -11,7 +11,7 @@ public class RequestLoggingMiddleware
     public RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
     {
         this.next = next;
-        this.logger = loggerFactory.CreateLogger<RequestLoggingMiddleware>();
+        logger = loggerFactory.CreateLogger<RequestLoggingMiddleware>();
     }
 
     public async Task Invoke(HttpContext context)
@@ -20,11 +20,11 @@ public class RequestLoggingMiddleware
 
         try
         {
-            await this.next(context).ConfigureAwait(continueOnCapturedContext: false);
+            await next(context).ConfigureAwait(continueOnCapturedContext: false);
         }
         finally
         {
-            this.logger.LogInformation("{Date} Request {Method} {Url} {Params} {Ip} => {StatusCode}", DateTimeOffset.Now, context.Request.Method, context.Request.Path.Value, context.Request.QueryString, context.Connection.RemoteIpAddress?.ToString(), context.Response != null ? context.Response.StatusCode : null);
+            logger.LogInformation("{Date} Request {Method} {Url} {Params} {Ip} => {StatusCode}", DateTimeOffset.Now, context.Request.Method, context.Request.Path.Value, context.Request.QueryString, context.Connection.RemoteIpAddress?.ToString(), context.Response.StatusCode);
         }
     }
 }

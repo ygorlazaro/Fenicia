@@ -7,7 +7,7 @@ using Bogus;
 using Common.Database.Responses;
 using Common.Enums;
 
-using Fenicia.Auth.Domains.Token;
+using Domains.Token;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -16,24 +16,24 @@ using Moq;
 
 public class TokenServiceTests
 {
-    private Mock<IConfiguration> configurationMock = null!;
-    private Faker faker = null!;
-    private string jwtSecret = null!;
-    private Mock<ILogger<TokenService>> loggerMock = null!;
-    private TokenService sut = null!;
+    private Mock<IConfiguration> _configurationMock = null!;
+    private Faker _faker = null!;
+    private string _jwtSecret = null!;
+    private Mock<ILogger<TokenService>> _loggerMock = null!;
+    private TokenService _sut = null!;
 
     [SetUp]
     public void Setup()
     {
-        this.faker = new Faker();
-        this.jwtSecret = this.faker.Random.AlphaNumeric(length: 32);
+        _faker = new Faker();
+        _jwtSecret = _faker.Random.AlphaNumeric(length: 32);
 
-        this.configurationMock = new Mock<IConfiguration>();
-        this.configurationMock.Setup(x => x["Jwt:Secret"]).Returns(this.jwtSecret);
+        _configurationMock = new Mock<IConfiguration>();
+        _configurationMock.Setup(x => x["Jwt:Secret"]).Returns(_jwtSecret);
 
-        this.loggerMock = new Mock<ILogger<TokenService>>();
+        _loggerMock = new Mock<ILogger<TokenService>>();
 
-        this.sut = new TokenService(this.loggerMock.Object);
+        _sut = new TokenService(_loggerMock.Object);
     }
 
     [Test]
@@ -43,8 +43,8 @@ public class TokenServiceTests
         var user = new UserResponse
         {
             Id = Guid.NewGuid(),
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "Admin", "User" };
@@ -52,7 +52,7 @@ public class TokenServiceTests
         var modules = new List<ModuleType> { ModuleType.Accounting, ModuleType.CustomerSupport };
 
         // Act
-        var result = this.sut.GenerateToken(user, roles, companyId, modules);
+        var result = _sut.GenerateToken(user, roles, companyId, modules);
 
         // Assert
         Assert.That(result.Data, Is.Not.Null);
@@ -60,7 +60,7 @@ public class TokenServiceTests
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(result.Data);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Verify standard claims
             Assert.That(token.Claims.First(c => c.Type == "userId").Value, Is.EqualTo(user.Id.ToString()));
@@ -68,7 +68,7 @@ public class TokenServiceTests
             Assert.That(token.Claims.First(c => c.Type == "unique_name").Value, Is.EqualTo(user.Name));
             Assert.That(token.Claims.First(c => c.Type == "companyId").Value, Is.EqualTo(companyId.ToString()));
             Assert.That(token.Claims.Any(c => c.Type == JwtRegisteredClaimNames.Jti), Is.True);
-        });
+        }
 
         // Verify roles
         var roleClaims = token.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();
@@ -86,8 +86,8 @@ public class TokenServiceTests
         var user = new UserResponse
         {
             Id = Guid.NewGuid(),
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "God" };
@@ -95,7 +95,7 @@ public class TokenServiceTests
         var modules = new List<ModuleType> { ModuleType.Accounting };
 
         // Act
-        var result = this.sut.GenerateToken(user, roles, companyId, modules);
+        var result = _sut.GenerateToken(user, roles, companyId, modules);
 
         // Assert
         var handler = new JwtSecurityTokenHandler();
@@ -113,8 +113,8 @@ public class TokenServiceTests
         var user = new UserResponse
         {
             Id = Guid.NewGuid(),
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "User" };
@@ -122,7 +122,7 @@ public class TokenServiceTests
         var modules = new List<ModuleType> { ModuleType.Accounting };
 
         // Act
-        var result = this.sut.GenerateToken(user, roles, companyId, modules);
+        var result = _sut.GenerateToken(user, roles, companyId, modules);
 
         // Assert
         var handler = new JwtSecurityTokenHandler();
@@ -139,8 +139,8 @@ public class TokenServiceTests
         var user = new UserResponse
         {
             Id = Guid.NewGuid(),
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "User" };
@@ -148,7 +148,7 @@ public class TokenServiceTests
         var modules = new List<ModuleType>();
 
         // Act
-        var result = this.sut.GenerateToken(user, roles, companyId, modules);
+        var result = _sut.GenerateToken(user, roles, companyId, modules);
 
         // Assert
         var handler = new JwtSecurityTokenHandler();
@@ -162,13 +162,13 @@ public class TokenServiceTests
     public void GenerateToken_WithoutJwtSecret_ThrowsInvalidOperationException()
     {
         // Arrange
-        this.configurationMock.Setup(x => x["Jwt:Secret"]).Returns((string)null!);
+        _configurationMock.Setup(x => x["Jwt:Secret"]).Returns((string)null!);
 
         var user = new UserResponse
         {
             Id = Guid.NewGuid(),
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName()
+            Email = _faker.Internet.Email(),
+            Name = _faker.Name.FullName()
         };
 
         var roles = new[] { "User" };
@@ -176,6 +176,6 @@ public class TokenServiceTests
         var modules = new List<ModuleType> { ModuleType.Accounting };
 
         // Assert
-        Assert.Throws<InvalidOperationException>(() => this.sut.GenerateToken(user, roles, companyId, modules));
+        Assert.Throws<InvalidOperationException>(() => _sut.GenerateToken(user, roles, companyId, modules));
     }
 }

@@ -1,7 +1,7 @@
 namespace Fenicia.Integration.RunCommandTool.Providers;
 
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
 public class TokenProvider : BaseProvider
 {
@@ -12,13 +12,13 @@ public class TokenProvider : BaseProvider
 
     public async Task<TokenResponse> DoLoginAsync(string email, string password, string cnpj)
     {
-        var tokenRequest = new TokenRequest()
-        {
+        var tokenRequest = new TokenRequest
+                           {
             Email = email,
             Cnpj = cnpj,
             Password = password
-        };
+                           };
 
-        return await this.PostAsync<TokenResponse, TokenRequest>("token", tokenRequest);
+        return await PostAsync<TokenResponse, TokenRequest>("token", tokenRequest);
     }
 }
