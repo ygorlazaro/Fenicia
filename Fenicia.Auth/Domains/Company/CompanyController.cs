@@ -35,28 +35,28 @@ public class CompanyController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Starting to retrieve companies for logged user");
+            logger.LogInformation("Starting to retrieve companies for logged user");
 
-            var userId = ClaimReader.UserId(this.User);
-            this.logger.LogDebug("Retrieved user ID: {userID}", userId);
+            var userId = ClaimReader.UserId(User);
+            logger.LogDebug("Retrieved user ID: {userID}", userId);
 
-            var companies = await this.companyService.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage);
-            var total = await this.companyService.CountByUserIdAsync(userId, cancellationToken);
+            var companies = await companyService.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage);
+            var total = await companyService.CountByUserIdAsync(userId, cancellationToken);
 
             if (companies.Data is null)
             {
-                this.logger.LogWarning("No companies found for user {UserID}", userId);
-                return this.StatusCode((int)companies.Status, companies.Message);
+                logger.LogWarning("No companies found for user {UserID}", userId);
+                return StatusCode((int)companies.Status, companies.Message);
             }
 
             var response = new Pagination<IEnumerable<CompanyResponse>>(companies.Data, total.Data, query.Page, query.PerPage);
 
-            this.logger.LogInformation("Successfully retrieved {Count} companies for user {UserID}", companies.Data.Count, userId);
-            return this.Ok(response);
+            logger.LogInformation("Successfully retrieved {Count} companies for user {UserID}", companies.Data.Count, userId);
+            return Ok(response);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error retrieving companies for logged user");
+            logger.LogError(ex, "Error retrieving companies for logged user");
             throw;
         }
     }
@@ -71,31 +71,31 @@ public class CompanyController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Starting company update process for company ID: {CompanyID}", id);
+            logger.LogInformation("Starting company update process for company ID: {CompanyID}", id);
 
-            var userId = ClaimReader.UserId(this.User);
-            var companyId = ClaimReader.CompanyId(this.User);
+            var userId = ClaimReader.UserId(User);
+            var companyId = ClaimReader.CompanyId(User);
 
             if (id != companyId)
             {
-                this.logger.LogWarning("Unauthorized attempt to update company. Requested ID: {RequestedID}, User's Company ID: {UserCompanyID}", id, companyId);
-                return this.Unauthorized();
+                logger.LogWarning("Unauthorized attempt to update company. Requested ID: {RequestedID}, User's Company ID: {UserCompanyID}", id, companyId);
+                return Unauthorized();
             }
 
-            var response = await this.companyService.PatchAsync(id, userId, request, cancellationToken);
+            var response = await companyService.PatchAsync(id, userId, request, cancellationToken);
 
             if (response.Data is null)
             {
-                this.logger.LogWarning("Failed to update company {CompanyID}. Status: {Status}, Message: {Message}", id, response.Status, response.Message);
-                return this.StatusCode((int)response.Status, response.Message);
+                logger.LogWarning("Failed to update company {CompanyID}. Status: {Status}, Message: {Message}", id, response.Status, response.Message);
+                return StatusCode((int)response.Status, response.Message);
             }
 
-            this.logger.LogInformation("Successfully updated company with ID: {CompanyID}", id);
-            return this.Ok(response.Data);
+            logger.LogInformation("Successfully updated company with ID: {CompanyID}", id);
+            return Ok(response.Data);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error updating company with ID: {CompanyID}", id);
+            logger.LogError(ex, "Error updating company with ID: {CompanyID}", id);
             throw;
         }
     }

@@ -1,12 +1,12 @@
 namespace Fenicia.Auth.Domains.User;
 
-using Fenicia.Common.API;
+using Common.API;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Common.Database.Responses;
 
-using Fenicia.Auth.Domains.Module;
+using Module;
 
 [Authorize]
 [Route("[controller]")]
@@ -26,12 +26,12 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
     public async Task<ActionResult<ModuleResponse>> GetUserModulesAsync(CancellationToken cancellationToken)
     {
-        var userId = ClaimReader.UserId(this.User);
-        var companyId = ClaimReader.CompanyId(this.User);
+        var userId = ClaimReader.UserId(User);
+        var companyId = ClaimReader.CompanyId(User);
 
-        this.logger.LogWarning("Getting log for the user {userID}", userId);
+        logger.LogWarning("Getting log for the user {userID}", userId);
 
-        var response = await this.moduleService.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
-        return this.Ok(response);
+        var response = await moduleService.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+        return Ok(response);
     }
 }

@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Http;
 
 public class ModuleRequirementMiddleware
 {
-    private readonly RequestDelegate next;
-    private readonly string requiredModule;
+    private readonly RequestDelegate _next;
+    private readonly string _requiredModule;
 
     public ModuleRequirementMiddleware(RequestDelegate next, string requiredModule)
     {
-        this.next = next;
-        this.requiredModule = requiredModule;
+        this._next = next;
+        this._requiredModule = requiredModule;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -30,10 +30,10 @@ public class ModuleRequirementMiddleware
         {
             var modules = JsonSerializer.Deserialize<List<string>>(moduleClaim.Value);
 
-            if (modules is null || !modules.Contains(this.requiredModule, StringComparer.OrdinalIgnoreCase))
+            if (modules is null || !modules.Contains(_requiredModule, StringComparer.OrdinalIgnoreCase))
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await context.Response.WriteAsync($"Access to module '{this.requiredModule}' is forbidden.");
+                await context.Response.WriteAsync($"Access to module '{_requiredModule}' is forbidden.");
                 return;
             }
         }
@@ -44,6 +44,6 @@ public class ModuleRequirementMiddleware
             return;
         }
 
-        await this.next(context);
+        await _next(context);
     }
 }

@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Http;
 
 public class RoleGodRequirementMiddleware
 {
-    private readonly RequestDelegate next;
+    private readonly RequestDelegate _next;
 
     public RoleGodRequirementMiddleware(RequestDelegate next)
     {
-        this.next = next;
+        this._next = next;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -43,6 +43,6 @@ public class RoleGodRequirementMiddleware
             return;
         }
 
-        await this.next(context);
+        await _next(context);
     }
 }

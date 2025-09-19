@@ -33,25 +33,25 @@ public class OrderController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Creating new order for request {@Request}", request);
+            logger.LogInformation("Creating new order for request {@Request}", request);
 
-            var userId = ClaimReader.UserId(this.User);
-            var companyId = ClaimReader.CompanyId(this.User);
+            var userId = ClaimReader.UserId(User);
+            var companyId = ClaimReader.CompanyId(User);
 
-            var order = await this.orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
+            var order = await orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
 
             if (order.Data is null)
             {
-                this.logger.LogWarning("Order creation failed: {Message}", order.Message);
-                return this.StatusCode((int)order.Status, order.Message);
+                logger.LogWarning("Order creation failed: {Message}", order.Message);
+                return StatusCode((int)order.Status, order.Message);
             }
 
-            this.logger.LogInformation("New order created successfully for user {UserID}", userId);
-            return this.Ok(order.Data);
+            logger.LogInformation("New order created successfully for user {UserID}", userId);
+            return Ok(order.Data);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Unexpected error while creating order");
+            logger.LogError(ex, "Unexpected error while creating order");
             throw;
         }
     }

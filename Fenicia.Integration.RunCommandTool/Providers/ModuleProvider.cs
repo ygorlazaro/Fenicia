@@ -1,7 +1,7 @@
 namespace Fenicia.Integration.RunCommandTool.Providers;
 
-using Fenicia.Common;
-using Fenicia.Common.Database.Responses;
+using Common;
+using Common.Database.Responses;
 
 public class ModuleProvider : BaseProvider
 {
@@ -10,14 +10,9 @@ public class ModuleProvider : BaseProvider
     {
     }
 
-    public ModuleProvider(string baseUrl, string accessToken)
-        : base(baseUrl)
-    {
-    }
-
     public async Task<List<ModuleResponse>> GetModulesAsync()
     {
-        var response = await this.GetAsync<Pagination<List<ModuleResponse>>>("module");
+        var response = await GetAsync<Pagination<List<ModuleResponse>>>("module");
 
         return response.Data;
     }

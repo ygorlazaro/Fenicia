@@ -5,18 +5,18 @@ using Common.Database.Models.Auth;
 
 public class StateRepository : IStateRepository
 {
-    private readonly AuthContext authContext;
+    private readonly AuthContext _authContext;
 
     public StateRepository(AuthContext authContext)
     {
-        this.authContext = authContext;
+        this._authContext = authContext;
     }
 
     public async Task<List<StateModel>> LoadStatesAtDatabaseAsync(List<StateModel> states, CancellationToken cancellationToken)
     {
-        this.authContext.States.AddRange(states);
+        _authContext.States.AddRange(states);
 
-        await this.authContext.SaveChangesAsync(cancellationToken);
+        await _authContext.SaveChangesAsync(cancellationToken);
 
         return states;
     }

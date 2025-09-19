@@ -25,7 +25,7 @@ public class StateResponse
 
     public static StateResponse Convert(StateModel state)
     {
-        return new StateResponse() { Id = state.Id, Name = state.Name, Uf = state.Uf };
+        return new StateResponse { Id = state.Id, Name = state.Name, Uf = state.Uf };
     }
 
     public static List<StateResponse> Convert(List<StateModel> state)

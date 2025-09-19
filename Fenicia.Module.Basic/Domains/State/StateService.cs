@@ -4,15 +4,15 @@ using Fenicia.Common.Database.Models.Basic;
 
 public class StateService : IStateService
 {
-    private readonly IStateRepository stateRepository;
+    private readonly IStateRepository _stateRepository;
 
     public StateService(IStateRepository stateRepository)
     {
-        this.stateRepository = stateRepository;
+        this._stateRepository = stateRepository;
     }
 
     public async Task<List<StateModel>> GetAllAsync()
     {
-        return await this.stateRepository.GetAllAsync();
+        return await _stateRepository.GetAllAsync();
     }
 }

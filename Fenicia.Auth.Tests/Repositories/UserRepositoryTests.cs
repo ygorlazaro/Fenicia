@@ -9,53 +9,53 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.User;
+using Domains.User;
 
 public class UserRepositoryTests
 {
-    private readonly CancellationToken cancellationToken = CancellationToken.None;
-    private Faker<CompanyModel> companyGenerator;
-    private AuthContext context;
-    private DbContextOptions<AuthContext> options;
-    private UserRepository sut;
-    private Faker<UserModel> userGenerator;
-    private Faker<UserRoleModel> userRoleGenerator;
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
+    private Faker<CompanyModel> _companyGenerator;
+    private AuthContext _context;
+    private DbContextOptions<AuthContext> _options;
+    private UserRepository _sut;
+    private Faker<UserModel> _userGenerator;
+    private Faker<UserRoleModel> _userRoleGenerator;
 
     [SetUp]
     public void Setup()
     {
         var mockLogger = new Mock<ILogger<UserRepository>>().Object;
-        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
-        this.context = new AuthContext(this.options);
-        this.sut = new UserRepository(this.context, mockLogger);
+        _context = new AuthContext(_options);
+        _sut = new UserRepository(_context, mockLogger);
 
-        this.SetupFakers();
+        SetupFakers();
     }
 
     [Test]
     public async Task GetByEmailAndCnpjAsync_WhenUserExists_ReturnsUser()
     {
         // Arrange
-        var user = this.userGenerator.Generate();
-        var company = this.companyGenerator.Generate();
-        var userRole = this.userRoleGenerator.Clone().RuleFor(ur => ur.UserId, user.Id).RuleFor(ur => ur.CompanyId, company.Id).Generate();
+        var user = _userGenerator.Generate();
+        var company = _companyGenerator.Generate();
+        var userRole = _userRoleGenerator.Clone().RuleFor(ur => ur.UserId, user.Id).RuleFor(ur => ur.CompanyId, company.Id).Generate();
 
-        await this.context.Users.AddAsync(user, this.cancellationToken);
-        await this.context.Companies.AddAsync(company, this.cancellationToken);
-        await this.context.UserRoles.AddAsync(userRole, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await _context.Users.AddAsync(user, _cancellationToken);
+        await _context.Companies.AddAsync(company, _cancellationToken);
+        await _context.UserRoles.AddAsync(userRole, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await this.sut.GetByEmailAndCnpjAsync(user.Email, company.Cnpj, this.cancellationToken);
+        var result = await _sut.GetByEmailAndCnpjAsync(user.Email, company.Cnpj, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result!.Id, Is.EqualTo(user.Id));
             Assert.That(result.Email, Is.EqualTo(user.Email));
-        });
+        }
     }
 
     [Test]
@@ -66,7 +66,7 @@ public class UserRepositoryTests
         const string nonExistentCnpj = "00.000.000/0000-00";
 
         // Act
-        var result = await this.sut.GetByEmailAndCnpjAsync(nonExistentEmail, nonExistentCnpj, this.cancellationToken);
+        var result = await _sut.GetByEmailAndCnpjAsync(nonExistentEmail, nonExistentCnpj, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -76,32 +76,32 @@ public class UserRepositoryTests
     public void Add_ShouldAddUserToContext()
     {
         // Arrange
-        var user = this.userGenerator.Generate();
+        var user = _userGenerator.Generate();
 
         // Act
-        var result = this.sut.Add(user);
+        var result = _sut.Add(user);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(this.context.Users.Local, Does.Contain(user));
-        });
+            Assert.That(_context.Users.Local, Does.Contain(user));
+        }
     }
 
     [Test]
     public async Task SaveAsync_ShouldPersistChangesToDatabase()
     {
         // Arrange
-        var user = this.userGenerator.Generate();
-        this.sut.Add(user);
+        var user = _userGenerator.Generate();
+        _sut.Add(user);
 
         // Act
-        var saveResult = await this.sut.SaveAsync(this.cancellationToken);
+        var saveResult = await _sut.SaveAsync(_cancellationToken);
 
         // Assert
         Assert.That(saveResult, Is.GreaterThan(expected: 0));
-        var savedUser = await this.context.Users.FirstOrDefaultAsync(x => x.Id == user.Id, this.cancellationToken);
+        var savedUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == user.Id, _cancellationToken);
         Assert.That(savedUser, Is.Not.Null);
         Assert.That(savedUser!.Email, Is.EqualTo(user.Email));
     }
@@ -110,12 +110,12 @@ public class UserRepositoryTests
     public async Task CheckUserExistsAsync_WhenUserExists_ReturnsTrue()
     {
         // Arrange
-        var user = this.userGenerator.Generate();
-        await this.context.Users.AddAsync(user, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        var user = _userGenerator.Generate();
+        await _context.Users.AddAsync(user, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await this.sut.CheckUserExistsAsync(user.Email, this.cancellationToken);
+        var result = await _sut.CheckUserExistsAsync(user.Email, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -128,7 +128,7 @@ public class UserRepositoryTests
         var nonExistentEmail = "nonexistent@example.com";
 
         // Act
-        var result = await this.sut.CheckUserExistsAsync(nonExistentEmail, this.cancellationToken);
+        var result = await _sut.CheckUserExistsAsync(nonExistentEmail, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -138,20 +138,20 @@ public class UserRepositoryTests
     public async Task GetUserForRefreshTokenAsync_WhenUserExists_ReturnsUser()
     {
         // Arrange
-        var user = this.userGenerator.Generate();
-        await this.context.Users.AddAsync(user, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        var user = _userGenerator.Generate();
+        await _context.Users.AddAsync(user, _cancellationToken);
+        await _context.SaveChangesAsync(_cancellationToken);
 
         // Act
-        var result = await this.sut.GetUserForRefreshTokenAsync(user.Id, this.cancellationToken);
+        var result = await _sut.GetUserForRefreshTokenAsync(user.Id, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result!.Id, Is.EqualTo(user.Id));
             Assert.That(result.Email, Is.EqualTo(user.Email));
-        });
+        }
     }
 
     [Test]
@@ -161,7 +161,7 @@ public class UserRepositoryTests
         var nonExistentUserId = Guid.NewGuid();
 
         // Act
-        var result = await this.sut.GetUserForRefreshTokenAsync(nonExistentUserId, this.cancellationToken);
+        var result = await _sut.GetUserForRefreshTokenAsync(nonExistentUserId, _cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -170,16 +170,16 @@ public class UserRepositoryTests
     [TearDown]
     public void TearDown()
     {
-        this.context.Database.EnsureDeleted();
-        this.context.Dispose();
+        _context.Database.EnsureDeleted();
+        _context.Dispose();
     }
 
     private void SetupFakers()
     {
-        this.userGenerator = new Faker<UserModel>().RuleFor(u => u.Id, _ => Guid.NewGuid()).RuleFor(u => u.Email, f => f.Internet.Email()).RuleFor(u => u.Name, f => f.Name.FullName()).RuleFor(u => u.Password, f => f.Internet.Password());
+        _userGenerator = new Faker<UserModel>().RuleFor(u => u.Id, _ => Guid.NewGuid()).RuleFor(u => u.Email, f => f.Internet.Email()).RuleFor(u => u.Name, f => f.Name.FullName()).RuleFor(u => u.Password, f => f.Internet.Password());
 
-        this.companyGenerator = new Faker<CompanyModel>().RuleFor(c => c.Id, _ => Guid.NewGuid()).RuleFor(c => c.Name, f => f.Company.CompanyName()).RuleFor(c => c.Cnpj, f => f.Random.ReplaceNumbers("##.###.###/####-##"));
+        _companyGenerator = new Faker<CompanyModel>().RuleFor(c => c.Id, _ => Guid.NewGuid()).RuleFor(c => c.Name, f => f.Company.CompanyName()).RuleFor(c => c.Cnpj, f => f.Random.ReplaceNumbers("##.###.###/####-##"));
 
-        this.userRoleGenerator = new Faker<UserRoleModel>().RuleFor(ur => ur.Id, _ => Guid.NewGuid()).RuleFor(ur => ur.UserId, _ => Guid.NewGuid()).RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
+        _userRoleGenerator = new Faker<UserRoleModel>().RuleFor(ur => ur.Id, _ => Guid.NewGuid()).RuleFor(ur => ur.UserId, _ => Guid.NewGuid()).RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
     }
 }

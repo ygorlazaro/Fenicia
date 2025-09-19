@@ -23,10 +23,10 @@ public class ModuleService : IModuleService
     {
         try
         {
-            this.logger.LogInformation("Getting all modules with page {Page} and items per page {PerPage}", page, perPage);
+            logger.LogInformation("Getting all modules with page {Page} and items per page {PerPage}", page, perPage);
 
-            var modules = await this.moduleRepository.GetAllOrderedAsync(cancellationToken, page, perPage);
-            this.logger.LogDebug("Retrieved {Count} modules from repository", modules.Count);
+            var modules = await moduleRepository.GetAllOrderedAsync(cancellationToken, page, perPage);
+            logger.LogDebug("Retrieved {Count} modules from repository", modules.Count);
 
             var mapped = ModuleResponse.Convert(modules);
 
@@ -34,7 +34,7 @@ public class ModuleService : IModuleService
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while getting all modules");
+            logger.LogError(ex, "Error occurred while getting all modules");
             throw;
         }
     }
@@ -44,10 +44,10 @@ public class ModuleService : IModuleService
         try
         {
             var enumerable = request as Guid[] ?? [.. request];
-            this.logger.LogInformation("Getting modules to order for {Count} module IDs", enumerable.Length);
+            logger.LogInformation("Getting modules to order for {Count} module IDs", enumerable.Length);
 
-            var modules = await this.moduleRepository.GetManyOrdersAsync(enumerable, cancellationToken);
-            this.logger.LogDebug("Retrieved {Count} modules from repository", modules.Count);
+            var modules = await moduleRepository.GetManyOrdersAsync(enumerable, cancellationToken);
+            logger.LogDebug("Retrieved {Count} modules from repository", modules.Count);
 
             var response = ModuleResponse.Convert(modules);
 
@@ -55,7 +55,7 @@ public class ModuleService : IModuleService
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while getting modules to order");
+            logger.LogError(ex, "Error occurred while getting modules to order");
             throw;
         }
     }
@@ -64,23 +64,23 @@ public class ModuleService : IModuleService
     {
         try
         {
-            this.logger.LogInformation("Getting module by type {ModuleType}", moduleType);
+            logger.LogInformation("Getting module by type {ModuleType}", moduleType);
 
-            var module = await this.moduleRepository.GetModuleByTypeAsync(moduleType, cancellationToken);
+            var module = await moduleRepository.GetModuleByTypeAsync(moduleType, cancellationToken);
 
             if (module is null)
             {
-                this.logger.LogWarning("Module not found for type {ModuleType}", moduleType);
+                logger.LogWarning("Module not found for type {ModuleType}", moduleType);
                 return new ApiResponse<ModuleResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
             }
 
-            this.logger.LogDebug("Module found for type {ModuleType}", moduleType);
+            logger.LogDebug("Module found for type {ModuleType}", moduleType);
             var response = ModuleResponse.Convert(module);
             return new ApiResponse<ModuleResponse>(response);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while getting module by type {ModuleType}", moduleType);
+            logger.LogError(ex, "Error occurred while getting module by type {ModuleType}", moduleType);
             throw;
         }
     }
@@ -89,16 +89,16 @@ public class ModuleService : IModuleService
     {
         try
         {
-            this.logger.LogInformation("Counting total number of modules");
+            logger.LogInformation("Counting total number of modules");
 
-            var response = await this.moduleRepository.CountAsync(cancellationToken);
-            this.logger.LogDebug("Total module count: {Count}", response);
+            var response = await moduleRepository.CountAsync(cancellationToken);
+            logger.LogDebug("Total module count: {Count}", response);
 
             return new ApiResponse<int>(response);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while counting modules");
+            logger.LogError(ex, "Error occurred while counting modules");
             throw;
         }
     }
@@ -122,7 +122,7 @@ public class ModuleService : IModuleService
                                 new () { Name = "Plus", Amount = 20, Type = ModuleType.Plus }
                             };
 
-        var response = await this.moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, cancellationToken);
+        var response = await moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, cancellationToken);
         var mapped = ModuleResponse.Convert(response);
 
         return new ApiResponse<List<ModuleResponse>>(mapped);
@@ -130,7 +130,7 @@ public class ModuleService : IModuleService
 
     public async Task<ApiResponse<List<ModuleResponse>>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
-        var userModules = await this.moduleRepository.GetUserModulesAsync(userId, companyId, cancellationToken);
+        var userModules = await moduleRepository.GetUserModulesAsync(userId, companyId, cancellationToken);
 
         var mapped = ModuleResponse.Convert(userModules);
 
@@ -139,7 +139,7 @@ public class ModuleService : IModuleService
 
     public async Task<ApiResponse<List<ModuleResponse>>> GetModuleAndSubmoduleAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
-        var modules = await this.moduleRepository.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+        var modules = await moduleRepository.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
 
         var mapped = ModuleResponse.Convert(modules);
 

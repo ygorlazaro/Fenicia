@@ -14,23 +14,23 @@ using Common.API;
 
 public class TokenService : ITokenService
 {
-    private readonly IConfiguration configuration;
-    private readonly ILogger<TokenService> logger;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<TokenService> _logger;
 
     public TokenService(ILogger<TokenService> logger)
     {
-        this.configuration = AppSettingsReader.GetConfiguration();
-        this.logger = logger;
+        _configuration = AppSettingsReader.GetConfiguration();
+        this._logger = logger;
     }
 
     public ApiResponse<string> GenerateToken(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
     {
         try
         {
-            this.logger.LogInformation("Starting token generation for user {UserID}", user.Id);
-            var key = Encoding.ASCII.GetBytes(this.configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
+            _logger.LogInformation("Starting token generation for user {UserID}", user.Id);
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
 
-            var authClaims = this.GenerateClaims(user, roles, companyId, modules);
+            var authClaims = GenerateClaims(user, roles, companyId, modules);
             var authSigningKey = new SymmetricSecurityKey(key);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -44,17 +44,17 @@ public class TokenService : ITokenService
 
             var finalToken = tokenHandler.WriteToken(token);
 
-            this.logger.LogInformation("Token successfully generated for user {UserID}", user.Id);
+            _logger.LogInformation("Token successfully generated for user {UserID}", user.Id);
             return new ApiResponse<string>(finalToken);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error generating token for user {UserID}", user.Id);
+            _logger.LogError(ex, "Error generating token for user {UserID}", user.Id);
             throw;
         }
         finally
         {
-            this.logger.LogDebug("Token generation process completed for user {UserID}", user.Id);
+            _logger.LogDebug("Token generation process completed for user {UserID}", user.Id);
         }
     }
 
@@ -77,7 +77,7 @@ public class TokenService : ITokenService
             return authClaims;
         }
 
-        this.logger.LogDebug("Adding ERP module access for God role user {UserID}", user.Id);
+        _logger.LogDebug("Adding ERP module access for God role user {UserID}", user.Id);
         authClaims.Add(new Claim("module", "erp"));
 
         return authClaims;

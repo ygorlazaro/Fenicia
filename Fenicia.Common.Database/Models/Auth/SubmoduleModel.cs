@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Database;
+using Database;
 
 [Table("submodules")]
 public class SubmoduleModel : BaseModel
@@ -33,7 +33,7 @@ public class SubmoduleModel : BaseModel
         get; set;
     }
 
-    [ForeignKey(nameof(ModuleId))]
+    [ForeignKey(nameof(SubmoduleModel.ModuleId))]
     [JsonIgnore]
     public virtual ModuleModel Module { get; set; } = default!;
 }

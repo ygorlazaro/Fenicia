@@ -30,21 +30,21 @@ public class ForgotPasswordController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Starting password recovery process for user request");
+            logger.LogInformation("Starting password recovery process for user request");
 
-            var response = await this.forgotPasswordService.SaveForgotPasswordAsync(request, cancellationToken);
+            var response = await forgotPasswordService.SaveForgotPasswordAsync(request, cancellationToken);
 
-            this.logger.LogInformation("Password recovery process completed with status: {Status}", response.Status);
+            logger.LogInformation("Password recovery process completed with status: {Status}", response.Status);
 
             return response.Data switch
             {
-                null => this.StatusCode((int)response.Status, response.Message),
-                _ => this.Ok(response)
+                null => StatusCode((int)response.Status, response.Message),
+                _ => Ok(response)
             };
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error during password recovery process");
+            logger.LogError(ex, "Error during password recovery process");
             throw;
         }
     }
@@ -56,21 +56,21 @@ public class ForgotPasswordController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Starting password reset process");
+            logger.LogInformation("Starting password reset process");
 
-            var response = await this.forgotPasswordService.ResetPasswordAsync(request, cancellationToken);
+            var response = await forgotPasswordService.ResetPasswordAsync(request, cancellationToken);
 
-            this.logger.LogInformation("Password reset process completed with status: {Status}", response.Status);
+            logger.LogInformation("Password reset process completed with status: {Status}", response.Status);
 
             return response.Data switch
             {
-                null => this.StatusCode((int)response.Status, response.Message),
-                _ => this.Ok(response)
+                null => StatusCode((int)response.Status, response.Message),
+                _ => Ok(response)
             };
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error during password reset process");
+            logger.LogError(ex, "Error during password reset process");
             throw;
         }
     }

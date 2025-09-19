@@ -7,24 +7,24 @@ using Microsoft.EntityFrameworkCore;
 
 public sealed class RefreshTokenRepository : IRefreshTokenRepository
 {
-    private readonly AuthContext authContext;
+    private readonly AuthContext _authContext;
 
     public RefreshTokenRepository(AuthContext authContext)
     {
-        this.authContext = authContext;
+        this._authContext = authContext;
     }
 
     public void Add(RefreshTokenModel refreshToken)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
-        this.authContext.RefreshTokens.Add(refreshToken);
+        _authContext.RefreshTokens.Add(refreshToken);
     }
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
         try
         {
-            await this.authContext.SaveChangesAsync(cancellationToken);
+            await _authContext.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateException ex)
         {
@@ -40,7 +40,7 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
         {
             var now = DateTime.UtcNow;
 
-            var query = from token in this.authContext.RefreshTokens where token.UserId == userId && now < token.ExpirationDate && token.Token == refreshToken && token.IsActive select token.Id;
+            var query = from token in _authContext.RefreshTokens where token.UserId == userId && now < token.ExpirationDate && token.Token == refreshToken && token.IsActive select token.Id;
 
             return await query.AnyAsync(cancellationToken);
         }
@@ -56,7 +56,7 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
 
         try
         {
-            var refreshTokenModel = await this.authContext.RefreshTokens.FirstOrDefaultAsync(token => token.Token == refreshToken, cancellationToken);
+            var refreshTokenModel = await _authContext.RefreshTokens.FirstOrDefaultAsync(token => token.Token == refreshToken, cancellationToken);
 
             if (refreshTokenModel == null)
             {
@@ -65,7 +65,7 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
 
             refreshTokenModel.IsActive = false;
 
-            await this.SaveChangesAsync(cancellationToken);
+            await SaveChangesAsync(cancellationToken);
         }
         catch (Exception ex)
         {

@@ -1,7 +1,5 @@
-﻿@using System.Text.Json
-@using Fenicia.Web.Models
+﻿@using Fenicia.Web.Models
 @inject HttpClient Http
-@inject IJSRuntime JSRuntime
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -19,7 +17,7 @@
             </NavLink>
         </div>
 
-        @if (modules != null && modules.Any())
+        @if (modules.Any())
         {
             @foreach (var module in modules)
             {
@@ -107,15 +105,11 @@
         border-left-color: rgba(255, 255, 255, 0.5);
     }
 
-    .submodule-link.active {
-        background-color: rgba(255, 255, 255, 0.25);
-        border-left-color: #fff;
-    }
-</style>
+    </style>
 
 @code {
-    private List<Module> modules = new();
-    private HashSet<string> expandedModules = new();
+    private List<Module> modules = [];
+    private readonly HashSet<string> expandedModules = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -127,7 +121,7 @@
         try
         {
             var response = await Http.GetFromJsonAsync<ModulesResponse>("data/modules-mock.json");
-            if (response != null && response.Data != null)
+            if (response is not null)
             {
                 modules = response.Data;
             }
@@ -141,13 +135,9 @@
 
     private void ToggleModule(string moduleId)
     {
-        if (expandedModules.Contains(moduleId))
+        if (!expandedModules.Add(moduleId))
         {
             expandedModules.Remove(moduleId);
-        }
-        else
-        {
-            expandedModules.Add(moduleId);
         }
     }
 }
