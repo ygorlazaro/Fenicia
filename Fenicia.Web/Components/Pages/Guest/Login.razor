@@ -31,29 +31,29 @@
             <div class="card mt-4 p-4 rounded-5">
                 <div class="card-body">
                     <h2 class="card-title">Login</h2>
-                    <EditForm Model="@_model" OnValidSubmit="OnValidSubmit" FormName="LoginForm">
+                    <EditForm Model="@model" OnValidSubmit="OnValidSubmit" FormName="LoginForm">
                         <DataAnnotationsValidator />
                         <div class="form-group">
                             <label for="cnpj" class="control-label">CNPJ</label>
                             <div class="input-group">
-                                <InputText id="cnpj" @bind-Value="@_model.Cnpj" class="form-control" />
+                                <InputText id="cnpj" @bind-Value="@model.Cnpj" class="form-control" />
                             </div>
-                            <ValidationMessage For="@(() => _model.Cnpj)" class="text-danger" />
+                            <ValidationMessage For="@(() => model.Cnpj)" class="text-danger" />
                         </div>
                         <div class="form-group">
                             <label for="email" class="control-label">Email</label>
                             <div class="input-group">
-                                <InputText id="email" @bind-Value="@_model.Email" class="form-control" type="email" />
+                                <InputText id="email" @bind-Value="@model.Email" class="form-control" type="email" />
                             </div>
-                            <ValidationMessage For="@(() => _model.Email)" class="text-danger" />
+                            <ValidationMessage For="@(() => model.Email)" class="text-danger" />
                         </div>
                         <div class="form-group">
                             <label for="password" class="control-label">Password</label>
                             <div class="input-group">
-                                <InputText id="password" @bind-Value="@_model.Password" class="form-control"
+                                <InputText id="password" @bind-Value="@model.Password" class="form-control"
                                     type="password" />
                             </div>
-                            <ValidationMessage For="@(() => _model.Password)" class="text-danger" />
+                            <ValidationMessage For="@(() => model.Password)" class="text-danger" />
                         </div>
                         <div class="form-group mt-3">
                             <button type="submit" class="btn btn-primary">Login</button>
@@ -66,11 +66,11 @@
 </div>
 
 @code {
-    private readonly TokenRequest _model = new();
+    private readonly TokenRequest model = new();
 
     private async Task OnValidSubmit()
     {
-        await TokenProvider.DoLoginAsync(_model);
+        await TokenProvider.DoLoginAsync(model);
 
         Navigation.NavigateTo("/home");
     }

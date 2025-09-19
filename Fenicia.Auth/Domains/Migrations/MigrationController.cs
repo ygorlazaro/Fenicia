@@ -24,13 +24,14 @@ public class MigrationController : ControllerBase
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostNewMigrationAsync([FromBody] string cnpj, CancellationToken cancellationToken)
     {
-        var company = await companyService.GetByCnpjAsync(cnpj, cancellationToken);
-        var credits = await subscriptionCreditService.GetActiveModulesTypesAsync(company.Data!.Id, cancellationToken);
+        var company = await this.companyService.GetByCnpjAsync(cnpj, cancellationToken);
+        var credits = await this.subscriptionCreditService.GetActiveModulesTypesAsync(company.Data!.Id, cancellationToken);
 
-        await migrationService.RunMigrationsAsync(company.Data.Id, credits.Data!, cancellationToken);
+        await this.migrationService.RunMigrationsAsync(company.Data.Id, credits.Data!, cancellationToken);
 
-        return Ok();
+        return this.Ok();
     }
 }

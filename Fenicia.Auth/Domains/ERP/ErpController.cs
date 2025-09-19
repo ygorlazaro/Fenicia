@@ -29,8 +29,8 @@ public class ErpController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LoadInfoAsync(CancellationToken cancellationToken)
     {
-        var modules = await moduleService.LoadModulesAtDatabaseAsync(cancellationToken);
-        var states = await stateService.LoadStatesAtDatabaseAsync(cancellationToken);
+        var modules = await this.moduleService.LoadModulesAtDatabaseAsync(cancellationToken);
+        var states = await this.stateService.LoadStatesAtDatabaseAsync(cancellationToken);
 
         var response = new
         {
@@ -38,6 +38,6 @@ public class ErpController : ControllerBase
             States = states
         };
 
-        return Ok(response);
+        return this.Ok(response);
     }
 }

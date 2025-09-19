@@ -12,26 +12,26 @@ using Moq;
 
 public class RoleRepositoryTests
 {
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
-    private AuthContext _context;
-    private DbContextOptions<AuthContext> _options;
-    private RoleRepository _sut;
+    private readonly CancellationToken cancellationToken = CancellationToken.None;
+    private AuthContext context;
+    private DbContextOptions<AuthContext> options;
+    private RoleRepository sut;
 
     [SetUp]
     public void Setup()
     {
-        _options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
         var mockLogger = new Mock<ILogger<RoleRepository>>().Object;
 
-        _context = new AuthContext(_options);
-        _sut = new RoleRepository(_context, mockLogger);
+        this.context = new AuthContext(this.options);
+        this.sut = new RoleRepository(this.context, mockLogger);
     }
 
     [TearDown]
     public void TearDown()
     {
-        _context.Database.EnsureDeleted();
-        _context.Dispose();
+        this.context.Database.EnsureDeleted();
+        this.context.Dispose();
     }
 
     [Test]
@@ -40,11 +40,11 @@ public class RoleRepositoryTests
         // Arrange
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
 
-        await _context.Roles.AddAsync(adminRole, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.Roles.AddAsync(adminRole, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -61,11 +61,11 @@ public class RoleRepositoryTests
         // Arrange
         var nonAdminRole = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
 
-        await _context.Roles.AddAsync(nonAdminRole, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.Roles.AddAsync(nonAdminRole, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -75,7 +75,7 @@ public class RoleRepositoryTests
     public async Task GetAdminRoleAsync_ReturnsNull_WhenRolesTableIsEmpty()
     {
         // Act
-        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -92,11 +92,11 @@ public class RoleRepositoryTests
                         new RoleModel { Id = Guid.NewGuid(), Name = "Manager" }
                     };
 
-        await _context.Roles.AddRangeAsync(roles, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.Roles.AddRangeAsync(roles, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -109,11 +109,11 @@ public class RoleRepositoryTests
         // Arrange
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "ADMIN" };
 
-        await _context.Roles.AddAsync(adminRole, _cancellationToken);
-        await _context.SaveChangesAsync(_cancellationToken);
+        await this.context.Roles.AddAsync(adminRole, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await _sut.GetAdminRoleAsync(_cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null, "GetAdminRoleAsync should be case sensitive");

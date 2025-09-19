@@ -13,8 +13,8 @@ public class UserController : ControllerBase
     [HttpGet]
     public IActionResult GetAsync()
     {
-        ClaimReader.ValidateRole(User, "Admin");
+        ClaimReader.ValidateRole(this.User, "Admin");
 
-        return Ok("Sucesso");
+        return this.Ok("Sucesso");
     }
 }

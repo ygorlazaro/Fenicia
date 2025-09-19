@@ -5,8 +5,8 @@ using Common.Database.Responses;
 
 public class OrderProvider : BaseProvider
 {
-    public OrderProvider(string baseUrl, string accessToken)
-        : base(baseUrl, accessToken)
+    public OrderProvider(Uri uri, string accessToken)
+        : base(uri, accessToken)
     {
     }
 
@@ -20,6 +20,6 @@ public class OrderProvider : BaseProvider
             })
                            };
 
-        await PostAsync<OrderResponse, OrderRequest>("order", orderRequest);
+        await this.PostAsync<OrderResponse, OrderRequest>("order", orderRequest);
     }
 }

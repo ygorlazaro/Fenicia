@@ -10,24 +10,24 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 public class ApiAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private readonly HttpClient _httpClient;
-    private readonly ILocalStorageService _localStorage;
+    private readonly HttpClient httpClient;
+    private readonly ILocalStorageService localStorage;
 
     public ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
     {
-        this._httpClient = httpClient;
-        this._localStorage = localStorage;
+        this.httpClient = httpClient;
+        this.localStorage = localStorage;
     }
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var savedToken = await _localStorage.GetItemAsync<string>("authToken");
+        var savedToken = await localStorage.GetItemAsync<string>("authToken");
 
         if (string.IsNullOrWhiteSpace(savedToken))
         {
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
 
-        _httpClient.DefaultRequestHeaders.Authorization =
+        httpClient.DefaultRequestHeaders.Authorization =
              new AuthenticationHeaderValue("bearer", savedToken);
 
         return new AuthenticationState(new ClaimsPrincipal(

@@ -5,11 +5,11 @@ using Serilog.Context;
 
 public sealed class CorrelationIdMiddleware
 {
-    private readonly RequestDelegate _next;
+    private readonly RequestDelegate next;
 
     public CorrelationIdMiddleware(RequestDelegate next)
     {
-        this._next = next;
+        this.next = next;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -28,7 +28,7 @@ public sealed class CorrelationIdMiddleware
             context.Response.Headers[correlationIdHeader] = correlationId;
             using (LogContext.PushProperty("CorrelationId", correlationId))
             {
-                await _next(context).ConfigureAwait(continueOnCapturedContext: false);
+                await this.next(context).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
         catch (Exception ex)

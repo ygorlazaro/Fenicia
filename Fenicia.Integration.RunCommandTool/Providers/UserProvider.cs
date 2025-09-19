@@ -8,32 +8,32 @@ using Common.Database.Responses;
 
 public class UserProvider : BaseProvider
 {
-    private readonly Faker _faker = new();
+    private readonly Faker faker = new();
 
-    public UserProvider(string baseUrl)
-        : base(baseUrl)
+    public UserProvider(Uri uri)
+        : base(uri)
     {
     }
 
     public UserRequest CreateUserMock()
     {
         var newUserRequest = new UserRequest
-                             {
+        {
             Company = new CompanyRequest
             {
-                Cnpj = _faker.Company.Cnpj(includeFormatSymbols: false),
-                Name = _faker.Company.CompanyName()
+                Cnpj = this.faker.Company.Cnpj(includeFormatSymbols: false),
+                Name = this.faker.Company.CompanyName()
             },
-            Email = _faker.Internet.Email(),
-            Name = _faker.Person.FullName,
-            Password = _faker.Internet.Password()
-                             };
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
+        };
 
         return newUserRequest;
     }
 
     public async Task<UserResponse> CreateNewUserAsync(UserRequest userRequest)
     {
-        return await PostAsync<UserResponse, UserRequest>("register", userRequest);
+        return await this.PostAsync<UserResponse, UserRequest>("register", userRequest);
     }
 }

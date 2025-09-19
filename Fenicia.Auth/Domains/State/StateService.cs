@@ -45,7 +45,7 @@ public class StateService : IStateService
                          new () { Name = "Tocantins", Uf = "TO" }
                      };
 
-        var response = await stateRepository.LoadStatesAtDatabaseAsync(states, cancellationToken);
+        var response = await this.stateRepository.LoadStatesAtDatabaseAsync(states, cancellationToken);
         var mapped = StateResponse.Convert(response);
 
         return mapped;

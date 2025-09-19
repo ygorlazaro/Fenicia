@@ -26,12 +26,12 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
     public async Task<ActionResult<ModuleResponse>> GetUserModulesAsync(CancellationToken cancellationToken)
     {
-        var userId = ClaimReader.UserId(User);
-        var companyId = ClaimReader.CompanyId(User);
+        var userId = ClaimReader.UserId(this.User);
+        var companyId = ClaimReader.CompanyId(this.User);
 
-        logger.LogWarning("Getting log for the user {userID}", userId);
+        this.logger.LogWarning("Getting log for the user {userID}", userId);
 
-        var response = await moduleService.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
-        return Ok(response);
+        var response = await this.moduleService.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+        return this.Ok(response);
     }
 }

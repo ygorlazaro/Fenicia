@@ -1,5 +1,7 @@
 namespace Fenicia.Auth.Domains.LoginAttempt;
 
+using System.Globalization;
+
 using Microsoft.Extensions.Caching.Memory;
 
 public class LoginAttemptService : ILoginAttemptService
@@ -17,32 +19,32 @@ public class LoginAttemptService : ILoginAttemptService
 
     public Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        return Task.FromResult(cache.TryGetValue(LoginAttemptService.GetKey(email), out int attempts) ? attempts : 0);
+        return Task.FromResult(this.cache.TryGetValue(LoginAttemptService.GetKey(email), out int attempts) ? attempts : 0);
     }
 
     public Task IncrementAttemptsAsync(string email)
     {
         var key = LoginAttemptService.GetKey(email);
-        var current = cache.TryGetValue(key, out int count) ? count + 1 : 1;
+        var current = this.cache.TryGetValue(key, out int count) ? count + 1 : 1;
 
         var options = new MemoryCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(LoginAttemptService.ExpirationMinutes)
         };
 
-        cache.Set(key, current, options);
+        this.cache.Set(key, current, options);
 
         return Task.CompletedTask;
     }
 
     public Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        cache.Remove(LoginAttemptService.GetKey(email));
+        this.cache.Remove(LoginAttemptService.GetKey(email));
         return Task.CompletedTask;
     }
 
     private static string GetKey(string email)
     {
-        return $"{LoginAttemptService.KeyPrefix}{email.ToLower()}";
+        return $"{LoginAttemptService.KeyPrefix}{email.ToLower(CultureInfo.InvariantCulture)}";
     }
 }

@@ -10,8 +10,8 @@
         <AuthorizeView>
             <Authorized>
                 <div class="top-row px-4">
-                    @_username
-                    @_company
+                    @username
+                    @company
                     <NavLink href="/">Logout</NavLink>
                 </div>
 
@@ -35,7 +35,7 @@
 </div>
 
 @code {
-    private string _username = "Ygor";
+    private string username = "Ygor";
 
-    private string _company = "Gato Ninja";
+    private string company = "Gato Ninja";
 }

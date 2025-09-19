@@ -14,9 +14,9 @@ public class ApiResponse<T>
 {
     public ApiResponse(T? data, HttpStatusCode status = HttpStatusCode.OK, string? message = "")
     {
-        Data = data;
-        Status = status;
-        Message = new ErrorResponse { Message = message };
+        this.Data = data;
+        this.Status = status;
+        this.Message = new ErrorResponse { Message = message };
     }
 
     public T? Data

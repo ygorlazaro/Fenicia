@@ -7,13 +7,13 @@ using Microsoft.EntityFrameworkCore;
 
 public class ForgotPasswordRepository : IForgotPasswordRepository
 {
-    private readonly AuthContext _authContext;
-    private readonly ILogger<ForgotPasswordRepository> _logger;
+    private readonly AuthContext authContext;
+    private readonly ILogger<ForgotPasswordRepository> logger;
 
     public ForgotPasswordRepository(AuthContext authContext, ILogger<ForgotPasswordRepository> logger)
     {
-        this._authContext = authContext;
-        this._logger = logger;
+        this.authContext = authContext;
+        this.logger = logger;
     }
 
     public async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken cancellationToken)
@@ -21,19 +21,19 @@ public class ForgotPasswordRepository : IForgotPasswordRepository
         try
         {
             var now = DateTime.UtcNow;
-            var query = from forgotPassword in _authContext.ForgottenPasswords where forgotPassword.UserId == userId && forgotPassword.Code == code && forgotPassword.IsActive && forgotPassword.ExpirationDate >= now select forgotPassword;
+            var query = from forgotPassword in this.authContext.ForgottenPasswords where forgotPassword.UserId == userId && forgotPassword.Code == code && forgotPassword.IsActive && forgotPassword.ExpirationDate >= now select forgotPassword;
 
             var result = await query.FirstOrDefaultAsync(cancellationToken);
             if (result == null)
             {
-                _logger.LogWarning("No active forgot password record found for user {UserID} with code {Code}", userId, code);
+                this.logger.LogWarning("No active forgot password record found for user {UserID} with code {Code}", userId, code);
             }
 
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving forgot password record for user {UserID}", userId);
+            this.logger.LogError(ex, "Error retrieving forgot password record for user {UserID}", userId);
             throw;
         }
     }
@@ -42,21 +42,21 @@ public class ForgotPasswordRepository : IForgotPasswordRepository
     {
         try
         {
-            var forgotPassword = await _authContext.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == id, cancellationToken);
+            var forgotPassword = await this.authContext.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == id, cancellationToken);
 
             if (forgotPassword is null)
             {
-                _logger.LogWarning("Forgot password record {ID} not found for invalidation", id);
+                this.logger.LogWarning("Forgot password record {ID} not found for invalidation", id);
                 return;
             }
 
             forgotPassword.IsActive = false;
-            await _authContext.SaveChangesAsync(cancellationToken);
-            _logger.LogInformation("Successfully invalidated forgot password record {ID}", id);
+            await this.authContext.SaveChangesAsync(cancellationToken);
+            this.logger.LogInformation("Successfully invalidated forgot password record {ID}", id);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error invalidating forgot password record {ID}", id);
+            this.logger.LogError(ex, "Error invalidating forgot password record {ID}", id);
             throw;
         }
     }
@@ -65,15 +65,15 @@ public class ForgotPasswordRepository : IForgotPasswordRepository
     {
         try
         {
-            _authContext.ForgottenPasswords.Add(forgotPassword);
-            await _authContext.SaveChangesAsync(cancellationToken);
-            _logger.LogInformation("Successfully saved forgot password record for user {UserID}", forgotPassword.UserId);
+            this.authContext.ForgottenPasswords.Add(forgotPassword);
+            await this.authContext.SaveChangesAsync(cancellationToken);
+            this.logger.LogInformation("Successfully saved forgot password record for user {UserID}", forgotPassword.UserId);
 
             return forgotPassword;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving forgot password record for user {UserID}", forgotPassword.UserId);
+            this.logger.LogError(ex, "Error saving forgot password record for user {UserID}", forgotPassword.UserId);
             throw;
         }
     }

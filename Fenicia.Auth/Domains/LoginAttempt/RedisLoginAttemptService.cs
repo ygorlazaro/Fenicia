@@ -1,42 +1,44 @@
 namespace Fenicia.Auth.Domains.LoginAttempt;
 
+using System.Globalization;
+
 using StackExchange.Redis;
 
 public class RedisLoginAttemptService : ILoginAttemptService
 {
-    private readonly IDatabase _db;
+    private readonly IDatabase db;
 
-    private readonly TimeSpan _expiration = TimeSpan.FromMinutes(minutes: 15);
+    private readonly TimeSpan expiration = TimeSpan.FromMinutes(minutes: 15);
 
     public RedisLoginAttemptService(IConnectionMultiplexer redis)
     {
-        _db = redis.GetDatabase();
+        this.db = redis.GetDatabase();
     }
 
     public async Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
         var key = RedisLoginAttemptService.GetKey(email);
-        var attempts = await _db.StringGetAsync(key);
+        var attempts = await this.db.StringGetAsync(key);
         return attempts.HasValue ? (int)attempts : 0;
     }
 
     public async Task IncrementAttemptsAsync(string email)
     {
         var key = RedisLoginAttemptService.GetKey(email);
-        var current = await _db.StringIncrementAsync(key);
+        var current = await this.db.StringIncrementAsync(key);
         if (current == 1)
         {
-            await _db.KeyExpireAsync(key, _expiration);
+            await this.db.KeyExpireAsync(key, this.expiration);
         }
     }
 
     public async Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        await _db.KeyDeleteAsync(RedisLoginAttemptService.GetKey(email));
+        await this.db.KeyDeleteAsync(RedisLoginAttemptService.GetKey(email));
     }
 
     private static string GetKey(string email)
     {
-        return $"login-attempt:{email.ToLower()}";
+        return $"login-attempt:{email.ToLower(CultureInfo.InvariantCulture)}";
     }
 }
