@@ -1,4 +1,9 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using System.Text.Json
+@using Fenicia.Web.Models
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <span class="navbar-brand" href="">Fenicia</span>
     </div>
@@ -14,6 +19,135 @@
             </NavLink>
         </div>
 
+        @if (modules != null && modules.Any())
+        {
+            @foreach (var module in modules)
+            {
+                <div class="nav-item px-3">
+                    <div class="module-accordion">
+                        <button
+                            class="btn btn-link nav-link module-header d-flex justify-content-between align-items-center w-100 text-start"
+                            type="button" @onclick="() => ToggleModule(module.Id)">
+                            <span>
+                                <span class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></span> @module.Name
+                            </span>
+                            <span
+                                class="bi @(expandedModules.Contains(module.Id) ? "bi-chevron-up" : "bi-chevron-down")"></span>
+                        </button>
+
+                        @if (expandedModules.Contains(module.Id))
+                        {
+                            <div class="submodules-container">
+                                @foreach (var submodule in module.Submodules)
+                                {
+                                    <div class="nav-item ps-4">
+                                        <NavLink class="nav-link submodule-link" href="@submodule.Route">
+                                            <span class="bi bi-arrow-right-short" aria-hidden="true"></span> @submodule.Name
+                                        </NavLink>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
     </nav>
 </div>
 
+<style>
+    .module-accordion {
+        margin-bottom: 0.5rem;
+    }
+
+    .module-header {
+        border: none;
+        background: none;
+        color: inherit;
+        padding: 0.5rem 0;
+        text-decoration: none;
+    }
+
+    .module-header:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 0.375rem;
+    }
+
+    .module-header:focus {
+        box-shadow: none;
+        outline: none;
+    }
+
+    .submodules-container {
+        animation: slideDown 0.3s ease-out;
+        overflow: hidden;
+    }
+
+    @* @keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+        }
+        to {
+            opacity: 1;
+            max-height: 500px;
+        }
+    } *@
+
+    .submodule-link {
+        font-size: 0.9rem;
+        padding: 0.25rem 0.5rem;
+        margin-left: 1rem;
+        border-left: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .submodule-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 0.375rem;
+        border-left-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .submodule-link.active {
+        background-color: rgba(255, 255, 255, 0.25);
+        border-left-color: #fff;
+    }
+</style>
+
+@code {
+    private List<Module> modules = new();
+    private HashSet<string> expandedModules = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadModules();
+    }
+
+    private async Task LoadModules()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<ModulesResponse>("data/modules-mock.json");
+            if (response != null && response.Data != null)
+            {
+                modules = response.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error or handle appropriately
+            Console.WriteLine($"Error loading modules: {ex.Message}");
+        }
+    }
+
+    private void ToggleModule(string moduleId)
+    {
+        if (expandedModules.Contains(moduleId))
+        {
+            expandedModules.Remove(moduleId);
+        }
+        else
+        {
+            expandedModules.Add(moduleId);
+        }
+    }
+}
