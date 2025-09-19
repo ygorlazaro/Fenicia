@@ -24,27 +24,24 @@ public class ForgotPasswordController : ControllerBase
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation("Starting password recovery process for user request");
+            this.logger.LogInformation("Starting password recovery process for user request");
 
-            var response = await forgotPasswordService.SaveForgotPasswordAsync(request, cancellationToken);
+            var response = await this.forgotPasswordService.SaveForgotPasswordAsync(request, cancellationToken);
 
-            logger.LogInformation("Password recovery process completed with status: {Status}", response.Status);
+            this.logger.LogInformation("Password recovery process completed with status: {Status}", response.Status);
 
-            return response.Data switch
-            {
-                null => StatusCode((int)response.Status, response.Message),
-                _ => Ok(response)
-            };
+            return response.Data is null ? this.StatusCode((int)response.Status, response.Message) : this.Ok(response);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error during password recovery process");
+            this.logger.LogError(ex, "Error during password recovery process");
             throw;
         }
     }
@@ -56,21 +53,21 @@ public class ForgotPasswordController : ControllerBase
     {
         try
         {
-            logger.LogInformation("Starting password reset process");
+            this.logger.LogInformation("Starting password reset process");
 
-            var response = await forgotPasswordService.ResetPasswordAsync(request, cancellationToken);
+            var response = await this.forgotPasswordService.ResetPasswordAsync(request, cancellationToken);
 
-            logger.LogInformation("Password reset process completed with status: {Status}", response.Status);
+            this.logger.LogInformation("Password reset process completed with status: {Status}", response.Status);
 
             return response.Data switch
             {
-                null => StatusCode((int)response.Status, response.Message),
-                _ => Ok(response)
+                null => this.StatusCode((int)response.Status, response.Message),
+                _ => this.Ok(response)
             };
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error during password reset process");
+            this.logger.LogError(ex, "Error during password reset process");
             throw;
         }
     }

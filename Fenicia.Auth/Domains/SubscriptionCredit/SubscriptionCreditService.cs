@@ -24,31 +24,31 @@ public class SubscriptionCreditService : ISubscriptionCreditService
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            logger.LogInformation("Getting active modules types for company {CompanyID}", companyId);
+            this.logger.LogInformation("Getting active modules types for company {CompanyID}", companyId);
 
-            var validSubscriptions = await subscriptionService.GetValidSubscriptionsAsync(companyId, cancellationToken);
+            var validSubscriptions = await this.subscriptionService.GetValidSubscriptionsAsync(companyId, cancellationToken);
 
             if (validSubscriptions.Data is null)
             {
-                logger.LogWarning("No valid subscriptions found for company {CompanyID}", companyId);
+                this.logger.LogWarning("No valid subscriptions found for company {CompanyID}", companyId);
                 return new ApiResponse<List<ModuleType>>(data: null, validSubscriptions.Status, validSubscriptions.Message.Message ?? string.Empty);
             }
 
-            logger.LogDebug("Found {Count} valid subscriptions for company {CompanyID}", validSubscriptions.Data.Count, companyId);
+            this.logger.LogDebug("Found {Count} valid subscriptions for company {CompanyID}", validSubscriptions.Data.Count, companyId);
 
-            var validModules = await subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions.Data, cancellationToken);
+            var validModules = await this.subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions.Data, cancellationToken);
 
-            logger.LogInformation("Retrieved {Count} active module types for company {CompanyID}", validModules.Count, companyId);
+            this.logger.LogInformation("Retrieved {Count} active module types for company {CompanyID}", validModules.Count, companyId);
             return new ApiResponse<List<ModuleType>>(validModules);
         }
         catch (OperationCanceledException)
         {
-            logger.LogWarning("Operation was cancelled while getting active modules for company {CompanyID}", companyId);
+            this.logger.LogWarning("Operation was cancelled while getting active modules for company {CompanyID}", companyId);
             throw;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error getting active modules for company {CompanyID}", companyId);
+            this.logger.LogError(ex, "Error getting active modules for company {CompanyID}", companyId);
             throw;
         }
     }

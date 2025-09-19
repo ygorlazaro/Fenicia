@@ -15,12 +15,13 @@ public abstract class BaseProvider
                      };
     }
 
-    protected async Task<TResponse> PostAsync<TResponse, TRequest>(string url, TRequest request)
+    protected async Task<TResponse> PostAsync<TResponse, TRequest>(string route, TRequest request)
     {
+        var uri = new Uri(route);
         using var content = new StringContent(JsonSerializer.Serialize(request));
         content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        var response = await HttpClient.PostAsync(url, content);
+        var response = await HttpClient.PostAsync(uri, content);
 
         if (!response.IsSuccessStatusCode)
         {

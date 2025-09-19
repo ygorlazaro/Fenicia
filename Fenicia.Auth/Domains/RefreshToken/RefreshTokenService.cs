@@ -20,7 +20,7 @@ public sealed class RefreshTokenService : IRefreshTokenService
     {
         try
         {
-            logger.LogInformation("Starting refresh token generation for user {UserID}", userId);
+            this.logger.LogInformation("Starting refresh token generation for user {UserID}", userId);
             var randomNumber = new byte[32];
 
             using var rng = RandomNumberGenerator.Create();
@@ -32,16 +32,16 @@ public sealed class RefreshTokenService : IRefreshTokenService
                 UserId = userId
             };
 
-            refreshTokenRepository.Add(refreshToken);
+            this.refreshTokenRepository.Add(refreshToken);
 
-            await refreshTokenRepository.SaveChangesAsync(cancellationToken);
+            await this.refreshTokenRepository.SaveChangesAsync(cancellationToken);
 
-            logger.LogInformation("Successfully generated refresh token for user {UserID}", userId);
+            this.logger.LogInformation("Successfully generated refresh token for user {UserID}", userId);
             return new ApiResponse<string>(refreshToken.Token);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error generating refresh token for user {UserID}", userId);
+            this.logger.LogError(ex, "Error generating refresh token for user {UserID}", userId);
             throw;
         }
     }
@@ -50,15 +50,15 @@ public sealed class RefreshTokenService : IRefreshTokenService
     {
         try
         {
-            logger.LogInformation("Validating refresh token for user {UserID}", userId);
-            var response = await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
+            this.logger.LogInformation("Validating refresh token for user {UserID}", userId);
+            var response = await this.refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
 
-            logger.LogInformation("Token validation result for user {UserID}: {IsValid}", userId, response);
+            this.logger.LogInformation("Token validation result for user {UserID}: {IsValid}", userId, response);
             return new ApiResponse<bool>(response);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error validating refresh token for user {UserID}", userId);
+            this.logger.LogError(ex, "Error validating refresh token for user {UserID}", userId);
             throw;
         }
     }
@@ -67,15 +67,15 @@ public sealed class RefreshTokenService : IRefreshTokenService
     {
         try
         {
-            logger.LogInformation("Invalidating refresh token");
-            await refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken, cancellationToken);
+            this.logger.LogInformation("Invalidating refresh token");
+            await this.refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken, cancellationToken);
 
-            logger.LogInformation("Successfully invalidated refresh token");
+            this.logger.LogInformation("Successfully invalidated refresh token");
             return new ApiResponse<object>(data: null);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error invalidating refresh token");
+            this.logger.LogError(ex, "Error invalidating refresh token");
             throw;
         }
     }

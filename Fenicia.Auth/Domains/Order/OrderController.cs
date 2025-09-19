@@ -26,6 +26,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
@@ -33,25 +34,25 @@ public class OrderController : ControllerBase
     {
         try
         {
-            logger.LogInformation("Creating new order for request {@Request}", request);
+            this.logger.LogInformation("Creating new order for request {@Request}", request);
 
-            var userId = ClaimReader.UserId(User);
-            var companyId = ClaimReader.CompanyId(User);
+            var userId = ClaimReader.UserId(this.User);
+            var companyId = ClaimReader.CompanyId(this.User);
 
-            var order = await orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
+            var order = await this.orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
 
             if (order.Data is null)
             {
-                logger.LogWarning("Order creation failed: {Message}", order.Message);
-                return StatusCode((int)order.Status, order.Message);
+                this.logger.LogWarning("Order creation failed: {Message}", order.Message);
+                return this.StatusCode((int)order.Status, order.Message);
             }
 
-            logger.LogInformation("New order created successfully for user {UserID}", userId);
-            return Ok(order.Data);
+            this.logger.LogInformation("New order created successfully for user {UserID}", userId);
+            return this.Ok(order.Data);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error while creating order");
+            this.logger.LogError(ex, "Unexpected error while creating order");
             throw;
         }
     }

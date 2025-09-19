@@ -5,8 +5,8 @@ using Common.Database.Responses;
 
 public class TokenProvider : BaseProvider
 {
-    public TokenProvider(string baseUrl)
-        : base(baseUrl)
+    public TokenProvider(Uri uri)
+        : base(uri)
     {
     }
 
@@ -19,6 +19,6 @@ public class TokenProvider : BaseProvider
             Password = password
                            };
 
-        return await PostAsync<TokenResponse, TokenRequest>("token", tokenRequest);
+        return await this.PostAsync<TokenResponse, TokenRequest>("token", tokenRequest);
     }
 }

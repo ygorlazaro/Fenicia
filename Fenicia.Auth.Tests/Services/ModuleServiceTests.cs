@@ -16,19 +16,19 @@ using Moq;
 
 public class ModuleServiceTests
 {
-    private readonly CancellationToken _cancellationToken = CancellationToken.None;
-    private Faker _faker;
-    private Mock<ILogger<ModuleService>> _loggerMock;
-    private Mock<IModuleRepository> _moduleRepositoryMock;
-    private ModuleService _sut;
+    private readonly CancellationToken cancellationToken = CancellationToken.None;
+    private Faker faker;
+    private Mock<ILogger<ModuleService>> loggerMock;
+    private Mock<IModuleRepository> moduleRepositoryMock;
+    private ModuleService sut;
 
     [SetUp]
     public void Setup()
     {
-        _loggerMock = new Mock<ILogger<ModuleService>>();
-        _moduleRepositoryMock = new Mock<IModuleRepository>();
-        _sut = new ModuleService(_loggerMock.Object, _moduleRepositoryMock.Object);
-        _faker = new Faker();
+        this.loggerMock = new Mock<ILogger<ModuleService>>();
+        this.moduleRepositoryMock = new Mock<IModuleRepository>();
+        this.sut = new ModuleService(this.loggerMock.Object, this.moduleRepositoryMock.Object);
+        this.faker = new Faker();
     }
 
     [Test]
@@ -37,15 +37,15 @@ public class ModuleServiceTests
         // Arrange
         var modules = new List<ModuleModel>
                       {
-                          new () { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() },
-                          new () { Id = Guid.NewGuid(), Name = _faker.Commerce.ProductName() }
+                          new () { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName() },
+                          new () { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName() }
                       };
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
-        _moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(_cancellationToken, 1, 10)).ReturnsAsync(modules);
+        this.moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(this.cancellationToken, 1, 10)).ReturnsAsync(modules);
 
         // Act
-        var result = await _sut.GetAllOrderedAsync(_cancellationToken);
+        var result = await this.sut.GetAllOrderedAsync(this.cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -60,13 +60,13 @@ public class ModuleServiceTests
     {
         // Arrange
         var moduleIDs = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-        var modules = moduleIDs.Select(id => new ModuleModel { Id = id, Name = _faker.Commerce.ProductName() }).ToList();
+        var modules = moduleIDs.Select(id => new ModuleModel { Id = id, Name = this.faker.Commerce.ProductName() }).ToList();
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
-        _moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIDs, _cancellationToken)).ReturnsAsync(modules);
+        this.moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIDs, this.cancellationToken)).ReturnsAsync(modules);
 
         // Act
-        var result = await _sut.GetModulesToOrderAsync(moduleIDs, _cancellationToken);
+        var result = await this.sut.GetModulesToOrderAsync(moduleIDs, this.cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -84,7 +84,7 @@ public class ModuleServiceTests
         var module = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = _faker.Commerce.ProductName(),
+            Name = this.faker.Commerce.ProductName(),
             Type = moduleType
         };
         var expectedResponse = new ModuleResponse
@@ -94,10 +94,10 @@ public class ModuleServiceTests
             Type = moduleType
         };
 
-        _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, _cancellationToken)).ReturnsAsync(module);
+        this.moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, this.cancellationToken)).ReturnsAsync(module);
 
         // Act
-        var result = await _sut.GetModuleByTypeAsync(moduleType, _cancellationToken);
+        var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -113,10 +113,10 @@ public class ModuleServiceTests
         // Arrange
         const ModuleType moduleType = ModuleType.Ecommerce;
 
-        _moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, _cancellationToken)).ReturnsAsync((ModuleModel)null!);
+        this.moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, this.cancellationToken)).ReturnsAsync((ModuleModel)null!);
 
         // Act
-        var result = await _sut.GetModuleByTypeAsync(moduleType, _cancellationToken);
+        var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -129,12 +129,12 @@ public class ModuleServiceTests
     public async Task CountAsync_ReturnsCount()
     {
         // Arrange
-        var expectedCount = _faker.Random.Int(min: 1, max: 100);
+        var expectedCount = this.faker.Random.Int(min: 1, max: 100);
 
-        _moduleRepositoryMock.Setup(x => x.CountAsync(_cancellationToken)).ReturnsAsync(expectedCount);
+        this.moduleRepositoryMock.Setup(x => x.CountAsync(this.cancellationToken)).ReturnsAsync(expectedCount);
 
         // Act
-        var result = await _sut.CountAsync(_cancellationToken);
+        var result = await this.sut.CountAsync(this.cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

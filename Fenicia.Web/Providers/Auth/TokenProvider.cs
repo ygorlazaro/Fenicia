@@ -11,21 +11,21 @@ using Abstracts;
 
 public class TokenProvider : BaseProvider
 {
-    private readonly ILocalStorageService _localStorage;
-    private readonly ApiAuthenticationStateProvider _apiAuthenticationStateProvider;
+    private readonly ILocalStorageService localStorage;
+    private readonly ApiAuthenticationStateProvider apiAuthenticationStateProvider;
 
     public TokenProvider(IConfiguration configuration, ILocalStorageService localStorage, ApiAuthenticationStateProvider apiAuthenticationStateProvider) : base(configuration)
     {
-        this._localStorage = localStorage;
-        this._apiAuthenticationStateProvider = apiAuthenticationStateProvider;
+        this.localStorage = localStorage;
+        this.apiAuthenticationStateProvider = apiAuthenticationStateProvider;
     }
 
     public async Task<TokenResponse> DoLoginAsync(TokenRequest request)
     {
         var token = await PostAsync<TokenResponse, TokenRequest>("token", request);
 
-        await _localStorage.SetItemAsync("authToken", token.AccessToken);
-        _apiAuthenticationStateProvider.MarkUserAsAuthenticated(request.Email);
+        await localStorage.SetItemAsync("authToken", token.AccessToken);
+        apiAuthenticationStateProvider.MarkUserAsAuthenticated(request.Email);
 
         HttpClient.DefaultRequestHeaders.Authorization = new
             AuthenticationHeaderValue("Bearer", token.AccessToken);
