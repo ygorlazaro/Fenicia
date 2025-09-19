@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
 
 <div class="page">
     <div class="sidebar">
@@ -6,13 +7,24 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <NavLink href="/">Logout</NavLink>
-        </div>
+        <AuthorizeView>
+            <Authorized>
+                <div class="top-row px-4">
+                    @Username
+                    @Company
+                    <NavLink href="/">Logout</NavLink>
+                </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </Authorized>
+            <NotAuthorized>
+                <NavLink href="/">Login</NavLink>
+                <NavLink href="/signup">Sign up</NavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+
     </main>
 </div>
 
@@ -21,3 +33,9 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    private string Username = "Ygor";
+
+    private string Company = "Gato Ninja";
+}

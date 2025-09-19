@@ -5,3 +5,7 @@ riderModule.iml
 /_ReSharper.Caches/
 .vs
 /Docker/data
+
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md

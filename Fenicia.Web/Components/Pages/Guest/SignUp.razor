@@ -7,6 +7,7 @@
 @rendermode InteractiveServer
 
 @inject SignUpProvider SignUpProvider
+@inject NavigationManager NavigationManager;
 
 
 @layout GuestLayout
@@ -84,6 +85,8 @@
 
     private async Task OnValidSubmit()
     {
-        var userResponse = await SignUpProvider.SignUpAsync(model);
+        await SignUpProvider.SignUpAsync(model);
+
+        NavigationManager.NavigateTo("/");
     }
 }
