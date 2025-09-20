@@ -175,7 +175,10 @@ public static class Program
     {
         var connectionString = configuration.GetConnectionString("Auth");
 
-        builder.Services.AddDbContextPool<AuthContext>(x => x.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention());
+        builder.Services.AddDbContextPool<AuthContext>(x => x.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth"))
+            .EnableSensitiveDataLogging()
+            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+            .UseSnakeCaseNamingConvention());
     }
 
     private static void BuildDependencyInjection(WebApplicationBuilder builder)

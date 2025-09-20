@@ -64,7 +64,7 @@ public class UserServiceTests
         {
             Id = Guid.NewGuid(),
             Email = request.Email,
-            Password = "hashedPassword",
+            Password = faker.Internet.Password(),
             Name = this.faker.Name.FullName()
         };
 
