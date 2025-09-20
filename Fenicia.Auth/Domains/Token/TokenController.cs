@@ -124,7 +124,7 @@ public class TokenController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Populating token for user {Email}", user.Email);
+            this.logger.LogInformation("Populating token for user {UserId}", user.Id);
 
             var roles = await this.userRoleService.GetRolesByUserAsync(user.Id, cancellationToken);
 
