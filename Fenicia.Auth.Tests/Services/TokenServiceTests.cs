@@ -7,7 +7,7 @@ using Bogus;
 using Common.Database.Responses;
 using Common.Enums;
 
-using Fenicia.Auth.Domains.Token;
+using Domains.Token;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -60,7 +60,7 @@ public class TokenServiceTests
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(result.Data);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Verify standard claims
             Assert.That(token.Claims.First(c => c.Type == "userId").Value, Is.EqualTo(user.Id.ToString()));
@@ -68,7 +68,7 @@ public class TokenServiceTests
             Assert.That(token.Claims.First(c => c.Type == "unique_name").Value, Is.EqualTo(user.Name));
             Assert.That(token.Claims.First(c => c.Type == "companyId").Value, Is.EqualTo(companyId.ToString()));
             Assert.That(token.Claims.Any(c => c.Type == JwtRegisteredClaimNames.Jti), Is.True);
-        });
+        }
 
         // Verify roles
         var roleClaims = token.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();

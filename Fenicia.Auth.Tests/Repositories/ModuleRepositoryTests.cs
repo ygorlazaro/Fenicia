@@ -57,12 +57,13 @@ public class ModuleRepositoryTests
         var page1 = await this.sut.GetAllOrderedAsync(this.cancellationToken, page: 1, perPage: 10);
         var page2 = await this.sut.GetAllOrderedAsync(this.cancellationToken, page: 2, perPage: 10);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(page1, Has.Count.EqualTo(expected: 10));
             Assert.That(page2, Has.Count.EqualTo(expected: 5));
-        });
+        }
+
         Assert.That(page1, Is.Ordered.By("Type"));
     }
 
@@ -106,11 +107,11 @@ public class ModuleRepositoryTests
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(expected: 3));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Select(m => m.Id), Is.EquivalentTo(requestedIDs));
             Assert.That(result, Is.Ordered.By("Type"));
-        });
+        }
     }
 
     [Test]
@@ -146,11 +147,11 @@ public class ModuleRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Type, Is.EqualTo(moduleType));
             Assert.That(result.Id, Is.EqualTo(module.Id));
-        });
+        }
     }
 
     [Test]

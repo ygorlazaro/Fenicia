@@ -3,21 +3,21 @@ namespace Fenicia.Integration.RunCommandTool.Providers;
 using Bogus;
 using Bogus.Extensions.Brazil;
 
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
 public class UserProvider : BaseProvider
 {
     private readonly Faker faker = new();
 
-    public UserProvider(string baseUrl)
-        : base(baseUrl)
+    public UserProvider(Uri uri)
+        : base(uri)
     {
     }
 
     public UserRequest CreateUserMock()
     {
-        var newUserRequest = new UserRequest()
+        var newUserRequest = new UserRequest
         {
             Company = new CompanyRequest
             {
@@ -34,6 +34,6 @@ public class UserProvider : BaseProvider
 
     public async Task<UserResponse> CreateNewUserAsync(UserRequest userRequest)
     {
-        return await this.PostAsync<UserResponse, UserRequest>("signup", userRequest);
+        return await this.PostAsync<UserResponse, UserRequest>("register", userRequest);
     }
 }

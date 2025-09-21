@@ -22,7 +22,7 @@ public class SecurityService : ISecurityService
             if (string.IsNullOrEmpty(password))
             {
                 this.logger.LogError("Attempt to hash null or empty password");
-                throw new ArgumentException(TextConstants.InvalidPassword);
+                throw new ArgumentException(TextConstants.InvalidPasswordMessage);
             }
 
             var hashed = BCrypt.HashPassword(password, BCrypt.GenerateSalt(workFactor: 12));
@@ -50,7 +50,7 @@ public class SecurityService : ISecurityService
             if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword))
             {
                 this.logger.LogError("Attempt to verify with null or empty password/hash");
-                throw new ArgumentException(TextConstants.InvalidPassword);
+                throw new ArgumentException(TextConstants.InvalidPasswordMessage);
             }
 
             var result = BCrypt.Verify(password, hashedPassword);

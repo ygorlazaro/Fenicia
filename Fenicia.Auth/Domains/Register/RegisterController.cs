@@ -1,11 +1,11 @@
-namespace Fenicia.Auth.Domains.SignUp;
+namespace Fenicia.Auth.Domains.Register;
 
 using System.Net.Mime;
 
 using Common.Database.Requests;
 using Common.Database.Responses;
 
-using Fenicia.Auth.Domains.User;
+using User;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +14,12 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class SignUpController : ControllerBase
+public class RegisterController : ControllerBase
 {
-    private readonly ILogger<SignUpController> logger;
+    private readonly ILogger<RegisterController> logger;
     private readonly IUserService userService;
 
-    public SignUpController(ILogger<SignUpController> logger, IUserService userService)
+    public RegisterController(ILogger<RegisterController> logger, IUserService userService)
     {
         this.logger = logger;
         this.userService = userService;

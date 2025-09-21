@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.Subscription;
+using Domains.Subscription;
 
 public class SubscriptionRepositoryTest
 {
@@ -51,11 +51,11 @@ public class SubscriptionRepositoryTest
         // Assert
         var savedSubscription = await this.context.Subscriptions.FindAsync([subscription.Id], this.cancellationToken);
         Assert.That(savedSubscription, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(savedSubscription!.Id, Is.EqualTo(subscription.Id));
             Assert.That(savedSubscription.CompanyId, Is.EqualTo(subscription.CompanyId));
-        });
+        }
     }
 
     [Test]

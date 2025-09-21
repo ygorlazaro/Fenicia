@@ -2,13 +2,13 @@ namespace Fenicia.Integration.RunCommandTool.Providers;
 
 public class MigrationProvider : BaseProvider
 {
-    public MigrationProvider(string baseUrl)
-        : base(baseUrl)
+    public MigrationProvider(Uri uri)
+        : base(uri)
     {
     }
 
-    public MigrationProvider(string baseUrl, string accessToken)
-        : base(baseUrl, accessToken)
+    public MigrationProvider(Uri uri, string accessToken)
+        : base(uri, accessToken)
     {
     }
 

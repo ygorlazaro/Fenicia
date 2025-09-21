@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.UserRole;
+using Domains.UserRole;
 
 public class UserRoleRepositoryTests
 {

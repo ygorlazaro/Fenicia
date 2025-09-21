@@ -7,7 +7,7 @@ using Common;
 using Fenicia.Common.Database.Models.Auth;
 using Common.Database.Requests;
 using Common.Database.Responses;
-using Fenicia.Auth.Domains.UserRole;
+using UserRole;
 
 public class CompanyService : ICompanyService
 {
@@ -32,7 +32,7 @@ public class CompanyService : ICompanyService
             if (company is null)
             {
                 this.logger.LogWarning("Company with CNPJ: {cnpj} not found", cnpj);
-                return new ApiResponse<CompanyResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+                return new ApiResponse<CompanyResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
             }
 
             var mapped = CompanyResponse.Convert(company);
@@ -80,7 +80,7 @@ public class CompanyService : ICompanyService
             if (!existing)
             {
                 this.logger.LogWarning("Company {companyID} not found", companyId);
-                return new ApiResponse<CompanyResponse?>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+                return new ApiResponse<CompanyResponse?>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
             }
 
             this.logger.LogInformation("Checking admin role for user: {userID} in company: {companyID}", userId, companyId);
@@ -89,7 +89,7 @@ public class CompanyService : ICompanyService
             if (!hasAdminRole.Data)
             {
                 this.logger.LogWarning("User: {userID} lacks admin role for company: {companyID}", userId, companyId);
-                return new ApiResponse<CompanyResponse?>(data: null, HttpStatusCode.Unauthorized, TextConstants.PermissionDenied);
+                return new ApiResponse<CompanyResponse?>(data: null, HttpStatusCode.Unauthorized, TextConstants.PermissionDeniedMessage);
             }
 
             this.logger.LogInformation("Updating company: {companyID}", companyId);
@@ -102,7 +102,7 @@ public class CompanyService : ICompanyService
             if (saved == 0)
             {
                 this.logger.LogWarning("Failed to save updates for company: {companyID}", companyId);
-                return new ApiResponse<CompanyResponse?>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+                return new ApiResponse<CompanyResponse?>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
             }
 
             this.logger.LogInformation("Successfully updated company: {companyID}", companyId);

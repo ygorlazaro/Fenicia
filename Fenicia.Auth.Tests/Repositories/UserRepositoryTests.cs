@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.User;
+using Domains.User;
 
 public class UserRepositoryTests
 {
@@ -51,11 +51,11 @@ public class UserRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result!.Id, Is.EqualTo(user.Id));
             Assert.That(result.Email, Is.EqualTo(user.Email));
-        });
+        }
     }
 
     [Test]
@@ -81,12 +81,12 @@ public class UserRepositoryTests
         // Act
         var result = this.sut.Add(user);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result, Is.Not.Null);
             Assert.That(this.context.Users.Local, Does.Contain(user));
-        });
+        }
     }
 
     [Test]
@@ -147,11 +147,11 @@ public class UserRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result!.Id, Is.EqualTo(user.Id));
             Assert.That(result.Email, Is.EqualTo(user.Email));
-        });
+        }
     }
 
     [Test]

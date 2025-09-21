@@ -2,7 +2,7 @@ namespace Fenicia.Common.Database.Responses;
 
 using System.Collections.Generic;
 
-using Fenicia.Common.Database.Models.Auth;
+using Models.Auth;
 
 [Serializable]
 public class SubmoduleResponse

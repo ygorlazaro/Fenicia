@@ -7,11 +7,11 @@ using Common.Database.Requests;
 
 using Fenicia.Common.Database.Models.Auth;
 using Common.Database.Responses;
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.LoginAttempt;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.UserRole;
+using Company;
+using LoginAttempt;
+using Role;
+using Security;
+using UserRole;
 
 public class UserService : IUserService
 {
@@ -53,7 +53,7 @@ public class UserService : IUserService
             this.logger.LogWarning("Invalid login - {email}", request.Email);
             await this.loginAttemptService.IncrementAttemptsAsync(request.Email);
             await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, val2: 5)), cancellationToken);
-            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.InvalidUsernameOrPassword);
+            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.InvalidUsernameOrPasswordMessage);
         }
 
         var isValidPassword = this.securityService.VerifyPassword(request.Password, user.Password);
@@ -69,7 +69,7 @@ public class UserService : IUserService
         await this.loginAttemptService.IncrementAttemptsAsync(request.Email);
         await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, val2: 5)), cancellationToken);
 
-        return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.InvalidUsernameOrPassword);
+        return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.InvalidUsernameOrPasswordMessage);
     }
 
     public async Task<ApiResponse<UserResponse>> CreateNewUserAsync(UserRequest request, CancellationToken cancellationToken)
@@ -82,14 +82,14 @@ public class UserService : IUserService
         {
             this.logger.LogInformation("User already exists - {email}", request.Email);
 
-            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.EmailExists);
+            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.EmailExistsMessage);
         }
 
         if (isExistingCompany)
         {
             this.logger.LogInformation("Company already exists - {cnpj}", request.Company.Cnpj);
 
-            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.CompanyExists);
+            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.CompanyExistsMessage);
         }
 
         var hashedPassword = this.securityService.HashPassword(request.Password).Data;
@@ -109,7 +109,7 @@ public class UserService : IUserService
         {
             this.logger.LogCritical("Missing admin role. Please check database.");
 
-            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.InternalServerError, TextConstants.MissingAdminRole);
+            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.InternalServerError, TextConstants.MissingAdminRoleMessage);
         }
 
         user.UsersRoles =
@@ -145,7 +145,7 @@ public class UserService : IUserService
 
         if (user is null)
         {
-            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.Unauthorized, TextConstants.PermissionDenied);
+            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.Unauthorized, TextConstants.PermissionDeniedMessage);
         }
 
         var response = UserResponse.Convert(user);
@@ -161,7 +161,7 @@ public class UserService : IUserService
 
         if (userId is null)
         {
-            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
         }
 
         var response = new UserResponse
@@ -181,7 +181,7 @@ public class UserService : IUserService
         {
             this.logger.LogInformation("User not found {userID}", userId);
 
-            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+            return new ApiResponse<UserResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
         }
 
         var hashedPassword = this.securityService.HashPassword(password).Data;

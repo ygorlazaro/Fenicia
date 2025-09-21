@@ -3,7 +3,7 @@ namespace Fenicia.Auth.Tests.Repositories;
 using Common.Database.Contexts;
 using Common.Database.Models.Auth;
 
-using Fenicia.Auth.Domains.Role;
+using Domains.Role;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -48,11 +48,11 @@ public class RoleRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Name, Is.EqualTo("Admin"));
             Assert.That(result.Id, Is.EqualTo(adminRole.Id));
-        });
+        }
     }
 
     [Test]

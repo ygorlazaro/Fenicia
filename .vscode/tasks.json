@@ -1,0 +1,12 @@
+{
+	"tasks": [
+		{
+			"group": "build",
+			"label": "dotnet: clean",
+			"problemMatcher": [],
+			"task": "clean",
+			"type": "dotnet"
+		}
+	],
+	"version": "2.0.0"
+}

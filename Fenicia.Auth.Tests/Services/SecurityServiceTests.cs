@@ -4,7 +4,7 @@ using System.Net;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Security;
+using Domains.Security;
 
 using Microsoft.Extensions.Logging;
 
@@ -33,13 +33,13 @@ public class SecurityServiceTests
         var result = this.sut.HashPassword(password);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Data, Is.Not.EqualTo(password));
             Assert.That(result.Data!, Does.StartWith("$2a$12$"), "Hash should use BCrypt format with work factor 12");
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 
     [Test]
@@ -79,11 +79,11 @@ public class SecurityServiceTests
         var result = this.sut.VerifyPassword(password, hashedPassword!);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Data, Is.True);
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 
     [Test]
@@ -98,11 +98,11 @@ public class SecurityServiceTests
         var result = this.sut.VerifyPassword(wrongPassword, hashedPassword!);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Data, Is.False);
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 
     [Test]
@@ -116,11 +116,11 @@ public class SecurityServiceTests
         var result = this.sut.VerifyPassword(password, invalidHash);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Data, Is.False);
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.InternalServerError));
-        });
+        }
     }
 
     [Test]
@@ -170,12 +170,12 @@ public class SecurityServiceTests
             var verifyResult = this.sut.VerifyPassword(password, result.Data!);
 
             // Assert
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(result.Data, Is.Not.Null);
                 Assert.That(result.Data, Does.StartWith("$2a$12$"));
                 Assert.That(verifyResult.Data, Is.True);
-            });
+            }
         }
     }
 
@@ -199,11 +199,11 @@ public class SecurityServiceTests
             var result = this.sut.VerifyPassword(password!, hash!);
 
             // Assert
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(result.Data, Is.False);
                 Assert.That(result.Status, Is.EqualTo(HttpStatusCode.InternalServerError));
-            });
+            }
         }
     }
 }

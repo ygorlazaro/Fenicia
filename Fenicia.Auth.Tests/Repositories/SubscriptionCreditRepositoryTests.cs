@@ -8,7 +8,7 @@ using Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
-using Fenicia.Auth.Domains.SubscriptionCredit;
+using Domains.SubscriptionCredit;
 
 public class SubscriptionCreditRepositoryTests
 {

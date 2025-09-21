@@ -28,7 +28,7 @@ public sealed class SubscriptionService : ISubscriptionService
             if (details.Count == 0)
             {
                 this.logger.LogWarning("No modules found for order {OrderID}", order.Id);
-                return new ApiResponse<SubscriptionResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorAddingModules);
+                return new ApiResponse<SubscriptionResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorAddingModulesMessage);
             }
 
             var credits = order.Details.Select(d => new SubscriptionCreditModel

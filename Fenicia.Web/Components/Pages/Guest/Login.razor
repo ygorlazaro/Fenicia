@@ -2,7 +2,6 @@
 @using Fenicia.Common.Database.Requests
 @using Fenicia.Web.Components.Layout
 @using Fenicia.Web.Providers.Auth
-@using Microsoft.Extensions.Hosting.Internal
 
 @rendermode InteractiveServer
 
@@ -60,6 +59,10 @@
                             <button type="submit" class="btn btn-primary">Login</button>
                         </div>
                     </EditForm>
+                    @if (loginError != null)
+                    {
+                        <div class="alert alert-danger">@loginError</div>
+                    }
                 </div>
             </div>
         </div>
@@ -67,12 +70,34 @@
 </div>
 
 @code {
-    private TokenRequest model = new TokenRequest();
+    private readonly TokenRequest model = new();
+    private string? loginError;
+
+    [Inject] public AuthManager? AuthManager { get; set; }
+
+    private const string LoginInvalidError = "Usuário ou senha inválidos.";
+    private const string LoginExceptionError = "Erro ao tentar logar. Tente novamente.";
 
     private async Task OnValidSubmit()
     {
-        var userResponse = await TokenProvider.DoLoginAsync(model);
-
-        Navigation.NavigateTo("/home");
+        try
+        {
+            var token = await TokenProvider.DoLoginAsync(model);
+            if (!string.IsNullOrEmpty(token?.AccessToken))
+            {
+                AuthManager?.SetToken(token.AccessToken);
+                Navigation.NavigateTo("/home", true);
+            }
+            else
+            {
+                loginError = LoginInvalidError;
+            }
+        }
+        catch
+        {
+            loginError = LoginExceptionError;
+        }
+    }
+}
     }
 }

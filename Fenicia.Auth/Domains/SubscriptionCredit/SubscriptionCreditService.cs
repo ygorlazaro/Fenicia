@@ -3,7 +3,7 @@ namespace Fenicia.Auth.Domains.SubscriptionCredit;
 using Common;
 using Common.Enums;
 
-using Fenicia.Auth.Domains.Subscription;
+using Subscription;
 
 public class SubscriptionCreditService : ISubscriptionCreditService
 {

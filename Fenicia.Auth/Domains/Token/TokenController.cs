@@ -9,11 +9,11 @@ using Common.Database.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.RefreshToken;
-using Fenicia.Auth.Domains.SubscriptionCredit;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
+using Company;
+using RefreshToken;
+using SubscriptionCredit;
+using User;
+using UserRole;
 
 [Authorize]
 [Route("[controller]")]
@@ -105,7 +105,7 @@ public class TokenController : ControllerBase
             if (userResponse.Data is null)
             {
                 this.logger.LogWarning("User not found for refresh token {UserID}", request.UserId);
-                return this.BadRequest(TextConstants.PermissionDenied);
+                return this.BadRequest(TextConstants.PermissionDeniedMessage);
             }
 
             var response = await this.PopulateTokenAsync(userResponse.Data, request.CompanyId, cancellationToken);
@@ -123,7 +123,7 @@ public class TokenController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Populating token for user {Email}", user.Email);
+            this.logger.LogInformation("Populating token for user {UserId}", user.Id);
 
             var roles = await this.userRoleService.GetRolesByUserAsync(user.Id, cancellationToken);
 
@@ -136,7 +136,7 @@ public class TokenController : ControllerBase
             if (roles.Data.Length == 0)
             {
                 this.logger.LogWarning("User {Email} has no assigned roles", user.Email);
-                return this.BadRequest(TextConstants.UserWithoutRoles);
+                return this.BadRequest(TextConstants.UserWithoutRolesMessage);
             }
 
             var modules = await this.subscriptionCreditService.GetActiveModulesTypesAsync(companyId, cancellationToken);
@@ -169,12 +169,12 @@ public class TokenController : ControllerBase
             {
                 AccessToken = token.Data,
                 RefreshToken = refreshToken.Data,
-                User = new UserResponse()
-                {
+                User = new UserResponse
+                       {
                     Id = user.Id,
                     Email = user.Email,
                     Name = user.Name
-                }
+                       }
             });
         }
         catch (Exception ex)

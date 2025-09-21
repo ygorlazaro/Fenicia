@@ -8,9 +8,9 @@ using Common.Enums;
 using Fenicia.Common.Database.Models.Auth;
 using Common.Database.Requests;
 using Common.Database.Responses;
-using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.User;
+using Module;
+using Subscription;
+using User;
 
 public sealed class OrderService : IOrderService
 {
@@ -40,7 +40,7 @@ public sealed class OrderService : IOrderService
             {
                 this.logger.LogWarning("User {userID} does not exist in company {companyID}", userId, companyId);
 
-                return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.UserNotInCompany);
+                return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.UserNotInCompanyMessage);
             }
 
             var modules = await this.PopulateModules(request, cancellationToken);
@@ -54,7 +54,7 @@ public sealed class OrderService : IOrderService
             {
                 this.logger.LogWarning("There was an error searching modules");
 
-                return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorSearchingModules);
+                return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorSearchingModulesMessage);
             }
 
             var totalAmount = modules.Data.Sum(m => m.Amount);

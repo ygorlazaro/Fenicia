@@ -6,7 +6,7 @@ using Common.Database.Contexts;
 using Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
-using Fenicia.Auth.Domains.RefreshToken;
+using Domains.RefreshToken;
 
 public class RefreshTokenRepositoryTests
 {
@@ -53,13 +53,13 @@ public class RefreshTokenRepositoryTests
         // Assert
         var savedToken = await this.context.RefreshTokens.FirstOrDefaultAsync(x => x.Id == refreshToken.Id, this.cancellationToken);
         Assert.That(savedToken, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(savedToken.Token, Is.EqualTo(refreshToken.Token));
             Assert.That(savedToken.UserId, Is.EqualTo(refreshToken.UserId));
             Assert.That(savedToken.ExpirationDate, Is.EqualTo(refreshToken.ExpirationDate));
             Assert.That(savedToken.IsActive, Is.True);
-        });
+        }
     }
 
     [Test]

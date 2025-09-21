@@ -2,7 +2,7 @@ namespace Fenicia.Auth.Tests.Services;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.UserRole;
+using Domains.UserRole;
 
 using Microsoft.Extensions.Logging;
 

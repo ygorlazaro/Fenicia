@@ -6,7 +6,7 @@ using Bogus;
 
 using Common.Database.Models.Auth;
 
-using Fenicia.Auth.Domains.RefreshToken;
+using Domains.RefreshToken;
 
 using Microsoft.Extensions.Logging;
 
@@ -40,12 +40,12 @@ public class RefreshTokenServiceTests
         var result = await this.sut.GenerateRefreshTokenAsync(userId, this.cancellationToken);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Data?.Length, Is.EqualTo(expected: 44)); // Base64 encoded 32 bytes = 44 characters
             Assert.That(result.Data, Does.Match(base64Pattern));
-        });
+        }
 
         this.refreshTokenRepositoryMock.Verify(x => x.Add(It.Is<RefreshTokenModel>(t => t.UserId == userId && t.Token == result.Data)), Times.Once);
 
@@ -151,12 +151,12 @@ public class RefreshTokenServiceTests
         }
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generatedTokens.Select(x => x.Token).Distinct().Count(), Is.EqualTo(generatedTokens.Count), "All generated tokens should be unique");
             Assert.That(generatedTokens.All(x => x.Token.Length == 44), "All tokens should be 44 characters long");
             Assert.That(generatedTokens.All(x => Regex.IsMatch(x.Token, @"^[a-zA-Z0-9+/]*={0,2}$")), "All tokens should be valid Base64 strings");
-        });
+        }
     }
 
     [Test]
