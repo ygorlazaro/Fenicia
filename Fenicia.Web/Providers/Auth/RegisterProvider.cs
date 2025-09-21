@@ -3,17 +3,37 @@ using Fenicia.Common.Database.Responses;
 
 namespace Fenicia.Web.Providers.Auth;
 
-using Abstracts;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
-public class RegisterProvider : BaseProvider
+public class RegisterProvider
 {
-    public RegisterProvider(IConfiguration configuration, AuthManager authManager) : base(configuration, authManager)
-    {
 
+    private readonly AuthManager authManager;
+    private readonly HttpClient httpClient;
+
+    public RegisterProvider(IConfiguration configuration, AuthManager authManager, HttpClient httpClient)
+    {
+        this.authManager = authManager;
+        this.httpClient = httpClient;
+        this.httpClient.BaseAddress = new Uri(configuration["Routes:]BaseAuthUrl"] ?? throw new NullReferenceException());
     }
 
     public async Task<UserResponse> RegisterAsync(UserRequest request)
     {
-        return await PostAsync<UserResponse, UserRequest>("register", request);
+        using var content = new StringContent(JsonSerializer.Serialize(request));
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+        var response = await httpClient.PostAsync("register", content);
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Request failed with status code {(int)response.StatusCode} ({response.StatusCode}). Response: {responseContent}");
+        }
+
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        return JsonSerializer.Deserialize<UserResponse>(responseContent, options) ?? throw new NullReferenceException();
     }
 }

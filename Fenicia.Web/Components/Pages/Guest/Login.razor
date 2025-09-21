@@ -59,10 +59,6 @@
                             <button type="submit" class="btn btn-primary">Login</button>
                         </div>
                     </EditForm>
-                    @if (loginError != null)
-                    {
-                        <div class="alert alert-danger">@loginError</div>
-                    }
                 </div>
             </div>
         </div>
@@ -71,33 +67,17 @@
 
 @code {
     private readonly TokenRequest model = new();
-    private string? loginError;
 
-    [Inject] public AuthManager? AuthManager { get; set; }
-
-    private const string LoginInvalidError = "Usuário ou senha inválidos.";
-    private const string LoginExceptionError = "Erro ao tentar logar. Tente novamente.";
-
+    [Inject]
+    public AuthManager? AuthManager { get; set; }
     private async Task OnValidSubmit()
     {
-        try
+        var token = await TokenProvider.DoLoginAsync(model);
+
+        if (!string.IsNullOrEmpty(token?.AccessToken))
         {
-            var token = await TokenProvider.DoLoginAsync(model);
-            if (!string.IsNullOrEmpty(token?.AccessToken))
-            {
-                AuthManager?.SetToken(token.AccessToken);
-                Navigation.NavigateTo("/home", true);
-            }
-            else
-            {
-                loginError = LoginInvalidError;
-            }
+            AuthManager?.SetToken(token.AccessToken, token.User.Name);
+            Navigation.NavigateTo("/home", true);
         }
-        catch
-        {
-            loginError = LoginExceptionError;
-        }
-    }
-}
     }
 }
