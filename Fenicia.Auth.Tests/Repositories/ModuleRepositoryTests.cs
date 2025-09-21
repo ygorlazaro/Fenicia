@@ -36,7 +36,7 @@ public class ModuleRepositoryTests
     }
 
     [Test]
-    public async Task GetAllOrderedAsync_ReturnsModules_WithPagination()
+    public async Task GetAllOrderedAsyncReturnsModulesWithPagination()
     {
         // Arrange
         var modules = new List<ModuleModel>();
@@ -68,7 +68,7 @@ public class ModuleRepositoryTests
     }
 
     [Test]
-    public async Task GetAllOrderedAsync_ReturnsEmptyList_WhenNoModules()
+    public async Task GetAllOrderedAsyncReturnsEmptyListWhenNoModules()
     {
         // Act
         var result = await this.sut.GetAllOrderedAsync(this.cancellationToken);
@@ -78,7 +78,7 @@ public class ModuleRepositoryTests
     }
 
     [Test]
-    public async Task GetManyOrdersAsync_ReturnsRequestedModules()
+    public async Task GetManyOrdersAsyncReturnsRequestedModules()
     {
         // Arrange
         var modules = new List<ModuleModel>();
@@ -115,7 +115,7 @@ public class ModuleRepositoryTests
     }
 
     [Test]
-    public async Task GetManyOrdersAsync_ReturnsEmptyList_WhenNoMatchingIDs()
+    public async Task GetManyOrdersAsyncReturnsEmptyListWhenNoMatchingIDs()
     {
         // Arrange
         var nonExistentIDs = new[] { Guid.NewGuid(), Guid.NewGuid() };
@@ -128,7 +128,7 @@ public class ModuleRepositoryTests
     }
 
     [Test]
-    public async Task GetModuleByTypeAsync_ReturnsModule_WhenExists()
+    public async Task GetModuleByTypeAsyncReturnsModuleWhenExists()
     {
         // Arrange
         var moduleType = ModuleType.Accounting;
@@ -155,7 +155,7 @@ public class ModuleRepositoryTests
     }
 
     [Test]
-    public async Task GetModuleByTypeAsync_ReturnsNull_WhenNotExists()
+    public async Task GetModuleByTypeAsyncReturnsNullWhenNotExists()
     {
         // Act
         var result = await this.sut.GetModuleByTypeAsync(ModuleType.Accounting, this.cancellationToken);
@@ -165,7 +165,7 @@ public class ModuleRepositoryTests
     }
 
     [Test]
-    public async Task CountAsync_ReturnsCorrectCount()
+    public async Task CountAsyncReturnsCorrectCount()
     {
         // Arrange
         var expectedCount = 5;
@@ -192,7 +192,7 @@ public class ModuleRepositoryTests
     }
 
     [Test]
-    public async Task CountAsync_ReturnsZero_WhenNoModules()
+    public async Task CountAsyncReturnsZeroWhenNoModules()
     {
         // Act
         var count = await this.sut.CountAsync(this.cancellationToken);
@@ -202,7 +202,7 @@ public class ModuleRepositoryTests
     }
 
     [Test]
-    public async Task GetAllOrderedAsync_RespectsPagination_WithDifferentPageSizes()
+    public async Task GetAllOrderedAsyncRespectsPaginationWithDifferentPageSizes()
     {
         // Arrange
         var modules = new List<ModuleModel>();

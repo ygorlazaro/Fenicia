@@ -1,5 +1,7 @@
-﻿@using Fenicia.Web.Models
+﻿@using Fenicia.Common.Database.Responses
+@using Fenicia.Web.Models
 @inject HttpClient Http
+@inject UserProvider UserProvider;
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -108,32 +110,17 @@
     </style>
 
 @code {
-    private List<Module> modules = [];
-    private readonly HashSet<string> expandedModules = [];
+    private List<ModuleResponse> modules = [];
+    private readonly HashSet<Guid> expandedModules = [];
 
     protected override async Task OnInitializedAsync()
     {
-        @* await LoadModules(); *@
+        var response = await UserProvider.GetModulesAsync();
+
+        modules = response.Data;
     }
 
-    private async Task LoadModules()
-    {
-        try
-        {
-            var response = await Http.GetFromJsonAsync<ModulesResponse>("data/modules-mock.json");
-            if (response is not null)
-            {
-                modules = response.Data;
-            }
-        }
-        catch (Exception ex)
-        {
-            // Log error or handle appropriately
-            Console.WriteLine($"Error loading modules: {ex.Message}");
-        }
-    }
-
-    private void ToggleModule(string moduleId)
+    private void ToggleModule(Guid moduleId)
     {
         if (!expandedModules.Add(moduleId))
         {

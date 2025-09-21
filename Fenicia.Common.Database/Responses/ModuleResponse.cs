@@ -30,8 +30,7 @@ public class ModuleResponse
         get; set;
     }
 
-    [JsonPropertyName("submodules")
-    ]
+    [JsonPropertyName("submodules")]
     public SubmoduleResponse[] Submodules { get; set; } = [];
 
     public static ModuleResponse Convert(ModuleModel module)
@@ -49,5 +48,24 @@ public class ModuleResponse
     public static List<ModuleResponse> Convert(List<ModuleModel> modules)
     {
         return [.. modules.Select(ModuleResponse.Convert)];
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not ModuleResponse other)
+        {
+            return false;
+        }
+
+        return Id == other.Id &&
+               Name == other.Name &&
+               Amount == other.Amount &&
+               Type == other.Type &&
+               Submodules.SequenceEqual(other.Submodules);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, Name, Amount, Type, Submodules);
     }
 }

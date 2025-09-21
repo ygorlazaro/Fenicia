@@ -35,7 +35,7 @@ public class RoleRepositoryTests
     }
 
     [Test]
-    public async Task GetAdminRoleAsync_ReturnsRole_WhenAdminRoleExists()
+    public async Task GetAdminRoleAsyncReturnsRoleWhenAdminRoleExists()
     {
         // Arrange
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
@@ -56,7 +56,7 @@ public class RoleRepositoryTests
     }
 
     [Test]
-    public async Task GetAdminRoleAsync_ReturnsNull_WhenAdminRoleDoesNotExist()
+    public async Task GetAdminRoleAsyncReturnsNullWhenAdminRoleDoesNotExist()
     {
         // Arrange
         var nonAdminRole = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
@@ -72,7 +72,7 @@ public class RoleRepositoryTests
     }
 
     [Test]
-    public async Task GetAdminRoleAsync_ReturnsNull_WhenRolesTableIsEmpty()
+    public async Task GetAdminRoleAsyncReturnsNullWhenRolesTableIsEmpty()
     {
         // Act
         var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
@@ -82,7 +82,7 @@ public class RoleRepositoryTests
     }
 
     [Test]
-    public async Task GetAdminRoleAsync_ReturnsSingleRole_WhenMultipleRolesExist()
+    public async Task GetAdminRoleAsyncReturnsSingleRoleWhenMultipleRolesExist()
     {
         // Arrange
         var roles = new[]
@@ -104,7 +104,7 @@ public class RoleRepositoryTests
     }
 
     [Test]
-    public async Task GetAdminRoleAsync_IsCaseInsensitive()
+    public async Task GetAdminRoleAsyncIsCaseInsensitive()
     {
         // Arrange
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "ADMIN" };

@@ -74,14 +74,6 @@ public class CompanyController : ControllerBase
             this.logger.LogInformation("Starting company update process for company ID: {CompanyID}", id);
 
             var userId = ClaimReader.UserId(this.User);
-            var companyId = ClaimReader.CompanyId(this.User);
-
-            if (id != companyId)
-            {
-                this.logger.LogWarning("Unauthorized attempt to update company. Requested ID: {RequestedID}, User's Company ID: {UserCompanyID}", id, companyId);
-                return this.Unauthorized();
-            }
-
             var response = await this.companyService.PatchAsync(id, userId, request, cancellationToken);
 
             if (response.Data is null)

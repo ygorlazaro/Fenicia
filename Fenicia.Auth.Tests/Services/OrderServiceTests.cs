@@ -45,7 +45,7 @@ public class OrderServiceTests
     }
 
     [Test]
-    public async Task CreateNewOrderAsync_WhenUserNotInCompany_ReturnsBadRequest()
+    public async Task CreateNewOrderAsyncWhenUserNotInCompanyReturnsBadRequest()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -65,7 +65,7 @@ public class OrderServiceTests
     }
 
     [Test]
-    public async Task CreateNewOrderAsync_WhenNoModulesFound_ReturnsBadRequest()
+    public async Task CreateNewOrderAsyncWhenNoModulesFoundReturnsBadRequest()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -95,7 +95,7 @@ public class OrderServiceTests
     }
 
     [Test]
-    public async Task CreateNewOrderAsync_WhenSuccessful_CreatesOrderAndSubscriptions()
+    public async Task CreateNewOrderAsyncWhenSuccessfulCreatesOrderAndSubscriptions()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -147,7 +147,7 @@ public class OrderServiceTests
     }
 
     [Test]
-    public async Task CreateNewOrderAsync_WhenOrderIncludesBasicModule_DoesNotAddExtraBasicModule()
+    public async Task CreateNewOrderAsyncWhenOrderIncludesBasicModuleDoesNotAddExtraBasicModule()
     {
         // Arrange
         var userId = Guid.NewGuid();

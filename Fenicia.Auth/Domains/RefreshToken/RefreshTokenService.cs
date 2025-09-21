@@ -3,7 +3,6 @@ namespace Fenicia.Auth.Domains.RefreshToken;
 using System.Security.Cryptography;
 
 using Common;
-using Common.Database.Models.Auth;
 
 public sealed class RefreshTokenService : IRefreshTokenService
 {
@@ -16,7 +15,7 @@ public sealed class RefreshTokenService : IRefreshTokenService
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
-    public async Task<ApiResponse<string>> GenerateRefreshTokenAsync(Guid userId, CancellationToken cancellationToken)
+    public ApiResponse<string> GenerateRefreshToken(Guid userId)
     {
         try
         {
@@ -26,15 +25,15 @@ public sealed class RefreshTokenService : IRefreshTokenService
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
 
-            var refreshToken = new RefreshTokenModel
+            var refreshToken = new RefreshToken
             {
                 Token = Convert.ToBase64String(randomNumber),
-                UserId = userId
+                UserId = userId,
+                ExpirationDate = DateTime.UtcNow.AddDays(7),
+                IsActive = true
             };
 
             this.refreshTokenRepository.Add(refreshToken);
-
-            await this.refreshTokenRepository.SaveChangesAsync(cancellationToken);
 
             this.logger.LogInformation("Successfully generated refresh token for user {UserID}", userId);
             return new ApiResponse<string>(refreshToken.Token);

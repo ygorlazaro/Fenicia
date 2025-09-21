@@ -5,17 +5,16 @@ using Common.Database.Responses;
 
 public class TokenProvider : BaseProvider
 {
-    public TokenProvider(Uri uri)
+    public TokenProvider(string uri)
         : base(uri)
     {
     }
 
-    public async Task<TokenResponse> DoLoginAsync(string email, string password, string cnpj)
+    public async Task<TokenResponse> DoLoginAsync(string email, string password)
     {
         var tokenRequest = new TokenRequest
                            {
             Email = email,
-            Cnpj = cnpj,
             Password = password
                            };
 

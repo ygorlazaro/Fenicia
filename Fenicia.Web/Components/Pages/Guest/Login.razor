@@ -34,13 +34,6 @@
                     <EditForm Model="@model" OnValidSubmit="OnValidSubmit" FormName="LoginForm">
                         <DataAnnotationsValidator />
                         <div class="form-group">
-                            <label for="cnpj" class="control-label">CNPJ</label>
-                            <div class="input-group">
-                                <InputText id="cnpj" @bind-Value="@model.Cnpj" class="form-control" />
-                            </div>
-                            <ValidationMessage For="@(() => model.Cnpj)" class="text-danger" />
-                        </div>
-                        <div class="form-group">
                             <label for="email" class="control-label">Email</label>
                             <div class="input-group">
                                 <InputText id="email" @bind-Value="@model.Email" class="form-control" type="email" />
@@ -59,10 +52,6 @@
                             <button type="submit" class="btn btn-primary">Login</button>
                         </div>
                     </EditForm>
-                    @if (loginError != null)
-                    {
-                        <div class="alert alert-danger">@loginError</div>
-                    }
                 </div>
             </div>
         </div>
@@ -71,33 +60,17 @@
 
 @code {
     private readonly TokenRequest model = new();
-    private string? loginError;
 
-    [Inject] public AuthManager? AuthManager { get; set; }
-
-    private const string LoginInvalidError = "Usuário ou senha inválidos.";
-    private const string LoginExceptionError = "Erro ao tentar logar. Tente novamente.";
-
+    [Inject]
+    public AuthManager? AuthManager { get; set; }
     private async Task OnValidSubmit()
     {
-        try
+        var token = await TokenProvider.DoLoginAsync(model);
+
+        if (!string.IsNullOrEmpty(token?.AccessToken))
         {
-            var token = await TokenProvider.DoLoginAsync(model);
-            if (!string.IsNullOrEmpty(token?.AccessToken))
-            {
-                AuthManager?.SetToken(token.AccessToken);
-                Navigation.NavigateTo("/home", true);
-            }
-            else
-            {
-                loginError = LoginInvalidError;
-            }
+            AuthManager?.SetToken(token.AccessToken, token.User.Name);
+            Navigation.NavigateTo("/home", true);
         }
-        catch
-        {
-            loginError = LoginExceptionError;
-        }
-    }
-}
     }
 }

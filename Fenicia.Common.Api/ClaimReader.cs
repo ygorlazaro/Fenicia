@@ -9,11 +9,6 @@ public static class ClaimReader
         return ClaimReader.GetGuidClaimValue(user, "userId");
     }
 
-    public static Guid CompanyId(ClaimsPrincipal user)
-    {
-        return ClaimReader.GetGuidClaimValue(user, "companyId");
-    }
-
     public static void ValidateRole(ClaimsPrincipal user, string roleToSearch)
     {
         var access = user.Claims.Where(x => x.Type == "role").Any(x => x.Value == roleToSearch);

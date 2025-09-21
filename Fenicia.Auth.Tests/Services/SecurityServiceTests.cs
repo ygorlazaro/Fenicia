@@ -24,7 +24,7 @@ public class SecurityServiceTests
     }
 
     [Test]
-    public void HashPassword_WithValidPassword_ReturnsHashedPassword()
+    public void HashPasswordWithValidPasswordReturnsHashedPassword()
     {
         // Arrange
         var password = this.faker.Internet.Password(length: 12, memorable: false, string.Empty, "!@#$%^&*");
@@ -43,7 +43,7 @@ public class SecurityServiceTests
     }
 
     [Test]
-    public void HashPassword_WithSamePassword_GeneratesDifferentHashes()
+    public void HashPasswordWithSamePasswordGeneratesDifferentHashes()
     {
         // Arrange
         var password = this.faker.Internet.Password();
@@ -62,14 +62,14 @@ public class SecurityServiceTests
 
     [Test]
     [TestCase("")]
-    public void HashPassword_WithInvalidPassword_ThrowsException(string invalidPassword)
+    public void HashPasswordWithInvalidPasswordThrowsException(string invalidPassword)
     {
         // Act & Assert
         Assert.Throws<ArgumentException>(() => this.sut.HashPassword(invalidPassword));
     }
 
     [Test]
-    public void VerifyPassword_WithCorrectPassword_ReturnsTrue()
+    public void VerifyPasswordWithCorrectPasswordReturnsTrue()
     {
         // Arrange
         var password = this.faker.Internet.Password();
@@ -87,7 +87,7 @@ public class SecurityServiceTests
     }
 
     [Test]
-    public void VerifyPassword_WithIncorrectPassword_ReturnsFalse()
+    public void VerifyPasswordWithIncorrectPasswordReturnsFalse()
     {
         // Arrange
         var password = this.faker.Internet.Password();
@@ -106,7 +106,7 @@ public class SecurityServiceTests
     }
 
     [Test]
-    public void VerifyPassword_WithInvalidHash_ReturnsErrorResponse()
+    public void VerifyPasswordWithInvalidHashReturnsErrorResponse()
     {
         // Arrange
         var password = this.faker.Internet.Password();
@@ -124,7 +124,7 @@ public class SecurityServiceTests
     }
 
     [Test]
-    public void VerifyPassword_WithMultiplePasswords_WorksConsistently()
+    public void VerifyPasswordWithMultiplePasswordsWorksConsistently()
     {
         // Arrange
         var passwordCount = this.faker.Random.Int(min: 3, max: 5);
@@ -153,7 +153,7 @@ public class SecurityServiceTests
     }
 
     [Test]
-    public void HashPassword_WithVariousPasswordComplexities_GeneratesValidHashes()
+    public void HashPasswordWithVariousPasswordComplexitiesGeneratesValidHashes()
     {
         // Arrange
         var testPasswords = new[]
@@ -180,7 +180,7 @@ public class SecurityServiceTests
     }
 
     [Test]
-    public void VerifyPassword_WithNullOrEmptyValues_ReturnsErrorResponse()
+    public void VerifyPasswordWithNullOrEmptyValuesReturnsErrorResponse()
     {
         // Arrange
         var validPassword = this.faker.Internet.Password();

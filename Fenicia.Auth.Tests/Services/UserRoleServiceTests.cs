@@ -27,7 +27,7 @@ public class UserRoleServiceTests
     }
 
     [Test]
-    public async Task GetRolesByUserAsync_WhenUserHasRoles_ReturnsRoles()
+    public async Task GetRolesByUserAsyncWhenUserHasRolesReturnsRoles()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -45,7 +45,7 @@ public class UserRoleServiceTests
     }
 
     [Test]
-    public async Task GetRolesByUserAsync_WhenUserHasNoRoles_ReturnsEmptyArray()
+    public async Task GetRolesByUserAsyncWhenUserHasNoRolesReturnsEmptyArray()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -63,7 +63,7 @@ public class UserRoleServiceTests
     }
 
     [Test]
-    public async Task HasRoleAsync_WhenUserHasRole_ReturnsTrue()
+    public async Task HasRoleAsyncWhenUserHasRoleReturnsTrue()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -82,7 +82,7 @@ public class UserRoleServiceTests
     }
 
     [Test]
-    public async Task HasRoleAsync_WhenUserDoesNotHaveRole_ReturnsFalse()
+    public async Task HasRoleAsyncWhenUserDoesNotHaveRoleReturnsFalse()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -103,7 +103,7 @@ public class UserRoleServiceTests
     [TestCase("Admin")]
     [TestCase("User")]
     [TestCase("Manager")]
-    public async Task HasRoleAsync_WithDifferentRoles_ValidatesCorrectly(string role)
+    public async Task HasRoleAsyncWithDifferentRolesValidatesCorrectly(string role)
     {
         // Arrange
         var userId = Guid.NewGuid();

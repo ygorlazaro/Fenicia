@@ -55,7 +55,7 @@ public class ForgotPasswordService : IForgotPasswordService
 
         if (userId.Data is null)
         {
-            return new ApiResponse<ForgotPasswordResponse>(data: null, userId.Status, userId.Message.Message);
+            return new ApiResponse<ForgotPasswordResponse>(data: null, userId.Status, userId.Message?.Message);
         }
 
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];

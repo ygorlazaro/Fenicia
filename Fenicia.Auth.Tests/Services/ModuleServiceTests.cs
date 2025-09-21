@@ -32,7 +32,7 @@ public class ModuleServiceTests
     }
 
     [Test]
-    public async Task GetAllOrderedAsync_ReturnsModules()
+    public async Task GetAllOrderedAsyncReturnsModules()
     {
         // Arrange
         var modules = new List<ModuleModel>
@@ -56,7 +56,7 @@ public class ModuleServiceTests
     }
 
     [Test]
-    public async Task GetModulesToOrderAsync_ReturnsRequestedModules()
+    public async Task GetModulesToOrderAsyncReturnsRequestedModules()
     {
         // Arrange
         var moduleIDs = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
@@ -77,7 +77,7 @@ public class ModuleServiceTests
     }
 
     [Test]
-    public async Task GetModuleByTypeAsync_WhenModuleExists_ReturnsModule()
+    public async Task GetModuleByTypeAsyncWhenModuleExistsReturnsModule()
     {
         // Arrange
         var moduleType = ModuleType.Ecommerce;
@@ -108,7 +108,7 @@ public class ModuleServiceTests
     }
 
     [Test]
-    public async Task GetModuleByTypeAsync_WhenModuleDoesNotExist_ReturnsNotFound()
+    public async Task GetModuleByTypeAsyncWhenModuleDoesNotExistReturnsNotFound()
     {
         // Arrange
         const ModuleType moduleType = ModuleType.Ecommerce;
@@ -126,7 +126,7 @@ public class ModuleServiceTests
     }
 
     [Test]
-    public async Task CountAsync_ReturnsCount()
+    public async Task CountAsyncReturnsCount()
     {
         // Arrange
         var expectedCount = this.faker.Random.Int(min: 1, max: 100);

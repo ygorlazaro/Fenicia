@@ -9,15 +9,15 @@ public abstract class BaseProvider
 {
     private readonly HttpClient client;
 
-    protected BaseProvider(Uri uri)
+    protected BaseProvider(string uri)
     {
         this.client = new HttpClient
         {
-            BaseAddress = uri
+            BaseAddress = new Uri(uri)
         };
     }
 
-    protected BaseProvider(Uri uri, string accessToken)
+    protected BaseProvider(string uri, string accessToken)
         : this(uri)
     {
         this.SetToken(accessToken);

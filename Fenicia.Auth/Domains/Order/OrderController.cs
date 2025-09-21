@@ -29,14 +29,14 @@ public class OrderController : ControllerBase
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(OrderRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(OrderRequest request, [FromHeader] Headers headers, CancellationToken cancellationToken)
     {
         try
         {
             this.logger.LogInformation("Creating new order for request {@Request}", request);
 
             var userId = ClaimReader.UserId(this.User);
-            var companyId = ClaimReader.CompanyId(this.User);
+            var companyId = headers.CompanyId;
 
             var order = await this.orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
 
