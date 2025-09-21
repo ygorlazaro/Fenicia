@@ -1,28 +1,45 @@
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
-using Fenicia.Web.Abstracts;
 
 
 namespace Fenicia.Web.Providers.Auth;
 
-public class TokenProvider : BaseProvider
+public class TokenProvider
 {
     private readonly AuthManager authManager;
+    private readonly HttpClient httpClient;
 
-    public TokenProvider(IConfiguration configuration, AuthManager authManager) : base(configuration, authManager)
+    public TokenProvider(IConfiguration configuration, AuthManager authManager, HttpClient httpClient)
     {
         this.authManager = authManager;
+        this.httpClient = httpClient;
+
+        this.httpClient.BaseAddress = new Uri(configuration["Routes:BaseAuthUrl"] ?? throw new NullReferenceException());
     }
 
     public async Task<TokenResponse> DoLoginAsync(TokenRequest request)
     {
-        var token = await PostAsync<TokenResponse, TokenRequest>("token", request);
+        using var content = new StringContent(JsonSerializer.Serialize(request));
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        authManager.SetToken(token.AccessToken);
+        var response = await httpClient.PostAsync("token", content);
 
-        HttpClient.DefaultRequestHeaders.Authorization = new
+        var responseContent = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Request failed with status code {(int)response.StatusCode} ({response.StatusCode}). Response: {responseContent}");
+        }
+
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var token = JsonSerializer.Deserialize<TokenResponse>(responseContent, options) ?? throw new NullReferenceException();
+
+        authManager.SetToken(token.AccessToken, token.User.Name);
+
+        httpClient.DefaultRequestHeaders.Authorization = new
         AuthenticationHeaderValue("Bearer", token.AccessToken);
 
         return token;

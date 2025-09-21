@@ -12,6 +12,6 @@ public class UserProvider : BaseProvider
 
     public async Task<ApiResponse<List<ModuleResponse>>> GetModulesAsync()
     {
-        return await GetAsync<ApiResponse<List<ModuleResponse>>>("user/module");
+        return await GetAsync<List<ModuleResponse>>("user/module");
     }
 }

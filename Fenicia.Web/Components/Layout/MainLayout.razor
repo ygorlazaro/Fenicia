@@ -13,8 +13,7 @@
         {
             <div class="top-row px-4">
                 @username
-                @company
-                <button class="btn btn-link" @onclick="Logout">Logout</button>
+                <NavLink href="/">Logout</NavLink>
             </div>
             <article class="content px-4">
                 @Body
@@ -35,14 +34,17 @@
 </div>
 
 @code {
-    private string username;
-    private string company;
+    private string username = string.Empty;
 
     protected override void OnInitialized()
     {
-        username = "Unknown";
-        company = "Unknown Company";
-        AuthManager.OnAuthStateChanged += StateHasChanged;
+        username = AuthManager.Name ?? "Unknown";
+        AuthManager.OnAuthStateChanged += OnAuthStateChanged;
+    }
+
+    private void OnAuthStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private void Logout()
@@ -53,6 +55,6 @@
 
     public void Dispose()
     {
-        AuthManager.OnAuthStateChanged -= StateHasChanged;
+        AuthManager.OnAuthStateChanged -= OnAuthStateChanged;
     }
 }

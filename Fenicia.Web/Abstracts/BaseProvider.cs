@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using Fenicia.Common;
 using Fenicia.Web.Providers.Auth;
 
 namespace Fenicia.Web.Abstracts;
@@ -20,7 +21,7 @@ public abstract class BaseProvider
         };
     }
 
-    protected async Task<TResponse> PostAsync<TResponse, TRequest>(string route, TRequest request)
+    protected async Task<ApiResponse<TResponse>> PostAsync<TResponse, TRequest>(string route, TRequest request)
     {
         using var content = new StringContent(JsonSerializer.Serialize(request));
         content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -35,15 +36,12 @@ public abstract class BaseProvider
         }
 
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        return JsonSerializer.Deserialize<TResponse>(responseContent, options) ?? throw new NullReferenceException();
-
+        return JsonSerializer.Deserialize<ApiResponse<TResponse>>(responseContent, options) ?? throw new NullReferenceException();
     }
 
-    protected async Task<TResponse> GetAsync<TResponse>(string route)
+    protected async Task<ApiResponse<TResponse>> GetAsync<TResponse>(string route)
     {
         var token = authManager.JwtToken;
-
-        Console.WriteLine($"Token in BaseProvider: {token}");
 
         if (!string.IsNullOrEmpty(token))
         {
@@ -61,6 +59,6 @@ public abstract class BaseProvider
         }
 
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        return JsonSerializer.Deserialize<TResponse>(responseContent, options) ?? throw new NullReferenceException();
+        return JsonSerializer.Deserialize<ApiResponse<TResponse>>(responseContent, options) ?? throw new NullReferenceException();
     }
 }
