@@ -40,12 +40,8 @@
 
     protected override void OnInitialized()
     {
-        username = AuthManager.User?.Identity?.Name ?? "Unknown";
-        company = AuthManager.User?.FindFirst("company")?.Value ?? "Unknown Company";
-        AuthManager.OnAuthStateChanged += StateHasChanged;
-    }
-    username = AuthManager.GetUsername();
-}
+        username = "Unknown";
+        company = "Unknown Company";
         AuthManager.OnAuthStateChanged += StateHasChanged;
     }
 
