@@ -37,8 +37,6 @@ public class AuthContext : DbContext
 
     public DbSet<ForgotPasswordModel> ForgottenPasswords { get; set; } = null!;
 
-    public DbSet<RefreshTokenModel> RefreshTokens { get; set; } = null!;
-
     public DbSet<SubmoduleModel> Submodules { get; set; } = null!;
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellation = default)

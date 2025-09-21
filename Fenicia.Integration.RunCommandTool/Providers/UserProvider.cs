@@ -10,7 +10,7 @@ public class UserProvider : BaseProvider
 {
     private readonly Faker faker = new();
 
-    public UserProvider(Uri uri)
+    public UserProvider(string uri)
         : base(uri)
     {
     }

@@ -155,7 +155,7 @@ public class TokenController : ControllerBase
                 return this.StatusCode((int)token.Status, token.Message);
             }
 
-            var refreshToken = await this.refreshTokenService.GenerateRefreshTokenAsync(user.Id, cancellationToken);
+            var refreshToken = this.refreshTokenService.GenerateRefreshToken(user.Id);
 
             if (refreshToken.Data is null)
             {

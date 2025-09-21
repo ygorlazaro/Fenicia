@@ -14,14 +14,12 @@ public class MigrationService : IMigrationService
         {
             var (dbContextType, migrationsAssembly, connectionStringName) = MigrationService.GetModuleDbInfo(module);
 
-            // Get the real connection string from appsettings.json
             var rawConnectionString = API.AppSettingsReader.GetConnectionString(connectionStringName);
             if (string.IsNullOrWhiteSpace(rawConnectionString))
             {
                 throw new InvalidOperationException($"Connection string '{connectionStringName}' not found in appsettings.json");
             }
 
-            // Replace {tenant} with the companyID
             var connectionString = rawConnectionString.Replace("{tenant}", companyId.ToString());
 
             var optionsBuilderType = typeof(DbContextOptionsBuilder<>).MakeGenericType(dbContextType);

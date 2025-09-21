@@ -25,7 +25,6 @@ public class Program
             Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
         }
 
-        // Load shared configuration from Fenicia.Common.Api/appsettings.json
         var configBuilder = new ConfigurationManager();
         var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
         if (!File.Exists(commonApiSettingsPath))
