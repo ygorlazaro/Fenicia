@@ -25,7 +25,7 @@ public class RefreshTokenRepositoryTests
     }
 
     [Test]
-    public void Add_SavesRefreshToken_ToRedis()
+    public void AddSavesRefreshTokenToRedis()
     {
         // Arrange
         var refreshToken = new RefreshToken
@@ -59,7 +59,7 @@ public class RefreshTokenRepositoryTests
     }
 
     [Test]
-    public void InvalidateRefreshTokenAsync_HandlesNonExistentToken()
+    public void InvalidateRefreshTokenAsyncHandlesNonExistentToken()
     {
         // Arrange
         var nonExistentToken = this.faker.Random.Hash();
@@ -69,7 +69,7 @@ public class RefreshTokenRepositoryTests
     }
 
     [Test]
-    public async Task ValidateTokenAsync_ReturnsFalse_ForNonExistentToken()
+    public async Task ValidateTokenAsyncReturnsFalseForNonExistentToken()
     {
         // Arrange
         var userId = Guid.NewGuid();

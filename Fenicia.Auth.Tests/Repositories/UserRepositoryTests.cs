@@ -34,7 +34,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task GetByEmailAndCnpjAsync_WhenUserExists_ReturnsUser()
+    public async Task GetByEmailAndCnpjAsyncWhenUserExistsReturnsUser()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -59,7 +59,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task GetByEmailAndCnpjAsync_WhenUserDoesNotExist_ReturnsNull()
+    public async Task GetByEmailAndCnpjAsyncWhenUserDoesNotExistReturnsNull()
     {
         // Arrange
         const string nonExistentEmail = "nonexistent@example.com";
@@ -72,7 +72,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public void Add_ShouldAddUserToContext()
+    public void AddShouldAddUserToContext()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -89,7 +89,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task SaveAsync_ShouldPersistChangesToDatabase()
+    public async Task SaveAsyncShouldPersistChangesToDatabase()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -106,7 +106,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task CheckUserExistsAsync_WhenUserExists_ReturnsTrue()
+    public async Task CheckUserExistsAsyncWhenUserExistsReturnsTrue()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -121,7 +121,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task CheckUserExistsAsync_WhenUserDoesNotExist_ReturnsFalse()
+    public async Task CheckUserExistsAsyncWhenUserDoesNotExistReturnsFalse()
     {
         // Arrange
         var nonExistentEmail = "nonexistent@example.com";
@@ -134,7 +134,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task GetUserForRefreshTokenAsync_WhenUserExists_ReturnsUser()
+    public async Task GetUserForRefreshTokenAsyncWhenUserExistsReturnsUser()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -154,7 +154,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task GetUserForRefreshTokenAsync_WhenUserDoesNotExist_ReturnsNull()
+    public async Task GetUserForRefreshTokenAsyncWhenUserDoesNotExistReturnsNull()
     {
         // Arrange
         var nonExistentUserId = Guid.NewGuid();

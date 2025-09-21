@@ -31,7 +31,7 @@ public class SubscriptionCreditServiceTests
     }
 
     [Test]
-    public async Task GetActiveModulesTypesAsync_WhenValidSubscriptionsExist_ReturnsModuleTypes()
+    public async Task GetActiveModulesTypesAsyncWhenValidSubscriptionsExistReturnsModuleTypes()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -57,7 +57,7 @@ public class SubscriptionCreditServiceTests
     }
 
     [Test]
-    public async Task GetActiveModulesTypesAsync_WhenNoValidSubscriptions_ReturnsFailureResponse()
+    public async Task GetActiveModulesTypesAsyncWhenNoValidSubscriptionsReturnsFailureResponse()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -81,7 +81,7 @@ public class SubscriptionCreditServiceTests
     }
 
     [Test]
-    public async Task GetActiveModulesTypesAsync_WhenRepositoryReturnsEmptyList_ReturnsEmptyList()
+    public async Task GetActiveModulesTypesAsyncWhenRepositoryReturnsEmptyListReturnsEmptyList()
     {
         // Arrange
         var companyId = Guid.NewGuid();

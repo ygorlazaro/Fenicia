@@ -38,7 +38,7 @@ public class OrderRepositoryTests
     }
 
     [Test]
-    public async Task SaveOrderAsync_SavesOrder_AndReturnsOrder()
+    public async Task SaveOrderAsyncSavesOrderAndReturnsOrder()
     {
         // Arrange
         var order = new OrderModel
@@ -65,7 +65,7 @@ public class OrderRepositoryTests
     }
 
     [Test]
-    public async Task SaveOrderAsync_PersistsOrderToDatabase()
+    public async Task SaveOrderAsyncPersistsOrderToDatabase()
     {
         // Arrange
         var order = new OrderModel
@@ -91,7 +91,7 @@ public class OrderRepositoryTests
     }
 
     [Test]
-    public async Task SaveOrderAsync_WithOrderItems_SavesCompleteOrder()
+    public async Task SaveOrderAsyncWithOrderItemsSavesCompleteOrder()
     {
         // Arrange
         var order = new OrderModel

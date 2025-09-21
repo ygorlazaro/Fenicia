@@ -50,7 +50,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task GetForLoginAsync_WithValidCredentials_ReturnsUser()
+    public async Task GetForLoginAsyncWithValidCredentialsReturnsUser()
     {
         // Arrange
         var request = new TokenRequest
@@ -86,7 +86,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task GetForLoginAsync_WithInvalidUser_ReturnsBadRequest()
+    public async Task GetForLoginAsyncWithInvalidUserReturnsBadRequest()
     {
         // Arrange
         var request = new TokenRequest
@@ -109,7 +109,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task CreateNewUserAsync_WithValidData_CreatesUser()
+    public async Task CreateNewUserAsyncWithValidDataCreatesUser()
     {
         // Arrange
         var request = new UserRequest
@@ -157,7 +157,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task CreateNewUserAsync_WithExistingUser_ReturnsBadRequest()
+    public async Task CreateNewUserAsyncWithExistingUserReturnsBadRequest()
     {
         // Arrange
         var request = new UserRequest
@@ -186,7 +186,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task ExistsInCompanyAsync_ReturnsCorrectResult()
+    public async Task ExistsInCompanyAsyncReturnsCorrectResult()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -203,7 +203,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task GetUserForRefreshAsync_WithValidUser_ReturnsUser()
+    public async Task GetUserForRefreshAsyncWithValidUserReturnsUser()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -231,7 +231,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task GetUserForRefreshAsync_WithInvalidUser_ReturnsUnauthorized()
+    public async Task GetUserForRefreshAsyncWithInvalidUserReturnsUnauthorized()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -250,7 +250,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task CreateNewUserAsync_WithMissingAdminRole_ReturnsInternalServerError()
+    public async Task CreateNewUserAsyncWithMissingAdminRoleReturnsInternalServerError()
     {
         // Arrange
         var request = new UserRequest

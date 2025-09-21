@@ -36,7 +36,70 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task GetByCnpjAsync_WhenCompanyExists_ReturnsCompany()
+    public void GetByCnpjAsyncWhenRepositoryThrowsThrowsException()
+    {
+        var cnpj = this.faker.Random.String2(length: 14, "0123456789");
+        this.companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, this.cancellationToken)).ThrowsAsync(new Exception("Repo error"));
+        Assert.ThrowsAsync<Exception>(async () => await this.sut.GetByCnpjAsync(cnpj, this.cancellationToken));
+    }
+
+    [Test]
+    public void GetByUserIdAsyncWhenRepositoryThrowsThrowsException()
+    {
+        var userId = Guid.NewGuid();
+        this.companyRepositoryMock.Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, 1, 10)).ThrowsAsync(new Exception("Repo error"));
+        Assert.ThrowsAsync<Exception>(async () => await this.sut.GetByUserIdAsync(userId, this.cancellationToken));
+    }
+
+    [Test]
+    public async Task PatchAsyncWhenCompanyNotFoundReturnsNotFound()
+    {
+        var companyId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new CompanyUpdateRequest();
+        this.companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, this.cancellationToken)).ReturnsAsync(false);
+        var result = await this.sut.PatchAsync(companyId, userId, updateRequest, this.cancellationToken);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
+    }
+
+    [Test]
+    public async Task PatchAsyncWhenUserLacksAdminRoleReturnsUnauthorized()
+    {
+        var companyId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new CompanyUpdateRequest();
+        this.companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, this.cancellationToken)).ReturnsAsync(true);
+        this.userRoleServiceMock.Setup(x => x.HasRoleAsync(userId, companyId, "Admin", this.cancellationToken)).ReturnsAsync(new ApiResponse<bool>(false));
+        var result = await this.sut.PatchAsync(companyId, userId, updateRequest, this.cancellationToken);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
+    public async Task PatchAsyncWhenSaveFailsReturnsNotFound()
+    {
+        var companyId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new CompanyUpdateRequest();
+        this.companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, this.cancellationToken)).ReturnsAsync(true);
+        this.userRoleServiceMock.Setup(x => x.HasRoleAsync(userId, companyId, "Admin", this.cancellationToken)).ReturnsAsync(new ApiResponse<bool>(true));
+        this.companyRepositoryMock.Setup(x => x.PatchAsync(It.IsAny<CompanyModel>()));
+        this.companyRepositoryMock.Setup(x => x.SaveAsync(this.cancellationToken)).ReturnsAsync(0);
+        var result = await this.sut.PatchAsync(companyId, userId, updateRequest, this.cancellationToken);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
+    }
+
+    [Test]
+    public void PatchAsyncWhenRepositoryThrowsThrowsException()
+    {
+        var companyId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var updateRequest = new CompanyUpdateRequest();
+        this.companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, this.cancellationToken)).ThrowsAsync(new Exception("Repo error"));
+        Assert.ThrowsAsync<Exception>(async () => await this.sut.PatchAsync(companyId, userId, updateRequest, this.cancellationToken));
+    }
+
+    [Test]
+    public async Task GetByCnpjAsyncWhenCompanyExistsReturnsCompany()
     {
         // Arrange
         var cnpj = this.faker.Random.String2(length: 14, "0123456789");
@@ -72,7 +135,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task GetByCnpjAsync_WhenCompanyDoesNotExist_ReturnsNotFound()
+    public async Task GetByCnpjAsyncWhenCompanyDoesNotExistReturnsNotFound()
     {
         // Arrange
         var cnpj = this.faker.Random.String2(length: 14, "0123456789");
@@ -90,7 +153,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task GetByUserIDAsync_ReturnsCompanies()
+    public async Task GetByUserIDAsyncReturnsCompanies()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -137,7 +200,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task PatchAsync_WhenCompanyExistsAndUserIsAdmin_UpdatesCompany()
+    public async Task PatchAsyncWhenCompanyExistsAndUserIsAdminUpdatesCompany()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -181,7 +244,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task PatchAsync_WhenCompanyDoesNotExist_ReturnsNotFound()
+    public async Task PatchAsyncWhenCompanyDoesNotExistReturnsNotFound()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -201,7 +264,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task PatchAsync_WhenUserIsNotAdmin_ReturnsUnauthorized()
+    public async Task PatchAsyncWhenUserIsNotAdminReturnsUnauthorized()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -223,7 +286,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task CountByUserIDAsync_ReturnsCount()
+    public async Task CountByUserIDAsyncReturnsCount()
     {
         // Arrange
         var userId = Guid.NewGuid();
