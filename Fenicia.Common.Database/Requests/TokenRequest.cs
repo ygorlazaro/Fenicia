@@ -12,8 +12,4 @@ public record TokenRequest
     [Required(ErrorMessage = "Password is required")]
     [StringLength(maximumLength: 100, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 100 characters long")]
     public string Password { get; set; } = null!;
-
-    [Required]
-    [StringLength(maximumLength: 14, MinimumLength = 14, ErrorMessage = "CNPJ must be 14 characters long")]
-    public string Cnpj { get; set; } = null!;
 }

@@ -4,7 +4,7 @@ using Fenicia.Common.Database.Models.Auth;
 
 public interface IUserRepository
 {
-    Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj, CancellationToken cancellationToken);
+    Task<UserModel?> GetByEmailAsync(string email, CancellationToken cancellationToken);
 
     UserModel Add(UserModel userRequest);
 

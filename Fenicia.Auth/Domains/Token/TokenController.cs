@@ -9,11 +9,10 @@ using Common.Database.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Company;
+
 using RefreshToken;
-using SubscriptionCredit;
+
 using User;
-using UserRole;
 
 [Authorize]
 [Route("[controller]")]
@@ -25,19 +24,13 @@ public class TokenController : ControllerBase
     private readonly ITokenService tokenService;
     private readonly IRefreshTokenService refreshTokenService;
     private readonly IUserService userService;
-    private readonly IUserRoleService userRoleService;
-    private readonly ICompanyService companyService;
-    private readonly ISubscriptionCreditService subscriptionCreditService;
 
-    public TokenController(ILogger<TokenController> logger, ITokenService tokenService, IRefreshTokenService refreshTokenService, IUserService userService, IUserRoleService userRoleService, ICompanyService companyService, ISubscriptionCreditService subscriptionCreditService)
+    public TokenController(ILogger<TokenController> logger, ITokenService tokenService, IRefreshTokenService refreshTokenService, IUserService userService)
     {
         this.logger = logger;
         this.tokenService = tokenService;
         this.refreshTokenService = refreshTokenService;
         this.userService = userService;
-        this.userRoleService = userRoleService;
-        this.companyService = companyService;
-        this.subscriptionCreditService = subscriptionCreditService;
     }
 
     [HttpPost]
@@ -52,14 +45,6 @@ public class TokenController : ControllerBase
         {
             this.logger.LogInformation("Starting token generation for user {Email}", request.Email);
 
-            var company = await this.companyService.GetByCnpjAsync(request.Cnpj, cancellationToken);
-
-            if (company.Data is null)
-            {
-                this.logger.LogWarning("Company not found for CNPJ {Cnpj}", request.Cnpj);
-                return this.StatusCode((int)company.Status, company.Message);
-            }
-
             var userResponse = await this.userService.GetForLoginAsync(request, cancellationToken);
 
             if (userResponse.Data is null)
@@ -68,9 +53,7 @@ public class TokenController : ControllerBase
                 return this.StatusCode((int)userResponse.Status, userResponse.Message);
             }
 
-            var response = await this.PopulateTokenAsync(userResponse.Data, company.Data.Id, cancellationToken);
-
-            return response;
+            return this.PopulateToken(userResponse.Data);
         }
         catch (Exception ex)
         {
@@ -108,9 +91,7 @@ public class TokenController : ControllerBase
                 return this.BadRequest(TextConstants.PermissionDeniedMessage);
             }
 
-            var response = await this.PopulateTokenAsync(userResponse.Data, request.CompanyId, cancellationToken);
-
-            return response;
+            return this.PopulateToken(userResponse.Data);
         }
         catch (Exception ex)
         {
@@ -119,35 +100,13 @@ public class TokenController : ControllerBase
         }
     }
 
-    private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(UserResponse user, Guid companyId, CancellationToken cancellationToken)
+    private ActionResult<TokenResponse> PopulateToken(UserResponse user)
     {
         try
         {
             this.logger.LogInformation("Populating token for user {UserId}", user.Id);
 
-            var roles = await this.userRoleService.GetRolesByUserAsync(user.Id, cancellationToken);
-
-            if (roles.Data is null)
-            {
-                this.logger.LogWarning("Unable to retrieve roles for user {Email}", user.Email);
-                return this.StatusCode((int)roles.Status, roles.Message);
-            }
-
-            if (roles.Data.Length == 0)
-            {
-                this.logger.LogWarning("User {Email} has no assigned roles", user.Email);
-                return this.BadRequest(TextConstants.UserWithoutRolesMessage);
-            }
-
-            var modules = await this.subscriptionCreditService.GetActiveModulesTypesAsync(companyId, cancellationToken);
-
-            if (modules.Data is null)
-            {
-                this.logger.LogWarning("Unable to retrieve active modules for company {CompanyID}", companyId);
-                return this.StatusCode((int)modules.Status, modules.Message);
-            }
-
-            var token = this.tokenService.GenerateToken(user, roles.Data, companyId, modules.Data);
+            var token = this.tokenService.GenerateToken(user);
 
             if (token.Data is null)
             {
@@ -174,7 +133,7 @@ public class TokenController : ControllerBase
                     Id = user.Id,
                     Email = user.Email,
                     Name = user.Name
-                       }
+                }
             });
         }
         catch (Exception ex)

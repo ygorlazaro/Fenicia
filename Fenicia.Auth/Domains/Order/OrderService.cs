@@ -47,7 +47,7 @@ public sealed class OrderService : IOrderService
 
             if (modules.Data is null)
             {
-                return new ApiResponse<OrderResponse>(data: null, modules.Status, modules.Message.Message ?? string.Empty);
+                return new ApiResponse<OrderResponse>(data: null, modules.Status, modules.Message?.Message ?? string.Empty);
             }
 
             if (modules.Data.Count == 0)
@@ -96,7 +96,7 @@ public sealed class OrderService : IOrderService
 
             if (modules.Data is null)
             {
-                return new ApiResponse<List<ModuleModel>>(data: null, modules.Status, modules.Message.Message ?? string.Empty);
+                return new ApiResponse<List<ModuleModel>>(data: null, modules.Status, modules.Message?.Message ?? string.Empty);
             }
 
             if (modules.Data.Any(m => m.Type == ModuleType.Basic))
