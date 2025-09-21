@@ -1,75 +1,59 @@
-namespace Fenicia.Auth.Domains.RefreshToken;
-
-using Common.Database.Contexts;
-using Common.Database.Models.Auth;
-
-using Microsoft.EntityFrameworkCore;
-
-public sealed class RefreshTokenRepository : IRefreshTokenRepository
+namespace Fenicia.Auth.Domains.RefreshToken
 {
-    private readonly AuthContext authContext;
+    using System.Text.Json;
 
-    public RefreshTokenRepository(AuthContext authContext)
-    {
-        this.authContext = authContext;
-    }
+    using StackExchange.Redis;
 
-    public void Add(RefreshTokenModel refreshToken)
+    public sealed class RefreshTokenRepository : IRefreshTokenRepository
     {
-        ArgumentNullException.ThrowIfNull(refreshToken);
-        this.authContext.RefreshTokens.Add(refreshToken);
-    }
+        private const string RedisPrefix = "refresh_token:";
+        private readonly IDatabase redisDb;
 
-    public async Task SaveChangesAsync(CancellationToken cancellationToken)
-    {
-        try
+        public RefreshTokenRepository(IConnectionMultiplexer redis)
         {
-            await this.authContext.SaveChangesAsync(cancellationToken);
+            this.redisDb = redis.GetDatabase();
         }
-        catch (DbUpdateException ex)
+
+        public void Add(RefreshToken refreshToken)
         {
-            throw new InvalidOperationException("Failed to save changes to the database.", ex);
+            ArgumentNullException.ThrowIfNull(refreshToken);
+            var key = RedisPrefix + refreshToken.Token;
+            var value = JsonSerializer.Serialize(refreshToken);
+            this.redisDb.StringSet(key, value, TimeSpan.FromDays(7));
         }
-    }
 
-    public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(refreshToken);
-
-        try
+        public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
         {
-            var now = DateTime.UtcNow;
+            ArgumentNullException.ThrowIfNull(refreshToken);
+            var key = RedisPrefix + refreshToken;
+            var value = await this.redisDb.StringGetAsync(key);
+            if (value.IsNullOrEmpty)
+            {
+                return false;
+            }
 
-            var query = from token in this.authContext.RefreshTokens where token.UserId == userId && now < token.ExpirationDate && token.Token == refreshToken && token.IsActive select token.Id;
-
-            return await query.AnyAsync(cancellationToken);
+            var tokenObj = JsonSerializer.Deserialize<RefreshToken>(value!);
+            return tokenObj != null && tokenObj.UserId == userId && tokenObj.IsActive && tokenObj.ExpirationDate > DateTime.UtcNow;
         }
-        catch (Exception ex)
+
+        public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
         {
-            throw new InvalidOperationException("Failed to validate refresh token.", ex);
-        }
-    }
-
-    public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(refreshToken);
-
-        try
-        {
-            var refreshTokenModel = await this.authContext.RefreshTokens.FirstOrDefaultAsync(token => token.Token == refreshToken, cancellationToken);
-
-            if (refreshTokenModel == null)
+            ArgumentNullException.ThrowIfNull(refreshToken);
+            var key = RedisPrefix + refreshToken;
+            var value = await this.redisDb.StringGetAsync(key);
+            if (value.IsNullOrEmpty)
             {
                 return;
             }
 
-            refreshTokenModel.IsActive = false;
+            var tokenObj = JsonSerializer.Deserialize<RefreshToken>(value!);
+            if (tokenObj == null)
+            {
+                return;
+            }
 
-            await this.SaveChangesAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Failed to invalidate refresh token.", ex);
+            tokenObj.IsActive = false;
+            await this.redisDb.StringSetAsync(key, JsonSerializer.Serialize(tokenObj), TimeSpan.FromDays(7));
         }
     }
 }

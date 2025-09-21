@@ -5,7 +5,7 @@ using Common.Database.Responses;
 
 public class TokenProvider : BaseProvider
 {
-    public TokenProvider(Uri uri)
+    public TokenProvider(string uri)
         : base(uri)
     {
     }

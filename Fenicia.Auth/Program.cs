@@ -43,7 +43,6 @@ public static class Program
 {
     public static void Main(string[] args)
     {
-        // Build configuration from Fenicia.Common.Api/appsettings.json
         var configBuilder = new ConfigurationManager();
         var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
         if (!File.Exists(commonApiSettingsPath))

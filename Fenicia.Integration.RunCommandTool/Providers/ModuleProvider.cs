@@ -5,7 +5,7 @@ using Common.Database.Responses;
 
 public class ModuleProvider : BaseProvider
 {
-    public ModuleProvider(Uri uri)
+    public ModuleProvider(string uri)
         : base(uri)
     {
     }

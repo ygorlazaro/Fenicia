@@ -4,8 +4,6 @@ using System.Text.RegularExpressions;
 
 using Bogus;
 
-using Common.Database.Models.Auth;
-
 using Domains.RefreshToken;
 
 using Microsoft.Extensions.Logging;
@@ -30,14 +28,14 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public async Task GenerateRefreshTokenAsync_GeneratesValidToken()
+    public void GenerateRefreshTokenAsync_GeneratesValidToken()
     {
         // Arrange
         var userId = this.faker.Random.Guid();
         var base64Pattern = @"^[a-zA-Z0-9+/]*={0,2}$";
 
         // Act
-        var result = await this.sut.GenerateRefreshTokenAsync(userId, this.cancellationToken);
+        var result = this.sut.GenerateRefreshToken(userId);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -47,9 +45,7 @@ public class RefreshTokenServiceTests
             Assert.That(result.Data, Does.Match(base64Pattern));
         }
 
-        this.refreshTokenRepositoryMock.Verify(x => x.Add(It.Is<RefreshTokenModel>(t => t.UserId == userId && t.Token == result.Data)), Times.Once);
-
-        this.refreshTokenRepositoryMock.Verify(x => x.SaveChangesAsync(this.cancellationToken), Times.Once);
+        this.refreshTokenRepositoryMock.Verify(x => x.Add(It.Is<RefreshToken>(t => t.UserId == userId && t.Token == result.Data)), Times.Once);
     }
 
     [Test]
@@ -85,7 +81,7 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public async Task GenerateRefreshTokenAsync_GeneratesUniqueTokens()
+    public void GenerateRefreshTokenAsync_GeneratesUniqueTokens()
     {
         // Arrange
         var userId = this.faker.Random.Guid();
@@ -94,7 +90,7 @@ public class RefreshTokenServiceTests
         // Act
         for (var i = 0; i < this.faker.Random.Int(min: 500, max: 1000); i++)
         {
-            var result = await this.sut.GenerateRefreshTokenAsync(userId, this.cancellationToken);
+            var result = this.sut.GenerateRefreshToken(userId);
             tokens.Add(result.Data!);
         }
 
@@ -121,15 +117,13 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public async Task GenerateRefreshTokenAsync_SaveChangesFailure_StillReturnsToken()
+    public void GenerateRefreshTokenAsync_SaveChangesFailure_StillReturnsToken()
     {
         // Arrange
         var userId = this.faker.Random.Guid();
 
-        this.refreshTokenRepositoryMock.Setup(x => x.SaveChangesAsync(this.cancellationToken));
-
         // Act
-        var result = await this.sut.GenerateRefreshTokenAsync(userId, this.cancellationToken);
+        var result = this.sut.GenerateRefreshToken(userId);
 
         // Assert
         Assert.That(result.Data, Is.Not.Null);
@@ -137,7 +131,7 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public async Task GenerateRefreshTokenAsync_MultipleCalls_GeneratesDistinctTokens()
+    public void GenerateRefreshTokenAsync_MultipleCalls_GeneratesDistinctTokens()
     {
         // Arrange
         var userIDs = this.faker.Make(count: 5, () => this.faker.Random.Guid()).ToList();
@@ -146,7 +140,7 @@ public class RefreshTokenServiceTests
         // Act
         foreach (var userId in userIDs)
         {
-            var result = await this.sut.GenerateRefreshTokenAsync(userId, this.cancellationToken);
+            var result = this.sut.GenerateRefreshToken(userId);
             generatedTokens.Add((userId, result.Data!));
         }
 
