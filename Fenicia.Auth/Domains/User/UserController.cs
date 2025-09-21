@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Common.Database.Responses;
 
 using Module;
+using brevo_csharp.Client;
 
 [Authorize]
 [Route("[controller]")]
@@ -24,7 +25,7 @@ public class UserController : ControllerBase
 
     [HttpGet("module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
-    public async Task<ActionResult<ModuleResponse>> GetUserModulesAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<List<ModuleResponse>>>> GetUserModulesAsync(CancellationToken cancellationToken)
     {
         var userId = ClaimReader.UserId(this.User);
         var companyId = ClaimReader.CompanyId(this.User);

@@ -7,7 +7,7 @@ using Abstracts;
 
 public class RegisterProvider : BaseProvider
 {
-    public RegisterProvider(IConfiguration configuration) : base(configuration)
+    public RegisterProvider(IConfiguration configuration, AuthManager authManager) : base(configuration, authManager)
     {
 
     }

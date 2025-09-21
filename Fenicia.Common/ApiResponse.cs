@@ -12,6 +12,10 @@ public class ErrorResponse
 
 public class ApiResponse<T>
 {
+    public ApiResponse()
+    {
+    }
+
     public ApiResponse(T? data, HttpStatusCode status = HttpStatusCode.OK, string? message = "")
     {
         this.Data = data;
@@ -29,7 +33,7 @@ public class ApiResponse<T>
         get; set;
     }
 
-    public ErrorResponse Message
+    public ErrorResponse? Message
     {
         get; set;
     }

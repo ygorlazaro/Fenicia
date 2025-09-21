@@ -11,7 +11,7 @@ public class TokenProvider : BaseProvider
 {
     private readonly AuthManager authManager;
 
-    public TokenProvider(IConfiguration configuration, AuthManager authManager) : base(configuration)
+    public TokenProvider(IConfiguration configuration, AuthManager authManager) : base(configuration, authManager)
     {
         this.authManager = authManager;
     }
