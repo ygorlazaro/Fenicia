@@ -35,11 +35,17 @@
 </div>
 
 @code {
-    private string username = "Ygor";
-    private string company = "Gato Ninja";
+    private string username;
+    private string company;
 
     protected override void OnInitialized()
     {
+        username = AuthManager.User?.Identity?.Name ?? "Unknown";
+        company = AuthManager.User?.FindFirst("company")?.Value ?? "Unknown Company";
+        AuthManager.OnAuthStateChanged += StateHasChanged;
+    }
+    username = AuthManager.GetUsername();
+}
         AuthManager.OnAuthStateChanged += StateHasChanged;
     }
 
