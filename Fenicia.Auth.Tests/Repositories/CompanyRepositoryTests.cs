@@ -39,7 +39,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CheckCompanyExistsAsync_ByID_ReturnsTrue_WhenExists()
+    public async Task CheckCompanyExistsAsyncByIDReturnsTrueWhenExists()
     {
         // Arrange
         var company = new CompanyModel
@@ -59,7 +59,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CheckCompanyExistsAsync_ByID_ReturnsFalse_WhenNotExists()
+    public async Task CheckCompanyExistsAsyncByIDReturnsFalseWhenNotExists()
     {
         // Act
         var result = await this.sut.CheckCompanyExistsAsync(Guid.NewGuid(), this.cancellationToken);
@@ -69,7 +69,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CheckCompanyExistsAsync_ByCnpj_ReturnsTrue_WhenExists()
+    public async Task CheckCompanyExistsAsyncByCnpjReturnsTrueWhenExists()
     {
         // Arrange
         var company = new CompanyModel
@@ -89,7 +89,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task Add_SavesCompanyToDatabase()
+    public async Task AddSavesCompanyToDatabase()
     {
         // Arrange
         var company = new CompanyModel
@@ -114,7 +114,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task GetByCnpjAsync_ReturnsCompany_WhenExists()
+    public async Task GetByCnpjAsyncReturnsCompanyWhenExists()
     {
         // Arrange
         var company = new CompanyModel
@@ -139,7 +139,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task GetByUserIDAsync_ReturnsCompanies_WithPagination()
+    public async Task GetByUserIDAsyncReturnsCompaniesWithPagination()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -182,7 +182,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CountByUserIDAsync_ReturnsCorrectCount()
+    public async Task CountByUserIDAsyncReturnsCorrectCount()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -221,7 +221,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task PatchAsync_UpdatesCompany()
+    public async Task PatchAsyncUpdatesCompany()
     {
         // Arrange
         var company = new CompanyModel
@@ -247,7 +247,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task GetByUserIDAsync_ReturnsEmptyList_WhenUserHasNoCompanies()
+    public async Task GetByUserIDAsyncReturnsEmptyListWhenUserHasNoCompanies()
     {
         // Arrange
         var userId = Guid.NewGuid();

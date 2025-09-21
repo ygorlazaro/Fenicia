@@ -40,7 +40,7 @@ public class SubscriptionRepositoryTest
     }
 
     [Test]
-    public async Task SaveSubscription_ShouldSaveSubscriptionToDatabase()
+    public async Task SaveSubscriptionShouldSaveSubscriptionToDatabase()
     {
         // Arrange
         var subscription = this.subscriptionGenerator.Generate();
@@ -59,7 +59,7 @@ public class SubscriptionRepositoryTest
     }
 
     [Test]
-    public async Task GetValidSubscriptionAsync_ShouldReturnActiveAndValidSubscriptions()
+    public async Task GetValidSubscriptionAsyncShouldReturnActiveAndValidSubscriptions()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -79,7 +79,7 @@ public class SubscriptionRepositoryTest
     }
 
     [Test]
-    public async Task GetValidSubscriptionAsync_ShouldNotReturnExpiredSubscriptions()
+    public async Task GetValidSubscriptionAsyncShouldNotReturnExpiredSubscriptions()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -98,7 +98,7 @@ public class SubscriptionRepositoryTest
     }
 
     [Test]
-    public async Task GetValidSubscriptionAsync_ShouldNotReturnFutureSubscriptions()
+    public async Task GetValidSubscriptionAsyncShouldNotReturnFutureSubscriptions()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -117,7 +117,7 @@ public class SubscriptionRepositoryTest
     }
 
     [Test]
-    public async Task GetValidSubscriptionAsync_ShouldNotReturnInactiveSubscriptions()
+    public async Task GetValidSubscriptionAsyncShouldNotReturnInactiveSubscriptions()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -136,7 +136,7 @@ public class SubscriptionRepositoryTest
     }
 
     [Test]
-    public async Task GetValidSubscriptionAsync_ShouldNotReturnSubscriptionsForDifferentCompany()
+    public async Task GetValidSubscriptionAsyncShouldNotReturnSubscriptionsForDifferentCompany()
     {
         // Arrange
         var companyId = Guid.NewGuid();

@@ -26,7 +26,7 @@ public class SubscriptionServiceTests
     }
 
     [Test]
-    public async Task CreateCreditsForOrderAsync_WithValidOrder_ReturnsSuccess()
+    public async Task CreateCreditsForOrderAsyncWithValidOrderReturnsSuccess()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -52,7 +52,7 @@ public class SubscriptionServiceTests
     }
 
     [Test]
-    public async Task CreateCreditsForOrderAsync_WithEmptyDetails_ReturnsBadRequest()
+    public async Task CreateCreditsForOrderAsyncWithEmptyDetailsReturnsBadRequest()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -73,7 +73,7 @@ public class SubscriptionServiceTests
     }
 
     [Test]
-    public async Task GetValidSubscriptionsAsync_ReturnsValidSubscriptions()
+    public async Task GetValidSubscriptionsAsyncReturnsValidSubscriptions()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -96,7 +96,7 @@ public class SubscriptionServiceTests
     }
 
     [Test]
-    public async Task GetValidSubscriptionsAsync_WhenNoSubscriptions_ReturnsEmptyList()
+    public async Task GetValidSubscriptionsAsyncWhenNoSubscriptionsReturnsEmptyList()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -114,7 +114,7 @@ public class SubscriptionServiceTests
     }
 
     [Test]
-    public async Task CreateCreditsForOrderAsync_VerifyCreditsDates()
+    public async Task CreateCreditsForOrderAsyncVerifyCreditsDates()
     {
         // Arrange
         var companyId = Guid.NewGuid();

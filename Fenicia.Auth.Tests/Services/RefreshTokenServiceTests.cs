@@ -28,7 +28,7 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public void GenerateRefreshTokenAsync_GeneratesValidToken()
+    public void GenerateRefreshTokenAsyncGeneratesValidToken()
     {
         // Arrange
         var userId = this.faker.Random.Guid();
@@ -49,7 +49,7 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public async Task ValidateTokenAsync_CallsRepositoryAndReturnsResult()
+    public async Task ValidateTokenAsyncCallsRepositoryAndReturnsResult()
     {
         // Arrange
         var userId = this.faker.Random.Guid();
@@ -67,7 +67,7 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public async Task InvalidateRefreshTokenAsync_CallsRepository()
+    public async Task InvalidateRefreshTokenAsyncCallsRepository()
     {
         // Arrange
         var refreshToken = this.faker.Random.AlphaNumeric(length: 44); // Simulating Base64 token length
@@ -81,7 +81,7 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public void GenerateRefreshTokenAsync_GeneratesUniqueTokens()
+    public void GenerateRefreshTokenAsyncGeneratesUniqueTokens()
     {
         // Arrange
         var userId = this.faker.Random.Guid();
@@ -101,7 +101,7 @@ public class RefreshTokenServiceTests
     [Test]
     [TestCase(arg: true)]
     [TestCase(arg: false)]
-    public async Task ValidateTokenAsync_ReturnsExpectedResult(bool expectedResult)
+    public async Task ValidateTokenAsyncReturnsExpectedResult(bool expectedResult)
     {
         // Arrange
         var userId = this.faker.Random.Guid();
@@ -117,7 +117,7 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public void GenerateRefreshTokenAsync_SaveChangesFailure_StillReturnsToken()
+    public void GenerateRefreshTokenAsyncSaveChangesFailureStillReturnsToken()
     {
         // Arrange
         var userId = this.faker.Random.Guid();
@@ -131,7 +131,7 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public void GenerateRefreshTokenAsync_MultipleCalls_GeneratesDistinctTokens()
+    public void GenerateRefreshTokenAsyncMultipleCallsGeneratesDistinctTokens()
     {
         // Arrange
         var userIDs = this.faker.Make(count: 5, () => this.faker.Random.Guid()).ToList();
@@ -154,7 +154,7 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    public async Task InvalidateRefreshTokenAsync_WithMultipleTokens_CallsRepositoryForEach()
+    public async Task InvalidateRefreshTokenAsyncWithMultipleTokensCallsRepositoryForEach()
     {
         // Arrange
         var refreshTokens = this.faker.Make(count: 5, () => this.faker.Random.AlphaNumeric(length: 44)).ToList();
