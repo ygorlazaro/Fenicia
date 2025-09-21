@@ -1,18 +1,23 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using Fenicia.Web.Providers.Auth;
+
 namespace Fenicia.Web.Abstracts;
 
 public abstract class BaseProvider
 {
     protected readonly HttpClient HttpClient;
 
-    protected BaseProvider(IConfiguration configuration)
+    private readonly AuthManager authManager;
+
+    protected BaseProvider(IConfiguration configuration, AuthManager authManager)
     {
+        this.authManager = authManager;
         HttpClient = new HttpClient
-                     {
-                         BaseAddress = new Uri(configuration["Routes:BaseAuthUrl"] ?? throw new NullReferenceException())
-                     };
+        {
+            BaseAddress = new Uri(configuration["Routes:BaseAuthUrl"] ?? throw new NullReferenceException())
+        };
     }
 
     protected async Task<TResponse> PostAsync<TResponse, TRequest>(string route, TRequest request)
@@ -32,5 +37,30 @@ public abstract class BaseProvider
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         return JsonSerializer.Deserialize<TResponse>(responseContent, options) ?? throw new NullReferenceException();
 
+    }
+
+    protected async Task<TResponse> GetAsync<TResponse>(string route)
+    {
+        var token = authManager.JwtToken;
+
+        Console.WriteLine($"Token in BaseProvider: {token}");
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            HttpClient.DefaultRequestHeaders.Authorization = new
+            AuthenticationHeaderValue("Bearer", token);
+        }
+
+        var response = await HttpClient.GetAsync(route);
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Request failed with status code {(int)response.StatusCode} ({response.StatusCode}). Response: {responseContent}");
+        }
+
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        return JsonSerializer.Deserialize<TResponse>(responseContent, options) ?? throw new NullReferenceException();
     }
 }

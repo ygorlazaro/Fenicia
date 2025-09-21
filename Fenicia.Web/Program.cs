@@ -12,6 +12,7 @@ builder.Services.AddSingleton<AuthManager>();
 
 builder.Services.AddScoped<TokenProvider>();
 builder.Services.AddScoped<RegisterProvider>();
+builder.Services.AddScoped<UserProvider>();
 
 builder.Services.AddScoped<HttpClient>();
 builder.Services.AddHttpContextAccessor();

@@ -65,6 +65,7 @@ public class TokenService : ITokenService
                              new ("userId", user.Id.ToString()),
                              new (ClaimTypes.Name, user.Name),
                              new ("companyId", companyId.ToString()),
+                             new ("email", user.Email),
                              new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                          };
 
