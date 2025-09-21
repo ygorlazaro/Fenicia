@@ -36,11 +36,7 @@ public class ForgotPasswordController : ControllerBase
 
             this.logger.LogInformation("Password recovery process completed with status: {Status}", response.Status);
 
-            return response.Data switch
-            {
-                null => this.StatusCode((int)response.Status, response.Message),
-                _ => this.Ok(response)
-            };
+            return response.Data is null ? this.StatusCode((int)response.Status, response.Message) : this.Ok(response);
         }
         catch (Exception ex)
         {

@@ -1,7 +1,7 @@
 namespace Fenicia.Auth.Domains.Migrations;
 
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.SubscriptionCredit;
+using Company;
+using SubscriptionCredit;
 using Fenicia.Common.Migrations.Services;
 
 using Microsoft.AspNetCore.Authorization;

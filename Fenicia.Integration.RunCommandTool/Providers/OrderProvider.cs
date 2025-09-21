@@ -1,30 +1,25 @@
 namespace Fenicia.Integration.RunCommandTool.Providers;
 
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Common.Database.Requests;
+using Common.Database.Responses;
 
 public class OrderProvider : BaseProvider
 {
-    public OrderProvider(string baseUrl)
-        : base(baseUrl)
+    public OrderProvider(Uri uri, string accessToken)
+        : base(uri, accessToken)
     {
     }
 
-    public OrderProvider(string baseUrl, string accessToken)
-        : base(baseUrl, accessToken)
+    public async Task CreateOrderAsync(List<ModuleResponse> modules)
     {
-    }
-
-    public async Task<OrderResponse> CreateOrderAsync(List<ModuleResponse> modules)
-    {
-        var orderRequest = new OrderRequest()
-        {
+        var orderRequest = new OrderRequest
+                           {
             Details = modules.Select(module => new OrderDetailRequest
             {
                 ModuleId = module.Id
             })
-        };
+                           };
 
-        return await this.PostAsync<OrderResponse, OrderRequest>("order", orderRequest);
+        await this.PostAsync<OrderResponse, OrderRequest>("order", orderRequest);
     }
 }

@@ -1,5 +1,7 @@
 namespace Fenicia.Auth.Domains.LoginAttempt;
 
+using System.Globalization;
+
 using Microsoft.Extensions.Caching.Memory;
 
 public class LoginAttemptService : ILoginAttemptService
@@ -43,6 +45,7 @@ public class LoginAttemptService : ILoginAttemptService
 
     private static string GetKey(string email)
     {
-        return $"{LoginAttemptService.KeyPrefix}{email.ToLower()}";
+        ArgumentNullException.ThrowIfNull(email);
+        return $"{LoginAttemptService.KeyPrefix}{email.ToLower(CultureInfo.InvariantCulture)}";
     }
 }

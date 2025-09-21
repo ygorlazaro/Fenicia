@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.Order;
+using Domains.Order;
 
 public class OrderRepositoryTests
 {
@@ -57,11 +57,11 @@ public class OrderRepositoryTests
 
         var savedOrder = await this.context.Orders.FindAsync([order.Id], this.cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
             Assert.That(savedOrder.UserId, Is.EqualTo(order.UserId));
-        });
+        }
     }
 
     [Test]
@@ -82,12 +82,12 @@ public class OrderRepositoryTests
         await using var context = new AuthContext(this.options);
         var savedOrder = await context.Orders.FindAsync([order.Id], this.cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(savedOrder.Id, Is.EqualTo(order.Id));
             Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
             Assert.That(savedOrder.UserId, Is.EqualTo(order.UserId));
-        });
+        }
     }
 
     [Test]

@@ -5,8 +5,8 @@ using System.Net;
 using Common;
 using Common.Enums;
 
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.SubscriptionCredit;
+using Domains.Subscription;
+using Domains.SubscriptionCredit;
 
 using Microsoft.Extensions.Logging;
 
@@ -69,12 +69,12 @@ public class SubscriptionCreditServiceTests
         // Act
         var result = await this.sut.GetActiveModulesTypesAsync(companyId, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
             Assert.That(result.Data, Is.Null);
-        });
+        }
 
         this.subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, this.cancellationToken), Times.Once);
         this.subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(It.IsAny<List<Guid>>(), this.cancellationToken), Times.Never);

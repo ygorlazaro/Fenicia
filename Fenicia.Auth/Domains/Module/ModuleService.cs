@@ -71,7 +71,7 @@ public class ModuleService : IModuleService
             if (module is null)
             {
                 this.logger.LogWarning("Module not found for type {ModuleType}", moduleType);
-                return new ApiResponse<ModuleResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFound);
+                return new ApiResponse<ModuleResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
             }
 
             this.logger.LogDebug("Module found for type {ModuleType}", moduleType);

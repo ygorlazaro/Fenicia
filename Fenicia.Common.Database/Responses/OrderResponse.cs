@@ -38,6 +38,6 @@ public class OrderResponse
 
     public static OrderResponse Convert(OrderModel order)
     {
-        return new OrderResponse() { Id = order.Id, SaleDate = order.SaleDate, Status = order.Status, TotalAmount = order.TotalAmount };
+        return new OrderResponse { Id = order.Id, SaleDate = order.SaleDate, Status = order.Status, TotalAmount = order.TotalAmount };
     }
 }

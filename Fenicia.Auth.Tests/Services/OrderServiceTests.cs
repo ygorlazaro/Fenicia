@@ -15,9 +15,9 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Order;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.User;
+using Domains.Order;
+using Domains.Subscription;
+using Domains.User;
 
 public class OrderServiceTests
 {
@@ -57,11 +57,11 @@ public class OrderServiceTests
         // Act
         var result = await this.sut.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
-        });
+        }
     }
 
     [Test]
@@ -87,11 +87,11 @@ public class OrderServiceTests
         // Act
         var result = await this.sut.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
-        });
+        }
     }
 
     [Test]
@@ -125,30 +125,6 @@ public class OrderServiceTests
             Amount = this.faker.Random.Decimal(min: 10, max: 1000)
         };
 
-        var moduleModels = new List<ModuleModel>
-                           {
-                               new ()
-                               {
-                                   Id = moduleId,
-                                   Amount = moduleAmount,
-                                   Type = ModuleType.Accounting
-                               },
-                               new ()
-                               {
-                                   Id = basicModuleResponse.Id,
-                                   Amount = basicModuleResponse.Amount,
-                                   Type = ModuleType.Basic
-                               }
-                           };
-
-        var expectedOrder = new OrderModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Status = OrderStatus.Approved,
-            TotalAmount = moduleAmount + basicModuleResponse.Amount
-        };
-
         this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 
         this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
@@ -158,12 +134,12 @@ public class OrderServiceTests
         // Act
         var result = await this.sut.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(result.Data, Is.Not.Null);
-        });
+        }
 
         this.orderRepositoryMock.Verify(x => x.SaveOrderAsync(It.Is<OrderModel>(o => o.UserId == userId && o.Status == OrderStatus.Approved), this.cancellationToken), Times.Once);
 
@@ -193,16 +169,6 @@ public class OrderServiceTests
                                       Type = ModuleType.Basic
                                   }
                               };
-
-        var moduleModels = new List<ModuleModel>
-                           {
-                               new ()
-                               {
-                                   Id = basicModuleId,
-                                   Amount = moduleAmount,
-                                   Type = ModuleType.Basic
-                               }
-                           };
 
         this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
 

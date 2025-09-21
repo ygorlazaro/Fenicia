@@ -10,7 +10,7 @@ using Common.Enums;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.Subscription;
+using Domains.Subscription;
 
 public class SubscriptionServiceTests
 {
@@ -62,12 +62,12 @@ public class SubscriptionServiceTests
         // Act
         var result = await this.sut.CreateCreditsForOrderAsync(order, emptyDetails, companyId, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(result.Data, Is.Null);
-        });
+        }
 
         this.subscriptionRepositoryMock.Verify(x => x.SaveSubscriptionAsync(It.IsAny<SubscriptionModel>(), this.cancellationToken), Times.Never);
     }
@@ -136,13 +136,13 @@ public class SubscriptionServiceTests
         Assert.That(capturedSubscription.Credits, Has.Count.EqualTo(expected: 1));
 
         var credit = capturedSubscription.Credits.First();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(credit.StartDate.Date, Is.EqualTo(DateTime.UtcNow.Date));
             Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.UtcNow.AddMonths(months: 1).Date));
             Assert.That(credit.IsActive, Is.True);
             Assert.That(credit.OrderDetailId, Is.EqualTo(orderDetails[index: 0].Id));
             Assert.That(credit.ModuleId, Is.EqualTo(orderDetails[index: 0].ModuleId));
-        });
+        }
     }
 }

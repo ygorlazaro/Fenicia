@@ -51,7 +51,7 @@ do
 
             AnsiConsole.WriteLine("Searching modules...");
 
-            var moduleProvider = new ModuleProvider(baseUrl, userToken.AccessToken);
+            var moduleProvider = new ModuleProvider(baseUrl);
             var modules = await moduleProvider.GetModulesAsync();
 
             AnsiConsole.WriteLine($"Found {modules.Count} modules.");
@@ -85,8 +85,6 @@ do
 
             await migrationProvider.CreateDatabasesAsync(cnpj);
 
-            break;
-        default:
             break;
     }
 }

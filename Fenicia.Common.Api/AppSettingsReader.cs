@@ -4,18 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 public static class AppSettingsReader
 {
-    private static string? GetSolutionDirectory()
-    {
-        var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
-        while (dir != null && dir.GetFiles("*.sln").Length == 0)
-        {
-            dir = dir.Parent;
-        }
-
-        return dir?.FullName;
-    }
-
-    public static string? GetConnectionString(string connectionStringName)
+    public static string GetConnectionString(string connectionStringName)
     {
         var configuration = AppSettingsReader.GetConfiguration();
         var value = configuration.GetConnectionString(connectionStringName);
@@ -43,5 +32,16 @@ public static class AppSettingsReader
 
         config.SetBasePath(foundDir).AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
         return config;
+    }
+
+    private static string? GetSolutionDirectory()
+    {
+        var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (dir != null && dir.GetFiles("*.sln").Length == 0)
+        {
+            dir = dir.Parent;
+        }
+
+        return dir?.FullName;
     }
 }

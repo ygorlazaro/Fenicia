@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.Company;
+using Domains.Company;
 
 public class CompanyRepositoryTests
 {
@@ -106,11 +106,11 @@ public class CompanyRepositoryTests
         // Assert
         var savedCompany = await this.context.Companies.FindAsync([company.Id], this.cancellationToken);
         Assert.That(savedCompany, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(savedCompany.Name, Is.EqualTo(company.Name));
             Assert.That(savedCompany.Cnpj, Is.EqualTo(company.Cnpj));
-        });
+        }
     }
 
     [Test]
@@ -131,11 +131,11 @@ public class CompanyRepositoryTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(company.Id));
             Assert.That(result.Cnpj, Is.EqualTo(company.Cnpj));
-        });
+        }
     }
 
     [Test]
@@ -173,12 +173,12 @@ public class CompanyRepositoryTests
         var page1 = await this.sut.GetByUserIdAsync(userId, this.cancellationToken, page: 1, perPage: 10);
         var page2 = await this.sut.GetByUserIdAsync(userId, this.cancellationToken, page: 2, perPage: 10);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(page1, Has.Count.EqualTo(expected: 10));
             Assert.That(page2, Has.Count.EqualTo(expected: 5));
-        });
+        }
     }
 
     [Test]

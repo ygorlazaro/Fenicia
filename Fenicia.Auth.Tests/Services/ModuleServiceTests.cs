@@ -47,12 +47,12 @@ public class ModuleServiceTests
         // Act
         var result = await this.sut.GetAllOrderedAsync(this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 
     [Test]
@@ -68,12 +68,12 @@ public class ModuleServiceTests
         // Act
         var result = await this.sut.GetModulesToOrderAsync(moduleIDs, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 
     [Test]
@@ -99,12 +99,12 @@ public class ModuleServiceTests
         // Act
         var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 
     [Test]
@@ -118,11 +118,11 @@ public class ModuleServiceTests
         // Act
         var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
-        });
+        }
     }
 
     [Test]
@@ -136,11 +136,11 @@ public class ModuleServiceTests
         // Act
         var result = await this.sut.CountAsync(this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedCount));
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 }

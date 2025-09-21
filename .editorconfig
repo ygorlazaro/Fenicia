@@ -1,5 +1,5 @@
 ﻿# Arquivos C# e scripts C#
-[*.{cs,csx}]
+[*.cs]
 charset = utf-8
 insert_final_newline = true
 trim_trailing_whitespace = true
@@ -86,3 +86,6 @@ dotnet_diagnostic.IDE1006.severity = none
 
 # SA1000: Keywords should be spaced correctly
 dotnet_diagnostic.SA1000.severity = none
+
+# SA1101: Prefix local calls with this
+dotnet_diagnostic.SA1101.severity = none

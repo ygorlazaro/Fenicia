@@ -8,12 +8,12 @@ using Common;
 using Common.Database.Requests;
 using Common.Database.Responses;
 
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.LoginAttempt;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
+using Domains.Company;
+using Domains.LoginAttempt;
+using Domains.Role;
+using Domains.Security;
+using Domains.User;
+using Domains.UserRole;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.Extensions.Logging;
@@ -64,7 +64,7 @@ public class UserServiceTests
         {
             Id = Guid.NewGuid(),
             Email = request.Email,
-            Password = "hashedPassword",
+            Password = faker.Internet.Password(),
             Name = this.faker.Name.FullName()
         };
 
@@ -102,12 +102,12 @@ public class UserServiceTests
         // Act
         var result = await this.sut.GetForLoginAsync(request, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(result.Data, Is.Null);
-        });
+        }
     }
 
     [Test]
@@ -126,7 +126,7 @@ public class UserServiceTests
             }
         };
 
-        var hashedPassword = "hashedPassword";
+        var hashedPassword = this.faker.Internet.Password();
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
         var user = new UserModel
         {
@@ -179,12 +179,12 @@ public class UserServiceTests
         // Act
         var result = await this.sut.CreateNewUserAsync(request, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(result.Data, Is.Null);
-        });
+        }
     }
 
     [Test]
@@ -243,12 +243,12 @@ public class UserServiceTests
         // Act
         var result = await this.sut.GetUserForRefreshAsync(userId, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
             Assert.That(result.Data, Is.Null);
-        });
+        }
     }
 
     [Test]
@@ -275,11 +275,11 @@ public class UserServiceTests
         // Act
         var result = await this.sut.CreateNewUserAsync(request, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.InternalServerError));
             Assert.That(result.Data, Is.Null);
-        });
+        }
     }
 }

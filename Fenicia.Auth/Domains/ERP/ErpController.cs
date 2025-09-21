@@ -2,8 +2,8 @@ namespace Fenicia.Auth.Domains.ERP;
 
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.State;
+using Module;
+using State;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,5 +1,7 @@
 namespace Fenicia.Auth.Domains.LoginAttempt;
 
+using System.Globalization;
+
 using StackExchange.Redis;
 
 public class RedisLoginAttemptService : ILoginAttemptService
@@ -37,6 +39,10 @@ public class RedisLoginAttemptService : ILoginAttemptService
 
     private static string GetKey(string email)
     {
-        return $"login-attempt:{email.ToLower()}";
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "login-attempt:{0}",
+            email.ToLower(CultureInfo.InvariantCulture)
+        );
     }
 }

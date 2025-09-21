@@ -39,7 +39,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);
 
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecret));
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
 

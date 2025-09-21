@@ -2,19 +2,19 @@ namespace Fenicia.Common;
 
 public static class TextConstants
 {
-    public const string InvalidJwtSecret = "Invalid Jwt Secret";
-    public const string InvalidUsernameOrPassword = "Invalid Username or password";
-    public const string UserWithoutRoles = "The user has no roles defined";
-    public const string PermissionDenied = "Permission denied";
-    public const string ThereWasAnErrorSearchingModules = "Houve um problema buscando os módulos";
+    public const string InvalidJwtSecretMessage = "Invalid Jwt Secret";
+    public const string InvalidUsernameOrPasswordMessage = "Invalid Username or password";
+    public const string UserWithoutRolesMessage = "The user has no roles defined";
+    public const string PermissionDeniedMessage = "Permission denied";
+    public const string ThereWasAnErrorSearchingModulesMessage = "Houve um problema buscando os módulos";
 
-    public const string ThereWasAnErrorAddingModules = "Ocorreu um problema para adicionar créditos de assinatura";
+    public const string ThereWasAnErrorAddingModulesMessage = "Ocorreu um problema para adicionar créditos de assinatura";
 
-    public const string EmailExists = "This email exists";
-    public const string CompanyExists = "This company exists";
-    public const string MissingAdminRole = "Missing admin role";
-    public const string UserNotInCompany = "User not in company";
-    public const string ItemNotFound = "Item not found";
-    public const string InvalidPassword = "Invalid password";
-    public const string ResetPasswordCodeNotFound = "Reset password code not found";
+    public const string EmailExistsMessage = "This email exists";
+    public const string CompanyExistsMessage = "This company exists";
+    public const string MissingAdminRoleMessage = "Missing admin role";
+    public const string UserNotInCompanyMessage = "User not in company";
+    public const string ItemNotFoundMessage = "Item not found";
+    public const string InvalidPasswordMessage = "Invalid password";
+    public const string ResetPasswordCodeNotFoundMessage = "Reset password code not found";
 }

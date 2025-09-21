@@ -13,8 +13,8 @@ using Common.Database.Responses;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.UserRole;
+using Domains.Company;
+using Domains.UserRole;
 
 public class CompanyServiceTests
 {
@@ -48,12 +48,12 @@ public class CompanyServiceTests
         // Act
         var result = await this.sut.GetByCnpjAsync(cnpj, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 
     [Test]
@@ -67,11 +67,11 @@ public class CompanyServiceTests
         // Act
         var result = await this.sut.GetByCnpjAsync(cnpj, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
-        });
+        }
     }
 
     [Test]
@@ -91,12 +91,12 @@ public class CompanyServiceTests
         // Act
         var result = await this.sut.GetByUserIdAsync(userId, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 
     [Test]
@@ -120,12 +120,12 @@ public class CompanyServiceTests
         // Act
         var result = await this.sut.PatchAsync(companyId, userId, updateRequest, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedResponse));
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 
     [Test]
@@ -141,11 +141,11 @@ public class CompanyServiceTests
         // Act
         var result = await this.sut.PatchAsync(companyId, userId, updateRequest, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
-        });
+        }
     }
 
     [Test]
@@ -163,11 +163,11 @@ public class CompanyServiceTests
         // Act
         var result = await this.sut.PatchAsync(companyId, userId, updateRequest, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
-        });
+        }
     }
 
     [Test]
@@ -182,11 +182,11 @@ public class CompanyServiceTests
         // Act
         var result = await this.sut.CountByUserIdAsync(userId, this.cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Assert
             Assert.That(result.Data, Is.EqualTo(expectedCount));
             Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        });
+        }
     }
 }

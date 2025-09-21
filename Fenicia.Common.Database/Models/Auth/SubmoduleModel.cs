@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Database;
+using Database;
 
 [Table("submodules")]
 public class SubmoduleModel : BaseModel

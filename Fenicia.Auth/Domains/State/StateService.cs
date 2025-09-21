@@ -14,7 +14,7 @@ public class StateService : IStateService
 
     public async Task<List<StateResponse>> LoadStatesAtDatabaseAsync(CancellationToken cancellationToken)
     {
-        var states = new List<StateModel>()
+        var states = new List<StateModel>
                      {
                          new () { Name = "Acre", Uf = "AC" },
                          new () { Name = "Alagoas", Uf = "AL" },

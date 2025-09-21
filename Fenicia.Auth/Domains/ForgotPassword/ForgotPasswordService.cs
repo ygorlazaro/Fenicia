@@ -7,7 +7,7 @@ using Common.Database.Models.Auth;
 using Common.Database.Requests;
 using Common.Database.Responses;
 
-using Fenicia.Auth.Domains.User;
+using User;
 
 public class ForgotPasswordService : IForgotPasswordService
 {
@@ -30,7 +30,7 @@ public class ForgotPasswordService : IForgotPasswordService
         if (userId.Data is null)
         {
             this.logger.LogWarning("User with email {email} not found", request.Email);
-            return new ApiResponse<ForgotPasswordResponse>(data: null, HttpStatusCode.NotFound, TextConstants.InvalidUsernameOrPassword);
+            return new ApiResponse<ForgotPasswordResponse>(data: null, HttpStatusCode.NotFound, TextConstants.InvalidUsernameOrPasswordMessage);
         }
 
         var currentCode = await this.forgotPasswordRepository.GetFromUserIdAndCodeAsync(userId.Data.Id, request.Code, cancellationToken);
@@ -39,7 +39,7 @@ public class ForgotPasswordService : IForgotPasswordService
         {
             this.logger.LogWarning("No code found for user {email}", request.Email);
 
-            return new ApiResponse<ForgotPasswordResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ResetPasswordCodeNotFound);
+            return new ApiResponse<ForgotPasswordResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ResetPasswordCodeNotFoundMessage);
         }
 
         await this.userService.ChangePasswordAsync(currentCode.UserId, request.Password, cancellationToken);
