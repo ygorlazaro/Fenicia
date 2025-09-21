@@ -1,5 +1,7 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
+
+@inject Fenicia.Web.Providers.Auth.AuthManager AuthManager
+@inject NavigationManager Navigation
 
 <div class="page">
     <div class="sidebar">
@@ -7,24 +9,22 @@
     </div>
 
     <main>
-        <AuthorizeView>
-            <Authorized>
-                <div class="top-row px-4">
-                    @username
-                    @company
-                    <NavLink href="/">Logout</NavLink>
-                </div>
-
-                <article class="content px-4">
-                    @Body
-                </article>
-            </Authorized>
-            <NotAuthorized>
-                <NavLink href="/">Login</NavLink>
-                <NavLink href="/register">Register</NavLink>
-            </NotAuthorized>
-        </AuthorizeView>
-
+        @if (AuthManager.IsAuthenticated)
+        {
+            <div class="top-row px-4">
+                @username
+                @company
+                <button class="btn btn-link" @onclick="Logout">Logout</button>
+            </div>
+            <article class="content px-4">
+                @Body
+            </article>
+        }
+        else
+        {
+            <NavLink href="/">Login</NavLink>
+            <NavLink href="/register">Register</NavLink>
+        }
     </main>
 </div>
 
@@ -36,6 +36,21 @@
 
 @code {
     private string username = "Ygor";
-
     private string company = "Gato Ninja";
+
+    protected override void OnInitialized()
+    {
+        AuthManager.OnAuthStateChanged += StateHasChanged;
+    }
+
+    private void Logout()
+    {
+        AuthManager.Logout();
+        Navigation.NavigateTo("/");
+    }
+
+    public void Dispose()
+    {
+        AuthManager.OnAuthStateChanged -= StateHasChanged;
+    }
 }

@@ -63,7 +63,6 @@ public class TokenService : ITokenService
         var authClaims = new List<Claim>
                          {
                              new ("userId", user.Id.ToString()),
-                             new (ClaimTypes.Email, user.Email),
                              new (ClaimTypes.Name, user.Name),
                              new ("companyId", companyId.ToString()),
                              new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
