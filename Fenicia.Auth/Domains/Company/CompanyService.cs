@@ -35,9 +35,16 @@ public class CompanyService : ICompanyService
                 return new ApiResponse<CompanyResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
             }
 
-            var mapped = CompanyResponse.Convert(company);
+            var mapped = new CompanyResponse
+            {
+                Id = company.Id,
+                Name = company.Name,
+                Cnpj = company.Cnpj,
+                Language = company.Language,
+                TimeZone = company.TimeZone,
+                Role = new RoleModel { Name = string.Empty } // Default Role
+            };
             var response = new ApiResponse<CompanyResponse>(mapped);
-
             return response;
         }
         catch (Exception ex)
@@ -55,11 +62,17 @@ public class CompanyService : ICompanyService
 
             this.logger.LogInformation("Fetching companies for user: {userID} from repository", userId);
             var companies = await this.companyRepository.GetByUserIdAsync(userId, cancellationToken, page, perPage);
-            var mapped = CompanyResponse.Convert(companies);
+            var mapped = companies.Select(company => new CompanyResponse
+            {
+                Id = company.Id,
+                Name = company.Name,
+                Cnpj = company.Cnpj,
+                Language = company.Language,
+                TimeZone = company.TimeZone,
+                Role = new RoleModel { Name = string.Empty } // Default Role
+            }).ToList();
             var response = new ApiResponse<List<CompanyResponse>>(mapped);
-
             this.logger.LogInformation("Caching companies data for user: {userID}", userId);
-
             return response;
         }
         catch (Exception ex)
@@ -106,7 +119,15 @@ public class CompanyService : ICompanyService
             }
 
             this.logger.LogInformation("Successfully updated company: {companyID}", companyId);
-            var response = CompanyResponse.Convert(updatedCompany);
+            var response = new CompanyResponse
+            {
+                Id = updatedCompany.Id,
+                Name = updatedCompany.Name,
+                Cnpj = updatedCompany.Cnpj,
+                Language = updatedCompany.Language,
+                TimeZone = updatedCompany.TimeZone,
+                Role = new RoleModel { Name = string.Empty } // Default Role
+            };
             return new ApiResponse<CompanyResponse?>(response);
         }
         catch (Exception ex)

@@ -34,7 +34,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task GetByEmailAndCnpjAsync_WhenUserExists_ReturnsUser()
+    public async Task GetByEmailAndCnpjAsyncWhenUserExistsReturnsUser()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -47,7 +47,7 @@ public class UserRepositoryTests
         await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await this.sut.GetByEmailAndCnpjAsync(user.Email, company.Cnpj, this.cancellationToken);
+        var result = await this.sut.GetByEmailAsync(user.Email, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -59,21 +59,20 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task GetByEmailAndCnpjAsync_WhenUserDoesNotExist_ReturnsNull()
+    public async Task GetByEmailAndCnpjAsyncWhenUserDoesNotExistReturnsNull()
     {
         // Arrange
         const string nonExistentEmail = "nonexistent@example.com";
-        const string nonExistentCnpj = "00.000.000/0000-00";
 
         // Act
-        var result = await this.sut.GetByEmailAndCnpjAsync(nonExistentEmail, nonExistentCnpj, this.cancellationToken);
+        var result = await this.sut.GetByEmailAsync(nonExistentEmail, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);
     }
 
     [Test]
-    public void Add_ShouldAddUserToContext()
+    public void AddShouldAddUserToContext()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -90,7 +89,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task SaveAsync_ShouldPersistChangesToDatabase()
+    public async Task SaveAsyncShouldPersistChangesToDatabase()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -107,7 +106,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task CheckUserExistsAsync_WhenUserExists_ReturnsTrue()
+    public async Task CheckUserExistsAsyncWhenUserExistsReturnsTrue()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -122,7 +121,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task CheckUserExistsAsync_WhenUserDoesNotExist_ReturnsFalse()
+    public async Task CheckUserExistsAsyncWhenUserDoesNotExistReturnsFalse()
     {
         // Arrange
         var nonExistentEmail = "nonexistent@example.com";
@@ -135,7 +134,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task GetUserForRefreshTokenAsync_WhenUserExists_ReturnsUser()
+    public async Task GetUserForRefreshTokenAsyncWhenUserExistsReturnsUser()
     {
         // Arrange
         var user = this.userGenerator.Generate();
@@ -155,7 +154,7 @@ public class UserRepositoryTests
     }
 
     [Test]
-    public async Task GetUserForRefreshTokenAsync_WhenUserDoesNotExist_ReturnsNull()
+    public async Task GetUserForRefreshTokenAsyncWhenUserDoesNotExistReturnsNull()
     {
         // Arrange
         var nonExistentUserId = Guid.NewGuid();

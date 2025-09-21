@@ -2,8 +2,6 @@ namespace Fenicia.Auth.Tests.Services;
 
 using System.Net;
 
-using Common.Database.Responses;
-
 using Fenicia.Common.Database.Models.Auth;
 using Common.Enums;
 
@@ -28,7 +26,7 @@ public class SubscriptionServiceTests
     }
 
     [Test]
-    public async Task CreateCreditsForOrderAsync_WithValidOrder_ReturnsSuccess()
+    public async Task CreateCreditsForOrderAsyncWithValidOrderReturnsSuccess()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -40,19 +38,21 @@ public class SubscriptionServiceTests
 
         var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
 
-        var expectedResponse = new SubscriptionResponse();
-
         // Act
         var result = await this.sut.CreateCreditsForOrderAsync(order, orderDetails, companyId, this.cancellationToken);
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
+        // Assert: compare relevant fields only
+        Assert.That(result.Data, Is.Not.Null);
+        Assert.That(result.Data.Status, Is.EqualTo(SubscriptionStatus.Active));
+        Assert.That(result.Data.OrderId, Is.EqualTo(order.Id));
+        Assert.That(result.Data.StartDate.Date, Is.EqualTo(DateTime.UtcNow.Date));
+        Assert.That(result.Data.EndDate.Date, Is.EqualTo(DateTime.UtcNow.AddMonths(1).Date));
 
         this.subscriptionRepositoryMock.Verify(x => x.SaveSubscriptionAsync(It.Is<SubscriptionModel>(s => s.CompanyId == companyId && s.OrderId == order.Id && s.Status == SubscriptionStatus.Active && s.Credits.Count == orderDetails.Count), this.cancellationToken), Times.Once);
     }
 
     [Test]
-    public async Task CreateCreditsForOrderAsync_WithEmptyDetails_ReturnsBadRequest()
+    public async Task CreateCreditsForOrderAsyncWithEmptyDetailsReturnsBadRequest()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -73,7 +73,7 @@ public class SubscriptionServiceTests
     }
 
     [Test]
-    public async Task GetValidSubscriptionsAsync_ReturnsValidSubscriptions()
+    public async Task GetValidSubscriptionsAsyncReturnsValidSubscriptions()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -96,7 +96,7 @@ public class SubscriptionServiceTests
     }
 
     [Test]
-    public async Task GetValidSubscriptionsAsync_WhenNoSubscriptions_ReturnsEmptyList()
+    public async Task GetValidSubscriptionsAsyncWhenNoSubscriptionsReturnsEmptyList()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -114,7 +114,7 @@ public class SubscriptionServiceTests
     }
 
     [Test]
-    public async Task CreateCreditsForOrderAsync_VerifyCreditsDates()
+    public async Task CreateCreditsForOrderAsyncVerifyCreditsDates()
     {
         // Arrange
         var companyId = Guid.NewGuid();

@@ -6,6 +6,8 @@ using System.Text.Json.Serialization;
 
 using Database;
 
+using Fenicia.Common.Database.Responses;
+
 using Requests;
 
 [Table("companies")]
@@ -65,5 +67,16 @@ public class CompanyModel : BaseModel
     public static CompanyModel Convert(CompanyUpdateRequest company)
     {
         return new CompanyModel { Name = company.Name, TimeZone = company.Timezone };
+    }
+
+    public static List<CompanyResponse> Convert(List<UserRoleModel> userRoles)
+    {
+        return [.. userRoles.Select(ur => new CompanyResponse
+        {
+            Id = ur.Company.Id,
+            Name = ur.Company.Name,
+            Cnpj = ur.Company.Cnpj,
+            Role = ur.Role,
+        })];
     }
 }

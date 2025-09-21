@@ -42,7 +42,6 @@ public class RedisLoginAttemptService : ILoginAttemptService
         return string.Format(
             CultureInfo.InvariantCulture,
             "login-attempt:{0}",
-            email.ToLower(CultureInfo.InvariantCulture)
-        );
+            email.ToLower(CultureInfo.InvariantCulture));
     }
 }

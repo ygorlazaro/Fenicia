@@ -5,7 +5,7 @@ using Common.Database.Responses;
 
 public class OrderProvider : BaseProvider
 {
-    public OrderProvider(Uri uri, string accessToken)
+    public OrderProvider(string uri, string accessToken)
         : base(uri, accessToken)
     {
     }

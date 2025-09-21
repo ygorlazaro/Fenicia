@@ -4,7 +4,7 @@ using Common;
 
 public interface IRefreshTokenService
 {
-    Task<ApiResponse<string>> GenerateRefreshTokenAsync(Guid userId, CancellationToken cancellationToken);
+    ApiResponse<string> GenerateRefreshToken(Guid userId);
 
     Task<ApiResponse<bool>> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken);
 

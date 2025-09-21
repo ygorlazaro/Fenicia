@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Text;
 
 using Common;
-using Common.Enums;
 
 using Common.Database.Responses;
 
@@ -23,14 +22,14 @@ public class TokenService : ITokenService
         this.logger = logger;
     }
 
-    public ApiResponse<string> GenerateToken(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
+    public ApiResponse<string> GenerateToken(UserResponse user)
     {
         try
         {
             this.logger.LogInformation("Starting token generation for user {UserID}", user.Id);
             var key = Encoding.ASCII.GetBytes(this.configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
 
-            var authClaims = this.GenerateClaims(user, roles, companyId, modules);
+            var authClaims = this.GenerateClaims(user);
             var authSigningKey = new SymmetricSecurityKey(key);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -58,26 +57,72 @@ public class TokenService : ITokenService
         }
     }
 
-    private List<Claim> GenerateClaims(UserResponse user, string[] roles, Guid companyId, List<ModuleType> modules)
+    private List<Claim> GenerateClaims(UserResponse user)
     {
         var authClaims = new List<Claim>
-                         {
-                             new ("userId", user.Id.ToString()),
-                             new (ClaimTypes.Name, user.Name),
-                             new ("companyId", companyId.ToString()),
-                             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                         };
-
-        authClaims.AddRange(roles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
-        authClaims.AddRange(modules.Select(m => new Claim("module", m.ToString())));
-
-        if (roles.All(r => r != "God"))
         {
-            return authClaims;
+            new("userId", user.Id.ToString()),
+            new("email", user.Email),
+            new("unique_name", user.Name),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        // Add companyId claim if available
+        if (user is { })
+        {
+            var companyIdProp = user.GetType().GetProperty("CompanyId");
+            if (companyIdProp != null)
+            {
+                var companyIdValue = companyIdProp.GetValue(user);
+                if (companyIdValue != null && !string.IsNullOrEmpty(companyIdValue.ToString()))
+                {
+                    authClaims.Add(new Claim("companyId", companyIdValue.ToString()));
+                }
+            }
         }
 
-        this.logger.LogDebug("Adding ERP module access for God role user {UserID}", user.Id);
-        authClaims.Add(new Claim("module", "erp"));
+        // Add roles if available
+        var rolesProp = user.GetType().GetProperty("Roles");
+        if (rolesProp != null)
+        {
+            var rolesValue = rolesProp.GetValue(user) as IEnumerable<string>;
+            if (rolesValue != null)
+            {
+                foreach (var role in rolesValue)
+                {
+                    if (!string.IsNullOrEmpty(role))
+                    {
+                        authClaims.Add(new Claim("role", role));
+                    }
+                }
+            }
+        }
+
+        // Add modules if available
+        var modulesProp = user.GetType().GetProperty("Modules");
+        if (modulesProp != null)
+        {
+            var modulesValue = modulesProp.GetValue(user) as IEnumerable<object>;
+            if (modulesValue != null)
+            {
+                var modulesList = modulesValue.Select(m => m?.ToString()).Where(m => !string.IsNullOrEmpty(m)).ToList();
+
+                // If God role, add "erp" module
+                var hasGodRole = rolesProp != null && (rolesProp.GetValue(user) as IEnumerable<string>)?.Contains("God") == true;
+                if (hasGodRole && !modulesList.Contains("erp"))
+                {
+                    modulesList.Add("erp");
+                }
+
+                foreach (var module in modulesList)
+                {
+                    if (!string.IsNullOrEmpty(module))
+                    {
+                        authClaims.Add(new Claim("module", module));
+                    }
+                }
+            }
+        }
 
         return authClaims;
     }

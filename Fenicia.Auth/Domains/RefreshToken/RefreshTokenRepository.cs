@@ -1,75 +1,58 @@
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-using Common.Database.Contexts;
-using Common.Database.Models.Auth;
+using System.Text.Json;
 
-using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 public sealed class RefreshTokenRepository : IRefreshTokenRepository
 {
-    private readonly AuthContext authContext;
+    private const string RedisPrefix = "refresh_token:";
+    private readonly IDatabase redisDb;
 
-    public RefreshTokenRepository(AuthContext authContext)
+    public RefreshTokenRepository(IConnectionMultiplexer redis)
     {
-        this.authContext = authContext;
+        this.redisDb = redis.GetDatabase();
     }
 
-    public void Add(RefreshTokenModel refreshToken)
+    public void Add(RefreshToken refreshToken)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
-        this.authContext.RefreshTokens.Add(refreshToken);
-    }
-
-    public async Task SaveChangesAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            await this.authContext.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException ex)
-        {
-            throw new InvalidOperationException("Failed to save changes to the database.", ex);
-        }
+        var key = RedisPrefix + refreshToken.Token;
+        var value = JsonSerializer.Serialize(refreshToken);
+        this.redisDb.StringSet(key, value, TimeSpan.FromDays(7));
     }
 
     public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
-
-        try
+        var key = RedisPrefix + refreshToken;
+        var value = await this.redisDb.StringGetAsync(key);
+        if (value.IsNullOrEmpty)
         {
-            var now = DateTime.UtcNow;
-
-            var query = from token in this.authContext.RefreshTokens where token.UserId == userId && now < token.ExpirationDate && token.Token == refreshToken && token.IsActive select token.Id;
-
-            return await query.AnyAsync(cancellationToken);
+            return false;
         }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Failed to validate refresh token.", ex);
-        }
+
+        var tokenObj = JsonSerializer.Deserialize<RefreshToken>(value!);
+        return tokenObj != null && tokenObj.UserId == userId && tokenObj.IsActive && tokenObj.ExpirationDate > DateTime.UtcNow;
     }
 
     public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
-
-        try
+        var key = RedisPrefix + refreshToken;
+        var value = await this.redisDb.StringGetAsync(key);
+        if (value.IsNullOrEmpty)
         {
-            var refreshTokenModel = await this.authContext.RefreshTokens.FirstOrDefaultAsync(token => token.Token == refreshToken, cancellationToken);
-
-            if (refreshTokenModel == null)
-            {
-                return;
-            }
-
-            refreshTokenModel.IsActive = false;
-
-            await this.SaveChangesAsync(cancellationToken);
+            return;
         }
-        catch (Exception ex)
+
+        var tokenObj = JsonSerializer.Deserialize<RefreshToken>(value!);
+        if (tokenObj == null)
         {
-            throw new InvalidOperationException("Failed to invalidate refresh token.", ex);
+            return;
         }
+
+        tokenObj.IsActive = false;
+        await this.redisDb.StringSetAsync(key, JsonSerializer.Serialize(tokenObj), TimeSpan.FromDays(7));
     }
 }

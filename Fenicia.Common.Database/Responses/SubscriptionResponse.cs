@@ -49,4 +49,23 @@ public class SubscriptionResponse
             OrderId = subscription.OrderId
         };
     }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not SubscriptionResponse other)
+        {
+            return false;
+        }
+
+        return Id == other.Id &&
+               Status == other.Status &&
+               StartDate == other.StartDate &&
+               EndDate == other.EndDate &&
+               OrderId == other.OrderId;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, Status, StartDate, EndDate, OrderId);
+    }
 }

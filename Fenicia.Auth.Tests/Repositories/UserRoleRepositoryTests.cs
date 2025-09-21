@@ -39,7 +39,7 @@ public class UserRoleRepositoryTests
     }
 
     [Test]
-    public async Task GetRolesByUserAsync_WhenUserHasRoles_ReturnsRoles()
+    public async Task GetRolesByUserAsyncWhenUserHasRolesReturnsRoles()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -59,7 +59,7 @@ public class UserRoleRepositoryTests
     }
 
     [Test]
-    public async Task GetRolesByUserAsync_WhenUserHasNoRoles_ReturnsEmptyArray()
+    public async Task GetRolesByUserAsyncWhenUserHasNoRolesReturnsEmptyArray()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -72,7 +72,7 @@ public class UserRoleRepositoryTests
     }
 
     [Test]
-    public async Task ExistsInCompanyAsync_WhenUserExistsInCompany_ReturnsTrue()
+    public async Task ExistsInCompanyAsyncWhenUserExistsInCompanyReturnsTrue()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -90,7 +90,7 @@ public class UserRoleRepositoryTests
     }
 
     [Test]
-    public async Task ExistsInCompanyAsync_WhenUserDoesNotExistInCompany_ReturnsFalse()
+    public async Task ExistsInCompanyAsyncWhenUserDoesNotExistInCompanyReturnsFalse()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -104,7 +104,7 @@ public class UserRoleRepositoryTests
     }
 
     [Test]
-    public async Task HasRoleAsync_WhenUserHasRoleInCompany_ReturnsTrue()
+    public async Task HasRoleAsyncWhenUserHasRoleInCompanyReturnsTrue()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -123,7 +123,7 @@ public class UserRoleRepositoryTests
     }
 
     [Test]
-    public async Task HasRoleAsync_WhenUserDoesNotHaveRoleInCompany_ReturnsFalse()
+    public async Task HasRoleAsyncWhenUserDoesNotHaveRoleInCompanyReturnsFalse()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -142,7 +142,7 @@ public class UserRoleRepositoryTests
     }
 
     [Test]
-    public async Task HasRoleAsync_WhenUserDoesNotExistInCompany_ReturnsFalse()
+    public async Task HasRoleAsyncWhenUserDoesNotExistInCompanyReturnsFalse()
     {
         // Arrange
         var userId = Guid.NewGuid();

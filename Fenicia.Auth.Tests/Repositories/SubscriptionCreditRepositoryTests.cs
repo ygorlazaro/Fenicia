@@ -38,7 +38,7 @@ public class SubscriptionCreditRepositoryTests
     }
 
     [Test]
-    public async Task GetValidModulesTypesAsync_ReturnsValidModules()
+    public async Task GetValidModulesTypesAsyncReturnsValidModules()
     {
         // Arrange
         var subscriptionIDs = new[] { Guid.NewGuid(), Guid.NewGuid() };
@@ -60,7 +60,7 @@ public class SubscriptionCreditRepositoryTests
     }
 
     [Test]
-    public async Task GetValidModulesTypesAsync_ReturnsEmptyList_WhenNoValidSubscriptions()
+    public async Task GetValidModulesTypesAsyncReturnsEmptyListWhenNoValidSubscriptions()
     {
         // Arrange
         var nonExistentSubscriptions = new Faker().Make(count: 3, Guid.NewGuid);
@@ -73,7 +73,7 @@ public class SubscriptionCreditRepositoryTests
     }
 
     [Test]
-    public async Task GetValidModulesTypesAsync_ExcludesInactiveCredits()
+    public async Task GetValidModulesTypesAsyncExcludesInactiveCredits()
     {
         // Arrange
         var subscription = Guid.NewGuid();
@@ -94,7 +94,7 @@ public class SubscriptionCreditRepositoryTests
     }
 
     [Test]
-    public async Task GetValidModulesTypesAsync_ExcludesExpiredCredits()
+    public async Task GetValidModulesTypesAsyncExcludesExpiredCredits()
     {
         // Arrange
         var subscription = Guid.NewGuid();
@@ -115,7 +115,7 @@ public class SubscriptionCreditRepositoryTests
     }
 
     [Test]
-    public async Task GetValidModulesTypesAsync_ExcludesFutureCredits()
+    public async Task GetValidModulesTypesAsyncExcludesFutureCredits()
     {
         // Arrange
         var subscription = Guid.NewGuid();
@@ -136,7 +136,7 @@ public class SubscriptionCreditRepositoryTests
     }
 
     [Test]
-    public async Task GetValidModulesTypesAsync_ReturnsDuplicateModuleTypesOnlyOnce()
+    public async Task GetValidModulesTypesAsyncReturnsDuplicateModuleTypesOnlyOnce()
     {
         // Arrange
         var subscriptions = new Faker().Make(count: 2, Guid.NewGuid);
@@ -158,7 +158,7 @@ public class SubscriptionCreditRepositoryTests
     }
 
     [Test]
-    public async Task GetValidModulesTypesAsync_HandlesMultipleValidModules()
+    public async Task GetValidModulesTypesAsyncHandlesMultipleValidModules()
     {
         // Arrange
         var subscription = Guid.NewGuid();
