@@ -17,6 +17,8 @@ public class CompanyResponse
 
     public string TimeZone { get; set; } = null!;
 
+    public RoleModel Role { get; set; } = null!;
+
     public static CompanyResponse Convert(CompanyModel company)
     {
         return new CompanyResponse

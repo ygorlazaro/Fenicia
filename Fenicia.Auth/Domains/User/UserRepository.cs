@@ -17,24 +17,22 @@ public class UserRepository : IUserRepository
         this.logger = logger;
     }
 
-    public async Task<UserModel?> GetByEmailAndCnpjAsync(string email, string cnpj, CancellationToken cancellationToken)
+    public async Task<UserModel?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         try
         {
-            var query = from user in this.authContext.Users join userRole in this.authContext.UserRoles on user.Id equals userRole.UserId join company in this.authContext.Companies on userRole.CompanyId equals company.Id where user.Email == email && company.Cnpj == cnpj select user;
-
-            var result = await query.FirstOrDefaultAsync(cancellationToken);
+            var result = await this.authContext.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
             if (result == null)
             {
-                this.logger.LogInformation("User not found for email: {Email} and CNPJ: {Cnpj}", email, cnpj);
+                this.logger.LogInformation("User not found for email: {Email}", email);
             }
 
             return result;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error retrieving user for email: {Email} and CNPJ: {Cnpj}", email, cnpj);
+            this.logger.LogError(ex, "Error retrieving user for email: {Email}", email);
             throw;
         }
     }

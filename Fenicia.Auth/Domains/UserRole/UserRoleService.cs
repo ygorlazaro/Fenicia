@@ -2,6 +2,9 @@ namespace Fenicia.Auth.Domains.UserRole;
 
 using Common;
 
+using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Database.Responses;
+
 public class UserRoleService : IUserRoleService
 {
     private readonly ILogger<UserRoleService> logger;
@@ -27,6 +30,25 @@ public class UserRoleService : IUserRoleService
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error retrieving roles for user {UserID}", userId);
+            throw;
+        }
+    }
+
+    public async Task<ApiResponse<List<CompanyResponse>>> GetUserCompaniesAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            this.logger.LogInformation("Starting to retrieve companies for user {UserID}", userId);
+
+            var userRoles = await this.userRoleRepository.GetUserCompaniesAsync(userId, cancellationToken);
+
+            this.logger.LogInformation("Successfully retrieved companies for user {UserID}", userId);
+
+            return new ApiResponse<List<CompanyResponse>>(CompanyModel.Convert(userRoles));
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error retrieving companies for user {UserID}", userId);
             throw;
         }
     }

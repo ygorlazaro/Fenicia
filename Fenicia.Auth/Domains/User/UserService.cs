@@ -46,7 +46,7 @@ public class UserService : IUserService
             return new ApiResponse<UserResponse>(data: null, HttpStatusCode.TooManyRequests, "Muitas tentativas. Tente novamente mais tarde.");
         }
 
-        var user = await this.userRepository.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, cancellationToken);
+        var user = await this.userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
         if (user is null)
         {
