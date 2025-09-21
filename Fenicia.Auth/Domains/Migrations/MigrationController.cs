@@ -24,7 +24,6 @@ public class MigrationController : ControllerBase
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> PostNewMigrationAsync([FromBody] string cnpj, CancellationToken cancellationToken)
     {
         var company = await this.companyService.GetByCnpjAsync(cnpj, cancellationToken);

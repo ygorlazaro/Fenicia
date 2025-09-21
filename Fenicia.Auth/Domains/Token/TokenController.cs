@@ -41,7 +41,6 @@ public class TokenController : ControllerBase
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     [AllowAnonymous]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

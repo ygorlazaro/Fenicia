@@ -26,7 +26,6 @@ public class RegisterController : ControllerBase
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]

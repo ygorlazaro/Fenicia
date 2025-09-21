@@ -26,7 +26,6 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]

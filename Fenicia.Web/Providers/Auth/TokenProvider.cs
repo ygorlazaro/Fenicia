@@ -1,34 +1,29 @@
 using System.Net.Http.Headers;
 
-using Blazored.LocalStorage;
-
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
+using Fenicia.Web.Abstracts;
+
 
 namespace Fenicia.Web.Providers.Auth;
 
-using Abstracts;
-
 public class TokenProvider : BaseProvider
 {
-    private readonly ILocalStorageService localStorage;
-    private readonly ApiAuthenticationStateProvider apiAuthenticationStateProvider;
+    private readonly AuthManager authManager;
 
-    public TokenProvider(IConfiguration configuration, ILocalStorageService localStorage, ApiAuthenticationStateProvider apiAuthenticationStateProvider) : base(configuration)
+    public TokenProvider(IConfiguration configuration, AuthManager authManager) : base(configuration)
     {
-        this.localStorage = localStorage;
-        this.apiAuthenticationStateProvider = apiAuthenticationStateProvider;
+        this.authManager = authManager;
     }
 
     public async Task<TokenResponse> DoLoginAsync(TokenRequest request)
     {
         var token = await PostAsync<TokenResponse, TokenRequest>("token", request);
 
-        await localStorage.SetItemAsync("authToken", token.AccessToken);
-        apiAuthenticationStateProvider.MarkUserAsAuthenticated(request.Email);
+        authManager.SetToken(token.AccessToken);
 
         HttpClient.DefaultRequestHeaders.Authorization = new
-            AuthenticationHeaderValue("Bearer", token.AccessToken);
+        AuthenticationHeaderValue("Bearer", token.AccessToken);
 
         return token;
     }

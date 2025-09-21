@@ -17,11 +17,10 @@ public abstract class BaseProvider
 
     protected async Task<TResponse> PostAsync<TResponse, TRequest>(string route, TRequest request)
     {
-        var uri = new Uri(route);
         using var content = new StringContent(JsonSerializer.Serialize(request));
         content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        var response = await HttpClient.PostAsync(uri, content);
+        var response = await HttpClient.PostAsync(route, content);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -30,7 +29,8 @@ public abstract class BaseProvider
 
         var responseContent = await response.Content.ReadAsStringAsync();
 
-        return JsonSerializer.Deserialize<TResponse>(responseContent) ?? throw new NullReferenceException();
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        return JsonSerializer.Deserialize<TResponse>(responseContent, options) ?? throw new NullReferenceException();
 
     }
 }
