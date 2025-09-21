@@ -56,8 +56,7 @@ public class UserServiceTests
         var request = new TokenRequest
         {
             Email = this.faker.Internet.Email(),
-            Password = this.faker.Internet.Password(),
-            Cnpj = this.faker.Random.String2(length: 14, "0123456789")
+            Password = this.faker.Internet.Password()
         };
 
         var user = new UserModel
@@ -75,7 +74,7 @@ public class UserServiceTests
             Name = user.Name
         };
 
-        this.userRepositoryMock.Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, this.cancellationToken)).ReturnsAsync(user);
+        this.userRepositoryMock.Setup(x => x.GetByEmailAsync(request.Email, this.cancellationToken)).ReturnsAsync(user);
 
         this.securityServiceMock.Setup(x => x.VerifyPassword(request.Password, user.Password)).Returns(new ApiResponse<bool>(data: true));
 
@@ -93,11 +92,10 @@ public class UserServiceTests
         var request = new TokenRequest
         {
             Email = this.faker.Internet.Email(),
-            Password = this.faker.Internet.Password(),
-            Cnpj = this.faker.Random.String2(length: 14, "0123456789")
+            Password = this.faker.Internet.Password()
         };
 
-        this.userRepositoryMock.Setup(x => x.GetByEmailAndCnpjAsync(request.Email, request.Cnpj, this.cancellationToken)).ReturnsAsync((UserModel)null!);
+        this.userRepositoryMock.Setup(x => x.GetByEmailAsync(request.Email, this.cancellationToken)).ReturnsAsync((UserModel)null!);
 
         // Act
         var result = await this.sut.GetForLoginAsync(request, this.cancellationToken);
