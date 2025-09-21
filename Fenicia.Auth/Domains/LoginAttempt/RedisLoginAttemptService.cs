@@ -39,6 +39,10 @@ public class RedisLoginAttemptService : ILoginAttemptService
 
     private static string GetKey(string email)
     {
-        return $"login-attempt:{email.ToLower(CultureInfo.InvariantCulture)}";
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "login-attempt:{0}",
+            email.ToLower(CultureInfo.InvariantCulture)
+        );
     }
 }

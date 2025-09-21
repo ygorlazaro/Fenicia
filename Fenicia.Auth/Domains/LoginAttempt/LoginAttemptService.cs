@@ -45,6 +45,7 @@ public class LoginAttemptService : ILoginAttemptService
 
     private static string GetKey(string email)
     {
+        ArgumentNullException.ThrowIfNull(email);
         return $"{LoginAttemptService.KeyPrefix}{email.ToLower(CultureInfo.InvariantCulture)}";
     }
 }

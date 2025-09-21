@@ -52,7 +52,7 @@
                             <div class="input-group">
                                 <InputText id="name" @bind-Value="@model.Name" class="form-control" />
                             </div>
-                            <ValidationMessage For="@(() => model.Email)" class="text-danger" />
+                            <ValidationMessage For="@(() => model.Name)" class="text-danger" />
                         </div>
                         <div class="form-group">
                             <label for="email" class="control-label">Email</label>
@@ -70,7 +70,7 @@
                             <ValidationMessage For="@(() => model.Password)" class="text-danger" />
                         </div>
                         <div class="form-group mt-3">
-                            <button type="submit" class="btn btn-primary">Login</button>
+                            <button type="submit" class="btn btn-primary">Register</button>
                         </div>
                     </EditForm>
                 </div>

@@ -22,12 +22,12 @@ public abstract class BaseProvider
 
         var response = await HttpClient.PostAsync(route, content);
 
+        var responseContent = await response.Content.ReadAsStringAsync();
+
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception("Request failed");
+            throw new Exception($"Request failed with status code {(int)response.StatusCode} ({response.StatusCode}). Response: {responseContent}");
         }
-
-        var responseContent = await response.Content.ReadAsStringAsync();
 
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         return JsonSerializer.Deserialize<TResponse>(responseContent, options) ?? throw new NullReferenceException();

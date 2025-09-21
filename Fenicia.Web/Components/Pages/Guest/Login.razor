@@ -75,6 +75,9 @@
 
     [Inject] public AuthManager? AuthManager { get; set; }
 
+    private const string LoginInvalidError = "Usuário ou senha inválidos.";
+    private const string LoginExceptionError = "Erro ao tentar logar. Tente novamente.";
+
     private async Task OnValidSubmit()
     {
         try
@@ -87,12 +90,14 @@
             }
             else
             {
-                loginError = "Usuário ou senha inválidos.";
+                loginError = LoginInvalidError;
             }
         }
         catch
         {
-            loginError = "Erro ao tentar logar. Tente novamente.";
+            loginError = LoginExceptionError;
         }
+    }
+}
     }
 }

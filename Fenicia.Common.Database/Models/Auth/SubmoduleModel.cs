@@ -33,7 +33,7 @@ public class SubmoduleModel : BaseModel
         get; set;
     }
 
-    [ForeignKey(nameof(SubmoduleModel.ModuleId))]
+    [ForeignKey(nameof(ModuleId))]
     [JsonIgnore]
     public virtual ModuleModel Module { get; set; } = default!;
 }
