@@ -10,12 +10,11 @@ var baseUrl = "http://localhost:5144";
 
 var godEmail = AnsiConsole.Prompt(new TextPrompt<string>("Enter god email: "));
 var godPassword = AnsiConsole.Prompt(new TextPrompt<string>("Enter god password: ").Secret());
-var godCnpj = AnsiConsole.Prompt(new TextPrompt<string>("Enter god cnpj: "));
 
 AnsiConsole.WriteLine("Getting token...");
 
 var tokenProvider = new TokenProvider(baseUrl);
-var godToken = await tokenProvider.DoLoginAsync(godEmail, godPassword, godCnpj);
+var godToken = await tokenProvider.DoLoginAsync(godEmail, godPassword);
 
 AnsiConsole.Background = Color.DarkBlue;
 AnsiConsole.Clear();
@@ -43,7 +42,7 @@ do
     {
         case 1:
             var createdUser = await userProvider.CreateNewUserAsync(userMock);
-            userToken = await tokenProvider.DoLoginAsync(userMock.Email, userMock.Password, userMock.Company.Cnpj);
+            userToken = await tokenProvider.DoLoginAsync(userMock.Email, userMock.Password);
 
             AnsiConsole.WriteLine($"User {userMock.Email} created with ID {createdUser.Id}");
 
@@ -73,7 +72,7 @@ do
                 Console.WriteLine("Order created");
             }
 
-            userToken = await tokenProvider.DoLoginAsync(userMock.Email, userMock.Password, userMock.Company.Cnpj);
+            userToken = await tokenProvider.DoLoginAsync(userMock.Email, userMock.Password);
 
             break;
 

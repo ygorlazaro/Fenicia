@@ -19,20 +19,36 @@ public class CompanyResponse
 
     public RoleModel Role { get; set; } = null!;
 
-    public static CompanyResponse Convert(CompanyModel company)
+    public static List<CompanyResponse> Convert(List<UserRoleModel> userRoles)
     {
-        return new CompanyResponse
+        return [.. userRoles.Select(ur => new CompanyResponse
         {
-            Id = company.Id,
-            Name = company.Name,
-            Cnpj = company.Cnpj,
-            Language = company.Language,
-            TimeZone = company.TimeZone
-        };
+            Id = ur.Company.Id,
+            Name = ur.Company.Name,
+            Cnpj = ur.Company.Cnpj,
+            Language = ur.Company.Language,
+            TimeZone = ur.Company.TimeZone,
+            Role = ur.Role
+        })];
     }
 
-    public static List<CompanyResponse> Convert(List<CompanyModel> companies)
+    public override bool Equals(object? obj)
     {
-        return [.. companies.Select(CompanyResponse.Convert)];
+        if (obj is not CompanyResponse other)
+        {
+            return false;
+        }
+
+        return Id == other.Id &&
+               Name == other.Name &&
+               Cnpj == other.Cnpj &&
+               Language == other.Language &&
+               TimeZone == other.TimeZone &&
+               Equals(Role, other.Role);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, Name, Cnpj, Language, TimeZone, Role);
     }
 }

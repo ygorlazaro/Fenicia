@@ -40,8 +40,23 @@ public class CompanyServiceTests
     {
         // Arrange
         var cnpj = this.faker.Random.String2(length: 14, "0123456789");
-        var companyModel = new CompanyModel { Cnpj = cnpj };
-        var expectedResponse = new CompanyResponse { Cnpj = cnpj };
+        var companyModel = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = this.faker.Company.CompanyName(),
+            Cnpj = cnpj,
+            Language = "pt-BR",
+            TimeZone = TimeZoneInfo.Local.StandardName
+        };
+        var expectedResponse = new CompanyResponse
+        {
+            Id = companyModel.Id,
+            Name = companyModel.Name,
+            Cnpj = companyModel.Cnpj,
+            Language = companyModel.Language,
+            TimeZone = companyModel.TimeZone,
+            Role = new RoleModel { Name = string.Empty }
+        };
 
         this.companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, this.cancellationToken)).ReturnsAsync(companyModel);
 
@@ -80,11 +95,33 @@ public class CompanyServiceTests
         // Arrange
         var userId = Guid.NewGuid();
         var companies = new List<CompanyModel>
-                        {
-                            new () { Id = Guid.NewGuid() },
-                            new () { Id = Guid.NewGuid() }
-                        };
-        var expectedResponse = companies.Select(c => new CompanyResponse { Id = c.Id }).ToList();
+        {
+            new ()
+            {
+                Id = Guid.NewGuid(),
+                Name = this.faker.Company.CompanyName(),
+                Cnpj = this.faker.Random.String2(length: 14, "0123456789"),
+                Language = "pt-BR",
+                TimeZone = TimeZoneInfo.Local.StandardName
+            },
+            new ()
+            {
+                Id = Guid.NewGuid(),
+                Name = this.faker.Company.CompanyName(),
+                Cnpj = this.faker.Random.String2(length: 14, "0123456789"),
+                Language = "pt-BR",
+                TimeZone = TimeZoneInfo.Local.StandardName
+            }
+        };
+        var expectedResponse = companies.Select(c => new CompanyResponse
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Cnpj = c.Cnpj,
+            Language = c.Language,
+            TimeZone = c.TimeZone,
+            Role = new RoleModel { Name = string.Empty }
+        }).ToList();
 
         this.companyRepositoryMock.Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, 1, 10)).ReturnsAsync(companies);
 
@@ -106,8 +143,23 @@ public class CompanyServiceTests
         var companyId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest { Name = this.faker.Company.CompanyName() };
-        var companyModel = new CompanyModel { Id = companyId, Name = updateRequest.Name };
-        var expectedResponse = new CompanyResponse { Id = companyId, Name = updateRequest.Name };
+        var companyModel = new CompanyModel
+        {
+            Id = companyId,
+            Name = updateRequest.Name,
+            Cnpj = this.faker.Random.String2(length: 14, "0123456789"),
+            Language = "pt-BR",
+            TimeZone = TimeZoneInfo.Local.StandardName
+        };
+        var expectedResponse = new CompanyResponse
+        {
+            Id = companyModel.Id,
+            Name = companyModel.Name,
+            Cnpj = companyModel.Cnpj,
+            Language = companyModel.Language,
+            TimeZone = companyModel.TimeZone,
+            Role = new RoleModel { Name = string.Empty }
+        };
 
         this.companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, this.cancellationToken)).ReturnsAsync(value: true);
 

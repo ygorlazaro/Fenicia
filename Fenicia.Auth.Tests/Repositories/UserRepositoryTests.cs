@@ -47,7 +47,7 @@ public class UserRepositoryTests
         await this.context.SaveChangesAsync(this.cancellationToken);
 
         // Act
-        var result = await this.sut.GetByEmailAsync(user.Email, company.Cnpj, this.cancellationToken);
+        var result = await this.sut.GetByEmailAsync(user.Email, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -63,10 +63,9 @@ public class UserRepositoryTests
     {
         // Arrange
         const string nonExistentEmail = "nonexistent@example.com";
-        const string nonExistentCnpj = "00.000.000/0000-00";
 
         // Act
-        var result = await this.sut.GetByEmailAsync(nonExistentEmail, nonExistentCnpj, this.cancellationToken);
+        var result = await this.sut.GetByEmailAsync(nonExistentEmail, this.cancellationToken);
 
         // Assert
         Assert.That(result, Is.Null);

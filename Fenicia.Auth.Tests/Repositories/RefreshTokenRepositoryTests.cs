@@ -37,8 +37,8 @@ public class RefreshTokenRepositoryTests
         };
 
         this.redisDbMock.Setup(x => x.StringSet(
-            It.Is<string>(k => k.Contains(refreshToken.Token)),
-            It.IsAny<string>(),
+            It.Is<RedisKey>(k => k.ToString().Contains(refreshToken.Token)),
+            It.IsAny<RedisValue>(),
             It.IsAny<TimeSpan>(),
             It.IsAny<bool>(),
             It.IsAny<When>(),
@@ -50,8 +50,8 @@ public class RefreshTokenRepositoryTests
         // Assert
         this.redisDbMock.Verify(
             x => x.StringSet(
-            It.Is<string>(k => k.Contains(refreshToken.Token)),
-            It.IsAny<string>(),
+            It.Is<RedisKey>(k => k.ToString().Contains(refreshToken.Token)),
+            It.IsAny<RedisValue>(),
             It.IsAny<TimeSpan>(),
             It.IsAny<bool>(),
             It.IsAny<When>(),
