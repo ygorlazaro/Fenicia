@@ -1,6 +1,6 @@
-namespace Fenicia.Auth.Domains.ForgotPassword;
+using Fenicia.Common.Database.Models.Auth;
 
-using Common.Database.Models.Auth;
+namespace Fenicia.Auth.Domains.ForgotPassword;
 
 public interface IForgotPasswordRepository
 {

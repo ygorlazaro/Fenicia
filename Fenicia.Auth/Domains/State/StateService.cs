@@ -1,17 +1,10 @@
+using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Database.Responses;
+
 namespace Fenicia.Auth.Domains.State;
 
-using Common.Database.Models.Auth;
-using Common.Database.Responses;
-
-public class StateService : IStateService
+public class StateService(IStateRepository stateRepository) : IStateService
 {
-    private readonly IStateRepository stateRepository;
-
-    public StateService(IStateRepository stateRepository)
-    {
-        this.stateRepository = stateRepository;
-    }
-
     public async Task<List<StateResponse>> LoadStatesAtDatabaseAsync(CancellationToken cancellationToken)
     {
         var states = new List<StateModel>
@@ -45,7 +38,7 @@ public class StateService : IStateService
                          new () { Name = "Tocantins", Uf = "TO" }
                      };
 
-        var response = await this.stateRepository.LoadStatesAtDatabaseAsync(states, cancellationToken);
+        var response = await stateRepository.LoadStatesAtDatabaseAsync(states, cancellationToken);
         var mapped = StateResponse.Convert(response);
 
         return mapped;

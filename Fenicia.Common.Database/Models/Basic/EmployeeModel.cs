@@ -1,9 +1,7 @@
-namespace Fenicia.Common.Database.Models.Basic;
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using Database;
+namespace Fenicia.Common.Database.Models.Basic;
 
 [Table("employees")]
 public class EmployeeModel : BaseModel

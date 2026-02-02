@@ -1,24 +1,20 @@
-namespace Fenicia.Auth.Domains.LoginAttempt;
-
 using System.Globalization;
 
 using StackExchange.Redis;
 
-public class RedisLoginAttemptService : ILoginAttemptService
+namespace Fenicia.Auth.Domains.LoginAttempt;
+
+public class RedisLoginAttemptService(IConnectionMultiplexer redis) : ILoginAttemptService
 {
-    private readonly IDatabase db;
+    private readonly IDatabase db = redis.GetDatabase();
 
     private readonly TimeSpan expiration = TimeSpan.FromMinutes(minutes: 15);
-
-    public RedisLoginAttemptService(IConnectionMultiplexer redis)
-    {
-        this.db = redis.GetDatabase();
-    }
 
     public async Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
         var key = RedisLoginAttemptService.GetKey(email);
         var attempts = await this.db.StringGetAsync(key);
+
         return attempts.HasValue ? (int)attempts : 0;
     }
 
@@ -26,6 +22,7 @@ public class RedisLoginAttemptService : ILoginAttemptService
     {
         var key = RedisLoginAttemptService.GetKey(email);
         var current = await this.db.StringIncrementAsync(key);
+
         if (current == 1)
         {
             await this.db.KeyExpireAsync(key, this.expiration);

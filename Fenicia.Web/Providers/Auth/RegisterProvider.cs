@@ -1,10 +1,10 @@
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 
-namespace Fenicia.Web.Providers.Auth;
-
 using System.Net.Http.Headers;
 using System.Text.Json;
+
+namespace Fenicia.Web.Providers.Auth;
 
 public class RegisterProvider
 {

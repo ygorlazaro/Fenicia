@@ -1,44 +1,29 @@
-namespace Fenicia.Auth.Domains.Order;
-
 using System.Net;
 
-using Common;
-using Common.Enums;
-
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
-using Common.Database.Requests;
-using Common.Database.Responses;
-using Module;
-using Subscription;
-using User;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Enums;
 
-public sealed class OrderService : IOrderService
+namespace Fenicia.Auth.Domains.Order;
+
+public sealed class OrderService(ILogger<OrderService> logger, IOrderRepository orderRepository, IModuleService moduleService, ISubscriptionService subscriptionService, IUserService userService) : IOrderService
 {
-    private readonly ILogger<OrderService> logger;
-    private readonly IOrderRepository orderRepository;
-    private readonly IModuleService moduleService;
-    private readonly ISubscriptionService subscriptionService;
-    private readonly IUserService userService;
-
-    public OrderService(ILogger<OrderService> logger, IOrderRepository orderRepository, IModuleService moduleService, ISubscriptionService subscriptionService, IUserService userService)
-    {
-        this.logger = logger;
-        this.orderRepository = orderRepository;
-        this.moduleService = moduleService;
-        this.subscriptionService = subscriptionService;
-        this.userService = userService;
-    }
-
     public async Task<ApiResponse<OrderResponse>> CreateNewOrderAsync(Guid userId, Guid companyId, OrderRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            this.logger.LogInformation("Starting order creation process for user {UserID} in company {CompanyID}", userId, companyId);
-            var existingUser = await this.userService.ExistsInCompanyAsync(userId, companyId, cancellationToken);
+            logger.LogInformation("Starting order creation process for user {UserID} in company {CompanyID}", userId, companyId);
+
+            var existingUser = await userService.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
             if (!existingUser.Data)
             {
-                this.logger.LogWarning("User {userID} does not exist in company {companyID}", userId, companyId);
+                logger.LogWarning("User {userID} does not exist in company {companyID}", userId, companyId);
 
                 return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.UserNotInCompanyMessage);
             }
@@ -52,15 +37,13 @@ public sealed class OrderService : IOrderService
 
             if (modules.Data.Count == 0)
             {
-                this.logger.LogWarning("There was an error searching modules");
+                logger.LogWarning("There was an error searching modules");
 
                 return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorSearchingModulesMessage);
             }
 
             var totalAmount = modules.Data.Sum(m => m.Amount);
-
             var details = modules.Data.Select(m => new OrderDetailModel { ModuleId = m.Id, Amount = m.Amount }).ToList();
-
             var order = new OrderModel
             {
                 SaleDate = DateTime.UtcNow,
@@ -71,17 +54,19 @@ public sealed class OrderService : IOrderService
                 CompanyId = companyId
             };
 
-            await this.orderRepository.SaveOrderAsync(order, cancellationToken);
-            await this.subscriptionService.CreateCreditsForOrderAsync(order, details, companyId, cancellationToken);
+            await orderRepository.SaveOrderAsync(order, cancellationToken);
+            await subscriptionService.CreateCreditsForOrderAsync(order, details, companyId, cancellationToken);
 
             var response = OrderResponse.Convert(order);
 
-            this.logger.LogInformation("Order created successfully for user {UserID}", userId);
+            logger.LogInformation("Order created successfully for user {UserID}", userId);
+
             return new ApiResponse<OrderResponse>(response);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error creating order for user {UserID} in company {CompanyID}", userId, companyId);
+            logger.LogError(ex, "Error creating order for user {UserID} in company {CompanyID}", userId, companyId);
+
             return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.InternalServerError, "An error occurred while creating the order");
         }
     }
@@ -90,9 +75,10 @@ public sealed class OrderService : IOrderService
     {
         try
         {
-            this.logger.LogDebug("Starting to populate modules for order request");
+            logger.LogDebug("Starting to populate modules for order request");
+
             var uniqueModules = request.Details.Select(d => d.ModuleId).Distinct();
-            var modules = await this.moduleService.GetModulesToOrderAsync(uniqueModules, cancellationToken);
+            var modules = await moduleService.GetModulesToOrderAsync(uniqueModules, cancellationToken);
 
             if (modules.Data is null)
             {
@@ -106,7 +92,7 @@ public sealed class OrderService : IOrderService
                 return new ApiResponse<List<ModuleModel>>(response);
             }
 
-            var basicModule = await this.moduleService.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken);
+            var basicModule = await moduleService.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken);
 
             if (basicModule.Data is null)
             {
@@ -117,12 +103,14 @@ public sealed class OrderService : IOrderService
 
             var finalResponse = ModuleModel.Convert(modules.Data);
 
-            this.logger.LogInformation("Modules populated successfully");
+            logger.LogInformation("Modules populated successfully");
+
             return new ApiResponse<List<ModuleModel>>(finalResponse);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error populating modules for order request");
+            logger.LogError(ex, "Error populating modules for order request");
+
             return new ApiResponse<List<ModuleModel>>(data: null, HttpStatusCode.InternalServerError, "An error occurred while populating modules");
         }
     }

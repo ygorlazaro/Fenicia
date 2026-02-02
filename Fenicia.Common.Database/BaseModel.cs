@@ -1,7 +1,7 @@
-namespace Fenicia.Common.Database;
-
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+
+namespace Fenicia.Common.Database;
 
 public abstract class BaseModel
 {

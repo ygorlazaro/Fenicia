@@ -1,14 +1,11 @@
-namespace Fenicia.Common.Database.Models.Auth;
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Database;
-
+using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 
-using Requests;
+namespace Fenicia.Common.Database.Models.Auth;
 
 [Table("companies")]
 public class CompanyModel : BaseModel
@@ -76,7 +73,7 @@ public class CompanyModel : BaseModel
             Id = ur.Company.Id,
             Name = ur.Company.Name,
             Cnpj = ur.Company.Cnpj,
-            Role = ur.Role,
+            Role = ur.Role
         })];
     }
 }

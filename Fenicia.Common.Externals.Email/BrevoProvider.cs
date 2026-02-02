@@ -1,11 +1,11 @@
-namespace Fenicia.Common.Externals.Email;
-
 using brevo_csharp.Api;
 using brevo_csharp.Model;
 
-using Enums;
+using Fenicia.Common.Enums;
 
 using Configuration = brevo_csharp.Client.Configuration;
+
+namespace Fenicia.Common.Externals.Email;
 
 public class BrevoProvider : IBrevoProvider
 {

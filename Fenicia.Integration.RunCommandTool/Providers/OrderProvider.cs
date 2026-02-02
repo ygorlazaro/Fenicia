@@ -1,15 +1,10 @@
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
+
 namespace Fenicia.Integration.RunCommandTool.Providers;
 
-using Common.Database.Requests;
-using Common.Database.Responses;
-
-public class OrderProvider : BaseProvider
+public class OrderProvider(string uri, string accessToken) : BaseProvider(uri, accessToken)
 {
-    public OrderProvider(string uri, string accessToken)
-        : base(uri, accessToken)
-    {
-    }
-
     public async Task CreateOrderAsync(List<ModuleResponse> modules)
     {
         var orderRequest = new OrderRequest

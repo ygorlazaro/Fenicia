@@ -1,9 +1,9 @@
-namespace Fenicia.Common.Database;
-
 using System.Linq.Expressions;
 using System.Reflection;
 
 using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace Fenicia.Common.Database;
 
 public static class SoftDeleteQueryExtension
 {

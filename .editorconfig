@@ -89,3 +89,31 @@ dotnet_diagnostic.SA1000.severity = none
 
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = none
+
+#SA1200: Using directives should be placed correctly
+dotnet_diagnostic.SA1200.severity = none
+
+# CA1873: Avoid inheriting from System.Exception
+dotnet_diagnostic.CA1873.severity = none
+
+#blank line before return
+csharp_new_line_before_return = true:error
+
+#blank line before else
+csharp_new_line_before_else = true:false
+
+#blank line before catch
+csharp_new_line_before_catch = true:false
+
+#blank line before finally
+csharp_new_line_before_finally = true:false
+
+#blank line before if
+csharp_new_line_before_if = true:error
+
+csharp_style_var_for_built_in_types = true:error
+csharp_style_var_when_type_is_apparent = true:error
+csharp_style_var_elsewhere = true:error
+
+#SA1137 Elements should have the same indentation
+dotnet_diagnostic.SA1137.severity = none

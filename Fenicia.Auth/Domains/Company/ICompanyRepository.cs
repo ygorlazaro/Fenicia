@@ -1,6 +1,6 @@
-namespace Fenicia.Auth.Domains.Company;
-
 using Fenicia.Common.Database.Models.Auth;
+
+namespace Fenicia.Auth.Domains.Company;
 
 public interface ICompanyRepository
 {

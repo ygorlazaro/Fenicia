@@ -1,8 +1,8 @@
-namespace Fenicia.Auth.Domains.Module;
+using Fenicia.Common;
+using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Enums;
 
-using Common;
-using Common.Database.Responses;
-using Common.Enums;
+namespace Fenicia.Auth.Domains.Module;
 
 public interface IModuleService
 {

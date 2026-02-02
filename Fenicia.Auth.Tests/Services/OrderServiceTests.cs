@@ -1,23 +1,22 @@
-namespace Fenicia.Auth.Tests.Services;
-
 using System.Net;
 
 using Bogus;
 
-using Common;
-using Common.Enums;
-
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
-using Common.Database.Requests;
-using Common.Database.Responses;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Enums;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Fenicia.Auth.Domains.Module;
-using Domains.Order;
-using Domains.Subscription;
-using Domains.User;
+
+namespace Fenicia.Auth.Tests.Services;
 
 public class OrderServiceTests
 {

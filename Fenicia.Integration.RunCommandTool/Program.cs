@@ -1,12 +1,9 @@
-﻿#pragma warning disable SA1200 // Using directives should be placed correctly
-using Fenicia.Common.Database.Responses;
-using Fenicia.Integration.RunCommandTool;
+﻿using Fenicia.Integration.RunCommandTool;
 using Fenicia.Integration.RunCommandTool.Providers;
 
 using Spectre.Console;
-#pragma warning restore SA1200 // Using directives should be placed correctly
 
-var baseUrl = "http://localhost:5144";
+const string baseUrl = "http://localhost:5144";
 
 var godEmail = AnsiConsole.Prompt(new TextPrompt<string>("Enter god email: "));
 var godPassword = AnsiConsole.Prompt(new TextPrompt<string>("Enter god password: ").Secret());
@@ -21,7 +18,7 @@ AnsiConsole.Clear();
 
 AnsiConsole.WriteLine("Token received!");
 
-var option = new SelectionOption(0, string.Empty);
+SelectionOption option;
 var choices = new SelectionOption[]
 {
     new (0, "-- EXIT --"),
@@ -31,7 +28,6 @@ var choices = new SelectionOption[]
 
 var userProvider = new UserProvider(baseUrl);
 var userMock = userProvider.CreateUserMock();
-var userToken = new TokenResponse();
 
 do
 {
@@ -42,7 +38,7 @@ do
     {
         case 1:
             var createdUser = await userProvider.CreateNewUserAsync(userMock);
-            userToken = await tokenProvider.DoLoginAsync(userMock.Email, userMock.Password);
+            var userToken = await tokenProvider.DoLoginAsync(userMock.Email, userMock.Password);
 
             AnsiConsole.WriteLine($"User {userMock.Email} created with ID {createdUser.Id}");
 
@@ -72,7 +68,7 @@ do
                 Console.WriteLine("Order created");
             }
 
-            userToken = await tokenProvider.DoLoginAsync(userMock.Email, userMock.Password);
+            await tokenProvider.DoLoginAsync(userMock.Email, userMock.Password);
 
             break;
 

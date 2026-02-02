@@ -1,15 +1,15 @@
-namespace Fenicia.Auth.Tests.Repositories;
-
 using Bogus;
 
-using Common.Database.Contexts;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Domains.User;
+
+namespace Fenicia.Auth.Tests.Repositories;
 
 public class UserRepositoryTests
 {

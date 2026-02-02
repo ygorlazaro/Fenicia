@@ -1,11 +1,8 @@
-﻿#nullable disable
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
 
 namespace Fenicia.Auth.Migrations;
-
-using System;
-
-using Microsoft.EntityFrameworkCore.Migrations;
-
 /// <inheritdoc />
 public partial class Submodule : Migration
 {

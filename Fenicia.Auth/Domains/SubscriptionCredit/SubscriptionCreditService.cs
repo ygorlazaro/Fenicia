@@ -1,54 +1,46 @@
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Common;
+using Fenicia.Common.Enums;
+
 namespace Fenicia.Auth.Domains.SubscriptionCredit;
 
-using Common;
-using Common.Enums;
-
-using Subscription;
-
-public class SubscriptionCreditService : ISubscriptionCreditService
+public class SubscriptionCreditService(ILogger<SubscriptionCreditService> logger, ISubscriptionCreditRepository subscriptionCreditRepository, ISubscriptionService subscriptionService) : ISubscriptionCreditService
 {
-    private readonly ILogger<SubscriptionCreditService> logger;
-    private readonly ISubscriptionCreditRepository subscriptionCreditRepository;
-    private readonly ISubscriptionService subscriptionService;
-
-    public SubscriptionCreditService(ILogger<SubscriptionCreditService> logger, ISubscriptionCreditRepository subscriptionCreditRepository, ISubscriptionService subscriptionService)
-    {
-        this.logger = logger;
-        this.subscriptionCreditRepository = subscriptionCreditRepository;
-        this.subscriptionService = subscriptionService;
-    }
-
     public async Task<ApiResponse<List<ModuleType>>> GetActiveModulesTypesAsync(Guid companyId, CancellationToken cancellationToken)
     {
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.logger.LogInformation("Getting active modules types for company {CompanyID}", companyId);
+            logger.LogInformation("Getting active modules types for company {CompanyID}", companyId);
 
-            var validSubscriptions = await this.subscriptionService.GetValidSubscriptionsAsync(companyId, cancellationToken);
+            var validSubscriptions = await subscriptionService.GetValidSubscriptionsAsync(companyId, cancellationToken);
 
             if (validSubscriptions.Data is null)
             {
-                this.logger.LogWarning("No valid subscriptions found for company {CompanyID}", companyId);
-                return new ApiResponse<List<ModuleType>>(data: null, validSubscriptions.Status, validSubscriptions.Message.Message ?? string.Empty);
+                logger.LogWarning("No valid subscriptions found for company {CompanyID}", companyId);
+
+                return new ApiResponse<List<ModuleType>>(data: null, validSubscriptions.Status, validSubscriptions.Message?.Message ?? string.Empty);
             }
 
-            this.logger.LogDebug("Found {Count} valid subscriptions for company {CompanyID}", validSubscriptions.Data.Count, companyId);
+            logger.LogDebug("Found {Count} valid subscriptions for company {CompanyID}", validSubscriptions.Data.Count, companyId);
 
-            var validModules = await this.subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions.Data, cancellationToken);
+            var validModules = await subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions.Data, cancellationToken);
 
-            this.logger.LogInformation("Retrieved {Count} active module types for company {CompanyID}", validModules.Count, companyId);
+            logger.LogInformation("Retrieved {Count} active module types for company {CompanyID}", validModules.Count, companyId);
+
             return new ApiResponse<List<ModuleType>>(validModules);
         }
         catch (OperationCanceledException)
         {
-            this.logger.LogWarning("Operation was cancelled while getting active modules for company {CompanyID}", companyId);
+            logger.LogWarning("Operation was cancelled while getting active modules for company {CompanyID}", companyId);
+
             throw;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error getting active modules for company {CompanyID}", companyId);
+            logger.LogError(ex, "Error getting active modules for company {CompanyID}", companyId);
+
             throw;
         }
     }

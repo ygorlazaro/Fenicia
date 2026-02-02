@@ -1,14 +1,14 @@
-namespace Fenicia.Auth.Tests.Services;
-
 using System.Text.RegularExpressions;
 
 using Bogus;
 
-using Domains.RefreshToken;
+using Fenicia.Auth.Domains.RefreshToken;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
+
+namespace Fenicia.Auth.Tests.Services;
 
 public class RefreshTokenServiceTests
 {
@@ -32,7 +32,7 @@ public class RefreshTokenServiceTests
     {
         // Arrange
         var userId = this.faker.Random.Guid();
-        var base64Pattern = @"^[a-zA-Z0-9+/]*={0,2}$";
+        const string base64Pattern = "^[a-zA-Z0-9+/]*={0,2}$";
 
         // Act
         var result = this.sut.GenerateRefreshToken(userId);

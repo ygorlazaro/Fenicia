@@ -1,11 +1,9 @@
-namespace Fenicia.Module.Accounting;
-
 using System.Text;
 
-using Common;
-using Common.API.Middlewares;
-using Common.API.Providers;
-using Common.Database.Contexts;
+using Fenicia.Common;
+using Fenicia.Common.API.Middlewares;
+using Fenicia.Common.API.Providers;
+using Fenicia.Common.Database.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +11,14 @@ using Microsoft.IdentityModel.Tokens;
 
 using Scalar.AspNetCore;
 
+namespace Fenicia.Module.Accounting;
+
 public class Program
 {
     public static void Main(string[] args)
     {
         var tenantArg = args.FirstOrDefault(x => x.StartsWith("--tenant="));
+
         if (tenantArg is not null)
         {
             var tenantId = tenantArg.Split("=")[1];
@@ -27,18 +28,18 @@ public class Program
 
         var configBuilder = new ConfigurationManager();
         var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+
         if (!File.Exists(commonApiSettingsPath))
         {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
 
         configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
-        var configuration = configBuilder;
 
         var builder = WebApplication.CreateBuilder(args);
-        builder.Configuration.AddConfiguration(configuration);
+        builder.Configuration.AddConfiguration(configBuilder);
 
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
+        var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
 
@@ -46,9 +47,7 @@ public class Program
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
-
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
-
             var connString = config.GetConnectionString("Accounting")?.Replace("{tenant}", tenantId);
 
             if (string.IsNullOrWhiteSpace(connString))
@@ -59,15 +58,15 @@ public class Program
             options.UseNpgsql(connString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });
 
-        builder.Services.AddAuthentication(x =>
+        builder.Services.AddAuthentication(options =>
         {
-            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(x =>
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
         {
-            x.RequireHttpsMetadata = false;
-            x.SaveToken = true;
-            x.TokenValidationParameters = new TokenValidationParameters
+            options.RequireHttpsMetadata = false;
+            options.SaveToken = true;
+            options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
@@ -86,11 +85,9 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.MapScalarApiReference(x =>
+            app.MapScalarApiReference(options =>
             {
-                x.WithDarkModeToggle(showDarkModeToggle: true).WithTheme(ScalarTheme.BluePlanet).WithClientButton(showButton: true);
-
-                x.Authentication = new ScalarAuthenticationOptions
+                options.Authentication = new ScalarAuthenticationOptions
                 {
                     PreferredSecuritySchemes = ["Bearer "]
                 };

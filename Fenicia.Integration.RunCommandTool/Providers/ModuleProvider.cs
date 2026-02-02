@@ -1,15 +1,10 @@
+using Fenicia.Common;
+using Fenicia.Common.Database.Responses;
+
 namespace Fenicia.Integration.RunCommandTool.Providers;
 
-using Common;
-using Common.Database.Responses;
-
-public class ModuleProvider : BaseProvider
+public class ModuleProvider(string uri) : BaseProvider(uri)
 {
-    public ModuleProvider(string uri)
-        : base(uri)
-    {
-    }
-
     public async Task<List<ModuleResponse>> GetModulesAsync()
     {
         var response = await this.GetAsync<Pagination<List<ModuleResponse>>>("module");
