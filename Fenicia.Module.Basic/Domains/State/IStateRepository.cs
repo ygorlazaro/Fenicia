@@ -1,6 +1,6 @@
-namespace Fenicia.Module.Basic.Domains.State;
-
 using Fenicia.Common.Database.Models.Basic;
+
+namespace Fenicia.Module.Basic.Domains.State;
 
 public interface IStateRepository
 {

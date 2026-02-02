@@ -1,6 +1,6 @@
-namespace Fenicia.Auth.Domains.SubscriptionCredit;
+using Fenicia.Common.Enums;
 
-using Common.Enums;
+namespace Fenicia.Auth.Domains.SubscriptionCredit;
 
 public interface ISubscriptionCreditRepository
 {

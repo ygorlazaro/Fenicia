@@ -6,20 +6,12 @@ using Fenicia.Web.Providers.Auth;
 
 namespace Fenicia.Web.Abstracts;
 
-public abstract class BaseProvider
+public abstract class BaseProvider(IConfiguration configuration, AuthManager authManager)
 {
-    protected readonly HttpClient HttpClient;
-
-    private readonly AuthManager authManager;
-
-    protected BaseProvider(IConfiguration configuration, AuthManager authManager)
+    protected readonly HttpClient HttpClient = new()
     {
-        this.authManager = authManager;
-        HttpClient = new HttpClient
-        {
-            BaseAddress = new Uri(configuration["Routes:BaseAuthUrl"] ?? throw new NullReferenceException())
-        };
-    }
+        BaseAddress = new Uri(configuration["Routes:BaseAuthUrl"] ?? throw new NullReferenceException())
+    };
 
     protected async Task<ApiResponse<TResponse>> PostAsync<TResponse, TRequest>(string route, TRequest request)
     {

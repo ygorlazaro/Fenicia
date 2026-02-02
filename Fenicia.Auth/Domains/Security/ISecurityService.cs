@@ -1,6 +1,6 @@
-namespace Fenicia.Auth.Domains.Security;
+using Fenicia.Common;
 
-using Common;
+namespace Fenicia.Auth.Domains.Security;
 
 public interface ISecurityService
 {

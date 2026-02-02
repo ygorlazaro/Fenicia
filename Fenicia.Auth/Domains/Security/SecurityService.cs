@@ -1,44 +1,39 @@
-namespace Fenicia.Auth.Domains.Security;
-
 using System.Net;
 
-using BCrypt.Net;
+using Fenicia.Common;
 
-using Common;
+namespace Fenicia.Auth.Domains.Security;
 
-public class SecurityService : ISecurityService
+public class SecurityService(ILogger<SecurityService> logger) : ISecurityService
 {
-    private readonly ILogger<SecurityService> logger;
-
-    public SecurityService(ILogger<SecurityService> logger)
-    {
-        this.logger = logger;
-    }
-
     public ApiResponse<string> HashPassword(string password)
     {
         try
         {
             if (string.IsNullOrEmpty(password))
             {
-                this.logger.LogError("Attempt to hash null or empty password");
+                logger.LogError("Attempt to hash null or empty password");
+
                 throw new ArgumentException(TextConstants.InvalidPasswordMessage);
             }
 
-            var hashed = BCrypt.HashPassword(password, BCrypt.GenerateSalt(workFactor: 12));
+            var hashed = BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12));
 
             if (hashed == null)
             {
-                this.logger.LogError("BCrypt failed to generate hash");
+                logger.LogError("BCrypt failed to generate hash");
+
                 throw new Exception("Error hashing password");
             }
 
-            this.logger.LogInformation("Password hashed successfully");
+            logger.LogInformation("Password hashed successfully");
+
             return new ApiResponse<string>(hashed);
         }
         catch (Exception ex) when (ex is not ArgumentException)
         {
-            this.logger.LogError(ex, "Unexpected error while hashing password");
+            logger.LogError(ex, "Unexpected error while hashing password");
+
             throw;
         }
     }
@@ -49,18 +44,21 @@ public class SecurityService : ISecurityService
         {
             if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword))
             {
-                this.logger.LogError("Attempt to verify with null or empty password/hash");
+                logger.LogError("Attempt to verify with null or empty password/hash");
+
                 throw new ArgumentException(TextConstants.InvalidPasswordMessage);
             }
 
-            var result = BCrypt.Verify(password, hashedPassword);
+            var result = BCrypt.Net.BCrypt.Verify(password, hashedPassword);
 
-            this.logger.LogInformation("Password verification completed");
+            logger.LogInformation("Password verification completed");
+
             return new ApiResponse<bool>(result);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error during password verification");
+            logger.LogError(ex, "Error during password verification");
+
             return new ApiResponse<bool>(data: false, HttpStatusCode.InternalServerError);
         }
     }

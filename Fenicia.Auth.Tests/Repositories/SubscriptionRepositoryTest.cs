@@ -1,16 +1,16 @@
-namespace Fenicia.Auth.Tests.Repositories;
-
 using Bogus;
 
-using Common.Database.Contexts;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
-using Common.Enums;
+using Fenicia.Common.Enums;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Domains.Subscription;
+
+namespace Fenicia.Auth.Tests.Repositories;
 
 public class SubscriptionRepositoryTest
 {

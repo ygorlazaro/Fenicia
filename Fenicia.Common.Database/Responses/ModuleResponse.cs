@@ -1,10 +1,9 @@
-namespace Fenicia.Common.Database.Responses;
-
 using System.Text.Json.Serialization;
 
-using Enums;
+using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Enums;
 
-using Models.Auth;
+namespace Fenicia.Common.Database.Responses;
 
 [Serializable]
 public class ModuleResponse

@@ -1,46 +1,40 @@
-namespace Fenicia.Auth.Domains.User;
-
-using Common.Database.Contexts;
+using Fenicia.Common.Database.Contexts;
 
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
-public class UserRepository : IUserRepository
+namespace Fenicia.Auth.Domains.User;
+
+public class UserRepository(AuthContext context, ILogger<UserRepository> logger) : IUserRepository
 {
-    private readonly AuthContext authContext;
-    private readonly ILogger<UserRepository> logger;
-
-    public UserRepository(AuthContext authContext, ILogger<UserRepository> logger)
-    {
-        this.authContext = authContext;
-        this.logger = logger;
-    }
-
     public async Task<UserModel?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         try
         {
-            var result = await this.authContext.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+            var result = await context.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
 
             if (result == null)
             {
-                this.logger.LogInformation("User not found for email: {Email}", email);
+                logger.LogInformation("User not found for email: {Email}", email);
             }
 
             return result;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error retrieving user for email: {Email}", email);
+            logger.LogError(ex, "Error retrieving user for email: {Email}", email);
+
             throw;
         }
     }
 
     public UserModel Add(UserModel userRequest)
     {
-        this.logger.LogInformation("Adding new user with email: {Email}", userRequest.Email);
-        this.authContext.Users.Add(userRequest);
+        logger.LogInformation("Adding new user with email: {Email}", userRequest.Email);
+
+        context.Users.Add(userRequest);
+
         return userRequest;
     }
 
@@ -48,13 +42,16 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            var result = await this.authContext.SaveChangesAsync(cancellationToken);
-            this.logger.LogInformation("Successfully saved {Count} changes to database", result);
+            var result = await context.SaveChangesAsync(cancellationToken);
+
+            logger.LogInformation("Successfully saved {Count} changes to database", result);
+
             return result;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error saving changes to database");
+            logger.LogError(ex, "Error saving changes to database");
+
             throw;
         }
     }
@@ -63,13 +60,16 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            var exists = await this.authContext.Users.AnyAsync(u => u.Email == email, cancellationToken);
-            this.logger.LogInformation("User existence check for email {Email}: {Exists}", email, exists);
+            var exists = await context.Users.AnyAsync(u => u.Email == email, cancellationToken);
+
+            logger.LogInformation("User existence check for email {Email}: {Exists}", email, exists);
+
             return exists;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error checking user existence for email: {Email}", email);
+            logger.LogError(ex, "Error checking user existence for email: {Email}", email);
+
             throw;
         }
     }
@@ -78,17 +78,19 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            var user = await this.authContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
             if (user == null)
             {
-                this.logger.LogInformation("User not found for refresh token with ID: {UserID}", userId);
+                logger.LogInformation("User not found for refresh token with ID: {UserID}", userId);
             }
 
             return user;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error retrieving user for refresh token with ID: {UserID}", userId);
+            logger.LogError(ex, "Error retrieving user for refresh token with ID: {UserID}", userId);
+
             throw;
         }
     }
@@ -97,18 +99,19 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            var userId = await this.authContext.Users.Where(u => u.Email == email).Select(u => u.Id).FirstOrDefaultAsync(cancellationToken);
+            var userId = await context.Users.Where(u => u.Email == email).Select(u => u.Id).FirstOrDefaultAsync(cancellationToken);
 
             if (userId == Guid.Empty)
             {
-                this.logger.LogInformation("No user ID found for email: {Email}", email);
+                logger.LogInformation("No user ID found for email: {Email}", email);
             }
 
             return userId;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error retrieving user ID for email: {Email}", email);
+            logger.LogError(ex, "Error retrieving user ID for email: {Email}", email);
+
             throw;
         }
     }
@@ -117,17 +120,19 @@ public class UserRepository : IUserRepository
     {
         try
         {
-            var user = await this.authContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
             if (user == null)
             {
-                this.logger.LogInformation("User not found with ID: {UserID}", userId);
+                logger.LogInformation("User not found with ID: {UserID}", userId);
             }
 
             return user;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error retrieving user with ID: {UserID}", userId);
+            logger.LogError(ex, "Error retrieving user with ID: {UserID}", userId);
+
             throw;
         }
     }

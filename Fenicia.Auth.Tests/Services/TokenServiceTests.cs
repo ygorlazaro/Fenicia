@@ -1,17 +1,16 @@
-namespace Fenicia.Auth.Tests.Services;
-
 using System.IdentityModel.Tokens.Jwt;
 
 using Bogus;
 
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Common.Database.Responses;
-using Fenicia.Common.Enums;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Moq;
+
+namespace Fenicia.Auth.Tests.Services;
 
 public class TokenServiceTests
 {
@@ -46,10 +45,6 @@ public class TokenServiceTests
             Name = this.faker.Name.FullName()
         };
 
-        var roles = new[] { "Admin", "User" };
-        var companyId = Guid.NewGuid();
-        var modules = new List<ModuleType> { ModuleType.Accounting, ModuleType.CustomerSupport };
-
         // Act
         var result = this.sut.GenerateToken(user);
 
@@ -69,31 +64,6 @@ public class TokenServiceTests
     }
 
     [Test]
-    public void GenerateTokenWithGodRoleAddsErpModule()
-    {
-        // Arrange
-        var user = new UserResponse
-        {
-            Id = Guid.NewGuid(),
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName()
-        };
-
-        var roles = new[] { "God" };
-        var companyId = Guid.NewGuid();
-        var modules = new List<ModuleType> { ModuleType.Accounting };
-
-        // Act
-        var result = this.sut.GenerateToken(user);
-
-        // Assert
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(result.Data);
-
-        // No module claims are produced by TokenService, so nothing to assert here
-    }
-
-    [Test]
     public void GenerateTokenValidatesTokenExpiration()
     {
         // Arrange
@@ -103,10 +73,6 @@ public class TokenServiceTests
             Email = this.faker.Internet.Email(),
             Name = this.faker.Name.FullName()
         };
-
-        var roles = new[] { "User" };
-        var companyId = Guid.NewGuid();
-        var modules = new List<ModuleType> { ModuleType.Accounting };
 
         // Act
         var result = this.sut.GenerateToken(user);
@@ -118,31 +84,4 @@ public class TokenServiceTests
         var expectedExpiration = DateTime.UtcNow.AddHours(value: 3);
         Assert.That(token.ValidTo, Is.EqualTo(expectedExpiration).Within(TimeSpan.FromSeconds(seconds: 5)));
     }
-
-    [Test]
-    public void GenerateTokenWithNoModulesOnlyIncludesBasicClaims()
-    {
-        // Arrange
-        var user = new UserResponse
-        {
-            Id = Guid.NewGuid(),
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName()
-        };
-
-        var roles = new[] { "User" };
-        var companyId = Guid.NewGuid();
-        var modules = new List<ModuleType>();
-
-        // Act
-        var result = this.sut.GenerateToken(user);
-
-        // Assert
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(result.Data);
-
-        // No module claims are produced by TokenService, so nothing to assert here
-    }
-
-    // Test for missing JwtSecret removed: cannot be made to pass without changing TokenService
 }

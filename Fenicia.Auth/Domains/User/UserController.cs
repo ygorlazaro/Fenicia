@@ -1,41 +1,31 @@
-namespace Fenicia.Auth.Domains.User;
+using brevo_csharp.Client;
 
-using Common.API;
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Common.API;
+using Fenicia.Common.Database.Responses;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using Common.Database.Responses;
-
-using Module;
-using brevo_csharp.Client;
-using Fenicia.Auth.Domains.UserRole;
+namespace Fenicia.Auth.Domains.User;
 
 [Authorize]
 [Route("[controller]")]
 [ApiController]
-public class UserController : ControllerBase
+public class UserController(ILogger<UserController> logger, IModuleService moduleService, IUserRoleService userRoleService) : ControllerBase
 {
-    private readonly ILogger<UserController> logger;
-    private readonly IModuleService moduleService;
-    private readonly IUserRoleService userRoleService;
-
-    public UserController(ILogger<UserController> logger, IModuleService moduleService, IUserRoleService userRoleService)
-    {
-        this.logger = logger;
-        this.moduleService = moduleService;
-        this.userRoleService = userRoleService;
-    }
-
     [HttpGet("module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
-    public async Task<ActionResult<ApiResponse<List<ModuleResponse>>>> GetUserModulesAsync(CancellationToken cancellationToken, [FromHeader] Headers headers)
+    public async Task<ActionResult<ApiResponse<List<ModuleResponse>>>> GetUserModulesAsync([FromHeader] Headers headers, CancellationToken cancellationToken)
     {
         var userId = ClaimReader.UserId(this.User);
         var companyId = headers.CompanyId;
 
-        this.logger.LogWarning("Getting log for the user {userID}", userId);
+        logger.LogWarning("Getting log for the user {userID}", userId);
 
-        var response = await this.moduleService.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+        var response = await moduleService.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+
         return this.Ok(response);
     }
 
@@ -45,9 +35,9 @@ public class UserController : ControllerBase
     {
         var userId = ClaimReader.UserId(this.User);
 
-        this.logger.LogWarning("Getting companies for the user {userID}", userId);
+        logger.LogWarning("Getting companies for the user {userID}", userId);
 
-        var response = await this.userRoleService.GetUserCompaniesAsync(userId, cancellationToken);
+        var response = await userRoleService.GetUserCompaniesAsync(userId, cancellationToken);
 
         return this.Ok(response);
     }

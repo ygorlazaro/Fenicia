@@ -1,6 +1,6 @@
-namespace Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Common;
 
-using Common;
+namespace Fenicia.Auth.Domains.RefreshToken;
 
 public interface IRefreshTokenService
 {

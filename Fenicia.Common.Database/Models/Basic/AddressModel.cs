@@ -1,9 +1,7 @@
-namespace Fenicia.Common.Database.Models.Basic;
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using Database;
+namespace Fenicia.Common.Database.Models.Basic;
 
 [Table("addresses")]
 public class AddressModel : BaseModel
@@ -28,7 +26,6 @@ public class AddressModel : BaseModel
     {
         get; set;
     }
-
     [Required]
     [MaxLength(length: 30)]
     public string City { get; set; } = null!;

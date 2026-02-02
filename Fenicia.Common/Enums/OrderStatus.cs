@@ -1,6 +1,6 @@
-namespace Fenicia.Common.Enums;
-
 using System.ComponentModel;
+
+namespace Fenicia.Common.Enums;
 
 public enum OrderStatus
 {

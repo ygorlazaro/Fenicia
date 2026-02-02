@@ -1,24 +1,23 @@
-namespace Fenicia.Auth.Tests.Services;
-
 using System.Net;
 
 using Bogus;
 
-using Common;
-using Common.Database.Requests;
-using Common.Database.Responses;
-
-using Domains.Company;
-using Domains.LoginAttempt;
-using Domains.Role;
-using Domains.Security;
-using Domains.User;
-using Domains.UserRole;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.LoginAttempt;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
+
+namespace Fenicia.Auth.Tests.Services;
 
 public class UserServiceTests
 {

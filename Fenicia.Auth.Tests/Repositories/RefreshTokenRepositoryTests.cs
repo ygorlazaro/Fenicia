@@ -1,10 +1,11 @@
-namespace Fenicia.Auth.Tests.Repositories;
-
 using Bogus;
 
-using StackExchange.Redis;
 using Fenicia.Auth.Domains.RefreshToken;
 using Moq;
+
+using StackExchange.Redis;
+
+namespace Fenicia.Auth.Tests.Repositories;
 
 public class RefreshTokenRepositoryTests
 {

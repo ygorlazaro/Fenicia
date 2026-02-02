@@ -1,20 +1,19 @@
-namespace Fenicia.Auth.Tests.Services;
-
 using System.Net;
 
 using Bogus;
 
-using Common;
-
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
-using Common.Database.Requests;
-using Common.Database.Responses;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Domains.Company;
-using Domains.UserRole;
+
+namespace Fenicia.Auth.Tests.Services;
 
 public class CompanyServiceTests
 {
@@ -153,7 +152,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task GetByUserIDAsyncReturnsCompanies()
+    public async Task GetByUserIdAsyncReturnsCompanies()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -286,7 +285,7 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task CountByUserIDAsyncReturnsCount()
+    public async Task CountByUserIdAsyncReturnsCount()
     {
         // Arrange
         var userId = Guid.NewGuid();

@@ -1,16 +1,15 @@
-namespace Fenicia.Auth.Tests.Services;
-
 using System.Net;
 
-using Common;
-using Common.Enums;
-
-using Domains.Subscription;
-using Domains.SubscriptionCredit;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.SubscriptionCredit;
+using Fenicia.Common;
+using Fenicia.Common.Enums;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
+
+namespace Fenicia.Auth.Tests.Services;
 
 public class SubscriptionCreditServiceTests
 {

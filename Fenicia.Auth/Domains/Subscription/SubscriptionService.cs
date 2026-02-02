@@ -1,33 +1,24 @@
-namespace Fenicia.Auth.Domains.Subscription;
-
 using System.Net;
 
-using Common;
-using Common.Database.Responses;
-
+using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
-using Common.Enums;
+using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Enums;
 
-public sealed class SubscriptionService : ISubscriptionService
+namespace Fenicia.Auth.Domains.Subscription;
+
+public sealed class SubscriptionService(ILogger<SubscriptionService> logger, ISubscriptionRepository subscriptionRepository) : ISubscriptionService
 {
-    private readonly ILogger<SubscriptionService> logger;
-    private readonly ISubscriptionRepository subscriptionRepository;
-
-    public SubscriptionService(ILogger<SubscriptionService> logger, ISubscriptionRepository subscriptionRepository)
-    {
-        this.logger = logger;
-        this.subscriptionRepository = subscriptionRepository;
-    }
-
     public async Task<ApiResponse<SubscriptionResponse>> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details, Guid companyId, CancellationToken cancellationToken)
     {
         try
         {
-            this.logger.LogInformation("Starting credit creation for order {OrderID}", order.Id);
+            logger.LogInformation("Starting credit creation for order {OrderID}", order.Id);
 
             if (details.Count == 0)
             {
-                this.logger.LogWarning("No modules found for order {OrderID}", order.Id);
+                logger.LogWarning("No modules found for order {OrderID}", order.Id);
+
                 return new ApiResponse<SubscriptionResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorAddingModulesMessage);
             }
 
@@ -50,15 +41,18 @@ public sealed class SubscriptionService : ISubscriptionService
                 Credits = credits
             };
 
-            await this.subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken);
-            this.logger.LogInformation("Successfully saved subscription for order {OrderID}", order.Id);
+            await subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken);
+
+            logger.LogInformation("Successfully saved subscription for order {OrderID}", order.Id);
 
             var response = SubscriptionResponse.Convert(subscription);
+
             return new ApiResponse<SubscriptionResponse>(response);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error creating credits for order {OrderID}", order.Id);
+            logger.LogError(ex, "Error creating credits for order {OrderID}", order.Id);
+
             throw;
         }
     }
@@ -67,15 +61,18 @@ public sealed class SubscriptionService : ISubscriptionService
     {
         try
         {
-            this.logger.LogInformation("Retrieving valid subscriptions for company {CompanyID}", companyId);
-            var response = await this.subscriptionRepository.GetValidSubscriptionAsync(companyId, cancellationToken);
-            this.logger.LogInformation("Found {Count} valid subscriptions for company {CompanyID}", response.Count, companyId);
+            logger.LogInformation("Retrieving valid subscriptions for company {CompanyID}", companyId);
+
+            var response = await subscriptionRepository.GetValidSubscriptionAsync(companyId, cancellationToken);
+
+            logger.LogInformation("Found {Count} valid subscriptions for company {CompanyID}", response.Count, companyId);
 
             return new ApiResponse<List<Guid>>(response);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error retrieving valid subscriptions for company {CompanyID}", companyId);
+            logger.LogError(ex, "Error retrieving valid subscriptions for company {CompanyID}", companyId);
+
             throw;
         }
     }

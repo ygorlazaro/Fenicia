@@ -1,30 +1,20 @@
-namespace Fenicia.Auth.Domains.Register;
-
 using System.Net.Mime;
 
-using Common.Database.Requests;
-using Common.Database.Responses;
-
-using User;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Fenicia.Auth.Domains.Register;
 
 [AllowAnonymous]
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class RegisterController : ControllerBase
+public class RegisterController(ILogger<RegisterController> logger, IUserService userService) : ControllerBase
 {
-    private readonly ILogger<RegisterController> logger;
-    private readonly IUserService userService;
-
-    public RegisterController(ILogger<RegisterController> logger, IUserService userService)
-    {
-        this.logger = logger;
-        this.userService = userService;
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -33,22 +23,24 @@ public class RegisterController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Starting user creation process for email: {Email}", request.Email);
+            logger.LogInformation("Starting user creation process for email: {Email}", request.Email);
 
-            var userResponse = await this.userService.CreateNewUserAsync(request, cancellationToken);
+            var userResponse = await userService.CreateNewUserAsync(request, cancellationToken);
 
             if (userResponse.Data is null)
             {
-                this.logger.LogWarning("User creation failed for email: {Email}. Status: {Status}, Message: {Message}", request.Email, userResponse.Status, userResponse.Message);
+                logger.LogWarning("User creation failed for email: {Email}. Status: {Status}, Message: {Message}", request.Email, userResponse.Status, userResponse.Message);
                 return this.StatusCode((int)userResponse.Status, userResponse.Message);
             }
 
-            this.logger.LogInformation("Successfully created new user with email: {Email}", request.Email);
+            logger.LogInformation("Successfully created new user with email: {Email}", request.Email);
+
             return this.Ok(userResponse.Data);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while creating user with email: {Email}", request.Email);
+            logger.LogError(ex, "Error occurred while creating user with email: {Email}", request.Email);
+
             return this.StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while processing your request.");
         }
     }

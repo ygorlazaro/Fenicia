@@ -1,8 +1,6 @@
+using Fenicia.Common.Database.Models.Auth;
+
 namespace Fenicia.Common.Database.Responses;
-
-using System.Collections.Generic;
-
-using Models.Auth;
 
 [Serializable]
 public class SubmoduleResponse
@@ -12,14 +10,14 @@ public class SubmoduleResponse
         get; set;
     }
 
-    public string Name { get; set; } = default!;
+    public string Name { get; set; } = null!;
 
     public string? Description
     {
         get; set;
     }
 
-    public string Route { get; set; } = default!;
+    public string Route { get; set; } = null!;
 
     public static SubmoduleResponse Convert(SubmoduleModel submodules)
     {

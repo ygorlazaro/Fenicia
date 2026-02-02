@@ -1,16 +1,9 @@
-namespace Fenicia.Common.Database.Contexts;
-
-using Database;
-
 using Microsoft.EntityFrameworkCore;
 
-public class EcommerceContext : DbContext
-{
-    public EcommerceContext(DbContextOptions<EcommerceContext> options)
-        : base(options)
-    {
-    }
+namespace Fenicia.Common.Database.Contexts;
 
+public class EcommerceContext(DbContextOptions<EcommerceContext> options) : DbContext(options)
+{
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
