@@ -1,12 +1,12 @@
-namespace Fenicia.Auth.Tests.Services;
-
 using Bogus;
 
-using Domains.UserRole;
+using Fenicia.Auth.Domains.UserRole;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
+
+namespace Fenicia.Auth.Tests.Services;
 
 public class UserRoleServiceTests
 {

@@ -1,9 +1,8 @@
-namespace Fenicia.Auth.Domains.Subscription;
-
-using Common;
-using Common.Database.Responses;
-
+using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Database.Responses;
+
+namespace Fenicia.Auth.Domains.Subscription;
 
 public interface ISubscriptionService
 {

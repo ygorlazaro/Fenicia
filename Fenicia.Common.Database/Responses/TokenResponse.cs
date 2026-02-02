@@ -1,6 +1,6 @@
-namespace Fenicia.Common.Database.Responses;
-
 using System.Runtime.Serialization;
+
+namespace Fenicia.Common.Database.Responses;
 
 [DataContract]
 public class TokenResponse

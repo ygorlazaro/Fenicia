@@ -1,30 +1,21 @@
-namespace Fenicia.Auth.Domains.Order;
-
 using System.Net.Mime;
 
-using Common.API;
-using Common.Database.Requests;
-using Common.Database.Responses;
+using Fenicia.Common.API;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Fenicia.Auth.Domains.Order;
 
 [Authorize]
 [ApiController]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController : ControllerBase
+public class OrderController(ILogger<OrderController> logger, IOrderService orderService) : ControllerBase
 {
-    private readonly ILogger<OrderController> logger;
-    private readonly IOrderService orderService;
-
-    public OrderController(ILogger<OrderController> logger, IOrderService orderService)
-    {
-        this.logger = logger;
-        this.orderService = orderService;
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -33,25 +24,26 @@ public class OrderController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Creating new order for request {@Request}", request);
+            logger.LogInformation("Creating new order for request {@Request}", request);
 
             var userId = ClaimReader.UserId(this.User);
             var companyId = headers.CompanyId;
-
-            var order = await this.orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
+            var order = await orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
 
             if (order.Data is null)
             {
-                this.logger.LogWarning("Order creation failed: {Message}", order.Message);
+                logger.LogWarning("Order creation failed: {Message}", order.Message);
                 return this.StatusCode((int)order.Status, order.Message);
             }
 
-            this.logger.LogInformation("New order created successfully for user {UserID}", userId);
+            logger.LogInformation("New order created successfully for user {UserID}", userId);
+
             return this.Ok(order.Data);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Unexpected error while creating order");
+            logger.LogError(ex, "Unexpected error while creating order");
+
             throw;
         }
     }

@@ -1,15 +1,10 @@
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
+
 namespace Fenicia.Integration.RunCommandTool.Providers;
 
-using Common.Database.Requests;
-using Common.Database.Responses;
-
-public class TokenProvider : BaseProvider
+public class TokenProvider(string uri) : BaseProvider(uri)
 {
-    public TokenProvider(string uri)
-        : base(uri)
-    {
-    }
-
     public async Task<TokenResponse> DoLoginAsync(string email, string password)
     {
         var tokenRequest = new TokenRequest

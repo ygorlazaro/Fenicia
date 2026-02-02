@@ -1,8 +1,4 @@
-namespace Fenicia.Auth.Tests.Controllers;
-
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading;
 
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Common;
@@ -14,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
-using NUnit.Framework;
+namespace Fenicia.Auth.Tests.Controllers;
 
 [TestFixture]
 public class CompanyControllerTests
@@ -39,15 +35,18 @@ public class CompanyControllerTests
     public async Task GetByLoggedUserReturnsOkWhenCompaniesExist()
     {
         // Arrange
-        var userId = System.Guid.NewGuid();
-        var companies = new List<CompanyResponse> { new() { Id = System.Guid.NewGuid(), Name = "Test", Cnpj = "12345678901234" } };
-        var companiesResponse = new ApiResponse<List<CompanyResponse>>(companies, System.Net.HttpStatusCode.OK);
-        var countResponse = new ApiResponse<int>(1, System.Net.HttpStatusCode.OK);
+        var userId = Guid.NewGuid();
+        var companies = new List<CompanyResponse> { new() { Id = Guid.NewGuid(), Name = "Test", Cnpj = "12345678901234" } };
+        var companiesResponse = new ApiResponse<List<CompanyResponse>>(companies);
+        var countResponse = new ApiResponse<int>(1);
+
         companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ReturnsAsync(companiesResponse);
         companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, cancellationToken)).ReturnsAsync(countResponse);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
+
         controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
         // Act
@@ -64,9 +63,9 @@ public class CompanyControllerTests
     public async Task GetByLoggedUserReturnsNotFoundWhenNoCompanies()
     {
         // Arrange
-        var userId = System.Guid.NewGuid();
+        var userId = Guid.NewGuid();
         var companiesResponse = new ApiResponse<List<CompanyResponse>>(null, System.Net.HttpStatusCode.NotFound, "Not found");
-        var countResponse = new ApiResponse<int>(0, System.Net.HttpStatusCode.OK);
+        var countResponse = new ApiResponse<int>(0);
         companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ReturnsAsync(companiesResponse);
         companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, cancellationToken)).ReturnsAsync(countResponse);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
@@ -88,7 +87,7 @@ public class CompanyControllerTests
     public void GetByLoggedUserThrowsExceptionOnServiceError()
     {
         // Arrange
-        var userId = System.Guid.NewGuid();
+        var userId = Guid.NewGuid();
         companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ThrowsAsync(new Exception("Service error"));
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };

@@ -1,18 +1,17 @@
-namespace Fenicia.Auth.Tests.Services;
-
 using System.Net;
 
 using Bogus;
 
-using Common.Database.Responses;
-using Common.Enums;
-
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Enums;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
+
+namespace Fenicia.Auth.Tests.Services;
 
 public class ModuleServiceTests
 {

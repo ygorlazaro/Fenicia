@@ -1,6 +1,6 @@
-namespace Fenicia.Common.Migrations.Services;
+using Fenicia.Common.Enums;
 
-using Enums;
+namespace Fenicia.Common.Migrations.Services;
 
 public interface IMigrationService
 {

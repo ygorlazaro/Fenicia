@@ -1,31 +1,26 @@
-namespace Fenicia.Auth;
-
 using System.Text;
 using System.Text.Json.Serialization;
 
 using AspNetCoreRateLimit;
 
-using Common;
-using Common.API.Middlewares;
-using Common.Database.Contexts;
-using Common.Externals.Email;
-
-using Domains.DataCache;
-
-using Domains.Company;
-using Domains.ForgotPassword;
-using Domains.LoginAttempt;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.ForgotPassword;
+using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Module;
-using Domains.Order;
-using Domains.RefreshToken;
-using Domains.Role;
-using Domains.Security;
-using Domains.State;
-using Domains.Subscription;
-using Domains.SubscriptionCredit;
-using Domains.Token;
-using Domains.User;
-using Domains.UserRole;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Auth.Domains.Security;
+using Fenicia.Auth.Domains.State;
+using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.SubscriptionCredit;
+using Fenicia.Auth.Domains.Token;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Common;
+using Fenicia.Common.API.Middlewares;
+using Fenicia.Common.Database.Contexts;
+using Fenicia.Common.Externals.Email;
 using Fenicia.Common.Migrations.Services;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,29 +34,31 @@ using Serilog;
 
 using StackExchange.Redis;
 
+namespace Fenicia.Auth;
+
 public static class Program
 {
     public static void Main(string[] args)
     {
         var configBuilder = new ConfigurationManager();
         var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+
         if (!File.Exists(commonApiSettingsPath))
         {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
 
         configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
-        var configuration = configBuilder;
 
         var builder = WebApplication.CreateBuilder(args);
-        builder.Configuration.AddConfiguration(configuration);
+        builder.Configuration.AddConfiguration(configBuilder);
 
         Program.BuildLogging(builder);
-        Program.BuildRateLimiting(builder, configuration);
+        Program.BuildRateLimiting(builder, configBuilder);
         Program.BuildDependencyInjection(builder);
-        Program.BuildDatabaseConnection(configuration, builder);
+        Program.BuildDatabaseConnection(configBuilder, builder);
         Program.BuildCors(builder);
-        Program.BuildControllers(configuration, builder);
+        Program.BuildControllers(configBuilder, builder);
 
         Program.StartApplication(builder);
     }
@@ -80,11 +77,9 @@ public static class Program
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.MapScalarApiReference(x =>
+            app.MapScalarApiReference(options =>
             {
-                x.WithDarkModeToggle(showDarkModeToggle: true).WithTheme(ScalarTheme.Purple).WithClientButton(showButton: true);
-
-                x.Authentication = new ScalarAuthenticationOptions
+                options.Authentication = new ScalarAuthenticationOptions
                 {
                     PreferredSecuritySchemes = ["Bearer "]
                 };
@@ -111,16 +106,16 @@ public static class Program
     private static void BuildControllers(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
-        builder.Services.AddAuthentication(x =>
+        builder.Services.AddAuthentication(options =>
         {
-            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(x =>
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
         {
-            x.RequireHttpsMetadata = false;
-            x.SaveToken = true;
-            x.ClaimsIssuer = "AuthService";
-            x.TokenValidationParameters = new TokenValidationParameters
+            options.RequireHttpsMetadata = false;
+            options.SaveToken = true;
+            options.ClaimsIssuer = "AuthService";
+            options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
@@ -150,11 +145,11 @@ public static class Program
             };
         });
 
-        builder.Services.AddControllers().AddJsonOptions(x =>
+        builder.Services.AddControllers().AddJsonOptions(optoins =>
         {
-            x.JsonSerializerOptions.AllowTrailingCommas = false;
-            x.JsonSerializerOptions.MaxDepth = 0;
-            x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            optoins.JsonSerializerOptions.AllowTrailingCommas = false;
+            optoins.JsonSerializerOptions.MaxDepth = 0;
+            optoins.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
 
         builder.Services.AddOpenApi();
@@ -174,7 +169,7 @@ public static class Program
     {
         var connectionString = configuration.GetConnectionString("Auth");
 
-        builder.Services.AddDbContextPool<AuthContext>(x => x.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth"))
+        builder.Services.AddDbContextPool<AuthContext>(options => options.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth"))
             .EnableSensitiveDataLogging()
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .UseSnakeCaseNamingConvention());
@@ -185,13 +180,14 @@ public static class Program
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
             var config = ConfigurationOptions.Parse("localhost", ignoreUnknown: true);
+
             config.ConnectRetry = 3;
             config.ConnectTimeout = 5000;
+
             return ConnectionMultiplexer.Connect(config);
         });
 
         builder.Services.AddTransient<ICompanyService, CompanyService>();
-        builder.Services.AddTransient<IDataCacheService, RedisDataCacheService>();
         builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();
         builder.Services.AddTransient<ILoginAttemptService, RedisLoginAttemptService>();
         builder.Services.AddTransient<IModuleService, ModuleService>();
@@ -239,6 +235,7 @@ public static class Program
             config.ReadFrom.Configuration(context.Configuration);
 
             var seqUrl = context.Configuration["Seq:Url"];
+
             if (!string.IsNullOrWhiteSpace(seqUrl))
             {
                 config.Enrich.FromLogContext().Enrich.WithEnvironmentUserName().WriteTo.Console().WriteTo.Seq(seqUrl);

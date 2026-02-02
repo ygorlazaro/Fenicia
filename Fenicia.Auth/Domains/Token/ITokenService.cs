@@ -1,10 +1,10 @@
-namespace Fenicia.Auth.Domains.Token;
-
 using System.ComponentModel.DataAnnotations;
 
-using Common;
+using Fenicia.Common;
 
-using Common.Database.Responses;
+using Fenicia.Common.Database.Responses;
+
+namespace Fenicia.Auth.Domains.Token;
 
 public interface ITokenService
 {

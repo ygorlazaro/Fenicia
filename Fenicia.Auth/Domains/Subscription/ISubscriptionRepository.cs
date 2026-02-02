@@ -1,6 +1,6 @@
-namespace Fenicia.Auth.Domains.Subscription;
-
 using Fenicia.Common.Database.Models.Auth;
+
+namespace Fenicia.Auth.Domains.Subscription;
 
 public interface ISubscriptionRepository
 {

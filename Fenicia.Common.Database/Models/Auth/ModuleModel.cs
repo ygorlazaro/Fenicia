@@ -1,16 +1,13 @@
-namespace Fenicia.Common.Database.Models.Auth;
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Database;
-
-using Enums;
+using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Enums;
 
 using Microsoft.EntityFrameworkCore;
 
-using Responses;
+namespace Fenicia.Common.Database.Models.Auth;
 
 [Table("modules")]
 public class ModuleModel : BaseModel

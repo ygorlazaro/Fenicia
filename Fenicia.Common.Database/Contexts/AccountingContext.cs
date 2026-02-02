@@ -1,16 +1,9 @@
-namespace Fenicia.Common.Database.Contexts;
-
-using Database;
-
 using Microsoft.EntityFrameworkCore;
 
-public class AccountingContext : DbContext
-{
-    public AccountingContext(DbContextOptions<AccountingContext> options)
-        : base(options)
-    {
-    }
+namespace Fenicia.Common.Database.Contexts;
 
+public class AccountingContext(DbContextOptions<AccountingContext> options) : DbContext(options)
+{
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);

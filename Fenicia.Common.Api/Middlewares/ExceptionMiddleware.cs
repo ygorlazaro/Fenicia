@@ -1,29 +1,20 @@
-namespace Fenicia.Common.API.Middlewares;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-public class ExceptionMiddleware
+namespace Fenicia.Common.API.Middlewares;
+
+public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
 {
-    private readonly RequestDelegate next;
-    private readonly ILogger<ExceptionMiddleware> logger;
-
-    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
-    {
-        this.next = next;
-        this.logger = logger;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
-            await this.next(context);
+            await next(context);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Erro não tratado");
+            logger.LogError(ex, "Erro não tratado");
 
             var problem = new ProblemDetails
             {

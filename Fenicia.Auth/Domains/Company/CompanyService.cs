@@ -1,37 +1,26 @@
-namespace Fenicia.Auth.Domains.Company;
-
 using System.Net;
 
-using Common;
-
+using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
-using Common.Database.Requests;
-using Common.Database.Responses;
-using UserRole;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
-public class CompanyService : ICompanyService
+namespace Fenicia.Auth.Domains.Company;
+
+public class CompanyService(ILogger<CompanyService> logger, ICompanyRepository companyRepository, IUserRoleService userRoleService) : ICompanyService
 {
-    private readonly ILogger<CompanyService> logger;
-    private readonly ICompanyRepository companyRepository;
-    private readonly IUserRoleService userRoleService;
-
-    public CompanyService(ILogger<CompanyService> logger, ICompanyRepository companyRepository, IUserRoleService userRoleService)
-    {
-        this.logger = logger;
-        this.companyRepository = companyRepository;
-        this.userRoleService = userRoleService;
-    }
-
     public async Task<ApiResponse<CompanyResponse>> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken)
     {
         try
         {
-            this.logger.LogInformation("Fetching company with CNPJ: {cnpj} from repository", cnpj);
-            var company = await this.companyRepository.GetByCnpjAsync(cnpj, cancellationToken);
+            logger.LogInformation("Fetching company with CNPJ: {cnpj} from repository", cnpj);
+
+            var company = await companyRepository.GetByCnpjAsync(cnpj, cancellationToken);
 
             if (company is null)
             {
-                this.logger.LogWarning("Company with CNPJ: {cnpj} not found", cnpj);
+                logger.LogWarning("Company with CNPJ: {cnpj} not found", cnpj);
                 return new ApiResponse<CompanyResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
             }
 
@@ -45,11 +34,13 @@ public class CompanyService : ICompanyService
                 Role = new RoleModel { Name = string.Empty } // Default Role
             };
             var response = new ApiResponse<CompanyResponse>(mapped);
+
             return response;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while getting company with CNPJ: {cnpj}", cnpj);
+            logger.LogError(ex, "Error occurred while getting company with CNPJ: {cnpj}", cnpj);
+
             throw;
         }
     }
@@ -58,10 +49,9 @@ public class CompanyService : ICompanyService
     {
         try
         {
-            this.logger.LogInformation("Getting companies for user: {userID}, page: {page}, items per page: {perPage}", userId, page, perPage);
+            logger.LogInformation("Getting companies for user: {userID}, page: {page}, items per page: {perPage}", userId, page, perPage);
 
-            this.logger.LogInformation("Fetching companies for user: {userID} from repository", userId);
-            var companies = await this.companyRepository.GetByUserIdAsync(userId, cancellationToken, page, perPage);
+            var companies = await companyRepository.GetByUserIdAsync(userId, cancellationToken, page, perPage);
             var mapped = companies.Select(company => new CompanyResponse
             {
                 Id = company.Id,
@@ -69,15 +59,18 @@ public class CompanyService : ICompanyService
                 Cnpj = company.Cnpj,
                 Language = company.Language,
                 TimeZone = company.TimeZone,
-                Role = new RoleModel { Name = string.Empty } // Default Role
+                Role = new RoleModel { Name = string.Empty }
             }).ToList();
             var response = new ApiResponse<List<CompanyResponse>>(mapped);
-            this.logger.LogInformation("Caching companies data for user: {userID}", userId);
+
+            logger.LogInformation("Caching companies data for user: {userID}", userId);
+
             return response;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while getting companies for user: {userID}", userId);
+            logger.LogError(ex, "Error occurred while getting companies for user: {userID}", userId);
+
             throw;
         }
     }
@@ -86,39 +79,43 @@ public class CompanyService : ICompanyService
     {
         try
         {
-            this.logger.LogInformation("Attempting to patch company: {companyID} by user: {userID}", companyId, userId);
+            logger.LogInformation("Attempting to patch company: {companyID} by user: {userID}", companyId, userId);
 
-            var existing = await this.companyRepository.CheckCompanyExistsAsync(companyId, cancellationToken);
+            var existing = await companyRepository.CheckCompanyExistsAsync(companyId, cancellationToken);
 
             if (!existing)
             {
-                this.logger.LogWarning("Company {companyID} not found", companyId);
+                logger.LogWarning("Company {companyID} not found", companyId);
                 return new ApiResponse<CompanyResponse?>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
             }
 
-            this.logger.LogInformation("Checking admin role for user: {userID} in company: {companyID}", userId, companyId);
-            var hasAdminRole = await this.userRoleService.HasRoleAsync(userId, companyId, "Admin", cancellationToken);
+            logger.LogInformation("Checking admin role for user: {userID} in company: {companyID}", userId, companyId);
+
+            var hasAdminRole = await userRoleService.HasRoleAsync(userId, companyId, "Admin", cancellationToken);
 
             if (!hasAdminRole.Data)
             {
-                this.logger.LogWarning("User: {userID} lacks admin role for company: {companyID}", userId, companyId);
+                logger.LogWarning("User: {userID} lacks admin role for company: {companyID}", userId, companyId);
                 return new ApiResponse<CompanyResponse?>(data: null, HttpStatusCode.Unauthorized, TextConstants.PermissionDeniedMessage);
             }
 
-            this.logger.LogInformation("Updating company: {companyID}", companyId);
+            logger.LogInformation("Updating company: {companyID}", companyId);
+
             var companyToUpdate = CompanyModel.Convert(company);
+
             companyToUpdate.Id = companyId;
 
-            var updatedCompany = this.companyRepository.PatchAsync(companyToUpdate);
-            var saved = await this.companyRepository.SaveAsync(cancellationToken);
+            var updatedCompany = companyRepository.PatchAsync(companyToUpdate);
+            var saved = await companyRepository.SaveAsync(cancellationToken);
 
             if (saved == 0)
             {
-                this.logger.LogWarning("Failed to save updates for company: {companyID}", companyId);
+                logger.LogWarning("Failed to save updates for company: {companyID}", companyId);
                 return new ApiResponse<CompanyResponse?>(data: null, HttpStatusCode.NotFound, TextConstants.ItemNotFoundMessage);
             }
 
-            this.logger.LogInformation("Successfully updated company: {companyID}", companyId);
+            logger.LogInformation("Successfully updated company: {companyID}", companyId);
+
             var response = new CompanyResponse
             {
                 Id = updatedCompany.Id,
@@ -126,13 +123,15 @@ public class CompanyService : ICompanyService
                 Cnpj = updatedCompany.Cnpj,
                 Language = updatedCompany.Language,
                 TimeZone = updatedCompany.TimeZone,
-                Role = new RoleModel { Name = string.Empty } // Default Role
+                Role = new RoleModel { Name = string.Empty }
             };
+
             return new ApiResponse<CompanyResponse?>(response);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while updating company: {companyID}", companyId);
+            logger.LogError(ex, "Error occurred while updating company: {companyID}", companyId);
+
             throw;
         }
     }
@@ -141,21 +140,24 @@ public class CompanyService : ICompanyService
     {
         try
         {
-            this.logger.LogInformation("Counting companies for user: {userID}", userId);
-            var response = await this.companyRepository.CountByUserIdAsync(userId, cancellationToken);
-            this.logger.LogInformation("Found {count} companies for user: {userID}", response, userId);
+            logger.LogInformation("Counting companies for user: {userID}", userId);
+
+            var response = await companyRepository.CountByUserIdAsync(userId, cancellationToken);
+
+            logger.LogInformation("Found {count} companies for user: {userID}", response, userId);
 
             return new ApiResponse<int>(response);
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while counting companies for user: {userID}", userId);
+            logger.LogError(ex, "Error occurred while counting companies for user: {userID}", userId);
+
             throw;
         }
     }
 
     public async Task<List<Guid>> GetCompaniesAsync(Guid userId, CancellationToken cancellationToken)
     {
-        return await this.companyRepository.GetCompaniesAsync(userId, cancellationToken);
+        return await companyRepository.GetCompaniesAsync(userId, cancellationToken);
     }
 }

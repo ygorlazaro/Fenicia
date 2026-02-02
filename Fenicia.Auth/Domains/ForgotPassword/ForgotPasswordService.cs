@@ -1,57 +1,49 @@
-namespace Fenicia.Auth.Domains.ForgotPassword;
-
 using System.Net;
 
-using Common;
-using Common.Database.Models.Auth;
-using Common.Database.Requests;
-using Common.Database.Responses;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Common;
+using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
-using User;
+namespace Fenicia.Auth.Domains.ForgotPassword;
 
-public class ForgotPasswordService : IForgotPasswordService
+public class ForgotPasswordService(ILogger<ForgotPasswordService> logger, IForgotPasswordRepository forgotPasswordRepository, IUserService userService) : IForgotPasswordService
 {
-    private readonly ILogger<ForgotPasswordService> logger;
-    private readonly IForgotPasswordRepository forgotPasswordRepository;
-    private readonly IUserService userService;
-
-    public ForgotPasswordService(ILogger<ForgotPasswordService> logger, IForgotPasswordRepository forgotPasswordRepository, IUserService userService)
-    {
-        this.logger = logger;
-        this.forgotPasswordRepository = forgotPasswordRepository;
-        this.userService = userService;
-    }
-
     public async Task<ApiResponse<ForgotPasswordResponse>> ResetPasswordAsync(ForgotPasswordRequestReset request, CancellationToken cancellationToken)
     {
-        this.logger.LogInformation("Resetting password for user {email}", request.Email);
-        var userId = await this.userService.GetUserIdFromEmailAsync(request.Email, cancellationToken);
+        logger.LogInformation("Resetting password for user {email}", request.Email);
+
+        var userId = await userService.GetUserIdFromEmailAsync(request.Email, cancellationToken);
 
         if (userId.Data is null)
         {
-            this.logger.LogWarning("User with email {email} not found", request.Email);
+            logger.LogWarning("User with email {email} not found", request.Email);
+
             return new ApiResponse<ForgotPasswordResponse>(data: null, HttpStatusCode.NotFound, TextConstants.InvalidUsernameOrPasswordMessage);
         }
 
-        var currentCode = await this.forgotPasswordRepository.GetFromUserIdAndCodeAsync(userId.Data.Id, request.Code, cancellationToken);
+        var currentCode = await forgotPasswordRepository.GetFromUserIdAndCodeAsync(userId.Data.Id, request.Code, cancellationToken);
 
         if (currentCode is null)
         {
-            this.logger.LogWarning("No code found for user {email}", request.Email);
+            logger.LogWarning("No code found for user {email}", request.Email);
 
             return new ApiResponse<ForgotPasswordResponse>(data: null, HttpStatusCode.NotFound, TextConstants.ResetPasswordCodeNotFoundMessage);
         }
 
-        await this.userService.ChangePasswordAsync(currentCode.UserId, request.Password, cancellationToken);
-        await this.forgotPasswordRepository.InvalidateCodeAsync(currentCode.Id, cancellationToken);
+        Task.WaitAll(
+            userService.ChangePasswordAsync(currentCode.UserId, request.Password, cancellationToken),
+            forgotPasswordRepository.InvalidateCodeAsync(currentCode.Id, cancellationToken));
 
         return new ApiResponse<ForgotPasswordResponse>(ForgotPasswordResponse.Convert(currentCode));
     }
 
     public async Task<ApiResponse<ForgotPasswordResponse>> SaveForgotPasswordAsync(ForgotPasswordRequest forgotPassword, CancellationToken cancellationToken)
     {
-        this.logger.LogInformation("Saving forgot password for user {email}", forgotPassword.Email);
-        var userId = await this.userService.GetUserIdFromEmailAsync(forgotPassword.Email, cancellationToken);
+        logger.LogInformation("Saving forgot password for user {email}", forgotPassword.Email);
+
+        var userId = await userService.GetUserIdFromEmailAsync(forgotPassword.Email, cancellationToken);
 
         if (userId.Data is null)
         {
@@ -66,7 +58,7 @@ public class ForgotPasswordService : IForgotPasswordService
             UserId = userId.Data.Id
         };
 
-        var response = await this.forgotPasswordRepository.SaveForgotPasswordAsync(request, cancellationToken);
+        var response = await forgotPasswordRepository.SaveForgotPasswordAsync(request, cancellationToken);
         var mapped = ForgotPasswordResponse.Convert(response);
 
         return new ApiResponse<ForgotPasswordResponse>(mapped);

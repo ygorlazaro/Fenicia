@@ -1,10 +1,8 @@
-namespace Fenicia.Common.Database.Models.Auth;
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Database;
+namespace Fenicia.Common.Database.Models.Auth;
 
 [Table("users")]
 public class UserModel : BaseModel

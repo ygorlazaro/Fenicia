@@ -1,16 +1,9 @@
-namespace Fenicia.Common.Database.Contexts;
-
-using Database;
-
 using Microsoft.EntityFrameworkCore;
 
-public class PlusContext : DbContext
-{
-    public PlusContext(DbContextOptions<PlusContext> options)
-        : base(options)
-    {
-    }
+namespace Fenicia.Common.Database.Contexts;
 
+public class PlusContext(DbContextOptions<PlusContext> options) : DbContext(options)
+{
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);

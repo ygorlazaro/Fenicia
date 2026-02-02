@@ -1,12 +1,10 @@
-namespace Fenicia.Common.Database.Models.Auth;
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Database;
+using Fenicia.Common.Enums;
 
-using Enums;
+namespace Fenicia.Common.Database.Models.Auth;
 
 [Table("subscriptions")]
 public class SubscriptionModel : BaseModel

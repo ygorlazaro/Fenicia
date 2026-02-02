@@ -1,9 +1,9 @@
-namespace Fenicia.ERP.API.Areas.Auth;
-
-using Common.API;
+using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Fenicia.ERP.API.Areas.Auth;
 
 [Authorize]
 [Route("[controller]")]

@@ -1,10 +1,9 @@
-namespace Fenicia.Auth.Domains.Module;
-
 using System.ComponentModel.DataAnnotations;
 
-using Common.Enums;
-
 using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Enums;
+
+namespace Fenicia.Auth.Domains.Module;
 
 public interface IModuleRepository
 {

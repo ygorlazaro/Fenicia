@@ -1,8 +1,8 @@
-namespace Fenicia.Common.API;
-
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
+
+namespace Fenicia.Common.API;
 
 public class Headers
 {
