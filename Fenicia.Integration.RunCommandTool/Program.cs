@@ -1,4 +1,4 @@
-﻿using Fenicia.Integration.RunCommandTool;
+using Fenicia.Integration.RunCommandTool;
 using Fenicia.Integration.RunCommandTool.Providers;
 
 using Spectre.Console;

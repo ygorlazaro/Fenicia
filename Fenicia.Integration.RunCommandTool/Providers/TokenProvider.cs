@@ -8,10 +8,10 @@ public class TokenProvider(string uri) : BaseProvider(uri)
     public async Task<TokenResponse> DoLoginAsync(string email, string password)
     {
         var tokenRequest = new TokenRequest
-                           {
+        {
             Email = email,
             Password = password
-                           };
+        };
 
         return await this.PostAsync<TokenResponse, TokenRequest>("token", tokenRequest);
     }
