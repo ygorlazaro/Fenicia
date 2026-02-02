@@ -1,38 +1,22 @@
-namespace Fenicia.Auth.Domains.Token;
-
 using System.Net.Mime;
 
-using Common;
-using Common.Database.Requests;
-
-using Common.Database.Responses;
+using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.User;
+using Fenicia.Common;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using RefreshToken;
-
-using User;
+namespace Fenicia.Auth.Domains.Token;
 
 [Authorize]
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class TokenController : ControllerBase
+public class TokenController(ILogger<TokenController> logger, ITokenService tokenService, IRefreshTokenService refreshTokenService, IUserService userService) : ControllerBase
 {
-    private readonly ILogger<TokenController> logger;
-    private readonly ITokenService tokenService;
-    private readonly IRefreshTokenService refreshTokenService;
-    private readonly IUserService userService;
-
-    public TokenController(ILogger<TokenController> logger, ITokenService tokenService, IRefreshTokenService refreshTokenService, IUserService userService)
-    {
-        this.logger = logger;
-        this.tokenService = tokenService;
-        this.refreshTokenService = refreshTokenService;
-        this.userService = userService;
-    }
-
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
@@ -43,21 +27,24 @@ public class TokenController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Starting token generation for user {Email}", request.Email);
+            logger.LogInformation("Starting token generation for user {Email}", request.Email);
 
-            var userResponse = await this.userService.GetForLoginAsync(request, cancellationToken);
+            var userResponse = await userService.GetForLoginAsync(request, cancellationToken);
 
-            if (userResponse.Data is null)
+            if (userResponse.Data is not null)
             {
-                this.logger.LogWarning("User not found or invalid credentials for {Email}", request.Email);
-                return this.StatusCode((int)userResponse.Status, userResponse.Message);
+                return this.PopulateToken(userResponse.Data);
             }
 
-            return this.PopulateToken(userResponse.Data);
+            logger.LogWarning("User not found or invalid credentials for {Email}", request.Email);
+
+            return this.StatusCode((int)userResponse.Status, userResponse.Message);
+
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error generating token for user {Email}", request.Email);
+            logger.LogError(ex, "Error generating token for user {Email}", request.Email);
+
             throw;
         }
     }
@@ -71,31 +58,34 @@ public class TokenController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Starting token refresh for user {UserID}", request.UserId);
+            logger.LogInformation("Starting token refresh for user {UserID}", request.UserId);
 
-            var isValidToken = await this.refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
+            var isValidToken = await refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
 
             if (!isValidToken.Data)
             {
-                this.logger.LogWarning("Invalid refresh token for user {UserID}", request.UserId);
+                logger.LogWarning("Invalid refresh token for user {UserID}", request.UserId);
                 return this.BadRequest("Invalid client request");
             }
 
-            await this.refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, cancellationToken);
+            await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, cancellationToken);
 
-            var userResponse = await this.userService.GetUserForRefreshAsync(request.UserId, cancellationToken);
+            var userResponse = await userService.GetUserForRefreshAsync(request.UserId, cancellationToken);
 
-            if (userResponse.Data is null)
+            if (userResponse.Data is not null)
             {
-                this.logger.LogWarning("User not found for refresh token {UserID}", request.UserId);
-                return this.BadRequest(TextConstants.PermissionDeniedMessage);
+                return this.PopulateToken(userResponse.Data);
             }
 
-            return this.PopulateToken(userResponse.Data);
+            logger.LogWarning("User not found for refresh token {UserID}", request.UserId);
+
+            return this.BadRequest(TextConstants.PermissionDeniedMessage);
+
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error refreshing token for user {UserID}", request.UserId);
+            logger.LogError(ex, "Error refreshing token for user {UserID}", request.UserId);
+
             throw;
         }
     }
@@ -104,25 +94,25 @@ public class TokenController : ControllerBase
     {
         try
         {
-            this.logger.LogInformation("Populating token for user {UserId}", user.Id);
+            logger.LogInformation("Populating token for user {UserId}", user.Id);
 
-            var token = this.tokenService.GenerateToken(user);
+            var token = tokenService.GenerateToken(user);
 
             if (token.Data is null)
             {
-                this.logger.LogWarning("Failed to generate token for user {Email}", user.Email);
+                logger.LogWarning("Failed to generate token for user {Email}", user.Email);
                 return this.StatusCode((int)token.Status, token.Message);
             }
 
-            var refreshToken = this.refreshTokenService.GenerateRefreshToken(user.Id);
+            var refreshToken = refreshTokenService.GenerateRefreshToken(user.Id);
 
             if (refreshToken.Data is null)
             {
-                this.logger.LogWarning("Failed to generate refresh token for user {Email}", user.Email);
+                logger.LogWarning("Failed to generate refresh token for user {Email}", user.Email);
                 return this.StatusCode((int)refreshToken.Status, refreshToken.Message);
             }
 
-            this.logger.LogInformation("Successfully generated tokens for user {Email}", user.Email);
+            logger.LogInformation("Successfully generated tokens for user {Email}", user.Email);
 
             return this.Ok(new TokenResponse
             {
@@ -138,7 +128,7 @@ public class TokenController : ControllerBase
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error populating token for user {Email}", user.Email);
+            logger.LogError(ex, "Error populating token for user {Email}", user.Email);
             throw;
         }
     }

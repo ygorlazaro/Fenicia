@@ -1,15 +1,15 @@
-namespace Fenicia.Auth.Tests.Repositories;
-
 using Bogus;
 
-using Common.Database.Contexts;
+using Fenicia.Auth.Domains.Company;
+using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Domains.Company;
+
+namespace Fenicia.Auth.Tests.Repositories;
 
 public class CompanyRepositoryTests
 {
@@ -39,7 +39,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CheckCompanyExistsAsyncByIDReturnsTrueWhenExists()
+    public async Task CheckCompanyExistsAsyncByIdReturnsTrueWhenExists()
     {
         // Arrange
         var company = new CompanyModel
@@ -59,7 +59,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CheckCompanyExistsAsyncByIDReturnsFalseWhenNotExists()
+    public async Task CheckCompanyExistsAsyncByIdReturnsFalseWhenNotExists()
     {
         // Act
         var result = await this.sut.CheckCompanyExistsAsync(Guid.NewGuid(), this.cancellationToken);
@@ -139,7 +139,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task GetByUserIDAsyncReturnsCompaniesWithPagination()
+    public async Task GetByUserIdAsyncReturnsCompaniesWithPagination()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -182,7 +182,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task CountByUserIDAsyncReturnsCorrectCount()
+    public async Task CountByUserIdAsyncReturnsCorrectCount()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -247,7 +247,7 @@ public class CompanyRepositoryTests
     }
 
     [Test]
-    public async Task GetByUserIDAsyncReturnsEmptyListWhenUserHasNoCompanies()
+    public async Task GetByUserIdAsyncReturnsEmptyListWhenUserHasNoCompanies()
     {
         // Arrange
         var userId = Guid.NewGuid();

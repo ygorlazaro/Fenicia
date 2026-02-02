@@ -1,15 +1,15 @@
-namespace Fenicia.Auth.Tests.Repositories;
-
 using Bogus;
 
-using Common.Database.Contexts;
+using Fenicia.Auth.Domains.Order;
+using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
-using Domains.Order;
+
+namespace Fenicia.Auth.Tests.Repositories;
 
 public class OrderRepositoryTests
 {
@@ -79,8 +79,8 @@ public class OrderRepositoryTests
         await this.sut.SaveOrderAsync(order, this.cancellationToken);
 
         // Assert
-        await using var context = new AuthContext(this.options);
-        var savedOrder = await context.Orders.FindAsync([order.Id], this.cancellationToken);
+        await using var authContext = new AuthContext(this.options);
+        var savedOrder = await authContext.Orders.FindAsync([order.Id], this.cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

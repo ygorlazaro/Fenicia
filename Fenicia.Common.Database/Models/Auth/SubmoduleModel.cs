@@ -1,10 +1,8 @@
-namespace Fenicia.Common.Database.Models.Auth;
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Database;
+namespace Fenicia.Common.Database.Models.Auth;
 
 [Table("submodules")]
 public class SubmoduleModel : BaseModel
@@ -12,12 +10,12 @@ public class SubmoduleModel : BaseModel
     [Required]
     [MaxLength(50)]
     [Column("name")]
-    public string Name { get; set; } = default!;
+    public string Name { get; set; } = null!;
 
     [Required]
     [MaxLength(50)]
     [Column("route")]
-    public string Route { get; set; } = default!;
+    public string Route { get; set; } = null!;
 
     [Column("description")]
     [MaxLength(100)]
@@ -35,5 +33,5 @@ public class SubmoduleModel : BaseModel
 
     [ForeignKey(nameof(ModuleId))]
     [JsonIgnore]
-    public virtual ModuleModel Module { get; set; } = default!;
+    public virtual ModuleModel Module { get; set; } = null!;
 }

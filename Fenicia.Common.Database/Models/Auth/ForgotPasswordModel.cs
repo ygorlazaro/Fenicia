@@ -1,9 +1,7 @@
-namespace Fenicia.Common.Database.Models.Auth;
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using Database;
+namespace Fenicia.Common.Database.Models.Auth;
 
 [Table("forgotten_passwords")]
 public class ForgotPasswordModel : BaseModel

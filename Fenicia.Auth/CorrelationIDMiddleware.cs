@@ -1,17 +1,10 @@
-namespace Fenicia.Auth;
-
 using Serilog;
 using Serilog.Context;
 
-public sealed class CorrelationIdMiddleware
+namespace Fenicia.Auth;
+
+public sealed class CorrelationIdMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate next;
-
-    public CorrelationIdMiddleware(RequestDelegate next)
-    {
-        this.next = next;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         const string correlationIdHeader = "X-Correlation-ID";
@@ -26,9 +19,10 @@ public sealed class CorrelationIdMiddleware
             }
 
             context.Response.Headers[correlationIdHeader] = correlationId;
+
             using (LogContext.PushProperty("CorrelationId", correlationId))
             {
-                await this.next(context).ConfigureAwait(continueOnCapturedContext: false);
+                await next(context).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
         catch (Exception ex)

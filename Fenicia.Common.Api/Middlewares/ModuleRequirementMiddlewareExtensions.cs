@@ -1,6 +1,6 @@
-namespace Fenicia.Common.API.Middlewares;
-
 using Microsoft.AspNetCore.Builder;
+
+namespace Fenicia.Common.API.Middlewares;
 
 public static class ModuleRequirementMiddlewareExtensions
 {

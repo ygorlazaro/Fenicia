@@ -1,19 +1,14 @@
-namespace Fenicia.Integration.RunCommandTool.Providers;
-
 using Bogus;
 using Bogus.Extensions.Brazil;
 
-using Common.Database.Requests;
-using Common.Database.Responses;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
-public class UserProvider : BaseProvider
+namespace Fenicia.Integration.RunCommandTool.Providers;
+
+public class UserProvider(string uri) : BaseProvider(uri)
 {
     private readonly Faker faker = new();
-
-    public UserProvider(string uri)
-        : base(uri)
-    {
-    }
 
     public UserRequest CreateUserMock()
     {

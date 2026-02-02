@@ -1,38 +1,31 @@
-namespace Fenicia.Auth.Domains.Role;
-
-using Common.Database.Contexts;
-using Common.Database.Models.Auth;
+using Fenicia.Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
-public class RoleRepository : IRoleRepository
+namespace Fenicia.Auth.Domains.Role;
+
+public class RoleRepository(AuthContext context, ILogger<RoleRepository> logger) : IRoleRepository
 {
-    private readonly AuthContext authContext;
-    private readonly ILogger<RoleRepository> logger;
-
-    public RoleRepository(AuthContext authContext, ILogger<RoleRepository> logger)
-    {
-        this.authContext = authContext;
-        this.logger = logger;
-    }
-
     public async Task<RoleModel?> GetAdminRoleAsync(CancellationToken cancellationToken)
     {
         try
         {
-            this.logger.LogInformation("Attempting to retrieve Admin role");
-            var adminRole = await this.authContext.Roles.Where(role => role.Name == "Admin").FirstOrDefaultAsync(cancellationToken);
+            logger.LogInformation("Attempting to retrieve Admin role");
+
+            var adminRole = await context.Roles.Where(role => role.Name == "Admin").FirstOrDefaultAsync(cancellationToken);
 
             if (adminRole == null)
             {
-                this.logger.LogWarning("Admin role not found in the database");
+                logger.LogWarning("Admin role not found in the database");
             }
 
             return adminRole;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error occurred while retrieving Admin role");
+            logger.LogError(ex, "Error occurred while retrieving Admin role");
+
             throw;
         }
     }

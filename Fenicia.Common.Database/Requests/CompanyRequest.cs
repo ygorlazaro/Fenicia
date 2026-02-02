@@ -1,6 +1,6 @@
-namespace Fenicia.Common.Database.Requests;
-
 using System.ComponentModel.DataAnnotations;
+
+namespace Fenicia.Common.Database.Requests;
 
 public class CompanyRequest
 {

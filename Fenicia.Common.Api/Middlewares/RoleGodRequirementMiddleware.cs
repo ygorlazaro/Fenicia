@@ -1,18 +1,11 @@
-namespace Fenicia.Common.API.Middlewares;
-
 using System.Text.Json;
 
 using Microsoft.AspNetCore.Http;
 
-public class RoleGodRequirementMiddleware
+namespace Fenicia.Common.API.Middlewares;
+
+public class RoleGodRequirementMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate next;
-
-    public RoleGodRequirementMiddleware(RequestDelegate next)
-    {
-        this.next = next;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         var roleClaim = context.User.FindFirst("role");
@@ -21,6 +14,7 @@ public class RoleGodRequirementMiddleware
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             await context.Response.WriteAsync("Missing 'role' claim.");
+
             return;
         }
 
@@ -33,6 +27,7 @@ public class RoleGodRequirementMiddleware
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsync($"Access to role'{requiredRole}' is forbidden.");
+
                 return;
             }
         }
@@ -40,9 +35,10 @@ public class RoleGodRequirementMiddleware
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             await context.Response.WriteAsync("Invalid 'role' claim format.");
+
             return;
         }
 
-        await this.next(context);
+        await next(context);
     }
 }

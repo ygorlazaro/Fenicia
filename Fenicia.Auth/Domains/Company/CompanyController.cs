@@ -1,31 +1,25 @@
-namespace Fenicia.Auth.Domains.Company;
-
 using System.Net.Mime;
 
-using Common;
-using Common.API;
+using Fenicia.Common;
+using Fenicia.Common.API;
 
-using Common.Database.Requests;
-using Common.Database.Responses;
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Fenicia.Auth.Domains.Company;
 
 [Authorize]
 [ApiController]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CompanyController : ControllerBase
+public class CompanyController(ILogger<CompanyController> logger, ICompanyService companyService) : ControllerBase
 {
-    private readonly ICompanyService companyService;
-    private readonly ILogger<CompanyController> logger;
-
-    public CompanyController(ILogger<CompanyController> logger, ICompanyService companyService)
-    {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.companyService = companyService ?? throw new ArgumentNullException(nameof(companyService));
-    }
+    private readonly ICompanyService companyService = companyService ?? throw new ArgumentNullException(nameof(companyService));
+    private readonly ILogger<CompanyController> logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     [HttpGet]
     [ProducesResponseType(typeof(Pagination<IEnumerable<CompanyResponse>>), StatusCodes.Status200OK)]
@@ -38,6 +32,7 @@ public class CompanyController : ControllerBase
             this.logger.LogInformation("Starting to retrieve companies for logged user");
 
             var userId = ClaimReader.UserId(this.User);
+
             this.logger.LogDebug("Retrieved user ID: {userID}", userId);
 
             var companies = await this.companyService.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage);
@@ -46,17 +41,20 @@ public class CompanyController : ControllerBase
             if (companies.Data is null)
             {
                 this.logger.LogWarning("No companies found for user {UserID}", userId);
+
                 return this.StatusCode((int)companies.Status, companies.Message);
             }
 
             var response = new Pagination<IEnumerable<CompanyResponse>>(companies.Data, total.Data, query.Page, query.PerPage);
 
             this.logger.LogInformation("Successfully retrieved {Count} companies for user {UserID}", companies.Data.Count, userId);
+
             return this.Ok(response);
         }
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error retrieving companies for logged user");
+
             throw;
         }
     }
@@ -79,15 +77,18 @@ public class CompanyController : ControllerBase
             if (response.Data is null)
             {
                 this.logger.LogWarning("Failed to update company {CompanyID}. Status: {Status}, Message: {Message}", id, response.Status, response.Message);
+
                 return this.StatusCode((int)response.Status, response.Message);
             }
 
             this.logger.LogInformation("Successfully updated company with ID: {CompanyID}", id);
+
             return this.Ok(response.Data);
         }
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error updating company with ID: {CompanyID}", id);
+
             throw;
         }
     }

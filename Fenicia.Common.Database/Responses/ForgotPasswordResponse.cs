@@ -1,6 +1,6 @@
-namespace Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Models.Auth;
 
-using Models.Auth;
+namespace Fenicia.Common.Database.Responses;
 
 [Serializable]
 public class ForgotPasswordResponse

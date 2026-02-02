@@ -1,6 +1,6 @@
-namespace Fenicia.Common.API;
-
 using System.Security.Claims;
+
+namespace Fenicia.Common.API;
 
 public static class ClaimReader
 {

@@ -1,14 +1,6 @@
-namespace Fenicia.Common;
-
 using System.Net;
 
-public class ErrorResponse
-{
-    public string? Message
-    {
-        get; set;
-    }
-}
+namespace Fenicia.Common;
 
 public class ApiResponse<T>
 {

@@ -1,17 +1,17 @@
-namespace Fenicia.Module.SocialNetwork;
-
 using System.Text;
 
-using Common;
-using Common.API.Middlewares;
-using Common.API.Providers;
-using Common.Database.Contexts;
+using Fenicia.Common;
+using Fenicia.Common.API.Middlewares;
+using Fenicia.Common.API.Providers;
+using Fenicia.Common.Database.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 using Scalar.AspNetCore;
+
+namespace Fenicia.Module.SocialNetwork;
 
 public class Program
 {

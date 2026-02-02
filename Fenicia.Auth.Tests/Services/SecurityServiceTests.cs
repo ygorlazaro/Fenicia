@@ -1,14 +1,14 @@
-namespace Fenicia.Auth.Tests.Services;
-
 using System.Net;
 
 using Bogus;
 
-using Domains.Security;
+using Fenicia.Auth.Domains.Security;
 
 using Microsoft.Extensions.Logging;
 
 using Moq;
+
+namespace Fenicia.Auth.Tests.Services;
 
 public class SecurityServiceTests
 {

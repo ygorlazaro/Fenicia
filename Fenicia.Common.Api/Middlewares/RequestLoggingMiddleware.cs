@@ -1,18 +1,11 @@
-namespace Fenicia.Common.API.Middlewares;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-public class RequestLoggingMiddleware
-{
-    private readonly ILogger logger;
-    private readonly RequestDelegate next;
+namespace Fenicia.Common.API.Middlewares;
 
-    public RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
-    {
-        this.next = next;
-        this.logger = loggerFactory.CreateLogger<RequestLoggingMiddleware>();
-    }
+public class RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
+{
+    private readonly ILogger logger = loggerFactory.CreateLogger<RequestLoggingMiddleware>();
 
     public async Task Invoke(HttpContext context)
     {
@@ -20,7 +13,7 @@ public class RequestLoggingMiddleware
 
         try
         {
-            await this.next(context).ConfigureAwait(continueOnCapturedContext: false);
+            await next(context).ConfigureAwait(continueOnCapturedContext: false);
         }
         finally
         {

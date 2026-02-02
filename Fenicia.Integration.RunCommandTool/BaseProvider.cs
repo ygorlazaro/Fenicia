@@ -1,21 +1,16 @@
-namespace Fenicia.Integration.RunCommandTool;
-
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
-public abstract class BaseProvider
-{
-    private readonly HttpClient client;
+namespace Fenicia.Integration.RunCommandTool;
 
-    protected BaseProvider(string uri)
+public abstract class BaseProvider(string uri)
+{
+    private readonly HttpClient client = new()
     {
-        this.client = new HttpClient
-        {
-            BaseAddress = new Uri(uri)
-        };
-    }
+        BaseAddress = new Uri(uri)
+    };
 
     protected BaseProvider(string uri, string accessToken)
         : this(uri)
@@ -30,11 +25,9 @@ public abstract class BaseProvider
 
     protected async Task<TResponse> PostAsync<TResponse, TRequest>(string route, TRequest request)
     {
-        using StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8,
-                                      "application/json");
+        using StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
         var response = await this.client.PostAsync(route, content);
-
         var deserialized = await response.Content.ReadFromJsonAsync<TResponse>();
 
         ArgumentNullException.ThrowIfNull(deserialized);
@@ -45,7 +38,6 @@ public abstract class BaseProvider
     protected async Task<T> GetAsync<T>(string route)
     {
         var response = await this.client.GetAsync(route);
-
         var data = await response.Content.ReadFromJsonAsync<T>();
 
         ArgumentNullException.ThrowIfNull(data);

@@ -1,8 +1,8 @@
-namespace Fenicia.Auth.Domains.UserRole;
-
-using Common;
+using Fenicia.Common;
 
 using Fenicia.Common.Database.Responses;
+
+namespace Fenicia.Auth.Domains.UserRole;
 
 public interface IUserRoleService
 {

@@ -1,18 +1,11 @@
-namespace Fenicia.Common.Database.Contexts;
-
-using Database;
-
-using Models.Auth;
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
-public class AuthContext : DbContext
-{
-    public AuthContext(DbContextOptions<AuthContext> options)
-        : base(options)
-    {
-    }
+namespace Fenicia.Common.Database.Contexts;
 
+public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(options)
+{
     public DbSet<RoleModel> Roles { get; set; } = null!;
 
     public DbSet<UserModel> Users { get; set; } = null!;

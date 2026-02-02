@@ -1,6 +1,6 @@
-namespace Fenicia.Auth.Domains.UserRole;
-
 using Fenicia.Common.Database.Models.Auth;
+
+namespace Fenicia.Auth.Domains.UserRole;
 
 public interface IUserRoleRepository
 {

@@ -1,10 +1,10 @@
-namespace Fenicia.Common.Migrations.Services;
-
-using Database.Contexts;
-using Enums;
+using Fenicia.Common.Database.Contexts;
+using Fenicia.Common.Enums;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+
+namespace Fenicia.Common.Migrations.Services;
 
 public class MigrationService : IMigrationService
 {

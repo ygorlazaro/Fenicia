@@ -1,14 +1,13 @@
-namespace Fenicia.Auth.Tests.Repositories;
-
-using Common.Database.Contexts;
-using Common.Database.Models.Auth;
-
-using Domains.Role;
+using Fenicia.Auth.Domains.Role;
+using Fenicia.Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
+
+namespace Fenicia.Auth.Tests.Repositories;
 
 public class RoleRepositoryTests
 {

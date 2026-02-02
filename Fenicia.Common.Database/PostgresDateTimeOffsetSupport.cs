@@ -1,7 +1,7 @@
-namespace Fenicia.Common.Database;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+namespace Fenicia.Common.Database;
 
 public static class PostgresDateTimeOffsetSupport
 {
@@ -9,12 +9,11 @@ public static class PostgresDateTimeOffsetSupport
     {
         var dateTimeConverter = new ValueConverter<DateTime, DateTime>(v => v.ToUniversalTime(), v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
 
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        foreach (var property in from entityType in modelBuilder.Model.GetEntityTypes()
+                                 from property in entityType.GetProperties().Where(p => p.ClrType == typeof(DateTime))
+                                 select property)
         {
-            foreach (var property in entityType.GetProperties().Where(p => p.ClrType == typeof(DateTime)))
-            {
-                property.SetValueConverter(dateTimeConverter);
-            }
+            property.SetValueConverter(dateTimeConverter);
         }
     }
 }

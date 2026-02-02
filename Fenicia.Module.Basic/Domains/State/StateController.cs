@@ -1,24 +1,17 @@
-namespace Fenicia.Module.Basic.Domains.State;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Fenicia.Module.Basic.Domains.State;
 
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class StateController : ControllerBase
+public class StateController(IStateService stateProvider) : ControllerBase
 {
-    private readonly IStateService stateProvider;
-
-    public StateController(IStateService stateProvider)
-    {
-        this.stateProvider = stateProvider;
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetAllAsync()
     {
-        var states = await this.stateProvider.GetAllAsync();
+        var states = await stateProvider.GetAllAsync();
 
         return this.Ok(states);
     }

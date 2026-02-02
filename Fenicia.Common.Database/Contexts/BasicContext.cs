@@ -1,18 +1,11 @@
-namespace Fenicia.Common.Database.Contexts;
-
-using Database;
-
-using Models.Basic;
+using Fenicia.Common.Database.Models.Basic;
 
 using Microsoft.EntityFrameworkCore;
 
-public class BasicContext : DbContext
-{
-    public BasicContext(DbContextOptions<BasicContext> options)
-        : base(options)
-    {
-    }
+namespace Fenicia.Common.Database.Contexts;
 
+public class BasicContext(DbContextOptions<BasicContext> options) : DbContext(options)
+{
     public DbSet<StateModel> States { get; set; } = null!;
 
     public DbSet<AddressModel> Addresses { get; set; } = null!;
