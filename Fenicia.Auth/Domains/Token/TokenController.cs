@@ -39,7 +39,6 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
             logger.LogWarning("User not found or invalid credentials for {Email}", request.Email);
 
             return this.StatusCode((int)userResponse.Status, userResponse.Message);
-
         }
         catch (Exception ex)
         {
@@ -80,7 +79,6 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
             logger.LogWarning("User not found for refresh token {UserID}", request.UserId);
 
             return this.BadRequest(TextConstants.PermissionDeniedMessage);
-
         }
         catch (Exception ex)
         {
@@ -119,7 +117,7 @@ public class TokenController(ILogger<TokenController> logger, ITokenService toke
                 AccessToken = token.Data,
                 RefreshToken = refreshToken.Data,
                 User = new UserResponse
-                       {
+                {
                     Id = user.Id,
                     Email = user.Email,
                     Name = user.Name

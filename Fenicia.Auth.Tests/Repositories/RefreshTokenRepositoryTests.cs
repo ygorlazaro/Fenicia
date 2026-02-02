@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.RefreshToken;
+
 using Moq;
 
 using StackExchange.Redis;

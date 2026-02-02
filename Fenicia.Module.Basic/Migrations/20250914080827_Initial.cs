@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Fenicia.Module.Basic.Migrations;
+
 /// <inheritdoc />
 public partial class Initial : Migration
 {
