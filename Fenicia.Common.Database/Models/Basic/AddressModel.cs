@@ -26,6 +26,7 @@ public class AddressModel : BaseModel
     {
         get; set;
     }
+
     [Required]
     [MaxLength(length: 30)]
     public string City { get; set; } = null!;

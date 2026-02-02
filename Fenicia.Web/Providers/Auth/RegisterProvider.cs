@@ -1,8 +1,8 @@
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
-
 using System.Net.Http.Headers;
 using System.Text.Json;
+
+using Fenicia.Common.Database.Requests;
+using Fenicia.Common.Database.Responses;
 
 namespace Fenicia.Web.Providers.Auth;
 

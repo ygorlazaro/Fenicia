@@ -27,7 +27,10 @@ public class CompanyModel : BaseModel
 
     [MaxLength(32)]
     [Column("logo")]
-    public string? Logo { get; set; }
+    public string? Logo
+    {
+        get; set;
+    }
 
     [Required]
     [MaxLength(256)]

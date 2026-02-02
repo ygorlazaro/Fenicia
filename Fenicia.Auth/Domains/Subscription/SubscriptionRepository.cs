@@ -1,8 +1,9 @@
 namespace Fenicia.Auth.Domains.Subscription;
 
 using Common.Database.Contexts;
-using Fenicia.Common.Database.Models.Auth;
 using Common.Enums;
+
+using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
