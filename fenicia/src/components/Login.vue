@@ -1,16 +1,36 @@
 <script setup lang="ts">
-import type { LoginRequest } from '@/types/LoginRequest';
+import api from '@/api/client';
+import { useAuthStore } from '@/stores/auth';
+import type { LoginRequest } from '@/types/Requests';
+import type { TokenResponse } from '@/types/Responses';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const emit = defineEmits(['onLogin', 'onNavigate']);
+const router = useRouter();
 
 const request = ref<LoginRequest>({
   email: '',
   password: ''
 });
+const isLoading = ref(false);
 
-const handleOnLogin = () => {
-  emit('onLogin', request);
+const authStore = useAuthStore();
+
+const handleOnLogin = async () => {
+  try {
+    isLoading.value = true;
+    const { data } = await api.post<TokenResponse>('/token', request.value);
+
+    authStore.setAuth(data.accessToken, data.user);
+
+    router.push('/dashboard');
+
+  } catch (error) {
+    console.error("Erro ao cadastrar", error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 </script>
