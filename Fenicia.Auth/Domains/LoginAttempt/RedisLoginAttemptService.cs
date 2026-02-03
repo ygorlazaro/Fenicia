@@ -12,26 +12,26 @@ public class RedisLoginAttemptService(IConnectionMultiplexer redis) : ILoginAtte
 
     public async Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        var key = RedisLoginAttemptService.GetKey(email);
-        var attempts = await this.db.StringGetAsync(key);
+        var key = GetKey(email);
+        var attempts = await db.StringGetAsync(key);
 
         return attempts.HasValue ? (int)attempts : 0;
     }
 
     public async Task IncrementAttemptsAsync(string email)
     {
-        var key = RedisLoginAttemptService.GetKey(email);
-        var current = await this.db.StringIncrementAsync(key);
+        var key = GetKey(email);
+        var current = await db.StringIncrementAsync(key);
 
         if (current == 1)
         {
-            await this.db.KeyExpireAsync(key, this.expiration);
+            await db.KeyExpireAsync(key, expiration);
         }
     }
 
     public async Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        await this.db.KeyDeleteAsync(RedisLoginAttemptService.GetKey(email));
+        await db.KeyDeleteAsync(GetKey(email));
     }
 
     private static string GetKey(string email)

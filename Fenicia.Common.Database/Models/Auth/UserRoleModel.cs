@@ -28,15 +28,15 @@ public class UserRoleModel : BaseModel
         get; set;
     }
 
-    [ForeignKey(nameof(UserRoleModel.RoleId))]
+    [ForeignKey(nameof(RoleId))]
     [JsonIgnore]
     public virtual RoleModel Role { get; set; } = null!;
 
-    [ForeignKey(nameof(UserRoleModel.UserId))]
+    [ForeignKey(nameof(UserId))]
     [JsonIgnore]
     public virtual UserModel User { get; set; } = null!;
 
-    [ForeignKey(nameof(UserRoleModel.CompanyId))]
+    [ForeignKey(nameof(CompanyId))]
     [JsonIgnore]
     public virtual CompanyModel Company { get; set; } = null!;
 }

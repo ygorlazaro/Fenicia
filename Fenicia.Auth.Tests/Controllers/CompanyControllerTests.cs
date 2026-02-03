@@ -2,11 +2,11 @@ using System.Security.Claims;
 
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Common;
+using Fenicia.Common.Api;
 using Fenicia.Common.Database.Responses;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 using Moq;
 
@@ -16,7 +16,6 @@ namespace Fenicia.Auth.Tests.Controllers;
 public class CompanyControllerTests
 {
     private Mock<ICompanyService> companyServiceMock;
-    private Mock<ILogger<CompanyController>> loggerMock;
     private CompanyController controller;
     private PaginationQuery query;
     private CancellationToken cancellationToken;
@@ -25,8 +24,7 @@ public class CompanyControllerTests
     public void Setup()
     {
         companyServiceMock = new Mock<ICompanyService>();
-        loggerMock = new Mock<ILogger<CompanyController>>();
-        controller = new CompanyController(loggerMock.Object, companyServiceMock.Object);
+        controller = new CompanyController(companyServiceMock.Object);
         query = new PaginationQuery { Page = 1, PerPage = 10 };
         cancellationToken = CancellationToken.None;
     }
@@ -48,9 +46,10 @@ public class CompanyControllerTests
         var identity = new ClaimsIdentity(claims, "TestAuthType");
 
         controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+        var wide = new WideEventContext { UserId = userId.ToString(), Operation = "GetCompanies" };
 
         // Act
-        var result = await controller.GetByLoggedUser(query, cancellationToken);
+        var result = await controller.GetByLoggedUser(query, wide, cancellationToken);
 
         // Assert
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
@@ -73,8 +72,10 @@ public class CompanyControllerTests
         var identity = new ClaimsIdentity(claims, "TestAuthType");
         controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
+        var wide = new WideEventContext { UserId = userId.ToString(), Operation = "GetCompanies" };
+
         // Act
-        var result = await controller.GetByLoggedUser(query, cancellationToken);
+        var result = await controller.GetByLoggedUser(query, wide, cancellationToken);
 
         // Assert
         Assert.That(result.Result, Is.TypeOf<ObjectResult>());
@@ -94,7 +95,9 @@ public class CompanyControllerTests
         var identity = new ClaimsIdentity(claims, "TestAuthType");
         controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
+        var wide = new WideEventContext { UserId = userId.ToString(), Operation = "GetCompanies" };
+
         // Act & Assert
-        Assert.ThrowsAsync<Exception>(async () => await controller.GetByLoggedUser(query, cancellationToken));
+        Assert.ThrowsAsync<Exception>(async () => await controller.GetByLoggedUser(query, wide, cancellationToken));
     }
 }

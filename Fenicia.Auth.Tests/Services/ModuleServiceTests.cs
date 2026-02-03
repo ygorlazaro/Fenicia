@@ -7,8 +7,6 @@ using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Database.Responses;
 using Fenicia.Common.Enums;
 
-using Microsoft.Extensions.Logging;
-
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -17,17 +15,15 @@ public class ModuleServiceTests
 {
     private readonly CancellationToken cancellationToken = CancellationToken.None;
     private Faker faker;
-    private Mock<ILogger<ModuleService>> loggerMock;
     private Mock<IModuleRepository> moduleRepositoryMock;
     private ModuleService sut;
 
     [SetUp]
     public void Setup()
     {
-        this.loggerMock = new Mock<ILogger<ModuleService>>();
-        this.moduleRepositoryMock = new Mock<IModuleRepository>();
-        this.sut = new ModuleService(this.loggerMock.Object, this.moduleRepositoryMock.Object);
-        this.faker = new Faker();
+        moduleRepositoryMock = new Mock<IModuleRepository>();
+        sut = new ModuleService(moduleRepositoryMock.Object);
+        faker = new Faker();
     }
 
     [Test]
@@ -36,15 +32,15 @@ public class ModuleServiceTests
         // Arrange
         var modules = new List<ModuleModel>
                       {
-                          new () { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName() },
-                          new () { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName() }
+                          new () { Id = Guid.NewGuid(), Name = faker.Commerce.ProductName() },
+                          new () { Id = Guid.NewGuid(), Name = faker.Commerce.ProductName() }
                       };
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
-        this.moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(this.cancellationToken, 1, 10)).ReturnsAsync(modules);
+        moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(cancellationToken, 1, 10)).ReturnsAsync(modules);
 
         // Act
-        var result = await this.sut.GetAllOrderedAsync(this.cancellationToken);
+        var result = await sut.GetAllOrderedAsync(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -59,13 +55,13 @@ public class ModuleServiceTests
     {
         // Arrange
         var moduleIDs = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-        var modules = moduleIDs.Select(id => new ModuleModel { Id = id, Name = this.faker.Commerce.ProductName() }).ToList();
+        var modules = moduleIDs.Select(id => new ModuleModel { Id = id, Name = faker.Commerce.ProductName() }).ToList();
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
-        this.moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIDs, this.cancellationToken)).ReturnsAsync(modules);
+        moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIDs, cancellationToken)).ReturnsAsync(modules);
 
         // Act
-        var result = await this.sut.GetModulesToOrderAsync(moduleIDs, this.cancellationToken);
+        var result = await sut.GetModulesToOrderAsync(moduleIDs, cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -83,7 +79,7 @@ public class ModuleServiceTests
         var module = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             Type = moduleType
         };
         var expectedResponse = new ModuleResponse
@@ -93,10 +89,10 @@ public class ModuleServiceTests
             Type = moduleType
         };
 
-        this.moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, this.cancellationToken)).ReturnsAsync(module);
+        moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, cancellationToken)).ReturnsAsync(module);
 
         // Act
-        var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
+        var result = await sut.GetModuleByTypeAsync(moduleType, cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -112,10 +108,10 @@ public class ModuleServiceTests
         // Arrange
         const ModuleType moduleType = ModuleType.Ecommerce;
 
-        this.moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, this.cancellationToken)).ReturnsAsync((ModuleModel)null!);
+        moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, cancellationToken)).ReturnsAsync((ModuleModel)null!);
 
         // Act
-        var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
+        var result = await sut.GetModuleByTypeAsync(moduleType, cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -128,12 +124,12 @@ public class ModuleServiceTests
     public async Task CountAsyncReturnsCount()
     {
         // Arrange
-        var expectedCount = this.faker.Random.Int(min: 1, max: 100);
+        var expectedCount = faker.Random.Int(min: 1, max: 100);
 
-        this.moduleRepositoryMock.Setup(x => x.CountAsync(this.cancellationToken)).ReturnsAsync(expectedCount);
+        moduleRepositoryMock.Setup(x => x.CountAsync(cancellationToken)).ReturnsAsync(expectedCount);
 
         // Act
-        var result = await this.sut.CountAsync(this.cancellationToken);
+        var result = await sut.CountAsync(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {

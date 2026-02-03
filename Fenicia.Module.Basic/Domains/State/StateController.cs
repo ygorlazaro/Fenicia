@@ -13,6 +13,6 @@ public class StateController(IStateService stateProvider) : ControllerBase
     {
         var states = await stateProvider.GetAllAsync();
 
-        return this.Ok(states);
+        return Ok(states);
     }
 }

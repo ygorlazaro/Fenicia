@@ -20,6 +20,6 @@ public class MigrationController(IMigrationService migrationService, ISubscripti
 
         await migrationService.RunMigrationsAsync(company.Data.Id, credits.Data!, cancellationToken);
 
-        return this.Ok();
+        return Ok();
     }
 }

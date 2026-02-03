@@ -28,6 +28,6 @@ public class ForgotPasswordModel : BaseModel
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
 
-    [ForeignKey(nameof(ForgotPasswordModel.UserId))]
+    [ForeignKey(nameof(UserId))]
     public virtual UserModel User { get; set; } = null!;
 }

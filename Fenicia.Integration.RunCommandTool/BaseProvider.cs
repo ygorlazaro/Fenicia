@@ -15,19 +15,19 @@ public abstract class BaseProvider(string uri)
     protected BaseProvider(string uri, string accessToken)
         : this(uri)
     {
-        this.SetToken(accessToken);
+        SetToken(accessToken);
     }
 
     public void SetToken(string accessToken)
     {
-        this.client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
     }
 
     protected async Task<TResponse> PostAsync<TResponse, TRequest>(string route, TRequest request)
     {
         using StringContent content = new(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
-        var response = await this.client.PostAsync(route, content);
+        var response = await client.PostAsync(route, content);
         var deserialized = await response.Content.ReadFromJsonAsync<TResponse>();
 
         ArgumentNullException.ThrowIfNull(deserialized);
@@ -37,7 +37,7 @@ public abstract class BaseProvider(string uri)
 
     protected async Task<T> GetAsync<T>(string route)
     {
-        var response = await this.client.GetAsync(route);
+        var response = await client.GetAsync(route);
         var data = await response.Content.ReadFromJsonAsync<T>();
 
         ArgumentNullException.ThrowIfNull(data);

@@ -12,7 +12,7 @@ public class MigrationService : IMigrationService
     {
         foreach (var module in moduleTypes.Where(module => module == ModuleType.Basic))
         {
-            var (dbContextType, migrationsAssembly, connectionStringName) = MigrationService.GetModuleDbInfo(module);
+            var (dbContextType, migrationsAssembly, connectionStringName) = GetModuleDbInfo(module);
 
             var rawConnectionString = API.AppSettingsReader.GetConnectionString(connectionStringName);
             if (string.IsNullOrWhiteSpace(rawConnectionString))
