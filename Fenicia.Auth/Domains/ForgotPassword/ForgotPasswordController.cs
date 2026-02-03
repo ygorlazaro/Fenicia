@@ -20,12 +20,11 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.Operation = "Forgot Password Request";
         wide.UserId = request.Email;
 
         var response = await forgotPasswordService.SaveForgotPasswordAsync(request, cancellationToken);
 
-        return response.Data is null ? StatusCode((int)response.Status, response.Message) : Ok(response);
+        return Ok(response);
     }
 
     [HttpPost("reset")]
@@ -33,15 +32,10 @@ public class ForgotPasswordController(IForgotPasswordService forgotPasswordServi
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ResetPassword([FromBody] ForgotPasswordRequestReset request, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.Operation = "Reset Password Request";
         wide.UserId = request.Email;
 
         var response = await forgotPasswordService.ResetPasswordAsync(request, cancellationToken);
 
-        return response.Data switch
-        {
-            null => StatusCode((int)response.Status, response.Message),
-            _ => Ok(response)
-        };
+        return Ok(response);
     }
 }

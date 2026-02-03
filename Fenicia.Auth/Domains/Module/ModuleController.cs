@@ -22,17 +22,11 @@ public class ModuleController(IModuleService moduleService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<ModuleResponse>>>> GetAllModulesAsync([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.Operation = "GetAllModules";
+        wide.UserId = "Guest";
 
         var modules = await moduleService.GetAllOrderedAsync(cancellationToken, query.Page, query.PerPage);
         var total = await moduleService.CountAsync(cancellationToken);
-
-        if (modules.Data is null)
-        {
-            return StatusCode((int)modules.Status, modules.Message);
-        }
-
-        var pagination = new Pagination<List<ModuleResponse>>(modules.Data, total.Data, query.Page, query.PerPage);
+        var pagination = new Pagination<List<ModuleResponse>>(modules, total, query);
 
         return Ok(pagination);
     }

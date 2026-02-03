@@ -16,9 +16,9 @@ public class MigrationController(IMigrationService migrationService, ISubscripti
     public async Task<IActionResult> PostNewMigrationAsync([FromBody] string cnpj, CancellationToken cancellationToken)
     {
         var company = await companyService.GetByCnpjAsync(cnpj, cancellationToken);
-        var credits = await subscriptionCreditService.GetActiveModulesTypesAsync(company.Data!.Id, cancellationToken);
+        var credits = await subscriptionCreditService.GetActiveModulesTypesAsync(company.Id, cancellationToken);
 
-        await migrationService.RunMigrationsAsync(company.Data.Id, credits.Data!, cancellationToken);
+        await migrationService.RunMigrationsAsync(company.Id, credits, cancellationToken);
 
         return Ok();
     }
