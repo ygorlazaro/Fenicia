@@ -52,11 +52,11 @@ public class OrderModel : BaseModel
     [JsonIgnore]
     public virtual List<OrderDetailModel> Details { get; set; } = null!;
 
-    [ForeignKey(nameof(OrderModel.UserId))]
+    [ForeignKey(nameof(UserId))]
     [JsonIgnore]
     public virtual UserModel User { get; set; } = null!;
 
-    [ForeignKey(nameof(OrderModel.CompanyId))]
+    [ForeignKey(nameof(CompanyId))]
     [JsonIgnore]
     public virtual CompanyModel Company { get; set; } = null!;
 }

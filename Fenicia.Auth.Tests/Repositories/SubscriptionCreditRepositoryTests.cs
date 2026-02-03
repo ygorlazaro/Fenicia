@@ -21,19 +21,19 @@ public class SubscriptionCreditRepositoryTests
     [SetUp]
     public void Setup()
     {
-        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
-        this.context = new AuthContext(this.options);
-        this.sut = new SubscriptionCreditRepository(this.context);
+        context = new AuthContext(options);
+        sut = new SubscriptionCreditRepository(context);
 
-        this.SetupFakers();
+        SetupFakers();
     }
 
     [TearDown]
     public void TearDown()
     {
-        this.context.Database.EnsureDeleted();
-        this.context.Dispose();
+        context.Database.EnsureDeleted();
+        context.Dispose();
     }
 
     [Test]
@@ -43,15 +43,15 @@ public class SubscriptionCreditRepositoryTests
         var subscriptionIDs = new[] { Guid.NewGuid(), Guid.NewGuid() };
         var now = DateTime.UtcNow;
 
-        var modules = this.moduleGenerator.Generate(count: 3);
-        var credits = subscriptionIDs.Select(subscriptionId => this.creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscriptionId).RuleFor(c => c.ModuleId, f => f.PickRandom(modules).Id).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate()).ToList();
+        var modules = moduleGenerator.Generate(count: 3);
+        var credits = subscriptionIDs.Select(subscriptionId => creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscriptionId).RuleFor(c => c.ModuleId, f => f.PickRandom(modules).Id).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate()).ToList();
 
-        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
-        await this.context.SubscriptionCredits.AddRangeAsync(credits, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Modules.AddRangeAsync(modules, cancellationToken);
+        await context.SubscriptionCredits.AddRangeAsync(credits, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await this.sut.GetValidModulesTypesAsync([.. subscriptionIDs], this.cancellationToken);
+        var result = await sut.GetValidModulesTypesAsync([.. subscriptionIDs], cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Empty);
@@ -65,7 +65,7 @@ public class SubscriptionCreditRepositoryTests
         var nonExistentSubscriptions = new Faker().Make(count: 3, Guid.NewGuid);
 
         // Act
-        var result = await this.sut.GetValidModulesTypesAsync([.. nonExistentSubscriptions], this.cancellationToken);
+        var result = await sut.GetValidModulesTypesAsync([.. nonExistentSubscriptions], cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -78,15 +78,15 @@ public class SubscriptionCreditRepositoryTests
         var subscription = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
-        var module = this.moduleGenerator.Generate();
-        var credit = this.creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscription).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.IsActive, value: false).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate();
+        var module = moduleGenerator.Generate();
+        var credit = creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscription).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.IsActive, value: false).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate();
 
-        await this.context.Modules.AddAsync(module, this.cancellationToken);
-        await this.context.SubscriptionCredits.AddAsync(credit, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Modules.AddAsync(module, cancellationToken);
+        await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await this.sut.GetValidModulesTypesAsync([subscription], this.cancellationToken);
+        var result = await sut.GetValidModulesTypesAsync([subscription], cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -99,15 +99,15 @@ public class SubscriptionCreditRepositoryTests
         var subscription = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
-        var module = this.moduleGenerator.Generate();
-        var credit = this.creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscription).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.StartDate, now.AddDays(value: -20)).RuleFor(c => c.EndDate, now.AddDays(value: -10)).Generate();
+        var module = moduleGenerator.Generate();
+        var credit = creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscription).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.StartDate, now.AddDays(value: -20)).RuleFor(c => c.EndDate, now.AddDays(value: -10)).Generate();
 
-        await this.context.Modules.AddAsync(module, this.cancellationToken);
-        await this.context.SubscriptionCredits.AddAsync(credit, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Modules.AddAsync(module, cancellationToken);
+        await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await this.sut.GetValidModulesTypesAsync([subscription], this.cancellationToken);
+        var result = await sut.GetValidModulesTypesAsync([subscription], cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -120,15 +120,15 @@ public class SubscriptionCreditRepositoryTests
         var subscription = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
-        var module = this.moduleGenerator.Generate();
-        var credit = this.creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscription).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.StartDate, now.AddDays(value: 10)).RuleFor(c => c.EndDate, now.AddDays(value: 20)).Generate();
+        var module = moduleGenerator.Generate();
+        var credit = creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscription).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.StartDate, now.AddDays(value: 10)).RuleFor(c => c.EndDate, now.AddDays(value: 20)).Generate();
 
-        await this.context.Modules.AddAsync(module, this.cancellationToken);
-        await this.context.SubscriptionCredits.AddAsync(credit, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Modules.AddAsync(module, cancellationToken);
+        await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await this.sut.GetValidModulesTypesAsync([subscription], this.cancellationToken);
+        var result = await sut.GetValidModulesTypesAsync([subscription], cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -141,15 +141,15 @@ public class SubscriptionCreditRepositoryTests
         var subscriptions = new Faker().Make(count: 2, Guid.NewGuid);
         var now = DateTime.UtcNow;
 
-        var module = this.moduleGenerator.Generate();
-        var credits = subscriptions.Select(subscriptionId => this.creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscriptionId).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate()).ToList();
+        var module = moduleGenerator.Generate();
+        var credits = subscriptions.Select(subscriptionId => creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscriptionId).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate()).ToList();
 
-        await this.context.Modules.AddAsync(module, this.cancellationToken);
-        await this.context.SubscriptionCredits.AddRangeAsync(credits, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Modules.AddAsync(module, cancellationToken);
+        await context.SubscriptionCredits.AddRangeAsync(credits, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await this.sut.GetValidModulesTypesAsync([.. subscriptions], this.cancellationToken);
+        var result = await sut.GetValidModulesTypesAsync([.. subscriptions], cancellationToken);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(expected: 1));
@@ -164,16 +164,16 @@ public class SubscriptionCreditRepositoryTests
         var now = DateTime.UtcNow;
 
         var moduleTypes = new[] { ModuleType.Accounting, ModuleType.Hr, ModuleType.Ecommerce };
-        var modules = moduleTypes.Select(type => this.moduleGenerator.Clone().RuleFor(m => m.Type, type).Generate()).ToList();
+        var modules = moduleTypes.Select(type => moduleGenerator.Clone().RuleFor(m => m.Type, type).Generate()).ToList();
 
-        var credits = modules.Select(module => this.creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscription).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate()).ToList();
+        var credits = modules.Select(module => creditGenerator.Clone().RuleFor(c => c.SubscriptionId, subscription).RuleFor(c => c.ModuleId, module.Id).RuleFor(c => c.StartDate, now.AddDays(value: -10)).RuleFor(c => c.EndDate, now.AddDays(value: 10)).Generate()).ToList();
 
-        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
-        await this.context.SubscriptionCredits.AddRangeAsync(credits, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Modules.AddRangeAsync(modules, cancellationToken);
+        await context.SubscriptionCredits.AddRangeAsync(credits, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await this.sut.GetValidModulesTypesAsync([subscription], this.cancellationToken);
+        var result = await sut.GetValidModulesTypesAsync([subscription], cancellationToken);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(expected: 3));
@@ -183,8 +183,8 @@ public class SubscriptionCreditRepositoryTests
 
     private void SetupFakers()
     {
-        this.moduleGenerator = new Faker<ModuleModel>().RuleFor(m => m.Id, _ => Guid.NewGuid()).RuleFor(m => m.Type, f => f.PickRandom<ModuleType>()).RuleFor(m => m.Name, f => f.Commerce.ProductName());
+        moduleGenerator = new Faker<ModuleModel>().RuleFor(m => m.Id, _ => Guid.NewGuid()).RuleFor(m => m.Type, f => f.PickRandom<ModuleType>()).RuleFor(m => m.Name, f => f.Commerce.ProductName());
 
-        this.creditGenerator = new Faker<SubscriptionCreditModel>().RuleFor(c => c.Id, _ => Guid.NewGuid()).RuleFor(c => c.SubscriptionId, _ => Guid.NewGuid()).RuleFor(c => c.ModuleId, _ => Guid.NewGuid()).RuleFor(c => c.IsActive, _ => true).RuleFor(c => c.StartDate, f => f.Date.Past()).RuleFor(c => c.EndDate, f => f.Date.Future());
+        creditGenerator = new Faker<SubscriptionCreditModel>().RuleFor(c => c.Id, _ => Guid.NewGuid()).RuleFor(c => c.SubscriptionId, _ => Guid.NewGuid()).RuleFor(c => c.ModuleId, _ => Guid.NewGuid()).RuleFor(c => c.IsActive, _ => true).RuleFor(c => c.StartDate, f => f.Date.Past()).RuleFor(c => c.EndDate, f => f.Date.Future());
     }
 }

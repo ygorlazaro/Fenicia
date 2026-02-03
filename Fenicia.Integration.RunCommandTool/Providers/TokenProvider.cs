@@ -13,6 +13,6 @@ public class TokenProvider(string uri) : BaseProvider(uri)
             Password = password
         };
 
-        return await this.PostAsync<TokenResponse, TokenRequest>("token", tokenRequest);
+        return await PostAsync<TokenResponse, TokenRequest>("token", tokenRequest);
     }
 }

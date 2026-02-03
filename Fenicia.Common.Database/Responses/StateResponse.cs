@@ -30,6 +30,6 @@ public class StateResponse
 
     public static List<StateResponse> Convert(List<StateModel> state)
     {
-        return [.. state.Select(StateResponse.Convert)];
+        return [.. state.Select(Convert)];
     }
 }

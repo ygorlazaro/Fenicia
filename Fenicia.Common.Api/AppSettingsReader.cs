@@ -6,7 +6,7 @@ public static class AppSettingsReader
 {
     public static string GetConnectionString(string connectionStringName)
     {
-        var configuration = AppSettingsReader.GetConfiguration();
+        var configuration = GetConfiguration();
         var value = configuration.GetConnectionString(connectionStringName);
 
         if (!string.IsNullOrWhiteSpace(value))
@@ -23,7 +23,7 @@ public static class AppSettingsReader
     public static ConfigurationManager GetConfiguration()
     {
         var config = new ConfigurationManager();
-        var solutionDir = AppSettingsReader.GetSolutionDirectory();
+        var solutionDir = GetSolutionDirectory();
 
         ArgumentNullException.ThrowIfNull(solutionDir);
 

@@ -1,6 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Common;
+using Fenicia.Common.Api;
 using Fenicia.Common.API;
 
 using Fenicia.Common.Database.Requests;
@@ -16,47 +17,30 @@ namespace Fenicia.Auth.Domains.Company;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CompanyController(ILogger<CompanyController> logger, ICompanyService companyService) : ControllerBase
+public class CompanyController(ICompanyService companyService) : ControllerBase
 {
-    private readonly ICompanyService companyService = companyService ?? throw new ArgumentNullException(nameof(companyService));
-    private readonly ILogger<CompanyController> logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
     [HttpGet]
     [ProducesResponseType(typeof(Pagination<IEnumerable<CompanyResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, CancellationToken cancellationToken)
+    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken)
     {
-        try
+        wide.Operation = "Get Companies for Logged User";
+        wide.UserId = ClaimReader.UserId(User).ToString();
+
+        var userId = ClaimReader.UserId(User);
+
+        var companies = await companyService.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage);
+        var total = await companyService.CountByUserIdAsync(userId, cancellationToken);
+
+        if (companies.Data is null)
         {
-            this.logger.LogInformation("Starting to retrieve companies for logged user");
-
-            var userId = ClaimReader.UserId(this.User);
-
-            this.logger.LogDebug("Retrieved user ID: {userID}", userId);
-
-            var companies = await this.companyService.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage);
-            var total = await this.companyService.CountByUserIdAsync(userId, cancellationToken);
-
-            if (companies.Data is null)
-            {
-                this.logger.LogWarning("No companies found for user {UserID}", userId);
-
-                return this.StatusCode((int)companies.Status, companies.Message);
-            }
-
-            var response = new Pagination<IEnumerable<CompanyResponse>>(companies.Data, total.Data, query.Page, query.PerPage);
-
-            this.logger.LogInformation("Successfully retrieved {Count} companies for user {UserID}", companies.Data.Count, userId);
-
-            return this.Ok(response);
+            return StatusCode((int)companies.Status, companies.Message);
         }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error retrieving companies for logged user");
 
-            throw;
-        }
+        var response = new Pagination<IEnumerable<CompanyResponse>>(companies.Data, total.Data, query.Page, query.PerPage);
+
+        return Ok(response);
     }
 
     [HttpPatch("{id:guid}")]
@@ -65,31 +49,19 @@ public class CompanyController(ILogger<CompanyController> logger, ICompanyServic
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<CompanyResponse>> PatchAsync([FromBody] CompanyUpdateRequest request, [FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<CompanyResponse>> PatchAsync([FromBody] CompanyUpdateRequest request, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken)
     {
-        try
+        wide.Operation = "Update Company";
+        wide.UserId = ClaimReader.UserId(User).ToString();
+
+        var userId = ClaimReader.UserId(User);
+        var response = await companyService.PatchAsync(id, userId, request, cancellationToken);
+
+        if (response.Data is null)
         {
-            this.logger.LogInformation("Starting company update process for company ID: {CompanyID}", id);
-
-            var userId = ClaimReader.UserId(this.User);
-            var response = await this.companyService.PatchAsync(id, userId, request, cancellationToken);
-
-            if (response.Data is null)
-            {
-                this.logger.LogWarning("Failed to update company {CompanyID}. Status: {Status}, Message: {Message}", id, response.Status, response.Message);
-
-                return this.StatusCode((int)response.Status, response.Message);
-            }
-
-            this.logger.LogInformation("Successfully updated company with ID: {CompanyID}", id);
-
-            return this.Ok(response.Data);
+            return StatusCode((int)response.Status, response.Message);
         }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error updating company with ID: {CompanyID}", id);
 
-            throw;
-        }
+        return Ok(response.Data);
     }
 }

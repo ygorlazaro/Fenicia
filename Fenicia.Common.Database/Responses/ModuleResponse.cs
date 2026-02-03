@@ -46,7 +46,7 @@ public class ModuleResponse
 
     public static List<ModuleResponse> Convert(List<ModuleModel> modules)
     {
-        return [.. modules.Select(ModuleResponse.Convert)];
+        return [.. modules.Select(Convert)];
     }
 
     public override bool Equals(object? obj)

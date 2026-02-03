@@ -19,6 +19,6 @@ public class CustomerModel : BaseModel
         get; set;
     }
 
-    [ForeignKey(nameof(CustomerModel.AddressId))]
+    [ForeignKey(nameof(AddressId))]
     public virtual AddressModel Address { get; set; } = null!;
 }
