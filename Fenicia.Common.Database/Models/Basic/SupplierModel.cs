@@ -19,6 +19,6 @@ public class SupplierModel : BaseModel
         get; set;
     }
 
-    [ForeignKey(nameof(SupplierModel.AddressId))]
+    [ForeignKey(nameof(AddressId))]
     public virtual AddressModel Address { get; set; } = null!;
 }

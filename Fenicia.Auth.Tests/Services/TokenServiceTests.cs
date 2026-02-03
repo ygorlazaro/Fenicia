@@ -6,7 +6,6 @@ using Fenicia.Auth.Domains.Token;
 using Fenicia.Common.Database.Responses;
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 using Moq;
 
@@ -17,21 +16,18 @@ public class TokenServiceTests
     private Mock<IConfiguration> configurationMock = null!;
     private Faker faker = null!;
     private string jwtSecret = null!;
-    private Mock<ILogger<TokenService>> loggerMock = null!;
     private TokenService sut = null!;
 
     [SetUp]
     public void Setup()
     {
-        this.faker = new Faker();
-        this.jwtSecret = this.faker.Random.AlphaNumeric(length: 32);
+        faker = new Faker();
+        jwtSecret = faker.Random.AlphaNumeric(length: 32);
 
-        this.configurationMock = new Mock<IConfiguration>();
-        this.configurationMock.Setup(x => x["Jwt:Secret"]).Returns(this.jwtSecret);
+        configurationMock = new Mock<IConfiguration>();
+        configurationMock.Setup(x => x["Jwt:Secret"]).Returns(jwtSecret);
 
-        this.loggerMock = new Mock<ILogger<TokenService>>();
-
-        this.sut = new TokenService(this.loggerMock.Object);
+        sut = new TokenService();
     }
 
     [Test]
@@ -41,12 +37,12 @@ public class TokenServiceTests
         var user = new UserResponse
         {
             Id = Guid.NewGuid(),
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName()
+            Email = faker.Internet.Email(),
+            Name = faker.Name.FullName()
         };
 
         // Act
-        var result = this.sut.GenerateToken(user);
+        var result = sut.GenerateToken(user);
 
         // Assert
         Assert.That(result.Data, Is.Not.Null);
@@ -70,12 +66,12 @@ public class TokenServiceTests
         var user = new UserResponse
         {
             Id = Guid.NewGuid(),
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName()
+            Email = faker.Internet.Email(),
+            Name = faker.Name.FullName()
         };
 
         // Act
-        var result = this.sut.GenerateToken(user);
+        var result = sut.GenerateToken(user);
 
         // Assert
         var handler = new JwtSecurityTokenHandler();

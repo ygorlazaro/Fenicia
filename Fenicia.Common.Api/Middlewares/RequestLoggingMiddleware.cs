@@ -17,7 +17,7 @@ public class RequestLoggingMiddleware(RequestDelegate next, ILoggerFactory logge
         }
         finally
         {
-            this.logger.LogInformation("{Date} Request {Method} {Url} {Params} {Ip} => {StatusCode}", DateTimeOffset.Now, context.Request.Method, context.Request.Path.Value, context.Request.QueryString, context.Connection.RemoteIpAddress?.ToString(), context.Response.StatusCode);
+            logger.LogInformation("{Date} Request {Method} {Url} {Params} {Ip} => {StatusCode}", DateTimeOffset.Now, context.Request.Method, context.Request.Path.Value, context.Request.QueryString, context.Connection.RemoteIpAddress?.ToString(), context.Response.StatusCode);
         }
     }
 }

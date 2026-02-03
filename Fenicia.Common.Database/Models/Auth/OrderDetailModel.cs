@@ -30,11 +30,11 @@ public class OrderDetailModel : BaseModel
     }
 
     [JsonIgnore]
-    [ForeignKey(nameof(OrderDetailModel.OrderId))]
+    [ForeignKey(nameof(OrderId))]
     public virtual OrderModel Order { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey(nameof(OrderDetailModel.ModuleId))]
+    [ForeignKey(nameof(ModuleId))]
     public virtual ModuleModel Module { get; set; } = null!;
 
     [JsonIgnore]

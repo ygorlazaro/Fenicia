@@ -29,6 +29,6 @@ public class ErpController(IModuleService moduleService, IStateService stateServ
             States = states
         };
 
-        return this.Ok(response);
+        return Ok(response);
     }
 }

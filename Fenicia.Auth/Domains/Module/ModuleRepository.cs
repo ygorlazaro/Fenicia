@@ -15,9 +15,7 @@ public class ModuleRepository(AuthContext context) : IModuleRepository
 
     public async Task<List<ModuleModel>> GetManyOrdersAsync(IEnumerable<Guid> request, CancellationToken cancellationToken)
     {
-        var query = from module in context.Modules where request.Any(r => r == module.Id) orderby module.Type select module;
-
-        return await query.ToListAsync(cancellationToken);
+        return await context.Modules.Where(module => request.Any(r => r == module.Id)).OrderBy(module => module.Type).ToListAsync(cancellationToken);
     }
 
     public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken cancellationToken)
@@ -40,14 +38,14 @@ public class ModuleRepository(AuthContext context) : IModuleRepository
 
     public async Task<List<ModuleModel>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
-        var query = this.ValidModuleBySubscriptionQuery(userId, companyId);
+        var query = ValidModuleBySubscriptionQuery(userId, companyId);
 
         return await query.Distinct().ToListAsync(cancellationToken);
     }
 
     public async Task<List<ModuleModel>> GetModuleAndSubmoduleAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
-        var query = this.ValidModuleBySubscriptionQuery(userId, companyId);
+        var query = ValidModuleBySubscriptionQuery(userId, companyId);
 
         return await query.Include(m => m.Submodules).ToListAsync(cancellationToken);
     }

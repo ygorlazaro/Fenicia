@@ -4,9 +4,6 @@ using Bogus;
 
 using Fenicia.Auth.Domains.Security;
 
-using Microsoft.Extensions.Logging;
-
-using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
 
@@ -18,19 +15,18 @@ public class SecurityServiceTests
     [SetUp]
     public void Setup()
     {
-        var mockLogger = new Mock<ILogger<SecurityService>>().Object;
-        this.sut = new SecurityService(mockLogger);
-        this.faker = new Faker();
+        sut = new SecurityService();
+        faker = new Faker();
     }
 
     [Test]
     public void HashPasswordWithValidPasswordReturnsHashedPassword()
     {
         // Arrange
-        var password = this.faker.Internet.Password(length: 12, memorable: false, string.Empty, "!@#$%^&*");
+        var password = faker.Internet.Password(length: 12, memorable: false, string.Empty, "!@#$%^&*");
 
         // Act
-        var result = this.sut.HashPassword(password);
+        var result = sut.HashPassword(password);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -46,13 +42,13 @@ public class SecurityServiceTests
     public void HashPasswordWithSamePasswordGeneratesDifferentHashes()
     {
         // Arrange
-        var password = this.faker.Internet.Password();
+        var password = faker.Internet.Password();
         var hashes = new HashSet<string>();
 
         // Act
         for (var i = 0; i < 5; i++)
         {
-            var result = this.sut.HashPassword(password);
+            var result = sut.HashPassword(password);
             hashes.Add(result.Data!);
         }
 
@@ -65,18 +61,18 @@ public class SecurityServiceTests
     public void HashPasswordWithInvalidPasswordThrowsException(string invalidPassword)
     {
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => this.sut.HashPassword(invalidPassword));
+        Assert.Throws<ArgumentException>(() => sut.HashPassword(invalidPassword));
     }
 
     [Test]
     public void VerifyPasswordWithCorrectPasswordReturnsTrue()
     {
         // Arrange
-        var password = this.faker.Internet.Password();
-        var hashedPassword = this.sut.HashPassword(password).Data;
+        var password = faker.Internet.Password();
+        var hashedPassword = sut.HashPassword(password).Data;
 
         // Act
-        var result = this.sut.VerifyPassword(password, hashedPassword!);
+        var result = sut.VerifyPassword(password, hashedPassword!);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -90,12 +86,12 @@ public class SecurityServiceTests
     public void VerifyPasswordWithIncorrectPasswordReturnsFalse()
     {
         // Arrange
-        var password = this.faker.Internet.Password();
-        var wrongPassword = this.faker.Internet.Password();
-        var hashedPassword = this.sut.HashPassword(password).Data;
+        var password = faker.Internet.Password();
+        var wrongPassword = faker.Internet.Password();
+        var hashedPassword = sut.HashPassword(password).Data;
 
         // Act
-        var result = this.sut.VerifyPassword(wrongPassword, hashedPassword!);
+        var result = sut.VerifyPassword(wrongPassword, hashedPassword!);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -109,11 +105,11 @@ public class SecurityServiceTests
     public void VerifyPasswordWithInvalidHashReturnsErrorResponse()
     {
         // Arrange
-        var password = this.faker.Internet.Password();
-        var invalidHash = this.faker.Random.AlphaNumeric(length: 60); // Invalid BCrypt hash format
+        var password = faker.Internet.Password();
+        var invalidHash = faker.Random.AlphaNumeric(length: 60); // Invalid BCrypt hash format
 
         // Act
-        var result = this.sut.VerifyPassword(password, invalidHash);
+        var result = sut.VerifyPassword(password, invalidHash);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -127,15 +123,15 @@ public class SecurityServiceTests
     public void VerifyPasswordWithMultiplePasswordsWorksConsistently()
     {
         // Arrange
-        var passwordCount = this.faker.Random.Int(min: 3, max: 5);
-        var passwords = this.faker.Make(passwordCount, () => this.faker.Internet.Password()).ToList();
-        var hashedPasswords = passwords.Select(p => this.sut.HashPassword(p).Data).ToList();
+        var passwordCount = faker.Random.Int(min: 3, max: 5);
+        var passwords = faker.Make(passwordCount, () => faker.Internet.Password()).ToList();
+        var hashedPasswords = passwords.Select(p => sut.HashPassword(p).Data).ToList();
 
         // Act & Assert
         for (var i = 0; i < passwordCount; i++)
         {
             // Verify correct password
-            var correctResult = this.sut.VerifyPassword(passwords[i], hashedPasswords[i]!);
+            var correctResult = sut.VerifyPassword(passwords[i], hashedPasswords[i]!);
             Assert.That(correctResult.Data, Is.True, $"Password {i} should verify against its own hash");
 
             // Verify against other passwords' hashes
@@ -146,7 +142,7 @@ public class SecurityServiceTests
                     continue;
                 }
 
-                var incorrectResult = this.sut.VerifyPassword(passwords[i], hashedPasswords[j]!);
+                var incorrectResult = sut.VerifyPassword(passwords[i], hashedPasswords[j]!);
                 Assert.That(incorrectResult.Data, Is.False, $"Password {i} should not verify against hash {j}");
             }
         }
@@ -158,16 +154,16 @@ public class SecurityServiceTests
         // Arrange
         var testPasswords = new[]
                             {
-                                this.faker.Internet.Password(length: 8), // Simple password
-                                this.faker.Internet.Password(length: 16, memorable: true), // Complex password
-                                this.faker.Internet.Password(length: 32, memorable: true, "@#$%") // Very complex password
+                                faker.Internet.Password(length: 8), // Simple password
+                                faker.Internet.Password(length: 16, memorable: true), // Complex password
+                                faker.Internet.Password(length: 32, memorable: true, "@#$%") // Very complex password
                             };
 
         foreach (var password in testPasswords)
         {
             // Act
-            var result = this.sut.HashPassword(password);
-            var verifyResult = this.sut.VerifyPassword(password, result.Data!);
+            var result = sut.HashPassword(password);
+            var verifyResult = sut.VerifyPassword(password, result.Data!);
 
             // Assert
             using (Assert.EnterMultipleScope())
@@ -183,8 +179,8 @@ public class SecurityServiceTests
     public void VerifyPasswordWithNullOrEmptyValuesReturnsErrorResponse()
     {
         // Arrange
-        var validPassword = this.faker.Internet.Password();
-        var validHash = this.sut.HashPassword(validPassword).Data;
+        var validPassword = faker.Internet.Password();
+        var validHash = sut.HashPassword(validPassword).Data;
         var testCases = new[]
                         {
                             (Password: string.Empty, Hash: validHash),
@@ -196,7 +192,7 @@ public class SecurityServiceTests
         foreach (var (password, hash) in testCases)
         {
             // Act
-            var result = this.sut.VerifyPassword(password!, hash!);
+            var result = sut.VerifyPassword(password!, hash!);
 
             // Assert
             using (Assert.EnterMultipleScope())

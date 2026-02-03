@@ -18,6 +18,8 @@ using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
+using Fenicia.Common.Api;
+using Fenicia.Common.Api.Middlewares;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Externals.Email;
@@ -53,14 +55,14 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configBuilder);
 
-        Program.BuildLogging(builder);
-        Program.BuildRateLimiting(builder, configBuilder);
-        Program.BuildDependencyInjection(builder);
-        Program.BuildDatabaseConnection(configBuilder, builder);
-        Program.BuildCors(builder);
-        Program.BuildControllers(configBuilder, builder);
+        BuildLogging(builder);
+        BuildRateLimiting(builder, configBuilder);
+        BuildDependencyInjection(builder);
+        BuildDatabaseConnection(configBuilder, builder);
+        BuildCors(builder);
+        BuildControllers(configBuilder, builder);
 
-        Program.StartApplication(builder);
+        StartApplication(builder);
     }
 
     private static void StartApplication(WebApplicationBuilder builder)
@@ -70,6 +72,7 @@ public static class Program
         app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionMiddleware>();
         app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<WideEventMiddleware>();
         app.UseResponseCompression();
 
         app.UseSerilogRequestLogging();
@@ -186,6 +189,8 @@ public static class Program
 
             return ConnectionMultiplexer.Connect(config);
         });
+
+        builder.Services.AddScoped<WideEventContext>();
 
         builder.Services.AddTransient<ICompanyService, CompanyService>();
         builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();

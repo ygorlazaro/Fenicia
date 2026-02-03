@@ -32,6 +32,6 @@ public class SubmoduleResponse
 
     public static SubmoduleResponse[] Convert(List<SubmoduleModel> submodules)
     {
-        return [.. submodules.Select(SubmoduleResponse.Convert)];
+        return [.. submodules.Select(Convert)];
     }
 }

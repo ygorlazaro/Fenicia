@@ -12,17 +12,17 @@ public class LoginAttemptService(IMemoryCache cache) : ILoginAttemptService
 
     public Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        return Task.FromResult(cache.TryGetValue(LoginAttemptService.GetKey(email), out int attempts) ? attempts : 0);
+        return Task.FromResult(cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0);
     }
 
     public Task IncrementAttemptsAsync(string email)
     {
-        var key = LoginAttemptService.GetKey(email);
+        var key = GetKey(email);
         var current = cache.TryGetValue(key, out int count) ? count + 1 : 1;
 
         var options = new MemoryCacheEntryOptions
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(LoginAttemptService.ExpirationMinutes)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(ExpirationMinutes)
         };
 
         cache.Set(key, current, options);
@@ -32,7 +32,7 @@ public class LoginAttemptService(IMemoryCache cache) : ILoginAttemptService
 
     public Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
     {
-        cache.Remove(LoginAttemptService.GetKey(email));
+        cache.Remove(GetKey(email));
 
         return Task.CompletedTask;
     }
@@ -41,6 +41,6 @@ public class LoginAttemptService(IMemoryCache cache) : ILoginAttemptService
     {
         ArgumentNullException.ThrowIfNull(email);
 
-        return $"{LoginAttemptService.KeyPrefix}{email.ToLower(CultureInfo.InvariantCulture)}";
+        return $"{KeyPrefix}{email.ToLower(CultureInfo.InvariantCulture)}";
     }
 }

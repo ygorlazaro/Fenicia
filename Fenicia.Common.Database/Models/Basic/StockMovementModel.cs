@@ -28,6 +28,6 @@ public class StockMovementModel : BaseModel
         get; set;
     }
 
-    [ForeignKey(nameof(StockMovementModel.ProductId))]
+    [ForeignKey(nameof(ProductId))]
     public virtual ProductModel Product { get; set; } = null!;
 }

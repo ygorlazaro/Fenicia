@@ -34,7 +34,7 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellation = default)
     {
-        foreach (var item in this.ChangeTracker.Entries())
+        foreach (var item in ChangeTracker.Entries())
         {
             if (item.Entity is not BaseModel model)
             {
@@ -61,7 +61,7 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
-        AuthContext.AddSoftDeleteSupport(modelBuilder);
+        AddSoftDeleteSupport(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }

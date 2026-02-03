@@ -10,43 +10,26 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token;
 
-public class TokenService(ILogger<TokenService> logger) : ITokenService
+public class TokenService : ITokenService
 {
     private readonly ConfigurationManager configuration = AppSettingsReader.GetConfiguration();
 
     public ApiResponse<string> GenerateToken(UserResponse user)
     {
-        try
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
+        var authClaims = GenerateClaims(user);
+        var authSigningKey = new SymmetricSecurityKey(key);
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            logger.LogInformation("Starting token generation for user {UserID}", user.Id);
+            Expires = DateTime.UtcNow.AddHours(value: 3),
+            SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
+            Subject = new ClaimsIdentity(authClaims)
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var finalToken = tokenHandler.WriteToken(token);
 
-            var key = Encoding.ASCII.GetBytes(this.configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
-            var authClaims = TokenService.GenerateClaims(user);
-            var authSigningKey = new SymmetricSecurityKey(key);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Expires = DateTime.UtcNow.AddHours(value: 3),
-                SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
-                Subject = new ClaimsIdentity(authClaims)
-            };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var finalToken = tokenHandler.WriteToken(token);
-
-            logger.LogInformation("Token successfully generated for user {UserID}", user.Id);
-
-            return new ApiResponse<string>(finalToken);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error generating token for user {UserID}", user.Id);
-
-            throw;
-        }
-        finally
-        {
-            logger.LogDebug("Token generation process completed for user {UserID}", user.Id);
-        }
+        return new ApiResponse<string>(finalToken);
     }
 
     private static List<Claim> GenerateClaims(UserResponse user)

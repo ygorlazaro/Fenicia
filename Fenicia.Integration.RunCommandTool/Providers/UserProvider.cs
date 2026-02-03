@@ -16,12 +16,12 @@ public class UserProvider(string uri) : BaseProvider(uri)
         {
             Company = new CompanyRequest
             {
-                Cnpj = this.faker.Company.Cnpj(includeFormatSymbols: false),
-                Name = this.faker.Company.CompanyName()
+                Cnpj = faker.Company.Cnpj(includeFormatSymbols: false),
+                Name = faker.Company.CompanyName()
             },
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
         };
 
         return newUserRequest;
@@ -29,6 +29,6 @@ public class UserProvider(string uri) : BaseProvider(uri)
 
     public async Task<UserResponse> CreateNewUserAsync(UserRequest userRequest)
     {
-        return await this.PostAsync<UserResponse, UserRequest>("register", userRequest);
+        return await PostAsync<UserResponse, UserRequest>("register", userRequest);
     }
 }

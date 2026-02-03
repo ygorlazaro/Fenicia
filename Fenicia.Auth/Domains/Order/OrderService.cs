@@ -11,24 +11,21 @@ using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public sealed class OrderService(ILogger<OrderService> logger, IOrderRepository orderRepository, IModuleService moduleService, ISubscriptionService subscriptionService, IUserService userService) : IOrderService
+public sealed class OrderService(IOrderRepository orderRepository, IModuleService moduleService, ISubscriptionService subscriptionService, IUserService userService)
+    : IOrderService
 {
     public async Task<ApiResponse<OrderResponse>> CreateNewOrderAsync(Guid userId, Guid companyId, OrderRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation("Starting order creation process for user {UserID} in company {CompanyID}", userId, companyId);
-
             var existingUser = await userService.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
             if (!existingUser.Data)
             {
-                logger.LogWarning("User {userID} does not exist in company {companyID}", userId, companyId);
-
                 return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.UserNotInCompanyMessage);
             }
 
-            var modules = await this.PopulateModules(request, cancellationToken);
+            var modules = await PopulateModules(request, cancellationToken);
 
             if (modules.Data is null)
             {
@@ -37,8 +34,6 @@ public sealed class OrderService(ILogger<OrderService> logger, IOrderRepository 
 
             if (modules.Data.Count == 0)
             {
-                logger.LogWarning("There was an error searching modules");
-
                 return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorSearchingModulesMessage);
             }
 
@@ -59,14 +54,10 @@ public sealed class OrderService(ILogger<OrderService> logger, IOrderRepository 
 
             var response = OrderResponse.Convert(order);
 
-            logger.LogInformation("Order created successfully for user {UserID}", userId);
-
             return new ApiResponse<OrderResponse>(response);
         }
-        catch (Exception ex)
+        catch
         {
-            logger.LogError(ex, "Error creating order for user {UserID} in company {CompanyID}", userId, companyId);
-
             return new ApiResponse<OrderResponse>(data: null, HttpStatusCode.InternalServerError, "An error occurred while creating the order");
         }
     }
@@ -75,8 +66,6 @@ public sealed class OrderService(ILogger<OrderService> logger, IOrderRepository 
     {
         try
         {
-            logger.LogDebug("Starting to populate modules for order request");
-
             var uniqueModules = request.Details.Select(d => d.ModuleId).Distinct();
             var modules = await moduleService.GetModulesToOrderAsync(uniqueModules, cancellationToken);
 
@@ -103,14 +92,10 @@ public sealed class OrderService(ILogger<OrderService> logger, IOrderRepository 
 
             var finalResponse = ModuleModel.Convert(modules.Data);
 
-            logger.LogInformation("Modules populated successfully");
-
             return new ApiResponse<List<ModuleModel>>(finalResponse);
         }
-        catch (Exception ex)
+        catch
         {
-            logger.LogError(ex, "Error populating modules for order request");
-
             return new ApiResponse<List<ModuleModel>>(data: null, HttpStatusCode.InternalServerError, "An error occurred while populating modules");
         }
     }

@@ -5,9 +5,6 @@ using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-
-using Moq;
 
 namespace Fenicia.Auth.Tests.Repositories;
 
@@ -22,20 +19,18 @@ public class CompanyRepositoryTests
     [SetUp]
     public void Setup()
     {
-        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
-        var mockLogger = new Mock<ILogger<CompanyRepository>>().Object;
-
-        this.context = new AuthContext(this.options);
-        this.sut = new CompanyRepository(this.context, mockLogger);
-        this.faker = new Faker();
-        this.cancellationToken = CancellationToken.None;
+        options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        context = new AuthContext(options);
+        sut = new CompanyRepository(context);
+        faker = new Faker();
+        cancellationToken = CancellationToken.None;
     }
 
     [TearDown]
     public void TearDown()
     {
-        this.context.Database.EnsureDeleted();
-        this.context.Dispose();
+        context.Database.EnsureDeleted();
+        context.Dispose();
     }
 
     [Test]
@@ -45,14 +40,14 @@ public class CompanyRepositoryTests
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Random.String2(length: 14, "0123456789")
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Random.String2(length: 14, "0123456789")
         };
-        await this.context.Companies.AddAsync(company, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Companies.AddAsync(company, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await this.sut.CheckCompanyExistsAsync(company.Id, this.cancellationToken);
+        var result = await sut.CheckCompanyExistsAsync(company.Id, cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -62,7 +57,7 @@ public class CompanyRepositoryTests
     public async Task CheckCompanyExistsAsyncByIdReturnsFalseWhenNotExists()
     {
         // Act
-        var result = await this.sut.CheckCompanyExistsAsync(Guid.NewGuid(), this.cancellationToken);
+        var result = await sut.CheckCompanyExistsAsync(Guid.NewGuid(), cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -75,14 +70,14 @@ public class CompanyRepositoryTests
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Random.String2(length: 14, "0123456789")
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Random.String2(length: 14, "0123456789")
         };
-        await this.context.Companies.AddAsync(company, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Companies.AddAsync(company, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await this.sut.CheckCompanyExistsAsync(company.Cnpj, this.cancellationToken);
+        var result = await sut.CheckCompanyExistsAsync(company.Cnpj, cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -95,16 +90,16 @@ public class CompanyRepositoryTests
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Random.String2(length: 14, "0123456789")
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Random.String2(length: 14, "0123456789")
         };
 
         // Act
-        this.sut.Add(company);
-        await this.sut.SaveAsync(this.cancellationToken);
+        sut.Add(company);
+        await sut.SaveAsync(cancellationToken);
 
         // Assert
-        var savedCompany = await this.context.Companies.FindAsync([company.Id], this.cancellationToken);
+        var savedCompany = await context.Companies.FindAsync([company.Id], cancellationToken);
         Assert.That(savedCompany, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -120,14 +115,14 @@ public class CompanyRepositoryTests
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Random.String2(length: 14, "0123456789")
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Random.String2(length: 14, "0123456789")
         };
-        await this.context.Companies.AddAsync(company, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Companies.AddAsync(company, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await this.sut.GetByCnpjAsync(company.Cnpj, this.cancellationToken);
+        var result = await sut.GetByCnpjAsync(company.Cnpj, cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -151,8 +146,8 @@ public class CompanyRepositoryTests
             var company = new CompanyModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Cnpj = this.faker.Random.String2(length: 14, "0123456789")
+                Name = faker.Company.CompanyName(),
+                Cnpj = faker.Random.String2(length: 14, "0123456789")
             };
             companies.Add(company);
 
@@ -165,13 +160,13 @@ public class CompanyRepositoryTests
             userRoles.Add(userRole);
         }
 
-        await this.context.Companies.AddRangeAsync(companies, this.cancellationToken);
-        await this.context.UserRoles.AddRangeAsync(userRoles, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Companies.AddRangeAsync(companies, cancellationToken);
+        await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var page1 = await this.sut.GetByUserIdAsync(userId, this.cancellationToken, page: 1, perPage: 10);
-        var page2 = await this.sut.GetByUserIdAsync(userId, this.cancellationToken, page: 2, perPage: 10);
+        var page1 = await sut.GetByUserIdAsync(userId, cancellationToken, page: 1, perPage: 10);
+        var page2 = await sut.GetByUserIdAsync(userId, cancellationToken, page: 2, perPage: 10);
 
         using (Assert.EnterMultipleScope())
         {
@@ -195,8 +190,8 @@ public class CompanyRepositoryTests
             var company = new CompanyModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Cnpj = this.faker.Random.String2(length: 14, "0123456789")
+                Name = faker.Company.CompanyName(),
+                Cnpj = faker.Random.String2(length: 14, "0123456789")
             };
             companies.Add(company);
 
@@ -209,12 +204,12 @@ public class CompanyRepositoryTests
             userRoles.Add(userRole);
         }
 
-        await this.context.Companies.AddRangeAsync(companies, this.cancellationToken);
-        await this.context.UserRoles.AddRangeAsync(userRoles, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Companies.AddRangeAsync(companies, cancellationToken);
+        await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var count = await this.sut.CountByUserIdAsync(userId, this.cancellationToken);
+        var count = await sut.CountByUserIdAsync(userId, cancellationToken);
 
         // Assert
         Assert.That(count, Is.EqualTo(expectedCount));
@@ -227,21 +222,21 @@ public class CompanyRepositoryTests
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Random.String2(length: 14, "0123456789")
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Random.String2(length: 14, "0123456789")
         };
-        await this.context.Companies.AddAsync(company, this.cancellationToken);
-        await this.context.SaveChangesAsync(this.cancellationToken);
+        await context.Companies.AddAsync(company, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-        var updatedName = this.faker.Company.CompanyName();
+        var updatedName = faker.Company.CompanyName();
         company.Name = updatedName;
 
         // Act
-        this.sut.PatchAsync(company);
-        await this.sut.SaveAsync(this.cancellationToken);
+        sut.PatchAsync(company);
+        await sut.SaveAsync(cancellationToken);
 
         // Assert
-        var updatedCompany = await this.context.Companies.FindAsync([company.Id], this.cancellationToken);
+        var updatedCompany = await context.Companies.FindAsync([company.Id], cancellationToken);
         Assert.That(updatedCompany, Is.Not.Null);
         Assert.That(updatedCompany.Name, Is.EqualTo(updatedName));
     }
@@ -253,7 +248,7 @@ public class CompanyRepositoryTests
         var userId = Guid.NewGuid();
 
         // Act
-        var result = await this.sut.GetByUserIdAsync(userId, this.cancellationToken);
+        var result = await sut.GetByUserIdAsync(userId, cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);

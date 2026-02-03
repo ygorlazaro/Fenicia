@@ -6,7 +6,7 @@ public static class ClaimReader
 {
     public static Guid UserId(ClaimsPrincipal user)
     {
-        return ClaimReader.GetGuidClaimValue(user, "userId");
+        return GetGuidClaimValue(user, "userId");
     }
 
     public static void ValidateRole(ClaimsPrincipal user, string roleToSearch)

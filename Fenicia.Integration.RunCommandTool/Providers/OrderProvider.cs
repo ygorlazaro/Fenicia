@@ -15,6 +15,6 @@ public class OrderProvider(string uri, string accessToken) : BaseProvider(uri, a
             })
         };
 
-        await this.PostAsync<OrderResponse, OrderRequest>("order", orderRequest);
+        await PostAsync<OrderResponse, OrderRequest>("order", orderRequest);
     }
 }

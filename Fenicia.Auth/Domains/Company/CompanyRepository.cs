@@ -6,40 +6,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public class CompanyRepository(AuthContext context, ILogger<CompanyRepository> logger) : ICompanyRepository
+public class CompanyRepository(AuthContext context) : ICompanyRepository
 {
     public async Task<bool> CheckCompanyExistsAsync(Guid companyId, CancellationToken cancellationToken)
     {
-        try
-        {
-            return await context.Companies.AnyAsync(c => c.Id == companyId, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error checking company existence by ID {CompanyID}", companyId);
-
-            throw;
-        }
+        return await context.Companies.AnyAsync(c => c.Id == companyId, cancellationToken);
     }
 
     public async Task<bool> CheckCompanyExistsAsync(string cnpj, CancellationToken cancellationToken)
     {
-        try
-        {
-            return await context.Companies.AnyAsync(c => c.Cnpj == cnpj, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error checking company existence by CNPJ {Cnpj}", cnpj);
-
-            throw;
-        }
+        return await context.Companies.AnyAsync(c => c.Cnpj == cnpj, cancellationToken);
     }
 
     public CompanyModel Add(CompanyModel company)
     {
-        logger.LogInformation("Adding new company with CNPJ {Cnpj}", company.Cnpj);
-
         context.Companies.Add(company);
 
         return company;
@@ -47,73 +27,28 @@ public class CompanyRepository(AuthContext context, ILogger<CompanyRepository> l
 
     public async Task<int> SaveAsync(CancellationToken cancellationToken)
     {
-        try
-        {
-            return await context.SaveChangesAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error saving changes to database");
-
-            throw;
-        }
+        return await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<CompanyModel?> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken)
     {
-        try
-        {
-            var company = await context.Companies.FirstOrDefaultAsync(c => c.Cnpj == cnpj, cancellationToken);
-
-            if (company == null)
-            {
-                logger.LogInformation("Company not found for CNPJ {Cnpj}", cnpj);
-            }
-
-            return company;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error retrieving company by CNPJ {Cnpj}", cnpj);
-
-            throw;
-        }
+        return await context.Companies.FirstOrDefaultAsync(c => c.Cnpj == cnpj, cancellationToken);
     }
 
     public async Task<List<CompanyModel>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken, int page = 1, int perPage = 10)
     {
-        try
-        {
-            var query = this.QueryFromUserId(userId);
+        var query = QueryFromUserId(userId);
 
-            return await query.OrderBy(c => c.Name).Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error retrieving companies for user {UserID}", userId);
-
-            throw;
-        }
+        return await query.OrderBy(c => c.Name).Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
     }
 
     public async Task<int> CountByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
-        try
-        {
-            return await this.QueryFromUserId(userId).CountAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error counting companies for user {UserID}", userId);
-
-            throw;
-        }
+        return await QueryFromUserId(userId).CountAsync(cancellationToken);
     }
 
     public CompanyModel PatchAsync(CompanyModel company)
     {
-        logger.LogInformation("Updating company with ID {CompanyID}", company.Id);
-
         context.Entry(company).State = EntityState.Modified;
 
         return company;
