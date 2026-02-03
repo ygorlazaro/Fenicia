@@ -7,11 +7,13 @@ using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Enums;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Migrations.Services;
 
 namespace Fenicia.Auth.Domains.User;
 
-public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository, ISecurityService securityService, ILoginAttemptService loginAttemptService)
+public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository, ISecurityService securityService, ILoginAttemptService loginAttemptService, IMigrationService migrationService)
     : IUserService
 {
     public async Task<UserResponse> GetForLoginAsync(TokenRequest request, CancellationToken cancellationToken)
@@ -83,6 +85,8 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         userRoleRepository.Add(userRole);
 
         await userRepository.SaveAsync(cancellationToken);
+
+        await migrationService.RunMigrationsAsync(company.Id, [ModuleType.Basic], cancellationToken);
 
         return UserResponse.Convert(user);
     }

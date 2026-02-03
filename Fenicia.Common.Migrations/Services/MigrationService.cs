@@ -10,7 +10,7 @@ public class MigrationService : IMigrationService
 {
     public async Task RunMigrationsAsync(Guid companyId, List<ModuleType> moduleTypes, CancellationToken cancellationToken)
     {
-        foreach (var module in moduleTypes.Where(module => module == ModuleType.Basic))
+        foreach (var module in moduleTypes)
         {
             var (dbContextType, migrationsAssembly, connectionStringName) = GetModuleDbInfo(module);
             var rawConnectionString = API.AppSettingsReader.GetConnectionString(connectionStringName);
