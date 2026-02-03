@@ -8,7 +8,7 @@ enum ViewEnum  {
   SignUp
 }
 
-const currentView = ref(ViewEnum.SignUp)
+const currentView = ref(ViewEnum.Login)
 
 const onLogin = (loginRequest: any) => {
   console.log(loginRequest.value)

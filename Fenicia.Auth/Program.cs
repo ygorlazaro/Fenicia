@@ -164,7 +164,7 @@ public static class Program
         {
             options.AddPolicy("RestrictedCors", policy => { policy.WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
 
-            options.AddPolicy("DevCors", policy => { policy.WithOrigins("http://localhost:5144", "http://localhost:3000", "http://127.0.0.1:5144").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
+            options.AddPolicy("DevCors", policy => { policy.WithOrigins("http://localhost:5144", "http://localhost:3000", "http://localhost:5144", "http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
         });
     }
 

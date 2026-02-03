@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { SignUpRequest } from '@/types/SignUpRequest';
+import api from '@/api/client';
+import { useAuthStore } from '@/stores/auth';
+import type { SignUpRequest } from '@/types/Requests';
+import type { UserResponse } from '@/types/Responses';
 import { ref } from 'vue';
 
 const emit = defineEmits(['onLogin', 'onNavigate']);
@@ -14,8 +17,20 @@ const request = ref<SignUpRequest>({
   name: ''
 });
 
-const handleOnLogin = () => {
-  emit('onLogin', request);
+const isLoading = ref(false);
+const authStore = useAuthStore();
+
+const handleOnSignup = async () => {
+  try {
+    isLoading.value = true;
+    await api.post<UserResponse>('/register', request.value);
+
+
+  } catch (error) {
+    console.error("Erro ao cadastrar", error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 </script>
@@ -48,8 +63,8 @@ const handleOnLogin = () => {
       </b-field>
 
       <footer class="card-footer">
-        <b-button class="card-footer-item" type="is-primary" @click="handleOnLogin">Entrar</b-button>
-        <b-button class="card-footer-item" type="is-primary" @click="$emit('onNavigate')"">Cadastrar</b-button>
+        <b-button class="card-footer-item" type="is-primary" @click="handleOnSignup">Entrar</b-button>
+
       </footer>
 
     </div>
