@@ -40,14 +40,14 @@ public class ModuleRepository(AuthContext context) : IModuleRepository
     {
         var query = ValidModuleBySubscriptionQuery(userId, companyId);
 
-        return await query.Distinct().ToListAsync(cancellationToken);
+        return await query.Distinct().Distinct().ToListAsync(cancellationToken);
     }
 
     public async Task<List<ModuleModel>> GetModuleAndSubmoduleAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
     {
         var query = ValidModuleBySubscriptionQuery(userId, companyId);
 
-        return await query.Include(m => m.Submodules).ToListAsync(cancellationToken);
+        return await query.Include(m => m.Submodules).Distinct().ToListAsync(cancellationToken);
     }
 
     private IQueryable<ModuleModel> ValidModuleBySubscriptionQuery(Guid userId, Guid companyId)
