@@ -7,10 +7,11 @@ using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 using Fenicia.Common.Enums;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Migrations.Services;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public sealed class OrderService(IOrderRepository orderRepository, IModuleService moduleService, ISubscriptionService subscriptionService, IUserService userService)
+public sealed class OrderService(IOrderRepository orderRepository, IModuleService moduleService, ISubscriptionService subscriptionService, IUserService userService, IMigrationService migrationService)
     : IOrderService
 {
     public async Task<OrderResponse?> CreateNewOrderAsync(Guid userId, Guid companyId, OrderRequest request, CancellationToken cancellationToken)
@@ -43,6 +44,8 @@ public sealed class OrderService(IOrderRepository orderRepository, IModuleServic
 
         await orderRepository.SaveOrderAsync(order, cancellationToken);
         await subscriptionService.CreateCreditsForOrderAsync(order, details, companyId, cancellationToken);
+
+        await migrationService.RunMigrationsAsync(companyId, [.. modules.Select(m => m.Type)], cancellationToken);
 
         return OrderResponse.Convert(order);
     }
