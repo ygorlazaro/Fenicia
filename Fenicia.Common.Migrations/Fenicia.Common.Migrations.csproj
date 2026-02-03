@@ -1,5 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <ProjectReference Include="../Fenicia.Module.Accounting/Fenicia.Module.Accounting.csproj" />
+    <ProjectReference Include="../Fenicia.Module.Contracts/Fenicia.Module.Contracts.csproj" />
+    <ProjectReference Include="../Fenicia.Module.CustomerSupport/Fenicia.Module.CustomerSupport.csproj" />
+    <ProjectReference Include="../Fenicia.Module.Ecommerce/Fenicia.Module.Ecommerce.csproj" />
+    <ProjectReference Include="../Fenicia.Module.HR/Fenicia.Module.HR.csproj" />
+    <ProjectReference Include="../Fenicia.Module.PerformanceEvaluation/Fenicia.Module.PerformanceEvaluation.csproj" />
+    <ProjectReference Include="../Fenicia.Module.Plus/Fenicia.Module.Plus.csproj" />
+    <ProjectReference Include="../Fenicia.Module.POS/Fenicia.Module.POS.csproj" />
+    <ProjectReference Include="../Fenicia.Module.Projects/Fenicia.Module.Projects.csproj" />
+    <ProjectReference Include="../Fenicia.Module.SocialNetwork/Fenicia.Module.SocialNetwork.csproj" />
     <ProjectReference Include="..\Fenicia.Common.Database\Fenicia.Common.Database.csproj" />
     <ProjectReference Include="..\Fenicia.Module.Basic\Fenicia.Module.Basic.csproj" />
   </ItemGroup>
