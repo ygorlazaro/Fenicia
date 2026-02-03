@@ -16,4 +16,12 @@ public static class TextConstants
     public const string ItemNotFoundMessage = "Item not found";
     public const string InvalidPasswordMessage = "Invalid password";
     public const string ResetPasswordCodeNotFoundMessage = "Reset password code not found";
+    public static string ThereWasAnErrorEditingMessage = "There was an error editing ";
+
+    public static string InvalidForgetCode = "Invalid code";
+
+    public static string UserDoestNotExistsAtTheCompany = "User does not exists at the company";
+    public static string ModulesNotFound = "Module not found";
+
+    public static string TooManyAttempts = "Too many login attempts. Try again later";
 }

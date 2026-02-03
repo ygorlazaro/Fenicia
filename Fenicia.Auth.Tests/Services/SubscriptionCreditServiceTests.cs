@@ -2,7 +2,6 @@ using System.Net;
 
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.SubscriptionCredit;
-using Fenicia.Common;
 using Fenicia.Common.Enums;
 
 using Moq;

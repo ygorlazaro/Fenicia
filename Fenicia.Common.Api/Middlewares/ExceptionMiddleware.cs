@@ -14,8 +14,6 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Erro não tratado");
-
             var problem = new ProblemDetails
             {
                 Type = "https://tools.ietf.org/html/rfc7807",

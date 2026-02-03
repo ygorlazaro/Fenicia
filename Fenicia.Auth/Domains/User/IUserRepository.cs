@@ -17,4 +17,6 @@ public interface IUserRepository
     Task<Guid?> GetUserIdFromEmailAsync(string email, CancellationToken cancellationToken);
 
     Task<UserModel?> GetByIdAsync(Guid userId, CancellationToken cancellationToken);
+
+    void Update(UserModel user);
 }

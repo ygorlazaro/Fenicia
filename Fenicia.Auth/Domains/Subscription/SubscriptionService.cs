@@ -1,5 +1,3 @@
-using System.Net;
-
 using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Database.Responses;
@@ -9,11 +7,11 @@ namespace Fenicia.Auth.Domains.Subscription;
 
 public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepository) : ISubscriptionService
 {
-    public async Task<ApiResponse<SubscriptionResponse>> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details, Guid companyId, CancellationToken cancellationToken)
+    public async Task<SubscriptionResponse> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details, Guid companyId, CancellationToken cancellationToken)
     {
         if (details.Count == 0)
         {
-            return new ApiResponse<SubscriptionResponse>(data: null, HttpStatusCode.BadRequest, TextConstants.ThereWasAnErrorAddingModulesMessage);
+            throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
         }
 
         var credits = order.Details.Select(d => new SubscriptionCreditModel
@@ -37,15 +35,11 @@ public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepo
 
         await subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken);
 
-        var response = SubscriptionResponse.Convert(subscription);
-
-        return new ApiResponse<SubscriptionResponse>(response);
+        return SubscriptionResponse.Convert(subscription);
     }
 
-    public async Task<ApiResponse<List<Guid>>> GetValidSubscriptionsAsync(Guid companyId, CancellationToken cancellationToken)
+    public async Task<List<Guid>> GetValidSubscriptionsAsync(Guid companyId, CancellationToken cancellationToken)
     {
-        var response = await subscriptionRepository.GetValidSubscriptionAsync(companyId, cancellationToken);
-
-        return new ApiResponse<List<Guid>>(response);
+        return await subscriptionRepository.GetValidSubscriptionAsync(companyId, cancellationToken);
     }
 }

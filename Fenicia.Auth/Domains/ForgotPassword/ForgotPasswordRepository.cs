@@ -13,9 +13,7 @@ public class ForgotPasswordRepository(AuthContext context) : IForgotPasswordRepo
         var query = context.ForgottenPasswords
             .Where(fp => fp.UserId == userId && fp.Code == code && fp.IsActive && fp.ExpirationDate >= now);
 
-        var result = await query.FirstOrDefaultAsync(cancellationToken);
-
-        return result;
+        return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task InvalidateCodeAsync(Guid id, CancellationToken cancellationToken)
@@ -28,6 +26,9 @@ public class ForgotPasswordRepository(AuthContext context) : IForgotPasswordRepo
         }
 
         forgotPassword.IsActive = false;
+
+        context.Entry(forgotPassword).State = EntityState.Modified;
+
         await context.SaveChangesAsync(cancellationToken);
     }
 

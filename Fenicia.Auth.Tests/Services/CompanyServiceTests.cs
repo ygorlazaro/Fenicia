@@ -4,7 +4,6 @@ using Bogus;
 
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.UserRole;
-using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;

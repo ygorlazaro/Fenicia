@@ -17,6 +17,11 @@ public class UserRepository(AuthContext context) : IUserRepository
     {
         context.Users.Add(userRequest);
 
+        foreach (var role in userRequest.UsersRoles)
+        {
+            context.Entry(role.Role).State = EntityState.Unchanged;
+        }
+
         return userRequest;
     }
 
@@ -43,5 +48,10 @@ public class UserRepository(AuthContext context) : IUserRepository
     public async Task<UserModel?> GetByIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+    }
+
+    public void Update(UserModel user)
+    {
+        context.Entry(user).State = EntityState.Modified;
     }
 }

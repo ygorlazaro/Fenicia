@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Common;
 using Fenicia.Common.Api;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
@@ -26,17 +25,11 @@ public class TokenController(ITokenService tokenService, IRefreshTokenService re
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<TokenResponse>> PostAsync(TokenRequest request, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.Operation = "Login";
         wide.UserId = request.Email;
 
         var userResponse = await userService.GetForLoginAsync(request, cancellationToken);
 
-        if (userResponse.Data is not null)
-        {
-            return PopulateToken(userResponse.Data);
-        }
-
-        return StatusCode((int)userResponse.Status, userResponse.Message);
+        return PopulateToken(userResponse);
     }
 
     [HttpPost]
@@ -46,12 +39,11 @@ public class TokenController(ITokenService tokenService, IRefreshTokenService re
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TokenResponse>> Refresh(RefreshTokenRequest request, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.Operation = "Refresh Token";
         wide.UserId = request.UserId.ToString();
 
         var isValidToken = await refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
 
-        if (!isValidToken.Data)
+        if (!isValidToken)
         {
             return BadRequest("Invalid client request");
         }
@@ -60,34 +52,18 @@ public class TokenController(ITokenService tokenService, IRefreshTokenService re
 
         var userResponse = await userService.GetUserForRefreshAsync(request.UserId, cancellationToken);
 
-        if (userResponse.Data is not null)
-        {
-            return PopulateToken(userResponse.Data);
-        }
-
-        return BadRequest(TextConstants.PermissionDeniedMessage);
+        return PopulateToken(userResponse);
     }
 
     private ActionResult<TokenResponse> PopulateToken(UserResponse user)
     {
         var token = tokenService.GenerateToken(user);
-
-        if (token.Data is null)
-        {
-            return StatusCode((int)token.Status, token.Message);
-        }
-
         var refreshToken = refreshTokenService.GenerateRefreshToken(user.Id);
-
-        if (refreshToken.Data is null)
-        {
-            return StatusCode((int)refreshToken.Status, refreshToken.Message);
-        }
 
         return Ok(new TokenResponse
         {
-            AccessToken = token.Data,
-            RefreshToken = refreshToken.Data,
+            AccessToken = token,
+            RefreshToken = refreshToken,
             User = new UserResponse
             {
                 Id = user.Id,

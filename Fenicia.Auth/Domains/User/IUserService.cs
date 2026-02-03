@@ -1,4 +1,3 @@
-using Fenicia.Common;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 
@@ -6,15 +5,15 @@ namespace Fenicia.Auth.Domains.User;
 
 public interface IUserService
 {
-    Task<ApiResponse<UserResponse>> GetForLoginAsync(TokenRequest request, CancellationToken cancellationToken);
+    Task<UserResponse> GetForLoginAsync(TokenRequest request, CancellationToken cancellationToken);
 
-    Task<ApiResponse<UserResponse>> CreateNewUserAsync(UserRequest request, CancellationToken cancellationToken);
+    Task<UserResponse> CreateNewUserAsync(UserRequest request, CancellationToken cancellationToken);
 
-    Task<ApiResponse<bool>> ExistsInCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken);
+    Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken);
 
-    Task<ApiResponse<UserResponse>> GetUserForRefreshAsync(Guid userId, CancellationToken cancellationToken);
+    Task<UserResponse> GetUserForRefreshAsync(Guid userId, CancellationToken cancellationToken);
 
-    Task<ApiResponse<UserResponse>> GetUserIdFromEmailAsync(string email, CancellationToken cancellationToken);
+    Task<UserResponse> GetUserIdFromEmailAsync(string email, CancellationToken cancellationToken);
 
-    Task<ApiResponse<UserResponse>> ChangePasswordAsync(Guid userId, string password, CancellationToken cancellationToken);
+    Task<UserResponse> ChangePasswordAsync(Guid userId, string password, CancellationToken cancellationToken);
 }

@@ -1,5 +1,3 @@
-using brevo_csharp.Client;
-
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Api;
@@ -18,12 +16,11 @@ public class UserController(IModuleService moduleService, IUserRoleService userR
 {
     [HttpGet("module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
-    public async Task<ActionResult<ApiResponse<List<ModuleResponse>>>> GetUserModulesAsync([FromHeader] Headers headers, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<ModuleResponse>>> GetUserModulesAsync([FromHeader] Headers headers, WideEventContext wide, CancellationToken cancellationToken)
     {
         var userId = ClaimReader.UserId(User);
         var companyId = headers.CompanyId;
 
-        wide.Operation = "Get User Modules";
         wide.UserId = userId.ToString();
 
         var response = await moduleService.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
@@ -33,11 +30,10 @@ public class UserController(IModuleService moduleService, IUserRoleService userR
 
     [HttpGet("company")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompanyResponse))]
-    public async Task<ActionResult<ApiResponse<CompanyResponse>>> GetUserCompanyAsync(WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<CompanyResponse>> GetUserCompanyAsync(WideEventContext wide, CancellationToken cancellationToken)
     {
         var userId = ClaimReader.UserId(User);
 
-        wide.Operation = "Get User Company";
         wide.UserId = userId.ToString();
 
         var response = await userRoleService.GetUserCompaniesAsync(userId, cancellationToken);

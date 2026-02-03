@@ -25,12 +25,8 @@ public sealed class WideEventContext
         get; set;
     }
 
-    public string? Operation
-    {
-        get; set;
-    }
+    public string Operation => $"{Path} {Method}";
 
-    // Resultado
     public bool Success
     {
         get; set;

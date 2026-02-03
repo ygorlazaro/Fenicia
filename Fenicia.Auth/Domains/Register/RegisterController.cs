@@ -22,16 +22,10 @@ public class RegisterController(IUserService userService) : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UserResponse>> CreateNewUserAsync(UserRequest request, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.Operation = "CreateNewUser";
         wide.UserId = request.Email;
 
         var userResponse = await userService.CreateNewUserAsync(request, cancellationToken);
 
-        if (userResponse.Data is null)
-        {
-            return StatusCode((int)userResponse.Status, userResponse.Message);
-        }
-
-        return Ok(userResponse.Data);
+        return Ok(userResponse);
     }
 }

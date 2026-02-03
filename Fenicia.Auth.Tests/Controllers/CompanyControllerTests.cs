@@ -35,10 +35,9 @@ public class CompanyControllerTests
         // Arrange
         var userId = Guid.NewGuid();
         var companies = new List<CompanyResponse> { new() { Id = Guid.NewGuid(), Name = "Test", Cnpj = "12345678901234" } };
-        var companiesResponse = new ApiResponse<List<CompanyResponse>>(companies);
-        var countResponse = new ApiResponse<int>(1);
+        var countResponse = 1;
 
-        companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ReturnsAsync(companiesResponse);
+        companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ReturnsAsync(companies);
         companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, cancellationToken)).ReturnsAsync(countResponse);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 

@@ -10,16 +10,9 @@ public class OrderRepository(AuthContext context) : IOrderRepository
     {
         ArgumentNullException.ThrowIfNull(order);
 
-        try
-        {
-            context.Orders.Add(order);
-            await context.SaveChangesAsync(cancellationToken);
+        context.Orders.Add(order);
+        await context.SaveChangesAsync(cancellationToken);
 
-            return order;
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Failed to save order to database", ex);
-        }
+        return order;
     }
 }
