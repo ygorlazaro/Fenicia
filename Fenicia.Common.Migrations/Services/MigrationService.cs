@@ -13,15 +13,14 @@ public class MigrationService : IMigrationService
         foreach (var module in moduleTypes.Where(module => module == ModuleType.Basic))
         {
             var (dbContextType, migrationsAssembly, connectionStringName) = GetModuleDbInfo(module);
-
             var rawConnectionString = API.AppSettingsReader.GetConnectionString(connectionStringName);
+
             if (string.IsNullOrWhiteSpace(rawConnectionString))
             {
                 throw new InvalidOperationException($"Connection string '{connectionStringName}' not found in appsettings.json");
             }
 
             var connectionString = rawConnectionString.Replace("{tenant}", companyId.ToString());
-
             var optionsBuilderType = typeof(DbContextOptionsBuilder<>).MakeGenericType(dbContextType);
             var optionsBuilder = (DbContextOptionsBuilder)Activator.CreateInstance(optionsBuilderType)!;
 
@@ -32,7 +31,6 @@ public class MigrationService : IMigrationService
             var options = optionsBuilder.Options;
 
             await using var context = (DbContext)Activator.CreateInstance(dbContextType, options)!;
-
             await context.Database.MigrateAsync(cancellationToken);
         }
     }

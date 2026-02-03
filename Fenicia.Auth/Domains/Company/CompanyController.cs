@@ -25,20 +25,12 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.Operation = "Get Companies for Logged User";
-        wide.UserId = ClaimReader.UserId(User).ToString();
-
         var userId = ClaimReader.UserId(User);
+        wide.UserId = userId.ToString();
 
         var companies = await companyService.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage);
         var total = await companyService.CountByUserIdAsync(userId, cancellationToken);
-
-        if (companies.Data is null)
-        {
-            return StatusCode((int)companies.Status, companies.Message);
-        }
-
-        var response = new Pagination<IEnumerable<CompanyResponse>>(companies.Data, total.Data, query.Page, query.PerPage);
+        var response = new Pagination<IEnumerable<CompanyResponse>>(companies, total, query);
 
         return Ok(response);
     }
@@ -46,22 +38,17 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(typeof(CompanyResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CompanyResponse>> PatchAsync([FromBody] CompanyUpdateRequest request, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.Operation = "Update Company";
-        wide.UserId = ClaimReader.UserId(User).ToString();
-
         var userId = ClaimReader.UserId(User);
+        wide.UserId = userId.ToString();
+
         var response = await companyService.PatchAsync(id, userId, request, cancellationToken);
 
-        if (response.Data is null)
-        {
-            return StatusCode((int)response.Status, response.Message);
-        }
-
-        return Ok(response.Data);
+        return Ok(response);
     }
 }

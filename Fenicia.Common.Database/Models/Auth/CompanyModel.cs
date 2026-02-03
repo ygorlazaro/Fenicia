@@ -25,13 +25,6 @@ public class CompanyModel : BaseModel
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
 
-    [MaxLength(32)]
-    [Column("logo")]
-    public string? Logo
-    {
-        get; set;
-    }
-
     [Required]
     [MaxLength(256)]
     [Column("time_zone")]
@@ -54,7 +47,7 @@ public class CompanyModel : BaseModel
     [JsonIgnore]
     public virtual List<SubscriptionModel> Subscriptions { get; set; } = null!;
 
-    [ForeignKey(nameof(AddressId))]
+    [ForeignKey(nameof(CompanyModel.AddressId))]
     [JsonIgnore]
     public virtual AddressModel? Address
     {
@@ -78,5 +71,17 @@ public class CompanyModel : BaseModel
             Cnpj = ur.Company.Cnpj,
             Role = ur.Role
         })];
+    }
+
+    public static CompanyResponse Convert(CompanyModel company)
+    {
+        return new CompanyResponse
+        {
+            Id = company.Id,
+            Name = company.Name,
+            Cnpj = company.Cnpj,
+            Language = company.Language,
+            TimeZone = company.TimeZone
+        };
     }
 }

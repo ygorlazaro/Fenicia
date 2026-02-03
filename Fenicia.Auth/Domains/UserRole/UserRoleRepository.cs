@@ -42,4 +42,9 @@ public class UserRoleRepository(AuthContext context) : IUserRoleRepository
 
         return query.ToListAsync(cancellationToken);
     }
+
+    public void Add(UserRoleModel userRole)
+    {
+        context.Add(userRole);
+    }
 }

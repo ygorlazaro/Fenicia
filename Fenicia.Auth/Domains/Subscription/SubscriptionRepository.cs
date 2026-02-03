@@ -19,8 +19,7 @@ public class SubscriptionRepository(AuthContext context) : ISubscriptionReposito
     {
         var now = DateTime.UtcNow;
         var subscriptions = context.Subscriptions.Where(subscription => subscription.CompanyId == companyId && now >= subscription.StartDate && now <= subscription.EndDate && subscription.Status == SubscriptionStatus.Active).Select(subscription => subscription.Id);
-        var result = await subscriptions.ToListAsync(cancellationToken);
 
-        return result;
+        return await subscriptions.ToListAsync(cancellationToken);
     }
 }

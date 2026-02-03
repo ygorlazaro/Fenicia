@@ -1,12 +1,10 @@
 using System.Security.Cryptography;
 
-using Fenicia.Common;
-
 namespace Fenicia.Auth.Domains.RefreshToken;
 
 public sealed class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository) : IRefreshTokenService
 {
-    public ApiResponse<string> GenerateRefreshToken(Guid userId)
+    public string GenerateRefreshToken(Guid userId)
     {
         var randomNumber = new byte[32];
 
@@ -23,20 +21,16 @@ public sealed class RefreshTokenService(IRefreshTokenRepository refreshTokenRepo
 
         refreshTokenRepository.Add(refreshToken);
 
-        return new ApiResponse<string>(refreshToken.Token);
+        return refreshToken.Token;
     }
 
-    public async Task<ApiResponse<bool>> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
+    public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
     {
-        var response = await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
-
-        return new ApiResponse<bool>(response);
+        return await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
     }
 
-    public async Task<ApiResponse<object>> InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+    public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
         await refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken, cancellationToken);
-
-        return new ApiResponse<object>(data: null);
     }
 }

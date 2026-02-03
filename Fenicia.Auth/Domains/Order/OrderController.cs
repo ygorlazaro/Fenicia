@@ -23,18 +23,12 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(OrderRequest request, [FromHeader] Headers headers, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.Operation = "CreateNewOrder";
         wide.UserId = ClaimReader.UserId(User).ToString();
 
         var userId = ClaimReader.UserId(User);
         var companyId = headers.CompanyId;
         var order = await orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
 
-        if (order.Data is null)
-        {
-            return StatusCode((int)order.Status, order.Message);
-        }
-
-        return Ok(order.Data);
+        return Ok(order);
     }
 }

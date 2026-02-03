@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Database.Responses;
 
@@ -14,7 +13,7 @@ public class TokenService : ITokenService
 {
     private readonly ConfigurationManager configuration = AppSettingsReader.GetConfiguration();
 
-    public ApiResponse<string> GenerateToken(UserResponse user)
+    public string GenerateToken(UserResponse user)
     {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
         var authClaims = GenerateClaims(user);
@@ -29,7 +28,7 @@ public class TokenService : ITokenService
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var finalToken = tokenHandler.WriteToken(token);
 
-        return new ApiResponse<string>(finalToken);
+        return finalToken;
     }
 
     private static List<Claim> GenerateClaims(UserResponse user)

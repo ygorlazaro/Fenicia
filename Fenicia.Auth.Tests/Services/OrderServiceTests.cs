@@ -6,7 +6,6 @@ using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;

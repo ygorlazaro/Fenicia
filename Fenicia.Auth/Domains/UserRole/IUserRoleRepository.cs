@@ -11,4 +11,6 @@ public interface IUserRoleRepository
     Task<bool> HasRoleAsync(Guid guid, Guid companyId, string role, CancellationToken cancellationToken);
 
     Task<List<UserRoleModel>> GetUserCompaniesAsync(Guid userId, CancellationToken cancellationToken);
+
+    void Add(UserRoleModel userRole);
 }

@@ -10,14 +10,14 @@ public class UserRoleServiceTests
 {
     private CancellationToken cancellationToken;
     private Faker faker;
-    private UserRoleService sut;
+    private IUserRoleService sut;
     private Mock<IUserRoleRepository> userRoleRepositoryMock;
 
     [SetUp]
     public void Setup()
     {
         userRoleRepositoryMock = new Mock<IUserRoleRepository>();
-        sut = new UserRoleService(userRoleRepositoryMock.Object);
+        sut = new IUserRoleService(userRoleRepositoryMock.Object);
         faker = new Faker();
         cancellationToken = CancellationToken.None;
     }
