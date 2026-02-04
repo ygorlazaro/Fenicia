@@ -5,6 +5,7 @@ using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Api;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,11 +26,22 @@ public class TokenController(ITokenService tokenService, IRefreshTokenService re
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<TokenResponse>> PostAsync(TokenRequest request, WideEventContext wide, CancellationToken cancellationToken)
     {
-        wide.UserId = request.Email;
+        try
+        {
+            wide.UserId = request.Email;
 
-        var userResponse = await userService.GetForLoginAsync(request, cancellationToken);
+            var userResponse = await userService.GetForLoginAsync(request, cancellationToken);
 
-        return PopulateToken(userResponse);
+            return PopulateToken(userResponse);
+        }
+        catch (PermissionDeniedException ex)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = ex.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
     }
 
     [HttpPost]

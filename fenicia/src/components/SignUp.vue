@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import api from '@/api/client';
-import { useAuthStore } from '@/stores/auth';
+import { useLoadingStore } from '@/stores/loading';
+import type { BadRequestType } from '@/types/BadRequestType';
 import type { SignUpRequest } from '@/types/Requests';
 import type { UserResponse } from '@/types/Responses';
+import { useToast } from 'buefy';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const emit = defineEmits(['onLogin', 'onNavigate']);
+const router = useRouter();
+const loadingStore = useLoadingStore();
+const toast = useToast();
+const formErrors = ref<BadRequestType | undefined>(undefined);
 
 const request = ref<SignUpRequest>({
   email: '',
@@ -17,19 +24,30 @@ const request = ref<SignUpRequest>({
   name: ''
 });
 
-const isLoading = ref(false);
-const authStore = useAuthStore();
-
 const handleOnSignup = async () => {
+  formErrors.value = undefined;
   try {
-    isLoading.value = true;
-    await api.post<UserResponse>('/register', request.value);
+    loadingStore.setLoading(true);
+    const { data } = await api.post<UserResponse>('/register', request.value);
 
+    router.push('/');
 
-  } catch (error) {
-    console.error("Erro ao cadastrar", error);
+  } catch (error: any) {
+
+    const status = error.response?.status || error.status;
+
+    if (status === 400) {
+      const errorDetail = error.response.data as BadRequestType;
+      toast.open({
+        type: "is-danger",
+        message: errorDetail.title || "Erro de validação",
+        position: 'is-bottom-right'
+      });
+      formErrors.value = errorDetail;
+    }
+
   } finally {
-    isLoading.value = false;
+    loadingStore.setLoading(false);
   }
 };
 
@@ -37,37 +55,40 @@ const handleOnSignup = async () => {
 
 <template>
   <div class="card">
-    <header class="card-header">
-      <p class="card-header-title">Cadastre-se</p>
-    </header>
 
-    <div class="card-content">
-      <b-field label="Nome">
-        <b-input type="text" v-model="request.name" maxlength="50" />
+    <form class="card-content" @submit.prevent="handleOnSignup">
+      <b-field label="Nome" horizontal :type="{ 'is-danger': formErrors?.errors?.Name }"
+        :message="formErrors?.errors?.Name">
+        <b-input type="text" v-model="request.name" maxlength="48" rounded required />
       </b-field>
 
-      <b-field label="Email">
-        <b-input type="email" v-model="request.email" maxlength="50" />
+      <b-field label="Email" horizontal :type="{ 'is-danger': formErrors?.errors?.Email }"
+        :message="formErrors?.errors?.Email">
+        <b-input type="email" v-model="request.email" maxlength="48" rounded required />
       </b-field>
 
-      <b-field label="Senha">
-        <b-input type="password" v-model="request.password" maxlength="48" />
+      <b-field label="Senha" horizontal :type="{ 'is-danger': formErrors?.errors?.Password }"
+        :message="formErrors?.errors?.Password">
+        <b-input type="password" v-model="request.password" maxlength="200" rounded required />
       </b-field>
 
-      <b-field label="Nome da empresa">
-        <b-input type="text" v-model="request.company.name" maxlength="48" />
+      <b-field label="Nome da empresa" horizontal :type="{ 'is-danger': formErrors?.errors?.Company?.Name }"
+        :message="formErrors?.errors?.Company.Name">
+        <b-input type="text" v-model="request.company.name" maxlength="200" rounded required />
       </b-field>
 
-      <b-field label="CNPJ">
-        <b-input type="text" v-model="request.company.cnpj" maxlength="48" />
+      <b-field label="CNPJ" horizontal :type="{ 'is-danger': formErrors?.errors?.Company?.Cnpj }"
+        :message="formErrors?.errors?.Company.Cnpj">
+        <b-input type="text" v-model="request.company.cnpj" maxlength="14" rounded required />
       </b-field>
 
       <footer class="card-footer">
-        <b-button class="card-footer-item" type="is-primary" @click="handleOnSignup">Entrar</b-button>
-
+        <b-button class="card-footer-item m-4" rounded type="is-primary" :loading="loadingStore.isLoading"
+          @click="handleOnSignup">Cadastrar</b-button>
+        <b-button class="card-footer-item m-4" rounded type="is-primary" @click="$emit('onNavigate')">Login</b-button>
       </footer>
 
-    </div>
+    </form>
   </div>
 </template>
 

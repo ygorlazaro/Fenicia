@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Fenicia.Common.API.Middlewares;
 
-public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+public class ExceptionMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -16,15 +15,11 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         {
             var problem = new ProblemDetails
             {
-                Type = "https://tools.ietf.org/html/rfc7807",
                 Title = "Erro interno",
-                Status = 500,
+                Status = context.Response.StatusCode,
                 Detail = ex.Message,
                 Instance = context.Request.Path
             };
-
-            context.Response.StatusCode = 500;
-            context.Response.ContentType = "application/problem+json";
 
             await context.Response.WriteAsJsonAsync(problem);
         }

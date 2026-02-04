@@ -35,4 +35,7 @@
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj" />
+    </ItemGroup>
 </Project>

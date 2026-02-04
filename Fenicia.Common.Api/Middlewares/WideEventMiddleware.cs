@@ -1,9 +1,11 @@
 using System.Diagnostics;
 
+using Fenicia.Common.Api;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Fenicia.Common.Api.Middlewares;
+namespace Fenicia.Common.API.Middlewares;
 
 public sealed class WideEventMiddleware(
     RequestDelegate next,
