@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import SignUp from '@/components/SignUp.vue';
 import { ref } from 'vue';
+import logo from "../assets/logo.jpeg";
 import Login from '../components/Login.vue';
 
 enum ViewEnum  {
@@ -10,15 +11,17 @@ enum ViewEnum  {
 
 const currentView = ref(ViewEnum.Login)
 
-const onLogin = (loginRequest: any) => {
-  console.log(loginRequest.value)
-}
 </script>
 
 <template>
   <main>
-    <Login @on-login="onLogin" v-if="currentView === ViewEnum.Login" @on-navigate="currentView = ViewEnum.SignUp" />
+    <div class="is-flex is-flex-direction-column is-align-items-center">
 
-    <SignUp v-else @on-navigate="currentView = ViewEnum.Login"/>
+      <b-image :src="logo" rounded class="is-128x128 mb-4" />
+
+      <Login v-if="currentView === ViewEnum.Login" @on-navigate="currentView = ViewEnum.SignUp" />
+
+      <SignUp v-else @on-navigate="currentView = ViewEnum.Login" />
+    </div>
   </main>
 </template>

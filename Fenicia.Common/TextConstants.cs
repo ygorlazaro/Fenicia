@@ -3,7 +3,7 @@ namespace Fenicia.Common;
 public static class TextConstants
 {
     public const string InvalidJwtSecretMessage = "Invalid Jwt Secret";
-    public const string InvalidUsernameOrPasswordMessage = "Invalid Username or password";
+    public const string InvalidUsernameOrPasswordMessage = "Invalid username or password";
     public const string PermissionDeniedMessage = "Permission denied";
     public const string ThereWasAnErrorSearchingModulesMessage = "Houve um problema buscando os módulos";
 

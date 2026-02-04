@@ -1,5 +1,3 @@
-import './assets/main.css'
-
 import Buefy from 'buefy'
 import 'buefy/dist/css/buefy.css'
 import { createPinia } from 'pinia'
@@ -15,5 +13,3 @@ app.use(router)
 app.use(Buefy)
 
 app.mount('#app')
-
-app.config.errorHandler = err => console.error(err);

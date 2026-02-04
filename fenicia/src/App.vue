@@ -1,28 +1,21 @@
-<script lang="ts">
-import { ref } from 'vue';
-import { RouterLink, RouterView } from 'vue-router';
+<script setup lang="ts">
+import { RouterView } from 'vue-router';
+import MainMenu from './components/MainMenu.vue';
+import { useAuthStore } from './stores/auth';
+import { useLoadingStore } from './stores/loading';
 
-export default {
-  setup() {
-    const isLogged = ref(false);
+const loadingStore = useLoadingStore();
+const authStore = useAuthStore();
 
-    return {
-      isLogged
-
-    }
-  }
-}
 </script>
 
 <template>
   <header>
-    <div v-if="isLogged">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
+    <MainMenu v-if="authStore.isAuthenticated">
+    </MainMenu>
   </header>
+
+  <b-loading is-full-page v-model="loadingStore.isLoading" :can-cancel="true"></b-loading>
 
   <RouterView />
 </template>
