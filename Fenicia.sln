@@ -48,8 +48,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Migrations",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Integration.RunCommandTool", "Fenicia.Integration.RunCommandTool\Fenicia.Integration.RunCommandTool.csproj", "{ED753193-5DD3-49F1-B7E5-F2C7666D535F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Web", "Fenicia.Web\Fenicia.Web.csproj", "{37A38F00-11E2-436E-BF42-B566A70091C6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

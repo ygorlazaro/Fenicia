@@ -12,6 +12,7 @@ using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.State;
+using Fenicia.Auth.Domains.Submodule;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Auth.Domains.Token;
@@ -205,6 +206,7 @@ public static class Program
         builder.Services.AddTransient<IUserRoleService, UserRoleService>();
         builder.Services.AddTransient<IUserService, UserService>();
         builder.Services.AddTransient<IMigrationService, MigrationService>();
+        builder.Services.AddTransient<ISubmoduleService, SubmoduleService>();
 
         builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
         builder.Services.AddTransient<IForgotPasswordRepository, ForgotPasswordRepository>();
@@ -217,6 +219,7 @@ public static class Program
         builder.Services.AddTransient<IStateRepository, StateRepository>();
         builder.Services.AddTransient<IUserRepository, UserRepository>();
         builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
+        builder.Services.AddTransient<ISubmoduleRepository, SubmoduleRepository>();
 
         builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
 
