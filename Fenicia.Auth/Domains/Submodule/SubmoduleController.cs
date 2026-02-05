@@ -1,11 +1,12 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Submodule;
 using Fenicia.Common;
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Fenicia.Auth.Domains.Submodule;
 
 [Authorize]
 [ApiController]

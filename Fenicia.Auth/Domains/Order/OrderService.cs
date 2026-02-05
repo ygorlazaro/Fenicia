@@ -42,9 +42,11 @@ public sealed class OrderService(IOrderRepository orderRepository, IModuleServic
             CompanyId = companyId
         };
 
-        await orderRepository.SaveOrderAsync(order, cancellationToken);
+        orderRepository.Add(order);
+
         await subscriptionService.CreateCreditsForOrderAsync(order, details, companyId, cancellationToken);
 
+        await orderRepository.SaveChangesAsync(cancellationToken);
         await migrationService.RunMigrationsAsync(companyId, [.. modules.Select(m => m.Type)], cancellationToken);
 
         return OrderResponse.Convert(order);

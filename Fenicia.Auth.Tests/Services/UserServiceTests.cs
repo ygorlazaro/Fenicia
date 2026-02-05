@@ -1,5 +1,4 @@
 using Bogus;
-
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Role;
@@ -9,10 +8,9 @@ using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
-using Fenicia.Common.Migrations.Services;
-using Fenicia.Common.Exceptions;
 using Fenicia.Common.Enums;
-
+using Fenicia.Common.Exceptions;
+using Fenicia.Common.Migrations.Services;
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -51,7 +49,6 @@ public class UserServiceTests
     [Test]
     public async Task GetForLoginAsyncWithValidCredentialsReturnsUser()
     {
-        // Arrange
         var request = new TokenRequest
         {
             Email = faker.Internet.Email(),
@@ -77,17 +74,14 @@ public class UserServiceTests
 
         securityServiceMock.Setup(x => x.VerifyPassword(request.Password, user.Password)).Returns(true);
 
-        // Act
-        // Assert
         var result = await sut.GetForLoginAsync(request, cancellationToken);
 
         Assert.That(result, Is.EqualTo(expectedResponse));
     }
 
     [Test]
-    public async Task GetForLoginAsyncWithInvalidUserReturnsBadRequest()
+    public void GetForLoginAsyncWithInvalidUserReturnsBadRequest()
     {
-        // Arrange
         var request = new TokenRequest
         {
             Email = faker.Internet.Email(),
@@ -96,14 +90,12 @@ public class UserServiceTests
 
         userRepositoryMock.Setup(x => x.GetByEmailAsync(request.Email, cancellationToken)).ReturnsAsync((UserModel)null!);
 
-        // Act & Assert
         Assert.ThrowsAsync<PermissionDeniedException>(async () => await sut.GetForLoginAsync(request, cancellationToken));
     }
 
     [Test]
     public async Task CreateNewUserAsyncWithValidDataCreatesUser()
     {
-        // Arrange
         var request = new UserRequest
         {
             Email = faker.Internet.Email(),
@@ -125,12 +117,6 @@ public class UserServiceTests
             Password = hashedPassword,
             Name = request.Name
         };
-        var companyModel = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = request.Company.Name,
-            Cnpj = request.Company.Cnpj
-        };
 
         var expectedResponse = new UserResponse
         {
@@ -142,23 +128,20 @@ public class UserServiceTests
         userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(value: false);
         companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, onlyActive: true, cancellationToken)).ReturnsAsync(value: false);
         securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(hashedPassword);
-        userRepositoryMock.Setup(x => x.Add(It.IsAny<UserModel>())).Returns(user);
-        companyRepositoryMock.Setup(x => x.Add(It.IsAny<CompanyModel>())).Returns(companyModel);
+        userRepositoryMock.Setup(x => x.Add(It.IsAny<UserModel>()));
+        companyRepositoryMock.Setup(x => x.Add(It.IsAny<CompanyModel>()));
         roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(cancellationToken)).ReturnsAsync(adminRole);
 
-        // Act
         var result = await sut.CreateNewUserAsync(request, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.EqualTo(expectedResponse));
 
-        userRepositoryMock.Verify(x => x.SaveAsync(cancellationToken), Times.Once);
+        userRepositoryMock.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
     }
 
     [Test]
-    public async Task CreateNewUserAsyncWithExistingUserReturnsBadRequest()
+    public void CreateNewUserAsyncWithExistingUserReturnsBadRequest()
     {
-        // Arrange
         var request = new UserRequest
         {
             Email = faker.Internet.Email(),
@@ -173,31 +156,26 @@ public class UserServiceTests
 
         userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(value: true);
 
-        // Act & Assert
         Assert.ThrowsAsync<ArgumentException>(async () => await sut.CreateNewUserAsync(request, cancellationToken));
     }
 
     [Test]
     public async Task ExistsInCompanyAsyncReturnsCorrectResult()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var exists = true;
+        const bool exists = true;
 
         userRoleRepositoryMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(exists);
 
-        // Act
         var result = await sut.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.EqualTo(exists));
     }
 
     [Test]
     public async Task GetUserForRefreshAsyncWithValidUserReturnsUser()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var user = new UserModel
         {
@@ -213,31 +191,26 @@ public class UserServiceTests
             Name = user.Name
         };
 
-        userRepositoryMock.Setup(x => x.GetUserForRefreshTokenAsync(userId, cancellationToken)).ReturnsAsync(user);
+        userRepositoryMock.Setup(x => x.GetByIdAsync(userId, cancellationToken)).ReturnsAsync(user);
 
-        // Act
         var result = await sut.GetUserForRefreshAsync(userId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.EqualTo(expectedResponse));
     }
 
     [Test]
-    public async Task GetUserForRefreshAsyncWithInvalidUserReturnsUnauthorized()
+    public void GetUserForRefreshAsyncWithInvalidUserReturnsUnauthorized()
     {
-        // Arrange
         var userId = Guid.NewGuid();
 
-        userRepositoryMock.Setup(x => x.GetUserForRefreshTokenAsync(userId, cancellationToken)).ReturnsAsync((UserModel)null!);
+        userRepositoryMock.Setup(x => x.GetByIdAsync(userId, cancellationToken)).ReturnsAsync((UserModel)null!);
 
-        // Act & Assert
         Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await sut.GetUserForRefreshAsync(userId, cancellationToken));
     }
 
     [Test]
-    public async Task CreateNewUserAsyncWithMissingAdminRoleReturnsInternalServerError()
+    public void CreateNewUserAsyncWithMissingAdminRoleReturnsInternalServerError()
     {
-        // Arrange
         var request = new UserRequest
         {
             Email = faker.Internet.Email(),
@@ -255,12 +228,11 @@ public class UserServiceTests
         roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(cancellationToken)).ReturnsAsync((RoleModel)null!);
         securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns("hashedPassword");
 
-        // Act & Assert
         Assert.ThrowsAsync<ArgumentException>(async () => await sut.CreateNewUserAsync(request, cancellationToken));
     }
 
     [Test]
-    public async Task GetForLoginAsyncWithTooManyAttemptsThrowsPermissionDenied()
+    public void GetForLoginAsyncWithTooManyAttemptsThrowsPermissionDenied()
     {
         var request = new TokenRequest { Email = faker.Internet.Email(), Password = faker.Internet.Password() };
 
@@ -270,7 +242,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task GetForLoginAsyncWithInvalidPasswordIncrementsAttemptsAndThrows()
+    public void GetForLoginAsyncWithInvalidPasswordIncrementsAttemptsAndThrows()
     {
         var request = new TokenRequest { Email = faker.Internet.Email(), Password = faker.Internet.Password() };
 
@@ -287,7 +259,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task CreateNewUserAsyncWithExistingCompanyThrows()
+    public void CreateNewUserAsyncWithExistingCompanyThrows()
     {
         var request = new UserRequest
         {
@@ -304,7 +276,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task GetUserIdFromEmailAsyncWhenNotFoundThrows()
+    public void GetUserIdFromEmailAsyncWhenNotFoundThrows()
     {
         userRepositoryMock.Setup(x => x.GetUserIdFromEmailAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync((Guid?)null);
 
@@ -319,7 +291,7 @@ public class UserServiceTests
 
         userRepositoryMock.Setup(x => x.GetByIdAsync(userId, cancellationToken)).ReturnsAsync(user);
         securityServiceMock.Setup(x => x.HashPassword("newpwd")).Returns("hashedNew");
-        userRepositoryMock.Setup(x => x.SaveAsync(cancellationToken)).ReturnsAsync(1);
+        userRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(1);
 
         var result = await sut.ChangePasswordAsync(userId, "newpwd", cancellationToken);
 
@@ -327,7 +299,7 @@ public class UserServiceTests
     }
 
     [Test]
-    public async Task ChangePasswordAsyncWhenUserNotFoundThrows()
+    public void ChangePasswordAsyncWhenUserNotFoundThrows()
     {
         var userId = Guid.NewGuid();
 

@@ -37,7 +37,6 @@ public class UserRoleRepositoryTests
     [Test]
     public async Task GetRolesByUserAsyncWhenUserHasRolesReturnsRoles()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var roles = new[] { "Admin", "User", "Manager" };
         var userRoles = roles.Select(role => userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.Role, _ => roleGenerator.Clone().RuleFor(r => r.Name, role).Generate()).Generate()).ToList();
@@ -45,10 +44,8 @@ public class UserRoleRepositoryTests
         await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetRolesByUserAsync(userId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.Length.EqualTo(roles.Length));
         Assert.That(result, Is.EquivalentTo(roles));
@@ -57,20 +54,16 @@ public class UserRoleRepositoryTests
     [Test]
     public async Task GetRolesByUserAsyncWhenUserHasNoRolesReturnsEmptyArray()
     {
-        // Arrange
         var userId = Guid.NewGuid();
 
-        // Act
         var result = await sut.GetRolesByUserAsync(userId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task ExistsInCompanyAsyncWhenUserExistsInCompanyReturnsTrue()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var userRole = userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.CompanyId, companyId).Generate();
@@ -78,31 +71,25 @@ public class UserRoleRepositoryTests
         await context.UserRoles.AddAsync(userRole, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task ExistsInCompanyAsyncWhenUserDoesNotExistInCompanyReturnsFalse()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
-        // Act
         var result = await sut.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.False);
     }
 
     [Test]
     public async Task HasRoleAsyncWhenUserHasRoleInCompanyReturnsTrue()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         const string roleName = "Admin";
@@ -111,17 +98,14 @@ public class UserRoleRepositoryTests
         await context.UserRoles.AddAsync(userRole, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.HasRoleAsync(userId, companyId, roleName, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task HasRoleAsyncWhenUserDoesNotHaveRoleInCompanyReturnsFalse()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         const string roleName = "Admin";
@@ -130,45 +114,36 @@ public class UserRoleRepositoryTests
         await context.UserRoles.AddAsync(userRole, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.HasRoleAsync(userId, companyId, roleName, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.False);
     }
 
     [Test]
     public async Task HasRoleAsyncWhenUserDoesNotExistInCompanyReturnsFalse()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleName = "Admin";
 
-        // Act
         var result = await sut.HasRoleAsync(userId, companyId, roleName, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.False);
     }
 
     [Test]
     public void AddShouldAddUserRoleToContext()
     {
-        // Arrange
         var userRole = userRoleGenerator.Generate();
 
-        // Act
         sut.Add(userRole);
 
-        // Assert
         Assert.That(context.UserRoles.Local, Does.Contain(userRole));
     }
 
     [Test]
     public async Task GetUserCompaniesAsyncReturnsCompanyInfo()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var company = new CompanyModel { Id = Guid.NewGuid(), Name = "Acme Co", Cnpj = "12345678901234" };
         var userRole = userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.CompanyId, company.Id).Generate();
@@ -177,15 +152,16 @@ public class UserRoleRepositoryTests
         await context.UserRoles.AddAsync(userRole, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetUserCompaniesAsync(userId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(1));
-        Assert.That(result[0].Id, Is.EqualTo(company.Id));
-        Assert.That(result[0].Company.Name, Is.EqualTo(company.Name));
-        Assert.That(result[0].Company.Cnpj, Is.EqualTo(company.Cnpj));
+        Assert.That(result, Has.Count.EqualTo(1));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result[0].Id, Is.EqualTo(company.Id));
+            Assert.That(result[0].Company.Name, Is.EqualTo(company.Name));
+            Assert.That(result[0].Company.Cnpj, Is.EqualTo(company.Cnpj));
+        }
     }
 
     private void SetupFakers()

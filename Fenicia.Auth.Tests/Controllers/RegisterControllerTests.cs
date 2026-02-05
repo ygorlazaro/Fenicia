@@ -1,6 +1,6 @@
 using Fenicia.Auth.Domains.Register;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 using Microsoft.AspNetCore.Mvc;

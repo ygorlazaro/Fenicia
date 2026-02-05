@@ -1,8 +1,8 @@
+using Fenicia.Common.Database.Abstracts;
 using Fenicia.Common.Database.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public interface IOrderRepository
+public interface IOrderRepository: IBaseRepository<OrderModel>
 {
-    Task<OrderModel> SaveOrderAsync(OrderModel order, CancellationToken cancellationToken = default);
 }

@@ -37,14 +37,12 @@ public class ModuleRepositoryTests
     [Test]
     public async Task GetAllOrderedAsyncReturnsModulesWithPagination()
     {
-        // Arrange
         var modules = new List<ModuleModel>();
         for (var i = 0; i < 15; i++)
         {
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                // avoid types Erp (-1) and Auth (0) which are filtered by repository
                 Type = (ModuleType)((i % 5) + 1),
                 Name = faker.Commerce.ProductName()
             });
@@ -53,13 +51,11 @@ public class ModuleRepositoryTests
         await context.Modules.AddRangeAsync(modules, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
-        var page1 = await sut.GetAllOrderedAsync(cancellationToken, page: 1, perPage: 10);
-        var page2 = await sut.GetAllOrderedAsync(cancellationToken, page: 2, perPage: 10);
+        var page1 = await sut.GetAllAsync(cancellationToken, page: 1, perPage: 10);
+        var page2 = await sut.GetAllAsync(cancellationToken, page: 2, perPage: 10);
 
         using (Assert.EnterMultipleScope())
         {
-            // Assert
             Assert.That(page1, Has.Count.EqualTo(expected: 10));
             Assert.That(page2, Has.Count.EqualTo(expected: 5));
         }
@@ -70,17 +66,14 @@ public class ModuleRepositoryTests
     [Test]
     public async Task GetAllOrderedAsyncReturnsEmptyListWhenNoModules()
     {
-        // Act
-        var result = await sut.GetAllOrderedAsync(cancellationToken);
+        var result = await sut.GetAllAsync(cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task GetManyOrdersAsyncReturnsRequestedModules()
     {
-        // Arrange
         var modules = new List<ModuleModel>();
         var requestedIDs = new List<Guid>();
 
@@ -102,10 +95,8 @@ public class ModuleRepositoryTests
         await context.Modules.AddRangeAsync(modules, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetManyOrdersAsync(requestedIDs, cancellationToken);
 
-        // Assert
         Assert.That(result, Has.Count.EqualTo(expected: 3));
         using (Assert.EnterMultipleScope())
         {
@@ -117,20 +108,16 @@ public class ModuleRepositoryTests
     [Test]
     public async Task GetManyOrdersAsyncReturnsEmptyListWhenNoMatchingIDs()
     {
-        // Arrange
         var nonExistentIDs = new[] { Guid.NewGuid(), Guid.NewGuid() };
 
-        // Act
         var result = await sut.GetManyOrdersAsync(nonExistentIDs, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task GetUserModulesAsyncReturnsModulesForActiveSubscription()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
@@ -148,10 +135,8 @@ public class ModuleRepositoryTests
 
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetUserModulesAsync(userId, companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Empty);
         Assert.That(result.First().Id, Is.EqualTo(module.Id));
     }
@@ -159,13 +144,12 @@ public class ModuleRepositoryTests
     [Test]
     public async Task GetModuleAndSubmoduleAsync_IncludesSubmodules()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
         var module = new ModuleModel { Id = Guid.NewGuid(), Name = "M2", Type = ModuleType.Basic };
         var sub = new SubmoduleModel { Id = Guid.NewGuid(), Name = "s", Route = "/s", ModuleId = module.Id };
-        module.Submodules = new List<SubmoduleModel> { sub };
+        module.Submodules = [sub];
 
         await context.Modules.AddAsync(module, cancellationToken);
 
@@ -180,10 +164,8 @@ public class ModuleRepositoryTests
 
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Empty);
         Assert.That(result.First().Submodules, Is.Not.Null.And.Not.Empty);
         Assert.That(result.First().Submodules.First().Id, Is.EqualTo(sub.Id));
@@ -192,7 +174,6 @@ public class ModuleRepositoryTests
     [Test]
     public async Task GetModuleByTypeAsyncReturnsModuleWhenExists()
     {
-        // Arrange
         var moduleType = ModuleType.Accounting;
         var module = new ModuleModel
         {
@@ -204,10 +185,8 @@ public class ModuleRepositoryTests
         await context.Modules.AddAsync(module, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetModuleByTypeAsync(moduleType, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -219,17 +198,14 @@ public class ModuleRepositoryTests
     [Test]
     public async Task GetModuleByTypeAsyncReturnsNullWhenNotExists()
     {
-        // Act
         var result = await sut.GetModuleByTypeAsync(ModuleType.Accounting, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Null);
     }
 
     [Test]
     public async Task CountAsyncReturnsCorrectCount()
     {
-        // Arrange
         var expectedCount = 5;
         var modules = new List<ModuleModel>();
 
@@ -246,27 +222,22 @@ public class ModuleRepositoryTests
         await context.Modules.AddRangeAsync(modules, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var count = await sut.CountAsync(cancellationToken);
 
-        // Assert
         Assert.That(count, Is.EqualTo(expectedCount));
     }
 
     [Test]
     public async Task CountAsyncReturnsZeroWhenNoModules()
     {
-        // Act
         var count = await sut.CountAsync(cancellationToken);
 
-        // Assert
         Assert.That(count, Is.Zero);
     }
 
     [Test]
     public async Task LoadModulesAtDatabaseAsync_SavesAndReturnsAllOrderedByType()
     {
-        // Arrange
         var modules = new List<ModuleModel>
         {
             new () { Id = Guid.NewGuid(), Name = "B", Type = ModuleType.Basic },
@@ -274,10 +245,8 @@ public class ModuleRepositoryTests
             new () { Id = Guid.NewGuid(), Name = "P", Type = ModuleType.Pos }
         };
 
-        // Act
         var result = await sut.LoadModulesAtDatabaseAsync(modules, cancellationToken);
 
-        // Assert
         Assert.That(result, Has.Count.EqualTo(3));
         Assert.That(result, Is.Ordered.By("Type"));
         Assert.That(result.Select(m => m.Id), Is.EquivalentTo(modules.Select(m => m.Id)));
@@ -286,14 +255,12 @@ public class ModuleRepositoryTests
     [Test]
     public async Task GetAllOrderedAsyncRespectsPaginationWithDifferentPageSizes()
     {
-        // Arrange
         var modules = new List<ModuleModel>();
         for (var i = 0; i < 25; i++)
         {
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                // avoid types Erp (-1) and Auth (0) which are filtered by repository
                 Type = (ModuleType)((i % 5) + 1),
                 Name = faker.Commerce.ProductName()
             });
@@ -302,11 +269,10 @@ public class ModuleRepositoryTests
         await context.Modules.AddRangeAsync(modules, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act & Assert
-        var page1Size5 = await sut.GetAllOrderedAsync(cancellationToken, page: 1, perPage: 5);
+        var page1Size5 = await sut.GetAllAsync(cancellationToken, page: 1, perPage: 5);
         Assert.That(page1Size5, Has.Count.EqualTo(expected: 5));
 
-        var page2Size15 = await sut.GetAllOrderedAsync(cancellationToken, page: 2, perPage: 15);
+        var page2Size15 = await sut.GetAllAsync(cancellationToken, page: 2, perPage: 15);
         Assert.That(page2Size15, Has.Count.EqualTo(expected: 10));
     }
 }

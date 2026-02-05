@@ -11,7 +11,7 @@ public class CustomerModel : BaseModel
     public string Name { get; set; } = null!;
 
     [MaxLength(length: 14)]
-    public string? Cpf { get; set; } = null!;
+    public string? Cpf { get; set; }
 
     [Required]
     public Guid AddressId

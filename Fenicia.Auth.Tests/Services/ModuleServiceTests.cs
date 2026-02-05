@@ -27,7 +27,6 @@ public class ModuleServiceTests
     [Test]
     public async Task GetAllOrderedAsyncReturnsModules()
     {
-        // Arrange
         var modules = new List<ModuleModel>
                       {
                           new () { Id = Guid.NewGuid(), Name = faker.Commerce.ProductName() },
@@ -35,14 +34,12 @@ public class ModuleServiceTests
                       };
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
-        moduleRepositoryMock.Setup(x => x.GetAllOrderedAsync(cancellationToken, 1, 10)).ReturnsAsync(modules);
+        moduleRepositoryMock.Setup(x => x.GetAllAsync(cancellationToken, 1, 10)).ReturnsAsync(modules);
 
-        // Act
         var result = await sut.GetAllOrderedAsync(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
-            // Assert
             Assert.That(result, Is.EqualTo(expectedResponse));
         }
     }
@@ -50,19 +47,16 @@ public class ModuleServiceTests
     [Test]
     public async Task GetModulesToOrderAsyncReturnsRequestedModules()
     {
-        // Arrange
         var moduleIDs = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
         var modules = moduleIDs.Select(id => new ModuleModel { Id = id, Name = faker.Commerce.ProductName() }).ToList();
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
         moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIDs, cancellationToken)).ReturnsAsync(modules);
 
-        // Act
         var result = await sut.GetModulesToOrderAsync(moduleIDs, cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
-            // Assert
             Assert.That(result, Is.EqualTo(expectedResponse));
         }
     }
@@ -70,8 +64,7 @@ public class ModuleServiceTests
     [Test]
     public async Task GetModuleByTypeAsyncWhenModuleExistsReturnsModule()
     {
-        // Arrange
-        var moduleType = ModuleType.Ecommerce;
+        const ModuleType moduleType = ModuleType.Ecommerce;
         var module = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -87,12 +80,10 @@ public class ModuleServiceTests
 
         moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, cancellationToken)).ReturnsAsync(module);
 
-        // Act
         var result = await sut.GetModuleByTypeAsync(moduleType, cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
-            // Assert
             Assert.That(result, Is.EqualTo(expectedResponse));
         }
     }
@@ -100,32 +91,26 @@ public class ModuleServiceTests
     [Test]
     public async Task GetModuleByTypeAsyncWhenModuleDoesNotExistReturnsNull()
     {
-        // Arrange
-        var moduleType = ModuleType.Ecommerce;
+        const ModuleType moduleType = ModuleType.Ecommerce;
 
         moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, cancellationToken)).ReturnsAsync((ModuleModel?)null);
 
-        // Act
         var result = await sut.GetModuleByTypeAsync(moduleType, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Null);
     }
 
     [Test]
     public async Task CountAsyncReturnsCount()
     {
-        // Arrange
         var expectedCount = faker.Random.Int(min: 1, max: 100);
 
         moduleRepositoryMock.Setup(x => x.CountAsync(cancellationToken)).ReturnsAsync(expectedCount);
 
-        // Act
         var result = await sut.CountAsync(cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
-            // Assert
             Assert.That(result, Is.EqualTo(expectedCount));
         }
     }
@@ -170,15 +155,19 @@ public class ModuleServiceTests
         var companyId = Guid.NewGuid();
         var module = new ModuleModel { Id = Guid.NewGuid(), Name = "WithSub", Amount = 1, Type = ModuleType.Basic };
         var sub = new SubmoduleModel { Id = Guid.NewGuid(), Name = "s", Route = "/s", ModuleId = module.Id };
-        module.Submodules = new List<SubmoduleModel> { sub };
+        module.Submodules = [sub];
         var modules = new List<ModuleModel> { module };
 
         moduleRepositoryMock.Setup(x => x.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken)).ReturnsAsync(modules);
 
         var result = await sut.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
 
-        Assert.That(result.First().Id, Is.EqualTo(module.Id));
-        Assert.That(result.First().Submodules, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.First().Id, Is.EqualTo(module.Id));
+            Assert.That(result.First().Submodules, Is.Not.Null);
+        }
+
         Assert.That(result.First().Submodules.First().Id, Is.EqualTo(sub.Id));
     }
 }

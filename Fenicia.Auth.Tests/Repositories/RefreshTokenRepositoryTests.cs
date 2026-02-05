@@ -29,10 +29,8 @@ public class RefreshTokenRepositoryTests
     [Test]
     public void InvalidateRefreshTokenAsyncHandlesNonExistentToken()
     {
-        // Arrange
         var nonExistentToken = faker.Random.Hash();
 
-        // Act & Assert
         Assert.DoesNotThrowAsync(() => sut.InvalidateRefreshTokenAsync(nonExistentToken, cancellationToken));
     }
 
@@ -58,7 +56,7 @@ public class RefreshTokenRepositoryTests
     public async Task ValidateTokenAsync_ReturnsFalseForExpiredOrInactive()
     {
         var userId = Guid.NewGuid();
-        var token = "tokexp";
+        const string token = "tokexp";
 
         var expired = new RefreshToken { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(-1) };
         var key = "refresh_token:" + token;
@@ -80,13 +78,11 @@ public class RefreshTokenRepositoryTests
         var token = faker.Random.AlphaNumeric(44);
         var key = "refresh_token:" + token;
 
-        // Simulate stored 'null' value which deserializes to null
         redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)"null");
 
         await sut.InvalidateRefreshTokenAsync(token, cancellationToken);
 
-        // Should not attempt to set anything
-        Assert.That(redisDbMock.Invocations.Any(i => i.Method.Name == "StringSet" || i.Method.Name == "StringSetAsync"), Is.False);
+        Assert.That(redisDbMock.Invocations.Any(i => i.Method.Name is "StringSet" or "StringSetAsync"), Is.False);
     }
 
     [Test]
@@ -104,29 +100,22 @@ public class RefreshTokenRepositoryTests
     [Test]
     public async Task ValidateTokenAsyncReturnsFalseForNonExistentToken()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var nonExistentToken = faker.Random.Hash();
 
-        // Act
         var result = await sut.ValidateTokenAsync(userId, nonExistentToken, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.False);
     }
 
     [Test]
     public void Add_SetsValueInRedis()
     {
-        // Arrange
         var token = faker.Random.AlphaNumeric(length: 44);
         var refresh = new RefreshToken { Token = token, UserId = Guid.NewGuid(), IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(6) };
 
-        // Act
         sut.Add(refresh);
 
-        // Assert
-        // Verify a value was set for some key (avoid fragile overload matching) by inspecting invocations
         Assert.That(redisDbMock.Invocations.Any(i => i.Method.Name == "StringSet"), Is.True);
     }
 
@@ -155,10 +144,8 @@ public class RefreshTokenRepositoryTests
         var key = "refresh_token:" + token;
         redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)System.Text.Json.JsonSerializer.Serialize(refresh));
 
-        // Act
         await sut.InvalidateRefreshTokenAsync(token, cancellationToken);
 
-        // Ensure the repository attempted to update the token in Redis
         var invocation = redisDbMock.Invocations.FirstOrDefault(i => i.Method.Name == "StringSetAsync");
         Assert.That(invocation, Is.Not.Null, "Expected StringSetAsync to be called.");
 

@@ -1,3 +1,5 @@
+using Fenicia.Common.Database.Abstracts;
+
 namespace Fenicia.Auth.Domains.Subscription;
 
 using Common.Database.Contexts;
@@ -7,14 +9,8 @@ using Fenicia.Common.Database.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
-public class SubscriptionRepository(AuthContext context) : ISubscriptionRepository
+public class SubscriptionRepository(AuthContext context) : BaseRepository<SubscriptionModel>(context), ISubscriptionRepository
 {
-    public async Task SaveSubscriptionAsync(SubscriptionModel subscription, CancellationToken cancellationToken)
-    {
-        context.Subscriptions.Add(subscription);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
     public async Task<List<Guid>> GetValidSubscriptionAsync(Guid companyId, CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;

@@ -1,10 +1,10 @@
 using System.Diagnostics;
 
-namespace Fenicia.Common.Api;
+namespace Fenicia.Common.API;
 
 public sealed class WideEventContext
 {
-    public string TraceId { get; } = Activity.Current?.TraceId.ToString();
+    public string TraceId { get; } = Activity.Current?.TraceId.ToString() ?? string.Empty;
 
     public string Path { get; set; } = null!;
 

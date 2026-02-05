@@ -78,8 +78,6 @@ public class Program
             app.MapOpenApi();
             app.MapScalarApiReference(x =>
             {
-                x.WithDarkModeToggle(showDarkModeToggle: true).WithTheme(ScalarTheme.BluePlanet).WithClientButton(showButton: true);
-
                 x.Authentication = new ScalarAuthenticationOptions
                 {
                     PreferredSecuritySchemes = ["Bearer "]

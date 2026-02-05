@@ -1,3 +1,4 @@
+using Fenicia.Common.Database.Abstracts;
 using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Enums;
@@ -6,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Module;
 
-public class ModuleRepository(AuthContext context) : IModuleRepository
+public class ModuleRepository(AuthContext context) : BaseRepository<ModuleModel>(context), IModuleRepository
 {
-    public async Task<List<ModuleModel>> GetAllOrderedAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10)
+    public override async Task<List<ModuleModel>> GetAllAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10)
     {
         return await context.Modules
             .Where(m => m.Type != ModuleType.Erp && m.Type != ModuleType.Auth)
@@ -23,11 +24,6 @@ public class ModuleRepository(AuthContext context) : IModuleRepository
     public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken cancellationToken)
     {
         return await context.Modules.FirstOrDefaultAsync(m => m.Type == moduleType, cancellationToken);
-    }
-
-    public async Task<int> CountAsync(CancellationToken cancellationToken)
-    {
-        return await context.Modules.CountAsync(cancellationToken);
     }
 
     public async Task<List<ModuleModel>> LoadModulesAtDatabaseAsync(List<ModuleModel> modules, CancellationToken cancellationToken)

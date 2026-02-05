@@ -45,27 +45,25 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task PatchAsyncWhenCompanyNotFoundReturnsNotFound()
+    public void PatchAsyncWhenCompanyNotFoundReturnsNotFound()
     {
         var companyId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
         companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, onlyActive: true, cancellationToken)).ReturnsAsync(false);
-        // Act & Assert
         Assert.ThrowsAsync<ItemNotExistsException>(async () => await sut.PatchAsync(companyId, userId, updateRequest, cancellationToken));
     }
 
     [Test]
-    public async Task PatchAsyncWhenSaveFailsReturnsNotFound()
+    public void PatchAsyncWhenSaveFailsReturnsNotFound()
     {
         var companyId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
         companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, onlyActive: true, cancellationToken)).ReturnsAsync(true);
         userRoleServiceMock.Setup(x => x.HasRoleAsync(userId, companyId, "Admin", cancellationToken)).ReturnsAsync(true);
-        companyRepositoryMock.Setup(x => x.PatchAsync(It.IsAny<CompanyModel>()));
-        companyRepositoryMock.Setup(x => x.SaveAsync(cancellationToken)).ReturnsAsync(0);
-        // Act & Assert
+        companyRepositoryMock.Setup(x => x.Update(It.IsAny<CompanyModel>()));
+        companyRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(0);
         Assert.ThrowsAsync<NotSavedException>(async () => await sut.PatchAsync(companyId, userId, updateRequest, cancellationToken));
     }
 
@@ -82,7 +80,6 @@ public class CompanyServiceTests
     [Test]
     public async Task GetByCnpjAsyncWhenCompanyExistsReturnsCompany()
     {
-        // Arrange
         var cnpj = faker.Random.String2(length: 14, "0123456789");
         var companyModel = new CompanyModel
         {
@@ -104,7 +101,6 @@ public class CompanyServiceTests
 
         companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, onlyActive: false, cancellationToken)).ReturnsAsync(companyModel);
 
-        // Act
         var result = await sut.GetByCnpjAsync(cnpj, cancellationToken);
 
         Assert.Multiple(() =>
@@ -118,22 +114,18 @@ public class CompanyServiceTests
     }
 
     [Test]
-    public async Task GetByCnpjAsyncWhenCompanyDoesNotExistReturnsNotFound()
+    public void GetByCnpjAsyncWhenCompanyDoesNotExistReturnsNotFound()
     {
-        // Arrange
         var cnpj = faker.Random.String2(length: 14, "0123456789");
 
         companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, onlyActive: false, cancellationToken)).ReturnsAsync((CompanyModel)null!);
 
-        // Act
-        // Act & Assert
         Assert.ThrowsAsync<ItemNotExistsException>(async () => await sut.GetByCnpjAsync(cnpj, cancellationToken));
     }
 
     [Test]
     public async Task GetByUserIdAsyncReturnsCompanies()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companies = new List<CompanyModel>
         {
@@ -166,17 +158,14 @@ public class CompanyServiceTests
 
         companyRepositoryMock.Setup(x => x.GetByUserIdAsync(userId, onlyActive: true, cancellationToken, 1, 10)).ReturnsAsync(companies);
 
-        // Act
         var result = await sut.GetByUserIdAsync(userId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.EqualTo(expectedResponse));
     }
 
     [Test]
     public async Task PatchAsyncWhenCompanyExistsAndUserIsAdminUpdatesCompany()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest { Name = faker.Company.CompanyName() };
@@ -202,39 +191,33 @@ public class CompanyServiceTests
 
         userRoleServiceMock.Setup(x => x.HasRoleAsync(userId, companyId, "Admin", cancellationToken)).ReturnsAsync(true);
 
-        companyRepositoryMock.Setup(x => x.PatchAsync(It.IsAny<CompanyModel>())).Returns(companyModel);
+        companyRepositoryMock.Setup(x => x.Update(It.IsAny<CompanyModel>()));
 
-        companyRepositoryMock.Setup(x => x.SaveAsync(cancellationToken)).ReturnsAsync(value: 1);
+        companyRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(value: 1);
 
-        // Act
         var result = await sut.PatchAsync(companyId, userId, updateRequest, cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
-            // Assert
             Assert.That(result, Is.EqualTo(expectedResponse));
         }
     }
 
     [Test]
-    public async Task PatchAsyncWhenCompanyDoesNotExistReturnsNotFound()
+    public void PatchAsyncWhenCompanyDoesNotExistReturnsNotFound()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
 
         companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, onlyActive: true, cancellationToken)).ReturnsAsync(value: false);
 
-        // Act
-        // Act & Assert
         Assert.ThrowsAsync<ItemNotExistsException>(async () => await sut.PatchAsync(companyId, userId, updateRequest, cancellationToken));
     }
 
     [Test]
-    public async Task PatchAsyncWhenUserIsNotAdminReturnsUnauthorized()
+    public void PatchAsyncWhenUserIsNotAdminReturnsUnauthorized()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var updateRequest = new CompanyUpdateRequest();
@@ -243,41 +226,32 @@ public class CompanyServiceTests
 
         userRoleServiceMock.Setup(x => x.HasRoleAsync(userId, companyId, "Admin", cancellationToken)).ReturnsAsync(false);
 
-        // Act
-        // Act & Assert
         Assert.ThrowsAsync<PermissionDeniedException>(async () => await sut.PatchAsync(companyId, userId, updateRequest, cancellationToken));
     }
 
     [Test]
     public async Task CountByUserIdAsyncReturnsCount()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var expectedCount = faker.Random.Int(min: 1, max: 100);
 
         companyRepositoryMock.Setup(x => x.CountByUserIdAsync(userId, onlyActive: true, cancellationToken)).ReturnsAsync(expectedCount);
 
-        // Act
         var result = await sut.CountByUserIdAsync(userId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.EqualTo(expectedCount));
-
     }
 
     [Test]
     public async Task GetCompaniesAsyncDelegatesToRepository()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var expected = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
 
         companyRepositoryMock.Setup(x => x.GetCompaniesAsync(userId, onlyActive: true, cancellationToken)).ReturnsAsync(expected);
 
-        // Act
         var result = await sut.GetCompaniesAsync(userId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.EqualTo(expected));
         companyRepositoryMock.Verify(x => x.GetCompaniesAsync(userId, onlyActive: true, cancellationToken), Times.Once);
     }

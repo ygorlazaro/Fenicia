@@ -1,6 +1,6 @@
 using Fenicia.Common.Enums;
 
-namespace Fenicia.Common.Externals.Email;
+namespace Fenicia.Externals.Email;
 
 public interface IBrevoProvider
 {

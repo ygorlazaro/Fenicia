@@ -1,14 +1,11 @@
 using System.Security.Claims;
-
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Common;
-using Fenicia.Common.Api;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.API;
 using Fenicia.Common.Database.Requests;
-
+using Fenicia.Common.Database.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
 using Moq;
 
 namespace Fenicia.Auth.Tests.Controllers;
@@ -33,7 +30,6 @@ public class CompanyControllerTests
     [Test]
     public async Task GetByLoggedUserReturnsOkWhenCompaniesExist()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companies = new List<CompanyResponse> { new() { Id = Guid.NewGuid(), Name = "Test", Cnpj = "12345678901234" } };
         var countResponse = 1;
@@ -48,10 +44,8 @@ public class CompanyControllerTests
         controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        // Act
         var result = await controller.GetByLoggedUser(query, wide, cancellationToken);
 
-        // Assert
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
@@ -61,7 +55,6 @@ public class CompanyControllerTests
     [Test]
     public async Task GetByLoggedUserReturnsNotFoundWhenNoCompanies()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companiesResponse = new List<CompanyResponse>();
         var countResponse = 0;
@@ -74,24 +67,24 @@ public class CompanyControllerTests
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        // Act
         var result = await controller.GetByLoggedUser(query, wide, cancellationToken);
 
-        // Assert: controller returns 200 OK with empty pagination (current behavior)
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
         Assert.That(okResult.Value, Is.TypeOf<Pagination<IEnumerable<CompanyResponse>>>());
         var pagination = okResult.Value as Pagination<IEnumerable<CompanyResponse>>;
         Assert.That(pagination, Is.Not.Null);
-        Assert.That(pagination.Total, Is.EqualTo(0));
-        Assert.That(pagination.Data, Is.Empty);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pagination.Total, Is.Zero);
+            Assert.That(pagination.Data, Is.Empty);
+        }
     }
 
     [Test]
     public async Task PatchAsync_ReturnsOkWhenCompanyUpdated()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var request = new CompanyUpdateRequest { Name = "New Name" };
@@ -105,10 +98,8 @@ public class CompanyControllerTests
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        // Act
         var result = await controller.PatchAsync(request, companyId, wide, cancellationToken);
 
-        // Assert
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
@@ -120,7 +111,6 @@ public class CompanyControllerTests
     [Test]
     public async Task PatchAsync_ReturnsOkWhenCompanyNotFound()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var request = new CompanyUpdateRequest { Name = "New Name" };
@@ -133,10 +123,8 @@ public class CompanyControllerTests
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        // Act
         var result = await controller.PatchAsync(request, companyId, wide, cancellationToken);
 
-        // Assert: current controller returns Ok(null)
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
@@ -146,7 +134,6 @@ public class CompanyControllerTests
     [Test]
     public void PatchAsync_ThrowsWhenServiceErrors()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var request = new CompanyUpdateRequest { Name = "New Name" };
@@ -159,14 +146,12 @@ public class CompanyControllerTests
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        // Act & Assert
         Assert.ThrowsAsync<Exception>(async () => await controller.PatchAsync(request, companyId, wide, cancellationToken));
     }
 
     [Test]
     public void GetByLoggedUserThrowsExceptionOnServiceError()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ThrowsAsync(new Exception("Service error"));
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
@@ -176,7 +161,6 @@ public class CompanyControllerTests
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        // Act & Assert
         Assert.ThrowsAsync<Exception>(async () => await controller.GetByLoggedUser(query, wide, cancellationToken));
     }
 }

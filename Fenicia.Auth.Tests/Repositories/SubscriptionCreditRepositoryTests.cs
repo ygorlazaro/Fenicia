@@ -39,7 +39,6 @@ public class SubscriptionCreditRepositoryTests
     [Test]
     public async Task GetValidModulesTypesAsyncReturnsValidModules()
     {
-        // Arrange
         var subscriptionIDs = new[] { Guid.NewGuid(), Guid.NewGuid() };
         var now = DateTime.UtcNow;
 
@@ -50,10 +49,8 @@ public class SubscriptionCreditRepositoryTests
         await context.SubscriptionCredits.AddRangeAsync(credits, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidModulesTypesAsync([.. subscriptionIDs], cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.Count.LessThanOrEqualTo(modules.Count));
     }
@@ -61,20 +58,16 @@ public class SubscriptionCreditRepositoryTests
     [Test]
     public async Task GetValidModulesTypesAsyncReturnsEmptyListWhenNoValidSubscriptions()
     {
-        // Arrange
         var nonExistentSubscriptions = new Faker().Make(count: 3, Guid.NewGuid);
 
-        // Act
         var result = await sut.GetValidModulesTypesAsync([.. nonExistentSubscriptions], cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task GetValidModulesTypesAsyncExcludesInactiveCredits()
     {
-        // Arrange
         var subscription = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
@@ -85,17 +78,14 @@ public class SubscriptionCreditRepositoryTests
         await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidModulesTypesAsync([subscription], cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task GetValidModulesTypesAsyncExcludesExpiredCredits()
     {
-        // Arrange
         var subscription = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
@@ -106,17 +96,14 @@ public class SubscriptionCreditRepositoryTests
         await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidModulesTypesAsync([subscription], cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task GetValidModulesTypesAsyncExcludesFutureCredits()
     {
-        // Arrange
         var subscription = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
@@ -127,17 +114,14 @@ public class SubscriptionCreditRepositoryTests
         await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidModulesTypesAsync([subscription], cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task GetValidModulesTypesAsyncReturnsDuplicateModuleTypesOnlyOnce()
     {
-        // Arrange
         var subscriptions = new Faker().Make(count: 2, Guid.NewGuid);
         var now = DateTime.UtcNow;
 
@@ -148,10 +132,8 @@ public class SubscriptionCreditRepositoryTests
         await context.SubscriptionCredits.AddRangeAsync(credits, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidModulesTypesAsync([.. subscriptions], cancellationToken);
 
-        // Assert
         Assert.That(result, Has.Count.EqualTo(expected: 1));
         Assert.That(result[index: 0], Is.EqualTo(module.Type));
     }
@@ -159,7 +141,6 @@ public class SubscriptionCreditRepositoryTests
     [Test]
     public async Task GetValidModulesTypesAsyncHandlesMultipleValidModules()
     {
-        // Arrange
         var subscription = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
@@ -172,10 +153,8 @@ public class SubscriptionCreditRepositoryTests
         await context.SubscriptionCredits.AddRangeAsync(credits, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidModulesTypesAsync([subscription], cancellationToken);
 
-        // Assert
         Assert.That(result, Has.Count.EqualTo(expected: 3));
         Assert.That(result, Is.Unique);
         Assert.That(result, Is.EquivalentTo(modules.Select(m => m.Type)));

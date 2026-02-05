@@ -1,3 +1,4 @@
+using Fenicia.Common.Database.Abstracts;
 using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Submodule;
 
-public class SubmoduleRepository(AuthContext context) : ISubmoduleRepository
+public class SubmoduleRepository(AuthContext context) : BaseRepository<SubmoduleModel>(context), ISubmoduleRepository
 {
     public async Task<List<SubmoduleModel>> GetByModuleIdAsync(Guid moduleId, CancellationToken cancellationToken)
     {

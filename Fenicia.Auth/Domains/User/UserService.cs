@@ -72,23 +72,25 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
             Password = hashedPassword,
             Name = request.Name
         };
-        var user = userRepository.Add(userRequest);
-        var company = companyRepository.Add(new CompanyModel { Name = request.Company.Name, Cnpj = request.Company.Cnpj });
+        userRepository.Add(userRequest);
+        var companyRequest = new CompanyModel { Name = request.Company.Name, Cnpj = request.Company.Cnpj };
+        companyRepository.Add(companyRequest);
+
         var adminRole = await roleRepository.GetAdminRoleAsync(cancellationToken) ?? throw new ArgumentException(TextConstants.MissingAdminRoleMessage);
         var userRole = new UserRoleModel
         {
-            UserId = user.Id,
-            CompanyId = company.Id,
+            UserId = userRequest.Id,
+            Company = companyRequest,
             RoleId = adminRole.Id
         };
 
         userRoleRepository.Add(userRole);
 
-        await userRepository.SaveAsync(cancellationToken);
+        await userRepository.SaveChangesAsync(cancellationToken);
 
-        await migrationService.RunMigrationsAsync(company.Id, [ModuleType.Basic], cancellationToken);
+        await migrationService.RunMigrationsAsync(companyRequest.Id, [ModuleType.Basic], cancellationToken);
 
-        return UserResponse.Convert(user);
+        return UserResponse.Convert(userRequest);
     }
 
     public async Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
@@ -98,7 +100,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
     public async Task<UserResponse> GetUserForRefreshAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetUserForRefreshTokenAsync(userId, cancellationToken) ?? throw new UnauthorizedAccessException(TextConstants.PermissionDeniedMessage);
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken) ?? throw new UnauthorizedAccessException(TextConstants.PermissionDeniedMessage);
 
         return UserResponse.Convert(user);
     }
@@ -121,7 +123,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
         user.Password = hashedPassword;
         userRepository.Update(user);
-        await userRepository.SaveAsync(cancellationToken);
+        await userRepository.SaveChangesAsync(cancellationToken);
 
         return UserResponse.Convert(user);
     }

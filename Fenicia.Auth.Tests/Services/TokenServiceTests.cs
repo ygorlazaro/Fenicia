@@ -9,22 +9,6 @@ namespace Fenicia.Auth.Tests.Services
     {
         private TokenService sut = null!;
 
-        public class ExtendedUserResponse : UserResponse
-        {
-            public Guid CompanyId
-            {
-                get; set;
-            }
-            public List<string>? Roles
-            {
-                get; set;
-            }
-            public List<string>? Modules
-            {
-                get; set;
-            }
-        }
-
         [SetUp]
         public void Setup()
         {
@@ -37,14 +21,16 @@ namespace Fenicia.Auth.Tests.Services
             var user = new UserResponse { Id = Guid.NewGuid(), Email = "t@test", Name = "Test" };
 
             var token = sut.GenerateToken(user);
-
             var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
             var claims = parsed.Claims.ToList();
 
-            Assert.That(claims.Any(c => c.Type == "userId" && c.Value == user.Id.ToString()));
-            Assert.That(claims.Any(c => c.Type == "email" && c.Value == user.Email));
-            Assert.That(claims.Any(c => c.Type == "unique_name" && c.Value == user.Name));
-            Assert.That(claims.Any(c => c.Type == JwtRegisteredClaimNames.Jti));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(claims.Any(c => c.Type == "userId" && c.Value == user.Id.ToString()));
+                Assert.That(claims.Any(c => c.Type == "email" && c.Value == user.Email));
+                Assert.That(claims.Any(c => c.Type == "unique_name" && c.Value == user.Name));
+                Assert.That(claims.Any(c => c.Type == JwtRegisteredClaimNames.Jti));
+            }
         }
 
         [Test]
@@ -66,21 +52,22 @@ namespace Fenicia.Auth.Tests.Services
                 Id = Guid.NewGuid(),
                 Email = "r@r",
                 Name = "R",
-                Roles = new List<string> { "User", "God" },
-                Modules = new List<string> { "sales" }
+                Roles = ["User", "God"],
+                Modules = ["sales"]
             };
 
             var token = sut.GenerateToken(user);
             var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
             var claims = parsed.Claims.ToList();
 
-            // roles
-            Assert.That(claims.Count(c => c.Type == "role") >= 2);
-            Assert.That(claims.Any(c => c.Type == "role" && c.Value == "God"));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(claims.Count(c => c.Type == "role") >= 2);
+                Assert.That(claims.Any(c => c.Type == "role" && c.Value == "God"));
 
-            // modules contains original and added 'erp'
-            Assert.That(claims.Any(c => c.Type == "module" && c.Value == "sales"));
-            Assert.That(claims.Any(c => c.Type == "module" && c.Value == "erp"));
+                Assert.That(claims.Any(c => c.Type == "module" && c.Value == "sales"));
+                Assert.That(claims.Any(c => c.Type == "module" && c.Value == "erp"));
+            }
         }
 
         [Test]
@@ -91,6 +78,27 @@ namespace Fenicia.Auth.Tests.Services
             var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
 
             Assert.That(parsed.Claims.All(c => c.Type != "module"));
+        }
+
+        private class ExtendedUserResponse : UserResponse
+        {
+            public Guid CompanyId
+            {
+                get;
+                set;
+            }
+
+            public List<string>? Roles
+            {
+                get;
+                set;
+            }
+
+            public List<string>? Modules
+            {
+                get;
+                set;
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
+using Fenicia.Auth.Domains.LoginAttempt;
 using Moq;
 using StackExchange.Redis;
-using Fenicia.Auth.Domains.LoginAttempt;
 
 namespace Fenicia.Auth.Tests.Services;
 
@@ -24,14 +24,14 @@ public class RedisLoginAttemptServiceTests
     [Test]
     public async Task GetAttemptsAsync_ReturnsZeroWhenNoValue()
     {
-        var email = "none@ex.com";
-        var key = "login-attempt:none@ex.com";
+        const string email = "none@ex.com";
+        const string key = "login-attempt:none@ex.com";
 
-        dbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)RedisValue.Null);
+        dbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
 
         var attempts = await sut.GetAttemptsAsync(email, CancellationToken.None);
 
-        Assert.That(attempts, Is.EqualTo(0));
+        Assert.That(attempts, Is.Zero);
 
         dbMock.VerifyAll();
     }
@@ -39,10 +39,10 @@ public class RedisLoginAttemptServiceTests
     [Test]
     public async Task GetAttemptsAsync_ReturnsValueWhenSet()
     {
-        var email = "me@ex.com";
-        var key = "login-attempt:me@ex.com";
+        const string email = "me@ex.com";
+        const string key = "login-attempt:me@ex.com";
 
-        dbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)2);
+        dbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync(2);
 
         var attempts = await sut.GetAttemptsAsync(email, CancellationToken.None);
 

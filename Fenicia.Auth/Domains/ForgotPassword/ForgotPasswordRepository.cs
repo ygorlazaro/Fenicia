@@ -1,3 +1,4 @@
+using Fenicia.Common.Database.Abstracts;
 using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
 
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
-public class ForgotPasswordRepository(AuthContext context) : IForgotPasswordRepository
+public class ForgotPasswordRepository(AuthContext context) : BaseRepository<ForgotPasswordModel>(context), IForgotPasswordRepository
 {
     public async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken cancellationToken)
     {

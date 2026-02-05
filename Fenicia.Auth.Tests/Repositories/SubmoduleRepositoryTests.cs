@@ -7,12 +7,6 @@ namespace Fenicia.Auth.Tests.Repositories;
 
 public class SubmoduleRepositoryTests
 {
-    private AuthContext CreateContext(string dbName)
-    {
-        var options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase(dbName).Options;
-        return new AuthContext(options);
-    }
-
     [Test]
     public async Task GetByModuleIdAsync_ReturnsOnlySubmodulesForModule()
     {
@@ -34,7 +28,13 @@ public class SubmoduleRepositoryTests
         var res = await sut.GetByModuleIdAsync(moduleA, CancellationToken.None);
 
         Assert.That(res, Is.Not.Null);
-        Assert.That(res.Count, Is.EqualTo(2));
+        Assert.That(res, Has.Count.EqualTo(2));
         Assert.That(res.All(s => s.ModuleId == moduleA));
+    }
+
+    private static AuthContext CreateContext(string dbName)
+    {
+        var options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase(dbName).Options;
+        return new AuthContext(options);
     }
 }

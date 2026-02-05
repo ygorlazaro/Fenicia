@@ -38,13 +38,12 @@ public class SubscriptionRepositoryTest
     [Test]
     public async Task SaveSubscriptionShouldSaveSubscriptionToDatabase()
     {
-        // Arrange
         var subscription = subscriptionGenerator.Generate();
 
-        // Act
-        await sut.SaveSubscriptionAsync(subscription, cancellationToken);
+        sut.Add(subscription);
 
-        // Assert
+        await sut.SaveChangesAsync(cancellationToken);
+
         var savedSubscription = await context.Subscriptions.FindAsync([subscription.Id], cancellationToken);
         Assert.That(savedSubscription, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -57,7 +56,6 @@ public class SubscriptionRepositoryTest
     [Test]
     public async Task GetValidSubscriptionAsyncShouldReturnActiveAndValidSubscriptions()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
@@ -66,10 +64,8 @@ public class SubscriptionRepositoryTest
         await context.Subscriptions.AddAsync(validSubscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidSubscriptionAsync(companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Does.Contain(validSubscription.Id));
     }
@@ -77,7 +73,6 @@ public class SubscriptionRepositoryTest
     [Test]
     public async Task GetValidSubscriptionAsyncShouldNotReturnExpiredSubscriptions()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
@@ -86,17 +81,14 @@ public class SubscriptionRepositoryTest
         await context.Subscriptions.AddAsync(expiredSubscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidSubscriptionAsync(companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task GetValidSubscriptionAsyncShouldNotReturnFutureSubscriptions()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
@@ -105,17 +97,14 @@ public class SubscriptionRepositoryTest
         await context.Subscriptions.AddAsync(futureSubscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidSubscriptionAsync(companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task GetValidSubscriptionAsyncShouldNotReturnInactiveSubscriptions()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
@@ -124,17 +113,14 @@ public class SubscriptionRepositoryTest
         await context.Subscriptions.AddAsync(inactiveSubscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidSubscriptionAsync(companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task GetValidSubscriptionAsyncShouldNotReturnSubscriptionsForDifferentCompany()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var differentCompanyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
@@ -144,10 +130,8 @@ public class SubscriptionRepositoryTest
         await context.Subscriptions.AddAsync(subscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetValidSubscriptionAsync(companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 

@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Fenicia.Auth.Domains.Order;
-using Fenicia.Common.Api;
 using Fenicia.Common.API;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;

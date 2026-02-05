@@ -1,6 +1,6 @@
 using Fenicia.Auth.Domains.Submodule;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Responses;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -23,8 +23,8 @@ public class SubmoduleServiceTests
         var moduleId = Guid.NewGuid();
         var items = new List<SubmoduleModel>
         {
-            new SubmoduleModel { Name = "S1", Route = "/s1", ModuleId = moduleId, Description = "d1" },
-            new SubmoduleModel { Name = "S2", Route = "/s2", ModuleId = moduleId, Description = "d2" }
+            new() { Name = "S1", Route = "/s1", ModuleId = moduleId, Description = "d1" },
+            new() { Name = "S2", Route = "/s2", ModuleId = moduleId, Description = "d2" }
         };
 
         repoMock.Setup(r => r.GetByModuleIdAsync(moduleId, It.IsAny<CancellationToken>())).ReturnsAsync(items);
@@ -32,7 +32,7 @@ public class SubmoduleServiceTests
         var result = await sut!.GetByModuleIdAsync(moduleId, CancellationToken.None);
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(2));
-        Assert.That(result.Any(r => r.Name == "S1" && r.Description == "d1"));
+        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result.Any(r => r is { Name: "S1", Description: "d1" }));
     }
 }

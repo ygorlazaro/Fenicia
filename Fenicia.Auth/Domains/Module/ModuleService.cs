@@ -8,7 +8,7 @@ public class ModuleService(IModuleRepository moduleRepository) : IModuleService
 {
     public async Task<List<ModuleResponse>> GetAllOrderedAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10)
     {
-        var modules = await moduleRepository.GetAllOrderedAsync(cancellationToken, page, perPage);
+        var modules = await moduleRepository.GetAllAsync(cancellationToken, page, perPage);
 
         return ModuleResponse.Convert(modules);
     }
@@ -26,12 +26,7 @@ public class ModuleService(IModuleRepository moduleRepository) : IModuleService
     {
         var module = await moduleRepository.GetModuleByTypeAsync(moduleType, cancellationToken);
 
-        if (module is null)
-        {
-            return null;
-        }
-
-        return ModuleResponse.Convert(module);
+        return module is null ? null : ModuleResponse.Convert(module);
     }
 
     public async Task<int> CountAsync(CancellationToken cancellationToken)

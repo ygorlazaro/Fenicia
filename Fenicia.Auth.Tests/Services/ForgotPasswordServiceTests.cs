@@ -9,10 +9,10 @@ namespace Fenicia.Auth.Tests.Services;
 
 public class ForgotPasswordServiceTests
 {
+    private readonly CancellationToken cancellationToken = CancellationToken.None;
     private Mock<IForgotPasswordRepository> forgotPasswordRepositoryMock;
     private Mock<IUserService> userServiceMock;
     private ForgotPasswordService sut;
-    private CancellationToken cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
@@ -25,7 +25,6 @@ public class ForgotPasswordServiceTests
     [Test]
     public async Task ResetPasswordAsyncCallsChangePasswordAndInvalidatesAndReturnsResponse()
     {
-        // Arrange
         var email = "a@b.com";
         var userId = Guid.NewGuid();
         userServiceMock.Setup(x => x.GetUserIdFromEmailAsync(email, cancellationToken)).ReturnsAsync(new UserResponse { Id = userId });
@@ -33,10 +32,8 @@ public class ForgotPasswordServiceTests
         var model = new ForgotPasswordModel { Id = Guid.NewGuid(), UserId = userId, Code = "ABC123", IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(1) };
         forgotPasswordRepositoryMock.Setup(x => x.GetFromUserIdAndCodeAsync(userId, model.Code, cancellationToken)).ReturnsAsync(model);
 
-        // Act
         var result = await sut.ResetPasswordAsync(new ForgotPasswordRequestReset { Email = email, Code = model.Code, Password = "p" }, cancellationToken);
 
-        // Assert
         forgotPasswordRepositoryMock.Verify(x => x.GetFromUserIdAndCodeAsync(userId, model.Code, cancellationToken), Times.Once);
         userServiceMock.Verify(x => x.ChangePasswordAsync(model.UserId, It.IsAny<string>(), cancellationToken), Times.Once);
         forgotPasswordRepositoryMock.Verify(x => x.InvalidateCodeAsync(model.Id, cancellationToken), Times.Once);
@@ -47,40 +44,38 @@ public class ForgotPasswordServiceTests
     [Test]
     public void ResetPasswordAsyncWhenCodeInvalidThrows()
     {
-        // Arrange
         var email = "a@b.com";
         var userId = Guid.NewGuid();
         userServiceMock.Setup(x => x.GetUserIdFromEmailAsync(email, cancellationToken)).ReturnsAsync(new UserResponse { Id = userId });
         forgotPasswordRepositoryMock.Setup(x => x.GetFromUserIdAndCodeAsync(userId, "BAD", cancellationToken)).ReturnsAsync((ForgotPasswordModel)null!);
 
-        // Act & Assert
         Assert.ThrowsAsync<InvalidDataException>(async () => await sut.ResetPasswordAsync(new ForgotPasswordRequestReset { Email = email, Code = "BAD", Password = "p" }, cancellationToken));
     }
 
     [Test]
     public async Task SaveForgotPasswordAsyncCreatesCodeAndSaves()
     {
-        // Arrange
         var email = "a@b.com";
         var userId = Guid.NewGuid();
         userServiceMock.Setup(x => x.GetUserIdFromEmailAsync(email, cancellationToken)).ReturnsAsync(new UserResponse { Id = userId });
 
         ForgotPasswordModel? captured = null;
         forgotPasswordRepositoryMock.Setup(x => x.SaveForgotPasswordAsync(It.IsAny<ForgotPasswordModel>(), cancellationToken))
-            .Returns((ForgotPasswordModel m, CancellationToken ct) =>
+            .Returns((ForgotPasswordModel m, CancellationToken _) =>
             {
                 captured = m;
                 return Task.FromResult(m);
             });
 
-        // Act
         var result = await sut.SaveForgotPasswordAsync(new ForgotPasswordRequest { Email = email }, cancellationToken);
 
-        // Assert
         Assert.That(captured, Is.Not.Null);
-        Assert.That(captured!.UserId, Is.EqualTo(userId));
-        Assert.That(captured.Code.Length, Is.EqualTo(6));
-        Assert.That(captured.IsActive, Is.True);
-        Assert.That(result, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(captured!.UserId, Is.EqualTo(userId));
+            Assert.That(captured.Code, Has.Length.EqualTo(6));
+            Assert.That(captured.IsActive, Is.True);
+            Assert.That(result, Is.Not.Null);
+        }
     }
 }

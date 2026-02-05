@@ -1,9 +1,9 @@
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Common;
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
 using Fenicia.Common.Database.Responses;
-using Moq;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 
 namespace Fenicia.Auth.Tests.Controllers;
 
