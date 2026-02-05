@@ -10,7 +10,9 @@ public class ModuleRepository(AuthContext context) : IModuleRepository
 {
     public async Task<List<ModuleModel>> GetAllOrderedAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10)
     {
-        return await context.Modules.OrderBy(m => m.Type).Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
+        return await context.Modules
+            .Where(m => m.Type != ModuleType.Erp && m.Type != ModuleType.Auth)
+            .OrderBy(m => m.Type).Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
     }
 
     public async Task<List<ModuleModel>> GetManyOrdersAsync(IEnumerable<Guid> request, CancellationToken cancellationToken)

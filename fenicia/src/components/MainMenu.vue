@@ -93,7 +93,10 @@ fetchCompanies();
         </b-navbar-item>
       </b-navbar-dropdown>
 
+      </div>
       <b-navbar-item tag="div">
+        <a class="button is-light" @click="handleLogout" ref="/order"> Módulos </a>
+
         <div class="buttons">
           <a class="button is-light" @click="handleLogout"> Sair </a>
         </div>
