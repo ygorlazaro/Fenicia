@@ -1,7 +1,7 @@
 using Fenicia.Auth.Domains.ERP;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.State;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Responses.Auth;
 
 using Microsoft.AspNetCore.Mvc;
 

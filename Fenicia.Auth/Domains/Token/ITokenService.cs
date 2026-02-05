@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Responses.Auth;
 
 namespace Fenicia.Auth.Domains.Token;
 

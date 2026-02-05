@@ -2,8 +2,8 @@ using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common.API;
-using Fenicia.Common.Database.Requests.Auth;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Requests.Auth;
+using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Mvc;

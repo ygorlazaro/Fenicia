@@ -1,4 +1,4 @@
-using Fenicia.Common.Database.Models.Basic;
+using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Domains.State;
 

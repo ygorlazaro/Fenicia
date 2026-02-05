@@ -1,4 +1,4 @@
-using Fenicia.Common.Database.Contexts;
+using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums;
 
 using Microsoft.EntityFrameworkCore;

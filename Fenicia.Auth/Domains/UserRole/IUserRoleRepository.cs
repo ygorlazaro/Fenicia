@@ -1,4 +1,4 @@
-using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.UserRole;
 

@@ -21,7 +21,7 @@ using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.API.Middlewares;
-using Fenicia.Common.Database.Contexts;
+using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Migrations.Services;
 using Fenicia.Externals.Email;
 

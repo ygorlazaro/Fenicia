@@ -1,5 +1,5 @@
-using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Domains.Module;

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36127.28
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Auth", "Fenicia.Auth\Fenicia.Auth.csproj", "{41FF3537-AEFA-4392-8878-99533A868FC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Database", "Fenicia.Common.Database\Fenicia.Common.Database.csproj", "{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Common.Data", "Fenicia.Common.Data\Fenicia.Common.Data.csproj", "{8DA6730F-BEBD-4996-9DA0-F92E4C429BEF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Basic", "Fenicia.Module.Basic\Fenicia.Module.Basic.csproj", "{8622952A-7F8E-450E-9EB8-DDDD7DBE36B6}"
 EndProject

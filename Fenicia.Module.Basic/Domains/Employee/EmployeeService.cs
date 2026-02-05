@@ -1,6 +1,6 @@
-using Fenicia.Common.Database.Converters.Basic;
-using Fenicia.Common.Database.Requests.Basic;
-using Fenicia.Common.Database.Responses.Basic;
+using Fenicia.Common.Data.Converters.Basic;
+using Fenicia.Common.Data.Requests.Basic;
+using Fenicia.Common.Data.Responses.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Employee;
 

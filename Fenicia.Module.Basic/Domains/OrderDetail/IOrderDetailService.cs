@@ -1,4 +1,4 @@
-using Fenicia.Common.Database.Responses.Basic;
+using Fenicia.Common.Data.Responses.Basic;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
 

@@ -34,7 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj" />
-    <ProjectReference Include="..\Fenicia.Common.Database\Fenicia.Common.Database.csproj" />
+    <ProjectReference Include="..\Fenicia.Common.Data\Fenicia.Common.Data.csproj" />
     <ProjectReference Include="..\Fenicia.Externals.Email\Fenicia.Externals.Email.csproj" />
     <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj" />
     <ProjectReference Include="..\Fenicia.Common.Migrations\Fenicia.Common.Migrations.csproj" />

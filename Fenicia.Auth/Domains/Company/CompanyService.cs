@@ -1,9 +1,9 @@
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
-using Fenicia.Common.Database.Converters.Auth;
-using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Requests.Auth;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Converters.Auth;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Requests.Auth;
+using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Domains.Company;

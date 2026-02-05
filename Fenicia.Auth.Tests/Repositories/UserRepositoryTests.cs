@@ -1,8 +1,8 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.User;
-using Fenicia.Common.Database.Contexts;
-using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 

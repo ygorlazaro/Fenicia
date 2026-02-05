@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Responses.Auth;
 
 using Microsoft.IdentityModel.Tokens;
 

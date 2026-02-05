@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-using Fenicia.Common.Database.Abstracts;
-using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Data.Abstracts;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Domains.Module;

@@ -1,5 +1,5 @@
 using Fenicia.Common;
-using Fenicia.Common.Database.Requests.Basic;
+using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Module.Basic.Domains.Employee;
 
 using Microsoft.AspNetCore.Authorization;
