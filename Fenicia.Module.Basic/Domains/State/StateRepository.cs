@@ -1,15 +1,10 @@
+using Fenicia.Common.Database.Abstracts;
 using Fenicia.Common.Database.Contexts;
 
 using Fenicia.Common.Database.Models.Basic;
 
-using Microsoft.EntityFrameworkCore;
-
 namespace Fenicia.Module.Basic.Domains.State;
 
-public class StateRepository(BasicContext basicContext) : IStateRepository
+public class StateRepository(BasicContext context) : BaseRepository<StateModel>(context), IStateRepository
 {
-    public async Task<List<StateModel>> GetAllAsync()
-    {
-        return await basicContext.States.OrderBy(s => s.Uf).ToListAsync();
-    }
 }

@@ -197,11 +197,6 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("amount");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
@@ -215,6 +210,11 @@ namespace Fenicia.Auth.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
                         .HasColumnName("name");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("price");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -237,10 +237,6 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("amount");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
@@ -256,6 +252,10 @@ namespace Fenicia.Auth.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")

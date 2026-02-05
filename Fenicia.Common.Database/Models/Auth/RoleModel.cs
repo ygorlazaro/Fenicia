@@ -14,19 +14,4 @@ public class RoleModel : BaseModel
 
     [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is not RoleModel other)
-        {
-            return false;
-        }
-
-        return Name == other.Name;
-    }
-
-    public override int GetHashCode()
-    {
-        return Name.GetHashCode();
-    }
 }

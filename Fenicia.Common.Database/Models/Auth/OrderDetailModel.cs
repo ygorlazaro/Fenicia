@@ -22,9 +22,9 @@ public class OrderDetailModel : BaseModel
     }
 
     [Required]
-    [Column("amount", TypeName = "decimal(18,2)")]
+    [Column("price", TypeName = "decimal(18,2)")]
     [Range(0.01, double.MaxValue)]
-    public decimal Amount
+    public decimal Price
     {
         get; set;
     }

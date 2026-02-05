@@ -1,5 +1,7 @@
 using Fenicia.Auth.Domains.LoginAttempt;
+
 using Moq;
+
 using StackExchange.Redis;
 
 namespace Fenicia.Auth.Tests.Services;

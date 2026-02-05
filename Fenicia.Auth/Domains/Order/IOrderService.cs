@@ -1,5 +1,5 @@
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Requests.Auth;
+using Fenicia.Common.Database.Responses.Auth;
 
 namespace Fenicia.Auth.Domains.Order;
 

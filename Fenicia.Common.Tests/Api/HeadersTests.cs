@@ -1,8 +1,9 @@
-using NUnit.Framework;
-using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+
 using Fenicia.Common.API;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Common.Tests.Api;
 

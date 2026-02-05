@@ -4,8 +4,16 @@ using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Providers;
 using Fenicia.Common.Database.Contexts;
-using Fenicia.Module.Basic.Domains.Customers;
+using Fenicia.Module.Basic.Domains.Customer;
+using Fenicia.Module.Basic.Domains.Employee;
+using Fenicia.Module.Basic.Domains.Order;
+using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.Position;
+using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.State;
+using Fenicia.Module.Basic.Domains.StockMoviment;
+using Fenicia.Module.Basic.Domains.Supplier;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +44,7 @@ public class Program
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
 
-        configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
+        configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configBuilder);
@@ -47,6 +55,23 @@ public class Program
         builder.Services.AddTransient<IStateService, StateService>();
         builder.Services.AddTransient<IStateRepository, StateRepository>();
         builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
+        builder.Services.AddTransient<ICustomerService, CustomerService>();
+        builder.Services.AddTransient<ISupplierRepository, SupplierRepository>();
+        builder.Services.AddTransient<ISupplierService, SupplierService>();
+        builder.Services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+        builder.Services.AddTransient<IEmployeeService, EmployeeService>();
+        builder.Services.AddTransient<IPositionRepository, PositionRepository>();
+        builder.Services.AddTransient<IPositionService, PositionService>();
+        builder.Services.AddTransient<IProductRepository, ProductRepository>();
+        builder.Services.AddTransient<IProductService, ProductService>();
+        builder.Services.AddTransient<IProductCategoryRepository, ProductCategoryRepository>();
+        builder.Services.AddTransient<IProductCategoryService, ProductCategoryService>();
+        builder.Services.AddTransient<IStockMovementRepository, StockMovementRepository>();
+        builder.Services.AddTransient<IStockMovementService, StockMovementService>();
+        builder.Services.AddTransient<IOrderService, OrderService>();
+        builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+        builder.Services.AddTransient<IOrderDetailRepository, OrderDetailRepository>();
+        builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();
 
         builder.Services.AddDbContext<BasicContext>((sp, options) =>
         {

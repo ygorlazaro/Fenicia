@@ -69,7 +69,7 @@ public class UserRepositoryTests
 
         var saveResult = await sut.SaveChangesAsync(cancellationToken);
 
-        Assert.That(saveResult, Is.GreaterThan(expected: 0));
+        Assert.That(saveResult, Is.GreaterThan(0));
         var savedUser = await context.Users.FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
         Assert.That(savedUser, Is.Not.Null);
         Assert.That(savedUser!.Email, Is.EqualTo(user.Email));

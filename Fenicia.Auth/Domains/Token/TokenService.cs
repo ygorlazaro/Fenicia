@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Responses.Auth;
 
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,7 +20,7 @@ public class TokenService : ITokenService
         var authSigningKey = new SymmetricSecurityKey(key);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Expires = DateTime.UtcNow.AddHours(value: 3),
+            Expires = DateTime.UtcNow.AddHours(3),
             SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
             Subject = new ClaimsIdentity(authClaims)
         };

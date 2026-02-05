@@ -59,7 +59,7 @@ public class SubscriptionRepositoryTest
         var companyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
-        var validSubscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, companyId).RuleFor(s => s.StartDate, now.AddDays(value: -1)).RuleFor(s => s.EndDate, now.AddDays(value: 1)).RuleFor(s => s.Status, SubscriptionStatus.Active).Generate();
+        var validSubscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, companyId).RuleFor(s => s.StartDate, now.AddDays(-1)).RuleFor(s => s.EndDate, now.AddDays(1)).RuleFor(s => s.Status, SubscriptionStatus.Active).Generate();
 
         await context.Subscriptions.AddAsync(validSubscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
@@ -76,7 +76,7 @@ public class SubscriptionRepositoryTest
         var companyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
-        var expiredSubscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, companyId).RuleFor(s => s.StartDate, now.AddDays(value: -10)).RuleFor(s => s.EndDate, now.AddDays(value: -1)).Generate();
+        var expiredSubscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, companyId).RuleFor(s => s.StartDate, now.AddDays(-10)).RuleFor(s => s.EndDate, now.AddDays(-1)).Generate();
 
         await context.Subscriptions.AddAsync(expiredSubscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
@@ -92,7 +92,7 @@ public class SubscriptionRepositoryTest
         var companyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
-        var futureSubscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, companyId).RuleFor(s => s.StartDate, now.AddDays(value: 1)).RuleFor(s => s.EndDate, now.AddDays(value: 10)).Generate();
+        var futureSubscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, companyId).RuleFor(s => s.StartDate, now.AddDays(1)).RuleFor(s => s.EndDate, now.AddDays(10)).Generate();
 
         await context.Subscriptions.AddAsync(futureSubscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
@@ -108,7 +108,7 @@ public class SubscriptionRepositoryTest
         var companyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
-        var inactiveSubscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, companyId).RuleFor(s => s.StartDate, now.AddDays(value: -1)).RuleFor(s => s.EndDate, now.AddDays(value: 1)).RuleFor(s => s.Status, SubscriptionStatus.Inactive).Generate();
+        var inactiveSubscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, companyId).RuleFor(s => s.StartDate, now.AddDays(-1)).RuleFor(s => s.EndDate, now.AddDays(1)).RuleFor(s => s.Status, SubscriptionStatus.Inactive).Generate();
 
         await context.Subscriptions.AddAsync(inactiveSubscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
@@ -125,7 +125,7 @@ public class SubscriptionRepositoryTest
         var differentCompanyId = Guid.NewGuid();
         var now = DateTime.UtcNow;
 
-        var subscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, differentCompanyId).RuleFor(s => s.StartDate, now.AddDays(value: -1)).RuleFor(s => s.EndDate, now.AddDays(value: 1)).Generate();
+        var subscription = subscriptionGenerator.Clone().RuleFor(s => s.CompanyId, differentCompanyId).RuleFor(s => s.StartDate, now.AddDays(-1)).RuleFor(s => s.EndDate, now.AddDays(1)).Generate();
 
         await context.Subscriptions.AddAsync(subscription, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);

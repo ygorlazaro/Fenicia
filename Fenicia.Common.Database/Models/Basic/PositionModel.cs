@@ -7,7 +7,7 @@ namespace Fenicia.Common.Database.Models.Basic;
 public class PositionModel : BaseModel
 {
     [Required]
-    [MaxLength(length: 50)]
+    [MaxLength(50)]
     public string Name { get; set; } = null!;
 
     public virtual List<EmployeeModel> Employees { get; set; } = null!;

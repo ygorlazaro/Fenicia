@@ -2,9 +2,10 @@ using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common;
+using Fenicia.Common.Database.Converters.Auth;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Requests.Auth;
+using Fenicia.Common.Database.Responses.Auth;
 using Fenicia.Common.Enums;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Migrations.Services;
@@ -30,8 +31,8 @@ public sealed class OrderService(IOrderRepository orderRepository, IModuleServic
             return null;
         }
 
-        var totalAmount = modules.Sum(m => m.Amount);
-        var details = modules.Select(m => new OrderDetailModel { ModuleId = m.Id, Amount = m.Amount }).ToList();
+        var totalAmount = modules.Sum(m => m.Price);
+        var details = modules.Select(m => new OrderDetailModel { ModuleId = m.Id, Price = m.Price }).ToList();
         var order = new OrderModel
         {
             SaleDate = DateTime.UtcNow,
@@ -61,7 +62,7 @@ public sealed class OrderService(IOrderRepository orderRepository, IModuleServic
 
             if (modules.Any(m => m.Type == ModuleType.Basic))
             {
-                return ModuleModel.Convert(modules);
+                return ModuleConverter.Convert(modules);
             }
 
             var basicModule = await moduleService.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken);
@@ -73,7 +74,7 @@ public sealed class OrderService(IOrderRepository orderRepository, IModuleServic
 
             modules.Add(basicModule);
 
-            return ModuleModel.Convert(modules);
+            return ModuleConverter.Convert(modules);
         }
         catch
         {

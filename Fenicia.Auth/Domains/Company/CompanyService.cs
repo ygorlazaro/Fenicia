@@ -1,8 +1,9 @@
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
+using Fenicia.Common.Database.Converters.Auth;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Requests.Auth;
+using Fenicia.Common.Database.Responses.Auth;
 using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Domains.Company;
@@ -11,14 +12,14 @@ public class CompanyService(ICompanyRepository companyRepository, IUserRoleServi
 {
     public async Task<CompanyResponse> GetByCnpjAsync(string cnpj, CancellationToken cancellationToken)
     {
-        var company = await companyRepository.GetByCnpjAsync(cnpj, onlyActive: false, cancellationToken) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
+        var company = await companyRepository.GetByCnpjAsync(cnpj, false, cancellationToken) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
 
-        return CompanyModel.Convert(company);
+        return CompanyConverter.Convert(company);
     }
 
     public async Task<List<CompanyResponse>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken, int page = 1, int perPage = 10)
     {
-        var companies = await companyRepository.GetByUserIdAsync(userId, onlyActive: true, cancellationToken, page, perPage);
+        var companies = await companyRepository.GetByUserIdAsync(userId, true, cancellationToken, page, perPage);
 
         return [.. companies.Select(company => new CompanyResponse
         {
@@ -33,7 +34,7 @@ public class CompanyService(ICompanyRepository companyRepository, IUserRoleServi
 
     public async Task<CompanyResponse?> PatchAsync(Guid companyId, Guid userId, CompanyUpdateRequest company, CancellationToken cancellationToken)
     {
-        var existing = await companyRepository.CheckCompanyExistsAsync(companyId, onlyActive: true, cancellationToken);
+        var existing = await companyRepository.CheckCompanyExistsAsync(companyId, true, cancellationToken);
 
         if (!existing)
         {
@@ -47,7 +48,7 @@ public class CompanyService(ICompanyRepository companyRepository, IUserRoleServi
             throw new PermissionDeniedException(TextConstants.PermissionDeniedMessage);
         }
 
-        var companyToUpdate = CompanyModel.Convert(company);
+        var companyToUpdate = CompanyConverter.Convert(company);
 
         companyToUpdate.Id = companyId;
 
@@ -72,11 +73,11 @@ public class CompanyService(ICompanyRepository companyRepository, IUserRoleServi
 
     public async Task<int> CountByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
-        return await companyRepository.CountByUserIdAsync(userId, onlyActive: true, cancellationToken);
+        return await companyRepository.CountByUserIdAsync(userId, true, cancellationToken);
     }
 
     public async Task<List<Guid>> GetCompaniesAsync(Guid userId, CancellationToken cancellationToken)
     {
-        return await companyRepository.GetCompaniesAsync(userId, onlyActive: true, cancellationToken);
+        return await companyRepository.GetCompaniesAsync(userId, true, cancellationToken);
     }
 }

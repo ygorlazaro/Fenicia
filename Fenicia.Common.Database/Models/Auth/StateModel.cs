@@ -8,11 +8,11 @@ namespace Fenicia.Common.Database.Models.Auth;
 public class StateModel : BaseModel
 {
     [Required]
-    [MaxLength(length: 30)]
+    [MaxLength(30)]
     public string Name { get; set; } = null!;
 
     [Required]
-    [MaxLength(length: 2)]
+    [MaxLength(2)]
     public string Uf { get; set; } = null!;
 
     [JsonIgnore]

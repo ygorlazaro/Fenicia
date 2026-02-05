@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Responses.Auth;
 using Fenicia.Common.Enums;
 
 using Moq;
@@ -103,7 +103,7 @@ public class ModuleServiceTests
     [Test]
     public async Task CountAsyncReturnsCount()
     {
-        var expectedCount = faker.Random.Int(min: 1, max: 100);
+        var expectedCount = faker.Random.Int(1, 100);
 
         moduleRepositoryMock.Setup(x => x.CountAsync(cancellationToken)).ReturnsAsync(expectedCount);
 
@@ -120,8 +120,8 @@ public class ModuleServiceTests
     {
         var modules = new List<ModuleModel>
         {
-            new () { Id = Guid.NewGuid(), Name = "A", Amount = 1, Type = ModuleType.Accounting },
-            new () { Id = Guid.NewGuid(), Name = "B", Amount = 2, Type = ModuleType.Basic }
+            new () { Id = Guid.NewGuid(), Name = "A", Price = 1, Type = ModuleType.Accounting },
+            new () { Id = Guid.NewGuid(), Name = "B", Price = 2, Type = ModuleType.Basic }
         };
 
         moduleRepositoryMock.Setup(x => x.LoadModulesAtDatabaseAsync(It.IsAny<List<ModuleModel>>(), cancellationToken)).ReturnsAsync(modules);
@@ -138,7 +138,7 @@ public class ModuleServiceTests
         var companyId = Guid.NewGuid();
         var modules = new List<ModuleModel>
         {
-            new () { Id = Guid.NewGuid(), Name = "U1", Amount = 1, Type = ModuleType.Basic }
+            new () { Id = Guid.NewGuid(), Name = "U1", Price = 1, Type = ModuleType.Basic }
         };
 
         moduleRepositoryMock.Setup(x => x.GetUserModulesAsync(userId, companyId, cancellationToken)).ReturnsAsync(modules);
@@ -153,7 +153,7 @@ public class ModuleServiceTests
     {
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var module = new ModuleModel { Id = Guid.NewGuid(), Name = "WithSub", Amount = 1, Type = ModuleType.Basic };
+        var module = new ModuleModel { Id = Guid.NewGuid(), Name = "WithSub", Price = 1, Type = ModuleType.Basic };
         var sub = new SubmoduleModel { Id = Guid.NewGuid(), Name = "s", Route = "/s", ModuleId = module.Id };
         module.Submodules = [sub];
         var modules = new List<ModuleModel> { module };

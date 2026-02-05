@@ -11,6 +11,12 @@ public abstract class BaseModel
         get; set;
     }
 
+    protected BaseModel()
+    {
+        Id = Guid.NewGuid();
+        Created = DateTime.UtcNow;
+    }
+
     [JsonIgnore]
     public DateTime Created
     {

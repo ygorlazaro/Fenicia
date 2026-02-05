@@ -1,8 +1,10 @@
 using Fenicia.Auth.Domains.ERP;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.State;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Responses.Auth;
+
 using Microsoft.AspNetCore.Mvc;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Controllers;
@@ -25,7 +27,7 @@ public class ErpControllerTests
     [Test]
     public async Task LoadInfoAsyncReturnsModulesAndStates()
     {
-        var modules = new List<ModuleResponse> { new() { Id = Guid.NewGuid(), Name = "M", Amount = 0, Type = default } };
+        var modules = new List<ModuleResponse> { new() { Id = Guid.NewGuid(), Name = "M", Price = 0, Type = default } };
         var states = new List<StateResponse> { new() { Id = Guid.NewGuid(), Name = "S", Uf = "UF" } };
 
         moduleServiceMock.Setup(x => x.LoadModulesAtDatabaseAsync(CancellationToken.None)).ReturnsAsync(modules);

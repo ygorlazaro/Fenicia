@@ -8,18 +8,18 @@ namespace Fenicia.Common.Database.Models.Auth;
 public class AddressModel : BaseModel
 {
     [Required]
-    [MaxLength(length: 100)]
+    [MaxLength(100)]
     public string Street { get; set; } = null!;
 
     [Required]
-    [MaxLength(length: 10)]
+    [MaxLength(10)]
     public string Number { get; set; } = null!;
 
-    [MaxLength(length: 10)]
+    [MaxLength(10)]
     public string Complement { get; set; } = null!;
 
     [Required]
-    [MaxLength(length: 9)]
+    [MaxLength(9)]
     public string ZipCode { get; set; } = null!;
 
     [Required]
@@ -29,7 +29,7 @@ public class AddressModel : BaseModel
     }
 
     [Required]
-    [MaxLength(length: 30)]
+    [MaxLength(30)]
     public string City { get; set; } = null!;
 
     [ForeignKey(nameof(StateId))]

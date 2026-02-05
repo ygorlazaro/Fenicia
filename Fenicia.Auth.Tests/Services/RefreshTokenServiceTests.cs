@@ -34,7 +34,7 @@ public class RefreshTokenServiceTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.Not.Null);
-            Assert.That(result, Has.Length.EqualTo(expected: 44));
+            Assert.That(result, Has.Length.EqualTo(44));
             Assert.That(result, Does.Match(base64Pattern));
         }
 
@@ -45,7 +45,7 @@ public class RefreshTokenServiceTests
     public async Task ValidateTokenAsyncCallsRepositoryAndReturnsResult()
     {
         var userId = faker.Random.Guid();
-        var refreshToken = faker.Random.AlphaNumeric(length: 44);
+        var refreshToken = faker.Random.AlphaNumeric(44);
         var expectedResult = faker.Random.Bool();
 
         refreshTokenRepositoryMock.Setup(x => x.ValidateTokenAsync(userId, refreshToken, cancellationToken)).ReturnsAsync(expectedResult);
@@ -62,7 +62,7 @@ public class RefreshTokenServiceTests
         var userId = faker.Random.Guid();
         var tokens = new HashSet<string>();
 
-        for (var i = 0; i < faker.Random.Int(min: 500, max: 1000); i++)
+        for (var i = 0; i < faker.Random.Int(500, 1000); i++)
         {
             var result = sut.GenerateRefreshToken(userId);
             tokens.Add(result);
@@ -72,12 +72,12 @@ public class RefreshTokenServiceTests
     }
 
     [Test]
-    [TestCase(arg: true)]
-    [TestCase(arg: false)]
+    [TestCase(true)]
+    [TestCase(false)]
     public async Task ValidateTokenAsyncReturnsExpectedResult(bool expectedResult)
     {
         var userId = faker.Random.Guid();
-        var refreshToken = faker.Random.AlphaNumeric(length: 44);
+        var refreshToken = faker.Random.AlphaNumeric(44);
 
         refreshTokenRepositoryMock.Setup(x => x.ValidateTokenAsync(userId, refreshToken, cancellationToken)).ReturnsAsync(expectedResult);
 
@@ -94,13 +94,13 @@ public class RefreshTokenServiceTests
         var result = sut.GenerateRefreshToken(userId);
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Length.EqualTo(expected: 44));
+        Assert.That(result, Has.Length.EqualTo(44));
     }
 
     [Test]
     public void GenerateRefreshTokenAsyncMultipleCallsGeneratesDistinctTokens()
     {
-        var userIDs = faker.Make(count: 5, () => faker.Random.Guid()).ToList();
+        var userIDs = faker.Make(5, () => faker.Random.Guid()).ToList();
         var generatedTokens = new List<(Guid UserID, string Token)>();
 
         foreach (var userId in userIDs)
@@ -120,7 +120,7 @@ public class RefreshTokenServiceTests
     [Test]
     public async Task InvalidateRefreshTokenAsyncWithMultipleTokensCallsRepositoryForEach()
     {
-        var refreshTokens = faker.Make(count: 5, () => faker.Random.AlphaNumeric(length: 44)).ToList();
+        var refreshTokens = faker.Make(5, () => faker.Random.AlphaNumeric(44)).ToList();
 
         foreach (var token in refreshTokens)
         {

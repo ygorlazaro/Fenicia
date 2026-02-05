@@ -17,22 +17,22 @@ namespace Fenicia.Module.Basic.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.AddressModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.CustomerModel", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("city");
 
                     b.Property<string>("Complement")
@@ -40,6 +40,11 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)")
                         .HasColumnName("complement");
+
+                    b.Property<string>("Cpf")
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)")
+                        .HasColumnName("cpf");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
@@ -49,13 +54,25 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Neighborhood")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("neighborhood");
+
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)")
                         .HasColumnName("number");
 
-                    b.Property<Guid>("StateID")
+                    b.Property<Guid>("StateId")
                         .HasColumnType("uuid")
                         .HasColumnName("state_id");
 
@@ -75,70 +92,35 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("character varying(9)")
                         .HasColumnName("zip_code");
 
-                    b.HasKey("ID")
-                        .HasName("pk_addresses");
-
-                    b.HasIndex("StateID")
-                        .HasDatabaseName("ix_addresses_state_id");
-
-                    b.ToTable("addresses", (string)null);
-                });
-
-            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.CustomerModel", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("AddressID")
-                        .HasColumnType("uuid")
-                        .HasColumnName("address_id");
-
-                    b.Property<string>("CPF")
-                        .HasMaxLength(14)
-                        .HasColumnType("character varying(14)")
-                        .HasColumnName("cpf");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated");
-
-                    b.HasKey("ID")
+                    b.HasKey("Id")
                         .HasName("pk_customers");
 
-                    b.HasIndex("AddressID")
-                        .HasDatabaseName("ix_customers_address_id");
+                    b.HasIndex("StateId")
+                        .HasDatabaseName("ix_customers_state_id");
 
                     b.ToTable("customers", (string)null);
                 });
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.EmployeeModel", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("AddressID")
-                        .HasColumnType("uuid")
-                        .HasColumnName("address_id");
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("city");
 
-                    b.Property<string>("CPF")
+                    b.Property<string>("Complement")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("complement");
+
+                    b.Property<string>("Cpf")
                         .HasMaxLength(14)
                         .HasColumnType("character varying(14)")
                         .HasColumnName("cpf");
@@ -157,29 +139,152 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
 
-                    b.Property<Guid>("PositionID")
+                    b.Property<string>("Neighborhood")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("neighborhood");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("PositionId")
                         .HasColumnType("uuid")
                         .HasColumnName("position_id");
+
+                    b.Property<Guid>("StateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("state_id");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("street");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("ID")
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)")
+                        .HasColumnName("zip_code");
+
+                    b.HasKey("Id")
                         .HasName("pk_employees");
 
-                    b.HasIndex("AddressID")
-                        .HasDatabaseName("ix_employees_address_id");
-
-                    b.HasIndex("PositionID")
+                    b.HasIndex("PositionId")
                         .HasDatabaseName("ix_employees_position_id");
+
+                    b.HasIndex("StateId")
+                        .HasDatabaseName("ix_employees_state_id");
 
                     b.ToTable("employees", (string)null);
                 });
 
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.OrderDetailModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("order_id");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<double>("Quantity")
+                        .HasColumnType("double precision")
+                        .HasColumnName("quantity");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.HasKey("Id")
+                        .HasName("pk_order_details");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_order_details_order_id");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_order_details_product_id");
+
+                    b.ToTable("order_details", (string)null);
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.OrderModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("customer_id");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<DateTime>("SaleDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sale_date");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("total_amount");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_orders");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("ix_orders_customer_id");
+
+                    b.ToTable("orders", (string)null);
+                });
+
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.PositionModel", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -202,7 +307,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("ID")
+                    b.HasKey("Id")
                         .HasName("pk_positions");
 
                     b.ToTable("positions", (string)null);
@@ -210,7 +315,7 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.ProductCategoryModel", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -233,7 +338,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("ID")
+                    b.HasKey("Id")
                         .HasName("pk_product_categories");
 
                     b.ToTable("product_categories", (string)null);
@@ -241,12 +346,12 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.ProductModel", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("CategoryID")
+                    b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
 
@@ -268,8 +373,8 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer")
+                    b.Property<double>("Quantity")
+                        .HasColumnType("double precision")
                         .HasColumnName("quantity");
 
                     b.Property<decimal>("SellingPrice")
@@ -280,10 +385,10 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("ID")
+                    b.HasKey("Id")
                         .HasName("pk_products");
 
-                    b.HasIndex("CategoryID")
+                    b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_products_category_id");
 
                     b.ToTable("products", (string)null);
@@ -291,7 +396,7 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.StateModel", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -310,7 +415,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("name");
 
-                    b.Property<string>("UF")
+                    b.Property<string>("Uf")
                         .IsRequired()
                         .HasMaxLength(2)
                         .HasColumnType("character varying(2)")
@@ -320,7 +425,7 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("ID")
+                    b.HasKey("Id")
                         .HasName("pk_states");
 
                     b.ToTable("states", (string)null);
@@ -328,7 +433,7 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.StockMovementModel", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
@@ -336,6 +441,10 @@ namespace Fenicia.Module.Basic.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("customer_id");
 
                     b.Property<DateTime?>("Date")
                         .HasColumnType("timestamp with time zone")
@@ -349,39 +458,61 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("price");
 
-                    b.Property<Guid>("ProductID")
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uuid")
                         .HasColumnName("product_id");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer")
+                    b.Property<double>("Quantity")
+                        .HasColumnType("double precision")
                         .HasColumnName("quantity");
+
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("supplier_id");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("ID")
+                    b.HasKey("Id")
                         .HasName("pk_stock_movements");
 
-                    b.HasIndex("ProductID")
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("ix_stock_movements_customer_id");
+
+                    b.HasIndex("ProductId")
                         .HasDatabaseName("ix_stock_movements_product_id");
+
+                    b.HasIndex("SupplierId")
+                        .HasDatabaseName("ix_stock_movements_supplier_id");
 
                     b.ToTable("stock_movements", (string)null);
                 });
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.SupplierModel", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("AddressID")
-                        .HasColumnType("uuid")
-                        .HasColumnName("address_id");
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("city");
 
-                    b.Property<string>("CPF")
+                    b.Property<string>("Complement")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("complement");
+
+                    b.Property<string>("Cpf")
                         .HasMaxLength(14)
                         .HasColumnType("character varying(14)")
                         .HasColumnName("cpf");
@@ -400,69 +531,118 @@ namespace Fenicia.Module.Basic.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
 
+                    b.Property<string>("Neighborhood")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("neighborhood");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("StateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("state_id");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("street");
+
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.HasKey("ID")
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)")
+                        .HasColumnName("zip_code");
+
+                    b.HasKey("Id")
                         .HasName("pk_suppliers");
 
-                    b.HasIndex("AddressID")
-                        .HasDatabaseName("ix_suppliers_address_id");
+                    b.HasIndex("StateId")
+                        .HasDatabaseName("ix_suppliers_state_id");
 
                     b.ToTable("suppliers", (string)null);
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.AddressModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.CustomerModel", b =>
                 {
                     b.HasOne("Fenicia.Common.Database.Models.Basic.StateModel", "State")
-                        .WithMany("Addresses")
-                        .HasForeignKey("StateID")
+                        .WithMany("Customers")
+                        .HasForeignKey("StateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_addresses_states_state_id");
+                        .HasConstraintName("fk_customers_states_state_id");
 
                     b.Navigation("State");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.CustomerModel", b =>
-                {
-                    b.HasOne("Fenicia.Common.Database.Models.Basic.AddressModel", "Address")
-                        .WithMany("Customers")
-                        .HasForeignKey("AddressID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_customers_addresses_address_id");
-
-                    b.Navigation("Address");
-                });
-
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.EmployeeModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Database.Models.Basic.AddressModel", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_employees_addresses_address_id");
-
                     b.HasOne("Fenicia.Common.Database.Models.Basic.PositionModel", "Position")
                         .WithMany("Employees")
-                        .HasForeignKey("PositionID")
+                        .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_employees_positions_position_id");
 
-                    b.Navigation("Address");
+                    b.HasOne("Fenicia.Common.Database.Models.Basic.StateModel", "State")
+                        .WithMany("Employees")
+                        .HasForeignKey("StateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_employees_states_state_id");
 
                     b.Navigation("Position");
+
+                    b.Navigation("State");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.OrderDetailModel", b =>
+                {
+                    b.HasOne("Fenicia.Common.Database.Models.Basic.OrderModel", "Order")
+                        .WithMany("Details")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_details_orders_order_id");
+
+                    b.HasOne("Fenicia.Common.Database.Models.Basic.ProductModel", "Product")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_details_products_product_id");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.OrderModel", b =>
+                {
+                    b.HasOne("Fenicia.Common.Database.Models.Basic.CustomerModel", "Customer")
+                        .WithMany("Orders")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_orders_customers_customer_id");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.ProductModel", b =>
                 {
                     b.HasOne("Fenicia.Common.Database.Models.Basic.ProductCategoryModel", "Category")
                         .WithMany("Products")
-                        .HasForeignKey("CategoryID")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_products_product_categories_category_id");
@@ -472,31 +652,52 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.StockMovementModel", b =>
                 {
+                    b.HasOne("Fenicia.Common.Database.Models.Basic.CustomerModel", "Customer")
+                        .WithMany("StockMovements")
+                        .HasForeignKey("CustomerId")
+                        .HasConstraintName("fk_stock_movements_customers_customer_id");
+
                     b.HasOne("Fenicia.Common.Database.Models.Basic.ProductModel", "Product")
                         .WithMany("StockMovements")
-                        .HasForeignKey("ProductID")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_stock_movements_products_product_id");
 
+                    b.HasOne("Fenicia.Common.Database.Models.Basic.SupplierModel", "Supplier")
+                        .WithMany("StockMovements")
+                        .HasForeignKey("SupplierId")
+                        .HasConstraintName("fk_stock_movements_suppliers_supplier_id");
+
+                    b.Navigation("Customer");
+
                     b.Navigation("Product");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.SupplierModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Database.Models.Basic.AddressModel", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressID")
+                    b.HasOne("Fenicia.Common.Database.Models.Basic.StateModel", "State")
+                        .WithMany("Suppliers")
+                        .HasForeignKey("StateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_suppliers_addresses_address_id");
+                        .HasConstraintName("fk_suppliers_states_state_id");
 
-                    b.Navigation("Address");
+                    b.Navigation("State");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.AddressModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.CustomerModel", b =>
                 {
-                    b.Navigation("Customers");
+                    b.Navigation("Orders");
+
+                    b.Navigation("StockMovements");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.OrderModel", b =>
+                {
+                    b.Navigation("Details");
                 });
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.PositionModel", b =>
@@ -511,12 +712,23 @@ namespace Fenicia.Module.Basic.Migrations
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.ProductModel", b =>
                 {
+                    b.Navigation("OrderDetails");
+
                     b.Navigation("StockMovements");
                 });
 
             modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.StateModel", b =>
                 {
-                    b.Navigation("Addresses");
+                    b.Navigation("Customers");
+
+                    b.Navigation("Employees");
+
+                    b.Navigation("Suppliers");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Database.Models.Basic.SupplierModel", b =>
+                {
+                    b.Navigation("StockMovements");
                 });
 #pragma warning restore 612, 618
         }

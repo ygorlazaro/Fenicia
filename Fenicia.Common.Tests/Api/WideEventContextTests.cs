@@ -1,7 +1,5 @@
 using Fenicia.Common.API;
 
-using NUnit.Framework;
-
 namespace Fenicia.Common.Tests.Api;
 
 [TestFixture]

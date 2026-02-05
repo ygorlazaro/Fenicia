@@ -1,4 +1,5 @@
 using Bogus;
+
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Role;
@@ -6,11 +7,12 @@ using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Requests.Auth;
+using Fenicia.Common.Database.Responses.Auth;
 using Fenicia.Common.Enums;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Migrations.Services;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
@@ -63,20 +65,18 @@ public class UserServiceTests
             Name = faker.Name.FullName()
         };
 
-        var expectedResponse = new UserResponse
-        {
-            Id = user.Id,
-            Email = user.Email,
-            Name = user.Name
-        };
-
         userRepositoryMock.Setup(x => x.GetByEmailAsync(request.Email, cancellationToken)).ReturnsAsync(user);
 
         securityServiceMock.Setup(x => x.VerifyPassword(request.Password, user.Password)).Returns(true);
 
         var result = await sut.GetForLoginAsync(request, cancellationToken);
 
-        Assert.That(result, Is.EqualTo(expectedResponse));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Id, Is.EqualTo(user.Id));
+            Assert.That(result.Email, Is.EqualTo(user.Email));
+            Assert.That(result.Name, Is.EqualTo(user.Name));
+        });
     }
 
     [Test]
@@ -104,29 +104,15 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = faker.Company.CompanyName(),
-                Cnpj = faker.Random.String2(length: 14, "0123456789")
+                Cnpj = faker.Random.String2(14, "0123456789")
             }
         };
 
         var hashedPassword = faker.Internet.Password();
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = request.Email,
-            Password = hashedPassword,
-            Name = request.Name
-        };
 
-        var expectedResponse = new UserResponse
-        {
-            Id = user.Id,
-            Email = user.Email,
-            Name = user.Name
-        };
-
-        userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(value: false);
-        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, onlyActive: true, cancellationToken)).ReturnsAsync(value: false);
+        userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(false);
+        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, true, cancellationToken)).ReturnsAsync(false);
         securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(hashedPassword);
         userRepositoryMock.Setup(x => x.Add(It.IsAny<UserModel>()));
         companyRepositoryMock.Setup(x => x.Add(It.IsAny<CompanyModel>()));
@@ -134,7 +120,12 @@ public class UserServiceTests
 
         var result = await sut.CreateNewUserAsync(request, cancellationToken);
 
-        Assert.That(result, Is.EqualTo(expectedResponse));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Email, Is.EqualTo(request.Email));
+            Assert.That(result.Name, Is.EqualTo(request.Name));
+            Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
+        });
 
         userRepositoryMock.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
     }
@@ -150,11 +141,11 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = faker.Company.CompanyName(),
-                Cnpj = faker.Random.String2(length: 14, "0123456789")
+                Cnpj = faker.Random.String2(14, "0123456789")
             }
         };
 
-        userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(value: true);
+        userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(true);
 
         Assert.ThrowsAsync<ArgumentException>(async () => await sut.CreateNewUserAsync(request, cancellationToken));
     }
@@ -219,12 +210,12 @@ public class UserServiceTests
             Company = new CompanyRequest
             {
                 Name = faker.Company.CompanyName(),
-                Cnpj = faker.Random.String2(length: 14, "0123456789")
+                Cnpj = faker.Random.String2(14, "0123456789")
             }
         };
 
-        userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(value: false);
-        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, onlyActive: true, cancellationToken)).ReturnsAsync(value: false);
+        userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(false);
+        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, true, cancellationToken)).ReturnsAsync(false);
         roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(cancellationToken)).ReturnsAsync((RoleModel)null!);
         securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns("hashedPassword");
 
@@ -266,11 +257,11 @@ public class UserServiceTests
             Email = faker.Internet.Email(),
             Password = faker.Internet.Password(),
             Name = faker.Name.FullName(),
-            Company = new CompanyRequest { Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(length: 14, "0123456789") }
+            Company = new CompanyRequest { Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(14, "0123456789") }
         };
 
         userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(false);
-        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, onlyActive: true, cancellationToken)).ReturnsAsync(true);
+        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, true, cancellationToken)).ReturnsAsync(true);
 
         Assert.ThrowsAsync<ArgumentException>(async () => await sut.CreateNewUserAsync(request, cancellationToken));
     }

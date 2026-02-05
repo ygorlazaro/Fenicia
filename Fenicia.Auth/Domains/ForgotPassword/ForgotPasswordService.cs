@@ -1,8 +1,8 @@
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Requests.Auth;
+using Fenicia.Common.Database.Responses.Auth;
 
 namespace Fenicia.Auth.Domains.ForgotPassword;
 

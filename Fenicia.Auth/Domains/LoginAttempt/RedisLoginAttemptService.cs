@@ -8,7 +8,7 @@ public class RedisLoginAttemptService(IConnectionMultiplexer redis) : ILoginAtte
 {
     private readonly IDatabase db = redis.GetDatabase();
 
-    private readonly TimeSpan expiration = TimeSpan.FromMinutes(minutes: 15);
+    private readonly TimeSpan expiration = TimeSpan.FromMinutes(15);
 
     public async Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
     {

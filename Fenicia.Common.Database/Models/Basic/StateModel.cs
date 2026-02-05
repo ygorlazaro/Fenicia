@@ -7,12 +7,29 @@ namespace Fenicia.Common.Database.Models.Basic;
 public class StateModel : BaseModel
 {
     [Required]
-    [MaxLength(length: 30)]
+    [MaxLength(30)]
     public string Name { get; set; } = null!;
 
     [Required]
-    [MaxLength(length: 2)]
+    [MaxLength(2)]
     public string Uf { get; set; } = null!;
 
-    public virtual List<AddressModel> Addresses { get; set; } = null!;
+    public virtual List<CustomerModel> Customers
+    {
+        get;
+        set;
+    }
+
+    public virtual List<SupplierModel> Suppliers
+    {
+        get;
+        set;
+    }
+
+    public virtual List<EmployeeModel> Employees
+    {
+        get;
+        set;
+    }
+
 }

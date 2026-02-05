@@ -3,8 +3,8 @@ using System.Net.Mime;
 using Fenicia.Auth.Domains.RefreshToken;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common.API;
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Requests.Auth;
+using Fenicia.Common.Database.Responses.Auth;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;

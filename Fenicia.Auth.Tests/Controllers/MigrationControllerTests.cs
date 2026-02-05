@@ -1,10 +1,12 @@
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Migrations;
 using Fenicia.Auth.Domains.SubscriptionCredit;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Responses.Auth;
 using Fenicia.Common.Enums;
 using Fenicia.Common.Migrations.Services;
+
 using Microsoft.AspNetCore.Mvc;
+
 using Moq;
 
 namespace Fenicia.Auth.Tests.Controllers;
