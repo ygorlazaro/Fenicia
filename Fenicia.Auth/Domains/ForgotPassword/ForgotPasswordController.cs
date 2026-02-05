@@ -1,6 +1,6 @@
 using System.Net.Mime;
 
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
 using Fenicia.Common.Database.Requests;
 
 using Microsoft.AspNetCore.Authorization;

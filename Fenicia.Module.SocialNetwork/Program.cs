@@ -33,12 +33,11 @@ public class Program
         }
 
         configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
-        var configuration = configBuilder;
 
         var builder = WebApplication.CreateBuilder(args);
-        builder.Configuration.AddConfiguration(configuration);
+        builder.Configuration.AddConfiguration(configBuilder);
 
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
+        var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
 
@@ -88,8 +87,6 @@ public class Program
             app.MapOpenApi();
             app.MapScalarApiReference(x =>
             {
-                x.WithDarkModeToggle(showDarkModeToggle: true).WithTheme(ScalarTheme.BluePlanet).WithClientButton(showButton: true);
-
                 x.Authentication = new ScalarAuthenticationOptions
                 {
                     PreferredSecuritySchemes = ["Bearer "]

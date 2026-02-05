@@ -33,7 +33,9 @@ public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepo
             Credits = credits
         };
 
-        await subscriptionRepository.SaveSubscriptionAsync(subscription, cancellationToken);
+        subscriptionRepository.Add(subscription);
+
+        await subscriptionRepository.SaveChangesAsync(cancellationToken);
 
         return SubscriptionResponse.Convert(subscription);
     }

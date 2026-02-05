@@ -36,7 +36,6 @@ public class CompanyRepositoryTests
     [Test]
     public async Task CheckCompanyExistsAsyncByIdReturnsTrueWhenExists()
     {
-        // Arrange
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
@@ -46,27 +45,22 @@ public class CompanyRepositoryTests
         await context.Companies.AddAsync(company, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.CheckCompanyExistsAsync(company.Id, onlyActive: true, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task CheckCompanyExistsAsyncByIdReturnsFalseWhenNotExists()
     {
-        // Act
         var result = await sut.CheckCompanyExistsAsync(Guid.NewGuid(), onlyActive: true, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.False);
     }
 
     [Test]
     public async Task CheckCompanyExistsAsyncByCnpjReturnsTrueWhenExists()
     {
-        // Arrange
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
@@ -76,17 +70,14 @@ public class CompanyRepositoryTests
         await context.Companies.AddAsync(company, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.CheckCompanyExistsAsync(company.Cnpj, onlyActive: true, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
     public async Task AddSavesCompanyToDatabase()
     {
-        // Arrange
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
@@ -94,12 +85,10 @@ public class CompanyRepositoryTests
             Cnpj = faker.Random.String2(length: 14, "0123456789")
         };
 
-        // Act
         sut.Add(company);
-        await sut.SaveAsync(cancellationToken);
+        await sut.SaveChangesAsync(cancellationToken);
 
-        // Assert
-        var savedCompany = await context.Companies.FindAsync(new object[] { company.Id }, cancellationToken);
+        var savedCompany = await context.Companies.FindAsync([company.Id], cancellationToken);
         Assert.That(savedCompany, Is.Not.Null);
         Assert.Multiple(() =>
         {
@@ -111,7 +100,6 @@ public class CompanyRepositoryTests
     [Test]
     public async Task GetByCnpjAsyncReturnsCompanyWhenExists()
     {
-        // Arrange
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
@@ -121,10 +109,8 @@ public class CompanyRepositoryTests
         await context.Companies.AddAsync(company, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetByCnpjAsync(company.Cnpj, onlyActive: true, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         Assert.Multiple(() =>
         {
@@ -136,7 +122,6 @@ public class CompanyRepositoryTests
     [Test]
     public async Task GetByUserIdAsyncReturnsCompaniesWithPagination()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companies = new List<CompanyModel>();
         var userRoles = new List<UserRoleModel>();
@@ -164,13 +149,11 @@ public class CompanyRepositoryTests
         await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var page1 = await sut.GetByUserIdAsync(userId, onlyActive: true, cancellationToken, page: 1, perPage: 10);
         var page2 = await sut.GetByUserIdAsync(userId, onlyActive: true, cancellationToken, page: 2, perPage: 10);
 
         using (Assert.EnterMultipleScope())
         {
-            // Assert
             Assert.That(page1, Has.Count.EqualTo(expected: 10));
             Assert.That(page2, Has.Count.EqualTo(expected: 5));
         }
@@ -179,7 +162,6 @@ public class CompanyRepositoryTests
     [Test]
     public async Task CountByUserIdAsyncReturnsCorrectCount()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var expectedCount = 5;
         var companies = new List<CompanyModel>();
@@ -208,17 +190,14 @@ public class CompanyRepositoryTests
         await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var count = await sut.CountByUserIdAsync(userId, onlyActive: true, cancellationToken);
 
-        // Assert
         Assert.That(count, Is.EqualTo(expectedCount));
     }
 
     [Test]
     public async Task PatchAsyncUpdatesCompany()
     {
-        // Arrange
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
@@ -231,12 +210,10 @@ public class CompanyRepositoryTests
         var updatedName = faker.Company.CompanyName();
         company.Name = updatedName;
 
-        // Act
-        sut.PatchAsync(company);
-        await sut.SaveAsync(cancellationToken);
+        sut.Update(company);
+        await sut.SaveChangesAsync(cancellationToken);
 
-        // Assert
-        var updatedCompany = await context.Companies.FindAsync(new object[] { company.Id }, cancellationToken);
+        var updatedCompany = await context.Companies.FindAsync([company.Id], cancellationToken);
         Assert.That(updatedCompany, Is.Not.Null);
         Assert.That(updatedCompany.Name, Is.EqualTo(updatedName));
     }
@@ -244,20 +221,16 @@ public class CompanyRepositoryTests
     [Test]
     public async Task GetByUserIdAsyncReturnsEmptyListWhenUserHasNoCompanies()
     {
-        // Arrange
         var userId = Guid.NewGuid();
 
-        // Act
         var result = await sut.GetByUserIdAsync(userId, onlyActive: true, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
     }
 
     [Test]
     public async Task CheckCompanyExistsRespectsOnlyActiveFlagByIdAndCnpj()
     {
-        // Arrange
         var company = new CompanyModel
         {
             Id = Guid.NewGuid(),
@@ -268,14 +241,12 @@ public class CompanyRepositoryTests
         await context.Companies.AddAsync(company, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var existsOnlyActiveById = await sut.CheckCompanyExistsAsync(company.Id, onlyActive: true, cancellationToken);
         var existsAnyById = await sut.CheckCompanyExistsAsync(company.Id, onlyActive: false, cancellationToken);
 
         var existsOnlyActiveByCnpj = await sut.CheckCompanyExistsAsync(company.Cnpj, onlyActive: true, cancellationToken);
         var existsAnyByCnpj = await sut.CheckCompanyExistsAsync(company.Cnpj, onlyActive: false, cancellationToken);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(existsOnlyActiveById, Is.False);
@@ -288,7 +259,6 @@ public class CompanyRepositoryTests
     [Test]
     public async Task GetByCnpjAsyncRespectsOnlyActiveFlag()
     {
-        // Arrange
         var activeCompany = new CompanyModel
         {
             Id = Guid.NewGuid(),
@@ -304,15 +274,12 @@ public class CompanyRepositoryTests
             IsActive = false
         };
 
-        // Add only the inactive one so query with onlyActive true should not find it
         await context.Companies.AddAsync(inactiveCompany, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var resultOnlyActive = await sut.GetByCnpjAsync(activeCompany.Cnpj, onlyActive: true, cancellationToken);
         var resultAny = await sut.GetByCnpjAsync(activeCompany.Cnpj, onlyActive: false, cancellationToken);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(resultOnlyActive, Is.Null);
@@ -323,7 +290,6 @@ public class CompanyRepositoryTests
     [Test]
     public async Task GetByUserIdAsyncIncludesInactiveWhenOnlyActiveFalse()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var activeCompany = new CompanyModel { Id = Guid.NewGuid(), Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(14, "0123456789"), IsActive = true };
         var inactiveCompany = new CompanyModel { Id = Guid.NewGuid(), Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(14, "0123456789"), IsActive = false };
@@ -334,15 +300,13 @@ public class CompanyRepositoryTests
             new() { UserId = userId, CompanyId = inactiveCompany.Id, Company = inactiveCompany }
         };
 
-        await context.Companies.AddRangeAsync(new[] { activeCompany, inactiveCompany }, cancellationToken);
+        await context.Companies.AddRangeAsync([activeCompany, inactiveCompany], cancellationToken);
         await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var onlyActive = await sut.GetByUserIdAsync(userId, onlyActive: true, cancellationToken);
         var any = await sut.GetByUserIdAsync(userId, onlyActive: false, cancellationToken);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(onlyActive.Select(c => c.Id), Does.Not.Contain(inactiveCompany.Id));
@@ -353,7 +317,6 @@ public class CompanyRepositoryTests
     [Test]
     public async Task GetCompaniesAsyncReturnsDistinctIdsAndRespectsOnlyActive()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var activeCompany = new CompanyModel { Id = Guid.NewGuid(), Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(14, "0123456789"), IsActive = true };
         var inactiveCompany = new CompanyModel { Id = Guid.NewGuid(), Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(14, "0123456789"), IsActive = false };
@@ -361,19 +324,17 @@ public class CompanyRepositoryTests
         var userRoles = new List<UserRoleModel>
         {
             new() { UserId = userId, CompanyId = activeCompany.Id },
-            new() { UserId = userId, CompanyId = activeCompany.Id }, // duplicate
+            new() { UserId = userId, CompanyId = activeCompany.Id },
             new() { UserId = userId, CompanyId = inactiveCompany.Id }
         };
 
-        await context.Companies.AddRangeAsync(new[] { activeCompany, inactiveCompany }, cancellationToken);
+        await context.Companies.AddRangeAsync([activeCompany, inactiveCompany], cancellationToken);
         await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var onlyActive = await sut.GetCompaniesAsync(userId, onlyActive: true, cancellationToken);
         var any = await sut.GetCompaniesAsync(userId, onlyActive: false, cancellationToken);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(onlyActive, Has.Count.EqualTo(1));

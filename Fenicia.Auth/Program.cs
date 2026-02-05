@@ -19,11 +19,11 @@ using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.Database.Contexts;
-using Fenicia.Common.Externals.Email;
 using Fenicia.Common.Migrations.Services;
+using Fenicia.Externals.Email;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -69,7 +69,6 @@ public static class Program
     {
         var app = builder.Build();
 
-        app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionMiddleware>();
         app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseMiddleware<WideEventMiddleware>();

@@ -4,6 +4,7 @@ using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Providers;
 using Fenicia.Common.Database.Contexts;
+using Fenicia.Module.Basic.Domains.Customers;
 using Fenicia.Module.Basic.Domains.State;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -45,6 +46,7 @@ public class Program
         builder.Services.AddScoped<TenantProvider>();
         builder.Services.AddTransient<IStateService, StateService>();
         builder.Services.AddTransient<IStateRepository, StateRepository>();
+        builder.Services.AddTransient<ICustomerRepository, CustomerRepository>();
 
         builder.Services.AddDbContext<BasicContext>((sp, options) =>
         {

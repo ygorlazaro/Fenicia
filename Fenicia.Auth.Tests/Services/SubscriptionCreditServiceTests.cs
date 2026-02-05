@@ -25,7 +25,6 @@ public class SubscriptionCreditServiceTests
     [Test]
     public async Task GetActiveModulesTypesAsyncWhenValidSubscriptionsExistReturnsModuleTypes()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var validSubscriptions = new List<Guid> { Guid.NewGuid() };
         var expectedModuleTypes = new List<ModuleType>
@@ -34,14 +33,12 @@ public class SubscriptionCreditServiceTests
                                       ModuleType.Contracts
                                   };
 
-        subscriptionServiceMock.Setup(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken)).ReturnsAsync(validSubscriptions); // Replace object with your actual type
+        subscriptionServiceMock.Setup(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken)).ReturnsAsync(validSubscriptions);
 
         subscriptionCreditRepositoryMock.Setup(x => x.GetValidModulesTypesAsync(validSubscriptions, cancellationToken)).ReturnsAsync(expectedModuleTypes);
 
-        // Act
         var result = await sut.GetActiveModulesTypesAsync(companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.EqualTo(expectedModuleTypes));
 
         subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken), Times.Once);
@@ -51,16 +48,13 @@ public class SubscriptionCreditServiceTests
     [Test]
     public async Task GetActiveModulesTypesAsyncWhenNoValidSubscriptionsReturnsFailureResponse()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var errorResponse = new List<Guid>();
 
         subscriptionServiceMock.Setup(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken)).ReturnsAsync(errorResponse);
 
-        // Act
         var result = await sut.GetActiveModulesTypesAsync(companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
 
         subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken), Times.Once);
@@ -70,7 +64,6 @@ public class SubscriptionCreditServiceTests
     [Test]
     public async Task GetActiveModulesTypesAsyncWhenRepositoryReturnsEmptyListReturnsEmptyList()
     {
-        // Arrange
         var companyId = Guid.NewGuid();
         var validSubscriptions = new List<Guid> { Guid.NewGuid() };
         var emptyModuleTypes = new List<ModuleType>();
@@ -79,10 +72,8 @@ public class SubscriptionCreditServiceTests
 
         subscriptionCreditRepositoryMock.Setup(x => x.GetValidModulesTypesAsync(validSubscriptions, cancellationToken)).ReturnsAsync(emptyModuleTypes);
 
-        // Act
         var result = await sut.GetActiveModulesTypesAsync(companyId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
 
         subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken), Times.Once);

@@ -1,5 +1,5 @@
-using Microsoft.Extensions.Caching.Memory;
 using Fenicia.Auth.Domains.LoginAttempt;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Services;
 
@@ -18,7 +18,7 @@ public class LoginAttemptServiceTests
     [TearDown]
     public void TearDown()
     {
-        (cache as IDisposable)?.Dispose();
+        cache.Dispose();
     }
 
     [Test]
@@ -26,7 +26,7 @@ public class LoginAttemptServiceTests
     {
         var attempts = await sut.GetAttemptsAsync("noone@example.com", CancellationToken.None);
 
-        Assert.That(attempts, Is.EqualTo(0));
+        Assert.That(attempts, Is.Zero);
     }
 
     [Test]
@@ -57,6 +57,6 @@ public class LoginAttemptServiceTests
         await sut.ResetAttemptsAsync(email, CancellationToken.None);
         var after = await sut.GetAttemptsAsync(email, CancellationToken.None);
 
-        Assert.That(after, Is.EqualTo(0));
+        Assert.That(after, Is.Zero);
     }
 }

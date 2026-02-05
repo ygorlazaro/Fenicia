@@ -1,7 +1,5 @@
 using System.Diagnostics;
 
-using Fenicia.Common.Api;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

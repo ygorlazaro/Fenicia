@@ -1,7 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.User;
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 

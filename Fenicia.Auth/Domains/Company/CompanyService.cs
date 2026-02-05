@@ -51,8 +51,8 @@ public class CompanyService(ICompanyRepository companyRepository, IUserRoleServi
 
         companyToUpdate.Id = companyId;
 
-        var updatedCompany = companyRepository.PatchAsync(companyToUpdate);
-        var saved = await companyRepository.SaveAsync(cancellationToken);
+        companyRepository.Update(companyToUpdate);
+        var saved = await companyRepository.SaveChangesAsync(cancellationToken);
 
         if (saved == 0)
         {
@@ -61,11 +61,11 @@ public class CompanyService(ICompanyRepository companyRepository, IUserRoleServi
 
         return new CompanyResponse
         {
-            Id = updatedCompany.Id,
-            Name = updatedCompany.Name,
-            Cnpj = updatedCompany.Cnpj,
-            Language = updatedCompany.Language,
-            TimeZone = updatedCompany.TimeZone,
+            Id = companyToUpdate.Id,
+            Name = companyToUpdate.Name,
+            Cnpj = companyToUpdate.Cnpj,
+            Language = companyToUpdate.Language,
+            TimeZone = companyToUpdate.TimeZone,
             Role = new RoleModel { Name = string.Empty }
         };
     }

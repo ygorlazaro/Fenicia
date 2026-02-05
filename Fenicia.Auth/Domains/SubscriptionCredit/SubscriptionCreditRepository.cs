@@ -1,11 +1,13 @@
+using Fenicia.Common.Database.Abstracts;
 using Fenicia.Common.Database.Contexts;
+using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Enums;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.SubscriptionCredit;
 
-public class SubscriptionCreditRepository(AuthContext context) : ISubscriptionCreditRepository
+public class SubscriptionCreditRepository(AuthContext context) : BaseRepository<SubscriptionCreditModel>(context), ISubscriptionCreditRepository
 {
     public async Task<List<ModuleType>> GetValidModulesTypesAsync(List<Guid> subscriptions, CancellationToken cancellationToken)
     {

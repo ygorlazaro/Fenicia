@@ -1,7 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Common;
-using Fenicia.Common.Api;
+using Fenicia.Common.API;
 using Fenicia.Common.Database.Responses;
 
 using Microsoft.AspNetCore.Authorization;

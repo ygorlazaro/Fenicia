@@ -1,6 +1,5 @@
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.UserRole;
-using Fenicia.Common.Api;
 using Fenicia.Common.API;
 using Fenicia.Common.Database.Responses;
 

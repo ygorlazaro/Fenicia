@@ -1,22 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Moq;
-using NUnit.Framework;
-
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Responses;
+
+using Moq;
 
 namespace Fenicia.Auth.Tests.Services;
 
 public class UserRoleServiceTests
 {
-    private Mock<IUserRoleRepository> repoMock = null!;
-    private IUserRoleService sut = null!;
     private readonly CancellationToken cancellationToken = CancellationToken.None;
+    private Mock<IUserRoleRepository> repoMock = null!;
+    private UserRoleService sut = null!;
 
     [SetUp]
     public void Setup()
@@ -43,7 +36,7 @@ public class UserRoleServiceTests
     public async Task GetRolesByUserAsync_WhenEmpty_ReturnsEmpty()
     {
         var userId = Guid.NewGuid();
-        repoMock.Setup(r => r.GetRolesByUserAsync(userId, cancellationToken)).ReturnsAsync(Array.Empty<string>());
+        repoMock.Setup(r => r.GetRolesByUserAsync(userId, cancellationToken)).ReturnsAsync([]);
 
         var result = await sut.GetRolesByUserAsync(userId, cancellationToken);
 
@@ -59,15 +52,18 @@ public class UserRoleServiceTests
 
         var userRole = new UserRoleModel { Id = Guid.NewGuid(), Company = company, Role = role };
 
-        repoMock.Setup(r => r.GetUserCompaniesAsync(userId, cancellationToken)).ReturnsAsync(new List<UserRoleModel> { userRole });
+        repoMock.Setup(r => r.GetUserCompaniesAsync(userId, cancellationToken)).ReturnsAsync([userRole]);
 
         var result = await sut.GetUserCompaniesAsync(userId, cancellationToken);
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(1));
-        Assert.That(result[0].Id, Is.EqualTo(company.Id));
-        Assert.That(result[0].Name, Is.EqualTo(company.Name));
-        Assert.That(result[0].Cnpj, Is.EqualTo(company.Cnpj));
+        Assert.That(result, Has.Count.EqualTo(1));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result[0].Id, Is.EqualTo(company.Id));
+            Assert.That(result[0].Name, Is.EqualTo(company.Name));
+            Assert.That(result[0].Cnpj, Is.EqualTo(company.Cnpj));
+        }
     }
 
     [Test]

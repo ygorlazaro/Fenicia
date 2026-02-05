@@ -31,16 +31,13 @@ public class RoleRepositoryTests
     [Test]
     public async Task GetAdminRoleAsyncReturnsRoleWhenAdminRoleExists()
     {
-        // Arrange
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
 
         await context.Roles.AddAsync(adminRole, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetAdminRoleAsync(cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -52,33 +49,27 @@ public class RoleRepositoryTests
     [Test]
     public async Task GetAdminRoleAsyncReturnsNullWhenAdminRoleDoesNotExist()
     {
-        // Arrange
         var nonAdminRole = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
 
         await context.Roles.AddAsync(nonAdminRole, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetAdminRoleAsync(cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Null);
     }
 
     [Test]
     public async Task GetAdminRoleAsyncReturnsNullWhenRolesTableIsEmpty()
     {
-        // Act
         var result = await sut.GetAdminRoleAsync(cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Null);
     }
 
     [Test]
     public async Task GetAdminRoleAsyncReturnsSingleRoleWhenMultipleRolesExist()
     {
-        // Arrange
         var roles = new[]
                     {
                         new RoleModel { Id = Guid.NewGuid(), Name = "User" },
@@ -89,10 +80,8 @@ public class RoleRepositoryTests
         await context.Roles.AddRangeAsync(roles, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetAdminRoleAsync(cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Name, Is.EqualTo("Admin"));
     }
@@ -100,16 +89,13 @@ public class RoleRepositoryTests
     [Test]
     public async Task GetAdminRoleAsyncIsCaseInsensitive()
     {
-        // Arrange
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "ADMIN" };
 
         await context.Roles.AddAsync(adminRole, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        // Act
         var result = await sut.GetAdminRoleAsync(cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Null, "GetAdminRoleAsync should be case sensitive");
     }
 }

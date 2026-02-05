@@ -1,3 +1,4 @@
+using Fenicia.Common.Database.Abstracts;
 using Fenicia.Common.Database.Contexts;
 
 using Fenicia.Common.Database.Models.Auth;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public class CompanyRepository(AuthContext context) : ICompanyRepository
+public class CompanyRepository(AuthContext context) : BaseRepository<CompanyModel>(context), ICompanyRepository
 {
     public async Task<bool> CheckCompanyExistsAsync(Guid companyId, bool onlyActive, CancellationToken cancellationToken)
     {
@@ -30,18 +31,6 @@ public class CompanyRepository(AuthContext context) : ICompanyRepository
         }
 
         return await query.AnyAsync(cancellationToken);
-    }
-
-    public CompanyModel Add(CompanyModel company)
-    {
-        context.Companies.Add(company);
-
-        return company;
-    }
-
-    public async Task<int> SaveAsync(CancellationToken cancellationToken)
-    {
-        return await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<CompanyModel?> GetByCnpjAsync(string cnpj, bool onlyActive, CancellationToken cancellationToken)
@@ -68,13 +57,6 @@ public class CompanyRepository(AuthContext context) : ICompanyRepository
         var query = QueryFromUserId(userId, onlyActive);
 
         return await query.CountAsync(cancellationToken);
-    }
-
-    public CompanyModel PatchAsync(CompanyModel company)
-    {
-        context.Entry(company).State = EntityState.Modified;
-
-        return company;
     }
 
     public async Task<List<Guid>> GetCompaniesAsync(Guid userId, bool onlyActive, CancellationToken cancellationToken)

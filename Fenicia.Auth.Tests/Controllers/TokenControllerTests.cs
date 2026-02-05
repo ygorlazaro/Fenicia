@@ -1,10 +1,10 @@
-using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.RefreshToken;
+using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.User;
+using Fenicia.Common.API;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 using Fenicia.Common.Exceptions;
-using Fenicia.Common.Api;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -43,8 +43,11 @@ public class TokenControllerTests
         var ok = result.Result as OkObjectResult;
         Assert.That(ok, Is.Not.Null);
         var tr = ok.Value as TokenResponse;
-        Assert.That(tr?.AccessToken, Is.EqualTo("tok"));
-        Assert.That(tr?.RefreshToken, Is.EqualTo("ref"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(tr?.AccessToken, Is.EqualTo("tok"));
+            Assert.That(tr?.RefreshToken, Is.EqualTo("ref"));
+        }
     }
 
     [Test]
@@ -91,8 +94,11 @@ public class TokenControllerTests
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var ok = result.Result as OkObjectResult;
         var tr = ok?.Value as TokenResponse;
-        Assert.That(tr?.AccessToken, Is.EqualTo("tok"));
-        Assert.That(tr?.RefreshToken, Is.EqualTo("newref"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(tr?.AccessToken, Is.EqualTo("tok"));
+            Assert.That(tr?.RefreshToken, Is.EqualTo("newref"));
+        }
 
         refreshServiceMock.Verify(x => x.ValidateTokenAsync(userId, req.RefreshToken, CancellationToken.None), Times.Once);
         refreshServiceMock.Verify(x => x.InvalidateRefreshTokenAsync(req.RefreshToken, CancellationToken.None), Times.Once);

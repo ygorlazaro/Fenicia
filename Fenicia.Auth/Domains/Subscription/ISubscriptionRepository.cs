@@ -1,10 +1,9 @@
+using Fenicia.Common.Database.Abstracts;
 using Fenicia.Common.Database.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
-public interface ISubscriptionRepository
+public interface ISubscriptionRepository : IBaseRepository<SubscriptionModel>
 {
-    Task SaveSubscriptionAsync(SubscriptionModel subscription, CancellationToken cancellationToken);
-
     Task<List<Guid>> GetValidSubscriptionAsync(Guid companyId, CancellationToken cancellationToken);
 }

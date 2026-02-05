@@ -36,7 +36,6 @@ public class OrderRepositoryTests
     [Test]
     public async Task SaveOrderAsyncSavesOrderAndReturnsOrder()
     {
-        // Arrange
         var order = new OrderModel
         {
             Id = Guid.NewGuid(),
@@ -44,17 +43,15 @@ public class OrderRepositoryTests
             UserId = Guid.NewGuid()
         };
 
-        // Act
-        var result = await sut.SaveOrderAsync(order, cancellationToken);
+        sut.Add(order);
 
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Id, Is.EqualTo(order.Id));
+        await sut.SaveChangesAsync(cancellationToken);
 
         var savedOrder = await context.Orders.FindAsync([order.Id], cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
+            Assert.That(savedOrder.Id, Is.EqualTo(order.Id));
             Assert.That(savedOrder.CompanyId, Is.EqualTo(order.CompanyId));
             Assert.That(savedOrder.UserId, Is.EqualTo(order.UserId));
         }
@@ -63,7 +60,6 @@ public class OrderRepositoryTests
     [Test]
     public async Task SaveOrderAsyncPersistsOrderToDatabase()
     {
-        // Arrange
         var order = new OrderModel
         {
             Id = Guid.NewGuid(),
@@ -71,10 +67,9 @@ public class OrderRepositoryTests
             UserId = Guid.NewGuid()
         };
 
-        // Act
-        await sut.SaveOrderAsync(order, cancellationToken);
+        sut.Add(order);
+        await sut.SaveChangesAsync(cancellationToken);
 
-        // Assert
         await using var authContext = new AuthContext(options);
         var savedOrder = await authContext.Orders.FindAsync([order.Id], cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
@@ -89,37 +84,32 @@ public class OrderRepositoryTests
     [Test]
     public async Task SaveOrderAsyncWithOrderItemsSavesCompleteOrder()
     {
-        // Arrange
         var order = new OrderModel
         {
             Id = Guid.NewGuid(),
             CompanyId = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             Details =
-                        [
-                            new OrderDetailModel
-                            {
-                                Id = Guid.NewGuid(),
-                                ModuleId = Guid.NewGuid(),
-                                Amount = faker.Random.Int(min: 1, max: 10)
-                            },
-                            new OrderDetailModel
-                            {
-                                Id = Guid.NewGuid(),
-                                ModuleId = Guid.NewGuid(),
-                                Amount = faker.Random.Int(min: 1, max: 10)
-                            }
+            [
+                new OrderDetailModel
+                {
+                    Id = Guid.NewGuid(),
+                    ModuleId = Guid.NewGuid(),
+                    Amount = faker.Random.Int(min: 1, max: 10)
+                },
+                new OrderDetailModel
+                {
+                    Id = Guid.NewGuid(),
+                    ModuleId = Guid.NewGuid(),
+                    Amount = faker.Random.Int(min: 1, max: 10)
+                }
 
-                        ]
+            ]
         };
 
-        // Act
-        var result = await sut.SaveOrderAsync(order, cancellationToken);
+        sut.Add(order);
 
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Details, Has.Count.EqualTo(expected: 2));
-
+        await sut.SaveChangesAsync(cancellationToken);
         var savedOrder = await context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == order.Id, cancellationToken);
 
         Assert.That(savedOrder, Is.Not.Null);

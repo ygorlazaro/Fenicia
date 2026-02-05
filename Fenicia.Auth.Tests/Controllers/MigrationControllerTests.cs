@@ -1,9 +1,9 @@
-using Fenicia.Auth.Domains.Migrations;
-using Fenicia.Common.Migrations.Services;
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Migrations;
 using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Common.Database.Responses;
 using Fenicia.Common.Enums;
+using Fenicia.Common.Migrations.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -29,7 +29,7 @@ public class MigrationControllerTests
     [Test]
     public async Task PostNewMigrationAsync_CallsRunMigrationsAndReturnsOk()
     {
-        var cnpj = "12345678901234";
+        const string cnpj = "12345678901234";
         var company = new CompanyResponse { Id = Guid.NewGuid() };
         var credits = new List<ModuleType>();
 
