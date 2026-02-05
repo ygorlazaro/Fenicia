@@ -2,9 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
-
 namespace Fenicia.Common.Database.Models.Auth;
 
 [Table("companies")]
@@ -56,32 +53,4 @@ public class CompanyModel : BaseModel
 
     [JsonIgnore]
     public virtual List<OrderModel> Orders { get; set; } = [];
-
-    public static CompanyModel Convert(CompanyUpdateRequest company)
-    {
-        return new CompanyModel { Name = company.Name, TimeZone = company.Timezone };
-    }
-
-    public static List<CompanyResponse> Convert(List<UserRoleModel> userRoles)
-    {
-        return [.. userRoles.Select(ur => new CompanyResponse
-        {
-            Id = ur.Company.Id,
-            Name = ur.Company.Name,
-            Cnpj = ur.Company.Cnpj,
-            Role = ur.Role
-        })];
-    }
-
-    public static CompanyResponse Convert(CompanyModel company)
-    {
-        return new CompanyResponse
-        {
-            Id = company.Id,
-            Name = company.Name,
-            Cnpj = company.Cnpj,
-            Language = company.Language,
-            TimeZone = company.TimeZone
-        };
-    }
 }

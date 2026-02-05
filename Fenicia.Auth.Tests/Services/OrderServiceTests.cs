@@ -3,8 +3,8 @@ using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Requests.Auth;
+using Fenicia.Common.Database.Responses.Auth;
 using Fenicia.Common.Enums;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Migrations.Services;
@@ -58,7 +58,7 @@ public class OrderServiceTests
 
         userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
 
-        var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "X", Amount = 10, Type = ModuleType.Ecommerce } };
+        var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "X", Price = 10, Type = ModuleType.Ecommerce } };
 
         moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(modResponses);
         moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync((ModuleResponse?)null);
@@ -92,17 +92,13 @@ public class OrderServiceTests
 
         userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
 
-        var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "Basic", Amount = 15, Type = ModuleType.Basic } };
+        var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "Basic", Price = 15, Type = ModuleType.Basic } };
 
         moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(modResponses);
 
         OrderModel? savedOrder = null;
-        orderRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken))
-            .Returns((OrderModel o, CancellationToken _) =>
-            {
-                savedOrder = o;
-                return Task.FromResult(o);
-            });
+        orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
+        orderRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(1);
 
         subscriptionServiceMock.Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, cancellationToken))
             .ReturnsAsync(new SubscriptionResponse { Id = Guid.NewGuid(), Status = SubscriptionStatus.Active, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddDays(30) });
@@ -132,10 +128,12 @@ public class OrderServiceTests
 
         userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
 
-        var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "Basic", Amount = 10, Type = ModuleType.Basic } };
+        var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "Basic", Price = 10, Type = ModuleType.Basic } };
         moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(modResponses);
 
-        orderRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).Returns((OrderModel o, CancellationToken _) => Task.FromResult(o));
+        OrderModel? savedOrder = null;
+        orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
+        orderRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(1);
         subscriptionServiceMock.Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, cancellationToken)).ReturnsAsync(new SubscriptionResponse { Id = Guid.NewGuid(), Status = SubscriptionStatus.Active, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddDays(30) });
 
         var result = await sut!.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
@@ -168,18 +166,15 @@ public class OrderServiceTests
 
         userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
 
-        var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "Ecom", Amount = 20, Type = ModuleType.Ecommerce } };
+        var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "Ecom", Price = 20, Type = ModuleType.Ecommerce } };
         moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(modResponses);
 
-        var basicModule = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Amount = 5, Type = ModuleType.Basic };
+        var basicModule = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Price = 5, Type = ModuleType.Basic };
         moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync(basicModule);
 
         OrderModel? savedOrder = null;
-        orderRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).Returns((OrderModel o, CancellationToken _) =>
-        {
-            savedOrder = o;
-            return Task.FromResult(o);
-        });
+        orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
+        orderRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(1);
 
         subscriptionServiceMock.Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, cancellationToken)).ReturnsAsync(new SubscriptionResponse { Id = Guid.NewGuid(), Status = SubscriptionStatus.Active, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddDays(30) });
         migrationServiceMock.Setup(x => x.RunMigrationsAsync(companyId, It.IsAny<List<ModuleType>>(), cancellationToken)).Returns(Task.CompletedTask);
@@ -204,7 +199,7 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest { Details = [new OrderDetailRequest { ModuleId = moduleId }] };
 
-        var basicResponse = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Amount = 1, Type = ModuleType.Basic };
+        var basicResponse = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Price = 1, Type = ModuleType.Basic };
         moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync([basicResponse]);
 
         var method = typeof(OrderService).GetMethod("PopulateModules", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
@@ -226,8 +221,8 @@ public class OrderServiceTests
         Assert.That(result2, Is.Null);
 
         moduleServiceMock.Reset();
-        var ecom = new ModuleResponse { Id = moduleId, Name = "Ecom", Amount = 10, Type = ModuleType.Ecommerce };
-        var basic = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Amount = 2, Type = ModuleType.Basic };
+        var ecom = new ModuleResponse { Id = moduleId, Name = "Ecom", Price = 10, Type = ModuleType.Ecommerce };
+        var basic = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Price = 2, Type = ModuleType.Basic };
         moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync([ecom]);
         moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync(basic);
 

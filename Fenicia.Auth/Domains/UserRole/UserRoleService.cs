@@ -1,5 +1,5 @@
-using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Converters.Auth;
+using Fenicia.Common.Database.Responses.Auth;
 
 namespace Fenicia.Auth.Domains.UserRole;
 
@@ -14,7 +14,7 @@ public class UserRoleService(IUserRoleRepository userRoleRepository) : IUserRole
     {
         var userRoles = await userRoleRepository.GetUserCompaniesAsync(userId, cancellationToken);
 
-        return CompanyModel.Convert(userRoles);
+        return CompanyConverter.Convert(userRoles);
     }
 
     public async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken cancellationToken)

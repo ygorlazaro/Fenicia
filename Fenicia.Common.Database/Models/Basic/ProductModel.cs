@@ -7,32 +7,62 @@ namespace Fenicia.Common.Database.Models.Basic;
 public class ProductModel : BaseModel
 {
     [Required]
-    [MaxLength(length: 50)]
-    public string Name { get; set; } = null!;
+    [MaxLength(50)]
+    public string Name
+    {
+        get;
+        set;
+    }
+
+    = null!;
 
     public decimal CostPrice
     {
-        get; set;
+        get;
+        set;
     }
 
     public decimal SellingPrice
     {
-        get; set;
+        get;
+        set;
     }
 
-    public int Quantity
+    public double Quantity
     {
-        get; set;
+        get;
+        set;
     }
 
     [Required]
     public Guid CategoryId
     {
-        get; set;
+        get;
+        set;
     }
 
     [ForeignKey(nameof(CategoryId))]
-    public virtual ProductCategoryModel Category { get; set; } = null!;
+    public virtual ProductCategoryModel Category
+    {
+        get;
+        set;
+    }
 
-    public virtual List<StockMovementModel> StockMovements { get; set; } = null!;
+    = null!;
+
+    public virtual List<StockMovementModel> StockMovements
+    {
+        get;
+        set;
+    }
+
+    = null!;
+
+    public virtual List<OrderDetailModel> OrderDetails
+    {
+        get;
+        set;
+    }
+
+    = null;
 }

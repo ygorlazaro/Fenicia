@@ -19,7 +19,7 @@ public class SecurityServiceTests
     [Test]
     public void HashPasswordWithValidPasswordReturnsHashedPassword()
     {
-        var password = faker.Internet.Password(length: 12, memorable: false, string.Empty, "!@#$%^&*");
+        var password = faker.Internet.Password(12, false, string.Empty, "!@#$%^&*");
 
         var result = sut.HashPassword(password);
 
@@ -43,7 +43,7 @@ public class SecurityServiceTests
             hashes.Add(result);
         }
 
-        Assert.That(hashes, Has.Count.EqualTo(expected: 5), "Each hash should be unique even for the same password");
+        Assert.That(hashes, Has.Count.EqualTo(5), "Each hash should be unique even for the same password");
     }
 
     [Test]
@@ -86,7 +86,7 @@ public class SecurityServiceTests
     public void VerifyPasswordWithInvalidHashReturnsErrorResponse()
     {
         var password = faker.Internet.Password();
-        var invalidHash = faker.Random.AlphaNumeric(length: 60);
+        var invalidHash = faker.Random.AlphaNumeric(60);
 
         var result = sut.VerifyPassword(password, invalidHash);
 
@@ -99,7 +99,7 @@ public class SecurityServiceTests
     [Test]
     public void VerifyPasswordWithMultiplePasswordsWorksConsistently()
     {
-        var passwordCount = faker.Random.Int(min: 3, max: 5);
+        var passwordCount = faker.Random.Int(3, 5);
         var passwords = faker.Make(passwordCount, () => faker.Internet.Password()).ToList();
         var hashedPasswords = passwords.Select(p => sut.HashPassword(p)).ToList();
 
@@ -126,7 +126,7 @@ public class SecurityServiceTests
     {
         var testPasswords = new[]
                             {
-                                faker.Internet.Password(length: 8), faker.Internet.Password(length: 16, memorable: true), faker.Internet.Password(length: 32, memorable: true, "@#$%")
+                                faker.Internet.Password(8), faker.Internet.Password(16, true), faker.Internet.Password(32, true, "@#$%")
                             };
 
         foreach (var password in testPasswords)

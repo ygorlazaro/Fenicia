@@ -1,6 +1,7 @@
 using Fenicia.Auth.Domains.Submodule;
 using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Repositories;

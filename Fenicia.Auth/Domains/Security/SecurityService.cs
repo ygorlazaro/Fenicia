@@ -11,7 +11,7 @@ public class SecurityService : ISecurityService
             throw new ArgumentException(TextConstants.InvalidPasswordMessage);
         }
 
-        var hashed = BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(workFactor: 12));
+        var hashed = BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
 
         return hashed ?? throw new Exception("Error hashing password");
     }

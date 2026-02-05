@@ -3,6 +3,6 @@ using Fenicia.Common.Database.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public interface IOrderRepository: IBaseRepository<OrderModel>
+public interface IOrderRepository : IBaseRepository<OrderModel>
 {
 }

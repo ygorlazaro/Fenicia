@@ -100,21 +100,22 @@ public class SubscriptionServiceTests
         var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
 
         SubscriptionModel capturedSubscription = null!;
-        subscriptionRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).Callback<SubscriptionModel, CancellationToken>((s, _) => capturedSubscription = s);
+        subscriptionRepositoryMock.Setup(x => x.Add(It.IsAny<SubscriptionModel>())).Callback<SubscriptionModel>(s => capturedSubscription = s);
+        subscriptionRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(1);
 
         await sut.CreateCreditsForOrderAsync(order, orderDetails, companyId, cancellationToken);
 
         Assert.That(capturedSubscription, Is.Not.Null);
-        Assert.That(capturedSubscription.Credits, Has.Count.EqualTo(expected: 1));
+        Assert.That(capturedSubscription.Credits, Has.Count.EqualTo(1));
 
         var credit = capturedSubscription.Credits.First();
         using (Assert.EnterMultipleScope())
         {
             Assert.That(credit.StartDate.Date, Is.EqualTo(DateTime.UtcNow.Date));
-            Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.UtcNow.AddMonths(months: 1).Date));
+            Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.UtcNow.AddMonths(1).Date));
             Assert.That(credit.IsActive, Is.True);
-            Assert.That(credit.OrderDetailId, Is.EqualTo(orderDetails[index: 0].Id));
-            Assert.That(credit.ModuleId, Is.EqualTo(orderDetails[index: 0].ModuleId));
+            Assert.That(credit.OrderDetailId, Is.EqualTo(orderDetails[0].Id));
+            Assert.That(credit.ModuleId, Is.EqualTo(orderDetails[0].ModuleId));
         }
     }
 }

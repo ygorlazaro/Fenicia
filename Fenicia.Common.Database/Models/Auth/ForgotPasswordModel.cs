@@ -15,14 +15,14 @@ public class ForgotPasswordModel : BaseModel
 
     [Required]
     [Column("code")]
-    [StringLength(maximumLength: 100, MinimumLength = 6)]
+    [StringLength(100, MinimumLength = 6)]
     [DataType(DataType.Text)]
     public string Code { get; set; } = null!;
 
     [Required]
     [Column("expiration_date")]
     [DataType(DataType.DateTime)]
-    public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(value: 1);
+    public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(1);
 
     [Required]
     [Column("is_active")]

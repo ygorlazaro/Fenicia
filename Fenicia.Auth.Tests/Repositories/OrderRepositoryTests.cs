@@ -95,13 +95,13 @@ public class OrderRepositoryTests
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
-                    Amount = faker.Random.Int(min: 1, max: 10)
+                    Price = faker.Random.Int(1, 10)
                 },
                 new OrderDetailModel
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
-                    Amount = faker.Random.Int(min: 1, max: 10)
+                    Price = faker.Random.Int(1, 10)
                 }
 
             ]
@@ -113,7 +113,7 @@ public class OrderRepositoryTests
         var savedOrder = await context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == order.Id, cancellationToken);
 
         Assert.That(savedOrder, Is.Not.Null);
-        Assert.That(savedOrder.Details, Has.Count.EqualTo(expected: 2));
+        Assert.That(savedOrder.Details, Has.Count.EqualTo(2));
         Assert.That(savedOrder.Details.Select(i => i.Id), Is.EquivalentTo(order.Details.Select(i => i.Id)));
     }
 }

@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using Fenicia.Common.API;
 
 namespace Fenicia.Common.Tests.Api;

@@ -16,7 +16,7 @@ public static class SoftDeleteQueryExtension
             return;
         }
 
-        var filter = methodToCall.Invoke(obj: null, []);
+        var filter = methodToCall.Invoke(null, []);
 
         entityData.SetQueryFilter(filter as LambdaExpression);
     }

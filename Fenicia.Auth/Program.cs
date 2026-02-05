@@ -50,7 +50,7 @@ public static class Program
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
 
-        configBuilder.AddJsonFile(commonApiSettingsPath, optional: false, reloadOnChange: true);
+        configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configBuilder);
@@ -181,7 +181,7 @@ public static class Program
     {
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
-            var config = ConfigurationOptions.Parse("localhost", ignoreUnknown: true);
+            var config = ConfigurationOptions.Parse("localhost", true);
 
             config.ConnectRetry = 3;
             config.ConnectTimeout = 5000;

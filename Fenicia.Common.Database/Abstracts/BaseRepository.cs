@@ -7,7 +7,7 @@ namespace Fenicia.Common.Database.Abstracts;
 public class BaseRepository<T>(DbContext context) : IBaseRepository<T>
     where T : BaseModel, new()
 {
-    public virtual async Task<T?> GetByIdAsync(Guid id,  CancellationToken cancellationToken)
+    public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Set<T>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
@@ -22,17 +22,22 @@ public class BaseRepository<T>(DbContext context) : IBaseRepository<T>
         context.Set<T>().Add(entity);
     }
 
+    public void AddRange(IEnumerable<T> entities)
+    {
+        context.Set<T>().AddRange(entities);
+    }
+
     public virtual void Update(T entity)
     {
         context.Entry(entity).State = EntityState.Modified;
     }
 
-    public virtual void Remove(T entity)
+    public virtual void Delete(T entity)
     {
         context.Set<T>().Remove(entity);
     }
 
-    public virtual void Remove(Guid id)
+    public virtual void Delete(Guid id)
     {
         var entity = new T { Id = id };
         context.Set<T>().Attach(entity);

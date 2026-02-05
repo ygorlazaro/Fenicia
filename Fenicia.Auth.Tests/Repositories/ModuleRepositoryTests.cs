@@ -51,13 +51,13 @@ public class ModuleRepositoryTests
         await context.Modules.AddRangeAsync(modules, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        var page1 = await sut.GetAllAsync(cancellationToken, page: 1, perPage: 10);
-        var page2 = await sut.GetAllAsync(cancellationToken, page: 2, perPage: 10);
+        var page1 = await sut.GetAllAsync(cancellationToken, 1, 10);
+        var page2 = await sut.GetAllAsync(cancellationToken, 2, 10);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(page1, Has.Count.EqualTo(expected: 10));
-            Assert.That(page2, Has.Count.EqualTo(expected: 5));
+            Assert.That(page1, Has.Count.EqualTo(10));
+            Assert.That(page2, Has.Count.EqualTo(5));
         }
 
         Assert.That(page1, Is.Ordered.By("Type"));
@@ -97,7 +97,7 @@ public class ModuleRepositoryTests
 
         var result = await sut.GetManyOrdersAsync(requestedIDs, cancellationToken);
 
-        Assert.That(result, Has.Count.EqualTo(expected: 3));
+        Assert.That(result, Has.Count.EqualTo(3));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Select(m => m.Id), Is.EquivalentTo(requestedIDs));
@@ -269,10 +269,10 @@ public class ModuleRepositoryTests
         await context.Modules.AddRangeAsync(modules, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        var page1Size5 = await sut.GetAllAsync(cancellationToken, page: 1, perPage: 5);
-        Assert.That(page1Size5, Has.Count.EqualTo(expected: 5));
+        var page1Size5 = await sut.GetAllAsync(cancellationToken, 1, 5);
+        Assert.That(page1Size5, Has.Count.EqualTo(5));
 
-        var page2Size15 = await sut.GetAllAsync(cancellationToken, page: 2, perPage: 15);
-        Assert.That(page2Size15, Has.Count.EqualTo(expected: 10));
+        var page2Size15 = await sut.GetAllAsync(cancellationToken, 2, 15);
+        Assert.That(page2Size15, Has.Count.EqualTo(10));
     }
 }

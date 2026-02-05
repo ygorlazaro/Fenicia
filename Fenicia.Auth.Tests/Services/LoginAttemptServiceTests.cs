@@ -1,4 +1,5 @@
 using Fenicia.Auth.Domains.LoginAttempt;
+
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Services;

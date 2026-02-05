@@ -1,5 +1,6 @@
+using Fenicia.Common.Database.Converters.Auth;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Responses.Auth;
 
 namespace Fenicia.Auth.Domains.State;
 
@@ -39,7 +40,7 @@ public class StateService(IStateRepository stateRepository) : IStateService
                      };
 
         var response = await stateRepository.LoadStatesAtDatabaseAsync(states, cancellationToken);
-        var mapped = StateResponse.Convert(response);
+        var mapped = StateConverter.Convert(response);
 
         return mapped;
     }

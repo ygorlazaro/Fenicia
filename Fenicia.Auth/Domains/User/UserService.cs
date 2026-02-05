@@ -5,8 +5,8 @@ using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Requests;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Requests.Auth;
+using Fenicia.Common.Database.Responses.Auth;
 using Fenicia.Common.Enums;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Migrations.Services;
@@ -30,7 +30,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         if (user is null)
         {
             await loginAttemptService.IncrementAttemptsAsync(request.Email);
-            await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, val2: 5)), cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
             throw new PermissionDeniedException(TextConstants.InvalidUsernameOrPasswordMessage);
         }
@@ -45,7 +45,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         }
 
         await loginAttemptService.IncrementAttemptsAsync(request.Email);
-        await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, val2: 5)), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), cancellationToken);
 
         throw new PermissionDeniedException(TextConstants.InvalidUsernameOrPasswordMessage);
     }
@@ -53,7 +53,7 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
     public async Task<UserResponse> CreateNewUserAsync(UserRequest request, CancellationToken cancellationToken)
     {
         var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email, cancellationToken);
-        var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.Cnpj, onlyActive: true, cancellationToken);
+        var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.Cnpj, true, cancellationToken);
 
         if (isExistingUser)
         {

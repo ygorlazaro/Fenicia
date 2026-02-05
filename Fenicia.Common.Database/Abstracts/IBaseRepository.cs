@@ -11,11 +11,13 @@ public interface IBaseRepository<T>
 
     void Add(T entity);
 
+    void AddRange(IEnumerable<T> entities);
+
     void Update(T entity);
 
-    void Remove(T entity);
+    void Delete(T entity);
 
-    void Remove(Guid id);
+    void Delete(Guid id);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 

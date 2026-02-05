@@ -22,7 +22,7 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
 
             using (LogContext.PushProperty("CorrelationId", correlationId))
             {
-                await next(context).ConfigureAwait(continueOnCapturedContext: false);
+                await next(context).ConfigureAwait(false);
             }
         }
         catch (Exception ex)

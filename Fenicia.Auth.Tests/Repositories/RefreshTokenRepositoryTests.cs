@@ -111,7 +111,7 @@ public class RefreshTokenRepositoryTests
     [Test]
     public void Add_SetsValueInRedis()
     {
-        var token = faker.Random.AlphaNumeric(length: 44);
+        var token = faker.Random.AlphaNumeric(44);
         var refresh = new RefreshToken { Token = token, UserId = Guid.NewGuid(), IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(6) };
 
         sut.Add(refresh);

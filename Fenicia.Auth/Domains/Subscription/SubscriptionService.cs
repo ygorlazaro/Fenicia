@@ -1,6 +1,6 @@
 using Fenicia.Common;
 using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Responses.Auth;
 using Fenicia.Common.Enums;
 
 namespace Fenicia.Auth.Domains.Subscription;
@@ -19,7 +19,7 @@ public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepo
             ModuleId = d.ModuleId,
             IsActive = true,
             StartDate = DateTime.UtcNow,
-            EndDate = DateTime.UtcNow.AddMonths(months: 1),
+            EndDate = DateTime.UtcNow.AddMonths(1),
             OrderDetailId = d.Id
         }).ToList();
 
@@ -28,7 +28,7 @@ public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepo
             Status = SubscriptionStatus.Active,
             CompanyId = companyId,
             StartDate = DateTime.UtcNow,
-            EndDate = DateTime.UtcNow.AddMonths(months: 1),
+            EndDate = DateTime.UtcNow.AddMonths(1),
             OrderId = order.Id,
             Credits = credits
         };
