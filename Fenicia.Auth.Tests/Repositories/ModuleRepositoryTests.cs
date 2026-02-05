@@ -128,6 +128,68 @@ public class ModuleRepositoryTests
     }
 
     [Test]
+    public async Task GetUserModulesAsyncReturnsModulesForActiveSubscription()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+
+        var module = new ModuleModel { Id = Guid.NewGuid(), Name = "M1", Type = ModuleType.Basic };
+        await context.Modules.AddAsync(module, cancellationToken);
+
+        var subscription = new SubscriptionModel { Id = Guid.NewGuid(), CompanyId = companyId, Status = SubscriptionStatus.Active, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
+        await context.Subscriptions.AddAsync(subscription, cancellationToken);
+
+        var credit = new SubscriptionCreditModel { Id = Guid.NewGuid(), SubscriptionId = subscription.Id, ModuleId = module.Id, IsActive = true, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
+        await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
+
+        var userRole = new UserRoleModel { UserId = userId, CompanyId = companyId };
+        await context.UserRoles.AddAsync(userRole, cancellationToken);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        // Act
+        var result = await sut.GetUserModulesAsync(userId, companyId, cancellationToken);
+
+        // Assert
+        Assert.That(result, Is.Not.Empty);
+        Assert.That(result.First().Id, Is.EqualTo(module.Id));
+    }
+
+    [Test]
+    public async Task GetModuleAndSubmoduleAsync_IncludesSubmodules()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+
+        var module = new ModuleModel { Id = Guid.NewGuid(), Name = "M2", Type = ModuleType.Basic };
+        var sub = new SubmoduleModel { Id = Guid.NewGuid(), Name = "s", Route = "/s", ModuleId = module.Id };
+        module.Submodules = new List<SubmoduleModel> { sub };
+
+        await context.Modules.AddAsync(module, cancellationToken);
+
+        var subscription = new SubscriptionModel { Id = Guid.NewGuid(), CompanyId = companyId, Status = SubscriptionStatus.Active, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
+        await context.Subscriptions.AddAsync(subscription, cancellationToken);
+
+        var credit = new SubscriptionCreditModel { Id = Guid.NewGuid(), SubscriptionId = subscription.Id, ModuleId = module.Id, IsActive = true, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
+        await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
+
+        var userRole = new UserRoleModel { UserId = userId, CompanyId = companyId };
+        await context.UserRoles.AddAsync(userRole, cancellationToken);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        // Act
+        var result = await sut.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+
+        // Assert
+        Assert.That(result, Is.Not.Empty);
+        Assert.That(result.First().Submodules, Is.Not.Null.And.Not.Empty);
+        Assert.That(result.First().Submodules.First().Id, Is.EqualTo(sub.Id));
+    }
+
+    [Test]
     public async Task GetModuleByTypeAsyncReturnsModuleWhenExists()
     {
         // Arrange
@@ -199,6 +261,26 @@ public class ModuleRepositoryTests
 
         // Assert
         Assert.That(count, Is.Zero);
+    }
+
+    [Test]
+    public async Task LoadModulesAtDatabaseAsync_SavesAndReturnsAllOrderedByType()
+    {
+        // Arrange
+        var modules = new List<ModuleModel>
+        {
+            new () { Id = Guid.NewGuid(), Name = "B", Type = ModuleType.Basic },
+            new () { Id = Guid.NewGuid(), Name = "A", Type = ModuleType.Accounting },
+            new () { Id = Guid.NewGuid(), Name = "P", Type = ModuleType.Pos }
+        };
+
+        // Act
+        var result = await sut.LoadModulesAtDatabaseAsync(modules, cancellationToken);
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(3));
+        Assert.That(result, Is.Ordered.By("Type"));
+        Assert.That(result.Select(m => m.Id), Is.EquivalentTo(modules.Select(m => m.Id)));
     }
 
     [Test]

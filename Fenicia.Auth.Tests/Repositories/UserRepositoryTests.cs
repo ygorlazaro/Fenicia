@@ -1,10 +1,16 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
 using Bogus;
 
-using Fenicia.Auth.Domains.User;
+using Microsoft.EntityFrameworkCore;
+
+using NUnit.Framework;
+
 using Fenicia.Common.Database.Contexts;
 using Fenicia.Common.Database.Models.Auth;
-
-using Microsoft.EntityFrameworkCore;
+using Fenicia.Auth.Domains.User;
 
 namespace Fenicia.Auth.Tests.Repositories;
 
@@ -12,9 +18,9 @@ public class UserRepositoryTests
 {
     private readonly CancellationToken cancellationToken = CancellationToken.None;
     private Faker<CompanyModel> companyGenerator;
-    private AuthContext context;
-    private DbContextOptions<AuthContext> options;
-    private UserRepository sut;
+    private AuthContext context = null!;
+    private DbContextOptions<AuthContext> options = null!;
+    private UserRepository sut = null!;
     private Faker<UserModel> userGenerator;
     private Faker<UserRoleModel> userRoleGenerator;
 
@@ -66,8 +72,6 @@ public class UserRepositoryTests
         // Assert
         Assert.That(result, Is.Null);
     }
-
-    [Test]
     public void AddShouldAddUserToContext()
     {
         // Arrange
@@ -176,5 +180,46 @@ public class UserRepositoryTests
         companyGenerator = new Faker<CompanyModel>().RuleFor(c => c.Id, _ => Guid.NewGuid()).RuleFor(c => c.Name, f => f.Company.CompanyName()).RuleFor(c => c.Cnpj, f => f.Random.ReplaceNumbers("##.###.###/####-##"));
 
         userRoleGenerator = new Faker<UserRoleModel>().RuleFor(ur => ur.Id, _ => Guid.NewGuid()).RuleFor(ur => ur.UserId, _ => Guid.NewGuid()).RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
+    }
+
+    [Test]
+    public async Task GetUserIdFromEmailAsyncWhenUserExistsReturnsId()
+    {
+        var user = userGenerator.Generate();
+        await context.Users.AddAsync(user, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        var result = await sut.GetUserIdFromEmailAsync(user.Email, cancellationToken);
+
+        Assert.That(result, Is.EqualTo(user.Id));
+    }
+
+    [Test]
+    public async Task GetByIdAsyncWhenUserExistsReturnsUser()
+    {
+        var user = userGenerator.Generate();
+        await context.Users.AddAsync(user, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        var result = await sut.GetByIdAsync(user.Id, cancellationToken);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Id, Is.EqualTo(user.Id));
+    }
+
+    [Test]
+    public async Task UpdateShouldMarkEntityModifiedAndSavePersistsChanges()
+    {
+        var user = userGenerator.Generate();
+        await context.Users.AddAsync(user, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        user.Password = "newpass";
+        sut.Update(user);
+        await sut.SaveAsync(cancellationToken);
+
+        var saved = await context.Users.FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
+        Assert.That(saved, Is.Not.Null);
+        Assert.That(saved!.Password, Is.EqualTo("newpass"));
     }
 }

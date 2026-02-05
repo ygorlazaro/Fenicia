@@ -152,6 +152,42 @@ public class UserRoleRepositoryTests
         Assert.That(result, Is.False);
     }
 
+    [Test]
+    public void AddShouldAddUserRoleToContext()
+    {
+        // Arrange
+        var userRole = userRoleGenerator.Generate();
+
+        // Act
+        sut.Add(userRole);
+
+        // Assert
+        Assert.That(context.UserRoles.Local, Does.Contain(userRole));
+    }
+
+    [Test]
+    public async Task GetUserCompaniesAsyncReturnsCompanyInfo()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var company = new CompanyModel { Id = Guid.NewGuid(), Name = "Acme Co", Cnpj = "12345678901234" };
+        var userRole = userRoleGenerator.Clone().RuleFor(ur => ur.UserId, userId).RuleFor(ur => ur.CompanyId, company.Id).Generate();
+
+        await context.Companies.AddAsync(company, cancellationToken);
+        await context.UserRoles.AddAsync(userRole, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        // Act
+        var result = await sut.GetUserCompaniesAsync(userId, cancellationToken);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].Id, Is.EqualTo(company.Id));
+        Assert.That(result[0].Company.Name, Is.EqualTo(company.Name));
+        Assert.That(result[0].Company.Cnpj, Is.EqualTo(company.Cnpj));
+    }
+
     private void SetupFakers()
     {
         roleGenerator = new Faker<RoleModel>().RuleFor(r => r.Id, _ => Guid.NewGuid()).RuleFor(r => r.Name, f => f.Name.JobTitle());
