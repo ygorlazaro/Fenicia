@@ -17,7 +17,7 @@ public class UserRoleServiceTests
     public void Setup()
     {
         userRoleRepositoryMock = new Mock<IUserRoleRepository>();
-        sut = new IUserRoleService(userRoleRepositoryMock.Object);
+        sut = new UserRoleService(userRoleRepositoryMock.Object);
         faker = new Faker();
         cancellationToken = CancellationToken.None;
     }
@@ -35,7 +35,7 @@ public class UserRoleServiceTests
         var result = await sut.GetRolesByUserAsync(userId, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedRoles));
+        Assert.That(result, Is.EqualTo(expectedRoles));
 
         userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId, cancellationToken), Times.Once);
     }
@@ -53,7 +53,7 @@ public class UserRoleServiceTests
         var result = await sut.GetRolesByUserAsync(userId, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.Empty);
+        Assert.That(result, Is.Empty);
 
         userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId, cancellationToken), Times.Once);
     }
@@ -72,7 +72,7 @@ public class UserRoleServiceTests
         var result = await sut.HasRoleAsync(userId, companyId, role, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.True);
+        Assert.That(result, Is.True);
 
         userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, cancellationToken), Times.Once);
     }
@@ -91,7 +91,7 @@ public class UserRoleServiceTests
         var result = await sut.HasRoleAsync(userId, companyId, role, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.False);
+        Assert.That(result, Is.False);
 
         userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, cancellationToken), Times.Once);
     }
@@ -111,7 +111,7 @@ public class UserRoleServiceTests
         var result = await sut.HasRoleAsync(userId, companyId, role, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.True);
+        Assert.That(result, Is.True);
 
         userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, cancellationToken), Times.Once);
     }

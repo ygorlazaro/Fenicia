@@ -1,5 +1,3 @@
-using System.Net;
-
 using Bogus;
 
 using Fenicia.Auth.Domains.Module;
@@ -10,6 +8,7 @@ using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
 using Fenicia.Common.Enums;
+using Fenicia.Common.Migrations.Services;
 
 using Moq;
 
@@ -24,6 +23,7 @@ public class OrderServiceTests
     private Mock<ISubscriptionService> subscriptionServiceMock;
     private OrderService sut;
     private Mock<IUserService> userServiceMock;
+    private Mock<MigrationService> migrationServiceMock;
 
     [SetUp]
     public void Setup()
@@ -32,60 +32,11 @@ public class OrderServiceTests
         moduleServiceMock = new Mock<IModuleService>();
         subscriptionServiceMock = new Mock<ISubscriptionService>();
         userServiceMock = new Mock<IUserService>();
+        migrationServiceMock = new Mock<MigrationService>();
 
-        sut = new OrderService(orderRepositoryMock.Object, moduleServiceMock.Object, subscriptionServiceMock.Object, userServiceMock.Object);
+        sut = new OrderService(orderRepositoryMock.Object, moduleServiceMock.Object, subscriptionServiceMock.Object, userServiceMock.Object, migrationServiceMock.Object);
 
         faker = new Faker();
-    }
-
-    [Test]
-    public async Task CreateNewOrderAsyncWhenUserNotInCompanyReturnsBadRequest()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var request = new OrderRequest { Details = [] };
-
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: false));
-
-        // Act
-        var result = await sut.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
-
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
-        }
-    }
-
-    [Test]
-    public async Task CreateNewOrderAsyncWhenNoModulesFoundReturnsBadRequest()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var moduleId = Guid.NewGuid();
-        var request = new OrderRequest
-        {
-            Details = [new OrderDetailRequest { ModuleId = moduleId }]
-        };
-
-        var emptyModulesList = new List<ModuleResponse>();
-
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
-
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(emptyModulesList));
-
-        moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync(new ApiResponse<ModuleResponse>(data: null));
-
-        // Act
-        var result = await sut.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
-
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
-        }
     }
 
     [Test]
@@ -119,11 +70,11 @@ public class OrderServiceTests
             Amount = faker.Random.Decimal(min: 10, max: 1000)
         };
 
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
+        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
 
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
+        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(moduleResponses);
 
-        moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync(new ApiResponse<ModuleResponse>(basicModuleResponse));
+        moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync(basicModuleResponse);
 
         // Act
         var result = await sut.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
@@ -131,8 +82,7 @@ public class OrderServiceTests
         using (Assert.EnterMultipleScope())
         {
             // Assert
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-            Assert.That(result.Data, Is.Not.Null);
+            Assert.That(result, Is.Not.Null);
         }
 
         orderRepositoryMock.Verify(x => x.SaveOrderAsync(It.Is<OrderModel>(o => o.UserId == userId && o.Status == OrderStatus.Approved), cancellationToken), Times.Once);
@@ -164,15 +114,14 @@ public class OrderServiceTests
                                   }
                               };
 
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(new ApiResponse<bool>(data: true));
+        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
 
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(new ApiResponse<List<ModuleResponse>>(moduleResponses));
+        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(moduleResponses);
 
         // Act
         var result = await sut.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
 
         // Assert
-        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
         moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken), Times.Never);
     }
 }

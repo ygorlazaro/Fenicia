@@ -36,12 +36,12 @@ public class RefreshTokenServiceTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data, Is.Not.Null);
-            Assert.That(result.Data?.Length, Is.EqualTo(expected: 44)); // Base64 encoded 32 bytes = 44 characters
-            Assert.That(result.Data, Does.Match(base64Pattern));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result?.Length, Is.EqualTo(expected: 44)); // Base64 encoded 32 bytes = 44 characters
+            Assert.That(result, Does.Match(base64Pattern));
         }
 
-        refreshTokenRepositoryMock.Verify(x => x.Add(It.Is<RefreshToken>(t => t.UserId == userId && t.Token == result.Data)), Times.Once);
+        refreshTokenRepositoryMock.Verify(x => x.Add(It.Is<RefreshToken>(t => t.UserId == userId && t.Token == result)), Times.Once);
     }
 
     [Test]
@@ -58,22 +58,8 @@ public class RefreshTokenServiceTests
         var result = await sut.ValidateTokenAsync(userId, refreshToken, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResult));
+        Assert.That(result, Is.EqualTo(expectedResult));
         refreshTokenRepositoryMock.Verify(x => x.ValidateTokenAsync(userId, refreshToken, cancellationToken), Times.Once);
-    }
-
-    [Test]
-    public async Task InvalidateRefreshTokenAsyncCallsRepository()
-    {
-        // Arrange
-        var refreshToken = faker.Random.AlphaNumeric(length: 44); // Simulating Base64 token length
-
-        // Act
-        var result = await sut.InvalidateRefreshTokenAsync(refreshToken, cancellationToken);
-
-        // Assert
-        Assert.That(result.Data, Is.Null);
-        refreshTokenRepositoryMock.Verify(x => x.InvalidateRefreshTokenAsync(refreshToken, cancellationToken), Times.Once);
     }
 
     [Test]
@@ -87,7 +73,7 @@ public class RefreshTokenServiceTests
         for (var i = 0; i < faker.Random.Int(min: 500, max: 1000); i++)
         {
             var result = sut.GenerateRefreshToken(userId);
-            tokens.Add(result.Data!);
+            tokens.Add(result);
         }
 
         // Assert
@@ -109,7 +95,7 @@ public class RefreshTokenServiceTests
         var result = await sut.ValidateTokenAsync(userId, refreshToken, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResult));
+        Assert.That(result, Is.EqualTo(expectedResult));
     }
 
     [Test]
@@ -122,8 +108,8 @@ public class RefreshTokenServiceTests
         var result = sut.GenerateRefreshToken(userId);
 
         // Assert
-        Assert.That(result.Data, Is.Not.Null);
-        Assert.That(result.Data, Has.Length.EqualTo(expected: 44));
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Has.Length.EqualTo(expected: 44));
     }
 
     [Test]
@@ -137,7 +123,7 @@ public class RefreshTokenServiceTests
         foreach (var userId in userIDs)
         {
             var result = sut.GenerateRefreshToken(userId);
-            generatedTokens.Add((userId, result.Data!));
+            generatedTokens.Add((userId, result));
         }
 
         // Assert

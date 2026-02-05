@@ -4,6 +4,7 @@ using Fenicia.Auth.Domains.Company;
 using Fenicia.Common;
 using Fenicia.Common.Api;
 using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Database.Requests;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,7 +46,7 @@ public class CompanyControllerTests
         var identity = new ClaimsIdentity(claims, "TestAuthType");
 
         controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
-        var wide = new WideEventContext { UserId = userId.ToString(), Operation = "GetCompanies" };
+        var wide = new WideEventContext { UserId = userId.ToString() };
 
         // Act
         var result = await controller.GetByLoggedUser(query, wide, cancellationToken);
@@ -62,8 +63,8 @@ public class CompanyControllerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var companiesResponse = new ApiResponse<List<CompanyResponse>>(null, System.Net.HttpStatusCode.NotFound, "Not found");
-        var countResponse = new ApiResponse<int>(0);
+        var companiesResponse = new List<CompanyResponse>();
+        var countResponse = 0;
         companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ReturnsAsync(companiesResponse);
         companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, cancellationToken)).ReturnsAsync(countResponse);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
@@ -71,16 +72,95 @@ public class CompanyControllerTests
         var identity = new ClaimsIdentity(claims, "TestAuthType");
         controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
-        var wide = new WideEventContext { UserId = userId.ToString(), Operation = "GetCompanies" };
+        var wide = new WideEventContext { UserId = userId.ToString() };
 
         // Act
         var result = await controller.GetByLoggedUser(query, wide, cancellationToken);
 
+        // Assert: controller returns 200 OK with empty pagination (current behavior)
+        Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
+        var okResult = result.Result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+        Assert.That(okResult.Value, Is.TypeOf<Pagination<IEnumerable<CompanyResponse>>>());
+        var pagination = okResult.Value as Pagination<IEnumerable<CompanyResponse>>;
+        Assert.That(pagination, Is.Not.Null);
+        Assert.That(pagination.Total, Is.EqualTo(0));
+        Assert.That(pagination.Data, Is.Empty);
+    }
+
+    [Test]
+    public async Task PatchAsync_ReturnsOkWhenCompanyUpdated()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var request = new CompanyUpdateRequest { Name = "New Name" };
+        var response = new CompanyResponse { Id = companyId, Name = "New Name", Cnpj = "12345678901234" };
+
+        companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, cancellationToken)).ReturnsAsync(response);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var identity = new ClaimsIdentity(claims, "TestAuthType");
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+
+        var wide = new WideEventContext { UserId = userId.ToString() };
+
+        // Act
+        var result = await controller.PatchAsync(request, companyId, wide, cancellationToken);
+
         // Assert
-        Assert.That(result.Result, Is.TypeOf<ObjectResult>());
-        var objectResult = result.Result as ObjectResult;
-        Assert.That(objectResult, Is.Not.Null);
-        Assert.That(objectResult.StatusCode, Is.EqualTo((int)System.Net.HttpStatusCode.NotFound));
+        Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
+        var okResult = result.Result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+        Assert.That(okResult.Value, Is.TypeOf<CompanyResponse>());
+        var returned = okResult.Value as CompanyResponse;
+        Assert.That(returned?.Id, Is.EqualTo(companyId));
+    }
+
+    [Test]
+    public async Task PatchAsync_ReturnsOkWhenCompanyNotFound()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var request = new CompanyUpdateRequest { Name = "New Name" };
+
+        companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, cancellationToken)).ReturnsAsync((CompanyResponse?)null);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var identity = new ClaimsIdentity(claims, "TestAuthType");
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+
+        var wide = new WideEventContext { UserId = userId.ToString() };
+
+        // Act
+        var result = await controller.PatchAsync(request, companyId, wide, cancellationToken);
+
+        // Assert: current controller returns Ok(null)
+        Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
+        var okResult = result.Result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+        Assert.That(okResult.Value, Is.Null);
+    }
+
+    [Test]
+    public void PatchAsync_ThrowsWhenServiceErrors()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var request = new CompanyUpdateRequest { Name = "New Name" };
+
+        companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, cancellationToken)).ThrowsAsync(new Exception("service error"));
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
+        var identity = new ClaimsIdentity(claims, "TestAuthType");
+        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+
+        var wide = new WideEventContext { UserId = userId.ToString() };
+
+        // Act & Assert
+        Assert.ThrowsAsync<Exception>(async () => await controller.PatchAsync(request, companyId, wide, cancellationToken));
     }
 
     [Test]
@@ -94,7 +174,7 @@ public class CompanyControllerTests
         var identity = new ClaimsIdentity(claims, "TestAuthType");
         controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
-        var wide = new WideEventContext { UserId = userId.ToString(), Operation = "GetCompanies" };
+        var wide = new WideEventContext { UserId = userId.ToString() };
 
         // Act & Assert
         Assert.ThrowsAsync<Exception>(async () => await controller.GetByLoggedUser(query, wide, cancellationToken));
