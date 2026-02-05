@@ -1,5 +1,5 @@
 using Fenicia.Common.API;
-using Fenicia.Common.Database.Requests.Basic;
+using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Module.Basic.Domains.OrderDetail;
 
 using Microsoft.AspNetCore.Authorization;

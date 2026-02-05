@@ -3,8 +3,8 @@ using System.Security.Claims;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Database.Requests.Auth;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Requests.Auth;
+using Fenicia.Common.Data.Responses.Auth;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

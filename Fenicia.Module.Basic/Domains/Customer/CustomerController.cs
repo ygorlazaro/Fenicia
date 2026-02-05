@@ -1,4 +1,4 @@
-using Fenicia.Common.Database.Requests.Basic;
+using Fenicia.Common.Data.Requests.Basic;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

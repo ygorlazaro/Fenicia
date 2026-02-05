@@ -1,5 +1,5 @@
 using Fenicia.Auth.Domains.UserRole;
-using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Data.Models.Auth;
 
 using Moq;
 

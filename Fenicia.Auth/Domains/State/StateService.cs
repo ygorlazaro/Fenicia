@@ -1,6 +1,6 @@
-using Fenicia.Common.Database.Converters.Auth;
-using Fenicia.Common.Database.Models.Auth;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Converters.Auth;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Responses.Auth;
 
 namespace Fenicia.Auth.Domains.State;
 

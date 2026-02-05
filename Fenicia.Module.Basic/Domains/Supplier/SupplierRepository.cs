@@ -1,6 +1,6 @@
-using Fenicia.Common.Database.Abstracts;
-using Fenicia.Common.Database.Contexts;
-using Fenicia.Common.Database.Models.Basic;
+using Fenicia.Common.Data.Abstracts;
+using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Supplier;
 

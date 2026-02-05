@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 
 using Fenicia.Auth.Domains.Token;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Responses.Auth;
 
 namespace Fenicia.Auth.Tests.Services;
 

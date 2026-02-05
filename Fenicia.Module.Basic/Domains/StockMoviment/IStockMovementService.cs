@@ -1,5 +1,5 @@
-using Fenicia.Common.Database.Requests.Basic;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Requests.Basic;
+using Fenicia.Common.Data.Responses.Auth;
 
 namespace Fenicia.Module.Basic.Domains.StockMoviment;
 

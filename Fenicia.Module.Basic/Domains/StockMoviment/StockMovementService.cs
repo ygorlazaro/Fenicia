@@ -1,8 +1,8 @@
 using Fenicia.Common;
-using Fenicia.Common.Database.Converters.Basic;
-using Fenicia.Common.Database.Models.Basic;
-using Fenicia.Common.Database.Requests.Basic;
-using Fenicia.Common.Database.Responses.Auth;
+using Fenicia.Common.Data.Converters.Basic;
+using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Requests.Basic;
+using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Enums;
 using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Product;
@@ -56,7 +56,7 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
             Quantity = quantity,
             ProductId = productId,
             Date = DateTime.UtcNow,
-            Price = product.SellingPrice,
+            Price = product.SalesPrice,
             Type = StockMovementType.Out
         };
 

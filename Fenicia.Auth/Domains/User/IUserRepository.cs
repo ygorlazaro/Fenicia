@@ -1,5 +1,5 @@
-using Fenicia.Common.Database.Abstracts;
-using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Data.Abstracts;
+using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.User;
 

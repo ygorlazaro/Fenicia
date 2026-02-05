@@ -1,7 +1,7 @@
-using Fenicia.Common.Database.Converters.Basic;
-using Fenicia.Common.Database.Models.Basic;
-using Fenicia.Common.Database.Requests.Basic;
-using Fenicia.Common.Database.Responses.Basic;
+using Fenicia.Common.Data.Converters.Basic;
+using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Requests.Basic;
+using Fenicia.Common.Data.Responses.Basic;
 using Fenicia.Common.Enums;
 using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.StockMoviment;

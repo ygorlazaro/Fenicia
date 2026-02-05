@@ -10,7 +10,7 @@
     <ProjectReference Include="../Fenicia.Module.POS/Fenicia.Module.POS.csproj" />
     <ProjectReference Include="../Fenicia.Module.Projects/Fenicia.Module.Projects.csproj" />
     <ProjectReference Include="../Fenicia.Module.SocialNetwork/Fenicia.Module.SocialNetwork.csproj" />
-    <ProjectReference Include="..\Fenicia.Common.Database\Fenicia.Common.Database.csproj" />
+    <ProjectReference Include="..\Fenicia.Common.Data\Fenicia.Common.Data.csproj" />
     <ProjectReference Include="..\Fenicia.Module.Basic\Fenicia.Module.Basic.csproj" />
   </ItemGroup>
   <ItemGroup>

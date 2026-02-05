@@ -3,9 +3,10 @@ using System.Text;
 using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Providers;
-using Fenicia.Common.Database.Contexts;
+using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Employee;
+using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.Position;
@@ -72,6 +73,7 @@ public class Program
         builder.Services.AddTransient<IOrderRepository, OrderRepository>();
         builder.Services.AddTransient<IOrderDetailRepository, OrderDetailRepository>();
         builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();
+        builder.Services.AddTransient<IInventoryService, InventoryService>();
 
         builder.Services.AddDbContext<BasicContext>((sp, options) =>
         {

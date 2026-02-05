@@ -1,11 +1,11 @@
-using Fenicia.Common.Database.Abstracts;
+using Fenicia.Common.Data.Abstracts;
+using Fenicia.Common.Data.Contexts;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
-using Common.Database.Contexts;
 using Common.Enums;
 
-using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Data.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
