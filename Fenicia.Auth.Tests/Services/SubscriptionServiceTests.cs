@@ -1,5 +1,3 @@
-using System.Net;
-
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Enums;
@@ -38,11 +36,11 @@ public class SubscriptionServiceTests
         var result = await sut.CreateCreditsForOrderAsync(order, orderDetails, companyId, cancellationToken);
 
         // Assert: compare relevant fields only
-        Assert.That(result.Data, Is.Not.Null);
-        Assert.That(result.Data.Status, Is.EqualTo(SubscriptionStatus.Active));
-        Assert.That(result.Data.OrderId, Is.EqualTo(order.Id));
-        Assert.That(result.Data.StartDate.Date, Is.EqualTo(DateTime.UtcNow.Date));
-        Assert.That(result.Data.EndDate.Date, Is.EqualTo(DateTime.UtcNow.AddMonths(1).Date));
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Status, Is.EqualTo(SubscriptionStatus.Active));
+        Assert.That(result.OrderId, Is.EqualTo(order.Id));
+        Assert.That(result.StartDate.Date, Is.EqualTo(DateTime.UtcNow.Date));
+        Assert.That(result.EndDate.Date, Is.EqualTo(DateTime.UtcNow.AddMonths(1).Date));
 
         subscriptionRepositoryMock.Verify(x => x.SaveSubscriptionAsync(It.Is<SubscriptionModel>(s => s.CompanyId == companyId && s.OrderId == order.Id && s.Status == SubscriptionStatus.Active && s.Credits.Count == orderDetails.Count), cancellationToken), Times.Once);
     }
@@ -52,18 +50,11 @@ public class SubscriptionServiceTests
     {
         // Arrange
         var companyId = Guid.NewGuid();
-        var order = new OrderModel { Id = Guid.NewGuid(), Details = [] };
         var emptyDetails = new List<OrderDetailModel>();
+        var order = new OrderModel { Id = Guid.NewGuid(), Details = emptyDetails };
 
-        // Act
-        var result = await sut.CreateCreditsForOrderAsync(order, emptyDetails, companyId, cancellationToken);
-
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(result.Data, Is.Null);
-        }
+        // Act & Assert
+        Assert.ThrowsAsync<ArgumentException>(async () => await sut.CreateCreditsForOrderAsync(order, emptyDetails, companyId, cancellationToken));
 
         subscriptionRepositoryMock.Verify(x => x.SaveSubscriptionAsync(It.IsAny<SubscriptionModel>(), cancellationToken), Times.Never);
     }
@@ -86,7 +77,7 @@ public class SubscriptionServiceTests
         var result = await sut.GetValidSubscriptionsAsync(companyId, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedSubscriptions));
+        Assert.That(result, Is.EqualTo(expectedSubscriptions));
 
         subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, cancellationToken), Times.Once);
     }
@@ -104,7 +95,7 @@ public class SubscriptionServiceTests
         var result = await sut.GetValidSubscriptionsAsync(companyId, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.Empty);
+        Assert.That(result, Is.Empty);
 
         subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, cancellationToken), Times.Once);
     }
@@ -132,13 +123,13 @@ public class SubscriptionServiceTests
         Assert.That(capturedSubscription.Credits, Has.Count.EqualTo(expected: 1));
 
         var credit = capturedSubscription.Credits.First();
-        using (Assert.EnterMultipleScope())
+        Assert.Multiple(() =>
         {
             Assert.That(credit.StartDate.Date, Is.EqualTo(DateTime.UtcNow.Date));
             Assert.That(credit.EndDate.Date, Is.EqualTo(DateTime.UtcNow.AddMonths(months: 1).Date));
             Assert.That(credit.IsActive, Is.True);
             Assert.That(credit.OrderDetailId, Is.EqualTo(orderDetails[index: 0].Id));
             Assert.That(credit.ModuleId, Is.EqualTo(orderDetails[index: 0].ModuleId));
-        }
+        });
     }
 }

@@ -47,7 +47,7 @@ public class CompanyRepositoryTests
         await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await sut.CheckCompanyExistsAsync(company.Id, cancellationToken);
+        var result = await sut.CheckCompanyExistsAsync(company.Id, onlyActive: true, cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -57,7 +57,7 @@ public class CompanyRepositoryTests
     public async Task CheckCompanyExistsAsyncByIdReturnsFalseWhenNotExists()
     {
         // Act
-        var result = await sut.CheckCompanyExistsAsync(Guid.NewGuid(), cancellationToken);
+        var result = await sut.CheckCompanyExistsAsync(Guid.NewGuid(), onlyActive: true, cancellationToken);
 
         // Assert
         Assert.That(result, Is.False);
@@ -77,7 +77,7 @@ public class CompanyRepositoryTests
         await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await sut.CheckCompanyExistsAsync(company.Cnpj, cancellationToken);
+        var result = await sut.CheckCompanyExistsAsync(company.Cnpj, onlyActive: true, cancellationToken);
 
         // Assert
         Assert.That(result, Is.True);
@@ -99,13 +99,13 @@ public class CompanyRepositoryTests
         await sut.SaveAsync(cancellationToken);
 
         // Assert
-        var savedCompany = await context.Companies.FindAsync([company.Id], cancellationToken);
+        var savedCompany = await context.Companies.FindAsync(new object[] { company.Id }, cancellationToken);
         Assert.That(savedCompany, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
+        Assert.Multiple(() =>
         {
             Assert.That(savedCompany.Name, Is.EqualTo(company.Name));
             Assert.That(savedCompany.Cnpj, Is.EqualTo(company.Cnpj));
-        }
+        });
     }
 
     [Test]
@@ -122,15 +122,15 @@ public class CompanyRepositoryTests
         await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var result = await sut.GetByCnpjAsync(company.Cnpj, cancellationToken);
+        var result = await sut.GetByCnpjAsync(company.Cnpj, onlyActive: true, cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
+        Assert.Multiple(() =>
         {
             Assert.That(result.Id, Is.EqualTo(company.Id));
             Assert.That(result.Cnpj, Is.EqualTo(company.Cnpj));
-        }
+        });
     }
 
     [Test]
@@ -165,8 +165,8 @@ public class CompanyRepositoryTests
         await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var page1 = await sut.GetByUserIdAsync(userId, cancellationToken, page: 1, perPage: 10);
-        var page2 = await sut.GetByUserIdAsync(userId, cancellationToken, page: 2, perPage: 10);
+        var page1 = await sut.GetByUserIdAsync(userId, onlyActive: true, cancellationToken, page: 1, perPage: 10);
+        var page2 = await sut.GetByUserIdAsync(userId, onlyActive: true, cancellationToken, page: 2, perPage: 10);
 
         using (Assert.EnterMultipleScope())
         {
@@ -209,7 +209,7 @@ public class CompanyRepositoryTests
         await context.SaveChangesAsync(cancellationToken);
 
         // Act
-        var count = await sut.CountByUserIdAsync(userId, cancellationToken);
+        var count = await sut.CountByUserIdAsync(userId, onlyActive: true, cancellationToken);
 
         // Assert
         Assert.That(count, Is.EqualTo(expectedCount));
@@ -236,7 +236,7 @@ public class CompanyRepositoryTests
         await sut.SaveAsync(cancellationToken);
 
         // Assert
-        var updatedCompany = await context.Companies.FindAsync([company.Id], cancellationToken);
+        var updatedCompany = await context.Companies.FindAsync(new object[] { company.Id }, cancellationToken);
         Assert.That(updatedCompany, Is.Not.Null);
         Assert.That(updatedCompany.Name, Is.EqualTo(updatedName));
     }
@@ -248,7 +248,7 @@ public class CompanyRepositoryTests
         var userId = Guid.NewGuid();
 
         // Act
-        var result = await sut.GetByUserIdAsync(userId, cancellationToken);
+        var result = await sut.GetByUserIdAsync(userId, onlyActive: true, cancellationToken);
 
         // Assert
         Assert.That(result, Is.Empty);

@@ -1,5 +1,3 @@
-using System.Net;
-
 using Bogus;
 
 using Fenicia.Auth.Domains.Company;
@@ -11,6 +9,9 @@ using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Database.Models.Auth;
 using Fenicia.Common.Database.Requests;
 using Fenicia.Common.Database.Responses;
+using Fenicia.Common.Migrations.Services;
+using Fenicia.Common.Exceptions;
+using Fenicia.Common.Enums;
 
 using Moq;
 
@@ -27,6 +28,7 @@ public class UserServiceTests
     private UserService sut;
     private Mock<IUserRepository> userRepositoryMock;
     private Mock<IUserRoleRepository> userRoleRepositoryMock;
+    private Mock<IMigrationService> migrationServiceMock;
 
     [SetUp]
     public void Setup()
@@ -37,8 +39,11 @@ public class UserServiceTests
         companyRepositoryMock = new Mock<ICompanyRepository>();
         securityServiceMock = new Mock<ISecurityService>();
         loginAttemptServiceMock = new Mock<ILoginAttemptService>();
+        migrationServiceMock = new Mock<IMigrationService>();
 
-        sut = new UserService(userRepositoryMock.Object, roleRepositoryMock.Object, userRoleRepositoryMock.Object, companyRepositoryMock.Object, securityServiceMock.Object, loginAttemptServiceMock.Object);
+        migrationServiceMock.Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        sut = new UserService(userRepositoryMock.Object, roleRepositoryMock.Object, userRoleRepositoryMock.Object, companyRepositoryMock.Object, securityServiceMock.Object, loginAttemptServiceMock.Object, migrationServiceMock.Object);
 
         faker = new Faker();
     }
@@ -70,13 +75,13 @@ public class UserServiceTests
 
         userRepositoryMock.Setup(x => x.GetByEmailAsync(request.Email, cancellationToken)).ReturnsAsync(user);
 
-        securityServiceMock.Setup(x => x.VerifyPassword(request.Password, user.Password)).Returns(new ApiResponse<bool>(data: true));
+        securityServiceMock.Setup(x => x.VerifyPassword(request.Password, user.Password)).Returns(true);
 
         // Act
+        // Assert
         var result = await sut.GetForLoginAsync(request, cancellationToken);
 
-        // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
+        Assert.That(result, Is.EqualTo(expectedResponse));
     }
 
     [Test]
@@ -91,15 +96,8 @@ public class UserServiceTests
 
         userRepositoryMock.Setup(x => x.GetByEmailAsync(request.Email, cancellationToken)).ReturnsAsync((UserModel)null!);
 
-        // Act
-        var result = await sut.GetForLoginAsync(request, cancellationToken);
-
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(result.Data, Is.Null);
-        }
+        // Act & Assert
+        Assert.ThrowsAsync<PermissionDeniedException>(async () => await sut.GetForLoginAsync(request, cancellationToken));
     }
 
     [Test]
@@ -127,6 +125,12 @@ public class UserServiceTests
             Password = hashedPassword,
             Name = request.Name
         };
+        var companyModel = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = request.Company.Name,
+            Cnpj = request.Company.Cnpj
+        };
 
         var expectedResponse = new UserResponse
         {
@@ -136,16 +140,17 @@ public class UserServiceTests
         };
 
         userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(value: false);
-        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, cancellationToken)).ReturnsAsync(value: false);
-        securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(new ApiResponse<string>(hashedPassword));
+        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, onlyActive: true, cancellationToken)).ReturnsAsync(value: false);
+        securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(hashedPassword);
         userRepositoryMock.Setup(x => x.Add(It.IsAny<UserModel>())).Returns(user);
+        companyRepositoryMock.Setup(x => x.Add(It.IsAny<CompanyModel>())).Returns(companyModel);
         roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(cancellationToken)).ReturnsAsync(adminRole);
 
         // Act
         var result = await sut.CreateNewUserAsync(request, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
+        Assert.That(result, Is.EqualTo(expectedResponse));
 
         userRepositoryMock.Verify(x => x.SaveAsync(cancellationToken), Times.Once);
     }
@@ -168,15 +173,8 @@ public class UserServiceTests
 
         userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(value: true);
 
-        // Act
-        var result = await sut.CreateNewUserAsync(request, cancellationToken);
-
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(result.Data, Is.Null);
-        }
+        // Act & Assert
+        Assert.ThrowsAsync<ArgumentException>(async () => await sut.CreateNewUserAsync(request, cancellationToken));
     }
 
     [Test]
@@ -193,7 +191,7 @@ public class UserServiceTests
         var result = await sut.ExistsInCompanyAsync(userId, companyId, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.EqualTo(exists));
+        Assert.That(result, Is.EqualTo(exists));
     }
 
     [Test]
@@ -221,7 +219,7 @@ public class UserServiceTests
         var result = await sut.GetUserForRefreshAsync(userId, cancellationToken);
 
         // Assert
-        Assert.That(result.Data, Is.EqualTo(expectedResponse));
+        Assert.That(result, Is.EqualTo(expectedResponse));
     }
 
     [Test]
@@ -232,15 +230,8 @@ public class UserServiceTests
 
         userRepositoryMock.Setup(x => x.GetUserForRefreshTokenAsync(userId, cancellationToken)).ReturnsAsync((UserModel)null!);
 
-        // Act
-        var result = await sut.GetUserForRefreshAsync(userId, cancellationToken);
-
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Unauthorized));
-            Assert.That(result.Data, Is.Null);
-        }
+        // Act & Assert
+        Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await sut.GetUserForRefreshAsync(userId, cancellationToken));
     }
 
     [Test]
@@ -260,18 +251,11 @@ public class UserServiceTests
         };
 
         userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, cancellationToken)).ReturnsAsync(value: false);
-        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, cancellationToken)).ReturnsAsync(value: false);
+        companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, onlyActive: true, cancellationToken)).ReturnsAsync(value: false);
         roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(cancellationToken)).ReturnsAsync((RoleModel)null!);
-        securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(new ApiResponse<string>("hashedPassword"));
+        securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns("hashedPassword");
 
-        // Act
-        var result = await sut.CreateNewUserAsync(request, cancellationToken);
-
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.InternalServerError));
-            Assert.That(result.Data, Is.Null);
-        }
+        // Act & Assert
+        Assert.ThrowsAsync<ArgumentException>(async () => await sut.CreateNewUserAsync(request, cancellationToken));
     }
 }

@@ -44,7 +44,8 @@ public class ModuleRepositoryTests
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                Type = (ModuleType)(i % 5),
+                // avoid types Erp (-1) and Auth (0) which are filtered by repository
+                Type = (ModuleType)((i % 5) + 1),
                 Name = faker.Commerce.ProductName()
             });
         }
@@ -210,7 +211,8 @@ public class ModuleRepositoryTests
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                Type = (ModuleType)(i % 5),
+                // avoid types Erp (-1) and Auth (0) which are filtered by repository
+                Type = (ModuleType)((i % 5) + 1),
                 Name = faker.Commerce.ProductName()
             });
         }

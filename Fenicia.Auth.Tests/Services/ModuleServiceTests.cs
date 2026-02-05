@@ -1,5 +1,3 @@
-using System.Net;
-
 using Bogus;
 
 using Fenicia.Auth.Domains.Module;
@@ -45,8 +43,7 @@ public class ModuleServiceTests
         using (Assert.EnterMultipleScope())
         {
             // Assert
-            Assert.That(result.Data, Is.EqualTo(expectedResponse));
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result, Is.EqualTo(expectedResponse));
         }
     }
 
@@ -66,8 +63,7 @@ public class ModuleServiceTests
         using (Assert.EnterMultipleScope())
         {
             // Assert
-            Assert.That(result.Data, Is.EqualTo(expectedResponse));
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result, Is.EqualTo(expectedResponse));
         }
     }
 
@@ -97,26 +93,7 @@ public class ModuleServiceTests
         using (Assert.EnterMultipleScope())
         {
             // Assert
-            Assert.That(result.Data, Is.EqualTo(expectedResponse));
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
-        }
-    }
-
-    [Test]
-    public async Task GetModuleByTypeAsyncWhenModuleDoesNotExistReturnsNotFound()
-    {
-        // Arrange
-        const ModuleType moduleType = ModuleType.Ecommerce;
-
-        moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, cancellationToken)).ReturnsAsync((ModuleModel)null!);
-
-        // Act
-        var result = await sut.GetModuleByTypeAsync(moduleType, cancellationToken);
-
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
+            Assert.That(result, Is.EqualTo(expectedResponse));
         }
     }
 
@@ -134,8 +111,7 @@ public class ModuleServiceTests
         using (Assert.EnterMultipleScope())
         {
             // Assert
-            Assert.That(result.Data, Is.EqualTo(expectedCount));
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result, Is.EqualTo(expectedCount));
         }
     }
 }

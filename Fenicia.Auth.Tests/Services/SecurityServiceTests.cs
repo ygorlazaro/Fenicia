@@ -1,5 +1,3 @@
-using System.Net;
-
 using Bogus;
 
 using Fenicia.Auth.Domains.Security;
@@ -31,10 +29,9 @@ public class SecurityServiceTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data, Is.Not.Null);
-            Assert.That(result.Data, Is.Not.EqualTo(password));
-            Assert.That(result.Data!, Does.StartWith("$2a$12$"), "Hash should use BCrypt format with work factor 12");
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.EqualTo(password));
+            Assert.That(result, Does.StartWith("$2a$12$"), "Hash should use BCrypt format with work factor 12");
         }
     }
 
@@ -49,7 +46,7 @@ public class SecurityServiceTests
         for (var i = 0; i < 5; i++)
         {
             var result = sut.HashPassword(password);
-            hashes.Add(result.Data!);
+            hashes.Add(result!);
         }
 
         // Assert
@@ -69,7 +66,7 @@ public class SecurityServiceTests
     {
         // Arrange
         var password = faker.Internet.Password();
-        var hashedPassword = sut.HashPassword(password).Data;
+        var hashedPassword = sut.HashPassword(password);
 
         // Act
         var result = sut.VerifyPassword(password, hashedPassword!);
@@ -77,8 +74,7 @@ public class SecurityServiceTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data, Is.True);
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result, Is.True);
         }
     }
 
@@ -88,7 +84,7 @@ public class SecurityServiceTests
         // Arrange
         var password = faker.Internet.Password();
         var wrongPassword = faker.Internet.Password();
-        var hashedPassword = sut.HashPassword(password).Data;
+        var hashedPassword = sut.HashPassword(password);
 
         // Act
         var result = sut.VerifyPassword(wrongPassword, hashedPassword!);
@@ -96,8 +92,7 @@ public class SecurityServiceTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data, Is.False);
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(result, Is.False);
         }
     }
 
@@ -114,8 +109,7 @@ public class SecurityServiceTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data, Is.False);
-            Assert.That(result.Status, Is.EqualTo(HttpStatusCode.InternalServerError));
+            Assert.That(result, Is.False);
         }
     }
 
@@ -125,14 +119,14 @@ public class SecurityServiceTests
         // Arrange
         var passwordCount = faker.Random.Int(min: 3, max: 5);
         var passwords = faker.Make(passwordCount, () => faker.Internet.Password()).ToList();
-        var hashedPasswords = passwords.Select(p => sut.HashPassword(p).Data).ToList();
+        var hashedPasswords = passwords.Select(p => sut.HashPassword(p)).ToList();
 
         // Act & Assert
         for (var i = 0; i < passwordCount; i++)
         {
             // Verify correct password
             var correctResult = sut.VerifyPassword(passwords[i], hashedPasswords[i]!);
-            Assert.That(correctResult.Data, Is.True, $"Password {i} should verify against its own hash");
+            Assert.That(correctResult, Is.True, $"Password {i} should verify against its own hash");
 
             // Verify against other passwords' hashes
             for (var j = 0; j < passwordCount; j++)
@@ -143,7 +137,7 @@ public class SecurityServiceTests
                 }
 
                 var incorrectResult = sut.VerifyPassword(passwords[i], hashedPasswords[j]!);
-                Assert.That(incorrectResult.Data, Is.False, $"Password {i} should not verify against hash {j}");
+                Assert.That(incorrectResult, Is.False, $"Password {i} should not verify against hash {j}");
             }
         }
     }
@@ -163,14 +157,14 @@ public class SecurityServiceTests
         {
             // Act
             var result = sut.HashPassword(password);
-            var verifyResult = sut.VerifyPassword(password, result.Data!);
+            var verifyResult = sut.VerifyPassword(password, result);
 
             // Assert
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result.Data, Is.Not.Null);
-                Assert.That(result.Data, Does.StartWith("$2a$12$"));
-                Assert.That(verifyResult.Data, Is.True);
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result, Does.StartWith("$2a$12$"));
+                Assert.That(verifyResult, Is.True);
             }
         }
     }
@@ -180,7 +174,7 @@ public class SecurityServiceTests
     {
         // Arrange
         var validPassword = faker.Internet.Password();
-        var validHash = sut.HashPassword(validPassword).Data;
+        var validHash = sut.HashPassword(validPassword);
         var testCases = new[]
                         {
                             (Password: string.Empty, Hash: validHash),
@@ -197,8 +191,7 @@ public class SecurityServiceTests
             // Assert
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(result.Data, Is.False);
-                Assert.That(result.Status, Is.EqualTo(HttpStatusCode.InternalServerError));
+                Assert.That(result, Is.False);
             }
         }
     }

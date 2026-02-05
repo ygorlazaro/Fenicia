@@ -45,10 +45,10 @@ public class TokenServiceTests
         var result = sut.GenerateToken(user);
 
         // Assert
-        Assert.That(result.Data, Is.Not.Null);
+        Assert.That(result, Is.Not.Null);
 
         var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(result.Data);
+        var token = handler.ReadJwtToken(result);
 
         using (Assert.EnterMultipleScope())
         {
@@ -75,7 +75,7 @@ public class TokenServiceTests
 
         // Assert
         var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(result.Data);
+        var token = handler.ReadJwtToken(result);
 
         var expectedExpiration = DateTime.UtcNow.AddHours(value: 3);
         Assert.That(token.ValidTo, Is.EqualTo(expectedExpiration).Within(TimeSpan.FromSeconds(seconds: 5)));
