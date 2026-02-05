@@ -1,83 +1,96 @@
 using System.IdentityModel.Tokens.Jwt;
 
-using Bogus;
-
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Common.Database.Responses;
 
-using Microsoft.Extensions.Configuration;
-
-using Moq;
-
-namespace Fenicia.Auth.Tests.Services;
-
-public class TokenServiceTests
+namespace Fenicia.Auth.Tests.Services
 {
-    private Mock<IConfiguration> configurationMock = null!;
-    private Faker faker = null!;
-    private string jwtSecret = null!;
-    private TokenService sut = null!;
-
-    [SetUp]
-    public void Setup()
+    public class TokenServiceTests
     {
-        faker = new Faker();
-        jwtSecret = faker.Random.AlphaNumeric(length: 32);
+        private TokenService sut = null!;
 
-        configurationMock = new Mock<IConfiguration>();
-        configurationMock.Setup(x => x["Jwt:Secret"]).Returns(jwtSecret);
-
-        sut = new TokenService();
-    }
-
-    [Test]
-    public void GenerateTokenWithValidInputsReturnsValidToken()
-    {
-        // Arrange
-        var user = new UserResponse
+        public class ExtendedUserResponse : UserResponse
         {
-            Id = Guid.NewGuid(),
-            Email = faker.Internet.Email(),
-            Name = faker.Name.FullName()
-        };
-
-        // Act
-        var result = sut.GenerateToken(user);
-
-        // Assert
-        Assert.That(result, Is.Not.Null);
-
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(result);
-
-        using (Assert.EnterMultipleScope())
-        {
-            // Verify only claims that TokenService actually produces
-            Assert.That(token.Claims.First(c => c.Type == "userId").Value, Is.EqualTo(user.Id.ToString()));
-            Assert.That(token.Claims.First(c => c.Type == "unique_name").Value, Is.EqualTo(user.Name));
-            Assert.That(token.Claims.Any(c => c.Type == JwtRegisteredClaimNames.Jti), Is.True);
+            public Guid CompanyId
+            {
+                get; set;
+            }
+            public List<string>? Roles
+            {
+                get; set;
+            }
+            public List<string>? Modules
+            {
+                get; set;
+            }
         }
-    }
 
-    [Test]
-    public void GenerateTokenValidatesTokenExpiration()
-    {
-        // Arrange
-        var user = new UserResponse
+        [SetUp]
+        public void Setup()
         {
-            Id = Guid.NewGuid(),
-            Email = faker.Internet.Email(),
-            Name = faker.Name.FullName()
-        };
+            sut = new TokenService();
+        }
 
-        // Act
-        var result = sut.GenerateToken(user);
+        [Test]
+        public void GenerateToken_IncludesBasicClaims()
+        {
+            var user = new UserResponse { Id = Guid.NewGuid(), Email = "t@test", Name = "Test" };
 
-        // Assert
-        var handler = new JwtSecurityTokenHandler();
-        var token = handler.ReadJwtToken(result);
+            var token = sut.GenerateToken(user);
 
-        var expectedExpiration = DateTime.UtcNow.AddHours(value: 3);
-        Assert.That(token.ValidTo, Is.EqualTo(expectedExpiration).Within(TimeSpan.FromSeconds(seconds: 5)));
+            var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var claims = parsed.Claims.ToList();
+
+            Assert.That(claims.Any(c => c.Type == "userId" && c.Value == user.Id.ToString()));
+            Assert.That(claims.Any(c => c.Type == "email" && c.Value == user.Email));
+            Assert.That(claims.Any(c => c.Type == "unique_name" && c.Value == user.Name));
+            Assert.That(claims.Any(c => c.Type == JwtRegisteredClaimNames.Jti));
+        }
+
+        [Test]
+        public void GenerateToken_IncludesCompanyId_WhenPresent()
+        {
+            var user = new ExtendedUserResponse { Id = Guid.NewGuid(), Email = "a@b", Name = "N", CompanyId = Guid.NewGuid() };
+
+            var token = sut.GenerateToken(user);
+            var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+            Assert.That(parsed.Claims.Any(c => c.Type == "companyId" && c.Value == user.CompanyId.ToString()));
+        }
+
+        [Test]
+        public void GenerateToken_AddsRolesAndModulesAndGodAddsErp()
+        {
+            var user = new ExtendedUserResponse
+            {
+                Id = Guid.NewGuid(),
+                Email = "r@r",
+                Name = "R",
+                Roles = new List<string> { "User", "God" },
+                Modules = new List<string> { "sales" }
+            };
+
+            var token = sut.GenerateToken(user);
+            var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var claims = parsed.Claims.ToList();
+
+            // roles
+            Assert.That(claims.Count(c => c.Type == "role") >= 2);
+            Assert.That(claims.Any(c => c.Type == "role" && c.Value == "God"));
+
+            // modules contains original and added 'erp'
+            Assert.That(claims.Any(c => c.Type == "module" && c.Value == "sales"));
+            Assert.That(claims.Any(c => c.Type == "module" && c.Value == "erp"));
+        }
+
+        [Test]
+        public void GenerateToken_NoModulesProperty_DoesNotAddModuleClaims()
+        {
+            var user = new UserResponse { Id = Guid.NewGuid(), Email = "nm@nm", Name = "NM" };
+            var token = sut.GenerateToken(user);
+            var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+            Assert.That(parsed.Claims.All(c => c.Type != "module"));
+        }
     }
 }

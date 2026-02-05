@@ -98,6 +98,21 @@ public class ModuleServiceTests
     }
 
     [Test]
+    public async Task GetModuleByTypeAsyncWhenModuleDoesNotExistReturnsNull()
+    {
+        // Arrange
+        var moduleType = ModuleType.Ecommerce;
+
+        moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, cancellationToken)).ReturnsAsync((ModuleModel?)null);
+
+        // Act
+        var result = await sut.GetModuleByTypeAsync(moduleType, cancellationToken);
+
+        // Assert
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
     public async Task CountAsyncReturnsCount()
     {
         // Arrange
@@ -113,5 +128,57 @@ public class ModuleServiceTests
             // Assert
             Assert.That(result, Is.EqualTo(expectedCount));
         }
+    }
+
+    [Test]
+    public async Task LoadModulesAtDatabaseAsync_DelegatesAndReturnsConverted()
+    {
+        var modules = new List<ModuleModel>
+        {
+            new () { Id = Guid.NewGuid(), Name = "A", Amount = 1, Type = ModuleType.Accounting },
+            new () { Id = Guid.NewGuid(), Name = "B", Amount = 2, Type = ModuleType.Basic }
+        };
+
+        moduleRepositoryMock.Setup(x => x.LoadModulesAtDatabaseAsync(It.IsAny<List<ModuleModel>>(), cancellationToken)).ReturnsAsync(modules);
+
+        var result = await sut.LoadModulesAtDatabaseAsync(cancellationToken);
+
+        Assert.That(result.Select(r => r.Id), Is.EquivalentTo(modules.Select(m => m.Id)));
+    }
+
+    [Test]
+    public async Task GetUserModulesAsync_ReturnsConvertedModules()
+    {
+        var userId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var modules = new List<ModuleModel>
+        {
+            new () { Id = Guid.NewGuid(), Name = "U1", Amount = 1, Type = ModuleType.Basic }
+        };
+
+        moduleRepositoryMock.Setup(x => x.GetUserModulesAsync(userId, companyId, cancellationToken)).ReturnsAsync(modules);
+
+        var result = await sut.GetUserModulesAsync(userId, companyId, cancellationToken);
+
+        Assert.That(result.Select(r => r.Id), Is.EquivalentTo(modules.Select(m => m.Id)));
+    }
+
+    [Test]
+    public async Task GetModuleAndSubmoduleAsync_ReturnsConvertedModulesWithSubmodules()
+    {
+        var userId = Guid.NewGuid();
+        var companyId = Guid.NewGuid();
+        var module = new ModuleModel { Id = Guid.NewGuid(), Name = "WithSub", Amount = 1, Type = ModuleType.Basic };
+        var sub = new SubmoduleModel { Id = Guid.NewGuid(), Name = "s", Route = "/s", ModuleId = module.Id };
+        module.Submodules = new List<SubmoduleModel> { sub };
+        var modules = new List<ModuleModel> { module };
+
+        moduleRepositoryMock.Setup(x => x.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken)).ReturnsAsync(modules);
+
+        var result = await sut.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+
+        Assert.That(result.First().Id, Is.EqualTo(module.Id));
+        Assert.That(result.First().Submodules, Is.Not.Null);
+        Assert.That(result.First().Submodules.First().Id, Is.EqualTo(sub.Id));
     }
 }

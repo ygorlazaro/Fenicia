@@ -253,4 +253,133 @@ public class CompanyRepositoryTests
         // Assert
         Assert.That(result, Is.Empty);
     }
+
+    [Test]
+    public async Task CheckCompanyExistsRespectsOnlyActiveFlagByIdAndCnpj()
+    {
+        // Arrange
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Random.String2(length: 14, "0123456789"),
+            IsActive = false
+        };
+        await context.Companies.AddAsync(company, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        // Act
+        var existsOnlyActiveById = await sut.CheckCompanyExistsAsync(company.Id, onlyActive: true, cancellationToken);
+        var existsAnyById = await sut.CheckCompanyExistsAsync(company.Id, onlyActive: false, cancellationToken);
+
+        var existsOnlyActiveByCnpj = await sut.CheckCompanyExistsAsync(company.Cnpj, onlyActive: true, cancellationToken);
+        var existsAnyByCnpj = await sut.CheckCompanyExistsAsync(company.Cnpj, onlyActive: false, cancellationToken);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(existsOnlyActiveById, Is.False);
+            Assert.That(existsAnyById, Is.True);
+            Assert.That(existsOnlyActiveByCnpj, Is.False);
+            Assert.That(existsAnyByCnpj, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task GetByCnpjAsyncRespectsOnlyActiveFlag()
+    {
+        // Arrange
+        var activeCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Random.String2(length: 14, "0123456789"),
+            IsActive = true
+        };
+        var inactiveCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = activeCompany.Cnpj,
+            IsActive = false
+        };
+
+        // Add only the inactive one so query with onlyActive true should not find it
+        await context.Companies.AddAsync(inactiveCompany, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        // Act
+        var resultOnlyActive = await sut.GetByCnpjAsync(activeCompany.Cnpj, onlyActive: true, cancellationToken);
+        var resultAny = await sut.GetByCnpjAsync(activeCompany.Cnpj, onlyActive: false, cancellationToken);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(resultOnlyActive, Is.Null);
+            Assert.That(resultAny, Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public async Task GetByUserIdAsyncIncludesInactiveWhenOnlyActiveFalse()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var activeCompany = new CompanyModel { Id = Guid.NewGuid(), Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(14, "0123456789"), IsActive = true };
+        var inactiveCompany = new CompanyModel { Id = Guid.NewGuid(), Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(14, "0123456789"), IsActive = false };
+
+        var userRoles = new List<UserRoleModel>
+        {
+            new() { UserId = userId, CompanyId = activeCompany.Id, Company = activeCompany },
+            new() { UserId = userId, CompanyId = inactiveCompany.Id, Company = inactiveCompany }
+        };
+
+        await context.Companies.AddRangeAsync(new[] { activeCompany, inactiveCompany }, cancellationToken);
+        await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        // Act
+        var onlyActive = await sut.GetByUserIdAsync(userId, onlyActive: true, cancellationToken);
+        var any = await sut.GetByUserIdAsync(userId, onlyActive: false, cancellationToken);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(onlyActive.Select(c => c.Id), Does.Not.Contain(inactiveCompany.Id));
+            Assert.That(any.Select(c => c.Id), Does.Contain(inactiveCompany.Id));
+        });
+    }
+
+    [Test]
+    public async Task GetCompaniesAsyncReturnsDistinctIdsAndRespectsOnlyActive()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var activeCompany = new CompanyModel { Id = Guid.NewGuid(), Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(14, "0123456789"), IsActive = true };
+        var inactiveCompany = new CompanyModel { Id = Guid.NewGuid(), Name = faker.Company.CompanyName(), Cnpj = faker.Random.String2(14, "0123456789"), IsActive = false };
+
+        var userRoles = new List<UserRoleModel>
+        {
+            new() { UserId = userId, CompanyId = activeCompany.Id },
+            new() { UserId = userId, CompanyId = activeCompany.Id }, // duplicate
+            new() { UserId = userId, CompanyId = inactiveCompany.Id }
+        };
+
+        await context.Companies.AddRangeAsync(new[] { activeCompany, inactiveCompany }, cancellationToken);
+        await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        // Act
+        var onlyActive = await sut.GetCompaniesAsync(userId, onlyActive: true, cancellationToken);
+        var any = await sut.GetCompaniesAsync(userId, onlyActive: false, cancellationToken);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(onlyActive, Has.Count.EqualTo(1));
+            Assert.That(onlyActive, Does.Contain(activeCompany.Id));
+            Assert.That(any, Has.Count.EqualTo(2));
+            Assert.That(any, Does.Contain(inactiveCompany.Id));
+        });
+    }
 }

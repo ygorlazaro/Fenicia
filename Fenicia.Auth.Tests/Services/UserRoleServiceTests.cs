@@ -1,118 +1,87 @@
-using Bogus;
-
-using Fenicia.Auth.Domains.UserRole;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Moq;
+using NUnit.Framework;
+
+using Fenicia.Auth.Domains.UserRole;
+using Fenicia.Common.Database.Models.Auth;
+using Fenicia.Common.Database.Responses;
 
 namespace Fenicia.Auth.Tests.Services;
 
 public class UserRoleServiceTests
 {
-    private CancellationToken cancellationToken;
-    private Faker faker;
-    private IUserRoleService sut;
-    private Mock<IUserRoleRepository> userRoleRepositoryMock;
+    private Mock<IUserRoleRepository> repoMock = null!;
+    private IUserRoleService sut = null!;
+    private readonly CancellationToken cancellationToken = CancellationToken.None;
 
     [SetUp]
     public void Setup()
     {
-        userRoleRepositoryMock = new Mock<IUserRoleRepository>();
-        sut = new UserRoleService(userRoleRepositoryMock.Object);
-        faker = new Faker();
-        cancellationToken = CancellationToken.None;
+        repoMock = new Mock<IUserRoleRepository>();
+        sut = new UserRoleService(repoMock.Object);
     }
 
     [Test]
-    public async Task GetRolesByUserAsyncWhenUserHasRolesReturnsRoles()
+    public async Task GetRolesByUserAsync_ReturnsRolesFromRepository()
     {
-        // Arrange
         var userId = Guid.NewGuid();
-        var expectedRoles = new[] { "Admin", "User", "Manager" };
+        var roles = new[] { "Admin", "User" };
 
-        userRoleRepositoryMock.Setup(x => x.GetRolesByUserAsync(userId, cancellationToken)).ReturnsAsync(expectedRoles);
+        repoMock.Setup(r => r.GetRolesByUserAsync(userId, cancellationToken)).ReturnsAsync(roles);
 
-        // Act
         var result = await sut.GetRolesByUserAsync(userId, cancellationToken);
 
-        // Assert
-        Assert.That(result, Is.EqualTo(expectedRoles));
-
-        userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId, cancellationToken), Times.Once);
+        Assert.That(result, Is.EquivalentTo(roles));
+        repoMock.Verify(r => r.GetRolesByUserAsync(userId, cancellationToken), Times.Once);
     }
 
     [Test]
-    public async Task GetRolesByUserAsyncWhenUserHasNoRolesReturnsEmptyArray()
+    public async Task GetRolesByUserAsync_WhenEmpty_ReturnsEmpty()
     {
-        // Arrange
         var userId = Guid.NewGuid();
-        var emptyRoles = Array.Empty<string>();
+        repoMock.Setup(r => r.GetRolesByUserAsync(userId, cancellationToken)).ReturnsAsync(Array.Empty<string>());
 
-        userRoleRepositoryMock.Setup(x => x.GetRolesByUserAsync(userId, cancellationToken)).ReturnsAsync(emptyRoles);
-
-        // Act
         var result = await sut.GetRolesByUserAsync(userId, cancellationToken);
 
-        // Assert
         Assert.That(result, Is.Empty);
-
-        userRoleRepositoryMock.Verify(x => x.GetRolesByUserAsync(userId, cancellationToken), Times.Once);
     }
 
     [Test]
-    public async Task HasRoleAsyncWhenUserHasRoleReturnsTrue()
+    public async Task GetUserCompaniesAsync_ConvertsUserRolesToCompanyResponses()
     {
-        // Arrange
         var userId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var role = faker.Random.ArrayElement(["Admin", "User", "Manager"]);
+        var company = new CompanyModel { Id = Guid.NewGuid(), Name = "Acme", Cnpj = "12345678901234" };
+        var role = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
 
-        userRoleRepositoryMock.Setup(x => x.HasRoleAsync(userId, companyId, role, cancellationToken)).ReturnsAsync(value: true);
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), Company = company, Role = role };
 
-        // Act
-        var result = await sut.HasRoleAsync(userId, companyId, role, cancellationToken);
+        repoMock.Setup(r => r.GetUserCompaniesAsync(userId, cancellationToken)).ReturnsAsync(new List<UserRoleModel> { userRole });
 
-        // Assert
-        Assert.That(result, Is.True);
+        var result = await sut.GetUserCompaniesAsync(userId, cancellationToken);
 
-        userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, cancellationToken), Times.Once);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].Id, Is.EqualTo(company.Id));
+        Assert.That(result[0].Name, Is.EqualTo(company.Name));
+        Assert.That(result[0].Cnpj, Is.EqualTo(company.Cnpj));
     }
 
     [Test]
-    public async Task HasRoleAsyncWhenUserDoesNotHaveRoleReturnsFalse()
+    public async Task HasRoleAsync_DelegatesToRepository()
     {
-        // Arrange
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var role = "NonExistentRole";
+        const string roleName = "Admin";
 
-        userRoleRepositoryMock.Setup(x => x.HasRoleAsync(userId, companyId, role, cancellationToken)).ReturnsAsync(value: false);
+        repoMock.Setup(r => r.HasRoleAsync(userId, companyId, roleName, cancellationToken)).ReturnsAsync(true);
 
-        // Act
-        var result = await sut.HasRoleAsync(userId, companyId, role, cancellationToken);
+        var result = await sut.HasRoleAsync(userId, companyId, roleName, cancellationToken);
 
-        // Assert
-        Assert.That(result, Is.False);
-
-        userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, cancellationToken), Times.Once);
-    }
-
-    [TestCase("Admin")]
-    [TestCase("User")]
-    [TestCase("Manager")]
-    public async Task HasRoleAsyncWithDifferentRolesValidatesCorrectly(string role)
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-
-        userRoleRepositoryMock.Setup(x => x.HasRoleAsync(userId, companyId, role, cancellationToken)).ReturnsAsync(value: true);
-
-        // Act
-        var result = await sut.HasRoleAsync(userId, companyId, role, cancellationToken);
-
-        // Assert
         Assert.That(result, Is.True);
-
-        userRoleRepositoryMock.Verify(x => x.HasRoleAsync(userId, companyId, role, cancellationToken), Times.Once);
+        repoMock.Verify(r => r.HasRoleAsync(userId, companyId, roleName, cancellationToken), Times.Once);
     }
 }

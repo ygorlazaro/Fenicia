@@ -169,11 +169,8 @@ public class CompanyServiceTests
         // Act
         var result = await sut.GetByUserIdAsync(userId, cancellationToken);
 
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result, Is.EqualTo(expectedResponse));
-        }
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedResponse));
     }
 
     [Test]
@@ -263,10 +260,25 @@ public class CompanyServiceTests
         // Act
         var result = await sut.CountByUserIdAsync(userId, cancellationToken);
 
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(result, Is.EqualTo(expectedCount));
-        }
+        // Assert
+        Assert.That(result, Is.EqualTo(expectedCount));
+
+    }
+
+    [Test]
+    public async Task GetCompaniesAsyncDelegatesToRepository()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var expected = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+
+        companyRepositoryMock.Setup(x => x.GetCompaniesAsync(userId, onlyActive: true, cancellationToken)).ReturnsAsync(expected);
+
+        // Act
+        var result = await sut.GetCompaniesAsync(userId, cancellationToken);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(expected));
+        companyRepositoryMock.Verify(x => x.GetCompaniesAsync(userId, onlyActive: true, cancellationToken), Times.Once);
     }
 }
