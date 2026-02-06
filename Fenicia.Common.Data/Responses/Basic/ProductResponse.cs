@@ -13,7 +13,7 @@ public class ProductResponse
         set;
     }
 
-    public decimal CostPrice
+    public decimal? CostPrice
     {
         get;
         set;

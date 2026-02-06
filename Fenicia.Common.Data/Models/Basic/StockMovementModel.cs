@@ -25,11 +25,13 @@ public partial class StockMovementModel : BaseModel
         get; set;
     }
 
-    public decimal Price
+    [Required]
+    public decimal? Price
     {
         get; set;
     }
 
+    [Required]
     public StockMovementType Type
     {
         get; set;

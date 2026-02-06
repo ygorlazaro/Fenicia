@@ -7,7 +7,7 @@ public interface IBaseRepository<T>
 {
     Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
-    Task<List<T>> GetAllAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10);
+    Task<List<T>> GetAllAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10 );
 
     void Add(T entity);
 

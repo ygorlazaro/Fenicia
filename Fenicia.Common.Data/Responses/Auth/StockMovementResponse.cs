@@ -23,7 +23,7 @@ public class StockMovementResponse
         set;
     }
 
-    public decimal Price
+    public decimal? Price
     {
         get;
         set;

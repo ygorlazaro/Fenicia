@@ -5,6 +5,7 @@ namespace Fenicia.Common.Data.Responses.Basic;
 public class InventoryResponse
 {
     public decimal TotalCostPrice { get; set; }
+
     public decimal TotalSalesPrice { get; set; }
 
     public decimal TotalProfit => TotalSalesPrice - TotalCostPrice;
@@ -17,7 +18,7 @@ public class InventoryResponse
     {
         var inventory = new InventoryResponse
         {
-            Items = models.Select(p => new InventoryDetailResponse()
+            Items = models.Select(p => new InventoryDetailResponse
             {
                 ProductId = p.Id,
                 Quantity = p.Quantity,
