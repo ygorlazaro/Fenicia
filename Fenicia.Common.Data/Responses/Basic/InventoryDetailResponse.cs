@@ -6,11 +6,11 @@ public class InventoryDetailResponse
 
     public double Quantity { get; set; }
 
-    public decimal CostPrice { get; set; }
+    public decimal? CostPrice { get; set; }
 
     public decimal SalesPrice { get; set; }
 
-    public decimal Profit => SalesPrice - CostPrice;
+    public decimal Profit => SalesPrice - CostPrice ?? 0;
 
     public string ProductName { get; set; } = string.Empty;
 

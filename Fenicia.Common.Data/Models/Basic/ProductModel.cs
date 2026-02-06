@@ -16,18 +16,20 @@ public class ProductModel : BaseModel
 
     = null!;
 
-    public decimal CostPrice
+    public decimal? CostPrice
     {
         get;
         set;
     }
 
+    [Required]
     public decimal SalesPrice
     {
         get;
         set;
     }
 
+    [Required]
     public double Quantity
     {
         get;

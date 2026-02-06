@@ -14,7 +14,9 @@ public class BaseRepository<T>(DbContext context) : IBaseRepository<T>
 
     public virtual async Task<List<T>> GetAllAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10)
     {
-        return await context.Set<T>().Skip((page - 1) * perPage).Take(perPage).ToListAsync(cancellationToken);
+        var query = context.Set<T>().Skip((page - 1) * perPage).Take(perPage);
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public virtual void Add(T entity)

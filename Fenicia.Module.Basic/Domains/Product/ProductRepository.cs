@@ -54,7 +54,7 @@ public class ProductRepository(BasicContext context) : BaseRepository<ProductMod
 
     public async Task<decimal> GetTotalCostPriceByProductAsync(Guid productId, CancellationToken cancellationToken)
     {
-        return await context.Products.Where(p => p.Id == productId).SumAsync(p => p.CostPrice, cancellationToken);
+        return await context.Products.Where(p => p.Id == productId).SumAsync(p => p.CostPrice ?? 0, cancellationToken);
     }
 
     public async Task<decimal> GetTotalSalesPriceProductAsync(Guid productId, CancellationToken cancellationToken)
@@ -74,7 +74,7 @@ public class ProductRepository(BasicContext context) : BaseRepository<ProductMod
 
     public async Task<decimal> GetTotalCostPriceByCategoryAsync(Guid categoryId, CancellationToken cancellationToken)
     {
-        return await context.Products.Where(p => p.CategoryId == categoryId).SumAsync(p => p.CostPrice, cancellationToken);
+        return await context.Products.Where(p => p.CategoryId == categoryId).SumAsync(p => p.CostPrice ?? 0, cancellationToken);
     }
 
     public async Task<decimal> GetTotalSalesPriceCategoryAsync(Guid categoryId, CancellationToken cancellationToken)
@@ -94,7 +94,7 @@ public class ProductRepository(BasicContext context) : BaseRepository<ProductMod
 
     public async Task<decimal> GetTotalCostPriceAsync(CancellationToken cancellationToken)
     {
-        return await context.Products.SumAsync(p => p.CostPrice, cancellationToken);
+        return await context.Products.SumAsync(p => p.CostPrice ?? 0, cancellationToken);
     }
 
     public async Task<decimal> GetTotalSalesPriceAsync(CancellationToken cancellationToken)
