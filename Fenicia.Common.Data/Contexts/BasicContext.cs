@@ -86,6 +86,12 @@ public class BasicContext(DbContextOptions<BasicContext> options) : DbContext(op
 
         = null!;
 
+    public DbSet<PersonModel> People
+    {
+        get;
+        set;
+    } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);

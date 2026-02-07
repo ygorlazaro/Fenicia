@@ -16,16 +16,8 @@ public static class EmployeeMapper
         return new EmployeeResponse
         {
             Id = model.Id,
-            Name = model.Name,
-            Cpf = model.Cpf,
             PositionId = model.PositionId,
-            City = model.City,
-            Complement = model.Complement,
-            Neighborhood = model.Neighborhood,
-            Number = model.Number,
-            StateId = model.StateId,
-            Street = model.Street,
-            ZipCode = model.ZipCode
+            Person = PersonMapper.Map(model.Person),
         };
     }
 
@@ -34,16 +26,8 @@ public static class EmployeeMapper
         return new EmployeeModel
         {
             Id = request.Id,
-            Name = request.Name,
-            Cpf = request.Cpf,
             PositionId = request.PositionId,
-            City = request.City,
-            Complement = request.Complement,
-            Neighborhood = request.Neighborhood,
-            Number = request.Number,
-            StateId = request.StateId,
-            Street = request.Street,
-            ZipCode = request.ZipCode
+            Person = PersonMapper.Map(request.Person)
         };
     }
 }
