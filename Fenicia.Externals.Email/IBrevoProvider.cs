@@ -1,4 +1,4 @@
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.External;
 
 namespace Fenicia.Externals.Email;
 

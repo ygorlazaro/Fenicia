@@ -9,9 +9,9 @@ namespace Fenicia.Module.Basic.Domains.State;
 public class StateController(IStateService stateProvider) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllAsync(CancellationToken ct)
     {
-        var states = await stateProvider.GetAllAsync(cancellationToken);
+        var states = await stateProvider.GetAllAsync(ct);
 
         return Ok(states);
     }

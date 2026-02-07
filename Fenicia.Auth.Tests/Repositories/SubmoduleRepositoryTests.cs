@@ -22,7 +22,7 @@ public class SubmoduleRepositoryTests
             new SubmoduleModel { Name = "B1", Route = "/b1", ModuleId = moduleB }
         });
 
-        await ctx.SaveChangesAsync();
+        await ctx.SaveChangesAsync(CancellationToken.None);
 
         var sut = new SubmoduleRepository(ctx);
 

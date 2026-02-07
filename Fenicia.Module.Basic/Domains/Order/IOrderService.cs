@@ -5,5 +5,5 @@ namespace Fenicia.Module.Basic.Domains.Order;
 
 public interface IOrderService
 {
-    Task<OrderResponse?> AddAsync(OrderRequest orderRequest, CancellationToken cancellationToken);
+    Task<OrderResponse?> AddAsync(OrderRequest orderRequest, CancellationToken ct);
 }

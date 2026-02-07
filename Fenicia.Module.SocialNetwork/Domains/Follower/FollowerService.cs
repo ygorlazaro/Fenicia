@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Converters.SocialNetwork;
+using Fenicia.Common.Data.Mappers.SocialNetwork;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Data.Responses.SocialNetwork;
 
@@ -6,9 +6,9 @@ namespace Fenicia.Module.SocialNetwork.Domains.Follower;
 
 public class FollowerService(IFollowerRepository followerRepository) : IFollowerService
 {
-    public async Task<FollowerResponse?> FollowAsync(Guid userId, Guid followerId, CancellationToken cancellationToken)
+    public async Task<FollowerResponse?> FollowAsync(Guid userId, Guid followerId, CancellationToken ct)
     {
-        var follower = new FollowerModel()
+        var follower = new FollowerModel
         {
             UserId = userId,
             FollowerId = followerId,
@@ -18,14 +18,14 @@ public class FollowerService(IFollowerRepository followerRepository) : IFollower
 
         followerRepository.Add(follower);
 
-        await followerRepository.SaveChangesAsync(cancellationToken);
+        await followerRepository.SaveChangesAsync(ct);
 
-        return FollowerConverter.Convert(follower);
+        return FollowerMapper.Map(follower);
     }
 
-    public async Task<FollowerResponse?> UnfollowAsync(Guid userId, Guid followerId, CancellationToken cancellationToken)
+    public async Task<FollowerResponse?> UnfollowAsync(Guid userId, Guid followerId, CancellationToken ct)
     {
-        var follower = await followerRepository.FindFollowerAsync(userId, followerId, cancellationToken);
+        var follower = await followerRepository.FindFollowerAsync(userId, followerId, ct);
 
         if (follower is null)
         {
@@ -36,20 +36,20 @@ public class FollowerService(IFollowerRepository followerRepository) : IFollower
 
         followerRepository.Update(follower);
 
-        await followerRepository.SaveChangesAsync(cancellationToken);
+        await followerRepository.SaveChangesAsync(ct);
 
-        return FollowerConverter.Convert(follower);
+        return FollowerMapper.Map(follower);
     }
 
-    public async Task<List<FollowerResponse>> GetFollowersAsync(Guid userId, CancellationToken cancellationToken, int page = 1, int perPage = 10)
+    public async Task<List<FollowerResponse>> GetFollowersAsync(Guid userId, CancellationToken ct, int page = 1, int perPage = 10)
     {
-        var followers = await followerRepository.GetFollowersAsync(userId, cancellationToken, page, perPage);
+        var followers = await followerRepository.GetFollowersAsync(userId, ct, page, perPage);
 
-        return FollowerConverter.Convert(followers);
+        return FollowerMapper.Map(followers);
     }
 
-    public async Task<int> CountAsync(Guid userId, CancellationToken cancellationToken)
+    public async Task<int> CountAsync(Guid userId, CancellationToken ct)
     {
-        return await followerRepository.CountAsync(x => x.UserId == userId, cancellationToken);
+        return await followerRepository.CountAsync(x => x.UserId == userId, ct);
     }
 }

@@ -20,7 +20,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var tenantArg = args.FirstOrDefault(x => x.StartsWith("--tenant="));
+        var tenantArg = args.FirstOrDefault(o => o.StartsWith("--tenant="));
         if (tenantArg is not null)
         {
             var tenantId = tenantArg.Split("=")[1];
@@ -51,7 +51,7 @@ public class Program
         builder.Services.AddTransient<IFollowerRepository, FollowerRepository>();
         builder.Services.AddTransient<IFollowerService, FollowerService>();
 
-        builder.Services.AddDbContext<SocialNetworkContext>((sp, options) =>
+        builder.Services.AddDbContext<SocialNetworkContext>((sp, o) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
@@ -64,18 +64,19 @@ public class Program
             {
                 throw new Exception("Connection string inválida");
             }
-            options.UseNpgsql(connString, b => b.MigrationsAssembly("Fenicia.Module.SocialNetwork")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
+
+            o.UseNpgsql(connString, b => b.MigrationsAssembly("Fenicia.Module.SocialNetwork")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });
 
-        builder.Services.AddAuthentication(x =>
+        builder.Services.AddAuthentication(o =>
         {
-            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(x =>
+            o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(o =>
         {
-            x.RequireHttpsMetadata = false;
-            x.SaveToken = true;
-            x.TokenValidationParameters = new TokenValidationParameters
+            o.RequireHttpsMetadata = false;
+            o.SaveToken = true;
+            o.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
@@ -94,9 +95,9 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.MapScalarApiReference(x =>
+            app.MapScalarApiReference(o =>
             {
-                x.Authentication = new ScalarAuthenticationOptions
+                o.Authentication = new ScalarAuthenticationOptions
                 {
                     PreferredSecuritySchemes = ["Bearer "]
                 };
@@ -107,7 +108,7 @@ public class Program
         app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
 
-        app.UseWhen(context => context.Request.Path.StartsWithSegments("/socialnetwork"), appBuilder => appBuilder.UseModuleRequirement("socialnetwork"));
+        app.UseWhen(o => o.Request.Path.StartsWithSegments("/socialnetwork"), appBuilder => appBuilder.UseModuleRequirement("socialnetwork"));
 
         app.MapControllers();
 

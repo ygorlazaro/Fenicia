@@ -5,38 +5,38 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 
 public class InventoryService(IProductRepository productRepository) : IInventoryService
 {
-    public async Task<InventoryResponse> GetInventoryByProductAsync(Guid productId, CancellationToken cancellationToken, int page = 1, int perPage = 10)
+    public async Task<InventoryResponse> GetInventoryByProductAsync(Guid productId, CancellationToken ct, int page = 1, int perPage = 10)
     {
-        var productInventory = await productRepository.GetInventoryAsync(productId, cancellationToken, page, perPage);
+        var productInventory = await productRepository.GetInventoryAsync(productId, ct, page, perPage);
 
-        var inventory = InventoryResponse.Convert(productInventory);
-        inventory.TotalCostPrice = await productRepository.GetTotalCostPriceByProductAsync(productId, cancellationToken);
-        inventory.TotalSalesPrice = await productRepository.GetTotalSalesPriceProductAsync(productId, cancellationToken);
-        inventory.TotalQuantity = await productRepository.GetTotalQuantityProductAsync(productId, cancellationToken);
+        var inventory = InventoryResponse.Map(productInventory);
+        inventory.TotalCostPrice = await productRepository.GetTotalCostPriceByProductAsync(productId, ct);
+        inventory.TotalSalesPrice = await productRepository.GetTotalSalesPriceProductAsync(productId, ct);
+        inventory.TotalQuantity = await productRepository.GetTotalQuantityProductAsync(productId, ct);
 
         return inventory;
     }
 
-    public async Task<InventoryResponse> GetInventoryByCategoryAsync(Guid categoryId, CancellationToken cancellationToken, int page = 1, int perPage = 10)
+    public async Task<InventoryResponse> GetInventoryByCategoryAsync(Guid categoryId, CancellationToken ct, int page = 1, int perPage = 10)
     {
-        var productInventory = await productRepository.GetInventoryByCategoryAsync(categoryId, cancellationToken, page, perPage);
+        var productInventory = await productRepository.GetInventoryByCategoryAsync(categoryId, ct, page, perPage);
 
-        var inventory = InventoryResponse.Convert(productInventory);
-        inventory.TotalCostPrice = await productRepository.GetTotalCostPriceByCategoryAsync(categoryId, cancellationToken);
-        inventory.TotalSalesPrice = await productRepository.GetTotalSalesPriceCategoryAsync(categoryId, cancellationToken);
-        inventory.TotalQuantity = await productRepository.GetTotalQuantityCategoryAsync(categoryId, cancellationToken);
+        var inventory = InventoryResponse.Map(productInventory);
+        inventory.TotalCostPrice = await productRepository.GetTotalCostPriceByCategoryAsync(categoryId, ct);
+        inventory.TotalSalesPrice = await productRepository.GetTotalSalesPriceCategoryAsync(categoryId, ct);
+        inventory.TotalQuantity = await productRepository.GetTotalQuantityCategoryAsync(categoryId, ct);
 
         return inventory;
     }
 
-    public async Task<InventoryResponse> GetInventoryAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10)
+    public async Task<InventoryResponse> GetInventoryAsync(CancellationToken ct, int page = 1, int perPage = 10)
     {
-        var productInventory = await productRepository.GetInventoryAsync(cancellationToken, page, perPage);
+        var productInventory = await productRepository.GetInventoryAsync(ct, page, perPage);
 
-        var inventory = InventoryResponse.Convert(productInventory);
-        inventory.TotalCostPrice = await productRepository.GetTotalCostPriceAsync(cancellationToken);
-        inventory.TotalSalesPrice = await productRepository.GetTotalSalesPriceAsync(cancellationToken);
-        inventory.TotalQuantity = await productRepository.GetTotalQuantityAsync(cancellationToken);
+        var inventory = InventoryResponse.Map(productInventory);
+        inventory.TotalCostPrice = await productRepository.GetTotalCostPriceAsync(ct);
+        inventory.TotalSalesPrice = await productRepository.GetTotalSalesPriceAsync(ct);
+        inventory.TotalQuantity = await productRepository.GetTotalQuantityAsync(ct);
 
         return inventory;
     }

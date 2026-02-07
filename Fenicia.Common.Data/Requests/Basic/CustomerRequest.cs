@@ -19,42 +19,54 @@ public class CustomerRequest
         set;
     }
 
+    [Required]
+    [MaxLength(50)]
     public string City
     {
         get;
         set;
     }
 
+    [MaxLength(50)]
     public string Complement
     {
         get;
         set;
     }
 
+    [MaxLength(50)]
+    [Required]
     public string Neighborhood
     {
         get;
         set;
     }
 
+    [MaxLength(50)]
+    [Required]
     public string Number
     {
         get;
         set;
     }
 
+    [Required]
     public Guid StateId
     {
         get;
         set;
     }
 
+    [Required]
+    [MaxLength(50)]
     public string Street
     {
         get;
         set;
     }
 
+    [MaxLength(58)]
+    [Required]
     public string ZipCode
     {
         get;

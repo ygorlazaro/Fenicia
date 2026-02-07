@@ -11,17 +11,17 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 public class EmployeeController(IEmployeeService employeeService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAsync(CancellationToken ct)
     {
-        var employees = await employeeService.GetAllAsync(cancellationToken);
+        var employees = await employeeService.GetAllAsync(ct);
 
         return Ok(employees);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var employee = await employeeService.GetByIdAsync(id, cancellationToken);
+        var employee = await employeeService.GetByIdAsync(id, ct);
 
         if (employee is null)
         {
@@ -32,17 +32,17 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] EmployeeRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostAsync([FromBody] EmployeeRequest request, CancellationToken ct)
     {
-        var employee = await employeeService.AddAsync(request, cancellationToken);
+        var employee = await employeeService.AddAsync(request, ct);
 
         return new CreatedResult(string.Empty, employee);
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] EmployeeRequest request, [FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> PatchAsync([FromBody] EmployeeRequest request, [FromRoute] Guid id, CancellationToken ct)
     {
-        var employee = await employeeService.UpdateAsync(request, cancellationToken);
+        var employee = await employeeService.UpdateAsync(request, ct);
 
         if (employee is null)
         {
@@ -53,9 +53,9 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        await employeeService.DeleteAsync(id, cancellationToken);
+        await employeeService.DeleteAsync(id, ct);
 
         return NoContent();
     }

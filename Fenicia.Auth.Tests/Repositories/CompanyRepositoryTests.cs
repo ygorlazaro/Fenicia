@@ -149,8 +149,8 @@ public class CompanyRepositoryTests
         await context.UserRoles.AddRangeAsync(userRoles, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        var page1 = await sut.GetByUserIdAsync(userId, true, cancellationToken, 1, 10);
-        var page2 = await sut.GetByUserIdAsync(userId, true, cancellationToken, 2, 10);
+        var page1 = await sut.GetByUserIdAsync(userId, true, cancellationToken);
+        var page2 = await sut.GetByUserIdAsync(userId, true, cancellationToken, 2);
 
         using (Assert.EnterMultipleScope())
         {

@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Responses.Auth;
 
@@ -33,10 +32,5 @@ public class OrderResponse
     public decimal TotalAmount
     {
         get; set;
-    }
-
-    public static OrderResponse Convert(OrderModel order)
-    {
-        return new OrderResponse { Id = order.Id, SaleDate = order.SaleDate, Status = order.Status, TotalAmount = order.TotalAmount };
     }
 }

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Models.Basic;
 

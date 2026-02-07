@@ -1,40 +1,41 @@
+using Fenicia.Common.Data.Mappers.Auth;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Responses.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Auth.Domains.Module;
 
 public class ModuleService(IModuleRepository moduleRepository) : IModuleService
 {
-    public async Task<List<ModuleResponse>> GetAllOrderedAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10)
+    public async Task<List<ModuleResponse>> GetAllOrderedAsync(CancellationToken ct, int page = 1, int perPage = 10)
     {
-        var modules = await moduleRepository.GetAllAsync(cancellationToken, page, perPage);
+        var modules = await moduleRepository.GetAllAsync(ct, page, perPage);
 
-        return ModuleResponse.Convert(modules);
+        return ModuleMapper.Map(modules);
     }
 
-    public async Task<List<ModuleResponse>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken cancellationToken)
+    public async Task<List<ModuleResponse>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
         var enumerable = request as Guid[] ?? [.. request];
-        var modules = await moduleRepository.GetManyOrdersAsync(enumerable, cancellationToken);
-        var response = ModuleResponse.Convert(modules);
+        var modules = await moduleRepository.GetManyOrdersAsync(enumerable, ct);
+        var response = ModuleMapper.Map(modules);
 
         return response;
     }
 
-    public async Task<ModuleResponse?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken cancellationToken)
+    public async Task<ModuleResponse?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
     {
-        var module = await moduleRepository.GetModuleByTypeAsync(moduleType, cancellationToken);
+        var module = await moduleRepository.GetModuleByTypeAsync(moduleType, ct);
 
-        return module is null ? null : ModuleResponse.Convert(module);
+        return module is null ? null : ModuleMapper.Map(module);
     }
 
-    public async Task<int> CountAsync(CancellationToken cancellationToken)
+    public async Task<int> CountAsync(CancellationToken ct)
     {
-        return await moduleRepository.CountAsync(cancellationToken);
+        return await moduleRepository.CountAsync(ct);
     }
 
-    public async Task<List<ModuleResponse>> LoadModulesAtDatabaseAsync(CancellationToken cancellationToken)
+    public async Task<List<ModuleResponse>> LoadModulesAtDatabaseAsync(CancellationToken ct)
     {
         var modulesToSave = new List<ModuleModel>
                             {
@@ -53,22 +54,22 @@ public class ModuleService(IModuleRepository moduleRepository) : IModuleService
                                 new () { Name = "Plus", Price = 20, Type = ModuleType.Plus }
                             };
 
-        var response = await moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, cancellationToken);
+        var response = await moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, ct);
 
-        return ModuleResponse.Convert(response);
+        return ModuleMapper.Map(response);
     }
 
-    public async Task<List<ModuleResponse>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
+    public async Task<List<ModuleResponse>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken ct)
     {
-        var userModules = await moduleRepository.GetUserModulesAsync(userId, companyId, cancellationToken);
+        var userModules = await moduleRepository.GetUserModulesAsync(userId, companyId, ct);
 
-        return ModuleResponse.Convert(userModules);
+        return ModuleMapper.Map(userModules);
     }
 
-    public async Task<List<ModuleResponse>> GetModuleAndSubmoduleAsync(Guid userId, Guid companyId, CancellationToken cancellationToken)
+    public async Task<List<ModuleResponse>> GetModuleAndSubmoduleAsync(Guid userId, Guid companyId, CancellationToken ct)
     {
-        var modules = await moduleRepository.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+        var modules = await moduleRepository.GetModuleAndSubmoduleAsync(userId, companyId, ct);
 
-        return ModuleResponse.Convert(modules);
+        return ModuleMapper.Map(modules);
     }
 }

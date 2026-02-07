@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Converters.Basic;
+using Fenicia.Common.Data.Mappers.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 
@@ -6,46 +6,46 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 
 public class SupplierService(ISupplierRepository supplierRepository) : ISupplierService
 {
-    public async Task<List<SupplierResponse>> GetAllAsync(CancellationToken cancellationToken, int page = 1, int perPage = 1)
+    public async Task<List<SupplierResponse>> GetAllAsync(CancellationToken ct, int page = 1, int perPage = 1)
     {
-        var suppliers = await supplierRepository.GetAllAsync(cancellationToken, page, perPage);
+        var suppliers = await supplierRepository.GetAllAsync(ct, page, perPage);
 
-        return SupplierConverter.Convert(suppliers);
+        return SupplierMapper.Map(suppliers);
     }
 
-    public async Task<SupplierResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<SupplierResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var supplier = await supplierRepository.GetByIdAsync(id, cancellationToken);
+        var supplier = await supplierRepository.GetByIdAsync(id, ct);
 
-        return supplier is null ? null : SupplierConverter.Convert(supplier);
+        return supplier is null ? null : SupplierMapper.Map(supplier);
     }
 
-    public async Task<SupplierResponse?> AddAsync(SupplierRequest request, CancellationToken cancellationToken)
+    public async Task<SupplierResponse?> AddAsync(SupplierRequest request, CancellationToken ct)
     {
-        var supplier = SupplierConverter.Convert(request);
+        var supplier = SupplierMapper.Map(request);
 
         supplierRepository.Add(supplier);
 
-        await supplierRepository.SaveChangesAsync(cancellationToken);
+        await supplierRepository.SaveChangesAsync(ct);
 
-        return SupplierConverter.Convert(supplier);
+        return SupplierMapper.Map(supplier);
     }
 
-    public async Task<SupplierResponse?> UpdateAsync(SupplierRequest request, CancellationToken cancellationToken)
+    public async Task<SupplierResponse?> UpdateAsync(SupplierRequest request, CancellationToken ct)
     {
-        var supplier = SupplierConverter.Convert(request);
+        var supplier = SupplierMapper.Map(request);
 
         supplierRepository.Update(supplier);
 
-        await supplierRepository.SaveChangesAsync(cancellationToken);
+        await supplierRepository.SaveChangesAsync(ct);
 
-        return SupplierConverter.Convert(supplier);
+        return SupplierMapper.Map(supplier);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid id, CancellationToken ct)
     {
         supplierRepository.Delete(id);
 
-        await supplierRepository.SaveChangesAsync(cancellationToken);
+        await supplierRepository.SaveChangesAsync(ct);
     }
 }

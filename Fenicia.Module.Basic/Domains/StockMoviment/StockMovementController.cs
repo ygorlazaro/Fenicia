@@ -12,17 +12,17 @@ namespace Fenicia.Module.Basic.Domains.StockMoviment;
 public class StockMovementController(IStockMovementService stockMovementService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync([FromQuery] StockMovementQuery query, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAsync([FromQuery] StockMovementQuery query, CancellationToken ct)
     {
-        var stockMovimentation = await stockMovementService.GetMovementAsync(query.StartDate, query.EndDate, cancellationToken, query.Page, query.PerPage);
+        var stockMovimentation = await stockMovementService.GetMovementAsync(query.StartDate, query.EndDate, ct, query.Page, query.PerPage);
 
         return Ok(stockMovimentation);
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] StockMovementRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostAsync([FromBody] StockMovementRequest request, CancellationToken ct)
     {
-        var stockMovimentation = await stockMovementService.AddAsync(request, cancellationToken);
+        var stockMovimentation = await stockMovementService.AddAsync(request, ct);
 
         return new CreatedResult(string.Empty, stockMovimentation);
     }

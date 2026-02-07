@@ -1,13 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Common.Data.Requests.Basic;
 
 public class OrderDetailRequest
 {
+    [Required]
     public Guid ProductId
     {
         get;
         set;
     }
 
+    [Required]
     public decimal Price
     {
         get;
@@ -26,6 +30,7 @@ public class OrderDetailRequest
         set;
     }
 
+    [Required]
     public double Quantity
     {
         get;

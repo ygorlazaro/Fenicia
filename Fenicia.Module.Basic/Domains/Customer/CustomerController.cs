@@ -11,17 +11,17 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 public class CustomerController(ICustomerService customerService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAsync(CancellationToken ct)
     {
-        var customers = await customerService.GetAllAsync(cancellationToken);
+        var customers = await customerService.GetAllAsync(ct);
 
         return Ok(customers);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var customer = await customerService.GetByIdAsync(id, cancellationToken);
+        var customer = await customerService.GetByIdAsync(id, ct);
 
         if (customer is null)
         {
@@ -32,17 +32,17 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] CustomerRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostAsync([FromBody] CustomerRequest request, CancellationToken ct)
     {
-        var customer = await customerService.AddAsync(request, cancellationToken);
+        var customer = await customerService.AddAsync(request, ct);
 
         return new CreatedResult(string.Empty, customer);
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] CustomerRequest request, [FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> PatchAsync([FromBody] CustomerRequest request, [FromRoute] Guid id, CancellationToken ct)
     {
-        var customer = await customerService.UpdateAsync(request, cancellationToken);
+        var customer = await customerService.UpdateAsync(request, ct);
 
         if (customer is null)
         {
@@ -53,9 +53,9 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        await customerService.DeleteAsync(id, cancellationToken);
+        await customerService.DeleteAsync(id, ct);
 
         return NoContent();
     }

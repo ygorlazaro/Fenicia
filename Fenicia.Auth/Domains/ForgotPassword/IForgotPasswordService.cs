@@ -5,7 +5,7 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 
 public interface IForgotPasswordService
 {
-    Task<ForgotPasswordResponse?> ResetPasswordAsync(ForgotPasswordRequestReset request, CancellationToken cancellationToken);
+    Task<ForgotPasswordResponse?> ResetPasswordAsync(ForgotPasswordRequestReset request, CancellationToken ct);
 
-    Task<ForgotPasswordResponse?> SaveForgotPasswordAsync(ForgotPasswordRequest forgotPassword, CancellationToken cancellationToken);
+    Task<ForgotPasswordResponse?> SaveForgotPasswordAsync(ForgotPasswordRequest forgotPassword, CancellationToken ct);
 }

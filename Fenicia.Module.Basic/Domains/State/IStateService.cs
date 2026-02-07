@@ -4,5 +4,5 @@ namespace Fenicia.Module.Basic.Domains.State;
 
 public interface IStateService
 {
-    Task<List<StateModel>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<StateModel>> GetAllAsync(CancellationToken ct);
 }

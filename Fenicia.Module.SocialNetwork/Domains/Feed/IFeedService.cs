@@ -5,7 +5,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
 public interface IFeedService
 {
-    Task<List<FeedResponse>> GetFollowingFeedAsync(Guid userId, CancellationToken cancellationToken, int page = 1, int perPage = 10);
+    Task<List<FeedResponse>> GetFollowingFeedAsync(Guid userId, CancellationToken ct, int page = 1, int perPage = 10);
 
-    Task<FeedResponse> AddAsync(Guid userId, FeedRequest request, CancellationToken cancellationToken);
+    Task<FeedResponse> AddAsync(Guid userId, FeedRequest request, CancellationToken ct);
 }

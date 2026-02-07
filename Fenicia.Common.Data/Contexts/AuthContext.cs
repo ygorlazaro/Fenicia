@@ -32,7 +32,7 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
 
     public DbSet<SubmoduleModel> Submodules { get; set; } = null!;
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellation = default)
+    public override Task<int> SaveChangesAsync(CancellationToken ct)
     {
         foreach (var item in ChangeTracker.Entries())
         {
@@ -55,24 +55,14 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
             }
         }
 
-        return base.SaveChangesAsync(cancellation);
+        return base.SaveChangesAsync(ct);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
-        AddSoftDeleteSupport(modelBuilder);
+        SoftDeleteQueryExtension.AddSoftDeleteSupport(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
-    }
-
-    private static void AddSoftDeleteSupport(ModelBuilder modelBuilder)
-    {
-        var mutableEntityTypes = modelBuilder.Model.GetEntityTypes().Where(entityType => typeof(BaseModel).IsAssignableFrom(entityType.ClrType));
-
-        foreach (var entityType in mutableEntityTypes)
-        {
-            entityType.AddSoftDeleteQueryFilter();
-        }
     }
 }

@@ -19,7 +19,7 @@ public class AddressModel : BaseModel
     public string Complement { get; set; } = null!;
 
     [Required]
-    [MaxLength(9)]
+    [MaxLength(8)]
     public string ZipCode { get; set; } = null!;
 
     [Required]

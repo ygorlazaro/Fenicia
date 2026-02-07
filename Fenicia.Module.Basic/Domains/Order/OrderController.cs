@@ -13,19 +13,19 @@ namespace Fenicia.Module.Basic.Domains.Order;
 public class OrderController(IOrderService orderService, IOrderDetailService orderDetailService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreateOrderAsync([FromBody] OrderRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateOrderAsync([FromBody] OrderRequest request, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(User);
         request.UserId = userId;
-        var order = await orderService.AddAsync(request, cancellationToken);
+        var order = await orderService.AddAsync(request, ct);
 
         return new CreatedResult(string.Empty, order);
     }
 
     [HttpGet("{id:guid}/detail")]
-    public async Task<IActionResult> GetDetailsAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetDetailsAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var details = await orderDetailService.GetByOrderIdAsync(id, cancellationToken);
+        var details = await orderDetailService.GetByOrderIdAsync(id, ct);
 
         return Ok(details);
     }

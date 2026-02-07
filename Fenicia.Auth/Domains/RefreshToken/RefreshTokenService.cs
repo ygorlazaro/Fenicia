@@ -24,13 +24,13 @@ public sealed class RefreshTokenService(IRefreshTokenRepository refreshTokenRepo
         return refreshToken.Token;
     }
 
-    public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
+    public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken ct)
     {
-        return await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, cancellationToken);
+        return await refreshTokenRepository.ValidateTokenAsync(userId, refreshToken, ct);
     }
 
-    public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+    public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken ct)
     {
-        await refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken, cancellationToken);
+        await refreshTokenRepository.InvalidateRefreshTokenAsync(refreshToken, ct);
     }
 }

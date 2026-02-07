@@ -10,7 +10,7 @@ public class RedisLoginAttemptService(IConnectionMultiplexer redis) : ILoginAtte
 
     private readonly TimeSpan expiration = TimeSpan.FromMinutes(15);
 
-    public async Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
+    public async Task<int> GetAttemptsAsync(string email, CancellationToken ct)
     {
         var key = GetKey(email);
         var attempts = await db.StringGetAsync(key);
@@ -29,7 +29,7 @@ public class RedisLoginAttemptService(IConnectionMultiplexer redis) : ILoginAtte
         }
     }
 
-    public async Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
+    public async Task ResetAttemptsAsync(string email, CancellationToken ct)
     {
         await db.KeyDeleteAsync(GetKey(email));
     }

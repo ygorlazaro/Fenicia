@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Subscription;
@@ -5,7 +7,7 @@ using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Requests.Auth;
 using Fenicia.Common.Data.Responses.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Migrations.Services;
 
@@ -202,7 +204,7 @@ public class OrderServiceTests
         var basicResponse = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Price = 1, Type = ModuleType.Basic };
         moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync([basicResponse]);
 
-        var method = typeof(OrderService).GetMethod("PopulateModules", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        var method = typeof(OrderService).GetMethod("PopulateModules", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
 
         var resultTask = (Task<List<ModuleModel>?>)method!.Invoke(sut!, [request, cancellationToken])!;

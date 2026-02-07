@@ -20,13 +20,13 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(OrderRequest request, [FromHeader] Headers headers, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(OrderRequest request, [FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(User).ToString();
 
         var userId = ClaimReader.UserId(User);
         var companyId = headers.CompanyId;
-        var order = await orderService.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
+        var order = await orderService.CreateNewOrderAsync(userId, companyId, request, ct);
 
         return Ok(order);
     }

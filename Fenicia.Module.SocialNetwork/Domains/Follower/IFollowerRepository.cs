@@ -5,7 +5,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Follower;
 
 public interface IFollowerRepository: IBaseRepository<FollowerModel>
 {
-    Task<FollowerModel?> FindFollowerAsync(Guid userId, Guid followerId, CancellationToken cancellationToken);
+    Task<FollowerModel?> FindFollowerAsync(Guid userId, Guid followerId, CancellationToken ct);
 
-    Task<List<FollowerModel>> GetFollowersAsync(Guid userId, CancellationToken cancellationToken, int page, int perPage);
+    Task<List<FollowerModel>> GetFollowersAsync(Guid userId, CancellationToken ct, int page, int perPage);
 }

@@ -15,27 +15,27 @@ public class UserController(IModuleService moduleService, IUserRoleService userR
 {
     [HttpGet("module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
-    public async Task<ActionResult<List<ModuleResponse>>> GetUserModulesAsync([FromHeader] Headers headers, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<ModuleResponse>>> GetUserModulesAsync([FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(User);
         var companyId = headers.CompanyId;
 
         wide.UserId = userId.ToString();
 
-        var response = await moduleService.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+        var response = await moduleService.GetModuleAndSubmoduleAsync(userId, companyId, ct);
 
         return Ok(response);
     }
 
     [HttpGet("company")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompanyResponse))]
-    public async Task<ActionResult<CompanyResponse>> GetUserCompanyAsync(WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<CompanyResponse>> GetUserCompanyAsync(WideEventContext wide, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(User);
 
         wide.UserId = userId.ToString();
 
-        var response = await userRoleService.GetUserCompaniesAsync(userId, cancellationToken);
+        var response = await userRoleService.GetUserCompaniesAsync(userId, ct);
 
         return Ok(response);
     }

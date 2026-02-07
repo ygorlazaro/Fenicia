@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Responses.Auth;
 
@@ -31,40 +30,4 @@ public class ModuleResponse
 
     [JsonPropertyName("submodules")]
     public SubmoduleResponse[] Submodules { get; set; } = [];
-
-    public static ModuleResponse Convert(ModuleModel module)
-    {
-        return new ModuleResponse
-        {
-            Id = module.Id,
-            Name = module.Name,
-            Price = module.Price,
-            Type = module.Type,
-            Submodules = SubmoduleResponse.Convert(module.Submodules)
-        };
-    }
-
-    public static List<ModuleResponse> Convert(List<ModuleModel> modules)
-    {
-        return [.. modules.Select(Convert)];
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is not ModuleResponse other)
-        {
-            return false;
-        }
-
-        return Id == other.Id &&
-               Name == other.Name &&
-               Price == other.Price &&
-               Type == other.Type &&
-               Submodules.SequenceEqual(other.Submodules);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Id, Name, Price, Type, Submodules);
-    }
 }

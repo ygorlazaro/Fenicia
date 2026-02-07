@@ -19,7 +19,8 @@ public class FollowerModel:BaseModel
     {
         get;
         set;
-    } = true;
+    } 
+= true;
 
     [ForeignKey(nameof(UserId))]
     public UserModel User { get; set; }

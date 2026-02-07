@@ -4,7 +4,7 @@ public interface IRefreshTokenRepository
 {
     void Add(RefreshToken refreshToken);
 
-    Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken);
+    Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken ct);
 
-    Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken);
+    Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken ct);
 }

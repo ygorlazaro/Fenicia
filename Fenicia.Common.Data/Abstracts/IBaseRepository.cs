@@ -5,9 +5,9 @@ namespace Fenicia.Common.Data.Abstracts;
 public interface IBaseRepository<T>
     where T : BaseModel
 {
-    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<T?> GetByIdAsync(Guid id, CancellationToken ct);
 
-    Task<List<T>> GetAllAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10 );
+    Task<List<T>> GetAllAsync(CancellationToken ct, int page = 1, int perPage = 10 );
 
     void Add(T entity);
 
@@ -19,11 +19,11 @@ public interface IBaseRepository<T>
 
     void Delete(Guid id);
 
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+    Task<int> SaveChangesAsync(CancellationToken ct);
 
-    Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken);
+    Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct);
 
-    Task<int> CountAsync(Expression<Func<T, bool>>? predicate, CancellationToken cancellationToken);
+    Task<int> CountAsync(Expression<Func<T, bool>>? predicate, CancellationToken ct);
 
-    Task<int> CountAsync(CancellationToken cancellationToken);
+    Task<int> CountAsync(CancellationToken ct);
 }

@@ -5,11 +5,11 @@ namespace Fenicia.Module.SocialNetwork.Domains.User;
 
 public interface IUserService
 {
-    Task<UserResponse> AddAsync(UserRequest request, CancellationToken cancellationToken);
+    Task<UserResponse> AddAsync(UserRequest request, CancellationToken ct);
 
-    Task<UserResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<UserResponse?> GetByIdAsync(Guid id, CancellationToken ct);
 
-    Task<UserResponse?> UpdateAsync(Guid id, UserRequest request, CancellationToken cancellationToken);
+    Task<UserResponse?> UpdateAsync(Guid id, UserRequest request, CancellationToken ct);
 
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task DeleteAsync(Guid id, CancellationToken ct);
 }

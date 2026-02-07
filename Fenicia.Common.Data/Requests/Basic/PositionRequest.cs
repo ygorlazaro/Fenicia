@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Common.Data.Requests.Basic;
 
 public class PositionRequest
@@ -8,6 +10,8 @@ public class PositionRequest
         set;
     }
 
+    [Required]
+    [MaxLength(50)]
     public string Name
     {
         get;

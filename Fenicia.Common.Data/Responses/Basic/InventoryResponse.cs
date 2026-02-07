@@ -14,11 +14,11 @@ public class InventoryResponse
 
     public List<InventoryDetailResponse> Items { get; set; }
 
-    public static InventoryResponse Convert(List<ProductModel> models)
+    public static InventoryResponse Map(List<ProductModel> models)
     {
         var inventory = new InventoryResponse
         {
-            Items = models.Select(p => new InventoryDetailResponse
+            Items = [.. models.Select(p => new InventoryDetailResponse
             {
                 ProductId = p.Id,
                 Quantity = p.Quantity,
@@ -27,7 +27,7 @@ public class InventoryResponse
                 ProductName = p.Name,
                 CategoryName = p.Category.Name,
                 SalesPrice = p.SalesPrice
-            }).ToList()
+            })]
         };
 
         return inventory;

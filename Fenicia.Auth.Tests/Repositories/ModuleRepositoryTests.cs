@@ -3,7 +3,7 @@ using Bogus;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -51,8 +51,8 @@ public class ModuleRepositoryTests
         await context.Modules.AddRangeAsync(modules, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        var page1 = await sut.GetAllAsync(cancellationToken, 1, 10);
-        var page2 = await sut.GetAllAsync(cancellationToken, 2, 10);
+        var page1 = await sut.GetAllAsync(cancellationToken);
+        var page2 = await sut.GetAllAsync(cancellationToken, 2);
 
         using (Assert.EnterMultipleScope())
         {

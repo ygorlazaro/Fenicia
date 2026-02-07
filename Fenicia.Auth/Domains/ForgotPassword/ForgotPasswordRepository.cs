@@ -8,18 +8,18 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 
 public class ForgotPasswordRepository(AuthContext context) : BaseRepository<ForgotPasswordModel>(context), IForgotPasswordRepository
 {
-    public async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken cancellationToken)
+    public async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
         var query = context.ForgottenPasswords
             .Where(fp => fp.UserId == userId && fp.Code == code && fp.IsActive && fp.ExpirationDate >= now);
 
-        return await query.FirstOrDefaultAsync(cancellationToken);
+        return await query.FirstOrDefaultAsync(ct);
     }
 
-    public async Task InvalidateCodeAsync(Guid id, CancellationToken cancellationToken)
+    public async Task InvalidateCodeAsync(Guid id, CancellationToken ct)
     {
-        var forgotPassword = await context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == id, cancellationToken);
+        var forgotPassword = await context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == id, ct);
 
         if (forgotPassword is null)
         {
@@ -30,13 +30,13 @@ public class ForgotPasswordRepository(AuthContext context) : BaseRepository<Forg
 
         context.Entry(forgotPassword).State = EntityState.Modified;
 
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(ct);
     }
 
-    public async Task<ForgotPasswordModel> SaveForgotPasswordAsync(ForgotPasswordModel forgotPassword, CancellationToken cancellationToken)
+    public async Task<ForgotPasswordModel> SaveForgotPasswordAsync(ForgotPasswordModel forgotPassword, CancellationToken ct)
     {
         context.ForgottenPasswords.Add(forgotPassword);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(ct);
 
         return forgotPassword;
     }
