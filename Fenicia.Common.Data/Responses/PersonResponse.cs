@@ -1,17 +1,7 @@
-using System.ComponentModel.DataAnnotations;
+namespace Fenicia.Common.Data.Responses;
 
-namespace Fenicia.Common.Data.Requests.Basic;
-
-public class EmployeeRequest
+public class PersonResponse
 {
-    public Guid Id
-    {
-        get;
-        set;
-    }
-
-    [Required]
-    [MaxLength(50)]
     public string Name
     {
         get;
@@ -24,69 +14,49 @@ public class EmployeeRequest
         set;
     }
 
-    [Required]
-    public Guid PositionId
-    {
-        get;
-        set;
-    }
-
-    [Required]
-    [MaxLength(50)]
     public string City
     {
         get;
         set;
     }
 
-    [MaxLength(50)]
     public string Complement
     {
         get;
         set;
     }
 
-    [Required]
-    [MaxLength(50)]
     public string Neighborhood
     {
         get;
         set;
     }
 
-    [Required]
-    [MaxLength(11)]
     public string Number
     {
         get;
         set;
     }
 
-    [Required]
-    [MaxLength(2)]
     public Guid StateId
     {
         get;
         set;
     }
 
-    [Required]
-    [MaxLength(50)]
     public string Street
     {
         get;
         set;
     }
 
-    [Required]
-    [MaxLength(8)]
     public string ZipCode
     {
         get;
         set;
     }
 
-    public PersonRequest Person
+    public string PhoneNumber
     {
         get;
         set;

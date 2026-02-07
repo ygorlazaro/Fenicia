@@ -10,16 +10,8 @@ public static class SupplierMapper
     {
         return new SupplierModel
         {
-            Cpf = request.Cpf,
-            Name = request.Name,
-            City = request.City,
-            Complement = request.Complement,
-            Neighborhood = request.Neighborhood,
-            Number = request.Number,
-            StateId = request.StateId,
-            Street = request.Street,
-            ZipCode = request.ZipCode,
-            Id = request.Id
+            Id = request.Id,
+            Person = PersonMapper.Map(request.Person)
         };
     }
 
@@ -27,16 +19,8 @@ public static class SupplierMapper
     {
         return new SupplierResponse
         {
-            Cpf = model.Cpf,
-            Name = model.Name,
             Id = model.Id,
-            City = model.City,
-            Complement = model.Complement,
-            Neighborhood = model.Neighborhood,
-            Number = model.Number,
-            StateId = model.StateId,
-            Street = model.Street,
-            ZipCode = model.ZipCode
+            Person = PersonMapper.Map(model.Person)
         };
     }
 

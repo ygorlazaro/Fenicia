@@ -2,30 +2,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.Data.Requests.Basic;
 
-public class EmployeeRequest
+public class PersonRequest
 {
-    public Guid Id
-    {
-        get;
-        set;
-    }
-
-    [Required]
-    [MaxLength(50)]
+    [Required(ErrorMessage = "Customer name is required")]
+    [StringLength(50, MinimumLength = 2, ErrorMessage = "Customer name must be between 2 and 50 characters")]
     public string Name
     {
         get;
         set;
     }
 
-    public string? Cpf
-    {
-        get;
-        set;
-    }
-
-    [Required]
-    public Guid PositionId
+    [StringLength(11, MinimumLength = 11, ErrorMessage = "CPF must have exactly 11 characters")]
+    public string Cpf
     {
         get;
         set;
@@ -46,16 +34,16 @@ public class EmployeeRequest
         set;
     }
 
-    [Required]
     [MaxLength(50)]
+    [Required]
     public string Neighborhood
     {
         get;
         set;
     }
 
+    [MaxLength(50)]
     [Required]
-    [MaxLength(11)]
     public string Number
     {
         get;
@@ -63,7 +51,6 @@ public class EmployeeRequest
     }
 
     [Required]
-    [MaxLength(2)]
     public Guid StateId
     {
         get;
@@ -78,15 +65,15 @@ public class EmployeeRequest
         set;
     }
 
+    [MaxLength(58)]
     [Required]
-    [MaxLength(8)]
     public string ZipCode
     {
         get;
         set;
     }
 
-    public PersonRequest Person
+    public string PhoneNumber
     {
         get;
         set;

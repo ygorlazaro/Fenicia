@@ -10,15 +10,7 @@ public static class CustomerMapper
     {
         return new CustomerResponse
         {
-            Name = model.Name,
-            Cpf = model.Cpf,
-            City = model.City,
-            Complement = model.Complement,
-            Neighborhood = model.Neighborhood,
-            Number = model.Number,
-            StateId = model.StateId,
-            Street = model.Street,
-            ZipCode = model.ZipCode,
+            Person = PersonMapper.Map(model.Person),
             Id = model.Id
         };
     }
@@ -27,16 +19,8 @@ public static class CustomerMapper
     {
         return new CustomerModel
         {
-            Name = request.Name,
-            Cpf = request.Cpf,
-            City = request.City,
-            Complement = request.Complement,
-            Neighborhood = request.Neighborhood,
-            Number = request.Number,
-            StateId = request.StateId,
-            Street = request.Street,
-            ZipCode = request.ZipCode,
-            Id = request.Id
+            Person = PersonMapper.Map(request.Person),
+            Id = request.Id,
         };
     }
 
