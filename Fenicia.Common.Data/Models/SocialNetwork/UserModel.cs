@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fenicia.Common.Data.Models.SocialNetwork;
 
-public class UserModel: BaseModel
+public class UserModel : BaseModel
 {
     public Guid UserId { get; set; }
 

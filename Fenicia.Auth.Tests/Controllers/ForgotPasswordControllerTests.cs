@@ -17,20 +17,20 @@ public class ForgotPasswordControllerTests
     [SetUp]
     public void Setup()
     {
-        forgotPasswordServiceMock = new Mock<IForgotPasswordService>();
-        sut = new ForgotPasswordController(forgotPasswordServiceMock.Object);
+        this.forgotPasswordServiceMock = new Mock<IForgotPasswordService>();
+        this.sut = new ForgotPasswordController(this.forgotPasswordServiceMock.Object);
     }
 
     [Test]
     public async Task ForgotPasswordSetsWideUserIdAndReturnsResponse()
     {
-        var request = new ForgotPasswordRequest { Email = "a@b.com" };
+        var request = new ForgotPasswordReset { Email = "a@b.com" };
         var wide = new WideEventContext();
         var response = new ForgotPasswordResponse { Id = Guid.NewGuid() };
 
-        forgotPasswordServiceMock.Setup(x => x.SaveForgotPasswordAsync(request, CancellationToken.None)).ReturnsAsync(response);
+        this.forgotPasswordServiceMock.Setup(x => x.SaveForgotPasswordAsync(request, CancellationToken.None)).ReturnsAsync(response);
 
-        var result = await sut.ForgotPassword(request, wide, CancellationToken.None);
+        var result = await this.sut.ForgotPassword(request, wide, CancellationToken.None);
 
         using (Assert.EnterMultipleScope())
         {
@@ -45,13 +45,13 @@ public class ForgotPasswordControllerTests
     [Test]
     public async Task ResetPasswordSetsWideUserIdAndReturnsResponse()
     {
-        var request = new ForgotPasswordRequestReset { Email = "a@b.com", Code = "ABC123", Password = "p" };
+        var request = new ForgotPasswordResetRequest { Email = "a@b.com", Code = "ABC123", Password = "p" };
         var wide = new WideEventContext();
         var response = new ForgotPasswordResponse { Id = Guid.NewGuid() };
 
-        forgotPasswordServiceMock.Setup(x => x.ResetPasswordAsync(request, CancellationToken.None)).ReturnsAsync(response);
+        this.forgotPasswordServiceMock.Setup(x => x.ResetPasswordAsync(request, CancellationToken.None)).ReturnsAsync(response);
 
-        var result = await sut.ResetPassword(request, wide, CancellationToken.None);
+        var result = await this.sut.ResetPassword(request, wide, CancellationToken.None);
 
         using (Assert.EnterMultipleScope())
         {

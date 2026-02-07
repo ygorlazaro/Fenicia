@@ -25,7 +25,7 @@ public sealed class WideEventContext
         get; set;
     }
 
-    public string Operation => $"{Path} {Method}";
+    public string Operation => $"{this.Path} {this.Method}";
 
     public bool Success
     {

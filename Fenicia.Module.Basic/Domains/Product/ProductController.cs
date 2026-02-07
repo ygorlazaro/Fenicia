@@ -23,12 +23,7 @@ public class ProductController(IProductService productService) : ControllerBase
     {
         var product = await productService.GetByIdAsync(id, ct);
 
-        if (product is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(product);
+        return product is null ? NotFound() : Ok(product);
     }
 
     [HttpPost]
@@ -44,12 +39,7 @@ public class ProductController(IProductService productService) : ControllerBase
     {
         var productRequest = await productService.UpdateAsync(request, ct);
 
-        if (productRequest is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(productRequest);
+        return productRequest is null ? NotFound() : Ok(productRequest);
     }
 
     [HttpDelete("{id:guid}")]

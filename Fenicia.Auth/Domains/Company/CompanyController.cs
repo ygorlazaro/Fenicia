@@ -23,7 +23,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(User);
+        var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
         var companies = await companyService.GetByUserIdAsync(userId, ct, query.Page, query.PerPage);
@@ -43,7 +43,7 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<CompanyResponse>> PatchAsync([FromBody] CompanyUpdateRequest request, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(User);
+        var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
         var response = await companyService.PatchAsync(id, userId, request, ct);

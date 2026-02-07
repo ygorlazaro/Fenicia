@@ -3,7 +3,7 @@ using Fenicia.Common.Data.Models.SocialNetwork;
 
 namespace Fenicia.Module.SocialNetwork.Domains.User;
 
-public interface IUserRepository: IBaseRepository<UserModel>
+public interface IUserRepository : IBaseRepository<UserModel>
 {
 
 }

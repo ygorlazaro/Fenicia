@@ -20,18 +20,18 @@ public class ModuleRepositoryTests
     [SetUp]
     public void Setup()
     {
-        options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
-        context = new AuthContext(options);
-        sut = new ModuleRepository(context);
-        faker = new Faker();
+        this.context = new AuthContext(this.options);
+        this.sut = new ModuleRepository(this.context);
+        this.faker = new Faker();
     }
 
     [TearDown]
     public void TearDown()
     {
-        context.Database.EnsureDeleted();
-        context.Dispose();
+        this.context.Database.EnsureDeleted();
+        this.context.Dispose();
     }
 
     [Test]
@@ -44,15 +44,15 @@ public class ModuleRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)((i % 5) + 1),
-                Name = faker.Commerce.ProductName()
+                Name = this.faker.Commerce.ProductName()
             });
         }
 
-        await context.Modules.AddRangeAsync(modules, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var page1 = await sut.GetAllAsync(cancellationToken);
-        var page2 = await sut.GetAllAsync(cancellationToken, 2);
+        var page1 = await this.sut.GetAllAsync(this.cancellationToken);
+        var page2 = await this.sut.GetAllAsync(this.cancellationToken, 2);
 
         using (Assert.EnterMultipleScope())
         {
@@ -66,7 +66,7 @@ public class ModuleRepositoryTests
     [Test]
     public async Task GetAllOrderedAsyncReturnsEmptyListWhenNoModules()
     {
-        var result = await sut.GetAllAsync(cancellationToken);
+        var result = await this.sut.GetAllAsync(this.cancellationToken);
 
         Assert.That(result, Is.Empty);
     }
@@ -83,7 +83,7 @@ public class ModuleRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)i,
-                Name = faker.Commerce.ProductName()
+                Name = this.faker.Commerce.ProductName()
             };
             modules.Add(module);
             if (i < 3)
@@ -92,10 +92,10 @@ public class ModuleRepositoryTests
             }
         }
 
-        await context.Modules.AddRangeAsync(modules, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var result = await sut.GetManyOrdersAsync(requestedIDs, cancellationToken);
+        var result = await this.sut.GetManyOrdersAsync(requestedIDs, this.cancellationToken);
 
         Assert.That(result, Has.Count.EqualTo(3));
         using (Assert.EnterMultipleScope())
@@ -110,7 +110,7 @@ public class ModuleRepositoryTests
     {
         var nonExistentIDs = new[] { Guid.NewGuid(), Guid.NewGuid() };
 
-        var result = await sut.GetManyOrdersAsync(nonExistentIDs, cancellationToken);
+        var result = await this.sut.GetManyOrdersAsync(nonExistentIDs, this.cancellationToken);
 
         Assert.That(result, Is.Empty);
     }
@@ -122,20 +122,20 @@ public class ModuleRepositoryTests
         var companyId = Guid.NewGuid();
 
         var module = new ModuleModel { Id = Guid.NewGuid(), Name = "M1", Type = ModuleType.Basic };
-        await context.Modules.AddAsync(module, cancellationToken);
+        await this.context.Modules.AddAsync(module, this.cancellationToken);
 
         var subscription = new SubscriptionModel { Id = Guid.NewGuid(), CompanyId = companyId, Status = SubscriptionStatus.Active, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
-        await context.Subscriptions.AddAsync(subscription, cancellationToken);
+        await this.context.Subscriptions.AddAsync(subscription, this.cancellationToken);
 
         var credit = new SubscriptionCreditModel { Id = Guid.NewGuid(), SubscriptionId = subscription.Id, ModuleId = module.Id, IsActive = true, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
-        await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
+        await this.context.SubscriptionCredits.AddAsync(credit, this.cancellationToken);
 
         var userRole = new UserRoleModel { UserId = userId, CompanyId = companyId };
-        await context.UserRoles.AddAsync(userRole, cancellationToken);
+        await this.context.UserRoles.AddAsync(userRole, this.cancellationToken);
 
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var result = await sut.GetUserModulesAsync(userId, companyId, cancellationToken);
+        var result = await this.sut.GetUserModulesAsync(userId, companyId, this.cancellationToken);
 
         Assert.That(result, Is.Not.Empty);
         Assert.That(result.First().Id, Is.EqualTo(module.Id));
@@ -151,20 +151,20 @@ public class ModuleRepositoryTests
         var sub = new SubmoduleModel { Id = Guid.NewGuid(), Name = "s", Route = "/s", ModuleId = module.Id };
         module.Submodules = [sub];
 
-        await context.Modules.AddAsync(module, cancellationToken);
+        await this.context.Modules.AddAsync(module, this.cancellationToken);
 
         var subscription = new SubscriptionModel { Id = Guid.NewGuid(), CompanyId = companyId, Status = SubscriptionStatus.Active, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
-        await context.Subscriptions.AddAsync(subscription, cancellationToken);
+        await this.context.Subscriptions.AddAsync(subscription, this.cancellationToken);
 
         var credit = new SubscriptionCreditModel { Id = Guid.NewGuid(), SubscriptionId = subscription.Id, ModuleId = module.Id, IsActive = true, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
-        await context.SubscriptionCredits.AddAsync(credit, cancellationToken);
+        await this.context.SubscriptionCredits.AddAsync(credit, this.cancellationToken);
 
         var userRole = new UserRoleModel { UserId = userId, CompanyId = companyId };
-        await context.UserRoles.AddAsync(userRole, cancellationToken);
+        await this.context.UserRoles.AddAsync(userRole, this.cancellationToken);
 
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var result = await sut.GetModuleAndSubmoduleAsync(userId, companyId, cancellationToken);
+        var result = await this.sut.GetModuleAndSubmoduleAsync(userId, companyId, this.cancellationToken);
 
         Assert.That(result, Is.Not.Empty);
         Assert.That(result.First().Submodules, Is.Not.Null.And.Not.Empty);
@@ -179,13 +179,13 @@ public class ModuleRepositoryTests
         {
             Id = Guid.NewGuid(),
             Type = moduleType,
-            Name = faker.Commerce.ProductName()
+            Name = this.faker.Commerce.ProductName()
         };
 
-        await context.Modules.AddAsync(module, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.Modules.AddAsync(module, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var result = await sut.GetModuleByTypeAsync(moduleType, cancellationToken);
+        var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
 
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -198,7 +198,7 @@ public class ModuleRepositoryTests
     [Test]
     public async Task GetModuleByTypeAsyncReturnsNullWhenNotExists()
     {
-        var result = await sut.GetModuleByTypeAsync(ModuleType.Accounting, cancellationToken);
+        var result = await this.sut.GetModuleByTypeAsync(ModuleType.Accounting, this.cancellationToken);
 
         Assert.That(result, Is.Null);
     }
@@ -215,14 +215,14 @@ public class ModuleRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)i,
-                Name = faker.Commerce.ProductName()
+                Name = this.faker.Commerce.ProductName()
             });
         }
 
-        await context.Modules.AddRangeAsync(modules, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var count = await sut.CountAsync(cancellationToken);
+        var count = await this.sut.CountAsync(this.cancellationToken);
 
         Assert.That(count, Is.EqualTo(expectedCount));
     }
@@ -230,7 +230,7 @@ public class ModuleRepositoryTests
     [Test]
     public async Task CountAsyncReturnsZeroWhenNoModules()
     {
-        var count = await sut.CountAsync(cancellationToken);
+        var count = await this.sut.CountAsync(this.cancellationToken);
 
         Assert.That(count, Is.Zero);
     }
@@ -245,7 +245,7 @@ public class ModuleRepositoryTests
             new () { Id = Guid.NewGuid(), Name = "P", Type = ModuleType.Pos }
         };
 
-        var result = await sut.LoadModulesAtDatabaseAsync(modules, cancellationToken);
+        var result = await this.sut.LoadModulesAtDatabaseAsync(modules, this.cancellationToken);
 
         Assert.That(result, Has.Count.EqualTo(3));
         Assert.That(result, Is.Ordered.By("Type"));
@@ -262,17 +262,17 @@ public class ModuleRepositoryTests
             {
                 Id = Guid.NewGuid(),
                 Type = (ModuleType)((i % 5) + 1),
-                Name = faker.Commerce.ProductName()
+                Name = this.faker.Commerce.ProductName()
             });
         }
 
-        await context.Modules.AddRangeAsync(modules, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var page1Size5 = await sut.GetAllAsync(cancellationToken, 1, 5);
+        var page1Size5 = await this.sut.GetAllAsync(this.cancellationToken, 1, 5);
         Assert.That(page1Size5, Has.Count.EqualTo(5));
 
-        var page2Size15 = await sut.GetAllAsync(cancellationToken, 2, 15);
+        var page2Size15 = await this.sut.GetAllAsync(this.cancellationToken, 2, 15);
         Assert.That(page2Size15, Has.Count.EqualTo(10));
     }
 }

@@ -13,8 +13,8 @@ public class SubmoduleServiceTests
     [SetUp]
     public void Setup()
     {
-        repoMock = new Mock<ISubmoduleRepository>();
-        sut = new SubmoduleService(repoMock.Object);
+        this.repoMock = new Mock<ISubmoduleRepository>();
+        this.sut = new SubmoduleService(this.repoMock.Object);
     }
 
     [Test]
@@ -27,9 +27,9 @@ public class SubmoduleServiceTests
             new() { Name = "S2", Route = "/s2", ModuleId = moduleId, Description = "d2" }
         };
 
-        repoMock.Setup(r => r.GetByModuleIdAsync(moduleId, It.IsAny<CancellationToken>())).ReturnsAsync(items);
+        this.repoMock.Setup(r => r.GetByModuleIdAsync(moduleId, It.IsAny<CancellationToken>())).ReturnsAsync(items);
 
-        var result = await sut!.GetByModuleIdAsync(moduleId, CancellationToken.None);
+        var result = await this.sut!.GetByModuleIdAsync(moduleId, CancellationToken.None);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Has.Count.EqualTo(2));

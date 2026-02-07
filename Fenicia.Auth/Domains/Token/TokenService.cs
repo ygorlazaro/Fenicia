@@ -15,7 +15,7 @@ public class TokenService : ITokenService
 
     public string GenerateToken(UserResponse user)
     {
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
+        var key = Encoding.ASCII.GetBytes(this.configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
         var authClaims = GenerateClaims(user);
         var authSigningKey = new SymmetricSecurityKey(key);
         var tokenDescriptor = new SecurityTokenDescriptor

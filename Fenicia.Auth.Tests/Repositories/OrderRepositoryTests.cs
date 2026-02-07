@@ -19,18 +19,18 @@ public class OrderRepositoryTests
     [SetUp]
     public void Setup()
     {
-        options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
 
-        context = new AuthContext(options);
-        sut = new OrderRepository(context);
-        faker = new Faker();
+        this.context = new AuthContext(this.options);
+        this.sut = new OrderRepository(this.context);
+        this.faker = new Faker();
     }
 
     [TearDown]
     public void TearDown()
     {
-        context.Database.EnsureDeleted();
-        context.Dispose();
+        this.context.Database.EnsureDeleted();
+        this.context.Dispose();
     }
 
     [Test]
@@ -43,11 +43,11 @@ public class OrderRepositoryTests
             UserId = Guid.NewGuid()
         };
 
-        sut.Add(order);
+        this.sut.Add(order);
 
-        await sut.SaveChangesAsync(cancellationToken);
+        await this.sut.SaveChangesAsync(this.cancellationToken);
 
-        var savedOrder = await context.Orders.FindAsync([order.Id], cancellationToken);
+        var savedOrder = await this.context.Orders.FindAsync([order.Id], this.cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -67,11 +67,11 @@ public class OrderRepositoryTests
             UserId = Guid.NewGuid()
         };
 
-        sut.Add(order);
-        await sut.SaveChangesAsync(cancellationToken);
+        this.sut.Add(order);
+        await this.sut.SaveChangesAsync(this.cancellationToken);
 
-        await using var authContext = new AuthContext(options);
-        var savedOrder = await authContext.Orders.FindAsync([order.Id], cancellationToken);
+        await using var authContext = new AuthContext(this.options);
+        var savedOrder = await authContext.Orders.FindAsync([order.Id], this.cancellationToken);
         Assert.That(savedOrder, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -95,22 +95,22 @@ public class OrderRepositoryTests
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
-                    Price = faker.Random.Int(1, 10)
+                    Price = this.faker.Random.Int(1, 10)
                 },
                 new OrderDetailModel
                 {
                     Id = Guid.NewGuid(),
                     ModuleId = Guid.NewGuid(),
-                    Price = faker.Random.Int(1, 10)
+                    Price = this.faker.Random.Int(1, 10)
                 }
 
             ]
         };
 
-        sut.Add(order);
+        this.sut.Add(order);
 
-        await sut.SaveChangesAsync(cancellationToken);
-        var savedOrder = await context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == order.Id, cancellationToken);
+        await this.sut.SaveChangesAsync(this.cancellationToken);
+        var savedOrder = await this.context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == order.Id, this.cancellationToken);
 
         Assert.That(savedOrder, Is.Not.Null);
         Assert.That(savedOrder.Details, Has.Count.EqualTo(2));

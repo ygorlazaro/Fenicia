@@ -13,13 +13,7 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
 {
     public async Task AddStock(Guid productId, int quantity, CancellationToken ct)
     {
-        var product = await productRepository.GetByIdAsync(productId, ct);
-
-        if (product is null)
-        {
-            throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
-        }
-
+        var product = await productRepository.GetByIdAsync(productId, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         product.Quantity += quantity;
 
         productRepository.Update(product);
@@ -40,13 +34,7 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
 
     public async Task RemoveStock(Guid productId, int quantity, CancellationToken ct)
     {
-        var product = await productRepository.GetByIdAsync(productId, ct);
-
-        if (product is null)
-        {
-            throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
-        }
-
+        var product = await productRepository.GetByIdAsync(productId, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         product.Quantity -= quantity;
 
         productRepository.Update(product);

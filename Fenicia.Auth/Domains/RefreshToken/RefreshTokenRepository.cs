@@ -16,7 +16,7 @@ public sealed class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefr
         var key = RedisPrefix + refreshToken.Token;
         var value = JsonSerializer.Serialize(refreshToken);
 
-        redisDb.StringSet(key, value, TimeSpan.FromDays(7));
+        this.redisDb.StringSet(key, value, TimeSpan.FromDays(7));
     }
 
     public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken ct)
@@ -24,7 +24,7 @@ public sealed class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefr
         ArgumentNullException.ThrowIfNull(refreshToken);
 
         var key = RedisPrefix + refreshToken;
-        var value = await redisDb.StringGetAsync(key);
+        var value = await this.redisDb.StringGetAsync(key);
 
         if (value.IsNullOrEmpty)
         {
@@ -41,7 +41,7 @@ public sealed class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefr
         ArgumentNullException.ThrowIfNull(refreshToken);
 
         var key = RedisPrefix + refreshToken;
-        var value = await redisDb.StringGetAsync(key);
+        var value = await this.redisDb.StringGetAsync(key);
 
         if (value.IsNullOrEmpty)
         {
@@ -57,6 +57,6 @@ public sealed class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefr
 
         tokenObj.IsActive = false;
 
-        await redisDb.StringSetAsync(key, JsonSerializer.Serialize(tokenObj), TimeSpan.FromDays(7));
+        await this.redisDb.StringSetAsync(key, JsonSerializer.Serialize(tokenObj), TimeSpan.FromDays(7));
     }
 }

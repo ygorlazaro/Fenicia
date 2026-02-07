@@ -21,25 +21,25 @@ public class RefreshTokenRepositoryTests
     [SetUp]
     public void Setup()
     {
-        redisDbMock = new Mock<IDatabase>();
-        redisMock = new Mock<IConnectionMultiplexer>();
-        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDbMock.Object);
-        sut = new RefreshTokenRepository(redisMock.Object);
-        faker = new Faker();
+        this.redisDbMock = new Mock<IDatabase>();
+        this.redisMock = new Mock<IConnectionMultiplexer>();
+        this.redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(this.redisDbMock.Object);
+        this.sut = new RefreshTokenRepository(this.redisMock.Object);
+        this.faker = new Faker();
     }
 
     [Test]
     public void InvalidateRefreshTokenAsyncHandlesNonExistentToken()
     {
-        var nonExistentToken = faker.Random.Hash();
+        var nonExistentToken = this.faker.Random.Hash();
 
-        Assert.DoesNotThrowAsync(() => sut.InvalidateRefreshTokenAsync(nonExistentToken, cancellationToken));
+        Assert.DoesNotThrowAsync(() => this.sut.InvalidateRefreshTokenAsync(nonExistentToken, this.cancellationToken));
     }
 
     [Test]
     public void Add_NullThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => sut.Add(null!));
+        Assert.Throws<ArgumentNullException>(() => this.sut.Add(null!));
     }
 
     [Test]
@@ -47,9 +47,9 @@ public class RefreshTokenRepositoryTests
     {
         var stored = new RefreshToken { Token = "t1", UserId = Guid.NewGuid(), IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(1) };
         var key = "refresh_token:" + stored.Token;
-        redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(stored));
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(stored));
 
-        var result = await sut.ValidateTokenAsync(Guid.NewGuid(), stored.Token, cancellationToken);
+        var result = await this.sut.ValidateTokenAsync(Guid.NewGuid(), stored.Token, this.cancellationToken);
 
         Assert.That(result, Is.False);
     }
@@ -62,50 +62,50 @@ public class RefreshTokenRepositoryTests
 
         var expired = new RefreshToken { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(-1) };
         var key = "refresh_token:" + token;
-        redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(expired));
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(expired));
 
-        var res1 = await sut.ValidateTokenAsync(userId, token, cancellationToken);
+        var res1 = await this.sut.ValidateTokenAsync(userId, token, this.cancellationToken);
         Assert.That(res1, Is.False);
 
         var inactive = new RefreshToken { Token = token, UserId = userId, IsActive = false, ExpirationDate = DateTime.UtcNow.AddDays(1) };
-        redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(inactive));
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(inactive));
 
-        var res2 = await sut.ValidateTokenAsync(userId, token, cancellationToken);
+        var res2 = await this.sut.ValidateTokenAsync(userId, token, this.cancellationToken);
         Assert.That(res2, Is.False);
     }
 
     [Test]
     public async Task InvalidateRefreshTokenAsync_DoesNothingWhenStoredIsNullJson()
     {
-        var token = faker.Random.AlphaNumeric(44);
+        var token = this.faker.Random.AlphaNumeric(44);
         var key = "refresh_token:" + token;
 
-        redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)"null");
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)"null");
 
-        await sut.InvalidateRefreshTokenAsync(token, cancellationToken);
+        await this.sut.InvalidateRefreshTokenAsync(token, this.cancellationToken);
 
-        Assert.That(redisDbMock.Invocations.Any(i => i.Method.Name is "StringSet" or "StringSetAsync"), Is.False);
+        Assert.That(this.redisDbMock.Invocations.Any(i => i.Method.Name is "StringSet" or "StringSetAsync"), Is.False);
     }
 
     [Test]
     public void InvalidateRefreshTokenAsync_NullArgThrows()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.InvalidateRefreshTokenAsync(null!, cancellationToken));
+        Assert.ThrowsAsync<ArgumentNullException>(async () => await this.sut.InvalidateRefreshTokenAsync(null!, this.cancellationToken));
     }
 
     [Test]
     public void ValidateTokenAsync_NullArgThrows()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await sut.ValidateTokenAsync(Guid.NewGuid(), null!, cancellationToken));
+        Assert.ThrowsAsync<ArgumentNullException>(async () => await this.sut.ValidateTokenAsync(Guid.NewGuid(), null!, this.cancellationToken));
     }
 
     [Test]
     public async Task ValidateTokenAsyncReturnsFalseForNonExistentToken()
     {
         var userId = Guid.NewGuid();
-        var nonExistentToken = faker.Random.Hash();
+        var nonExistentToken = this.faker.Random.Hash();
 
-        var result = await sut.ValidateTokenAsync(userId, nonExistentToken, cancellationToken);
+        var result = await this.sut.ValidateTokenAsync(userId, nonExistentToken, this.cancellationToken);
 
         Assert.That(result, Is.False);
     }
@@ -113,25 +113,25 @@ public class RefreshTokenRepositoryTests
     [Test]
     public void Add_SetsValueInRedis()
     {
-        var token = faker.Random.AlphaNumeric(44);
+        var token = this.faker.Random.AlphaNumeric(44);
         var refresh = new RefreshToken { Token = token, UserId = Guid.NewGuid(), IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(6) };
 
-        sut.Add(refresh);
+        this.sut.Add(refresh);
 
-        Assert.That(redisDbMock.Invocations.Any(i => i.Method.Name == "StringSet"), Is.True);
+        Assert.That(this.redisDbMock.Invocations.Any(i => i.Method.Name == "StringSet"), Is.True);
     }
 
     [Test]
     public async Task ValidateTokenAsyncReturnsTrueForValidToken()
     {
         var userId = Guid.NewGuid();
-        var token = faker.Random.AlphaNumeric(44);
+        var token = this.faker.Random.AlphaNumeric(44);
         var refresh = new RefreshToken { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(2) };
 
         var key = "refresh_token:" + token;
-        redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(refresh));
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(refresh));
 
-        var result = await sut.ValidateTokenAsync(userId, token, cancellationToken);
+        var result = await this.sut.ValidateTokenAsync(userId, token, this.cancellationToken);
 
         Assert.That(result, Is.True);
     }
@@ -140,15 +140,15 @@ public class RefreshTokenRepositoryTests
     public async Task InvalidateRefreshTokenAsync_UpdatesTokenToInactive()
     {
         var userId = Guid.NewGuid();
-        var token = faker.Random.AlphaNumeric(44);
+        var token = this.faker.Random.AlphaNumeric(44);
         var refresh = new RefreshToken { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(2) };
 
         var key = "refresh_token:" + token;
-        redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(refresh));
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(refresh));
 
-        await sut.InvalidateRefreshTokenAsync(token, cancellationToken);
+        await this.sut.InvalidateRefreshTokenAsync(token, this.cancellationToken);
 
-        var invocation = redisDbMock.Invocations.FirstOrDefault(i => i.Method.Name == "StringSetAsync");
+        var invocation = this.redisDbMock.Invocations.FirstOrDefault(i => i.Method.Name == "StringSetAsync");
         Assert.That(invocation, Is.Not.Null, "Expected StringSetAsync to be called.");
 
         var setValue = invocation!.Arguments.ElementAtOrDefault(1) as RedisValue?;

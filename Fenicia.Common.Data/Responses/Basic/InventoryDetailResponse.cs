@@ -10,7 +10,7 @@ public class InventoryDetailResponse
 
     public decimal SalesPrice { get; set; }
 
-    public decimal Profit => SalesPrice - CostPrice ?? 0;
+    public decimal Profit => this.SalesPrice - this.CostPrice ?? 0;
 
     public string ProductName { get; set; } = string.Empty;
 

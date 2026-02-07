@@ -26,32 +26,22 @@ public class UserController(IUserService userService, IFollowerService followerS
     {
         var user = await userService.GetByIdAsync(id, ct);
 
-        if (user is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(user);
+        return user is null ? NotFound() : Ok(user);
     }
 
     [HttpPatch("{id:guid}")]
     public async Task<IActionResult> UpdateUserAsync([FromRoute] Guid id, [FromBody] UserRequest request, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(User);
+        var userId = ClaimReader.UserId(this.User);
 
         if (userId != id)
         {
-            ClaimReader.ValidateRole(User, "Admin");
+            ClaimReader.ValidateRole(this.User, "Admin");
         }
 
         var response = await userService.UpdateAsync(id, request, ct);
 
-        if (response is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(response);
+        return response is null ? NotFound() : Ok(response);
     }
 
     [HttpDelete("{id:guid}")]
@@ -66,29 +56,19 @@ public class UserController(IUserService userService, IFollowerService followerS
     [HttpPost("{id:guid}/follow")]
     public async Task<IActionResult> FollowAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(User);
+        var userId = ClaimReader.UserId(this.User);
         var follower = await followerService.FollowAsync(userId, id, ct);
 
-        if (follower is null)
-        {
-            return BadRequest();
-        }
-
-        return Ok(follower);
+        return follower is null ? BadRequest() : Ok(follower);
     }
 
     [HttpDelete("{id:guid}/unfollow")]
     public async Task<IActionResult> UnfollowAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(User);
+        var userId = ClaimReader.UserId(this.User);
 
         var follower = await followerService.UnfollowAsync(userId, id, ct);
 
-        if (follower is null)
-        {
-            return BadRequest();
-        }
-
-        return Ok(follower);
+        return follower is null ? BadRequest() : Ok(follower);
     }
 }

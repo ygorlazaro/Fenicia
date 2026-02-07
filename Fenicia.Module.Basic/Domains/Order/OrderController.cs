@@ -15,7 +15,7 @@ public class OrderController(IOrderService orderService, IOrderDetailService ord
     [HttpPost]
     public async Task<IActionResult> CreateOrderAsync([FromBody] OrderRequest request, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(User);
+        var userId = ClaimReader.UserId(this.User);
         request.UserId = userId;
         var order = await orderService.AddAsync(request, ct);
 

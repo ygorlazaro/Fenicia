@@ -12,20 +12,20 @@ public class LoginAttemptServiceTests
     [SetUp]
     public void Setup()
     {
-        cache = new MemoryCache(new MemoryCacheOptions());
-        sut = new LoginAttemptService(cache);
+        this.cache = new MemoryCache(new MemoryCacheOptions());
+        this.sut = new LoginAttemptService(this.cache);
     }
 
     [TearDown]
     public void TearDown()
     {
-        cache.Dispose();
+        this.cache.Dispose();
     }
 
     [Test]
     public async Task GetAttemptsAsync_ReturnsZeroWhenNotPresent()
     {
-        var attempts = await sut.GetAttemptsAsync("noone@example.com", CancellationToken.None);
+        var attempts = await this.sut.GetAttemptsAsync("noone@example.com", CancellationToken.None);
 
         Assert.That(attempts, Is.Zero);
     }
@@ -35,13 +35,13 @@ public class LoginAttemptServiceTests
     {
         var email = "user@example.com";
 
-        await sut.IncrementAttemptsAsync(email);
-        var first = await sut.GetAttemptsAsync(email, CancellationToken.None);
+        await this.sut.IncrementAttemptsAsync(email);
+        var first = await this.sut.GetAttemptsAsync(email, CancellationToken.None);
 
         Assert.That(first, Is.EqualTo(1));
 
-        await sut.IncrementAttemptsAsync(email);
-        var second = await sut.GetAttemptsAsync(email, CancellationToken.None);
+        await this.sut.IncrementAttemptsAsync(email);
+        var second = await this.sut.GetAttemptsAsync(email, CancellationToken.None);
 
         Assert.That(second, Is.EqualTo(2));
     }
@@ -51,12 +51,12 @@ public class LoginAttemptServiceTests
     {
         var email = "reset@example.com";
 
-        await sut.IncrementAttemptsAsync(email);
-        var before = await sut.GetAttemptsAsync(email, CancellationToken.None);
+        await this.sut.IncrementAttemptsAsync(email);
+        var before = await this.sut.GetAttemptsAsync(email, CancellationToken.None);
         Assert.That(before, Is.GreaterThan(0));
 
-        await sut.ResetAttemptsAsync(email, CancellationToken.None);
-        var after = await sut.GetAttemptsAsync(email, CancellationToken.None);
+        await this.sut.ResetAttemptsAsync(email, CancellationToken.None);
+        var after = await this.sut.GetAttemptsAsync(email, CancellationToken.None);
 
         Assert.That(after, Is.Zero);
     }

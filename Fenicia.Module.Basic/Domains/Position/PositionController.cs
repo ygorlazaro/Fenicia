@@ -25,12 +25,7 @@ public class CustomerController(IPositionService positionService, IEmployeeServi
     {
         var position = await positionService.GetByIdAsync(id, ct);
 
-        if (position is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(position);
+        return position is null ? NotFound() : Ok(position);
     }
 
     [HttpGet("{id:guid}/employee")]
@@ -54,12 +49,7 @@ public class CustomerController(IPositionService positionService, IEmployeeServi
     {
         var position = await positionService.UpdateAsync(request, ct);
 
-        if (position is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(position);
+        return position is null ? NotFound() : Ok(position);
     }
 
     [HttpDelete("{id:guid}")]

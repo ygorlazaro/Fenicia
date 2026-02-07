@@ -34,7 +34,7 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
 
     public override Task<int> SaveChangesAsync(CancellationToken ct)
     {
-        foreach (var item in ChangeTracker.Entries())
+        foreach (var item in this.ChangeTracker.Entries())
         {
             if (item.Entity is not BaseModel model)
             {

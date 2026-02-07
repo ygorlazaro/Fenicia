@@ -4,10 +4,7 @@ namespace Fenicia.Common.Data.Responses.Auth;
 
 public class CompanyResponse
 {
-    public Guid Id
-    {
-        get; set;
-    }
+    public Guid Id { get; set; }
 
     public string Name { get; set; } = null!;
 
@@ -28,22 +25,7 @@ public class CompanyResponse
             Cnpj = ur.Company.Cnpj,
             Language = ur.Company.Language,
             TimeZone = ur.Company.TimeZone,
-            Role = ur.Role.Name ?? string.Empty
+            Role = ur.Role.Name
         })];
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is not CompanyResponse other)
-        {
-            return false;
-        }
-
-        return Id == other.Id &&
-               Name == other.Name &&
-               Cnpj == other.Cnpj &&
-               Language == other.Language &&
-               TimeZone == other.TimeZone &&
-               Equals(Role, other.Role);
     }
 }

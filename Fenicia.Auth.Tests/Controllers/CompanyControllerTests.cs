@@ -24,10 +24,10 @@ public class CompanyControllerTests
     [SetUp]
     public void Setup()
     {
-        companyServiceMock = new Mock<ICompanyService>();
-        controller = new CompanyController(companyServiceMock.Object);
-        query = new PaginationQuery { Page = 1, PerPage = 10 };
-        cancellationToken = CancellationToken.None;
+        this.companyServiceMock = new Mock<ICompanyService>();
+        this.controller = new CompanyController(this.companyServiceMock.Object);
+        this.query = new PaginationQuery { Page = 1, PerPage = 10 };
+        this.cancellationToken = CancellationToken.None;
     }
 
     [Test]
@@ -37,17 +37,17 @@ public class CompanyControllerTests
         var companies = new List<CompanyResponse> { new() { Id = Guid.NewGuid(), Name = "Test", Cnpj = "12345678901234" } };
         var countResponse = 1;
 
-        companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ReturnsAsync(companies);
-        companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, cancellationToken)).ReturnsAsync(countResponse);
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        this.companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage)).ReturnsAsync(companies);
+        this.companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, this.cancellationToken)).ReturnsAsync(countResponse);
+        this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
 
-        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+        this.controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        var result = await controller.GetByLoggedUser(query, wide, cancellationToken);
+        var result = await this.controller.GetByLoggedUser(this.query, wide, this.cancellationToken);
 
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var okResult = result.Result as OkObjectResult;
@@ -61,16 +61,16 @@ public class CompanyControllerTests
         var userId = Guid.NewGuid();
         var companiesResponse = new List<CompanyResponse>();
         var countResponse = 0;
-        companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ReturnsAsync(companiesResponse);
-        companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, cancellationToken)).ReturnsAsync(countResponse);
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        this.companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage)).ReturnsAsync(companiesResponse);
+        this.companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, this.cancellationToken)).ReturnsAsync(countResponse);
+        this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
-        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+        this.controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        var result = await controller.GetByLoggedUser(query, wide, cancellationToken);
+        var result = await this.controller.GetByLoggedUser(this.query, wide, this.cancellationToken);
 
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var okResult = result.Result as OkObjectResult;
@@ -93,15 +93,15 @@ public class CompanyControllerTests
         var request = new CompanyUpdateRequest { Name = "New Name" };
         var response = new CompanyResponse { Id = companyId, Name = "New Name", Cnpj = "12345678901234" };
 
-        companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, cancellationToken)).ReturnsAsync(response);
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        this.companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, this.cancellationToken)).ReturnsAsync(response);
+        this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
-        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+        this.controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        var result = await controller.PatchAsync(request, companyId, wide, cancellationToken);
+        var result = await this.controller.PatchAsync(request, companyId, wide, this.cancellationToken);
 
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var okResult = result.Result as OkObjectResult;
@@ -118,15 +118,15 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var request = new CompanyUpdateRequest { Name = "New Name" };
 
-        companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, cancellationToken)).ReturnsAsync((CompanyResponse?)null);
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        this.companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, this.cancellationToken)).ReturnsAsync((CompanyResponse?)null);
+        this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
-        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+        this.controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        var result = await controller.PatchAsync(request, companyId, wide, cancellationToken);
+        var result = await this.controller.PatchAsync(request, companyId, wide, this.cancellationToken);
 
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var okResult = result.Result as OkObjectResult;
@@ -141,29 +141,29 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var request = new CompanyUpdateRequest { Name = "New Name" };
 
-        companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, cancellationToken)).ThrowsAsync(new Exception("service error"));
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        this.companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, this.cancellationToken)).ThrowsAsync(new Exception("service error"));
+        this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
-        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+        this.controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        Assert.ThrowsAsync<Exception>(async () => await controller.PatchAsync(request, companyId, wide, cancellationToken));
+        Assert.ThrowsAsync<Exception>(async () => await this.controller.PatchAsync(request, companyId, wide, this.cancellationToken));
     }
 
     [Test]
     public void GetByLoggedUserThrowsExceptionOnServiceError()
     {
         var userId = Guid.NewGuid();
-        companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage)).ThrowsAsync(new Exception("Service error"));
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        this.companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage)).ThrowsAsync(new Exception("Service error"));
+        this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
-        controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
+        this.controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(identity);
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        Assert.ThrowsAsync<Exception>(async () => await controller.GetByLoggedUser(query, wide, cancellationToken));
+        Assert.ThrowsAsync<Exception>(async () => await this.controller.GetByLoggedUser(this.query, wide, this.cancellationToken));
     }
 }

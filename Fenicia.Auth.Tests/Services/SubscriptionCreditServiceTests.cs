@@ -16,10 +16,10 @@ public class SubscriptionCreditServiceTests
     [SetUp]
     public void Setup()
     {
-        subscriptionCreditRepositoryMock = new Mock<ISubscriptionCreditRepository>();
-        subscriptionServiceMock = new Mock<ISubscriptionService>();
+        this.subscriptionCreditRepositoryMock = new Mock<ISubscriptionCreditRepository>();
+        this.subscriptionServiceMock = new Mock<ISubscriptionService>();
 
-        sut = new SubscriptionCreditService(subscriptionCreditRepositoryMock.Object, subscriptionServiceMock.Object);
+        this.sut = new SubscriptionCreditService(this.subscriptionCreditRepositoryMock.Object, this.subscriptionServiceMock.Object);
     }
 
     [Test]
@@ -33,16 +33,16 @@ public class SubscriptionCreditServiceTests
                                       ModuleType.Contracts
                                   };
 
-        subscriptionServiceMock.Setup(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken)).ReturnsAsync(validSubscriptions);
+        this.subscriptionServiceMock.Setup(x => x.GetValidSubscriptionsAsync(companyId, this.cancellationToken)).ReturnsAsync(validSubscriptions);
 
-        subscriptionCreditRepositoryMock.Setup(x => x.GetValidModulesTypesAsync(validSubscriptions, cancellationToken)).ReturnsAsync(expectedModuleTypes);
+        this.subscriptionCreditRepositoryMock.Setup(x => x.GetValidModulesTypesAsync(validSubscriptions, this.cancellationToken)).ReturnsAsync(expectedModuleTypes);
 
-        var result = await sut.GetActiveModulesTypesAsync(companyId, cancellationToken);
+        var result = await this.sut.GetActiveModulesTypesAsync(companyId, this.cancellationToken);
 
         Assert.That(result, Is.EqualTo(expectedModuleTypes));
 
-        subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken), Times.Once);
-        subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(validSubscriptions, cancellationToken), Times.Once);
+        this.subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, this.cancellationToken), Times.Once);
+        this.subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(validSubscriptions, this.cancellationToken), Times.Once);
     }
 
     [Test]
@@ -51,14 +51,14 @@ public class SubscriptionCreditServiceTests
         var companyId = Guid.NewGuid();
         var errorResponse = new List<Guid>();
 
-        subscriptionServiceMock.Setup(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken)).ReturnsAsync(errorResponse);
+        this.subscriptionServiceMock.Setup(x => x.GetValidSubscriptionsAsync(companyId, this.cancellationToken)).ReturnsAsync(errorResponse);
 
-        var result = await sut.GetActiveModulesTypesAsync(companyId, cancellationToken);
+        var result = await this.sut.GetActiveModulesTypesAsync(companyId, this.cancellationToken);
 
         Assert.That(result, Is.Empty);
 
-        subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken), Times.Once);
-        subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(It.IsAny<List<Guid>>(), cancellationToken), Times.Never);
+        this.subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, this.cancellationToken), Times.Once);
+        this.subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(It.IsAny<List<Guid>>(), this.cancellationToken), Times.Never);
     }
 
     [Test]
@@ -68,15 +68,15 @@ public class SubscriptionCreditServiceTests
         var validSubscriptions = new List<Guid> { Guid.NewGuid() };
         var emptyModuleTypes = new List<ModuleType>();
 
-        subscriptionServiceMock.Setup(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken)).ReturnsAsync(validSubscriptions);
+        this.subscriptionServiceMock.Setup(x => x.GetValidSubscriptionsAsync(companyId, this.cancellationToken)).ReturnsAsync(validSubscriptions);
 
-        subscriptionCreditRepositoryMock.Setup(x => x.GetValidModulesTypesAsync(validSubscriptions, cancellationToken)).ReturnsAsync(emptyModuleTypes);
+        this.subscriptionCreditRepositoryMock.Setup(x => x.GetValidModulesTypesAsync(validSubscriptions, this.cancellationToken)).ReturnsAsync(emptyModuleTypes);
 
-        var result = await sut.GetActiveModulesTypesAsync(companyId, cancellationToken);
+        var result = await this.sut.GetActiveModulesTypesAsync(companyId, this.cancellationToken);
 
         Assert.That(result, Is.Empty);
 
-        subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, cancellationToken), Times.Once);
-        subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(validSubscriptions, cancellationToken), Times.Once);
+        this.subscriptionServiceMock.Verify(x => x.GetValidSubscriptionsAsync(companyId, this.cancellationToken), Times.Once);
+        this.subscriptionCreditRepositoryMock.Verify(x => x.GetValidModulesTypesAsync(validSubscriptions, this.cancellationToken), Times.Once);
     }
 }

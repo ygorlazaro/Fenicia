@@ -89,6 +89,6 @@ public class CorrelationIdMiddlewareTests
 
         return;
 
-        Task Next(HttpContext ctx) => throw new InvalidOperationException("boom");
+        static Task Next(HttpContext ctx) => throw new InvalidOperationException("boom");
     }
 }

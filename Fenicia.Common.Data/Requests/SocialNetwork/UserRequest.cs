@@ -5,7 +5,7 @@ namespace Fenicia.Common.Data.Requests.SocialNetwork;
 public class UserRequest
 {
     [Required]
-    [MaxLength(48)]
+    [MaxLength(50)]
     public string Name { get; set; }
 
     [Required]

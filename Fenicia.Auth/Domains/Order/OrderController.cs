@@ -22,9 +22,9 @@ public class OrderController(IOrderService orderService) : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(OrderRequest request, [FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(User).ToString();
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var userId = ClaimReader.UserId(User);
+        var userId = ClaimReader.UserId(this.User);
         var companyId = headers.CompanyId;
         var order = await orderService.CreateNewOrderAsync(userId, companyId, request, ct);
 

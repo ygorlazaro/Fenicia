@@ -16,8 +16,8 @@ public class SubmoduleControllerTests
     [SetUp]
     public void Setup()
     {
-        submoduleServiceMock = new Mock<ISubmoduleService>();
-        sut = new SubmoduleController(submoduleServiceMock.Object);
+        this.submoduleServiceMock = new Mock<ISubmoduleService>();
+        this.sut = new SubmoduleController(this.submoduleServiceMock.Object);
     }
 
     [Test]
@@ -26,11 +26,11 @@ public class SubmoduleControllerTests
         var moduleId = Guid.NewGuid();
         var submodules = new List<SubmoduleResponse> { new() };
 
-        submoduleServiceMock.Setup(x => x.GetByModuleIdAsync(moduleId, CancellationToken.None)).ReturnsAsync(submodules);
+        this.submoduleServiceMock.Setup(x => x.GetByModuleIdAsync(moduleId, CancellationToken.None)).ReturnsAsync(submodules);
 
         var wide = new WideEventContext();
 
-        var result = await sut.GetByModuleIdAsync(moduleId, wide, CancellationToken.None);
+        var result = await this.sut.GetByModuleIdAsync(moduleId, wide, CancellationToken.None);
 
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var ok = result.Result as OkObjectResult;

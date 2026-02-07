@@ -23,12 +23,7 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     {
         var customer = await customerService.GetByIdAsync(id, ct);
 
-        if (customer is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(customer);
+        return customer is null ? NotFound() : Ok(customer);
     }
 
     [HttpPost]
@@ -44,12 +39,7 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     {
         var customer = await customerService.UpdateAsync(request, ct);
 
-        if (customer is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(customer);
+        return customer is null ? NotFound() : Ok(customer);
     }
 
     [HttpDelete("{id:guid}")]

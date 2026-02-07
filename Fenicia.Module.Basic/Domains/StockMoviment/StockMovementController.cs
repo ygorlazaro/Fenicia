@@ -33,12 +33,7 @@ public class StockMovementController(IStockMovementService stockMovementService)
     {
         var stockMovimentation = await stockMovementService.UpdateAsync(id, request, cancellationToken);
 
-        if (stockMovimentation is null)
-        {
-            return NotFound();
-        }
-
-        return new CreatedResult(string.Empty, stockMovimentation);
+        return stockMovimentation is null ? NotFound() : new CreatedResult(string.Empty, stockMovimentation);
     }
 
     public class StockMovementQuery : PaginationQuery

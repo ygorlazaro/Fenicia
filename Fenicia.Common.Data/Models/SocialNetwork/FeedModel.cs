@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.Data.Models.SocialNetwork;
 
-public class FeedModel: BaseModel
+public class FeedModel : BaseModel
 {
     [Required]
     public DateTime Date { get; set; }

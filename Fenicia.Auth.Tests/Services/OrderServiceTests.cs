@@ -29,13 +29,13 @@ public class OrderServiceTests
     [SetUp]
     public void Setup()
     {
-        orderRepositoryMock = new Mock<IOrderRepository>();
-        moduleServiceMock = new Mock<IModuleService>();
-        subscriptionServiceMock = new Mock<ISubscriptionService>();
-        userServiceMock = new Mock<IUserService>();
-        migrationServiceMock = new Mock<IMigrationService>();
+        this.orderRepositoryMock = new Mock<IOrderRepository>();
+        this.moduleServiceMock = new Mock<IModuleService>();
+        this.subscriptionServiceMock = new Mock<ISubscriptionService>();
+        this.userServiceMock = new Mock<IUserService>();
+        this.migrationServiceMock = new Mock<IMigrationService>();
 
-        sut = new OrderService(orderRepositoryMock.Object, moduleServiceMock.Object, subscriptionServiceMock.Object, userServiceMock.Object, migrationServiceMock.Object);
+        this.sut = new OrderService(this.orderRepositoryMock.Object, this.moduleServiceMock.Object, this.subscriptionServiceMock.Object, this.userServiceMock.Object, this.migrationServiceMock.Object);
     }
 
     [Test]
@@ -45,9 +45,9 @@ public class OrderServiceTests
         var companyId = Guid.NewGuid();
         var request = new OrderRequest { Details = [new OrderDetailRequest { ModuleId = Guid.NewGuid() }] };
 
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(false);
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(false);
 
-        Assert.ThrowsAsync<PermissionDeniedException>(async () => await sut!.CreateNewOrderAsync(userId, companyId, request, cancellationToken));
+        Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.sut!.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken));
     }
 
     [Test]
@@ -58,14 +58,14 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest { Details = [new OrderDetailRequest { ModuleId = moduleId }] };
 
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(true);
 
         var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "X", Price = 10, Type = ModuleType.Ecommerce } };
 
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(modResponses);
-        moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync((ModuleResponse?)null);
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync(modResponses);
+        this.moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken)).ReturnsAsync((ModuleResponse?)null);
 
-        Assert.ThrowsAsync<ItemNotExistsException>(async () => await sut!.CreateNewOrderAsync(userId, companyId, request, cancellationToken));
+        Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.sut!.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken));
     }
 
     [Test]
@@ -76,12 +76,12 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest { Details = [new OrderDetailRequest { ModuleId = moduleId }] };
 
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(true);
 
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync([]);
-        moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync((ModuleResponse?)null);
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync([]);
+        this.moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken)).ReturnsAsync((ModuleResponse?)null);
 
-        Assert.ThrowsAsync<ItemNotExistsException>(async () => await sut!.CreateNewOrderAsync(userId, companyId, request, cancellationToken));
+        Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.sut!.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken));
     }
 
     [Test]
@@ -92,21 +92,21 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest { Details = [new OrderDetailRequest { ModuleId = moduleId }] };
 
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(true);
 
         var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "Basic", Price = 15, Type = ModuleType.Basic } };
 
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(modResponses);
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync(modResponses);
 
         OrderModel? savedOrder = null;
-        orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
-        orderRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(1);
+        this.orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
+        this.orderRepositoryMock.Setup(x => x.SaveChangesAsync(this.cancellationToken)).ReturnsAsync(1);
 
-        subscriptionServiceMock.Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, cancellationToken))
+        this.subscriptionServiceMock.Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, this.cancellationToken))
             .ReturnsAsync(new SubscriptionResponse { Id = Guid.NewGuid(), Status = SubscriptionStatus.Active, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddDays(30) });
-        migrationServiceMock.Setup(x => x.RunMigrationsAsync(companyId, It.IsAny<List<ModuleType>>(), cancellationToken)).Returns(Task.CompletedTask);
+        this.migrationServiceMock.Setup(x => x.RunMigrationsAsync(companyId, It.IsAny<List<ModuleType>>(), this.cancellationToken)).Returns(Task.CompletedTask);
 
-        var result = await sut!.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
+        var result = await this.sut!.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -116,8 +116,8 @@ public class OrderServiceTests
 
         Assert.That(savedOrder!.TotalAmount, Is.EqualTo(15));
 
-        subscriptionServiceMock.Verify(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, cancellationToken), Times.Once);
-        migrationServiceMock.Verify(x => x.RunMigrationsAsync(companyId, It.Is<List<ModuleType>>(l => l.Contains(ModuleType.Basic)), cancellationToken), Times.Once);
+        this.subscriptionServiceMock.Verify(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, this.cancellationToken), Times.Once);
+        this.migrationServiceMock.Verify(x => x.RunMigrationsAsync(companyId, It.Is<List<ModuleType>>(l => l.Contains(ModuleType.Basic)), this.cancellationToken), Times.Once);
     }
 
     [Test]
@@ -128,20 +128,20 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest { Details = [new OrderDetailRequest { ModuleId = moduleId }] };
 
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(true);
 
         var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "Basic", Price = 10, Type = ModuleType.Basic } };
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(modResponses);
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync(modResponses);
 
         OrderModel? savedOrder = null;
-        orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
-        orderRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(1);
-        subscriptionServiceMock.Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, cancellationToken)).ReturnsAsync(new SubscriptionResponse { Id = Guid.NewGuid(), Status = SubscriptionStatus.Active, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddDays(30) });
+        this.orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
+        this.orderRepositoryMock.Setup(x => x.SaveChangesAsync(this.cancellationToken)).ReturnsAsync(1);
+        this.subscriptionServiceMock.Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, this.cancellationToken)).ReturnsAsync(new SubscriptionResponse { Id = Guid.NewGuid(), Status = SubscriptionStatus.Active, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddDays(30) });
 
-        var result = await sut!.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
+        var result = await this.sut!.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
         Assert.That(result, Is.Not.Null);
-        moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken), Times.Never);
+        this.moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken), Times.Never);
     }
 
     [Test]
@@ -152,10 +152,10 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest { Details = [new OrderDetailRequest { ModuleId = moduleId }] };
 
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ThrowsAsync(new Exception("boom"));
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(true);
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ThrowsAsync(new Exception("boom"));
 
-        Assert.ThrowsAsync<ItemNotExistsException>(async () => await sut!.CreateNewOrderAsync(userId, companyId, request, cancellationToken));
+        Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.sut!.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken));
     }
 
     [Test]
@@ -166,22 +166,22 @@ public class OrderServiceTests
         var moduleId = Guid.NewGuid();
         var request = new OrderRequest { Details = [new OrderDetailRequest { ModuleId = moduleId }] };
 
-        userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, cancellationToken)).ReturnsAsync(true);
+        this.userServiceMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(true);
 
         var modResponses = new List<ModuleResponse> { new() { Id = moduleId, Name = "Ecom", Price = 20, Type = ModuleType.Ecommerce } };
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync(modResponses);
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync(modResponses);
 
         var basicModule = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Price = 5, Type = ModuleType.Basic };
-        moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync(basicModule);
+        this.moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken)).ReturnsAsync(basicModule);
 
         OrderModel? savedOrder = null;
-        orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
-        orderRepositoryMock.Setup(x => x.SaveChangesAsync(cancellationToken)).ReturnsAsync(1);
+        this.orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
+        this.orderRepositoryMock.Setup(x => x.SaveChangesAsync(this.cancellationToken)).ReturnsAsync(1);
 
-        subscriptionServiceMock.Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, cancellationToken)).ReturnsAsync(new SubscriptionResponse { Id = Guid.NewGuid(), Status = SubscriptionStatus.Active, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddDays(30) });
-        migrationServiceMock.Setup(x => x.RunMigrationsAsync(companyId, It.IsAny<List<ModuleType>>(), cancellationToken)).Returns(Task.CompletedTask);
+        this.subscriptionServiceMock.Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(), companyId, this.cancellationToken)).ReturnsAsync(new SubscriptionResponse { Id = Guid.NewGuid(), Status = SubscriptionStatus.Active, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddDays(30) });
+        this.migrationServiceMock.Setup(x => x.RunMigrationsAsync(companyId, It.IsAny<List<ModuleType>>(), this.cancellationToken)).Returns(Task.CompletedTask);
 
-        var result = await sut!.CreateNewOrderAsync(userId, companyId, request, cancellationToken);
+        var result = await this.sut!.CreateNewOrderAsync(userId, companyId, request, this.cancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -191,8 +191,8 @@ public class OrderServiceTests
 
         Assert.That(savedOrder!.TotalAmount, Is.EqualTo(25));
 
-        moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken), Times.Once);
-        migrationServiceMock.Verify(x => x.RunMigrationsAsync(companyId, It.Is<List<ModuleType>>(l => l.Contains(ModuleType.Ecommerce) && l.Contains(ModuleType.Basic)), cancellationToken), Times.Once);
+        this.moduleServiceMock.Verify(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken), Times.Once);
+        this.migrationServiceMock.Verify(x => x.RunMigrationsAsync(companyId, It.Is<List<ModuleType>>(l => l.Contains(ModuleType.Ecommerce) && l.Contains(ModuleType.Basic)), this.cancellationToken), Times.Once);
     }
 
     [Test]
@@ -202,33 +202,33 @@ public class OrderServiceTests
         var request = new OrderRequest { Details = [new OrderDetailRequest { ModuleId = moduleId }] };
 
         var basicResponse = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Price = 1, Type = ModuleType.Basic };
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync([basicResponse]);
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync([basicResponse]);
 
         var method = typeof(OrderService).GetMethod("PopulateModules", BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.That(method, Is.Not.Null);
 
-        var resultTask = (Task<List<ModuleModel>?>)method!.Invoke(sut!, [request, cancellationToken])!;
+        var resultTask = (Task<List<ModuleModel>?>)method!.Invoke(this.sut!, [request, this.cancellationToken])!;
         var result = await resultTask;
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Any(m => m.Type == ModuleType.Basic));
 
-        moduleServiceMock.Reset();
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync([]);
-        moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync((ModuleResponse?)null);
+        this.moduleServiceMock.Reset();
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync([]);
+        this.moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken)).ReturnsAsync((ModuleResponse?)null);
 
-        var resultTask2 = (Task<List<ModuleModel>?>)method.Invoke(sut!, [request, cancellationToken])!;
+        var resultTask2 = (Task<List<ModuleModel>?>)method.Invoke(this.sut!, [request, this.cancellationToken])!;
         var result2 = await resultTask2;
 
         Assert.That(result2, Is.Null);
 
-        moduleServiceMock.Reset();
+        this.moduleServiceMock.Reset();
         var ecom = new ModuleResponse { Id = moduleId, Name = "Ecom", Price = 10, Type = ModuleType.Ecommerce };
         var basic = new ModuleResponse { Id = Guid.NewGuid(), Name = "Basic", Price = 2, Type = ModuleType.Basic };
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ReturnsAsync([ecom]);
-        moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, cancellationToken)).ReturnsAsync(basic);
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ReturnsAsync([ecom]);
+        this.moduleServiceMock.Setup(x => x.GetModuleByTypeAsync(ModuleType.Basic, this.cancellationToken)).ReturnsAsync(basic);
 
-        var resultTask3 = (Task<List<ModuleModel>?>)method.Invoke(sut!, [request, cancellationToken])!;
+        var resultTask3 = (Task<List<ModuleModel>?>)method.Invoke(this.sut!, [request, this.cancellationToken])!;
         var result3 = await resultTask3;
 
         Assert.That(result3, Is.Not.Null);
@@ -238,10 +238,10 @@ public class OrderServiceTests
             Assert.That(result3.Any(m => m.Type == ModuleType.Basic));
         }
 
-        moduleServiceMock.Reset();
-        moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), cancellationToken)).ThrowsAsync(new Exception("boom"));
+        this.moduleServiceMock.Reset();
+        this.moduleServiceMock.Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken)).ThrowsAsync(new Exception("boom"));
 
-        var resultTask4 = (Task<List<ModuleModel>?>)method.Invoke(sut!, [request, cancellationToken])!;
+        var resultTask4 = (Task<List<ModuleModel>?>)method.Invoke(this.sut!, [request, this.cancellationToken])!;
         var result4 = await resultTask4;
 
         Assert.That(result4, Is.Null);
