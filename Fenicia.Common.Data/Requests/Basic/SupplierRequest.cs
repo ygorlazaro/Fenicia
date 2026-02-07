@@ -1,5 +1,3 @@
-using Fenicia.Common.Data.Models.Basic;
-
 namespace Fenicia.Common.Data.Requests.Basic;
 
 public class SupplierRequest

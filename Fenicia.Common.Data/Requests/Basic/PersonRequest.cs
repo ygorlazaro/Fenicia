@@ -1,9 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
+using DocumentValidator;
+
 namespace Fenicia.Common.Data.Requests.Basic;
 
 public class PersonRequest
 {
+    private string cpf;
+
     [Required(ErrorMessage = "Customer name is required")]
     [StringLength(50, MinimumLength = 2, ErrorMessage = "Customer name must be between 2 and 50 characters")]
     public string Name
@@ -16,7 +20,15 @@ public class PersonRequest
     public string Cpf
     {
         get;
-        set;
+        set
+        {
+            if (!CpfValidation.Validate(value))
+            {
+                throw new InvalidDataException("CPF is invalid");
+            }
+
+            cpf = value;
+        }
     }
 
     [Required]
