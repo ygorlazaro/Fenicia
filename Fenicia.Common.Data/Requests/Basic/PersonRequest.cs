@@ -1,93 +1,24 @@
-using System.ComponentModel.DataAnnotations;
-
-using DocumentValidator;
-
 namespace Fenicia.Common.Data.Requests.Basic;
 
-public class PersonRequest
+public sealed class PersonRequest
 {
-    private string cpf;
+    public string Name { get; set; } = null!;
 
-    [Required(ErrorMessage = "Customer name is required")]
-    [StringLength(50, MinimumLength = 2, ErrorMessage = "Customer name must be between 2 and 50 characters")]
-    public string Name
-    {
-        get;
-        set;
-    }
+    public string? Cpf { get; set; }
 
-    [StringLength(11, MinimumLength = 11, ErrorMessage = "CPF must have exactly 11 characters")]
-    public string Cpf
-    {
-        get;
-        set
-        {
-            if (!CpfValidation.Validate(value))
-            {
-                throw new InvalidDataException("CPF is invalid");
-            }
+    public string City { get; set; } = null!;
 
-            cpf = value;
-        }
-    }
+    public string Complement { get; set; } = null!;
 
-    [Required]
-    [MaxLength(50)]
-    public string City
-    {
-        get;
-        set;
-    }
+    public string Neighborhood { get; set; } = null!;
 
-    [MaxLength(50)]
-    public string Complement
-    {
-        get;
-        set;
-    }
+    public string Number { get; set; } = null!;
 
-    [MaxLength(50)]
-    [Required]
-    public string Neighborhood
-    {
-        get;
-        set;
-    }
+    public Guid StateId { get; set; }
 
-    [MaxLength(50)]
-    [Required]
-    public string Number
-    {
-        get;
-        set;
-    }
+    public string Street { get; set; } = null!;
 
-    [Required]
-    public Guid StateId
-    {
-        get;
-        set;
-    }
+    public string ZipCode { get; set; } = null!;
 
-    [Required]
-    [MaxLength(50)]
-    public string Street
-    {
-        get;
-        set;
-    }
-
-    [MaxLength(58)]
-    [Required]
-    public string ZipCode
-    {
-        get;
-        set;
-    }
-
-    public string PhoneNumber
-    {
-        get;
-        set;
-    }
+    public string PhoneNumber { get; set; } = null!;
 }

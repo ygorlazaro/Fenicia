@@ -9,14 +9,14 @@ public abstract class BaseModel
     public Guid Id
     {
         get; set;
-    } 
+    }
 = Guid.NewGuid();
 
     [JsonIgnore]
     public DateTime Created
     {
         get; set;
-    } 
+    }
 = DateTime.UtcNow;
 
     [JsonIgnore]

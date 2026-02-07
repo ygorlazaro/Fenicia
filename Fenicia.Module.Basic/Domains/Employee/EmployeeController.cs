@@ -23,12 +23,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     {
         var employee = await employeeService.GetByIdAsync(id, ct);
 
-        if (employee is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(employee);
+        return employee is null ? NotFound() : Ok(employee);
     }
 
     [HttpPost]
@@ -44,12 +39,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     {
         var employee = await employeeService.UpdateAsync(request, ct);
 
-        if (employee is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(employee);
+        return employee is null ? NotFound() : Ok(employee);
     }
 
     [HttpDelete("{id:guid}")]

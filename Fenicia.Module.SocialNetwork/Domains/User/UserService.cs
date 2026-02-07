@@ -28,13 +28,7 @@ public class UserService(IUserRepository userRepository) : IUserService
 
     public async Task<UserResponse?> UpdateAsync(Guid id, UserRequest request, CancellationToken ct)
     {
-        var user = await userRepository.GetByIdAsync(id, ct);
-
-        if (user is null)
-        {
-            throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
-        }
-
+        var user = await userRepository.GetByIdAsync(id, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         var model = UserMapper.Map(request);
 
         userRepository.Update(model);

@@ -16,16 +16,16 @@ public class RoleRepositoryTests
     [SetUp]
     public void Setup()
     {
-        options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
-        context = new AuthContext(options);
-        sut = new RoleRepository(context);
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.context = new AuthContext(this.options);
+        this.sut = new RoleRepository(this.context);
     }
 
     [TearDown]
     public void TearDown()
     {
-        context.Database.EnsureDeleted();
-        context.Dispose();
+        this.context.Database.EnsureDeleted();
+        this.context.Dispose();
     }
 
     [Test]
@@ -33,10 +33,10 @@ public class RoleRepositoryTests
     {
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
 
-        await context.Roles.AddAsync(adminRole, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.Roles.AddAsync(adminRole, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var result = await sut.GetAdminRoleAsync(cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -51,10 +51,10 @@ public class RoleRepositoryTests
     {
         var nonAdminRole = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
 
-        await context.Roles.AddAsync(nonAdminRole, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.Roles.AddAsync(nonAdminRole, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var result = await sut.GetAdminRoleAsync(cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         Assert.That(result, Is.Null);
     }
@@ -62,7 +62,7 @@ public class RoleRepositoryTests
     [Test]
     public async Task GetAdminRoleAsyncReturnsNullWhenRolesTableIsEmpty()
     {
-        var result = await sut.GetAdminRoleAsync(cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         Assert.That(result, Is.Null);
     }
@@ -77,10 +77,10 @@ public class RoleRepositoryTests
                         new RoleModel { Id = Guid.NewGuid(), Name = "Manager" }
                     };
 
-        await context.Roles.AddRangeAsync(roles, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.Roles.AddRangeAsync(roles, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var result = await sut.GetAdminRoleAsync(cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Name, Is.EqualTo("Admin"));
@@ -91,10 +91,10 @@ public class RoleRepositoryTests
     {
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "ADMIN" };
 
-        await context.Roles.AddAsync(adminRole, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.Roles.AddAsync(adminRole, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var result = await sut.GetAdminRoleAsync(cancellationToken);
+        var result = await this.sut.GetAdminRoleAsync(this.cancellationToken);
 
         Assert.That(result, Is.Null, "GetAdminRoleAsync should be case sensitive");
     }

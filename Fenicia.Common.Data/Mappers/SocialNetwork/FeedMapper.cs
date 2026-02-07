@@ -26,7 +26,7 @@ public class FeedMapper
     {
         return new FeedModel
         {
-            Date = request.Date,
+            Date = DateTime.Now,
             Text = request.Text,
             Id = request.Id,
             UserId = request.UserId

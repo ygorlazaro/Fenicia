@@ -17,7 +17,7 @@ public class UserController(IModuleService moduleService, IUserRoleService userR
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
     public async Task<ActionResult<List<ModuleResponse>>> GetUserModulesAsync([FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(User);
+        var userId = ClaimReader.UserId(this.User);
         var companyId = headers.CompanyId;
 
         wide.UserId = userId.ToString();
@@ -31,7 +31,7 @@ public class UserController(IModuleService moduleService, IUserRoleService userR
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CompanyResponse))]
     public async Task<ActionResult<CompanyResponse>> GetUserCompanyAsync(WideEventContext wide, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(User);
+        var userId = ClaimReader.UserId(this.User);
 
         wide.UserId = userId.ToString();
 

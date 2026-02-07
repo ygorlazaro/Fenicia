@@ -23,12 +23,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     {
         var supplier = await supplierService.GetByIdAsync(id, ct);
 
-        if (supplier is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(supplier);
+        return supplier is null ? NotFound() : Ok(supplier);
     }
 
     [HttpPost]
@@ -44,12 +39,7 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     {
         var supplier = await supplierService.UpdateAsync(request, ct);
 
-        if (supplier is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(supplier);
+        return supplier is null ? NotFound() : Ok(supplier);
     }
 
     [HttpDelete("{id:guid}")]

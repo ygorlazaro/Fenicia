@@ -20,12 +20,9 @@ public class SecurityService : ISecurityService
     {
         try
         {
-            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword))
-            {
-                throw new ArgumentException(TextConstants.InvalidPasswordMessage);
-            }
-
-            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            return string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword)
+                ? throw new ArgumentException(TextConstants.InvalidPasswordMessage)
+                : BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
         catch (Exception)
         {

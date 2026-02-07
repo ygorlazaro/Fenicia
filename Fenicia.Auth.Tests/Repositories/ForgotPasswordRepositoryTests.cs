@@ -16,27 +16,27 @@ public class ForgotPasswordRepositoryTests
     [SetUp]
     public void Setup()
     {
-        options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_FP_{Guid.NewGuid()}").Options;
-        context = new AuthContext(options);
-        sut = new ForgotPasswordRepository(context);
-        cancellationToken = CancellationToken.None;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_FP_{Guid.NewGuid()}").Options;
+        this.context = new AuthContext(this.options);
+        this.sut = new ForgotPasswordRepository(this.context);
+        this.cancellationToken = CancellationToken.None;
     }
 
     [TearDown]
     public void TearDown()
     {
-        context.Database.EnsureDeleted();
-        context.Dispose();
+        this.context.Database.EnsureDeleted();
+        this.context.Dispose();
     }
 
     [Test]
     public async Task GetFromUserIdAndCodeAsyncReturnsWhenValid()
     {
         var model = new ForgotPasswordModel { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Code = "ABC123", IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(1) };
-        await context.ForgottenPasswords.AddAsync(model, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.ForgottenPasswords.AddAsync(model, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        var result = await sut.GetFromUserIdAndCodeAsync(model.UserId, model.Code, cancellationToken);
+        var result = await this.sut.GetFromUserIdAndCodeAsync(model.UserId, model.Code, this.cancellationToken);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Id, Is.EqualTo(model.Id));
@@ -47,21 +47,21 @@ public class ForgotPasswordRepositoryTests
     {
         var id = Guid.NewGuid();
 
-        await sut.InvalidateCodeAsync(id, cancellationToken);
+        await this.sut.InvalidateCodeAsync(id, this.cancellationToken);
 
-        Assert.That(await context.ForgottenPasswords.CountAsync(cancellationToken), Is.Zero);
+        Assert.That(await this.context.ForgottenPasswords.CountAsync(this.cancellationToken), Is.Zero);
     }
 
     [Test]
     public async Task InvalidateCodeAsyncSetsIsActiveFalseWhenFound()
     {
         var model = new ForgotPasswordModel { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Code = "ABC123", IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(1) };
-        await context.ForgottenPasswords.AddAsync(model, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await this.context.ForgottenPasswords.AddAsync(model, this.cancellationToken);
+        await this.context.SaveChangesAsync(this.cancellationToken);
 
-        await sut.InvalidateCodeAsync(model.Id, cancellationToken);
+        await this.sut.InvalidateCodeAsync(model.Id, this.cancellationToken);
 
-        var fromDb = await context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == model.Id, cancellationToken);
+        var fromDb = await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == model.Id, this.cancellationToken);
         Assert.That(fromDb, Is.Not.Null);
         Assert.That(fromDb!.IsActive, Is.False);
     }
@@ -71,11 +71,11 @@ public class ForgotPasswordRepositoryTests
     {
         var model = new ForgotPasswordModel { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Code = "XYZ789", IsActive = true };
 
-        var result = await sut.SaveForgotPasswordAsync(model, cancellationToken);
+        var result = await this.sut.SaveForgotPasswordAsync(model, this.cancellationToken);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Id, Is.EqualTo(model.Id));
-        var fromDb = await context.ForgottenPasswords.FindAsync([model.Id], cancellationToken);
+        var fromDb = await this.context.ForgottenPasswords.FindAsync([model.Id], this.cancellationToken);
         Assert.That(fromDb, Is.Not.Null);
     }
 }

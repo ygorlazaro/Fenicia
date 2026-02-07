@@ -3,7 +3,7 @@ using Fenicia.Common.Data.Models.SocialNetwork;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Follower;
 
-public interface IFollowerRepository: IBaseRepository<FollowerModel>
+public interface IFollowerRepository : IBaseRepository<FollowerModel>
 {
     Task<FollowerModel?> FindFollowerAsync(Guid userId, Guid followerId, CancellationToken ct);
 

@@ -4,12 +4,6 @@ namespace Fenicia.Common.Data.Requests.SocialNetwork;
 
 public class FeedRequest
 {
-    public DateTime Date
-    {
-        get;
-        set;
-    }
-
     [Required]
     [MaxLength(512)]
     public string Text

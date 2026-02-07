@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Fenicia.Common.Data.Models.SocialNetwork;
 
-public class FollowerModel:BaseModel
+public class FollowerModel : BaseModel
 {
     [Required]
     public Guid UserId { get; set; }
@@ -19,7 +19,7 @@ public class FollowerModel:BaseModel
     {
         get;
         set;
-    } 
+    }
 = true;
 
     [ForeignKey(nameof(UserId))]

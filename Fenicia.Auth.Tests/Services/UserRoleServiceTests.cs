@@ -14,8 +14,8 @@ public class UserRoleServiceTests
     [SetUp]
     public void Setup()
     {
-        repoMock = new Mock<IUserRoleRepository>();
-        sut = new UserRoleService(repoMock.Object);
+        this.repoMock = new Mock<IUserRoleRepository>();
+        this.sut = new UserRoleService(this.repoMock.Object);
     }
 
     [Test]
@@ -24,21 +24,21 @@ public class UserRoleServiceTests
         var userId = Guid.NewGuid();
         var roles = new[] { "Admin", "User" };
 
-        repoMock.Setup(r => r.GetRolesByUserAsync(userId, cancellationToken)).ReturnsAsync(roles);
+        this.repoMock.Setup(r => r.GetRolesByUserAsync(userId, this.cancellationToken)).ReturnsAsync(roles);
 
-        var result = await sut.GetRolesByUserAsync(userId, cancellationToken);
+        var result = await this.sut.GetRolesByUserAsync(userId, this.cancellationToken);
 
         Assert.That(result, Is.EquivalentTo(roles));
-        repoMock.Verify(r => r.GetRolesByUserAsync(userId, cancellationToken), Times.Once);
+        this.repoMock.Verify(r => r.GetRolesByUserAsync(userId, this.cancellationToken), Times.Once);
     }
 
     [Test]
     public async Task GetRolesByUserAsync_WhenEmpty_ReturnsEmpty()
     {
         var userId = Guid.NewGuid();
-        repoMock.Setup(r => r.GetRolesByUserAsync(userId, cancellationToken)).ReturnsAsync([]);
+        this.repoMock.Setup(r => r.GetRolesByUserAsync(userId, this.cancellationToken)).ReturnsAsync([]);
 
-        var result = await sut.GetRolesByUserAsync(userId, cancellationToken);
+        var result = await this.sut.GetRolesByUserAsync(userId, this.cancellationToken);
 
         Assert.That(result, Is.Empty);
     }
@@ -52,9 +52,9 @@ public class UserRoleServiceTests
 
         var userRole = new UserRoleModel { Id = Guid.NewGuid(), Company = company, Role = role };
 
-        repoMock.Setup(r => r.GetUserCompaniesAsync(userId, cancellationToken)).ReturnsAsync([userRole]);
+        this.repoMock.Setup(r => r.GetUserCompaniesAsync(userId, this.cancellationToken)).ReturnsAsync([userRole]);
 
-        var result = await sut.GetUserCompaniesAsync(userId, cancellationToken);
+        var result = await this.sut.GetUserCompaniesAsync(userId, this.cancellationToken);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Has.Count.EqualTo(1));
@@ -73,11 +73,11 @@ public class UserRoleServiceTests
         var companyId = Guid.NewGuid();
         const string roleName = "Admin";
 
-        repoMock.Setup(r => r.HasRoleAsync(userId, companyId, roleName, cancellationToken)).ReturnsAsync(true);
+        this.repoMock.Setup(r => r.HasRoleAsync(userId, companyId, roleName, this.cancellationToken)).ReturnsAsync(true);
 
-        var result = await sut.HasRoleAsync(userId, companyId, roleName, cancellationToken);
+        var result = await this.sut.HasRoleAsync(userId, companyId, roleName, this.cancellationToken);
 
         Assert.That(result, Is.True);
-        repoMock.Verify(r => r.HasRoleAsync(userId, companyId, roleName, cancellationToken), Times.Once);
+        this.repoMock.Verify(r => r.HasRoleAsync(userId, companyId, roleName, this.cancellationToken), Times.Once);
     }
 }

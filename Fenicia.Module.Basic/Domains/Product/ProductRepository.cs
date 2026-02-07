@@ -17,13 +17,7 @@ public class ProductRepository(BasicContext context) : BaseRepository<ProductMod
 
     public async Task IncreaseStockAsync(Guid productId, double quantity, CancellationToken ct)
     {
-        var product = await GetByIdAsync(productId, ct);
-
-        if (product is null)
-        {
-            throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
-        }
-
+        var product = await GetByIdAsync(productId, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         product.Quantity += quantity;
 
         Update(product);
@@ -33,13 +27,7 @@ public class ProductRepository(BasicContext context) : BaseRepository<ProductMod
 
     public async Task DecreastStockAsync(Guid productId, double quantity, CancellationToken ct)
     {
-        var product = await GetByIdAsync(productId, ct);
-
-        if (product is null)
-        {
-            throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
-        }
-
+        var product = await GetByIdAsync(productId, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         product.Quantity -= quantity;
 
         Update(product);

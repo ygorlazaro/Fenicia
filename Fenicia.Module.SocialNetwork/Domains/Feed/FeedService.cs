@@ -4,7 +4,7 @@ using Fenicia.Common.Data.Responses.SocialNetwork;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
-public class FeedService(IFeedRepository feedRepository): IFeedService
+public class FeedService(IFeedRepository feedRepository) : IFeedService
 {
     public async Task<List<FeedResponse>> GetFollowingFeedAsync(Guid userId, CancellationToken ct, int page = 1, int perPage = 10)
     {

@@ -22,9 +22,9 @@ public class UserControllerTests
     [SetUp]
     public void Setup()
     {
-        moduleServiceMock = new Mock<IModuleService>();
-        userRoleServiceMock = new Mock<IUserRoleService>();
-        sut = new UserController(moduleServiceMock.Object, userRoleServiceMock.Object);
+        this.moduleServiceMock = new Mock<IModuleService>();
+        this.userRoleServiceMock = new Mock<IUserRoleService>();
+        this.sut = new UserController(this.moduleServiceMock.Object, this.userRoleServiceMock.Object);
     }
 
     [Test]
@@ -34,15 +34,15 @@ public class UserControllerTests
         var headers = new Headers { CompanyId = Guid.NewGuid() };
         var modules = new List<ModuleResponse> { new() { Id = Guid.NewGuid(), Name = "M" } };
 
-        moduleServiceMock.Setup(x => x.GetModuleAndSubmoduleAsync(userId, headers.CompanyId, CancellationToken.None)).ReturnsAsync(modules);
+        this.moduleServiceMock.Setup(x => x.GetModuleAndSubmoduleAsync(userId, headers.CompanyId, CancellationToken.None)).ReturnsAsync(modules);
 
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        this.sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
-        sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
+        this.sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         var wide = new WideEventContext();
 
-        var result = await sut.GetUserModulesAsync(headers, wide, CancellationToken.None);
+        var result = await this.sut.GetUserModulesAsync(headers, wide, CancellationToken.None);
 
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var ok = result.Result as OkObjectResult;
@@ -55,15 +55,15 @@ public class UserControllerTests
         var userId = Guid.NewGuid();
         var companies = new List<CompanyResponse> { new() { Id = Guid.NewGuid(), Name = "C" } };
 
-        userRoleServiceMock.Setup(x => x.GetUserCompaniesAsync(userId, CancellationToken.None)).ReturnsAsync(companies);
+        this.userRoleServiceMock.Setup(x => x.GetUserCompaniesAsync(userId, CancellationToken.None)).ReturnsAsync(companies);
 
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        this.sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
-        sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
+        this.sut.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(claims));
 
         var wide = new WideEventContext();
 
-        var result = await sut.GetUserCompanyAsync(wide, CancellationToken.None);
+        var result = await this.sut.GetUserCompanyAsync(wide, CancellationToken.None);
 
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var ok = result.Result as OkObjectResult;

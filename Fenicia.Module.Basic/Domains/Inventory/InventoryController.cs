@@ -6,7 +6,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
-public class InventoryController(IInventoryService inventoryService): ControllerBase
+public class InventoryController(IInventoryService inventoryService) : ControllerBase
 {
     [HttpGet("/products/{productId:guid}")]
     public async Task<IActionResult> GetInventoryByProductIdAsync([FromRoute] Guid productId, CancellationToken ct)

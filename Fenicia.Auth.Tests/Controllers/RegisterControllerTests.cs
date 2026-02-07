@@ -18,8 +18,8 @@ public class RegisterControllerTests
     [SetUp]
     public void Setup()
     {
-        userServiceMock = new Mock<IUserService>();
-        sut = new RegisterController(userServiceMock.Object);
+        this.userServiceMock = new Mock<IUserService>();
+        this.sut = new RegisterController(this.userServiceMock.Object);
     }
 
     [Test]
@@ -27,11 +27,11 @@ public class RegisterControllerTests
     {
         var request = new UserRequest { Email = "a@b.com" };
         var response = new UserResponse { Id = Guid.NewGuid(), Email = request.Email };
-        userServiceMock.Setup(x => x.CreateNewUserAsync(request, CancellationToken.None)).ReturnsAsync(response);
+        this.userServiceMock.Setup(x => x.CreateNewUserAsync(request, CancellationToken.None)).ReturnsAsync(response);
 
         var wide = new WideEventContext();
 
-        var result = await sut.CreateNewUserAsync(request, wide, CancellationToken.None);
+        var result = await this.sut.CreateNewUserAsync(request, wide, CancellationToken.None);
 
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var ok = result.Result as OkObjectResult;

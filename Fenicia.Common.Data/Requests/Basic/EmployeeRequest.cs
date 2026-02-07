@@ -4,22 +4,10 @@ namespace Fenicia.Common.Data.Requests.Basic;
 
 public class EmployeeRequest
 {
-    public Guid Id
-    {
-        get;
-        set;
-    }
+    public Guid Id { get; set; }
 
     [Required]
-    public Guid PositionId
-    {
-        get;
-        set;
-    }
+    public Guid PositionId { get; set; }
 
-    public PersonRequest Person
-    {
-        get;
-        set;
-    }
+    public PersonRequest Person { get; set; }
 }

@@ -11,11 +11,6 @@ public class SubscriptionCreditService(ISubscriptionCreditRepository subscriptio
 
         var validSubscriptions = await subscriptionService.GetValidSubscriptionsAsync(companyId, ct);
 
-        if (validSubscriptions.Count == 0)
-        {
-            return [];
-        }
-
-        return await subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions, ct);
+        return validSubscriptions.Count == 0 ? [] : await subscriptionCreditRepository.GetValidModulesTypesAsync(validSubscriptions, ct);
     }
 }

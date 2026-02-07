@@ -17,21 +17,21 @@ public class ModuleControllerTests
     [SetUp]
     public void Setup()
     {
-        moduleServiceMock = new Mock<IModuleService>();
-        sut = new ModuleController(moduleServiceMock.Object);
+        this.moduleServiceMock = new Mock<IModuleService>();
+        this.sut = new ModuleController(this.moduleServiceMock.Object);
     }
 
     [Test]
     public async Task GetAllModulesAsync_ReturnsPagination()
     {
         var modules = new List<ModuleResponse> { new() { Id = Guid.NewGuid(), Name = "M" } };
-        moduleServiceMock.Setup(x => x.GetAllOrderedAsync(CancellationToken.None, 1, 10)).ReturnsAsync(modules);
-        moduleServiceMock.Setup(x => x.CountAsync(CancellationToken.None)).ReturnsAsync(1);
+        this.moduleServiceMock.Setup(x => x.GetAllOrderedAsync(CancellationToken.None, 1, 10)).ReturnsAsync(modules);
+        this.moduleServiceMock.Setup(x => x.CountAsync(CancellationToken.None)).ReturnsAsync(1);
 
         var query = new PaginationQuery { Page = 1, PerPage = 10 };
         var wide = new WideEventContext();
 
-        var result = await sut.GetAllModulesAsync(query, wide, CancellationToken.None);
+        var result = await this.sut.GetAllModulesAsync(query, wide, CancellationToken.None);
 
         Assert.That(result.Result, Is.TypeOf<OkObjectResult>());
         var ok = result.Result as OkObjectResult;

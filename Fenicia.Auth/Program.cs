@@ -21,9 +21,13 @@ using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.API.Middlewares;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Migrations.Services;
 using Fenicia.Externals.Email;
+
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -155,6 +159,9 @@ public static class Program
         });
 
         builder.Services.AddOpenApi();
+
+        builder.Services.AddFluentValidationAutoValidation()
+            .AddValidatorsFromAssemblyContaining<BaseModel>();
     }
 
     private static void BuildCors(WebApplicationBuilder builder)

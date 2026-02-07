@@ -8,7 +8,7 @@ public class InventoryResponse
 
     public decimal TotalSalesPrice { get; set; }
 
-    public decimal TotalProfit => TotalSalesPrice - TotalCostPrice;
+    public decimal TotalProfit => this.TotalSalesPrice - this.TotalCostPrice;
 
     public double TotalQuantity { get; set; }
 

@@ -21,11 +21,11 @@ public class MigrationControllerTests
     [SetUp]
     public void Setup()
     {
-        migrationServiceMock = new Mock<IMigrationService>();
-        creditServiceMock = new Mock<ISubscriptionCreditService>();
-        companyServiceMock = new Mock<ICompanyService>();
+        this.migrationServiceMock = new Mock<IMigrationService>();
+        this.creditServiceMock = new Mock<ISubscriptionCreditService>();
+        this.companyServiceMock = new Mock<ICompanyService>();
 
-        sut = new MigrationController(migrationServiceMock.Object, creditServiceMock.Object, companyServiceMock.Object);
+        this.sut = new MigrationController(this.migrationServiceMock.Object, this.creditServiceMock.Object, this.companyServiceMock.Object);
     }
 
     [Test]
@@ -35,12 +35,12 @@ public class MigrationControllerTests
         var company = new CompanyResponse { Id = Guid.NewGuid() };
         var credits = new List<ModuleType>();
 
-        companyServiceMock.Setup(x => x.GetByCnpjAsync(cnpj, CancellationToken.None)).ReturnsAsync(company);
-        creditServiceMock.Setup(x => x.GetActiveModulesTypesAsync(company.Id, CancellationToken.None)).ReturnsAsync(credits);
+        this.companyServiceMock.Setup(x => x.GetByCnpjAsync(cnpj, CancellationToken.None)).ReturnsAsync(company);
+        this.creditServiceMock.Setup(x => x.GetActiveModulesTypesAsync(company.Id, CancellationToken.None)).ReturnsAsync(credits);
 
-        var result = await sut.PostNewMigrationAsync(cnpj, CancellationToken.None);
+        var result = await this.sut.PostNewMigrationAsync(cnpj, CancellationToken.None);
 
         Assert.That(result, Is.TypeOf<OkResult>());
-        migrationServiceMock.Verify(x => x.RunMigrationsAsync(company.Id, credits, CancellationToken.None), Times.Once);
+        this.migrationServiceMock.Verify(x => x.RunMigrationsAsync(company.Id, credits, CancellationToken.None), Times.Once);
     }
 }

@@ -25,12 +25,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     {
         var productCategory = await productCategoryService.GetByIdAsync(id, ct);
 
-        if (productCategory is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(productCategory);
+        return productCategory is null ? NotFound() : Ok(productCategory);
     }
 
     [HttpPost]
@@ -46,12 +41,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     {
         var productCategory = await productCategoryService.UpdateAsync(request, ct);
 
-        if (productCategory is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(productCategory);
+        return productCategory is null ? NotFound() : Ok(productCategory);
     }
 
     [HttpDelete("{id:guid}")]

@@ -12,7 +12,7 @@ public class TokenServiceTests
     [SetUp]
     public void Setup()
     {
-        sut = new TokenService();
+        this.sut = new TokenService();
     }
 
     [Test]
@@ -20,7 +20,7 @@ public class TokenServiceTests
     {
         var user = new UserResponse { Id = Guid.NewGuid(), Email = "t@test", Name = "Test" };
 
-        var token = sut.GenerateToken(user);
+        var token = this.sut.GenerateToken(user);
         var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
         var claims = parsed.Claims.ToList();
 
@@ -38,7 +38,7 @@ public class TokenServiceTests
     {
         var user = new ExtendedUserResponse { Id = Guid.NewGuid(), Email = "a@b", Name = "N", CompanyId = Guid.NewGuid() };
 
-        var token = sut.GenerateToken(user);
+        var token = this.sut.GenerateToken(user);
         var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
 
         Assert.That(parsed.Claims.Any(c => c.Type == "companyId" && c.Value == user.CompanyId.ToString()));
@@ -56,7 +56,7 @@ public class TokenServiceTests
             Modules = ["sales"]
         };
 
-        var token = sut.GenerateToken(user);
+        var token = this.sut.GenerateToken(user);
         var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
         var claims = parsed.Claims.ToList();
 
@@ -74,7 +74,7 @@ public class TokenServiceTests
     public void GenerateToken_NoModulesProperty_DoesNotAddModuleClaims()
     {
         var user = new UserResponse { Id = Guid.NewGuid(), Email = "nm@nm", Name = "NM" };
-        var token = sut.GenerateToken(user);
+        var token = this.sut.GenerateToken(user);
         var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
 
         Assert.That(parsed.Claims.All(c => c.Type != "module"));
