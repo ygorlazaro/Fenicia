@@ -7,16 +7,16 @@ namespace Fenicia.Common.Data.Abstracts;
 public class BaseRepository<T>(DbContext context) : IBaseRepository<T>
     where T : BaseModel, new()
 {
-    public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        return await context.Set<T>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        return await context.Set<T>().FirstOrDefaultAsync(x => x.Id == id, ct);
     }
 
-    public virtual async Task<List<T>> GetAllAsync(CancellationToken cancellationToken, int page = 1, int perPage = 10)
+    public virtual async Task<List<T>> GetAllAsync(CancellationToken ct, int page = 1, int perPage = 10)
     {
         var query = context.Set<T>().Skip((page - 1) * perPage).Take(perPage);
 
-        return await query.ToListAsync(cancellationToken);
+        return await query.ToListAsync(ct);
     }
 
     public virtual void Add(T entity)
@@ -46,28 +46,28 @@ public class BaseRepository<T>(DbContext context) : IBaseRepository<T>
         context.Set<T>().Remove(entity);
     }
 
-    public virtual async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public virtual async Task<int> SaveChangesAsync(CancellationToken ct)
     {
-        return await context.SaveChangesAsync(cancellationToken);
+        return await context.SaveChangesAsync(ct);
     }
 
-    public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+    public virtual async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct)
     {
-        return await context.Set<T>().AnyAsync(predicate, cancellationToken);
+        return await context.Set<T>().AnyAsync(predicate, ct);
     }
 
-    public virtual async Task<int> CountAsync(Expression<Func<T, bool>>? predicate, CancellationToken cancellationToken)
+    public virtual async Task<int> CountAsync(Expression<Func<T, bool>>? predicate, CancellationToken ct)
     {
         if (predicate == null)
         {
-            return await context.Set<T>().CountAsync(cancellationToken);
+            return await context.Set<T>().CountAsync(ct);
         }
 
-        return await context.Set<T>().CountAsync(predicate, cancellationToken);
+        return await context.Set<T>().CountAsync(predicate, ct);
     }
 
-    public async Task<int> CountAsync(CancellationToken cancellationToken)
+    public async Task<int> CountAsync(CancellationToken ct)
     {
-        return await context.Set<T>().CountAsync(cancellationToken);
+        return await context.Set<T>().CountAsync(ct);
     }
 }

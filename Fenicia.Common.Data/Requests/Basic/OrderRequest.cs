@@ -1,4 +1,6 @@
-using Fenicia.Common.Enums;
+using System.ComponentModel.DataAnnotations;
+
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Requests.Basic;
 
@@ -10,6 +12,7 @@ public class OrderRequest
         set;
     }
 
+    [Required]
     public Guid CustomerId
     {
         get;
@@ -29,12 +32,6 @@ public class OrderRequest
     }
 
     public OrderStatus Status
-    {
-        get;
-        set;
-    }
-
-    public decimal TotalAmount
     {
         get;
         set;

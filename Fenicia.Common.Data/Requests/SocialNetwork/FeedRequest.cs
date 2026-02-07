@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Fenicia.Common.Data.Requests.SocialNetwork;
 
 public class FeedRequest
@@ -8,6 +10,8 @@ public class FeedRequest
         set;
     }
 
+    [Required]
+    [MaxLength(512)]
     public string Text
     {
         get;

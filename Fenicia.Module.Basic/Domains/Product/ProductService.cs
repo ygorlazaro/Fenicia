@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Converters.Basic;
+using Fenicia.Common.Data.Mappers.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 
@@ -6,53 +6,53 @@ namespace Fenicia.Module.Basic.Domains.Product;
 
 public class ProductService(IProductRepository productRepository) : IProductService
 {
-    public async Task<List<ProductResponse>> GetAllAsync(CancellationToken cancellationToken, int page = 1, int perPage = 1)
+    public async Task<List<ProductResponse>> GetAllAsync(CancellationToken ct, int page = 1, int perPage = 1)
     {
-        var products = await productRepository.GetAllAsync(cancellationToken, page, perPage);
+        var products = await productRepository.GetAllAsync(ct, page, perPage);
 
-        return ProductConverter.Convert(products);
+        return ProductMapper.Map(products);
     }
 
-    public async Task<ProductResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ProductResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var product = await productRepository.GetByIdAsync(id, cancellationToken);
+        var product = await productRepository.GetByIdAsync(id, ct);
 
-        return product is null ? null : ProductConverter.Convert(product);
+        return product is null ? null : ProductMapper.Map(product);
     }
 
-    public async Task<ProductResponse?> AddAsync(ProductRequest request, CancellationToken cancellationToken)
+    public async Task<ProductResponse?> AddAsync(ProductRequest request, CancellationToken ct)
     {
-        var product = ProductConverter.Convert(request);
+        var product = ProductMapper.Map(request);
 
         productRepository.Add(product);
 
-        await productRepository.SaveChangesAsync(cancellationToken);
+        await productRepository.SaveChangesAsync(ct);
 
-        return ProductConverter.Convert(product);
+        return ProductMapper.Map(product);
     }
 
-    public async Task<ProductResponse?> UpdateAsync(ProductRequest request, CancellationToken cancellationToken)
+    public async Task<ProductResponse?> UpdateAsync(ProductRequest request, CancellationToken ct)
     {
-        var product = ProductConverter.Convert(request);
+        var product = ProductMapper.Map(request);
 
         productRepository.Update(product);
 
-        await productRepository.SaveChangesAsync(cancellationToken);
+        await productRepository.SaveChangesAsync(ct);
 
-        return ProductConverter.Convert(product);
+        return ProductMapper.Map(product);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid id, CancellationToken ct)
     {
         productRepository.Delete(id);
 
-        await productRepository.SaveChangesAsync(cancellationToken);
+        await productRepository.SaveChangesAsync(ct);
     }
 
-    public async Task<List<ProductResponse>> GetByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken, int page, int perPage)
+    public async Task<List<ProductResponse>> GetByCategoryIdAsync(Guid categoryId, CancellationToken ct, int page, int perPage)
     {
-        var products = await productRepository.GetByCategoryIdAsync(categoryId, cancellationToken, page, perPage);
+        var products = await productRepository.GetByCategoryIdAsync(categoryId, ct, page, perPage);
 
-        return ProductConverter.Convert(products);
+        return ProductMapper.Map(products);
     }
 }

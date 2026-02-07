@@ -7,7 +7,7 @@ public class StateResponse
         get; set;
     }
 
-    public string Name { get; set; } = default!;
+    public string Name { get; set; } = null!;
 
-    public string Uf { get; set; } = default!;
+    public string Uf { get; set; } = null!;
 }

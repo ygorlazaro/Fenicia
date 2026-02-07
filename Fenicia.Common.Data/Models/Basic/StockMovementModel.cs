@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.Data.Models.Basic;
 

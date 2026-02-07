@@ -24,13 +24,13 @@ public class TokenController(ITokenService tokenService, IRefreshTokenService re
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<TokenResponse>> PostAsync(TokenRequest request, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<TokenResponse>> PostAsync(TokenRequest request, WideEventContext wide, CancellationToken ct)
     {
         try
         {
             wide.UserId = request.Email;
 
-            var userResponse = await userService.GetForLoginAsync(request, cancellationToken);
+            var userResponse = await userService.GetForLoginAsync(request, ct);
 
             return PopulateToken(userResponse);
         }
@@ -49,20 +49,20 @@ public class TokenController(ITokenService tokenService, IRefreshTokenService re
     [Route("refresh")]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TokenResponse>> Refresh(RefreshTokenRequest request, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<TokenResponse>> Refresh(RefreshTokenRequest request, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = request.UserId.ToString();
 
-        var isValidToken = await refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, cancellationToken);
+        var isValidToken = await refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, ct);
 
         if (!isValidToken)
         {
             return BadRequest("Invalid client request");
         }
 
-        await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, cancellationToken);
+        await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, ct);
 
-        var userResponse = await userService.GetUserForRefreshAsync(request.UserId, cancellationToken);
+        var userResponse = await userService.GetUserForRefreshAsync(request.UserId, ct);
 
         return PopulateToken(userResponse);
     }

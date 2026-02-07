@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Company;
+using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Requests.Auth;
@@ -18,13 +19,15 @@ public class CompanyServiceTests
     private Faker faker;
     private CompanyService sut;
     private Mock<IUserRoleService> userRoleServiceMock;
+    private Mock<IRoleService> roleService;
 
     [SetUp]
     public void Setup()
     {
         companyRepositoryMock = new Mock<ICompanyRepository>();
         userRoleServiceMock = new Mock<IUserRoleService>();
-        sut = new CompanyService(companyRepositoryMock.Object, userRoleServiceMock.Object);
+        roleService = new Mock<IRoleService>();
+        sut = new CompanyService(companyRepositoryMock.Object, userRoleServiceMock.Object, roleService.Object);
         faker = new Faker();
     }
 
@@ -96,7 +99,7 @@ public class CompanyServiceTests
             Cnpj = companyModel.Cnpj,
             Language = companyModel.Language,
             TimeZone = companyModel.TimeZone,
-            Role = new RoleModel { Name = string.Empty }
+            Role = string.Empty
         };
 
         companyRepositoryMock.Setup(x => x.GetByCnpjAsync(cnpj, false, cancellationToken)).ReturnsAsync(companyModel);
@@ -153,7 +156,7 @@ public class CompanyServiceTests
             Cnpj = c.Cnpj,
             Language = c.Language,
             TimeZone = c.TimeZone,
-            Role = new RoleModel { Name = string.Empty }
+            Role = string.Empty
         }).ToList();
 
         companyRepositoryMock.Setup(x => x.GetByUserIdAsync(userId, true, cancellationToken, 1, 10)).ReturnsAsync(companies);
@@ -184,7 +187,7 @@ public class CompanyServiceTests
             Cnpj = companyModel.Cnpj,
             Language = companyModel.Language,
             TimeZone = companyModel.TimeZone,
-            Role = new RoleModel { Name = string.Empty }
+            Role = string.Empty
         };
 
         companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(companyId, true, cancellationToken)).ReturnsAsync(true);
@@ -197,15 +200,15 @@ public class CompanyServiceTests
 
         var result = await sut.PatchAsync(companyId, userId, updateRequest, cancellationToken);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(expectedResponse.Id));
             Assert.That(result.Name, Is.EqualTo(expectedResponse.Name));
             Assert.That(result.Cnpj, Is.EqualTo(expectedResponse.Cnpj));
             Assert.That(result.Language, Is.EqualTo(expectedResponse.Language));
             Assert.That(result.TimeZone, Is.EqualTo(expectedResponse.TimeZone));
-            Assert.That(result.Role?.Name, Is.EqualTo(expectedResponse.Role?.Name));
-        });
+            Assert.That(result.Role, Is.EqualTo(expectedResponse.Role));
+        }
     }
 
     [Test]

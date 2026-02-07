@@ -1,8 +1,8 @@
-using Fenicia.Common.Data.Converters.Basic;
+using Fenicia.Common.Data.Mappers.Basic;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.StockMoviment;
 
@@ -10,9 +10,9 @@ namespace Fenicia.Module.Basic.Domains.Order;
 
 public class OrderService(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IStockMovementRepository stockMovementRepository) : IOrderService
 {
-    public async Task<OrderResponse?> AddAsync(OrderRequest orderRequest, CancellationToken cancellationToken)
+    public async Task<OrderResponse?> AddAsync(OrderRequest orderRequest, CancellationToken ct)
     {
-        var order = OrderConverter.Convert(orderRequest);
+        var order = OrderMapper.Map(orderRequest);
         var total = order.Details.Sum(d => d.Price);
 
         order.TotalAmount = total;
@@ -32,8 +32,8 @@ public class OrderService(IOrderRepository orderRepository, IOrderDetailReposito
 
         stockMovementRepository.AddRange(stockMovement);
 
-        await orderRepository.SaveChangesAsync(cancellationToken);
+        await orderRepository.SaveChangesAsync(ct);
 
-        return OrderConverter.Convert(order);
+        return OrderMapper.Map(order);
     }
 }

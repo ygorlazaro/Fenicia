@@ -21,13 +21,13 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [ProducesResponseType(typeof(Pagination<IEnumerable<CompanyResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(User);
         wide.UserId = userId.ToString();
 
-        var companies = await companyService.GetByUserIdAsync(userId, cancellationToken, query.Page, query.PerPage);
-        var total = await companyService.CountByUserIdAsync(userId, cancellationToken);
+        var companies = await companyService.GetByUserIdAsync(userId, ct, query.Page, query.PerPage);
+        var total = await companyService.CountByUserIdAsync(userId, ct);
         var response = new Pagination<IEnumerable<CompanyResponse>>(companies, total, query);
 
         return Ok(response);
@@ -40,12 +40,13 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<CompanyResponse>> PatchAsync([FromBody] CompanyUpdateRequest request, [FromRoute] Guid id, WideEventContext wide, CancellationToken cancellationToken)
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<CompanyResponse>> PatchAsync([FromBody] CompanyUpdateRequest request, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(User);
         wide.UserId = userId.ToString();
 
-        var response = await companyService.PatchAsync(id, userId, request, cancellationToken);
+        var response = await companyService.PatchAsync(id, userId, request, ct);
 
         return Ok(response);
     }

@@ -1,13 +1,14 @@
 using Fenicia.Common;
+using Fenicia.Common.Data.Mappers.Auth;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Responses.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
 public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepository) : ISubscriptionService
 {
-    public async Task<SubscriptionResponse> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details, Guid companyId, CancellationToken cancellationToken)
+    public async Task<SubscriptionResponse> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details, Guid companyId, CancellationToken ct)
     {
         if (details.Count == 0)
         {
@@ -35,13 +36,13 @@ public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepo
 
         subscriptionRepository.Add(subscription);
 
-        await subscriptionRepository.SaveChangesAsync(cancellationToken);
+        await subscriptionRepository.SaveChangesAsync(ct);
 
-        return SubscriptionResponse.Convert(subscription);
+        return SubscriptionMapper.Map(subscription);
     }
 
-    public async Task<List<Guid>> GetValidSubscriptionsAsync(Guid companyId, CancellationToken cancellationToken)
+    public async Task<List<Guid>> GetValidSubscriptionsAsync(Guid companyId, CancellationToken ct)
     {
-        return await subscriptionRepository.GetValidSubscriptionAsync(companyId, cancellationToken);
+        return await subscriptionRepository.GetValidSubscriptionAsync(companyId, ct);
     }
 }

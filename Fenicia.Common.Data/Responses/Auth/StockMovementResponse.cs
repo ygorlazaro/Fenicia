@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Responses.Basic;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.Data.Responses.Auth;
 

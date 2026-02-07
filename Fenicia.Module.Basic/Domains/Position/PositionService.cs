@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Converters.Basic;
+using Fenicia.Common.Data.Mappers.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 
@@ -6,46 +6,46 @@ namespace Fenicia.Module.Basic.Domains.Position;
 
 public class PositionService(IPositionRepository positionRepository) : IPositionService
 {
-    public async Task<List<PositionResponse>> GetAllAsync(CancellationToken cancellationToken, int page = 1, int perPage = 1)
+    public async Task<List<PositionResponse>> GetAllAsync(CancellationToken ct, int page = 1, int perPage = 1)
     {
-        var positions = await positionRepository.GetAllAsync(cancellationToken, page, perPage);
+        var positions = await positionRepository.GetAllAsync(ct, page, perPage);
 
-        return PositionConverter.Convert(positions);
+        return PositionMapper.Map(positions);
     }
 
-    public async Task<PositionResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<PositionResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var positin = await positionRepository.GetByIdAsync(id, cancellationToken);
+        var positin = await positionRepository.GetByIdAsync(id, ct);
 
-        return positin is null ? null : PositionConverter.Convert(positin);
+        return positin is null ? null : PositionMapper.Map(positin);
     }
 
-    public async Task<PositionResponse?> AddAsync(PositionRequest request, CancellationToken cancellationToken)
+    public async Task<PositionResponse?> AddAsync(PositionRequest request, CancellationToken ct)
     {
-        var position = PositionConverter.Convert(request);
+        var position = PositionMapper.Map(request);
 
         positionRepository.Add(position);
 
-        await positionRepository.SaveChangesAsync(cancellationToken);
+        await positionRepository.SaveChangesAsync(ct);
 
-        return PositionConverter.Convert(position);
+        return PositionMapper.Map(position);
     }
 
-    public async Task<PositionResponse?> UpdateAsync(PositionRequest request, CancellationToken cancellationToken)
+    public async Task<PositionResponse?> UpdateAsync(PositionRequest request, CancellationToken ct)
     {
-        var position = PositionConverter.Convert(request);
+        var position = PositionMapper.Map(request);
 
         positionRepository.Update(position);
 
-        await positionRepository.SaveChangesAsync(cancellationToken);
+        await positionRepository.SaveChangesAsync(ct);
 
-        return PositionConverter.Convert(position);
+        return PositionMapper.Map(position);
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid id, CancellationToken ct)
     {
         positionRepository.Delete(id);
 
-        await positionRepository.SaveChangesAsync(cancellationToken);
+        await positionRepository.SaveChangesAsync(ct);
     }
 }

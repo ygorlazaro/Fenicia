@@ -5,5 +5,5 @@ namespace Fenicia.Auth.Domains.Submodule;
 
 public interface ISubmoduleRepository : IBaseRepository<SubmoduleModel>
 {
-    Task<List<SubmoduleModel>> GetByModuleIdAsync(Guid moduleId, CancellationToken cancellationToken);
+    Task<List<SubmoduleModel>> GetByModuleIdAsync(Guid moduleId, CancellationToken ct);
 }

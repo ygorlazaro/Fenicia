@@ -13,12 +13,12 @@ namespace Fenicia.Auth.Domains.Migrations;
 public class MigrationController(IMigrationService migrationService, ISubscriptionCreditService subscriptionCreditService, ICompanyService companyService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> PostNewMigrationAsync([FromBody] string cnpj, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostNewMigrationAsync([FromBody] string cnpj, CancellationToken ct)
     {
-        var company = await companyService.GetByCnpjAsync(cnpj, cancellationToken);
-        var credits = await subscriptionCreditService.GetActiveModulesTypesAsync(company.Id, cancellationToken);
+        var company = await companyService.GetByCnpjAsync(cnpj, ct);
+        var credits = await subscriptionCreditService.GetActiveModulesTypesAsync(company.Id, ct);
 
-        await migrationService.RunMigrationsAsync(company.Id, credits, cancellationToken);
+        await migrationService.RunMigrationsAsync(company.Id, credits, ct);
 
         return Ok();
     }

@@ -52,7 +52,7 @@ public class SupplierModel : BaseModel
         = null!;
 
     [Required]
-    [MaxLength(9)]
+    [MaxLength(8)]
     public string ZipCode
     {
         get;

@@ -5,5 +5,5 @@ namespace Fenicia.Auth.Domains.Subscription;
 
 public interface ISubscriptionRepository : IBaseRepository<SubscriptionModel>
 {
-    Task<List<Guid>> GetValidSubscriptionAsync(Guid companyId, CancellationToken cancellationToken);
+    Task<List<Guid>> GetValidSubscriptionAsync(Guid companyId, CancellationToken ct);
 }

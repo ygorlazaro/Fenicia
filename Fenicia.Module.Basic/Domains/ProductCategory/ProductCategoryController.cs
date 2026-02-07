@@ -13,17 +13,17 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 public class ProductCategoryController(IProductCategoryService productCategoryService, IProductService productService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAsync(CancellationToken ct)
     {
-        var productCategory = await productCategoryService.GetAllAsync(cancellationToken);
+        var productCategory = await productCategoryService.GetAllAsync(ct);
 
         return Ok(productCategory);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var productCategory = await productCategoryService.GetByIdAsync(id, cancellationToken);
+        var productCategory = await productCategoryService.GetByIdAsync(id, ct);
 
         if (productCategory is null)
         {
@@ -34,17 +34,17 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] ProductCategoryRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostAsync([FromBody] ProductCategoryRequest request, CancellationToken ct)
     {
-        var productCategory = await productCategoryService.AddAsync(request, cancellationToken);
+        var productCategory = await productCategoryService.AddAsync(request, ct);
 
         return new CreatedResult(string.Empty, productCategory);
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] ProductCategoryRequest request, [FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> PatchAsync([FromBody] ProductCategoryRequest request, [FromRoute] Guid id, CancellationToken ct)
     {
-        var productCategory = await productCategoryService.UpdateAsync(request, cancellationToken);
+        var productCategory = await productCategoryService.UpdateAsync(request, ct);
 
         if (productCategory is null)
         {
@@ -55,17 +55,17 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        await productCategoryService.DeleteAsync(id, cancellationToken);
+        await productCategoryService.DeleteAsync(id, ct);
 
         return NoContent();
     }
 
     [HttpGet("{id:guid}/product")]
-    public async Task<IActionResult> GetProductsByCategoryAsync([FromRoute] Guid categoryId, [FromQuery] PaginationQuery query, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetProductsByCategoryAsync([FromRoute] Guid categoryId, [FromQuery] PaginationQuery query, CancellationToken ct)
     {
-        var products = await productService.GetByCategoryIdAsync(categoryId, cancellationToken, query.Page, query.PerPage);
+        var products = await productService.GetByCategoryIdAsync(categoryId, ct, query.Page, query.PerPage);
 
         return Ok(products);
     }

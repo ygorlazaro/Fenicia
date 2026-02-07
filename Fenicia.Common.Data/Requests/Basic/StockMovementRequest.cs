@@ -1,4 +1,6 @@
-using Fenicia.Common.Enums;
+using System.ComponentModel.DataAnnotations;
+
+using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.Data.Requests.Basic;
 
@@ -10,6 +12,8 @@ public class StockMovementRequest
         set;
     }
 
+    [Required]
+    [Range(0.001, double.MaxValue)]
     public int Quantity
     {
         get;
@@ -22,18 +26,21 @@ public class StockMovementRequest
         set;
     }
 
+    [Required]
     public decimal Price
     {
         get;
         set;
     }
 
+    [Required]
     public StockMovementType Type
     {
         get;
         set;
     }
 
+    [Required]
     public Guid ProductId
     {
         get;

@@ -10,7 +10,7 @@ public class LoginAttemptService(IMemoryCache cache) : ILoginAttemptService
 
     private const string KeyPrefix = "login-attempt:";
 
-    public Task<int> GetAttemptsAsync(string email, CancellationToken cancellationToken)
+    public Task<int> GetAttemptsAsync(string email, CancellationToken ct)
     {
         return Task.FromResult(cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0);
     }
@@ -30,7 +30,7 @@ public class LoginAttemptService(IMemoryCache cache) : ILoginAttemptService
         return Task.CompletedTask;
     }
 
-    public Task ResetAttemptsAsync(string email, CancellationToken cancellationToken)
+    public Task ResetAttemptsAsync(string email, CancellationToken ct)
     {
         cache.Remove(GetKey(email));
 

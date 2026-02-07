@@ -5,9 +5,9 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 
 public interface IForgotPasswordRepository : IBaseRepository<ForgotPasswordModel>
 {
-    Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken cancellationToken);
+    Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct);
 
-    Task InvalidateCodeAsync(Guid id, CancellationToken cancellationToken);
+    Task InvalidateCodeAsync(Guid id, CancellationToken ct);
 
-    Task<ForgotPasswordModel> SaveForgotPasswordAsync(ForgotPasswordModel forgotPasswordId, CancellationToken cancellationToken);
+    Task<ForgotPasswordModel> SaveForgotPasswordAsync(ForgotPasswordModel forgotPasswordId, CancellationToken ct);
 }

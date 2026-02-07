@@ -1,6 +1,6 @@
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 using Moq;
 

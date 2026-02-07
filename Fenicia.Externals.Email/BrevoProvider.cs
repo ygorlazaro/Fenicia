@@ -1,7 +1,7 @@
 using brevo_csharp.Api;
 using brevo_csharp.Model;
 
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.External;
 
 using Configuration = brevo_csharp.Client.Configuration;
 

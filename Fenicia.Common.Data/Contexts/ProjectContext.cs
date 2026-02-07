@@ -7,6 +7,7 @@ public class ProjectContext(DbContextOptions<ProjectContext> options) : DbContex
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
+        SoftDeleteQueryExtension.AddSoftDeleteSupport(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }

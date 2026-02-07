@@ -8,21 +8,17 @@ namespace Fenicia.Module.SocialNetwork.Domains.Follower;
 
 public class FollowerRepository(SocialNetworkContext context) : BaseRepository<FollowerModel>(context), IFollowerRepository
 {
-    public async Task<FollowerModel?> FindFollowerAsync(Guid userId, Guid followerId, CancellationToken cancellationToken)
+    public async Task<FollowerModel?> FindFollowerAsync(Guid userId, Guid followerId, CancellationToken ct)
     {
-        var query = from follower in context.Followers
-            where follower.IsActive && follower.UserId == userId && follower.FollowerId == followerId
-            select follower;
+        var query = context.Followers.Where(f => f.IsActive && f.UserId == userId && f.FollowerId == followerId);
 
-        return await query.FirstOrDefaultAsync(cancellationToken);
+        return await query.FirstOrDefaultAsync(ct);
     }
 
-    public async Task<List<FollowerModel>> GetFollowersAsync(Guid userId, CancellationToken cancellationToken, int page, int perPage)
+    public async Task<List<FollowerModel>> GetFollowersAsync(Guid userId, CancellationToken ct, int page, int perPage)
     {
-        var query = from follower in context.Followers
-            where follower.IsActive && follower.UserId == userId
-            select follower;
+        var query = context.Followers.Where(f => f.IsActive && f.UserId == userId);
 
-        return await query.ToListAsync(cancellationToken);
+        return await query.ToListAsync(ct);
     }
 }

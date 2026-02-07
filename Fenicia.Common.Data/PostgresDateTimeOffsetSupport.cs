@@ -9,9 +9,9 @@ public static class PostgresDateTimeOffsetSupport
     {
         var dateTimeConverter = new ValueConverter<DateTime, DateTime>(v => v.ToUniversalTime(), v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
 
-        foreach (var property in from entityType in modelBuilder.Model.GetEntityTypes()
-                                 from property in entityType.GetProperties().Where(p => p.ClrType == typeof(DateTime))
-                                 select property)
+        foreach (var property in from et in modelBuilder.Model.GetEntityTypes()
+                                 from p in et.GetProperties().Where(p => p.ClrType == typeof(DateTime))
+                                 select p)
         {
             property.SetValueConverter(dateTimeConverter);
         }

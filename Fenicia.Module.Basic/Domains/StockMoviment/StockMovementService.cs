@@ -1,9 +1,9 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Converters.Basic;
+using Fenicia.Common.Data.Mappers.Basic;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Product;
 
@@ -11,9 +11,9 @@ namespace Fenicia.Module.Basic.Domains.StockMoviment;
 
 public class StockMovementService(IStockMovementRepository stockMovementRepository, IProductRepository productRepository) : IStockMovementService
 {
-    public async Task AddStock(Guid productId, int quantity, CancellationToken cancellationToken)
+    public async Task AddStock(Guid productId, int quantity, CancellationToken ct)
     {
-        var product = await productRepository.GetByIdAsync(productId, cancellationToken);
+        var product = await productRepository.GetByIdAsync(productId, ct);
 
         if (product is null)
         {
@@ -35,12 +35,12 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
 
         stockMovementRepository.Add(movement);
 
-        await stockMovementRepository.SaveChangesAsync(cancellationToken);
+        await stockMovementRepository.SaveChangesAsync(ct);
     }
 
-    public async Task RemoveStock(Guid productId, int quantity, CancellationToken cancellationToken)
+    public async Task RemoveStock(Guid productId, int quantity, CancellationToken ct)
     {
-        var product = await productRepository.GetByIdAsync(productId, cancellationToken);
+        var product = await productRepository.GetByIdAsync(productId, ct);
 
         if (product is null)
         {
@@ -62,46 +62,46 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
 
         stockMovementRepository.Add(movement);
 
-        await stockMovementRepository.SaveChangesAsync(cancellationToken);
+        await stockMovementRepository.SaveChangesAsync(ct);
     }
 
-    public async Task<List<StockMovementResponse>> GetMovementAsync(Guid productId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken, int page = 1, int perPage = 10)
+    public async Task<List<StockMovementResponse>> GetMovementAsync(Guid productId, DateTime startDate, DateTime endDate, CancellationToken ct, int page = 1, int perPage = 10)
     {
-        var movements = await stockMovementRepository.GetMovementAsync(productId, startDate, endDate, cancellationToken, page, perPage);
+        var movements = await stockMovementRepository.GetMovementAsync(productId, startDate, endDate, ct, page, perPage);
 
-        return StockMovementConverter.Convert(movements);
+        return StockMovementMapper.Map(movements);
     }
 
-    public async Task<List<StockMovementResponse>> GetMovementAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken, int page = 1, int perPage = 10)
+    public async Task<List<StockMovementResponse>> GetMovementAsync(DateTime startDate, DateTime endDate, CancellationToken ct, int page = 1, int perPage = 10)
     {
-        var movements = await stockMovementRepository.GetMovementAsync(startDate, endDate, cancellationToken, page, perPage);
+        var movements = await stockMovementRepository.GetMovementAsync(startDate, endDate, ct, page, perPage);
 
-        return StockMovementConverter.Convert(movements);
+        return StockMovementMapper.Map(movements);
     }
 
-    public async Task<StockMovementResponse?> AddAsync(StockMovementRequest request, CancellationToken cancellationToken)
+    public async Task<StockMovementResponse?> AddAsync(StockMovementRequest request, CancellationToken ct)
     {
-        var stockMovement = StockMovementConverter.Convert(request);
+        var stockMovement = StockMovementMapper.Map(request);
 
         stockMovementRepository.Add(stockMovement);
 
         if (stockMovement.Type == StockMovementType.In)
         {
-            await productRepository.IncreaseStockAsync(stockMovement.ProductId, stockMovement.Quantity, cancellationToken);
+            await productRepository.IncreaseStockAsync(stockMovement.ProductId, stockMovement.Quantity, ct);
         }
         else if (stockMovement.Type == StockMovementType.In)
         {
-            await productRepository.DecreastStockAsync(stockMovement.ProductId, stockMovement.Quantity, cancellationToken);
+            await productRepository.DecreastStockAsync(stockMovement.ProductId, stockMovement.Quantity, ct);
         }
 
-        await stockMovementRepository.SaveChangesAsync(cancellationToken);
+        await stockMovementRepository.SaveChangesAsync(ct);
 
-        return StockMovementConverter.Convert(stockMovement);
+        return StockMovementMapper.Map(stockMovement);
     }
 
-    public async Task<StockMovementResponse?> UpdateAsync(Guid id, StockMovementRequest request, CancellationToken cancellationToken)
+    public async Task<StockMovementResponse?> UpdateAsync(Guid id, StockMovementRequest request, CancellationToken ct)
     {
-        var moviment = await stockMovementRepository.GetByIdAsync(id, cancellationToken);
+        var moviment = await stockMovementRepository.GetByIdAsync(id, ct);
 
         if (moviment is null)
         {
@@ -118,8 +118,8 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
 
         stockMovementRepository.Update(moviment);
 
-        await stockMovementRepository.SaveChangesAsync(cancellationToken);
+        await stockMovementRepository.SaveChangesAsync(ct);
 
-        return StockMovementConverter.Convert(moviment);
+        return StockMovementMapper.Map(moviment);
     }
 }

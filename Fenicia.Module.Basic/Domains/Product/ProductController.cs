@@ -11,17 +11,17 @@ namespace Fenicia.Module.Basic.Domains.Product;
 public class ProductController(IProductService productService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAsync(CancellationToken ct)
     {
-        var products = await productService.GetAllAsync(cancellationToken);
+        var products = await productService.GetAllAsync(ct);
 
         return Ok(products);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var product = await productService.GetByIdAsync(id, cancellationToken);
+        var product = await productService.GetByIdAsync(id, ct);
 
         if (product is null)
         {
@@ -32,17 +32,17 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] ProductRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostAsync([FromBody] ProductRequest request, CancellationToken ct)
     {
-        var product = await productService.AddAsync(request, cancellationToken);
+        var product = await productService.AddAsync(request, ct);
 
         return new CreatedResult(string.Empty, product);
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] ProductRequest request, [FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> PatchAsync([FromBody] ProductRequest request, [FromRoute] Guid id, CancellationToken ct)
     {
-        var productRequest = await productService.UpdateAsync(request, cancellationToken);
+        var productRequest = await productService.UpdateAsync(request, ct);
 
         if (productRequest is null)
         {
@@ -53,9 +53,9 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        await productService.DeleteAsync(id, cancellationToken);
+        await productService.DeleteAsync(id, ct);
 
         return NoContent();
     }

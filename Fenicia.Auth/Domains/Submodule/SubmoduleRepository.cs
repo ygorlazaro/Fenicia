@@ -8,8 +8,8 @@ namespace Fenicia.Auth.Domains.Submodule;
 
 public class SubmoduleRepository(AuthContext context) : BaseRepository<SubmoduleModel>(context), ISubmoduleRepository
 {
-    public async Task<List<SubmoduleModel>> GetByModuleIdAsync(Guid moduleId, CancellationToken cancellationToken)
+    public async Task<List<SubmoduleModel>> GetByModuleIdAsync(Guid moduleId, CancellationToken ct)
     {
-        return await context.Submodules.Where(sm => sm.ModuleId == moduleId).ToListAsync(cancellationToken);
+        return await context.Submodules.Where(sm => sm.ModuleId == moduleId).ToListAsync(ct);
     }
 }

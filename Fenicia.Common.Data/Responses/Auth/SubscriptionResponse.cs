@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Responses.Auth;
 
@@ -35,36 +34,5 @@ public class SubscriptionResponse
     public Guid? OrderId
     {
         get; set;
-    }
-
-    public static SubscriptionResponse Convert(SubscriptionModel subscription)
-    {
-        return new SubscriptionResponse
-        {
-            Id = subscription.Id,
-            Status = subscription.Status,
-            StartDate = subscription.StartDate,
-            EndDate = subscription.EndDate,
-            OrderId = subscription.OrderId
-        };
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is not SubscriptionResponse other)
-        {
-            return false;
-        }
-
-        return Id == other.Id &&
-               Status == other.Status &&
-               StartDate == other.StartDate &&
-               EndDate == other.EndDate &&
-               OrderId == other.OrderId;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Id, Status, StartDate, EndDate, OrderId);
     }
 }

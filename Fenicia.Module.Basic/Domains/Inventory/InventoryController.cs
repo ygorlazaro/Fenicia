@@ -8,26 +8,26 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 [Authorize]
 public class InventoryController(IInventoryService inventoryService): ControllerBase
 {
-    [HttpGet("/products/{productId}")]
-    public async Task<IActionResult> GetInventoryByProductIdAsync([FromRoute] Guid productId, CancellationToken cancellationToken)
+    [HttpGet("/products/{productId:guid}")]
+    public async Task<IActionResult> GetInventoryByProductIdAsync([FromRoute] Guid productId, CancellationToken ct)
     {
-        var inventory = await inventoryService.GetInventoryByProductAsync(productId, cancellationToken);
+        var inventory = await inventoryService.GetInventoryByProductAsync(productId, ct);
 
         return Ok(inventory);
     }
 
-    [HttpGet("/category/{categoryId}")]
-    public async Task<IActionResult> GetInventoryByCategoryIdAsync([FromRoute] Guid categoryId, CancellationToken cancellationToken)
+    [HttpGet("/category/{categoryId:guid}")]
+    public async Task<IActionResult> GetInventoryByCategoryIdAsync([FromRoute] Guid categoryId, CancellationToken ct)
     {
-        var inventory = await inventoryService.GetInventoryByCategoryAsync(categoryId, cancellationToken);
+        var inventory = await inventoryService.GetInventoryByCategoryAsync(categoryId, ct);
 
         return Ok(inventory);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetInventoryAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetInventoryAsync(CancellationToken ctctct)
     {
-        var inventory = await inventoryService.GetInventoryAsync(cancellationToken);
+        var inventory = await inventoryService.GetInventoryAsync(ctctct);
 
         return Ok(inventory);
     }

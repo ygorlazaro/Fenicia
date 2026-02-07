@@ -3,7 +3,7 @@ using Bogus;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Responses.Auth;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 using Moq;
 

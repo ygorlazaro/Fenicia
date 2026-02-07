@@ -19,7 +19,7 @@ public sealed class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefr
         redisDb.StringSet(key, value, TimeSpan.FromDays(7));
     }
 
-    public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken cancellationToken)
+    public async Task<bool> ValidateTokenAsync(Guid userId, string refreshToken, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
 
@@ -36,7 +36,7 @@ public sealed class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefr
         return tokenObj != null && tokenObj.UserId == userId && tokenObj.IsActive && tokenObj.ExpirationDate > DateTime.UtcNow;
     }
 
-    public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+    public async Task InvalidateRefreshTokenAsync(string refreshToken, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
 

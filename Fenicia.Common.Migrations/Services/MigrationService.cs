@@ -1,5 +1,6 @@
+using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Enums;
+using Fenicia.Common.Enums.Auth;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -8,12 +9,12 @@ namespace Fenicia.Common.Migrations.Services;
 
 public class MigrationService : IMigrationService
 {
-    public async Task RunMigrationsAsync(Guid companyId, List<ModuleType> moduleTypes, CancellationToken cancellationToken)
+    public async Task RunMigrationsAsync(Guid companyId, List<ModuleType> moduleTypes, CancellationToken ct)
     {
         foreach (var module in moduleTypes)
         {
             var (dbContextType, migrationsAssembly, connectionStringName) = GetModuleDbInfo(module);
-            var rawConnectionString = API.AppSettingsReader.GetConnectionString(connectionStringName);
+            var rawConnectionString = AppSettingsReader.GetConnectionString(connectionStringName);
 
             if (string.IsNullOrWhiteSpace(rawConnectionString))
             {
@@ -31,7 +32,7 @@ public class MigrationService : IMigrationService
             var options = optionsBuilder.Options;
 
             await using var context = (DbContext)Activator.CreateInstance(dbContextType, options)!;
-            await context.Database.MigrateAsync(cancellationToken);
+            await context.Database.MigrateAsync(ct);
         }
     }
 

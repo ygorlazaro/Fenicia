@@ -55,7 +55,7 @@ public class TokenService : ITokenService
 
         if (rolesProp != null && rolesProp.GetValue(user) is IEnumerable<string> rolesValue)
         {
-            authClaims.AddRange(rolesValue.Where(role => !string.IsNullOrEmpty(role)).Select(role => new Claim("role", role)));
+            authClaims.AddRange(rolesValue.Where(r => !string.IsNullOrEmpty(r)).Select(r => new Claim("role", r)));
         }
 
         var modulesProp = user.GetType().GetProperty("Modules");
@@ -74,7 +74,7 @@ public class TokenService : ITokenService
             modulesList.Add("erp");
         }
 
-        authClaims.AddRange(modulesList.Where(module => !string.IsNullOrEmpty(module)).Select(module => new Claim("module", module ?? string.Empty)));
+        authClaims.AddRange(modulesList.Where(m => !string.IsNullOrEmpty(m)).Select(m => new Claim("module", m ?? string.Empty)));
 
         return authClaims;
     }

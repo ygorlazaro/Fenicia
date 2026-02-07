@@ -19,7 +19,7 @@ public class SubmoduleResponse
 
     public string Route { get; set; } = null!;
 
-    public static SubmoduleResponse Convert(SubmoduleModel submodules)
+    public static SubmoduleResponse Map(SubmoduleModel submodules)
     {
         return new SubmoduleResponse
         {
@@ -30,8 +30,8 @@ public class SubmoduleResponse
         };
     }
 
-    public static SubmoduleResponse[] Convert(List<SubmoduleModel> submodules)
+    public static SubmoduleResponse[] Map(List<SubmoduleModel> submodules)
     {
-        return [.. submodules.Select(Convert)];
+        return [.. submodules.Select(Map)];
     }
 }

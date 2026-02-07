@@ -75,7 +75,7 @@ public class Program
         builder.Services.AddTransient<IOrderDetailService, OrderDetailService>();
         builder.Services.AddTransient<IInventoryService, InventoryService>();
 
-        builder.Services.AddDbContext<BasicContext>((sp, options) =>
+        builder.Services.AddDbContext<BasicContext>((sp, c) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
@@ -87,18 +87,18 @@ public class Program
                 throw new Exception("Connection string inválida");
             }
 
-            options.UseNpgsql(connString, b => b.MigrationsAssembly("Fenicia.Module.Basic")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
+            c.UseNpgsql(connString, b => b.MigrationsAssembly("Fenicia.Module.Basic")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });
 
-        builder.Services.AddAuthentication(options =>
+        builder.Services.AddAuthentication(o =>
         {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(options =>
+            o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(o =>
         {
-            options.RequireHttpsMetadata = false;
-            options.SaveToken = true;
-            options.TokenValidationParameters = new TokenValidationParameters
+            o.RequireHttpsMetadata = false;
+            o.SaveToken = true;
+            o.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
@@ -117,9 +117,9 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.MapScalarApiReference(options =>
+            app.MapScalarApiReference(o =>
             {
-                options.Authentication = new ScalarAuthenticationOptions
+                o.Authentication = new ScalarAuthenticationOptions
                 {
                     PreferredSecuritySchemes = ["Bearer "]
                 };
@@ -130,7 +130,7 @@ public class Program
         app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
 
-        app.UseWhen(context => context.Request.Path.StartsWithSegments("/basic"), appBuilder => appBuilder.UseModuleRequirement("basic"));
+        app.UseWhen(o => o.Request.Path.StartsWithSegments("/basic"), appBuilder => appBuilder.UseModuleRequirement("basic"));
 
         app.MapControllers();
 

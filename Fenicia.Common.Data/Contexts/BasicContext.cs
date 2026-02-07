@@ -89,6 +89,7 @@ public class BasicContext(DbContextOptions<BasicContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
+        SoftDeleteQueryExtension.AddSoftDeleteSupport(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }

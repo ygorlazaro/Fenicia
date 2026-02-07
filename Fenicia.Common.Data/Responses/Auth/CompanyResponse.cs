@@ -17,9 +17,9 @@ public class CompanyResponse
 
     public string TimeZone { get; set; } = null!;
 
-    public RoleModel Role { get; set; } = null!;
+    public string Role { get; set; } = null!;
 
-    public static List<CompanyResponse> Convert(List<UserRoleModel> userRoles)
+    public static List<CompanyResponse> Map(List<UserRoleModel> userRoles)
     {
         return [.. userRoles.Select(ur => new CompanyResponse
         {
@@ -28,7 +28,7 @@ public class CompanyResponse
             Cnpj = ur.Company.Cnpj,
             Language = ur.Company.Language,
             TimeZone = ur.Company.TimeZone,
-            Role = ur.Role
+            Role = ur.Role.Name ?? string.Empty
         })];
     }
 
@@ -45,10 +45,5 @@ public class CompanyResponse
                Language == other.Language &&
                TimeZone == other.TimeZone &&
                Equals(Role, other.Role);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Id, Name, Cnpj, Language, TimeZone, Role);
     }
 }
