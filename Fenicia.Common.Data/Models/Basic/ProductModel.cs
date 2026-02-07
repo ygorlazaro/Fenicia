@@ -8,63 +8,31 @@ public class ProductModel : BaseModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name
-    {
-        get;
-        set;
-    }
+    public string Name { get; set; }
 
-    = null!;
+        = null!;
 
-    public decimal? CostPrice
-    {
-        get;
-        set;
-    }
+    public decimal? CostPrice { get; set; }
 
     [Required]
-    public decimal SalesPrice
-    {
-        get;
-        set;
-    }
+    public decimal SalesPrice { get; set; }
 
     [Required]
-    public double Quantity
-    {
-        get;
-        set;
-    }
+    public double Quantity { get; set; }
 
     [Required]
-    public Guid CategoryId
-    {
-        get;
-        set;
-    }
+    public Guid CategoryId { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
-    public virtual ProductCategoryModel Category
-    {
-        get;
-        set;
-    }
+    public virtual ProductCategoryModel Category { get; set; }
 
-    = null!;
+        = null!;
 
-    public virtual List<StockMovementModel> StockMovements
-    {
-        get;
-        set;
-    }
+    public virtual List<StockMovementModel> StockMovements { get; set; }
 
-    = null!;
+        = null!;
 
-    public virtual List<OrderDetailModel> OrderDetails
-    {
-        get;
-        set;
-    }
+    public virtual List<OrderDetailModel> OrderDetails { get; set; }
 
-    = null;
+        = null;
 }

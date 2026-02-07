@@ -46,35 +46,28 @@ public class TokenService : ITokenService
         {
             var companyIdValue = companyIdProp.GetValue(user);
             if (companyIdValue != null && !string.IsNullOrEmpty(companyIdValue.ToString()))
-            {
                 authClaims.Add(new Claim("companyId", companyIdValue.ToString()!));
-            }
         }
 
         var rolesProp = user.GetType().GetProperty("Roles");
 
         if (rolesProp != null && rolesProp.GetValue(user) is IEnumerable<string> rolesValue)
-        {
             authClaims.AddRange(rolesValue.Where(r => !string.IsNullOrEmpty(r)).Select(r => new Claim("role", r)));
-        }
 
         var modulesProp = user.GetType().GetProperty("Modules");
 
         if (modulesProp == null || modulesProp.GetValue(user) is not IEnumerable<object> modulesValue)
-        {
             return authClaims;
-        }
 
         var modulesList = modulesValue.Select(m => m.ToString()).Where(m => !string.IsNullOrEmpty(m)).ToList();
 
-        var hasGodRole = rolesProp != null && (rolesProp.GetValue(user) as IEnumerable<string>)?.Contains("God") == true;
+        var hasGodRole = rolesProp != null
+                         && (rolesProp.GetValue(user) as IEnumerable<string>)?.Contains("God") == true;
 
-        if (hasGodRole && !modulesList.Contains("erp"))
-        {
-            modulesList.Add("erp");
-        }
+        if (hasGodRole && !modulesList.Contains("erp")) modulesList.Add("erp");
 
-        authClaims.AddRange(modulesList.Where(m => !string.IsNullOrEmpty(m)).Select(m => new Claim("module", m ?? string.Empty)));
+        authClaims.AddRange(modulesList.Where(m => !string.IsNullOrEmpty(m))
+            .Select(m => new Claim("module", m ?? string.Empty)));
 
         return authClaims;
     }

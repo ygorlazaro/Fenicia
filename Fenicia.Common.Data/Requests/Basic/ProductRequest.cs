@@ -4,43 +4,19 @@ namespace Fenicia.Common.Data.Requests.Basic;
 
 public class ProductRequest
 {
-    public Guid Id
-    {
-        get;
-        set;
-    }
+    public Guid Id { get; set; }
 
     [Required]
     [MaxLength(50)]
-    public string Name
-    {
-        get;
-        set;
-    }
+    public string Name { get; set; }
 
-    public decimal? CostPrice
-    {
-        get;
-        set;
-    }
+    public decimal? CostPrice { get; set; }
 
     [Required]
-    public decimal SellingPrice
-    {
-        get;
-        set;
-    }
+    public decimal SellingPrice { get; set; }
 
-    public int Quantity
-    {
-        get;
-        set;
-    }
+    public int Quantity { get; set; }
 
     [Required]
-    public Guid CategoryId
-    {
-        get;
-        set;
-    }
+    public Guid CategoryId { get; set; }
 }

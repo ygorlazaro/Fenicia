@@ -6,10 +6,7 @@ public class RefreshToken
 
     public DateTime ExpirationDate { get; set; } = DateTime.UtcNow.AddDays(7);
 
-    public Guid UserId
-    {
-        get; set;
-    }
+    public Guid UserId { get; set; }
 
     public bool IsActive { get; set; } = true;
 }

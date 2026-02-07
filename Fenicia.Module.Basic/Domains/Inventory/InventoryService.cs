@@ -5,7 +5,11 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 
 public class InventoryService(IProductRepository productRepository) : IInventoryService
 {
-    public async Task<InventoryResponse> GetInventoryByProductAsync(Guid productId, CancellationToken ct, int page = 1, int perPage = 10)
+    public async Task<InventoryResponse> GetInventoryByProductAsync(
+        Guid productId,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10)
     {
         var productInventory = await productRepository.GetInventoryAsync(productId, ct, page, perPage);
 
@@ -17,7 +21,11 @@ public class InventoryService(IProductRepository productRepository) : IInventory
         return inventory;
     }
 
-    public async Task<InventoryResponse> GetInventoryByCategoryAsync(Guid categoryId, CancellationToken ct, int page = 1, int perPage = 10)
+    public async Task<InventoryResponse> GetInventoryByCategoryAsync(
+        Guid categoryId,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10)
     {
         var productInventory = await productRepository.GetInventoryByCategoryAsync(categoryId, ct, page, perPage);
 

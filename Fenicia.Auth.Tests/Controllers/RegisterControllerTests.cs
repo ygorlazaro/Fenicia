@@ -12,8 +12,8 @@ namespace Fenicia.Auth.Tests.Controllers;
 
 public class RegisterControllerTests
 {
-    private Mock<IUserService> userServiceMock;
     private RegisterController sut;
+    private Mock<IUserService> userServiceMock;
 
     [SetUp]
     public void Setup()

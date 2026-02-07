@@ -14,10 +14,10 @@ namespace Fenicia.Auth.Tests.Controllers;
 
 public class TokenControllerTests
 {
-    private Mock<ITokenService> tokenServiceMock;
     private Mock<IRefreshTokenService> refreshServiceMock;
-    private Mock<IUserService> userServiceMock;
     private TokenController sut;
+    private Mock<ITokenService> tokenServiceMock;
+    private Mock<IUserService> userServiceMock;
 
     [SetUp]
     public void Setup()
@@ -26,7 +26,8 @@ public class TokenControllerTests
         this.refreshServiceMock = new Mock<IRefreshTokenService>();
         this.userServiceMock = new Mock<IUserService>();
 
-        this.sut = new TokenController(this.tokenServiceMock.Object, this.refreshServiceMock.Object, this.userServiceMock.Object);
+        this.sut = new TokenController(this.tokenServiceMock.Object, this.refreshServiceMock.Object,
+            this.userServiceMock.Object);
     }
 
     [Test]
@@ -56,7 +57,8 @@ public class TokenControllerTests
     public async Task PostAsync_ReturnsBadRequest_OnPermissionDenied()
     {
         var request = new TokenRequest { Email = "a@b.com", Password = "p" };
-        this.userServiceMock.Setup(x => x.GetForLoginAsync(request, CancellationToken.None)).ThrowsAsync(new PermissionDeniedException("bad"));
+        this.userServiceMock.Setup(x => x.GetForLoginAsync(request, CancellationToken.None))
+            .ThrowsAsync(new PermissionDeniedException("bad"));
 
         var result = await this.sut.PostAsync(request, new WideEventContext(), CancellationToken.None);
 
@@ -69,7 +71,8 @@ public class TokenControllerTests
     public async Task Refresh_ReturnsBadRequest_WhenTokenInvalid()
     {
         var req = new RefreshTokenRequest { UserId = Guid.NewGuid(), RefreshToken = "r" };
-        this.refreshServiceMock.Setup(x => x.ValidateTokenAsync(req.UserId, req.RefreshToken, CancellationToken.None)).ReturnsAsync(false);
+        this.refreshServiceMock.Setup(x => x.ValidateTokenAsync(req.UserId, req.RefreshToken, CancellationToken.None))
+            .ReturnsAsync(false);
 
         var result = await this.sut.Refresh(req, new WideEventContext(), CancellationToken.None);
 
@@ -82,8 +85,10 @@ public class TokenControllerTests
         var userId = Guid.NewGuid();
         var req = new RefreshTokenRequest { UserId = userId, RefreshToken = "r" };
 
-        this.refreshServiceMock.Setup(x => x.ValidateTokenAsync(userId, req.RefreshToken, CancellationToken.None)).ReturnsAsync(true);
-        this.refreshServiceMock.Setup(x => x.InvalidateRefreshTokenAsync(req.RefreshToken, CancellationToken.None)).Returns(Task.CompletedTask);
+        this.refreshServiceMock.Setup(x => x.ValidateTokenAsync(userId, req.RefreshToken, CancellationToken.None))
+            .ReturnsAsync(true);
+        this.refreshServiceMock.Setup(x => x.InvalidateRefreshTokenAsync(req.RefreshToken, CancellationToken.None))
+            .Returns(Task.CompletedTask);
 
         var user = new UserResponse { Id = userId, Email = "x@x.com", Name = "X" };
         this.userServiceMock.Setup(x => x.GetUserForRefreshAsync(userId, CancellationToken.None)).ReturnsAsync(user);
@@ -102,7 +107,9 @@ public class TokenControllerTests
             Assert.That(tr?.RefreshToken, Is.EqualTo("newref"));
         }
 
-        this.refreshServiceMock.Verify(x => x.ValidateTokenAsync(userId, req.RefreshToken, CancellationToken.None), Times.Once);
-        this.refreshServiceMock.Verify(x => x.InvalidateRefreshTokenAsync(req.RefreshToken, CancellationToken.None), Times.Once);
+        this.refreshServiceMock.Verify(x => x.ValidateTokenAsync(userId, req.RefreshToken, CancellationToken.None),
+            Times.Once);
+        this.refreshServiceMock.Verify(x => x.InvalidateRefreshTokenAsync(req.RefreshToken, CancellationToken.None),
+            Times.Once);
     }
 }

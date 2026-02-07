@@ -9,11 +9,14 @@ using Fenicia.Module.Basic.Domains.Product;
 
 namespace Fenicia.Module.Basic.Domains.StockMoviment;
 
-public class StockMovementService(IStockMovementRepository stockMovementRepository, IProductRepository productRepository) : IStockMovementService
+public class StockMovementService(
+    IStockMovementRepository stockMovementRepository,
+    IProductRepository productRepository) : IStockMovementService
 {
     public async Task AddStock(Guid productId, int quantity, CancellationToken ct)
     {
-        var product = await productRepository.GetByIdAsync(productId, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
+        var product = await productRepository.GetByIdAsync(productId, ct)
+                      ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         product.Quantity += quantity;
 
         productRepository.Update(product);
@@ -34,7 +37,8 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
 
     public async Task RemoveStock(Guid productId, int quantity, CancellationToken ct)
     {
-        var product = await productRepository.GetByIdAsync(productId, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
+        var product = await productRepository.GetByIdAsync(productId, ct)
+                      ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         product.Quantity -= quantity;
 
         productRepository.Update(product);
@@ -53,14 +57,26 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
         await stockMovementRepository.SaveChangesAsync(ct);
     }
 
-    public async Task<List<StockMovementResponse>> GetMovementAsync(Guid productId, DateTime startDate, DateTime endDate, CancellationToken ct, int page = 1, int perPage = 10)
+    public async Task<List<StockMovementResponse>> GetMovementAsync(
+        Guid productId,
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10)
     {
-        var movements = await stockMovementRepository.GetMovementAsync(productId, startDate, endDate, ct, page, perPage);
+        var movements =
+            await stockMovementRepository.GetMovementAsync(productId, startDate, endDate, ct, page, perPage);
 
         return StockMovementMapper.Map(movements);
     }
 
-    public async Task<List<StockMovementResponse>> GetMovementAsync(DateTime startDate, DateTime endDate, CancellationToken ct, int page = 1, int perPage = 10)
+    public async Task<List<StockMovementResponse>> GetMovementAsync(
+        DateTime startDate,
+        DateTime endDate,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10)
     {
         var movements = await stockMovementRepository.GetMovementAsync(startDate, endDate, ct, page, perPage);
 
@@ -74,13 +90,9 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
         stockMovementRepository.Add(stockMovement);
 
         if (stockMovement.Type == StockMovementType.In)
-        {
             await productRepository.IncreaseStockAsync(stockMovement.ProductId, stockMovement.Quantity, ct);
-        }
         else if (stockMovement.Type == StockMovementType.In)
-        {
             await productRepository.DecreastStockAsync(stockMovement.ProductId, stockMovement.Quantity, ct);
-        }
 
         await stockMovementRepository.SaveChangesAsync(ct);
 
@@ -91,10 +103,7 @@ public class StockMovementService(IStockMovementRepository stockMovementReposito
     {
         var moviment = await stockMovementRepository.GetByIdAsync(id, ct);
 
-        if (moviment is null)
-        {
-            return null;
-        }
+        if (moviment is null) return null;
 
         moviment.Date = request.Date;
         moviment.Type = request.Type;

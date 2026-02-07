@@ -8,39 +8,21 @@ namespace Fenicia.Common.Data.Models.Auth;
 public class SubscriptionCreditModel : BaseModel
 {
     [Required]
-    public Guid SubscriptionId
-    {
-        get; set;
-    }
+    public Guid SubscriptionId { get; set; }
 
     [Required]
-    public Guid ModuleId
-    {
-        get; set;
-    }
+    public Guid ModuleId { get; set; }
 
     [Required]
-    public bool IsActive
-    {
-        get; set;
-    }
+    public bool IsActive { get; set; }
 
     [Required]
-    public DateTime StartDate
-    {
-        get; set;
-    }
+    public DateTime StartDate { get; set; }
 
     [Required]
-    public DateTime EndDate
-    {
-        get; set;
-    }
+    public DateTime EndDate { get; set; }
 
-    public Guid? OrderDetailId
-    {
-        get; set;
-    }
+    public Guid? OrderDetailId { get; set; }
 
     [JsonIgnore]
     [ForeignKey(nameof(ModuleId))]
@@ -52,8 +34,5 @@ public class SubscriptionCreditModel : BaseModel
 
     [JsonIgnore]
     [ForeignKey(nameof(OrderDetailId))]
-    public virtual OrderDetailModel? OrderDetail
-    {
-        get; set;
-    }
+    public virtual OrderDetailModel? OrderDetail { get; set; }
 }

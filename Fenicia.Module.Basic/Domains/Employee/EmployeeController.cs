@@ -35,7 +35,10 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] EmployeeRequest request, [FromRoute] Guid id, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync(
+        [FromBody] EmployeeRequest request,
+        [FromRoute] Guid id,
+        CancellationToken ct)
     {
         var employee = await employeeService.UpdateAsync(request, ct);
 

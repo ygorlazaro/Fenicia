@@ -4,8 +4,5 @@ public class RefreshTokenRequest
 {
     public string RefreshToken { get; set; } = string.Empty;
 
-    public Guid UserId
-    {
-        get; set;
-    }
+    public Guid UserId { get; set; }
 }

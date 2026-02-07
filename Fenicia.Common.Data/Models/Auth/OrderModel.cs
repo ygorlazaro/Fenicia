@@ -10,44 +10,26 @@ namespace Fenicia.Common.Data.Models.Auth;
 public class OrderModel : BaseModel
 {
     [Required]
-    public Guid UserId
-    {
-        get; set;
-    }
+    public Guid UserId { get; set; }
 
     [Required]
-    public Guid CompanyId
-    {
-        get; set;
-    }
+    public Guid CompanyId { get; set; }
 
     [Required]
     [Column(TypeName = "decimal(18,2)")]
     [Range(0, double.MaxValue)]
-    public decimal TotalAmount
-    {
-        get; set;
-    }
+    public decimal TotalAmount { get; set; }
 
     [Required]
     [DataType(DataType.DateTime)]
-    public DateTime SaleDate
-    {
-        get; set;
-    }
+    public DateTime SaleDate { get; set; }
 
     [Required]
     [EnumDataType(typeof(OrderStatus))]
-    public OrderStatus Status
-    {
-        get; set;
-    }
+    public OrderStatus Status { get; set; }
 
     [JsonIgnore]
-    public virtual SubscriptionModel? Subscription
-    {
-        get; set;
-    }
+    public virtual SubscriptionModel? Subscription { get; set; }
 
     [JsonIgnore]
     public virtual List<OrderDetailModel> Details { get; set; } = null!;

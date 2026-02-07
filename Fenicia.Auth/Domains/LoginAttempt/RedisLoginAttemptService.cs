@@ -23,10 +23,7 @@ public class RedisLoginAttemptService(IConnectionMultiplexer redis) : ILoginAtte
         var key = GetKey(email);
         var current = await this.db.StringIncrementAsync(key);
 
-        if (current == 1)
-        {
-            await this.db.KeyExpireAsync(key, this.expiration);
-        }
+        if (current == 1) await this.db.KeyExpireAsync(key, this.expiration);
     }
 
     public async Task ResetAttemptsAsync(string email, CancellationToken ct)

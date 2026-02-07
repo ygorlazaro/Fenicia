@@ -18,7 +18,8 @@ public class ModuleRepository(AuthContext context) : BaseRepository<ModuleModel>
 
     public async Task<List<ModuleModel>> GetManyOrdersAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
-        return await context.Modules.Where(module => request.Any(r => r == module.Id)).OrderBy(module => module.Type).ToListAsync(ct);
+        return await context.Modules.Where(module => request.Any(r => r == module.Id)).OrderBy(module => module.Type)
+            .ToListAsync(ct);
     }
 
     public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
@@ -57,11 +58,11 @@ public class ModuleRepository(AuthContext context) : BaseRepository<ModuleModel>
                join s in context.Subscriptions on sc.SubscriptionId equals s.Id
                join ur in context.UserRoles on s.CompanyId equals ur.CompanyId
                where ur.UserId == userId
-               && s.CompanyId == companyId
-               && s.Status == SubscriptionStatus.Active
-               && now >= s.StartDate && now <= s.EndDate
-               && sc.IsActive
-               && now >= sc.StartDate && now <= sc.EndDate
+                     && s.CompanyId == companyId
+                     && s.Status == SubscriptionStatus.Active
+                     && now >= s.StartDate && now <= s.EndDate
+                     && sc.IsActive
+                     && now >= sc.StartDate && now <= sc.EndDate
                select m;
     }
 }

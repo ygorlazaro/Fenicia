@@ -19,7 +19,8 @@ public class CompanyRepositoryTests
     [SetUp]
     public void Setup()
     {
-        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}")
+            .Options;
         this.context = new AuthContext(this.options);
         this.sut = new CompanyRepository(this.context);
         this.faker = new Faker();
@@ -291,8 +292,16 @@ public class CompanyRepositoryTests
     public async Task GetByUserIdAsyncIncludesInactiveWhenOnlyActiveFalse()
     {
         var userId = Guid.NewGuid();
-        var activeCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Random.String2(14, "0123456789"), IsActive = true };
-        var inactiveCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Random.String2(14, "0123456789"), IsActive = false };
+        var activeCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Random.String2(14, "0123456789"), IsActive = true
+        };
+        var inactiveCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Random.String2(14, "0123456789"), IsActive = false
+        };
 
         var userRoles = new List<UserRoleModel>
         {
@@ -318,8 +327,16 @@ public class CompanyRepositoryTests
     public async Task GetCompaniesAsyncReturnsDistinctIdsAndRespectsOnlyActive()
     {
         var userId = Guid.NewGuid();
-        var activeCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Random.String2(14, "0123456789"), IsActive = true };
-        var inactiveCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Random.String2(14, "0123456789"), IsActive = false };
+        var activeCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Random.String2(14, "0123456789"), IsActive = true
+        };
+        var inactiveCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Random.String2(14, "0123456789"), IsActive = false
+        };
 
         var userRoles = new List<UserRoleModel>
         {

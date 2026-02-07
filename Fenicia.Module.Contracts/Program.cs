@@ -28,7 +28,9 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
 
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]
+                                          ?? throw new InvalidOperationException(TextConstants
+                                              .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
 
@@ -41,10 +43,7 @@ public class Program
 
             var connString = config.GetConnectionString("Contracts")?.Replace("{tenant}", tenantId);
 
-            if (string.IsNullOrWhiteSpace(connString))
-            {
-                throw new Exception("Connection string inválida");
-            }
+            if (string.IsNullOrWhiteSpace(connString)) throw new Exception("Connection string inválida");
 
             o.UseNpgsql(connString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });
@@ -89,7 +88,8 @@ public class Program
         app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
 
-        app.UseWhen(o => o.Request.Path.StartsWithSegments("/contract"), appBuilder => appBuilder.UseModuleRequirement("contract"));
+        app.UseWhen(o => o.Request.Path.StartsWithSegments("/contract"),
+            appBuilder => appBuilder.UseModuleRequirement("contract"));
 
         app.MapControllers();
 

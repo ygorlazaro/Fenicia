@@ -73,7 +73,8 @@ public class UserRoleServiceTests
         var companyId = Guid.NewGuid();
         const string roleName = "Admin";
 
-        this.repoMock.Setup(r => r.HasRoleAsync(userId, companyId, roleName, this.cancellationToken)).ReturnsAsync(true);
+        this.repoMock.Setup(r => r.HasRoleAsync(userId, companyId, roleName, this.cancellationToken))
+            .ReturnsAsync(true);
 
         var result = await this.sut.HasRoleAsync(userId, companyId, roleName, this.cancellationToken);
 

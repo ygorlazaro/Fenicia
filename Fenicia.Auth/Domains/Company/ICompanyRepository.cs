@@ -11,7 +11,12 @@ public interface ICompanyRepository : IBaseRepository<CompanyModel>
 
     Task<CompanyModel?> GetByCnpjAsync(string cnpj, bool onlyActive, CancellationToken ct);
 
-    Task<List<CompanyModel>> GetByUserIdAsync(Guid userId, bool onlyActive, CancellationToken ct, int page = 1, int perPage = 10);
+    Task<List<CompanyModel>> GetByUserIdAsync(
+        Guid userId,
+        bool onlyActive,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10);
 
     Task<int> CountByUserIdAsync(Guid userId, bool onlyActive, CancellationToken ct);
 

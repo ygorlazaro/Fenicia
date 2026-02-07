@@ -15,11 +15,7 @@ public class UserRequest
 
     [Required]
     [MaxLength(48)]
-    public string Username
-    {
-        get;
-        set;
-    }
+    public string Username { get; set; }
 
     public string? ImageUrl { get; set; }
 }

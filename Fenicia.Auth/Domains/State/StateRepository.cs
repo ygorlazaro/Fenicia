@@ -6,5 +6,4 @@ namespace Fenicia.Auth.Domains.State;
 
 public class StateRepository(AuthContext context) : BaseRepository<StateModel>(context), IStateRepository
 {
-
 }

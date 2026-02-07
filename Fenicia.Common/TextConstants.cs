@@ -7,7 +7,8 @@ public static class TextConstants
     public const string PermissionDeniedMessage = "Permission denied";
     public const string ThereWasAnErrorSearchingModulesMessage = "Houve um problema buscando os módulos";
 
-    public const string ThereWasAnErrorAddingModulesMessage = "Ocorreu um problema para adicionar créditos de assinatura";
+    public const string ThereWasAnErrorAddingModulesMessage =
+        "Ocorreu um problema para adicionar créditos de assinatura";
 
     public const string EmailExistsMessage = "This email exists";
     public const string CompanyExistsMessage = "This company exists";

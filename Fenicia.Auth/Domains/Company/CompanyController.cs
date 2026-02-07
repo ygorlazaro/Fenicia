@@ -21,7 +21,10 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [ProducesResponseType(typeof(Pagination<IEnumerable<CompanyResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser(
+        [FromQuery] PaginationQuery query,
+        WideEventContext wide,
+        CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
@@ -41,7 +44,11 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<CompanyResponse>> PatchAsync([FromBody] CompanyUpdateRequest request, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<CompanyResponse>> PatchAsync(
+        [FromBody] CompanyUpdateRequest request,
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();

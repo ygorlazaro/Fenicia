@@ -20,7 +20,10 @@ public class ModuleController(IModuleService moduleService) : ControllerBase
     [AllowAnonymous]
     [ProducesResponseType(typeof(Pagination<List<ModuleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<ModuleResponse>>>> GetAllModulesAsync([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken cancellationToken)
+    public async Task<ActionResult<Pagination<List<ModuleResponse>>>> GetAllModulesAsync(
+        [FromQuery] PaginationQuery query,
+        WideEventContext wide,
+        CancellationToken cancellationToken)
     {
         wide.UserId = "Guest";
 

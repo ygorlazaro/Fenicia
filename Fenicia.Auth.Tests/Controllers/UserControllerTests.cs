@@ -16,8 +16,8 @@ namespace Fenicia.Auth.Tests.Controllers;
 public class UserControllerTests
 {
     private Mock<IModuleService> moduleServiceMock;
-    private Mock<IUserRoleService> userRoleServiceMock;
     private UserController sut;
+    private Mock<IUserRoleService> userRoleServiceMock;
 
     [SetUp]
     public void Setup()
@@ -34,7 +34,9 @@ public class UserControllerTests
         var headers = new Headers { CompanyId = Guid.NewGuid() };
         var modules = new List<ModuleResponse> { new() { Id = Guid.NewGuid(), Name = "M" } };
 
-        this.moduleServiceMock.Setup(x => x.GetModuleAndSubmoduleAsync(userId, headers.CompanyId, CancellationToken.None)).ReturnsAsync(modules);
+        this.moduleServiceMock
+            .Setup(x => x.GetModuleAndSubmoduleAsync(userId, headers.CompanyId, CancellationToken.None))
+            .ReturnsAsync(modules);
 
         this.sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
@@ -55,7 +57,8 @@ public class UserControllerTests
         var userId = Guid.NewGuid();
         var companies = new List<CompanyResponse> { new() { Id = Guid.NewGuid(), Name = "C" } };
 
-        this.userRoleServiceMock.Setup(x => x.GetUserCompaniesAsync(userId, CancellationToken.None)).ReturnsAsync(companies);
+        this.userRoleServiceMock.Setup(x => x.GetUserCompaniesAsync(userId, CancellationToken.None))
+            .ReturnsAsync(companies);
 
         this.sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };

@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
-public class ForgotPasswordRepository(AuthContext context) : BaseRepository<ForgotPasswordModel>(context), IForgotPasswordRepository
+public class ForgotPasswordRepository(AuthContext context)
+    : BaseRepository<ForgotPasswordModel>(context), IForgotPasswordRepository
 {
     public async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
     {
@@ -21,10 +22,7 @@ public class ForgotPasswordRepository(AuthContext context) : BaseRepository<Forg
     {
         var forgotPassword = await context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == id, ct);
 
-        if (forgotPassword is null)
-        {
-            return;
-        }
+        if (forgotPassword is null) return;
 
         forgotPassword.IsActive = false;
 
@@ -33,7 +31,9 @@ public class ForgotPasswordRepository(AuthContext context) : BaseRepository<Forg
         await context.SaveChangesAsync(ct);
     }
 
-    public async Task<ForgotPasswordModel> SaveForgotPasswordAsync(ForgotPasswordModel forgotPassword, CancellationToken ct)
+    public async Task<ForgotPasswordModel> SaveForgotPasswordAsync(
+        ForgotPasswordModel forgotPassword,
+        CancellationToken ct)
     {
         context.ForgottenPasswords.Add(forgotPassword);
         await context.SaveChangesAsync(ct);

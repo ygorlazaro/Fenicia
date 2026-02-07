@@ -10,7 +10,8 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class ProductCategoryController(IProductCategoryService productCategoryService, IProductService productService) : ControllerBase
+public class ProductCategoryController(IProductCategoryService productCategoryService, IProductService productService)
+    : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAsync(CancellationToken ct)
@@ -37,7 +38,10 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] ProductCategoryRequest request, [FromRoute] Guid id, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync(
+        [FromBody] ProductCategoryRequest request,
+        [FromRoute] Guid id,
+        CancellationToken ct)
     {
         var productCategory = await productCategoryService.UpdateAsync(request, ct);
 
@@ -53,7 +57,10 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     }
 
     [HttpGet("{id:guid}/product")]
-    public async Task<IActionResult> GetProductsByCategoryAsync([FromRoute] Guid categoryId, [FromQuery] PaginationQuery query, CancellationToken ct)
+    public async Task<IActionResult> GetProductsByCategoryAsync(
+        [FromRoute] Guid categoryId,
+        [FromQuery] PaginationQuery query,
+        CancellationToken ct)
     {
         var products = await productService.GetByCategoryIdAsync(categoryId, ct, query.Page, query.PerPage);
 

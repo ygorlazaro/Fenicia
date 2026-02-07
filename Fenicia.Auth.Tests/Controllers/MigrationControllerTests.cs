@@ -13,9 +13,9 @@ namespace Fenicia.Auth.Tests.Controllers;
 
 public class MigrationControllerTests
 {
-    private Mock<IMigrationService> migrationServiceMock;
-    private Mock<ISubscriptionCreditService> creditServiceMock;
     private Mock<ICompanyService> companyServiceMock;
+    private Mock<ISubscriptionCreditService> creditServiceMock;
+    private Mock<IMigrationService> migrationServiceMock;
     private MigrationController sut;
 
     [SetUp]
@@ -25,7 +25,8 @@ public class MigrationControllerTests
         this.creditServiceMock = new Mock<ISubscriptionCreditService>();
         this.companyServiceMock = new Mock<ICompanyService>();
 
-        this.sut = new MigrationController(this.migrationServiceMock.Object, this.creditServiceMock.Object, this.companyServiceMock.Object);
+        this.sut = new MigrationController(this.migrationServiceMock.Object, this.creditServiceMock.Object,
+            this.companyServiceMock.Object);
     }
 
     [Test]
@@ -36,11 +37,13 @@ public class MigrationControllerTests
         var credits = new List<ModuleType>();
 
         this.companyServiceMock.Setup(x => x.GetByCnpjAsync(cnpj, CancellationToken.None)).ReturnsAsync(company);
-        this.creditServiceMock.Setup(x => x.GetActiveModulesTypesAsync(company.Id, CancellationToken.None)).ReturnsAsync(credits);
+        this.creditServiceMock.Setup(x => x.GetActiveModulesTypesAsync(company.Id, CancellationToken.None))
+            .ReturnsAsync(credits);
 
         var result = await this.sut.PostNewMigrationAsync(cnpj, CancellationToken.None);
 
         Assert.That(result, Is.TypeOf<OkResult>());
-        this.migrationServiceMock.Verify(x => x.RunMigrationsAsync(company.Id, credits, CancellationToken.None), Times.Once);
+        this.migrationServiceMock.Verify(x => x.RunMigrationsAsync(company.Id, credits, CancellationToken.None),
+            Times.Once);
     }
 }

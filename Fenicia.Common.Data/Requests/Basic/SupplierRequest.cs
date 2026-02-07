@@ -4,9 +4,5 @@ public class SupplierRequest
 {
     public Guid Id { get; set; }
 
-    public PersonRequest Person
-    {
-        get;
-        set;
-    }
+    public PersonRequest Person { get; set; }
 }

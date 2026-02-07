@@ -14,17 +14,21 @@ using Fenicia.Common.Migrations.Services;
 
 namespace Fenicia.Auth.Domains.User;
 
-public class UserService(IUserRepository userRepository, IRoleRepository roleRepository, IUserRoleRepository userRoleRepository, ICompanyRepository companyRepository, ISecurityService securityService, ILoginAttemptService loginAttemptService, IMigrationService migrationService)
+public class UserService(
+    IUserRepository userRepository,
+    IRoleRepository roleRepository,
+    IUserRoleRepository userRoleRepository,
+    ICompanyRepository companyRepository,
+    ISecurityService securityService,
+    ILoginAttemptService loginAttemptService,
+    IMigrationService migrationService)
     : IUserService
 {
     public async Task<UserResponse> GetForLoginAsync(TokenRequest request, CancellationToken ct)
     {
         var attempts = await loginAttemptService.GetAttemptsAsync(request.Email, ct);
 
-        if (attempts >= 5)
-        {
-            throw new PermissionDeniedException(TextConstants.TooManyAttempts);
-        }
+        if (attempts >= 5) throw new PermissionDeniedException(TextConstants.TooManyAttempts);
 
         var user = await userRepository.GetByEmailAsync(request.Email, ct);
 
@@ -56,15 +60,9 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
         var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email, ct);
         var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.Cnpj, true, ct);
 
-        if (isExistingUser)
-        {
-            throw new ArgumentException(TextConstants.EmailExistsMessage);
-        }
+        if (isExistingUser) throw new ArgumentException(TextConstants.EmailExistsMessage);
 
-        if (isExistingCompany)
-        {
-            throw new ArgumentException(TextConstants.CompanyExistsMessage);
-        }
+        if (isExistingCompany) throw new ArgumentException(TextConstants.CompanyExistsMessage);
 
         var hashedPassword = securityService.HashPassword(request.Password);
         var userRequest = new UserModel
@@ -79,7 +77,8 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
         companyRepository.Add(companyRequest);
 
-        var adminRole = await roleRepository.GetAdminRoleAsync(ct) ?? throw new ArgumentException(TextConstants.MissingAdminRoleMessage);
+        var adminRole = await roleRepository.GetAdminRoleAsync(ct)
+                        ?? throw new ArgumentException(TextConstants.MissingAdminRoleMessage);
         var userRole = new UserRoleModel
         {
             UserId = userRequest.Id,
@@ -103,7 +102,8 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
     public async Task<UserResponse> GetUserForRefreshAsync(Guid userId, CancellationToken ct)
     {
-        var user = await userRepository.GetByIdAsync(userId, ct) ?? throw new UnauthorizedAccessException(TextConstants.PermissionDeniedMessage);
+        var user = await userRepository.GetByIdAsync(userId, ct)
+                   ?? throw new UnauthorizedAccessException(TextConstants.PermissionDeniedMessage);
 
         return UserMapper.Map(user);
     }
@@ -121,7 +121,8 @@ public class UserService(IUserRepository userRepository, IRoleRepository roleRep
 
     public async Task<UserResponse> ChangePasswordAsync(Guid userId, string password, CancellationToken t)
     {
-        var user = await userRepository.GetByIdAsync(userId, t) ?? throw new ArgumentException(TextConstants.ItemNotFoundMessage);
+        var user = await userRepository.GetByIdAsync(userId, t)
+                   ?? throw new ArgumentException(TextConstants.ItemNotFoundMessage);
         var hashedPassword = securityService.HashPassword(password);
 
         user.Password = hashedPassword;

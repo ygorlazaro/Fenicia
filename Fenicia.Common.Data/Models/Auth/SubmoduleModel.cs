@@ -19,17 +19,11 @@ public class SubmoduleModel : BaseModel
 
     [Column("description")]
     [MaxLength(100)]
-    public string? Description
-    {
-        get; set;
-    }
+    public string? Description { get; set; }
 
     [Column("module_id")]
     [Required]
-    public Guid ModuleId
-    {
-        get; set;
-    }
+    public Guid ModuleId { get; set; }
 
     [ForeignKey(nameof(ModuleId))]
     [JsonIgnore]

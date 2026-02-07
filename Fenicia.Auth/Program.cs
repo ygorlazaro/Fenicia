@@ -47,12 +47,11 @@ public static class Program
     public static void Main(string[] args)
     {
         var configBuilder = new ConfigurationManager();
-        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+        var commonApiSettingsPath =
+            Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
 
         if (!File.Exists(commonApiSettingsPath))
-        {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
-        }
 
         configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
 
@@ -111,7 +110,9 @@ public static class Program
 
     private static void BuildControllers(ConfigurationManager configuration, WebApplicationBuilder builder)
     {
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]
+                                          ?? throw new InvalidOperationException(TextConstants
+                                              .InvalidJwtSecretMessage));
         builder.Services.AddAuthentication(o =>
         {
             o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -168,9 +169,19 @@ public static class Program
     {
         builder.Services.AddCors(o =>
         {
-            o.AddPolicy("RestrictedCors", policy => { policy.WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
+            o.AddPolicy("RestrictedCors",
+                policy =>
+                {
+                    policy.WithOrigins("https://fenicia.gatoninja.com.br", "https://api.fenicia.gatoninja.com.br")
+                        .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                });
 
-            o.AddPolicy("DevCors", policy => { policy.WithOrigins("http://localhost:5144", "http://localhost:3000", "http://localhost:5144", "http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
+            o.AddPolicy("DevCors",
+                policy =>
+                {
+                    policy.WithOrigins("http://localhost:5144", "http://localhost:3000", "http://localhost:5144",
+                        "http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                });
         });
     }
 
@@ -178,7 +189,8 @@ public static class Program
     {
         var connectionString = configuration.GetConnectionString("Auth");
 
-        builder.Services.AddDbContextPool<AuthContext>(o => o.UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth"))
+        builder.Services.AddDbContextPool<AuthContext>(o => o
+            .UseNpgsql(connectionString, b => b.MigrationsAssembly("Fenicia.Auth"))
             .EnableSensitiveDataLogging()
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .UseSnakeCaseNamingConvention());
@@ -250,9 +262,7 @@ public static class Program
             var seqUrl = context.Configuration["Seq:Url"];
 
             if (!string.IsNullOrWhiteSpace(seqUrl))
-            {
                 config.Enrich.FromLogContext().Enrich.WithEnvironmentUserName().WriteTo.Console().WriteTo.Seq(seqUrl);
-            }
         });
 
         Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();

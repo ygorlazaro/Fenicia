@@ -19,7 +19,8 @@ public class OrderRepositoryTests
     [SetUp]
     public void Setup()
     {
-        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}")
+            .Options;
 
         this.context = new AuthContext(this.options);
         this.sut = new OrderRepository(this.context);
@@ -110,7 +111,8 @@ public class OrderRepositoryTests
         this.sut.Add(order);
 
         await this.sut.SaveChangesAsync(this.cancellationToken);
-        var savedOrder = await this.context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == order.Id, this.cancellationToken);
+        var savedOrder = await this.context.Orders.Include(o => o.Details)
+            .FirstOrDefaultAsync(o => o.Id == order.Id, this.cancellationToken);
 
         Assert.That(savedOrder, Is.Not.Null);
         Assert.That(savedOrder.Details, Has.Count.EqualTo(2));

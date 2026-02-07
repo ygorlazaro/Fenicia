@@ -8,16 +8,24 @@ using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Domains.Company;
 
-public class CompanyService(ICompanyRepository companyRepository, IUserRoleService userRoleService, IRoleService roleService) : ICompanyService
+public class CompanyService(
+    ICompanyRepository companyRepository,
+    IUserRoleService userRoleService,
+    IRoleService roleService) : ICompanyService
 {
     public async Task<CompanyResponse> GetByCnpjAsync(string cnpj, CancellationToken ct)
     {
-        var company = await companyRepository.GetByCnpjAsync(cnpj, false, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
+        var company = await companyRepository.GetByCnpjAsync(cnpj, false, ct)
+                      ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
 
         return CompanyMapper.Map(company);
     }
 
-    public async Task<List<CompanyResponse>> GetByUserIdAsync(Guid userId, CancellationToken ct, int page = 1, int perPage = 10)
+    public async Task<List<CompanyResponse>> GetByUserIdAsync(
+        Guid userId,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10)
     {
         var companies = await companyRepository.GetByUserIdAsync(userId, true, ct, page, perPage);
         var companiesResponse = CompanyMapper.Map(companies);
@@ -26,10 +34,7 @@ public class CompanyService(ICompanyRepository companyRepository, IUserRoleServi
         {
             var role = await roleService.GetByUserAndCompanyAsync(userId, company.Id, ct);
 
-            if (role is null)
-            {
-                continue;
-            }
+            if (role is null) continue;
 
             company.Role = role;
         }
@@ -37,21 +42,19 @@ public class CompanyService(ICompanyRepository companyRepository, IUserRoleServi
         return companiesResponse;
     }
 
-    public async Task<CompanyResponse?> PatchAsync(Guid companyId, Guid userId, CompanyUpdateRequest company, CancellationToken ct)
+    public async Task<CompanyResponse?> PatchAsync(
+        Guid companyId,
+        Guid userId,
+        CompanyUpdateRequest company,
+        CancellationToken ct)
     {
         var existing = await companyRepository.CheckCompanyExistsAsync(companyId, true, ct);
 
-        if (!existing)
-        {
-            throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
-        }
+        if (!existing) throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
 
         var hasAdminRole = await userRoleService.HasRoleAsync(userId, companyId, "Admin", ct);
 
-        if (!hasAdminRole)
-        {
-            throw new PermissionDeniedException(TextConstants.PermissionDeniedMessage);
-        }
+        if (!hasAdminRole) throw new PermissionDeniedException(TextConstants.PermissionDeniedMessage);
 
         var companyToUpdate = CompanyMapper.Map(company);
 
@@ -60,7 +63,9 @@ public class CompanyService(ICompanyRepository companyRepository, IUserRoleServi
         companyRepository.Update(companyToUpdate);
         var saved = await companyRepository.SaveChangesAsync(ct);
 
-        return saved == 0 ? throw new NotSavedException(TextConstants.ThereWasAnErrorEditingMessage) : CompanyMapper.Map(companyToUpdate);
+        return saved == 0
+            ? throw new NotSavedException(TextConstants.ThereWasAnErrorEditingMessage)
+            : CompanyMapper.Map(companyToUpdate);
     }
 
     public async Task<int> CountByUserIdAsync(Guid userId, CancellationToken ct)

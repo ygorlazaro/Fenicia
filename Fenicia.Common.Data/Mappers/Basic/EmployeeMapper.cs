@@ -17,7 +17,7 @@ public static class EmployeeMapper
         {
             Id = model.Id,
             PositionId = model.PositionId,
-            Person = PersonMapper.Map(model.Person),
+            Person = PersonMapper.Map(model.Person)
         };
     }
 

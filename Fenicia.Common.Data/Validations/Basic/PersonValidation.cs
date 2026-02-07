@@ -17,35 +17,35 @@ public class PersonValidation : AbstractValidator<PersonRequest>
         RuleFor(x => x.Cpf)
             .IsValidCPF()
             .WithMessage("CPF invalid");
-        
+
         RuleFor(x => x.City)
             .NotNull()
             .WithMessage("City cannot be null")
             .MaximumLength(50)
             .WithMessage("City cannot exceed 50 characters");
-        
+
         RuleFor(x => x.Complement)
             .MaximumLength(50)
             .WithMessage("Complement cannot exceed 50 characters");
-        
+
         RuleFor(x => x.Neighborhood)
             .NotNull()
             .WithMessage("Neighborhood cannot be null")
             .MaximumLength(50)
             .WithMessage("Neighborhood cannot exceed 50 characters");
-        
+
         RuleFor(x => x.Number)
             .NotNull()
             .WithMessage("Number cannot be null")
             .MaximumLength(50)
             .WithMessage("Number cannot exceed 50 characters");
-        
+
         RuleFor(x => x.StateId)
             .NotNull()
             .WithMessage("StateId cannot be null")
             .NotEmpty()
             .WithMessage("StateId cannot be empty");
-        
+
         RuleFor(x => x.Street)
             .NotNull()
             .WithMessage("Street cannot be null")
@@ -57,7 +57,7 @@ public class PersonValidation : AbstractValidator<PersonRequest>
             .WithMessage("ZipCode cannot be null")
             .MaximumLength(8)
             .WithMessage("ZipCode cannot exceed 8 characters");
-        
+
         RuleFor(x => x.PhoneNumber)
             .NotNull()
             .WithMessage("PhoneNumber cannot be null")

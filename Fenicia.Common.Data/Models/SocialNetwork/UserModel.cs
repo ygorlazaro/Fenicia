@@ -9,35 +9,19 @@ public class UserModel : BaseModel
 
     [Required]
     [MaxLength(48)]
-    public string Username
-    {
-        get;
-        set;
-    }
+    public string Username { get; set; }
 
     [Required]
     [MaxLength(48)]
-    public string Name
-    {
-        get;
-        set;
-    }
+    public string Name { get; set; }
 
     [EmailAddress]
     [Required]
     [MaxLength(48)]
-    public string Email
-    {
-        get;
-        set;
-    }
+    public string Email { get; set; }
 
     [MaxLength(48)]
-    public string ImageUrl
-    {
-        get;
-        set;
-    }
+    public string ImageUrl { get; set; }
 
     [InverseProperty(nameof(FollowerModel.Follower))]
     public List<FollowerModel> Followers { get; set; }

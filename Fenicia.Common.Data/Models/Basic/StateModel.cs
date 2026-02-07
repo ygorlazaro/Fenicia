@@ -14,22 +14,9 @@ public class StateModel : BaseModel
     [MaxLength(2)]
     public string Uf { get; set; } = null!;
 
-    public virtual List<CustomerModel> Customers
-    {
-        get;
-        set;
-    }
+    public virtual List<CustomerModel> Customers { get; set; }
 
-    public virtual List<SupplierModel> Suppliers
-    {
-        get;
-        set;
-    }
+    public virtual List<SupplierModel> Suppliers { get; set; }
 
-    public virtual List<EmployeeModel> Employees
-    {
-        get;
-        set;
-    }
-
+    public virtual List<EmployeeModel> Employees { get; set; }
 }

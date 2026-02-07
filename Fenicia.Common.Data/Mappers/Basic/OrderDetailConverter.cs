@@ -25,13 +25,16 @@ public static class OrderDetailConverter
 
     public static List<OrderDetailResponse> Map(List<OrderDetailModel> models)
     {
-        return [.. models.Select(o => new OrderDetailResponse
-        {
-            ProductId = o.ProductId,
-            Price = o.Price,
-            OrderId = o.OrderId,
-            Id = o.Id,
-            Quantity = o.Quantity
-        })];
+        return
+        [
+            .. models.Select(o => new OrderDetailResponse
+            {
+                ProductId = o.ProductId,
+                Price = o.Price,
+                OrderId = o.OrderId,
+                Id = o.Id,
+                Quantity = o.Quantity
+            })
+        ];
     }
 }

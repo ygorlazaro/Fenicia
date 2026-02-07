@@ -32,7 +32,9 @@ public class OrderControllerTests
         var request = new OrderRequest();
         var response = new OrderResponse { Id = Guid.NewGuid() };
 
-        this.orderServiceMock.Setup(x => x.CreateNewOrderAsync(userId, headers.CompanyId, request, CancellationToken.None)).ReturnsAsync(response);
+        this.orderServiceMock
+            .Setup(x => x.CreateNewOrderAsync(userId, headers.CompanyId, request, CancellationToken.None))
+            .ReturnsAsync(response);
 
         this.sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };

@@ -49,7 +49,11 @@ public class ProductService(IProductRepository productRepository) : IProductServ
         await productRepository.SaveChangesAsync(ct);
     }
 
-    public async Task<List<ProductResponse>> GetByCategoryIdAsync(Guid categoryId, CancellationToken ct, int page, int perPage)
+    public async Task<List<ProductResponse>> GetByCategoryIdAsync(
+        Guid categoryId,
+        CancellationToken ct,
+        int page,
+        int perPage)
     {
         var products = await productRepository.GetByCategoryIdAsync(categoryId, ct, page, perPage);
 

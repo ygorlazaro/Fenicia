@@ -8,8 +8,8 @@ namespace Fenicia.Auth.Tests.Services;
 
 public class RedisLoginAttemptServiceTests
 {
-    private Mock<IConnectionMultiplexer> muxMock = null!;
     private Mock<IDatabase> dbMock = null!;
+    private Mock<IConnectionMultiplexer> muxMock = null!;
     private RedisLoginAttemptService sut = null!;
 
     [SetUp]
@@ -59,7 +59,9 @@ public class RedisLoginAttemptServiceTests
         var key = "login-attempt:first@ex.com";
 
         this.dbMock.Setup(d => d.StringIncrementAsync(key, It.IsAny<long>(), It.IsAny<CommandFlags>())).ReturnsAsync(1);
-        this.dbMock.Setup(d => d.KeyExpireAsync(key, It.IsAny<TimeSpan?>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>())).ReturnsAsync(true);
+        this.dbMock.Setup(d =>
+                d.KeyExpireAsync(key, It.IsAny<TimeSpan?>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(true);
 
         await this.sut.IncrementAttemptsAsync(email);
 

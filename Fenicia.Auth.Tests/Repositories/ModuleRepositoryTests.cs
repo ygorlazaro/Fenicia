@@ -20,7 +20,8 @@ public class ModuleRepositoryTests
     [SetUp]
     public void Setup()
     {
-        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}")
+            .Options;
 
         this.context = new AuthContext(this.options);
         this.sut = new ModuleRepository(this.context);
@@ -43,7 +44,7 @@ public class ModuleRepositoryTests
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                Type = (ModuleType)((i % 5) + 1),
+                Type = (ModuleType)(i % 5 + 1),
                 Name = this.faker.Commerce.ProductName()
             });
         }
@@ -86,10 +87,7 @@ public class ModuleRepositoryTests
                 Name = this.faker.Commerce.ProductName()
             };
             modules.Add(module);
-            if (i < 3)
-            {
-                requestedIDs.Add(module.Id);
-            }
+            if (i < 3) requestedIDs.Add(module.Id);
         }
 
         await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);
@@ -124,10 +122,18 @@ public class ModuleRepositoryTests
         var module = new ModuleModel { Id = Guid.NewGuid(), Name = "M1", Type = ModuleType.Basic };
         await this.context.Modules.AddAsync(module, this.cancellationToken);
 
-        var subscription = new SubscriptionModel { Id = Guid.NewGuid(), CompanyId = companyId, Status = SubscriptionStatus.Active, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
+        var subscription = new SubscriptionModel
+        {
+            Id = Guid.NewGuid(), CompanyId = companyId, Status = SubscriptionStatus.Active,
+            StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1)
+        };
         await this.context.Subscriptions.AddAsync(subscription, this.cancellationToken);
 
-        var credit = new SubscriptionCreditModel { Id = Guid.NewGuid(), SubscriptionId = subscription.Id, ModuleId = module.Id, IsActive = true, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
+        var credit = new SubscriptionCreditModel
+        {
+            Id = Guid.NewGuid(), SubscriptionId = subscription.Id, ModuleId = module.Id, IsActive = true,
+            StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1)
+        };
         await this.context.SubscriptionCredits.AddAsync(credit, this.cancellationToken);
 
         var userRole = new UserRoleModel { UserId = userId, CompanyId = companyId };
@@ -153,10 +159,18 @@ public class ModuleRepositoryTests
 
         await this.context.Modules.AddAsync(module, this.cancellationToken);
 
-        var subscription = new SubscriptionModel { Id = Guid.NewGuid(), CompanyId = companyId, Status = SubscriptionStatus.Active, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
+        var subscription = new SubscriptionModel
+        {
+            Id = Guid.NewGuid(), CompanyId = companyId, Status = SubscriptionStatus.Active,
+            StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1)
+        };
         await this.context.Subscriptions.AddAsync(subscription, this.cancellationToken);
 
-        var credit = new SubscriptionCreditModel { Id = Guid.NewGuid(), SubscriptionId = subscription.Id, ModuleId = module.Id, IsActive = true, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1) };
+        var credit = new SubscriptionCreditModel
+        {
+            Id = Guid.NewGuid(), SubscriptionId = subscription.Id, ModuleId = module.Id, IsActive = true,
+            StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1)
+        };
         await this.context.SubscriptionCredits.AddAsync(credit, this.cancellationToken);
 
         var userRole = new UserRoleModel { UserId = userId, CompanyId = companyId };
@@ -240,9 +254,9 @@ public class ModuleRepositoryTests
     {
         var modules = new List<ModuleModel>
         {
-            new () { Id = Guid.NewGuid(), Name = "B", Type = ModuleType.Basic },
-            new () { Id = Guid.NewGuid(), Name = "A", Type = ModuleType.Accounting },
-            new () { Id = Guid.NewGuid(), Name = "P", Type = ModuleType.Pos }
+            new() { Id = Guid.NewGuid(), Name = "B", Type = ModuleType.Basic },
+            new() { Id = Guid.NewGuid(), Name = "A", Type = ModuleType.Accounting },
+            new() { Id = Guid.NewGuid(), Name = "P", Type = ModuleType.Pos }
         };
 
         var result = await this.sut.LoadModulesAtDatabaseAsync(modules, this.cancellationToken);
@@ -261,7 +275,7 @@ public class ModuleRepositoryTests
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                Type = (ModuleType)((i % 5) + 1),
+                Type = (ModuleType)(i % 5 + 1),
                 Name = this.faker.Commerce.ProductName()
             });
         }

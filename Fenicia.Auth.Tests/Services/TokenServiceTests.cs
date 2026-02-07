@@ -36,7 +36,8 @@ public class TokenServiceTests
     [Test]
     public void GenerateToken_IncludesCompanyId_WhenPresent()
     {
-        var user = new ExtendedUserResponse { Id = Guid.NewGuid(), Email = "a@b", Name = "N", CompanyId = Guid.NewGuid() };
+        var user = new ExtendedUserResponse
+            { Id = Guid.NewGuid(), Email = "a@b", Name = "N", CompanyId = Guid.NewGuid() };
 
         var token = this.sut.GenerateToken(user);
         var parsed = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -82,22 +83,10 @@ public class TokenServiceTests
 
     private class ExtendedUserResponse : UserResponse
     {
-        public Guid CompanyId
-        {
-            get;
-            set;
-        }
+        public Guid CompanyId { get; set; }
 
-        public List<string>? Roles
-        {
-            get;
-            set;
-        }
+        public List<string>? Roles { get; set; }
 
-        public List<string>? Modules
-        {
-            get;
-            set;
-        }
+        public List<string>? Modules { get; set; }
     }
 }

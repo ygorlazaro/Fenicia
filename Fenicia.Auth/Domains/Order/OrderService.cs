@@ -14,24 +14,28 @@ using OrderMapper = Fenicia.Common.Data.Mappers.Auth.OrderMapper;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public sealed class OrderService(IOrderRepository orderRepository, IModuleService moduleService, ISubscriptionService subscriptionService, IUserService userService, IMigrationService migrationService)
+public sealed class OrderService(
+    IOrderRepository orderRepository,
+    IModuleService moduleService,
+    ISubscriptionService subscriptionService,
+    IUserService userService,
+    IMigrationService migrationService)
     : IOrderService
 {
-    public async Task<OrderResponse?> CreateNewOrderAsync(Guid userId, Guid companyId, OrderRequest request, CancellationToken ct)
+    public async Task<OrderResponse?> CreateNewOrderAsync(
+        Guid userId,
+        Guid companyId,
+        OrderRequest request,
+        CancellationToken ct)
     {
         var existingUser = await userService.ExistsInCompanyAsync(userId, companyId, ct);
 
-        if (!existingUser)
-        {
-            throw new PermissionDeniedException(TextConstants.UserDoestNotExistsAtTheCompany);
-        }
+        if (!existingUser) throw new PermissionDeniedException(TextConstants.UserDoestNotExistsAtTheCompany);
 
-        var modules = await PopulateModules(request, ct) ?? throw new ItemNotExistsException(TextConstants.ModulesNotFound);
+        var modules = await PopulateModules(request, ct)
+                      ?? throw new ItemNotExistsException(TextConstants.ModulesNotFound);
 
-        if (modules.Count == 0)
-        {
-            return null;
-        }
+        if (modules.Count == 0) return null;
 
         var totalAmount = modules.Sum(m => m.Price);
         var details = modules.Select(m => new OrderDetailModel { ModuleId = m.Id, Price = m.Price }).ToList();
@@ -62,17 +66,11 @@ public sealed class OrderService(IOrderRepository orderRepository, IModuleServic
             var uniqueModules = request.Details.Select(d => d.ModuleId).Distinct();
             var modules = await moduleService.GetModulesToOrderAsync(uniqueModules, ct);
 
-            if (modules.Any(m => m.Type == ModuleType.Basic))
-            {
-                return ModuleMapper.Map(modules);
-            }
+            if (modules.Any(m => m.Type == ModuleType.Basic)) return ModuleMapper.Map(modules);
 
             var basicModule = await moduleService.GetModuleByTypeAsync(ModuleType.Basic, ct);
 
-            if (basicModule is null)
-            {
-                return null;
-            }
+            if (basicModule is null) return null;
 
             modules.Add(basicModule);
 

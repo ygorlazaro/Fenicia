@@ -5,28 +5,28 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
     <ItemGroup>
-        <Compile Remove="Controllers\**" />
-        <Content Remove="Controllers\**" />
-        <EmbeddedResource Remove="Controllers\**" />
-        <None Remove="Controllers\**" />
+        <Compile Remove="Controllers\**"/>
+        <Content Remove="Controllers\**"/>
+        <EmbeddedResource Remove="Controllers\**"/>
+        <None Remove="Controllers\**"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+        <PackageReference Include="EFCore.NamingConventions" Version="10.0.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
-            
+
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
-        <PackageReference Include="Scalar.AspNetCore" Version="2.12.30" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0"/>
+        <PackageReference Include="Scalar.AspNetCore" Version="2.12.30"/>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj" />
-        <ProjectReference Include="..\Fenicia.Common.Data\Fenicia.Common.Data.csproj" />
-        
-        <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj" />
+        <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj"/>
+        <ProjectReference Include="..\Fenicia.Common.Data\Fenicia.Common.Data.csproj"/>
+
+        <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj"/>
     </ItemGroup>
     <ItemGroup>
         <Reference Include="Microsoft.AspNetCore.Authentication.JwtBearer">

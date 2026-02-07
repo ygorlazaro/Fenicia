@@ -6,5 +6,4 @@ namespace Fenicia.Module.SocialNetwork.Domains.User;
 
 public class UserRepository(SocialNetworkContext context) : BaseRepository<UserModel>(context), IUserRepository
 {
-
 }

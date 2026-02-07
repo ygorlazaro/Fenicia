@@ -23,7 +23,8 @@ public class CorrelationIdMiddlewareTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(called, Is.True, "Next delegate should be invoked");
-            Assert.That(context.Response.Headers.ContainsKey(HeaderName), Is.True, "Response should contain correlation header");
+            Assert.That(context.Response.Headers.ContainsKey(HeaderName), Is.True,
+                "Response should contain correlation header");
             Assert.That(context.Response.Headers[HeaderName].ToString(), Is.EqualTo(existing));
         }
 
@@ -51,15 +52,18 @@ public class CorrelationIdMiddlewareTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(called, Is.True, "Next delegate should be invoked");
-            Assert.That(context.Request.Headers.ContainsKey(HeaderName), Is.True, "Request should contain generated correlation header");
-            Assert.That(context.Response.Headers.ContainsKey(HeaderName), Is.True, "Response should contain correlation header");
+            Assert.That(context.Request.Headers.ContainsKey(HeaderName), Is.True,
+                "Request should contain generated correlation header");
+            Assert.That(context.Response.Headers.ContainsKey(HeaderName), Is.True,
+                "Response should contain correlation header");
         }
 
         var value = context.Request.Headers[HeaderName].ToString();
         using (Assert.EnterMultipleScope())
         {
             Assert.That(string.IsNullOrWhiteSpace(value), Is.False, "Generated correlation id should not be empty");
-            Assert.That(value, Is.EqualTo(context.Response.Headers[HeaderName].ToString()), "Request and Response correlation ids should match");
+            Assert.That(value, Is.EqualTo(context.Response.Headers[HeaderName].ToString()),
+                "Request and Response correlation ids should match");
             Assert.That(Guid.TryParse(value, out _), Is.True, "Generated correlation id should be a valid GUID");
         }
 
@@ -84,7 +88,8 @@ public class CorrelationIdMiddlewareTests
         {
             Assert.That(ex?.Message, Is.EqualTo("boom"));
 
-            Assert.That(context.Response.Headers.ContainsKey(HeaderName), Is.True, "Response should contain correlation header even when an exception is thrown");
+            Assert.That(context.Response.Headers.ContainsKey(HeaderName), Is.True,
+                "Response should contain correlation header even when an exception is thrown");
         }
 
         return;

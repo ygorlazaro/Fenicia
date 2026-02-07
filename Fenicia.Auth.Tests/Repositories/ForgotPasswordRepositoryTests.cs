@@ -8,15 +8,16 @@ namespace Fenicia.Auth.Tests.Repositories;
 
 public class ForgotPasswordRepositoryTests
 {
-    private DbContextOptions<AuthContext> options;
-    private AuthContext context;
-    private ForgotPasswordRepository sut;
     private CancellationToken cancellationToken;
+    private AuthContext context;
+    private DbContextOptions<AuthContext> options;
+    private ForgotPasswordRepository sut;
 
     [SetUp]
     public void Setup()
     {
-        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_FP_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_FP_{Guid.NewGuid()}")
+            .Options;
         this.context = new AuthContext(this.options);
         this.sut = new ForgotPasswordRepository(this.context);
         this.cancellationToken = CancellationToken.None;
@@ -32,7 +33,11 @@ public class ForgotPasswordRepositoryTests
     [Test]
     public async Task GetFromUserIdAndCodeAsyncReturnsWhenValid()
     {
-        var model = new ForgotPasswordModel { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Code = "ABC123", IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(1) };
+        var model = new ForgotPasswordModel
+        {
+            Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Code = "ABC123", IsActive = true,
+            ExpirationDate = DateTime.UtcNow.AddDays(1)
+        };
         await this.context.ForgottenPasswords.AddAsync(model, this.cancellationToken);
         await this.context.SaveChangesAsync(this.cancellationToken);
 
@@ -55,13 +60,18 @@ public class ForgotPasswordRepositoryTests
     [Test]
     public async Task InvalidateCodeAsyncSetsIsActiveFalseWhenFound()
     {
-        var model = new ForgotPasswordModel { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Code = "ABC123", IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(1) };
+        var model = new ForgotPasswordModel
+        {
+            Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Code = "ABC123", IsActive = true,
+            ExpirationDate = DateTime.UtcNow.AddDays(1)
+        };
         await this.context.ForgottenPasswords.AddAsync(model, this.cancellationToken);
         await this.context.SaveChangesAsync(this.cancellationToken);
 
         await this.sut.InvalidateCodeAsync(model.Id, this.cancellationToken);
 
-        var fromDb = await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == model.Id, this.cancellationToken);
+        var fromDb =
+            await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == model.Id, this.cancellationToken);
         Assert.That(fromDb, Is.Not.Null);
         Assert.That(fromDb!.IsActive, Is.False);
     }
@@ -69,7 +79,8 @@ public class ForgotPasswordRepositoryTests
     [Test]
     public async Task SaveForgotPasswordAsyncAddsAndReturnsModel()
     {
-        var model = new ForgotPasswordModel { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Code = "XYZ789", IsActive = true };
+        var model = new ForgotPasswordModel
+            { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Code = "XYZ789", IsActive = true };
 
         var result = await this.sut.SaveForgotPasswordAsync(model, this.cancellationToken);
 

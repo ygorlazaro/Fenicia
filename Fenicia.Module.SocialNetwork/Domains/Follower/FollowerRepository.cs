@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.SocialNetwork.Domains.Follower;
 
-public class FollowerRepository(SocialNetworkContext context) : BaseRepository<FollowerModel>(context), IFollowerRepository
+public class FollowerRepository(SocialNetworkContext context)
+    : BaseRepository<FollowerModel>(context), IFollowerRepository
 {
     public async Task<FollowerModel?> FindFollowerAsync(Guid userId, Guid followerId, CancellationToken ct)
     {

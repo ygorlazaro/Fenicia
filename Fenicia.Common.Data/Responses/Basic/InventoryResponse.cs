@@ -18,16 +18,19 @@ public class InventoryResponse
     {
         var inventory = new InventoryResponse
         {
-            Items = [.. models.Select(p => new InventoryDetailResponse
-            {
-                ProductId = p.Id,
-                Quantity = p.Quantity,
-                CategoryId = p.CategoryId,
-                CostPrice = p.CostPrice,
-                ProductName = p.Name,
-                CategoryName = p.Category.Name,
-                SalesPrice = p.SalesPrice
-            })]
+            Items =
+            [
+                .. models.Select(p => new InventoryDetailResponse
+                {
+                    ProductId = p.Id,
+                    Quantity = p.Quantity,
+                    CategoryId = p.CategoryId,
+                    CostPrice = p.CostPrice,
+                    ProductName = p.Name,
+                    CategoryName = p.Category.Name,
+                    SalesPrice = p.SalesPrice
+                })
+            ]
         };
 
         return inventory;

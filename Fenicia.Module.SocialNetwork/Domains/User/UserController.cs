@@ -30,14 +30,14 @@ public class UserController(IUserService userService, IFollowerService followerS
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> UpdateUserAsync([FromRoute] Guid id, [FromBody] UserRequest request, CancellationToken ct)
+    public async Task<IActionResult> UpdateUserAsync(
+        [FromRoute] Guid id,
+        [FromBody] UserRequest request,
+        CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
 
-        if (userId != id)
-        {
-            ClaimReader.ValidateRole(this.User, "Admin");
-        }
+        if (userId != id) ClaimReader.ValidateRole(this.User, "Admin");
 
         var response = await userService.UpdateAsync(id, request, ct);
 

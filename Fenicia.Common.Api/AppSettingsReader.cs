@@ -9,15 +9,13 @@ public static class AppSettingsReader
         var configuration = GetConfiguration();
         var value = configuration.GetConnectionString(connectionStringName);
 
-        if (!string.IsNullOrWhiteSpace(value))
-        {
-            return value;
-        }
+        if (!string.IsNullOrWhiteSpace(value)) return value;
 
         var allKeys = configuration.GetSection("ConnectionStrings").GetChildren().Select(x => x.Key);
         var keysList = string.Join(", ", allKeys);
 
-        throw new InvalidOperationException($"Connection string '{connectionStringName}' not found in appsettings.json. Available keys: [{keysList}]");
+        throw new InvalidOperationException(
+            $"Connection string '{connectionStringName}' not found in appsettings.json. Available keys: [{keysList}]");
     }
 
     public static ConfigurationManager GetConfiguration()
@@ -28,7 +26,9 @@ public static class AppSettingsReader
         ArgumentNullException.ThrowIfNull(solutionDir);
 
         var possibleDirs = new List<string> { Path.Combine(solutionDir, "Fenicia.Common.Api") };
-        var foundDir = possibleDirs.FirstOrDefault(dir => File.Exists(Path.Combine(dir, "appsettings.json"))) ?? throw new FileNotFoundException($"Could not find appsettings.json in any known location. Checked: {string.Join(", ", possibleDirs.Select(d => Path.Combine(d, "appsettings.json")))}");
+        var foundDir = possibleDirs.FirstOrDefault(dir => File.Exists(Path.Combine(dir, "appsettings.json")))
+                       ?? throw new FileNotFoundException(
+                           $"Could not find appsettings.json in any known location. Checked: {string.Join(", ", possibleDirs.Select(d => Path.Combine(d, "appsettings.json")))}");
 
         // disable reloadOnChange in tests to avoid creating many FileSystemWatchers and exhausting inotify limits
         config.SetBasePath(foundDir).AddJsonFile("appsettings.json", false, false);

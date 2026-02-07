@@ -15,7 +15,10 @@ public class UserController(IModuleService moduleService, IUserRoleService userR
 {
     [HttpGet("module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
-    public async Task<ActionResult<List<ModuleResponse>>> GetUserModulesAsync([FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<ModuleResponse>>> GetUserModulesAsync(
+        [FromHeader] Headers headers,
+        WideEventContext wide,
+        CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         var companyId = headers.CompanyId;

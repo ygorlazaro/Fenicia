@@ -21,18 +21,12 @@ public class ModuleModel : BaseModel
     [Range(0.01, double.MaxValue)]
     [Column("price")]
     [Precision(18, 2)]
-    public decimal Price
-    {
-        get; set;
-    }
+    public decimal Price { get; set; }
 
     [Required]
     [Column("type")]
     [EnumDataType(typeof(ModuleType))]
-    public ModuleType Type
-    {
-        get; set;
-    }
+    public ModuleType Type { get; set; }
 
     [JsonIgnore]
     public virtual List<SubscriptionCreditModel> SubscriptionCredits { get; set; } = [];

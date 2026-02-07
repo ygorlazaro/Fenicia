@@ -19,7 +19,8 @@ public class UserRoleRepository(AuthContext context) : IUserRoleRepository
 
     public async Task<bool> HasRoleAsync(Guid guid, Guid companyId, string role, CancellationToken ct)
     {
-        return await context.UserRoles.AnyAsync(ur => ur.UserId == guid && ur.CompanyId == companyId && ur.Role.Name == role, ct);
+        return await context.UserRoles.AnyAsync(
+            ur => ur.UserId == guid && ur.CompanyId == companyId && ur.Role.Name == role, ct);
     }
 
     public Task<List<UserRoleModel>> GetUserCompaniesAsync(Guid userId, CancellationToken ct)

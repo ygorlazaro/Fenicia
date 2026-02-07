@@ -10,7 +10,10 @@ namespace Fenicia.Auth.Domains.Migrations;
 [Authorize(Roles = "God")]
 [Route("[controller]")]
 [ApiController]
-public class MigrationController(IMigrationService migrationService, ISubscriptionCreditService subscriptionCreditService, ICompanyService companyService) : ControllerBase
+public class MigrationController(
+    IMigrationService migrationService,
+    ISubscriptionCreditService subscriptionCreditService,
+    ICompanyService companyService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> PostNewMigrationAsync([FromBody] string cnpj, CancellationToken ct)

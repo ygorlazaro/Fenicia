@@ -33,10 +33,7 @@ public class CompanyModel : BaseModel
     public string Language { get; set; } = "pt-BR";
 
     [Column("address_id")]
-    public Guid? AddressId
-    {
-        get; set;
-    }
+    public Guid? AddressId { get; set; }
 
     [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
@@ -46,10 +43,7 @@ public class CompanyModel : BaseModel
 
     [ForeignKey(nameof(AddressId))]
     [JsonIgnore]
-    public virtual AddressModel? Address
-    {
-        get; set;
-    }
+    public virtual AddressModel? Address { get; set; }
 
     [JsonIgnore]
     public virtual List<OrderModel> Orders { get; set; } = [];
