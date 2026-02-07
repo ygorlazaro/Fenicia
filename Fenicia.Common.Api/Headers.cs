@@ -8,8 +8,5 @@ public class Headers
 {
     [FromHeader(Name = "x-company")]
     [Required]
-    public Guid CompanyId
-    {
-        get; set;
-    }
+    public Guid CompanyId { get; set; }
 }

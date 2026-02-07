@@ -8,10 +8,7 @@ public class ForgotPasswordModel : BaseModel
 {
     [Required]
     [Column("user_id")]
-    public Guid UserId
-    {
-        get; set;
-    }
+    public Guid UserId { get; set; }
 
     [Required]
     [Column("code")]

@@ -8,7 +8,11 @@ namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
 public class FeedRepository(SocialNetworkContext context) : BaseRepository<FeedModel>(context), IFeedRepository
 {
-    public async Task<List<FeedModel>> GetFollowingFeedAsync(Guid userId, CancellationToken ct, int page = 1, int perPage = 10)
+    public async Task<List<FeedModel>> GetFollowingFeedAsync(
+        Guid userId,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10)
     {
         var query = from f in context.Feeds
                     join following in context.Users on f.UserId equals following.UserId

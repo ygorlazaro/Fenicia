@@ -26,7 +26,8 @@ public class SubmoduleControllerTests
         var moduleId = Guid.NewGuid();
         var submodules = new List<SubmoduleResponse> { new() };
 
-        this.submoduleServiceMock.Setup(x => x.GetByModuleIdAsync(moduleId, CancellationToken.None)).ReturnsAsync(submodules);
+        this.submoduleServiceMock.Setup(x => x.GetByModuleIdAsync(moduleId, CancellationToken.None))
+            .ReturnsAsync(submodules);
 
         var wide = new WideEventContext();
 

@@ -24,10 +24,10 @@ public class SubscriptionServiceTests
     {
         var companyId = Guid.NewGuid();
         var orderDetails = new List<OrderDetailModel>
-                           {
-                               new () { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() },
-                               new () { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() }
-                           };
+        {
+            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() },
+            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() }
+        };
 
         var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
 
@@ -50,7 +50,8 @@ public class SubscriptionServiceTests
         var emptyDetails = new List<OrderDetailModel>();
         var order = new OrderModel { Id = Guid.NewGuid(), Details = emptyDetails };
 
-        Assert.ThrowsAsync<ArgumentException>(async () => await this.sut.CreateCreditsForOrderAsync(order, emptyDetails, companyId, this.cancellationToken));
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.sut.CreateCreditsForOrderAsync(order, emptyDetails, companyId, this.cancellationToken));
     }
 
     [Test]
@@ -58,19 +59,21 @@ public class SubscriptionServiceTests
     {
         var companyId = Guid.NewGuid();
         var expectedSubscriptions = new List<Guid>
-                                    {
-                                        Guid.NewGuid(),
-                                        Guid.NewGuid(),
-                                        Guid.NewGuid()
-                                    };
+        {
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid()
+        };
 
-        this.subscriptionRepositoryMock.Setup(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken)).ReturnsAsync(expectedSubscriptions);
+        this.subscriptionRepositoryMock.Setup(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken))
+            .ReturnsAsync(expectedSubscriptions);
 
         var result = await this.sut.GetValidSubscriptionsAsync(companyId, this.cancellationToken);
 
         Assert.That(result, Is.EqualTo(expectedSubscriptions));
 
-        this.subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken), Times.Once);
+        this.subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken),
+            Times.Once);
     }
 
     [Test]
@@ -79,13 +82,15 @@ public class SubscriptionServiceTests
         var companyId = Guid.NewGuid();
         var emptyList = new List<Guid>();
 
-        this.subscriptionRepositoryMock.Setup(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken)).ReturnsAsync(emptyList);
+        this.subscriptionRepositoryMock.Setup(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken))
+            .ReturnsAsync(emptyList);
 
         var result = await this.sut.GetValidSubscriptionsAsync(companyId, this.cancellationToken);
 
         Assert.That(result, Is.Empty);
 
-        this.subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken), Times.Once);
+        this.subscriptionRepositoryMock.Verify(x => x.GetValidSubscriptionAsync(companyId, this.cancellationToken),
+            Times.Once);
     }
 
     [Test]
@@ -93,14 +98,15 @@ public class SubscriptionServiceTests
     {
         var companyId = Guid.NewGuid();
         var orderDetails = new List<OrderDetailModel>
-                           {
-                               new () { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() }
-                           };
+        {
+            new() { Id = Guid.NewGuid(), ModuleId = Guid.NewGuid() }
+        };
 
         var order = new OrderModel { Id = Guid.NewGuid(), Details = orderDetails };
 
         SubscriptionModel capturedSubscription = null!;
-        this.subscriptionRepositoryMock.Setup(x => x.Add(It.IsAny<SubscriptionModel>())).Callback<SubscriptionModel>(s => capturedSubscription = s);
+        this.subscriptionRepositoryMock.Setup(x => x.Add(It.IsAny<SubscriptionModel>()))
+            .Callback<SubscriptionModel>(s => capturedSubscription = s);
         this.subscriptionRepositoryMock.Setup(x => x.SaveChangesAsync(this.cancellationToken)).ReturnsAsync(1);
 
         await this.sut.CreateCreditsForOrderAsync(order, orderDetails, companyId, this.cancellationToken);

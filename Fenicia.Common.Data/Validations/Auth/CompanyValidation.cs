@@ -14,7 +14,7 @@ public class CompanyValidation : AbstractValidator<CompanyRequest>
             .MaximumLength(50)
             .WithMessage("Name cannot exceed 50 characters");
 
-        RuleFor((x => x.Cnpj))
+        RuleFor(x => x.Cnpj)
             .NotEmpty()
             .WithMessage("CNPJ is required")
             .MaximumLength(14)

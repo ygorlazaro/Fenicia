@@ -12,10 +12,7 @@ public class CompanyRepository(AuthContext context) : BaseRepository<CompanyMode
     {
         var query = context.Companies.Where(c => c.Id == companyId);
 
-        if (onlyActive)
-        {
-            query = query.Where(c => c.IsActive);
-        }
+        if (onlyActive) query = query.Where(c => c.IsActive);
 
         return await query.AnyAsync(ct);
     }
@@ -24,10 +21,7 @@ public class CompanyRepository(AuthContext context) : BaseRepository<CompanyMode
     {
         var query = context.Companies.Where(c => c.Cnpj == cnpj);
 
-        if (onlyActive)
-        {
-            query = query.Where(c => c.IsActive);
-        }
+        if (onlyActive) query = query.Where(c => c.IsActive);
 
         return await query.AnyAsync(ct);
     }
@@ -36,15 +30,17 @@ public class CompanyRepository(AuthContext context) : BaseRepository<CompanyMode
     {
         var query = context.Companies.Where(c => c.Cnpj == cnpj);
 
-        if (onlyActive)
-        {
-            query = query.Where(c => c.IsActive);
-        }
+        if (onlyActive) query = query.Where(c => c.IsActive);
 
         return await query.FirstOrDefaultAsync(ct);
     }
 
-    public async Task<List<CompanyModel>> GetByUserIdAsync(Guid userId, bool onlyActive, CancellationToken ct, int page = 1, int perPage = 10)
+    public async Task<List<CompanyModel>> GetByUserIdAsync(
+        Guid userId,
+        bool onlyActive,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10)
     {
         var query = QueryFromUserId(userId, onlyActive);
 
@@ -65,12 +61,10 @@ public class CompanyRepository(AuthContext context) : BaseRepository<CompanyMode
             .Select(ur => ur.CompanyId);
 
         if (onlyActive)
-        {
             query = from companyId in query
                     join c in context.Companies on companyId equals c.Id
                     where c.IsActive
                     select companyId;
-        }
 
         return await query.Distinct().ToListAsync(ct);
     }
@@ -82,10 +76,7 @@ public class CompanyRepository(AuthContext context) : BaseRepository<CompanyMode
                     where ur.UserId == userId
                     select c;
 
-        if (onlyActive)
-        {
-            query = query.Where(c => c.IsActive);
-        }
+        if (onlyActive) query = query.Where(c => c.IsActive);
 
         return query;
     }

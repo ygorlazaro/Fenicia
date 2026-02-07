@@ -35,7 +35,10 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] ProductRequest request, [FromRoute] Guid id, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync(
+        [FromBody] ProductRequest request,
+        [FromRoute] Guid id,
+        CancellationToken ct)
     {
         var productRequest = await productService.UpdateAsync(request, ct);
 

@@ -58,7 +58,9 @@ public class BaseRepository<T>(DbContext context) : IBaseRepository<T>
 
     public virtual async Task<int> CountAsync(Expression<Func<T, bool>>? predicate, CancellationToken ct)
     {
-        return predicate == null ? await context.Set<T>().CountAsync(ct) : await context.Set<T>().CountAsync(predicate, ct);
+        return predicate == null
+            ? await context.Set<T>().CountAsync(ct)
+            : await context.Set<T>().CountAsync(predicate, ct);
     }
 
     public async Task<int> CountAsync(CancellationToken ct)

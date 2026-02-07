@@ -28,7 +28,8 @@ public class ForgotPasswordControllerTests
         var wide = new WideEventContext();
         var response = new ForgotPasswordResponse { Id = Guid.NewGuid() };
 
-        this.forgotPasswordServiceMock.Setup(x => x.SaveForgotPasswordAsync(request, CancellationToken.None)).ReturnsAsync(response);
+        this.forgotPasswordServiceMock.Setup(x => x.SaveForgotPasswordAsync(request, CancellationToken.None))
+            .ReturnsAsync(response);
 
         var result = await this.sut.ForgotPassword(request, wide, CancellationToken.None);
 
@@ -49,7 +50,8 @@ public class ForgotPasswordControllerTests
         var wide = new WideEventContext();
         var response = new ForgotPasswordResponse { Id = Guid.NewGuid() };
 
-        this.forgotPasswordServiceMock.Setup(x => x.ResetPasswordAsync(request, CancellationToken.None)).ReturnsAsync(response);
+        this.forgotPasswordServiceMock.Setup(x => x.ResetPasswordAsync(request, CancellationToken.None))
+            .ReturnsAsync(response);
 
         var result = await this.sut.ResetPassword(request, wide, CancellationToken.None);
 

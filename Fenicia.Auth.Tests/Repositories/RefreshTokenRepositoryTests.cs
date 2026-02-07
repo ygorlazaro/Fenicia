@@ -14,9 +14,9 @@ public class RefreshTokenRepositoryTests
 {
     private readonly CancellationToken cancellationToken = CancellationToken.None;
     private Faker faker;
-    private RefreshTokenRepository sut;
     private Mock<IDatabase> redisDbMock;
     private Mock<IConnectionMultiplexer> redisMock;
+    private RefreshTokenRepository sut;
 
     [SetUp]
     public void Setup()
@@ -45,9 +45,11 @@ public class RefreshTokenRepositoryTests
     [Test]
     public async Task ValidateTokenAsync_ReturnsFalseForWrongUser()
     {
-        var stored = new RefreshToken { Token = "t1", UserId = Guid.NewGuid(), IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(1) };
+        var stored = new RefreshToken
+            { Token = "t1", UserId = Guid.NewGuid(), IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(1) };
         var key = "refresh_token:" + stored.Token;
-        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(stored));
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>()))
+            .ReturnsAsync((RedisValue)JsonSerializer.Serialize(stored));
 
         var result = await this.sut.ValidateTokenAsync(Guid.NewGuid(), stored.Token, this.cancellationToken);
 
@@ -60,15 +62,19 @@ public class RefreshTokenRepositoryTests
         var userId = Guid.NewGuid();
         const string token = "tokexp";
 
-        var expired = new RefreshToken { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(-1) };
+        var expired = new RefreshToken
+            { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(-1) };
         var key = "refresh_token:" + token;
-        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(expired));
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>()))
+            .ReturnsAsync((RedisValue)JsonSerializer.Serialize(expired));
 
         var res1 = await this.sut.ValidateTokenAsync(userId, token, this.cancellationToken);
         Assert.That(res1, Is.False);
 
-        var inactive = new RefreshToken { Token = token, UserId = userId, IsActive = false, ExpirationDate = DateTime.UtcNow.AddDays(1) };
-        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(inactive));
+        var inactive = new RefreshToken
+            { Token = token, UserId = userId, IsActive = false, ExpirationDate = DateTime.UtcNow.AddDays(1) };
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>()))
+            .ReturnsAsync((RedisValue)JsonSerializer.Serialize(inactive));
 
         var res2 = await this.sut.ValidateTokenAsync(userId, token, this.cancellationToken);
         Assert.That(res2, Is.False);
@@ -90,13 +96,15 @@ public class RefreshTokenRepositoryTests
     [Test]
     public void InvalidateRefreshTokenAsync_NullArgThrows()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await this.sut.InvalidateRefreshTokenAsync(null!, this.cancellationToken));
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await this.sut.InvalidateRefreshTokenAsync(null!, this.cancellationToken));
     }
 
     [Test]
     public void ValidateTokenAsync_NullArgThrows()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await this.sut.ValidateTokenAsync(Guid.NewGuid(), null!, this.cancellationToken));
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await this.sut.ValidateTokenAsync(Guid.NewGuid(), null!, this.cancellationToken));
     }
 
     [Test]
@@ -114,7 +122,8 @@ public class RefreshTokenRepositoryTests
     public void Add_SetsValueInRedis()
     {
         var token = this.faker.Random.AlphaNumeric(44);
-        var refresh = new RefreshToken { Token = token, UserId = Guid.NewGuid(), IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(6) };
+        var refresh = new RefreshToken
+            { Token = token, UserId = Guid.NewGuid(), IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(6) };
 
         this.sut.Add(refresh);
 
@@ -126,10 +135,12 @@ public class RefreshTokenRepositoryTests
     {
         var userId = Guid.NewGuid();
         var token = this.faker.Random.AlphaNumeric(44);
-        var refresh = new RefreshToken { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(2) };
+        var refresh = new RefreshToken
+            { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(2) };
 
         var key = "refresh_token:" + token;
-        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(refresh));
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>()))
+            .ReturnsAsync((RedisValue)JsonSerializer.Serialize(refresh));
 
         var result = await this.sut.ValidateTokenAsync(userId, token, this.cancellationToken);
 
@@ -141,10 +152,12 @@ public class RefreshTokenRepositoryTests
     {
         var userId = Guid.NewGuid();
         var token = this.faker.Random.AlphaNumeric(44);
-        var refresh = new RefreshToken { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(2) };
+        var refresh = new RefreshToken
+            { Token = token, UserId = userId, IsActive = true, ExpirationDate = DateTime.UtcNow.AddDays(2) };
 
         var key = "refresh_token:" + token;
-        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>())).ReturnsAsync((RedisValue)JsonSerializer.Serialize(refresh));
+        this.redisDbMock.Setup(d => d.StringGetAsync(key, It.IsAny<CommandFlags>()))
+            .ReturnsAsync((RedisValue)JsonSerializer.Serialize(refresh));
 
         await this.sut.InvalidateRefreshTokenAsync(token, this.cancellationToken);
 

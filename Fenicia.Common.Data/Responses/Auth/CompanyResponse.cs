@@ -18,14 +18,17 @@ public class CompanyResponse
 
     public static List<CompanyResponse> Map(List<UserRoleModel> userRoles)
     {
-        return [.. userRoles.Select(ur => new CompanyResponse
-        {
-            Id = ur.Company.Id,
-            Name = ur.Company.Name,
-            Cnpj = ur.Company.Cnpj,
-            Language = ur.Company.Language,
-            TimeZone = ur.Company.TimeZone,
-            Role = ur.Role.Name
-        })];
+        return
+        [
+            .. userRoles.Select(ur => new CompanyResponse
+            {
+                Id = ur.Company.Id,
+                Name = ur.Company.Name,
+                Cnpj = ur.Company.Cnpj,
+                Language = ur.Company.Language,
+                TimeZone = ur.Company.TimeZone,
+                Role = ur.Role.Name
+            })
+        ];
     }
 }

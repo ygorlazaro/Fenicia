@@ -35,7 +35,10 @@ public class SupplierController(ISupplierService supplierService) : ControllerBa
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] SupplierRequest request, [FromRoute] Guid id, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync(
+        [FromBody] SupplierRequest request,
+        [FromRoute] Guid id,
+        CancellationToken ct)
     {
         var supplier = await supplierService.UpdateAsync(request, ct);
 

@@ -9,24 +9,15 @@ public class UserRoleModel : BaseModel
 {
     [Required]
     [Column("user_id")]
-    public Guid UserId
-    {
-        get; set;
-    }
+    public Guid UserId { get; set; }
 
     [Required]
     [Column("role_id")]
-    public Guid RoleId
-    {
-        get; set;
-    }
+    public Guid RoleId { get; set; }
 
     [Required]
     [Column("company_id")]
-    public Guid CompanyId
-    {
-        get; set;
-    }
+    public Guid CompanyId { get; set; }
 
     [ForeignKey(nameof(RoleId))]
     [JsonIgnore]

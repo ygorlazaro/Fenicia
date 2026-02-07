@@ -5,35 +5,15 @@ namespace Fenicia.Common.Data.Requests.Basic;
 public class OrderDetailRequest
 {
     [Required]
-    public Guid ProductId
-    {
-        get;
-        set;
-    }
+    public Guid ProductId { get; set; }
 
     [Required]
-    public decimal Price
-    {
-        get;
-        set;
-    }
+    public decimal Price { get; set; }
 
-    public Guid OrderId
-    {
-        get;
-        set;
-    }
+    public Guid OrderId { get; set; }
 
-    public Guid Id
-    {
-        get;
-        set;
-    }
+    public Guid Id { get; set; }
 
     [Required]
-    public double Quantity
-    {
-        get;
-        set;
-    }
+    public double Quantity { get; set; }
 }

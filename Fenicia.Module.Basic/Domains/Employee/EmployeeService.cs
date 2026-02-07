@@ -49,7 +49,11 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
         await employeeRepository.SaveChangesAsync(ct);
     }
 
-    public async Task<List<EmployeeResponse>> GetByPositionIdAsync(Guid positionId, CancellationToken ct, int page = 1, int perPage = 10)
+    public async Task<List<EmployeeResponse>> GetByPositionIdAsync(
+        Guid positionId,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10)
     {
         var employees = await employeeRepository.GetByPositionIdAsync(positionId, ct, page, perPage);
 

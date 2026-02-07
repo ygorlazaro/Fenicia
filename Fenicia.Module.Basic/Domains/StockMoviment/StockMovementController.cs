@@ -14,7 +14,8 @@ public class StockMovementController(IStockMovementService stockMovementService)
     [HttpGet]
     public async Task<IActionResult> GetAsync([FromQuery] StockMovementQuery query, CancellationToken ct)
     {
-        var stockMovimentation = await stockMovementService.GetMovementAsync(query.StartDate, query.EndDate, ct, query.Page, query.PerPage);
+        var stockMovimentation =
+            await stockMovementService.GetMovementAsync(query.StartDate, query.EndDate, ct, query.Page, query.PerPage);
 
         return Ok(stockMovimentation);
     }
@@ -29,7 +30,10 @@ public class StockMovementController(IStockMovementService stockMovementService)
 
     [HttpPatch("{id:guid}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> PatchAsync([FromRoute] Guid id, [FromBody] StockMovementRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> PatchAsync(
+        [FromRoute] Guid id,
+        [FromBody] StockMovementRequest request,
+        CancellationToken cancellationToken)
     {
         var stockMovimentation = await stockMovementService.UpdateAsync(id, request, cancellationToken);
 
@@ -38,14 +42,8 @@ public class StockMovementController(IStockMovementService stockMovementService)
 
     public class StockMovementQuery : PaginationQuery
     {
-        public DateTime StartDate
-        {
-            get; set;
-        }
+        public DateTime StartDate { get; set; }
 
-        public DateTime EndDate
-        {
-            get; set;
-        }
+        public DateTime EndDate { get; set; }
     }
 }

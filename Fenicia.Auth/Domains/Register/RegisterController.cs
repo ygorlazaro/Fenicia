@@ -20,7 +20,10 @@ public class RegisterController(IUserService userService) : ControllerBase
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UserResponse>> CreateNewUserAsync(UserRequest request, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<UserResponse>> CreateNewUserAsync(
+        UserRequest request,
+        WideEventContext wide,
+        CancellationToken ct)
     {
         wide.UserId = request.Email;
 

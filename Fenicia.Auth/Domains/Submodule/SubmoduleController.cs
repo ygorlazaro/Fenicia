@@ -19,7 +19,10 @@ public class SubmoduleController(ISubmoduleService submoduleService) : Controlle
     [AllowAnonymous]
     [ProducesResponseType(typeof(Pagination<List<SubmoduleService>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<SubmoduleService>>>> GetByModuleIdAsync([FromRoute] Guid moduleId, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<Pagination<List<SubmoduleService>>>> GetByModuleIdAsync(
+        [FromRoute] Guid moduleId,
+        WideEventContext wide,
+        CancellationToken ct)
     {
         wide.UserId = "Guest";
 

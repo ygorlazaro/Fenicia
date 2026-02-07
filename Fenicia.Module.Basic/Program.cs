@@ -38,19 +38,20 @@ public class Program
         }
 
         var configBuilder = new ConfigurationManager();
-        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+        var commonApiSettingsPath =
+            Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
 
         if (!File.Exists(commonApiSettingsPath))
-        {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
-        }
 
         configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configBuilder);
 
-        var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
+        var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"]
+                                          ?? throw new InvalidOperationException(TextConstants
+                                              .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
         builder.Services.AddTransient<IStateService, StateService>();
@@ -82,12 +83,10 @@ public class Program
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
             var connString = config.GetConnectionString("Basic")?.Replace("{tenant}", tenantId);
 
-            if (string.IsNullOrWhiteSpace(connString))
-            {
-                throw new Exception("Connection string inválida");
-            }
+            if (string.IsNullOrWhiteSpace(connString)) throw new Exception("Connection string inválida");
 
-            c.UseNpgsql(connString, b => b.MigrationsAssembly("Fenicia.Module.Basic")).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
+            c.UseNpgsql(connString, b => b.MigrationsAssembly("Fenicia.Module.Basic")).EnableSensitiveDataLogging()
+                .UseSnakeCaseNamingConvention();
         });
 
         builder.Services.AddAuthentication(o =>
@@ -130,7 +129,8 @@ public class Program
         app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
 
-        app.UseWhen(o => o.Request.Path.StartsWithSegments("/basic"), appBuilder => appBuilder.UseModuleRequirement("basic"));
+        app.UseWhen(o => o.Request.Path.StartsWithSegments("/basic"),
+            appBuilder => appBuilder.UseModuleRequirement("basic"));
 
         app.MapControllers();
 

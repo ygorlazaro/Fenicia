@@ -6,32 +6,15 @@ namespace Fenicia.Common.Data.Models.Basic;
 [Table("employees")]
 public class EmployeeModel : BaseModel
 {
-
     [Required]
-    public Guid PositionId
-    {
-        get;
-        set;
-    }
+    public Guid PositionId { get; set; }
 
     [ForeignKey(nameof(PositionId))]
-    public virtual PositionModel Position
-    {
-        get;
-        set;
-    }
+    public virtual PositionModel Position { get; set; }
 
-    = null!;
+        = null!;
 
-    public Guid PersonId
-    {
-        get;
-        set;
-    }
+    public Guid PersonId { get; set; }
 
-    public virtual PersonModel Person
-    {
-        get;
-        set;
-    }
+    public virtual PersonModel Person { get; set; }
 }

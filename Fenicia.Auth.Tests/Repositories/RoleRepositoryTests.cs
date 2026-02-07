@@ -16,7 +16,8 @@ public class RoleRepositoryTests
     [SetUp]
     public void Setup()
     {
-        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}")
+            .Options;
         this.context = new AuthContext(this.options);
         this.sut = new RoleRepository(this.context);
     }
@@ -71,11 +72,11 @@ public class RoleRepositoryTests
     public async Task GetAdminRoleAsyncReturnsSingleRoleWhenMultipleRolesExist()
     {
         var roles = new[]
-                    {
-                        new RoleModel { Id = Guid.NewGuid(), Name = "User" },
-                        new RoleModel { Id = Guid.NewGuid(), Name = "Admin" },
-                        new RoleModel { Id = Guid.NewGuid(), Name = "Manager" }
-                    };
+        {
+            new RoleModel { Id = Guid.NewGuid(), Name = "User" },
+            new RoleModel { Id = Guid.NewGuid(), Name = "Admin" },
+            new RoleModel { Id = Guid.NewGuid(), Name = "Manager" }
+        };
 
         await this.context.Roles.AddRangeAsync(roles, this.cancellationToken);
         await this.context.SaveChangesAsync(this.cancellationToken);

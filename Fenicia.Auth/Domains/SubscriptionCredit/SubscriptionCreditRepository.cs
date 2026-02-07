@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.SubscriptionCredit;
 
-public class SubscriptionCreditRepository(AuthContext context) : BaseRepository<SubscriptionCreditModel>(context), ISubscriptionCreditRepository
+public class SubscriptionCreditRepository(AuthContext context)
+    : BaseRepository<SubscriptionCreditModel>(context), ISubscriptionCreditRepository
 {
     public async Task<List<ModuleType>> GetValidModulesTypesAsync(List<Guid> subscriptions, CancellationToken ct)
     {

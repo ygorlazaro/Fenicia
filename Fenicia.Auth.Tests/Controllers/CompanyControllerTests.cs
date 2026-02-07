@@ -16,11 +16,6 @@ namespace Fenicia.Auth.Tests.Controllers;
 [TestFixture]
 public class CompanyControllerTests
 {
-    private Mock<ICompanyService> companyServiceMock;
-    private CompanyController controller;
-    private PaginationQuery query;
-    private CancellationToken cancellationToken;
-
     [SetUp]
     public void Setup()
     {
@@ -30,15 +25,24 @@ public class CompanyControllerTests
         this.cancellationToken = CancellationToken.None;
     }
 
+    private Mock<ICompanyService> companyServiceMock;
+    private CompanyController controller;
+    private PaginationQuery query;
+    private CancellationToken cancellationToken;
+
     [Test]
     public async Task GetByLoggedUserReturnsOkWhenCompaniesExist()
     {
         var userId = Guid.NewGuid();
-        var companies = new List<CompanyResponse> { new() { Id = Guid.NewGuid(), Name = "Test", Cnpj = "12345678901234" } };
+        var companies = new List<CompanyResponse>
+            { new() { Id = Guid.NewGuid(), Name = "Test", Cnpj = "12345678901234" } };
         var countResponse = 1;
 
-        this.companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage)).ReturnsAsync(companies);
-        this.companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, this.cancellationToken)).ReturnsAsync(countResponse);
+        this.companyServiceMock
+            .Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage))
+            .ReturnsAsync(companies);
+        this.companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, this.cancellationToken))
+            .ReturnsAsync(countResponse);
         this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         var claims = new List<Claim> { new("userId", userId.ToString()) };
@@ -61,8 +65,11 @@ public class CompanyControllerTests
         var userId = Guid.NewGuid();
         var companiesResponse = new List<CompanyResponse>();
         var countResponse = 0;
-        this.companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage)).ReturnsAsync(companiesResponse);
-        this.companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, this.cancellationToken)).ReturnsAsync(countResponse);
+        this.companyServiceMock
+            .Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage))
+            .ReturnsAsync(companiesResponse);
+        this.companyServiceMock.Setup(x => x.CountByUserIdAsync(userId, this.cancellationToken))
+            .ReturnsAsync(countResponse);
         this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
@@ -93,7 +100,8 @@ public class CompanyControllerTests
         var request = new CompanyUpdateRequest { Name = "New Name" };
         var response = new CompanyResponse { Id = companyId, Name = "New Name", Cnpj = "12345678901234" };
 
-        this.companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, this.cancellationToken)).ReturnsAsync(response);
+        this.companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, this.cancellationToken))
+            .ReturnsAsync(response);
         this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
@@ -118,7 +126,8 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var request = new CompanyUpdateRequest { Name = "New Name" };
 
-        this.companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, this.cancellationToken)).ReturnsAsync((CompanyResponse?)null);
+        this.companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, this.cancellationToken))
+            .ReturnsAsync((CompanyResponse?)null);
         this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
@@ -141,7 +150,8 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var request = new CompanyUpdateRequest { Name = "New Name" };
 
-        this.companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, this.cancellationToken)).ThrowsAsync(new Exception("service error"));
+        this.companyServiceMock.Setup(x => x.PatchAsync(companyId, userId, request, this.cancellationToken))
+            .ThrowsAsync(new Exception("service error"));
         this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
@@ -149,14 +159,17 @@ public class CompanyControllerTests
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        Assert.ThrowsAsync<Exception>(async () => await this.controller.PatchAsync(request, companyId, wide, this.cancellationToken));
+        Assert.ThrowsAsync<Exception>(async () =>
+            await this.controller.PatchAsync(request, companyId, wide, this.cancellationToken));
     }
 
     [Test]
     public void GetByLoggedUserThrowsExceptionOnServiceError()
     {
         var userId = Guid.NewGuid();
-        this.companyServiceMock.Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage)).ThrowsAsync(new Exception("Service error"));
+        this.companyServiceMock
+            .Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage))
+            .ThrowsAsync(new Exception("Service error"));
         this.controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         var claims = new List<Claim> { new("userId", userId.ToString()) };
         var identity = new ClaimsIdentity(claims, "TestAuthType");
@@ -164,6 +177,7 @@ public class CompanyControllerTests
 
         var wide = new WideEventContext { UserId = userId.ToString() };
 
-        Assert.ThrowsAsync<Exception>(async () => await this.controller.GetByLoggedUser(this.query, wide, this.cancellationToken));
+        Assert.ThrowsAsync<Exception>(async () =>
+            await this.controller.GetByLoggedUser(this.query, wide, this.cancellationToken));
     }
 }

@@ -5,5 +5,4 @@ namespace Fenicia.Module.SocialNetwork.Domains.User;
 
 public interface IUserRepository : IBaseRepository<UserModel>
 {
-
 }

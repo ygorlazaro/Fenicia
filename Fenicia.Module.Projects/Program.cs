@@ -26,18 +26,19 @@ public class Program
         }
 
         var configBuilder = new ConfigurationManager();
-        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+        var commonApiSettingsPath =
+            Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
         if (!File.Exists(commonApiSettingsPath))
-        {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
-        }
 
         configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configBuilder);
 
-        var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"] ?? throw new InvalidOperationException(TextConstants.InvalidJwtSecretMessage));
+        var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"]
+                                          ?? throw new InvalidOperationException(TextConstants
+                                              .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
 
@@ -50,10 +51,7 @@ public class Program
 
             var connString = config.GetConnectionString("Projects")?.Replace("{tenant}", tenantId);
 
-            if (string.IsNullOrWhiteSpace(connString))
-            {
-                throw new Exception("Connection string inválida");
-            }
+            if (string.IsNullOrWhiteSpace(connString)) throw new Exception("Connection string inválida");
 
             o.UseNpgsql(connString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });

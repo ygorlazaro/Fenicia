@@ -28,10 +28,10 @@ public class ModuleServiceTests
     public async Task GetAllOrderedAsyncReturnsModules()
     {
         var modules = new List<ModuleModel>
-                      {
-                          new () { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName() },
-                          new () { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName() }
-                      };
+        {
+            new() { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName() },
+            new() { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName() }
+        };
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
         this.moduleRepositoryMock.Setup(x => x.GetAllAsync(this.cancellationToken, 1, 10)).ReturnsAsync(modules);
@@ -48,10 +48,12 @@ public class ModuleServiceTests
     public async Task GetModulesToOrderAsyncReturnsRequestedModules()
     {
         var moduleIDs = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-        var modules = moduleIDs.Select(id => new ModuleModel { Id = id, Name = this.faker.Commerce.ProductName() }).ToList();
+        var modules = moduleIDs.Select(id => new ModuleModel { Id = id, Name = this.faker.Commerce.ProductName() })
+            .ToList();
         var expectedResponse = modules.Select(m => new ModuleResponse { Id = m.Id, Name = m.Name }).ToList();
 
-        this.moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIDs, this.cancellationToken)).ReturnsAsync(modules);
+        this.moduleRepositoryMock.Setup(x => x.GetManyOrdersAsync(moduleIDs, this.cancellationToken))
+            .ReturnsAsync(modules);
 
         var result = await this.sut.GetModulesToOrderAsync(moduleIDs, this.cancellationToken);
 
@@ -78,7 +80,8 @@ public class ModuleServiceTests
             Type = moduleType
         };
 
-        this.moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, this.cancellationToken)).ReturnsAsync(module);
+        this.moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, this.cancellationToken))
+            .ReturnsAsync(module);
 
         var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
 
@@ -93,7 +96,8 @@ public class ModuleServiceTests
     {
         const ModuleType moduleType = ModuleType.Ecommerce;
 
-        this.moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, this.cancellationToken)).ReturnsAsync((ModuleModel?)null);
+        this.moduleRepositoryMock.Setup(x => x.GetModuleByTypeAsync(moduleType, this.cancellationToken))
+            .ReturnsAsync((ModuleModel?)null);
 
         var result = await this.sut.GetModuleByTypeAsync(moduleType, this.cancellationToken);
 
@@ -120,11 +124,13 @@ public class ModuleServiceTests
     {
         var modules = new List<ModuleModel>
         {
-            new () { Id = Guid.NewGuid(), Name = "A", Price = 1, Type = ModuleType.Accounting },
-            new () { Id = Guid.NewGuid(), Name = "B", Price = 2, Type = ModuleType.Basic }
+            new() { Id = Guid.NewGuid(), Name = "A", Price = 1, Type = ModuleType.Accounting },
+            new() { Id = Guid.NewGuid(), Name = "B", Price = 2, Type = ModuleType.Basic }
         };
 
-        this.moduleRepositoryMock.Setup(x => x.LoadModulesAtDatabaseAsync(It.IsAny<List<ModuleModel>>(), this.cancellationToken)).ReturnsAsync(modules);
+        this.moduleRepositoryMock
+            .Setup(x => x.LoadModulesAtDatabaseAsync(It.IsAny<List<ModuleModel>>(), this.cancellationToken))
+            .ReturnsAsync(modules);
 
         var result = await this.sut.LoadModulesAtDatabaseAsync(this.cancellationToken);
 
@@ -138,10 +144,11 @@ public class ModuleServiceTests
         var companyId = Guid.NewGuid();
         var modules = new List<ModuleModel>
         {
-            new () { Id = Guid.NewGuid(), Name = "U1", Price = 1, Type = ModuleType.Basic }
+            new() { Id = Guid.NewGuid(), Name = "U1", Price = 1, Type = ModuleType.Basic }
         };
 
-        this.moduleRepositoryMock.Setup(x => x.GetUserModulesAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(modules);
+        this.moduleRepositoryMock.Setup(x => x.GetUserModulesAsync(userId, companyId, this.cancellationToken))
+            .ReturnsAsync(modules);
 
         var result = await this.sut.GetUserModulesAsync(userId, companyId, this.cancellationToken);
 
@@ -158,7 +165,8 @@ public class ModuleServiceTests
         module.Submodules = [sub];
         var modules = new List<ModuleModel> { module };
 
-        this.moduleRepositoryMock.Setup(x => x.GetModuleAndSubmoduleAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(modules);
+        this.moduleRepositoryMock.Setup(x => x.GetModuleAndSubmoduleAsync(userId, companyId, this.cancellationToken))
+            .ReturnsAsync(modules);
 
         var result = await this.sut.GetModuleAndSubmoduleAsync(userId, companyId, this.cancellationToken);
 

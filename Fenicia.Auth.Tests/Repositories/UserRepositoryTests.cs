@@ -21,7 +21,8 @@ public class UserRepositoryTests
     [SetUp]
     public void Setup()
     {
-        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}").Options;
+        this.options = new DbContextOptionsBuilder<AuthContext>().UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}")
+            .Options;
 
         this.context = new AuthContext(this.options);
         this.sut = new UserRepository(this.context);
@@ -34,7 +35,8 @@ public class UserRepositoryTests
     {
         var user = this.userGenerator.Generate();
         var company = this.companyGenerator.Generate();
-        var userRole = this.userRoleGenerator.Clone().RuleFor(ur => ur.UserId, user.Id).RuleFor(ur => ur.CompanyId, company.Id).Generate();
+        var userRole = this.userRoleGenerator.Clone().RuleFor(ur => ur.UserId, user.Id)
+            .RuleFor(ur => ur.CompanyId, company.Id).Generate();
 
         await this.context.Users.AddAsync(user, this.cancellationToken);
         await this.context.Companies.AddAsync(company, this.cancellationToken);
@@ -174,10 +176,15 @@ public class UserRepositoryTests
 
     private void SetupFakers()
     {
-        this.userGenerator = new Faker<UserModel>().RuleFor(u => u.Id, _ => Guid.NewGuid()).RuleFor(u => u.Email, f => f.Internet.Email()).RuleFor(u => u.Name, f => f.Name.FullName()).RuleFor(u => u.Password, f => f.Internet.Password());
+        this.userGenerator = new Faker<UserModel>().RuleFor(u => u.Id, _ => Guid.NewGuid())
+            .RuleFor(u => u.Email, f => f.Internet.Email()).RuleFor(u => u.Name, f => f.Name.FullName())
+            .RuleFor(u => u.Password, f => f.Internet.Password());
 
-        this.companyGenerator = new Faker<CompanyModel>().RuleFor(c => c.Id, _ => Guid.NewGuid()).RuleFor(c => c.Name, f => f.Company.CompanyName()).RuleFor(c => c.Cnpj, f => f.Random.ReplaceNumbers("##.###.###/####-##"));
+        this.companyGenerator = new Faker<CompanyModel>().RuleFor(c => c.Id, _ => Guid.NewGuid())
+            .RuleFor(c => c.Name, f => f.Company.CompanyName())
+            .RuleFor(c => c.Cnpj, f => f.Random.ReplaceNumbers("##.###.###/####-##"));
 
-        this.userRoleGenerator = new Faker<UserRoleModel>().RuleFor(ur => ur.Id, _ => Guid.NewGuid()).RuleFor(ur => ur.UserId, _ => Guid.NewGuid()).RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
+        this.userRoleGenerator = new Faker<UserRoleModel>().RuleFor(ur => ur.Id, _ => Guid.NewGuid())
+            .RuleFor(ur => ur.UserId, _ => Guid.NewGuid()).RuleFor(ur => ur.CompanyId, _ => Guid.NewGuid());
     }
 }

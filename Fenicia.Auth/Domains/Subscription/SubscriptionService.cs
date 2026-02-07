@@ -8,12 +8,13 @@ namespace Fenicia.Auth.Domains.Subscription;
 
 public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepository) : ISubscriptionService
 {
-    public async Task<SubscriptionResponse> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details, Guid companyId, CancellationToken ct)
+    public async Task<SubscriptionResponse> CreateCreditsForOrderAsync(
+        OrderModel order,
+        List<OrderDetailModel> details,
+        Guid companyId,
+        CancellationToken ct)
     {
-        if (details.Count == 0)
-        {
-            throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
-        }
+        if (details.Count == 0) throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
 
         var credits = order.Details.Select(d => new SubscriptionCreditModel
         {

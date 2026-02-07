@@ -6,7 +6,11 @@ namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 
 public class FeedService(IFeedRepository feedRepository) : IFeedService
 {
-    public async Task<List<FeedResponse>> GetFollowingFeedAsync(Guid userId, CancellationToken ct, int page = 1, int perPage = 10)
+    public async Task<List<FeedResponse>> GetFollowingFeedAsync(
+        Guid userId,
+        CancellationToken ct,
+        int page = 1,
+        int perPage = 10)
     {
         var feed = await feedRepository.GetFollowingFeedAsync(userId, ct, page, perPage);
 

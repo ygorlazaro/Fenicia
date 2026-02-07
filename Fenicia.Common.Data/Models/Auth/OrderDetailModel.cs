@@ -9,25 +9,16 @@ public class OrderDetailModel : BaseModel
 {
     [Required]
     [Column("order_id")]
-    public Guid OrderId
-    {
-        get; set;
-    }
+    public Guid OrderId { get; set; }
 
     [Required]
     [Column("module_id")]
-    public Guid ModuleId
-    {
-        get; set;
-    }
+    public Guid ModuleId { get; set; }
 
     [Required]
     [Column("price", TypeName = "decimal(18,2)")]
     [Range(0.01, double.MaxValue)]
-    public decimal Price
-    {
-        get; set;
-    }
+    public decimal Price { get; set; }
 
     [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
@@ -38,8 +29,5 @@ public class OrderDetailModel : BaseModel
     public virtual ModuleModel Module { get; set; } = null!;
 
     [JsonIgnore]
-    public virtual SubscriptionCreditModel? SubscriptionCredit
-    {
-        get; set;
-    }
+    public virtual SubscriptionCreditModel? SubscriptionCredit { get; set; }
 }

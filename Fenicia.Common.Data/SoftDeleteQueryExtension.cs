@@ -10,7 +10,8 @@ public static class SoftDeleteQueryExtension
 {
     public static void AddSoftDeleteSupport(ModelBuilder modelBuilder)
     {
-        var mutableEntityTypes = modelBuilder.Model.GetEntityTypes().Where(entityType => typeof(BaseModel).IsAssignableFrom(entityType.ClrType));
+        var mutableEntityTypes = modelBuilder.Model.GetEntityTypes()
+            .Where(entityType => typeof(BaseModel).IsAssignableFrom(entityType.ClrType));
 
         foreach (var entityType in mutableEntityTypes)
         {
@@ -20,12 +21,11 @@ public static class SoftDeleteQueryExtension
 
     private static void AddSoftDeleteQueryFilter(this IMutableEntityType entityData)
     {
-        var methodToCall = typeof(SoftDeleteQueryExtension).GetMethod(nameof(GetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)?.MakeGenericMethod(entityData.ClrType);
+        var methodToCall = typeof(SoftDeleteQueryExtension)
+            .GetMethod(nameof(GetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)
+            ?.MakeGenericMethod(entityData.ClrType);
 
-        if (methodToCall is null)
-        {
-            return;
-        }
+        if (methodToCall is null) return;
 
         var filter = methodToCall.Invoke(null, []);
 

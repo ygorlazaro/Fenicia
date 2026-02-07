@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="brevo_csharp" Version="1.1.1" />
+        <PackageReference Include="brevo_csharp" Version="1.1.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj" />
+        <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -5,7 +5,11 @@ namespace Fenicia.Auth.Domains.Subscription;
 
 public interface ISubscriptionService
 {
-    Task<SubscriptionResponse> CreateCreditsForOrderAsync(OrderModel order, List<OrderDetailModel> details, Guid companyId, CancellationToken ct);
+    Task<SubscriptionResponse> CreateCreditsForOrderAsync(
+        OrderModel order,
+        List<OrderDetailModel> details,
+        Guid companyId,
+        CancellationToken ct);
 
     Task<List<Guid>> GetValidSubscriptionsAsync(Guid companyId, CancellationToken ct);
 }

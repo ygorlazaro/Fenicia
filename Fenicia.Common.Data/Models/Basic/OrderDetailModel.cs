@@ -9,25 +9,16 @@ public class OrderDetailModel : BaseModel
 {
     [Required]
     [Column("order_id")]
-    public Guid OrderId
-    {
-        get; set;
-    }
+    public Guid OrderId { get; set; }
 
     [Required]
     [Column("product_id")]
-    public Guid ProductId
-    {
-        get; set;
-    }
+    public Guid ProductId { get; set; }
 
     [Required]
     [Column("price", TypeName = "decimal(18,2)")]
     [Range(0.01, double.MaxValue)]
-    public decimal Price
-    {
-        get; set;
-    }
+    public decimal Price { get; set; }
 
     [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
@@ -40,9 +31,5 @@ public class OrderDetailModel : BaseModel
     [Column("quantity")]
     [Range(0.01, double.MaxValue)]
     [Required]
-    public double Quantity
-    {
-        get;
-        set;
-    }
+    public double Quantity { get; set; }
 }

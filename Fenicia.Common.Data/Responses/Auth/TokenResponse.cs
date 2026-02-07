@@ -9,11 +9,7 @@ public class TokenResponse
 
     public string RefreshToken { get; set; } = null!;
 
-    public UserResponse User
-    {
-        get;
-        set;
-    }
+    public UserResponse User { get; set; }
 
-= null!;
+        = null!;
 }

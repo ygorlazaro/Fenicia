@@ -10,35 +10,17 @@ public sealed class WideEventContext
 
     public string Method { get; set; } = null!;
 
-    public int StatusCode
-    {
-        get; set;
-    }
+    public int StatusCode { get; set; }
 
-    public long DurationMs
-    {
-        get; set;
-    }
+    public long DurationMs { get; set; }
 
-    public string? UserId
-    {
-        get; set;
-    }
+    public string? UserId { get; set; }
 
     public string Operation => $"{this.Path} {this.Method}";
 
-    public bool Success
-    {
-        get; set;
-    }
+    public bool Success { get; set; }
 
-    public string? ErrorCode
-    {
-        get; set;
-    }
+    public string? ErrorCode { get; set; }
 
-    public string? ErrorMessage
-    {
-        get; set;
-    }
+    public string? ErrorMessage { get; set; }
 }

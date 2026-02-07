@@ -110,10 +110,7 @@ public class SecurityServiceTests
 
             for (var j = 0; j < passwordCount; j++)
             {
-                if (i == j)
-                {
-                    continue;
-                }
+                if (i == j) continue;
 
                 var incorrectResult = this.sut.VerifyPassword(passwords[i], hashedPasswords[j]);
                 Assert.That(incorrectResult, Is.False, $"Password {i} should not verify against hash {j}");
@@ -125,9 +122,10 @@ public class SecurityServiceTests
     public void HashPasswordWithVariousPasswordComplexitiesGeneratesValidHashes()
     {
         var testPasswords = new[]
-                            {
-                                this.faker.Internet.Password(8), this.faker.Internet.Password(16, true), this.faker.Internet.Password(32, true, "@#$%")
-                            };
+        {
+            this.faker.Internet.Password(8), this.faker.Internet.Password(16, true),
+            this.faker.Internet.Password(32, true, "@#$%")
+        };
 
         foreach (var password in testPasswords)
         {
@@ -149,12 +147,12 @@ public class SecurityServiceTests
         var validPassword = this.faker.Internet.Password();
         var validHash = this.sut.HashPassword(validPassword);
         var testCases = new[]
-                        {
-                            (Password: string.Empty, Hash: validHash),
-                            (Password: null, Hash: validHash),
-                            (Password: validPassword, Hash: string.Empty),
-                            (Password: validPassword, Hash: null)
-                        };
+        {
+            (Password: string.Empty, Hash: validHash),
+            (Password: null, Hash: validHash),
+            (Password: validPassword, Hash: string.Empty),
+            (Password: validPassword, Hash: null)
+        };
 
         foreach (var (password, hash) in testCases)
         {

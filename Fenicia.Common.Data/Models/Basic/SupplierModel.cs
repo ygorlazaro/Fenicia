@@ -11,17 +11,9 @@ public class SupplierModel : BaseModel
 
     public Guid PersonId { get; set; }
 
-    public virtual PersonModel Person
-    {
-        get;
-        set;
-    }
+    public virtual PersonModel Person { get; set; }
 
-    public virtual List<StockMovementModel> StockMovements
-    {
-        get;
-        set;
-    }
+    public virtual List<StockMovementModel> StockMovements { get; set; }
 
-    = [];
+        = [];
 }

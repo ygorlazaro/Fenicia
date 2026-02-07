@@ -16,7 +16,10 @@ namespace Fenicia.Auth.Domains.Token;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class TokenController(ITokenService tokenService, IRefreshTokenService refreshTokenService, IUserService userService) : ControllerBase
+public class TokenController(
+    ITokenService tokenService,
+    IRefreshTokenService refreshTokenService,
+    IUserService userService) : ControllerBase
 {
     [HttpPost]
     [AllowAnonymous]
@@ -24,7 +27,10 @@ public class TokenController(ITokenService tokenService, IRefreshTokenService re
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<TokenResponse>> PostAsync(TokenRequest request, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<TokenResponse>> PostAsync(
+        TokenRequest request,
+        WideEventContext wide,
+        CancellationToken ct)
     {
         try
         {
@@ -49,16 +55,16 @@ public class TokenController(ITokenService tokenService, IRefreshTokenService re
     [Route("refresh")]
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<TokenResponse>> Refresh(RefreshTokenRequest request, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<TokenResponse>> Refresh(
+        RefreshTokenRequest request,
+        WideEventContext wide,
+        CancellationToken ct)
     {
         wide.UserId = request.UserId.ToString();
 
         var isValidToken = await refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, ct);
 
-        if (!isValidToken)
-        {
-            return BadRequest("Invalid client request");
-        }
+        if (!isValidToken) return BadRequest("Invalid client request");
 
         await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, ct);
 

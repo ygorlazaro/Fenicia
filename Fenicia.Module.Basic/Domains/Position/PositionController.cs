@@ -29,7 +29,10 @@ public class CustomerController(IPositionService positionService, IEmployeeServi
     }
 
     [HttpGet("{id:guid}/employee")]
-    public async Task<IActionResult> GetEmployeesByPositionIdAsync([FromRoute] Guid id, [FromQuery] PaginationQuery query, CancellationToken ct)
+    public async Task<IActionResult> GetEmployeesByPositionIdAsync(
+        [FromRoute] Guid id,
+        [FromQuery] PaginationQuery query,
+        CancellationToken ct)
     {
         var employees = await employeeService.GetByPositionIdAsync(id, ct, query.Page, query.PerPage);
 
@@ -45,7 +48,10 @@ public class CustomerController(IPositionService positionService, IEmployeeServi
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] PositionRequest request, [FromRoute] Guid id, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync(
+        [FromBody] PositionRequest request,
+        [FromRoute] Guid id,
+        CancellationToken ct)
     {
         var position = await positionService.UpdateAsync(request, ct);
 

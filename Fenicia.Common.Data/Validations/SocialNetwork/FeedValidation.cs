@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace Fenicia.Common.Data.Validations.SocialNetwork;
 
-public class FeedValidation: AbstractValidator<FeedRequest>
+public class FeedValidation : AbstractValidator<FeedRequest>
 {
     public FeedValidation()
     {
@@ -25,13 +25,13 @@ public class UserValidation : AbstractValidator<UserRequest>
             .WithMessage("Name cannot be empty")
             .MaximumLength(50)
             .WithMessage("Name cannot be longer than 50 characters");
-        
+
         RuleFor(x => x.Email)
             .NotEmpty()
             .WithMessage("Email cannot be empty")
             .EmailAddress()
             .WithMessage("Email cannot be empty");
-        
+
         RuleFor(x => x.Username)
             .NotEmpty()
             .WithMessage("Username cannot be empty")

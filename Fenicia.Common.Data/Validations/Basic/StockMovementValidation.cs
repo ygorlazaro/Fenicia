@@ -13,7 +13,7 @@ public class StockMovementValidation : AbstractValidator<StockMovementRequest>
             .WithMessage("Quantity must be greater than 0")
             .NotNull()
             .WithMessage("Quantity cannot be null");
-        
+
         RuleFor(x => x.Price)
             .GreaterThan(0)
             .WithMessage("Price must be greater than 0")

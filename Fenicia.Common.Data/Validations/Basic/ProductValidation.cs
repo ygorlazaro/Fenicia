@@ -13,8 +13,8 @@ public class ProductValidation : AbstractValidator<ProductRequest>
             .WithMessage("Name cannot be null")
             .MaximumLength(50)
             .WithMessage("Name cannot exceed 50 characters");
-        
-        RuleFor(x=> x.CostPrice)
+
+        RuleFor(x => x.CostPrice)
             .GreaterThan(0)
             .WithMessage("CostPrice must be greater than 0");
 

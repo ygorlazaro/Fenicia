@@ -23,12 +23,12 @@ public class UserServiceTests
     private Mock<ICompanyRepository> companyRepositoryMock;
     private Faker faker;
     private Mock<ILoginAttemptService> loginAttemptServiceMock;
+    private Mock<IMigrationService> migrationServiceMock;
     private Mock<IRoleRepository> roleRepositoryMock;
     private Mock<ISecurityService> securityServiceMock;
     private UserService sut;
     private Mock<IUserRepository> userRepositoryMock;
     private Mock<IUserRoleRepository> userRoleRepositoryMock;
-    private Mock<IMigrationService> migrationServiceMock;
 
     [SetUp]
     public void Setup()
@@ -41,9 +41,13 @@ public class UserServiceTests
         this.loginAttemptServiceMock = new Mock<ILoginAttemptService>();
         this.migrationServiceMock = new Mock<IMigrationService>();
 
-        this.migrationServiceMock.Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        this.migrationServiceMock
+            .Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(),
+                It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        this.sut = new UserService(this.userRepositoryMock.Object, this.roleRepositoryMock.Object, this.userRoleRepositoryMock.Object, this.companyRepositoryMock.Object, this.securityServiceMock.Object, this.loginAttemptServiceMock.Object, this.migrationServiceMock.Object);
+        this.sut = new UserService(this.userRepositoryMock.Object, this.roleRepositoryMock.Object,
+            this.userRoleRepositoryMock.Object, this.companyRepositoryMock.Object, this.securityServiceMock.Object,
+            this.loginAttemptServiceMock.Object, this.migrationServiceMock.Object);
 
         this.faker = new Faker();
     }
@@ -88,9 +92,11 @@ public class UserServiceTests
             Password = this.faker.Internet.Password()
         };
 
-        this.userRepositoryMock.Setup(x => x.GetByEmailAsync(request.Email, this.cancellationToken)).ReturnsAsync((UserModel)null!);
+        this.userRepositoryMock.Setup(x => x.GetByEmailAsync(request.Email, this.cancellationToken))
+            .ReturnsAsync((UserModel)null!);
 
-        Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.sut.GetForLoginAsync(request, this.cancellationToken));
+        Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.sut.GetForLoginAsync(request, this.cancellationToken));
     }
 
     [Test]
@@ -111,8 +117,11 @@ public class UserServiceTests
         var hashedPassword = this.faker.Internet.Password();
         var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
 
-        this.userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, this.cancellationToken)).ReturnsAsync(false);
-        this.companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, true, this.cancellationToken)).ReturnsAsync(false);
+        this.userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, this.cancellationToken))
+            .ReturnsAsync(false);
+        this.companyRepositoryMock
+            .Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, true, this.cancellationToken))
+            .ReturnsAsync(false);
         this.securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns(hashedPassword);
         this.userRepositoryMock.Setup(x => x.Add(It.IsAny<UserModel>()));
         this.companyRepositoryMock.Setup(x => x.Add(It.IsAny<CompanyModel>()));
@@ -145,9 +154,11 @@ public class UserServiceTests
             }
         };
 
-        this.userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, this.cancellationToken)).ReturnsAsync(true);
+        this.userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, this.cancellationToken))
+            .ReturnsAsync(true);
 
-        Assert.ThrowsAsync<ArgumentException>(async () => await this.sut.CreateNewUserAsync(request, this.cancellationToken));
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.sut.CreateNewUserAsync(request, this.cancellationToken));
     }
 
     [Test]
@@ -157,7 +168,8 @@ public class UserServiceTests
         var companyId = Guid.NewGuid();
         const bool exists = true;
 
-        this.userRoleRepositoryMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken)).ReturnsAsync(exists);
+        this.userRoleRepositoryMock.Setup(x => x.ExistsInCompanyAsync(userId, companyId, this.cancellationToken))
+            .ReturnsAsync(exists);
 
         var result = await this.sut.ExistsInCompanyAsync(userId, companyId, this.cancellationToken);
 
@@ -194,9 +206,11 @@ public class UserServiceTests
     {
         var userId = Guid.NewGuid();
 
-        this.userRepositoryMock.Setup(x => x.GetByIdAsync(userId, this.cancellationToken)).ReturnsAsync((UserModel)null!);
+        this.userRepositoryMock.Setup(x => x.GetByIdAsync(userId, this.cancellationToken))
+            .ReturnsAsync((UserModel)null!);
 
-        Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await this.sut.GetUserForRefreshAsync(userId, this.cancellationToken));
+        Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
+            await this.sut.GetUserForRefreshAsync(userId, this.cancellationToken));
     }
 
     [Test]
@@ -214,37 +228,51 @@ public class UserServiceTests
             }
         };
 
-        this.userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, this.cancellationToken)).ReturnsAsync(false);
-        this.companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, true, this.cancellationToken)).ReturnsAsync(false);
+        this.userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, this.cancellationToken))
+            .ReturnsAsync(false);
+        this.companyRepositoryMock
+            .Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, true, this.cancellationToken))
+            .ReturnsAsync(false);
         this.roleRepositoryMock.Setup(x => x.GetAdminRoleAsync(this.cancellationToken)).ReturnsAsync((RoleModel)null!);
         this.securityServiceMock.Setup(x => x.HashPassword(request.Password)).Returns("hashedPassword");
 
-        Assert.ThrowsAsync<ArgumentException>(async () => await this.sut.CreateNewUserAsync(request, this.cancellationToken));
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.sut.CreateNewUserAsync(request, this.cancellationToken));
     }
 
     [Test]
     public void GetForLoginAsyncWithTooManyAttemptsThrowsPermissionDenied()
     {
-        var request = new TokenRequest { Email = this.faker.Internet.Email(), Password = this.faker.Internet.Password() };
+        var request = new TokenRequest
+            { Email = this.faker.Internet.Email(), Password = this.faker.Internet.Password() };
 
-        this.loginAttemptServiceMock.Setup(x => x.GetAttemptsAsync(request.Email, this.cancellationToken)).ReturnsAsync(5);
+        this.loginAttemptServiceMock.Setup(x => x.GetAttemptsAsync(request.Email, this.cancellationToken))
+            .ReturnsAsync(5);
 
-        Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.sut.GetForLoginAsync(request, this.cancellationToken));
+        Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.sut.GetForLoginAsync(request, this.cancellationToken));
     }
 
     [Test]
     public void GetForLoginAsyncWithInvalidPasswordIncrementsAttemptsAndThrows()
     {
-        var request = new TokenRequest { Email = this.faker.Internet.Email(), Password = this.faker.Internet.Password() };
+        var request = new TokenRequest
+            { Email = this.faker.Internet.Email(), Password = this.faker.Internet.Password() };
 
-        var user = new UserModel { Id = Guid.NewGuid(), Email = request.Email, Password = this.faker.Internet.Password(), Name = this.faker.Name.FullName() };
+        var user = new UserModel
+        {
+            Id = Guid.NewGuid(), Email = request.Email, Password = this.faker.Internet.Password(),
+            Name = this.faker.Name.FullName()
+        };
 
-        this.loginAttemptServiceMock.Setup(x => x.GetAttemptsAsync(request.Email, this.cancellationToken)).ReturnsAsync(0);
+        this.loginAttemptServiceMock.Setup(x => x.GetAttemptsAsync(request.Email, this.cancellationToken))
+            .ReturnsAsync(0);
         this.userRepositoryMock.Setup(x => x.GetByEmailAsync(request.Email, this.cancellationToken)).ReturnsAsync(user);
         this.securityServiceMock.Setup(x => x.VerifyPassword(request.Password, user.Password)).Returns(false);
         this.loginAttemptServiceMock.Setup(x => x.IncrementAttemptsAsync(request.Email)).Returns(Task.CompletedTask);
 
-        Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.sut.GetForLoginAsync(request, this.cancellationToken));
+        Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.sut.GetForLoginAsync(request, this.cancellationToken));
 
         this.loginAttemptServiceMock.Verify(x => x.IncrementAttemptsAsync(request.Email), Times.Once);
     }
@@ -257,28 +285,36 @@ public class UserServiceTests
             Email = this.faker.Internet.Email(),
             Password = this.faker.Internet.Password(),
             Name = this.faker.Name.FullName(),
-            Company = new CompanyRequest { Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Random.String2(14, "0123456789") }
+            Company = new CompanyRequest
+                { Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Random.String2(14, "0123456789") }
         };
 
-        this.userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, this.cancellationToken)).ReturnsAsync(false);
-        this.companyRepositoryMock.Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, true, this.cancellationToken)).ReturnsAsync(true);
+        this.userRepositoryMock.Setup(x => x.CheckUserExistsAsync(request.Email, this.cancellationToken))
+            .ReturnsAsync(false);
+        this.companyRepositoryMock
+            .Setup(x => x.CheckCompanyExistsAsync(request.Company.Cnpj, true, this.cancellationToken))
+            .ReturnsAsync(true);
 
-        Assert.ThrowsAsync<ArgumentException>(async () => await this.sut.CreateNewUserAsync(request, this.cancellationToken));
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.sut.CreateNewUserAsync(request, this.cancellationToken));
     }
 
     [Test]
     public void GetUserIdFromEmailAsyncWhenNotFoundThrows()
     {
-        this.userRepositoryMock.Setup(x => x.GetUserIdFromEmailAsync(It.IsAny<string>(), this.cancellationToken)).ReturnsAsync((Guid?)null);
+        this.userRepositoryMock.Setup(x => x.GetUserIdFromEmailAsync(It.IsAny<string>(), this.cancellationToken))
+            .ReturnsAsync((Guid?)null);
 
-        Assert.ThrowsAsync<ArgumentException>(async () => await this.sut.GetUserIdFromEmailAsync("noone@example.com", this.cancellationToken));
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.sut.GetUserIdFromEmailAsync("noone@example.com", this.cancellationToken));
     }
 
     [Test]
     public async Task ChangePasswordAsyncUpdatesPasswordAndReturnsUser()
     {
         var userId = Guid.NewGuid();
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Name.FullName(), Password = "old" };
+        var user = new UserModel
+            { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Name.FullName(), Password = "old" };
 
         this.userRepositoryMock.Setup(x => x.GetByIdAsync(userId, this.cancellationToken)).ReturnsAsync(user);
         this.securityServiceMock.Setup(x => x.HashPassword("newpwd")).Returns("hashedNew");
@@ -294,8 +330,10 @@ public class UserServiceTests
     {
         var userId = Guid.NewGuid();
 
-        this.userRepositoryMock.Setup(x => x.GetByIdAsync(userId, this.cancellationToken)).ReturnsAsync((UserModel)null!);
+        this.userRepositoryMock.Setup(x => x.GetByIdAsync(userId, this.cancellationToken))
+            .ReturnsAsync((UserModel)null!);
 
-        Assert.ThrowsAsync<ArgumentException>(async () => await this.sut.ChangePasswordAsync(userId, "pwd", this.cancellationToken));
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.sut.ChangePasswordAsync(userId, "pwd", this.cancellationToken));
     }
 }

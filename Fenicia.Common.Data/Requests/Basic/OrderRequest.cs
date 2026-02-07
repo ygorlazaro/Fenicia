@@ -6,40 +6,16 @@ namespace Fenicia.Common.Data.Requests.Basic;
 
 public class OrderRequest
 {
-    public Guid UserId
-    {
-        get;
-        set;
-    }
+    public Guid UserId { get; set; }
 
     [Required]
-    public Guid CustomerId
-    {
-        get;
-        set;
-    }
+    public Guid CustomerId { get; set; }
 
-    public List<OrderDetailRequest> Details
-    {
-        get;
-        set;
-    }
+    public List<OrderDetailRequest> Details { get; set; }
 
-    public DateTime SaleDate
-    {
-        get;
-        set;
-    }
+    public DateTime SaleDate { get; set; }
 
-    public OrderStatus Status
-    {
-        get;
-        set;
-    }
+    public OrderStatus Status { get; set; }
 
-    public Guid Id
-    {
-        get;
-        set;
-    }
+    public Guid Id { get; set; }
 }

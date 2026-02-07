@@ -5,13 +5,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
-        <PackageReference Include="Scalar.AspNetCore" Version="2.12.30" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2"/>
+        <PackageReference Include="Scalar.AspNetCore" Version="2.12.30"/>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj" />
-        
-        <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj" />
+        <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj"/>
+
+        <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj"/>
     </ItemGroup>
 </Project>

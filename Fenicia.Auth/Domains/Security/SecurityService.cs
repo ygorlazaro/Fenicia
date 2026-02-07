@@ -6,10 +6,7 @@ public class SecurityService : ISecurityService
 {
     public string HashPassword(string password)
     {
-        if (string.IsNullOrEmpty(password))
-        {
-            throw new ArgumentException(TextConstants.InvalidPasswordMessage);
-        }
+        if (string.IsNullOrEmpty(password)) throw new ArgumentException(TextConstants.InvalidPasswordMessage);
 
         var hashed = BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
 

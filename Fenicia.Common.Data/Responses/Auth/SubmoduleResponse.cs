@@ -5,17 +5,11 @@ namespace Fenicia.Common.Data.Responses.Auth;
 [Serializable]
 public class SubmoduleResponse
 {
-    public Guid Id
-    {
-        get; set;
-    }
+    public Guid Id { get; set; }
 
     public string Name { get; set; } = null!;
 
-    public string? Description
-    {
-        get; set;
-    }
+    public string? Description { get; set; }
 
     public string Route { get; set; } = null!;
 

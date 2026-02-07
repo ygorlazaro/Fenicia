@@ -15,12 +15,9 @@ public class SubmoduleRepositoryTests
         var moduleA = Guid.NewGuid();
         var moduleB = Guid.NewGuid();
 
-        ctx.Submodules.AddRange(new[]
-        {
-            new SubmoduleModel { Name = "A1", Route = "/a1", ModuleId = moduleA },
+        ctx.Submodules.AddRange(new SubmoduleModel { Name = "A1", Route = "/a1", ModuleId = moduleA },
             new SubmoduleModel { Name = "A2", Route = "/a2", ModuleId = moduleA },
-            new SubmoduleModel { Name = "B1", Route = "/b1", ModuleId = moduleB }
-        });
+            new SubmoduleModel { Name = "B1", Route = "/b1", ModuleId = moduleB });
 
         await ctx.SaveChangesAsync(CancellationToken.None);
 

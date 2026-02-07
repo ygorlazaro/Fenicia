@@ -35,7 +35,10 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync([FromBody] CustomerRequest request, [FromRoute] Guid id, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync(
+        [FromBody] CustomerRequest request,
+        [FromRoute] Guid id,
+        CancellationToken ct)
     {
         var customer = await customerService.UpdateAsync(request, ct);
 

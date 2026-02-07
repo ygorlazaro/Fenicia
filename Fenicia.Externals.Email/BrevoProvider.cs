@@ -14,9 +14,9 @@ public class BrevoProvider : IBrevoProvider
         var config = new Configuration
         {
             ApiKey =
-                         {
-                             ["api-key"] = Environment.GetEnvironmentVariable("BREVO_API_KEY")
-                         }
+            {
+                ["api-key"] = Environment.GetEnvironmentVariable("BREVO_API_KEY")
+            }
         };
 
         var client = new TransactionalEmailsApi(config);

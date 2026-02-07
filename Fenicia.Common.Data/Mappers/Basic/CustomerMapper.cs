@@ -20,7 +20,7 @@ public static class CustomerMapper
         return new CustomerModel
         {
             Person = PersonMapper.Map(request.Person),
-            Id = request.Id,
+            Id = request.Id
         };
     }
 

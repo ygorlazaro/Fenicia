@@ -38,7 +38,8 @@ public class RefreshTokenServiceTests
             Assert.That(result, Does.Match(base64Pattern));
         }
 
-        this.refreshTokenRepositoryMock.Verify(x => x.Add(It.Is<RefreshToken>(t => t.UserId == userId && t.Token == result)), Times.Once);
+        this.refreshTokenRepositoryMock.Verify(
+            x => x.Add(It.Is<RefreshToken>(t => t.UserId == userId && t.Token == result)), Times.Once);
     }
 
     [Test]
@@ -48,12 +49,14 @@ public class RefreshTokenServiceTests
         var refreshToken = this.faker.Random.AlphaNumeric(44);
         var expectedResult = this.faker.Random.Bool();
 
-        this.refreshTokenRepositoryMock.Setup(x => x.ValidateTokenAsync(userId, refreshToken, this.cancellationToken)).ReturnsAsync(expectedResult);
+        this.refreshTokenRepositoryMock.Setup(x => x.ValidateTokenAsync(userId, refreshToken, this.cancellationToken))
+            .ReturnsAsync(expectedResult);
 
         var result = await this.sut.ValidateTokenAsync(userId, refreshToken, this.cancellationToken);
 
         Assert.That(result, Is.EqualTo(expectedResult));
-        this.refreshTokenRepositoryMock.Verify(x => x.ValidateTokenAsync(userId, refreshToken, this.cancellationToken), Times.Once);
+        this.refreshTokenRepositoryMock.Verify(x => x.ValidateTokenAsync(userId, refreshToken, this.cancellationToken),
+            Times.Once);
     }
 
     [Test]
@@ -79,7 +82,8 @@ public class RefreshTokenServiceTests
         var userId = this.faker.Random.Guid();
         var refreshToken = this.faker.Random.AlphaNumeric(44);
 
-        this.refreshTokenRepositoryMock.Setup(x => x.ValidateTokenAsync(userId, refreshToken, this.cancellationToken)).ReturnsAsync(expectedResult);
+        this.refreshTokenRepositoryMock.Setup(x => x.ValidateTokenAsync(userId, refreshToken, this.cancellationToken))
+            .ReturnsAsync(expectedResult);
 
         var result = await this.sut.ValidateTokenAsync(userId, refreshToken, this.cancellationToken);
 
@@ -111,9 +115,11 @@ public class RefreshTokenServiceTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(generatedTokens.Select(x => x.Token).Distinct().Count(), Is.EqualTo(generatedTokens.Count), "All generated tokens should be unique");
+            Assert.That(generatedTokens.Select(x => x.Token).Distinct().Count(), Is.EqualTo(generatedTokens.Count),
+                "All generated tokens should be unique");
             Assert.That(generatedTokens.All(x => x.Token.Length == 44), "All tokens should be 44 characters long");
-            Assert.That(generatedTokens.All(x => Regex.IsMatch(x.Token, @"^[a-zA-Z0-9+/]*={0,2}$")), "All tokens should be valid Base64 strings");
+            Assert.That(generatedTokens.All(x => Regex.IsMatch(x.Token, @"^[a-zA-Z0-9+/]*={0,2}$")),
+                "All tokens should be valid Base64 strings");
         }
     }
 
@@ -129,7 +135,8 @@ public class RefreshTokenServiceTests
 
         foreach (var token in refreshTokens)
         {
-            this.refreshTokenRepositoryMock.Verify(x => x.InvalidateRefreshTokenAsync(token, this.cancellationToken), Times.Once);
+            this.refreshTokenRepositoryMock.Verify(x => x.InvalidateRefreshTokenAsync(token, this.cancellationToken),
+                Times.Once);
         }
     }
 }

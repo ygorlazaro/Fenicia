@@ -8,7 +8,10 @@ using Fenicia.Module.Basic.Domains.StockMoviment;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 
-public class OrderService(IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IStockMovementRepository stockMovementRepository) : IOrderService
+public class OrderService(
+    IOrderRepository orderRepository,
+    IOrderDetailRepository orderDetailRepository,
+    IStockMovementRepository stockMovementRepository) : IOrderService
 {
     public async Task<OrderResponse?> AddAsync(OrderRequest orderRequest, CancellationToken ct)
     {

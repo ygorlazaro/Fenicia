@@ -6,91 +6,47 @@ namespace Fenicia.Common.Data.Contexts;
 
 public class BasicContext(DbContextOptions<BasicContext> options) : DbContext(options)
 {
-    public DbSet<StateModel> States
-    {
-        get;
-        set;
-    }
+    public DbSet<StateModel> States { get; set; }
 
         = null!;
 
-    public DbSet<CustomerModel> Customers
-    {
-        get;
-        set;
-    }
+    public DbSet<CustomerModel> Customers { get; set; }
 
         = null!;
 
-    public DbSet<EmployeeModel> Employees
-    {
-        get;
-        set;
-    }
+    public DbSet<EmployeeModel> Employees { get; set; }
 
         = null!;
 
-    public DbSet<PositionModel> Positions
-    {
-        get;
-        set;
-    }
+    public DbSet<PositionModel> Positions { get; set; }
 
         = null!;
 
-    public DbSet<ProductCategoryModel> ProductCategories
-    {
-        get;
-        set;
-    }
+    public DbSet<ProductCategoryModel> ProductCategories { get; set; }
 
         = null!;
 
-    public DbSet<ProductModel> Products
-    {
-        get;
-        set;
-    }
+    public DbSet<ProductModel> Products { get; set; }
 
         = null!;
 
-    public DbSet<StockMovementModel> StockMovements
-    {
-        get;
-        set;
-    }
+    public DbSet<StockMovementModel> StockMovements { get; set; }
 
         = null!;
 
-    public DbSet<SupplierModel> Suppliers
-    {
-        get;
-        set;
-    }
+    public DbSet<SupplierModel> Suppliers { get; set; }
 
         = null!;
 
-    public DbSet<OrderModel> Orders
-    {
-        get;
-        set;
-    }
+    public DbSet<OrderModel> Orders { get; set; }
 
         = null!;
 
-    public DbSet<OrderDetailModel> OrderDetails
-    {
-        get;
-        set;
-    }
+    public DbSet<OrderDetailModel> OrderDetails { get; set; }
 
         = null!;
 
-    public DbSet<PersonModel> People
-    {
-        get;
-        set;
-    } = null!;
+    public DbSet<PersonModel> People { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

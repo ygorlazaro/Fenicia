@@ -8,111 +8,59 @@ public class PersonModel : BaseModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name
-    {
-        get;
-        set;
-    }
+    public string Name { get; set; }
 
     [MaxLength(14)]
-    public string? Cpf
-    {
-        get;
-        set;
-    }
+    public string? Cpf { get; set; }
 
         = null!;
 
     [Required]
     [MaxLength(100)]
-    public string Street
-    {
-        get;
-        set;
-    }
+    public string Street { get; set; }
 
         = null!;
 
     [Required]
     [MaxLength(10)]
-    public string Number
-    {
-        get;
-        set;
-    }
+    public string Number { get; set; }
 
         = null!;
 
     [MaxLength(10)]
-    public string Complement
-    {
-        get;
-        set;
-    }
+    public string Complement { get; set; }
 
         = null!;
 
     [MaxLength(50)]
-    public string Neighborhood
-    {
-        get;
-        set;
-    }
+    public string Neighborhood { get; set; }
 
         = null!;
 
     [Required]
     [MaxLength(8)]
-    public string ZipCode
-    {
-        get;
-        set;
-    }
+    public string ZipCode { get; set; }
 
         = null!;
 
     [Required]
-    public Guid StateId
-    {
-        get;
-        set;
-    }
+    public Guid StateId { get; set; }
 
     [Required]
     [MaxLength(50)]
-    public string City
-    {
-        get;
-        set;
-    }
+    public string City { get; set; }
 
         = null!;
 
     [MaxLength(20)]
-    public string PhoneNumber
-    {
-        get;
-        set;
-    }
+    public string PhoneNumber { get; set; }
 
     [ForeignKey(nameof(StateId))]
-    public virtual StateModel State
-    {
-        get;
-        set;
-    }
+    public virtual StateModel State { get; set; }
 
         = null!;
 
-    public virtual CustomerModel? Customer
-    {
-        get;
-        set;
-    }
+    public virtual CustomerModel? Customer { get; set; }
 
-    public virtual EmployeeModel? Employee
-    {
-        get;
-        set;
-    }
+    public virtual EmployeeModel? Employee { get; set; }
 }
