@@ -4,7 +4,6 @@ using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
-using Fenicia.Common.Data.Mappers.Auth;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Requests.Auth;
 using Fenicia.Common.Data.Responses.Auth;
@@ -46,7 +45,7 @@ public class UserService(
         {
             await loginAttemptService.ResetAttemptsAsync(request.Email, ct);
 
-            return UserMapper.Map(user);
+            return new UserResponse(user);
         }
 
         await loginAttemptService.IncrementAttemptsAsync(request.Email);
@@ -73,7 +72,7 @@ public class UserService(
         };
         userRepository.Add(userRequest);
 
-        var companyRequest = CompanyMapper.Map(request.Company);
+        var companyRequest = new CompanyModel(request.Company);
 
         companyRepository.Add(companyRequest);
 
@@ -92,7 +91,7 @@ public class UserService(
 
         await migrationService.RunMigrationsAsync(companyRequest.Id, [ModuleType.Basic], ct);
 
-        return UserMapper.Map(userRequest);
+        return new UserResponse(userRequest);
     }
 
     public async Task<bool> ExistsInCompanyAsync(Guid userId, Guid companyId, CancellationToken ct)
@@ -105,30 +104,30 @@ public class UserService(
         var user = await userRepository.GetByIdAsync(userId, ct)
                    ?? throw new UnauthorizedAccessException(TextConstants.PermissionDeniedMessage);
 
-        return UserMapper.Map(user);
+        return new UserResponse(user);
     }
 
-    public async Task<UserResponse> GetUserIdFromEmailAsync(string email, CancellationToken ct)
+    public async Task<Guid?> GetUserIdFromEmailAsync(string email, CancellationToken ct)
     {
         var userId = await userRepository.GetUserIdFromEmailAsync(email, ct);
 
         return userId switch
         {
             null => throw new ArgumentException(TextConstants.ItemNotFoundMessage),
-            _ => new UserResponse { Id = userId.Value }
+            _ => userId
         };
     }
 
-    public async Task<UserResponse> ChangePasswordAsync(Guid userId, string password, CancellationToken t)
+    public async Task<UserResponse> ChangePasswordAsync(Guid userId, string password, CancellationToken ct)
     {
-        var user = await userRepository.GetByIdAsync(userId, t)
+        var user = await userRepository.GetByIdAsync(userId, ct)
                    ?? throw new ArgumentException(TextConstants.ItemNotFoundMessage);
         var hashedPassword = securityService.HashPassword(password);
 
         user.Password = hashedPassword;
         userRepository.Update(user);
-        await userRepository.SaveChangesAsync(t);
+        await userRepository.SaveChangesAsync(ct);
 
-        return UserMapper.Map(user);
+        return new UserResponse(user);
     }
 }

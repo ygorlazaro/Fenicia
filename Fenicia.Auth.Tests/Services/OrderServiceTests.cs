@@ -166,8 +166,7 @@ public class OrderServiceTests
             .Setup(x => x.GetModulesToOrderAsync(It.IsAny<IEnumerable<Guid>>(), this.cancellationToken))
             .ReturnsAsync(modResponses);
 
-        OrderModel? savedOrder = null;
-        this.orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => savedOrder = o);
+        this.orderRepositoryMock.Setup(x => x.Add(It.IsAny<OrderModel>())).Callback<OrderModel>(o => _ = o);
         this.orderRepositoryMock.Setup(x => x.SaveChangesAsync(this.cancellationToken)).ReturnsAsync(1);
         this.subscriptionServiceMock
             .Setup(x => x.CreateCreditsForOrderAsync(It.IsAny<OrderModel>(), It.IsAny<List<OrderDetailModel>>(),

@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("users")]
-public class UserModel : BaseModel
+public sealed class UserModel : BaseModel
 {
     [Required]
     [EmailAddress]
@@ -25,8 +25,8 @@ public class UserModel : BaseModel
     public string Name { get; set; } = null!;
 
     [JsonIgnore]
-    public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
+    public List<UserRoleModel> UsersRoles { get; set; } = [];
 
     [JsonIgnore]
-    public virtual List<OrderModel> Orders { get; set; } = [];
+    public List<OrderModel> Orders { get; set; } = [];
 }

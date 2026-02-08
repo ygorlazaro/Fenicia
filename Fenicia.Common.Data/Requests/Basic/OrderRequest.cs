@@ -11,7 +11,7 @@ public class OrderRequest
     [Required]
     public Guid CustomerId { get; set; }
 
-    public List<OrderDetailRequest> Details { get; set; }
+    public List<OrderDetailRequest> Details { get; set; } = [];
 
     public DateTime SaleDate { get; set; }
 

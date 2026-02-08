@@ -29,7 +29,7 @@ public class ForgotPasswordServiceTests
         var email = "a@b.com";
         var userId = Guid.NewGuid();
         this.userServiceMock.Setup(x => x.GetUserIdFromEmailAsync(email, this.cancellationToken))
-            .ReturnsAsync(new UserResponse { Id = userId });
+            .ReturnsAsync(userId);
 
         var model = new ForgotPasswordModel
         {
@@ -59,7 +59,7 @@ public class ForgotPasswordServiceTests
         var email = "a@b.com";
         var userId = Guid.NewGuid();
         this.userServiceMock.Setup(x => x.GetUserIdFromEmailAsync(email, this.cancellationToken))
-            .ReturnsAsync(new UserResponse { Id = userId });
+            .ReturnsAsync(userId);
         this.forgotPasswordRepositoryMock.Setup(x => x.GetFromUserIdAndCodeAsync(userId, "BAD", this.cancellationToken))
             .ReturnsAsync((ForgotPasswordModel)null!);
 
@@ -75,7 +75,7 @@ public class ForgotPasswordServiceTests
         var email = "a@b.com";
         var userId = Guid.NewGuid();
         this.userServiceMock.Setup(x => x.GetUserIdFromEmailAsync(email, this.cancellationToken))
-            .ReturnsAsync(new UserResponse { Id = userId });
+            .ReturnsAsync(userId);
 
         ForgotPasswordModel? captured = null;
         this.forgotPasswordRepositoryMock.Setup(x =>

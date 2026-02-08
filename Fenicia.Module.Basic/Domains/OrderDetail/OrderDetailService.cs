@@ -1,4 +1,3 @@
-using Fenicia.Common.Data.Mappers.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail;
@@ -9,6 +8,6 @@ public class OrderDetailService(IOrderDetailRepository orderDetailRepository) : 
     {
         var orderDetails = await orderDetailRepository.GetByOrderIdAsync(orderId, ct);
 
-        return OrderDetailConverter.Map(orderDetails);
+        return [.. orderDetails.Select(od => new OrderDetailResponse(od))];
     }
 }

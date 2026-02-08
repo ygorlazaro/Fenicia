@@ -13,13 +13,17 @@ public class ModuleRepository(AuthContext context) : BaseRepository<ModuleModel>
     {
         return await context.Modules
             .Where(m => m.Type != ModuleType.Erp && m.Type != ModuleType.Auth)
-            .OrderBy(m => m.Type).Skip((page - 1) * perPage).Take(perPage).ToListAsync(ct);
+            .OrderBy(m => m.Type)
+            .Skip((page - 1) * perPage)
+            .Take(perPage)
+            .ToListAsync(ct);
     }
 
     public async Task<List<ModuleModel>> GetManyOrdersAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
-        return await context.Modules.Where(module => request.Any(r => r == module.Id)).OrderBy(module => module.Type)
-            .ToListAsync(ct);
+        return await context.Modules.Where(module => request.Any(r => r == module.Id))
+                                    .OrderBy(module => module.Type)
+                                    .ToListAsync(ct);
     }
 
     public async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)

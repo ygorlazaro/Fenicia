@@ -4,5 +4,5 @@ public class CustomerRequest
 {
     public Guid Id { get; set; }
 
-    public PersonRequest Person { get; set; }
+    public PersonRequest Person { get; set; } = null!;
 }

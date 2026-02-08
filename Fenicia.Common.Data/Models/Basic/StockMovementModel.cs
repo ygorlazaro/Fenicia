@@ -1,13 +1,31 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("stock_movements")]
-public class StockMovementModel : BaseModel
+public sealed class StockMovementModel : BaseModel
 {
+    public StockMovementModel(StockMovementRequest request)
+    {
+        this.Id =  request.Id;
+        this.ProductId = request.ProductId;
+        this.Quantity = request.Quantity;
+        this.Date = request.Date;
+        this.Price = request.Price;
+        this.Type = request.Type;
+        this.CustomerId = request.CustomerId;
+        this.SupplierId =  request.SupplierId;
+    }
+
+    public StockMovementModel()
+    {
+        
+    }
+
     [Required]
     public Guid ProductId { get; set; }
 
@@ -23,15 +41,15 @@ public class StockMovementModel : BaseModel
     public StockMovementType Type { get; set; }
 
     [ForeignKey(nameof(ProductId))]
-    public virtual ProductModel Product { get; set; } = null!;
+    public ProductModel Product { get; set; } = null!;
 
     public Guid? CustomerId { get; set; }
 
     public Guid? SupplierId { get; set; }
 
     [ForeignKey(nameof(CustomerId))]
-    public virtual CustomerModel? Customer { get; set; }
+    public CustomerModel? Customer { get; set; }
 
     [ForeignKey(nameof(SupplierId))]
-    public virtual SupplierModel? Supplier { get; set; }
+    public SupplierModel? Supplier { get; set; }
 }

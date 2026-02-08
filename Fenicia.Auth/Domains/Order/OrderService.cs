@@ -2,15 +2,12 @@ using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common;
-using Fenicia.Common.Data.Mappers.Auth;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Requests.Auth;
 using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Migrations.Services;
-
-using OrderMapper = Fenicia.Common.Data.Mappers.Auth.OrderMapper;
 
 namespace Fenicia.Auth.Domains.Order;
 
@@ -56,7 +53,7 @@ public sealed class OrderService(
         await orderRepository.SaveChangesAsync(ct);
         await migrationService.RunMigrationsAsync(companyId, [.. modules.Select(m => m.Type)], ct);
 
-        return OrderMapper.Map(order);
+        return new OrderResponse(order);
     }
 
     private async Task<List<ModuleModel>?> PopulateModules(OrderRequest request, CancellationToken ct)
@@ -66,7 +63,8 @@ public sealed class OrderService(
             var uniqueModules = request.Details.Select(d => d.ModuleId).Distinct();
             var modules = await moduleService.GetModulesToOrderAsync(uniqueModules, ct);
 
-            if (modules.Any(m => m.Type == ModuleType.Basic)) return ModuleMapper.Map(modules);
+            if (modules.Any(m => m.Type == ModuleType.Basic))
+                return [.. modules.Select(module => new ModuleModel(module))];
 
             var basicModule = await moduleService.GetModuleByTypeAsync(ModuleType.Basic, ct);
 
@@ -74,7 +72,7 @@ public sealed class OrderService(
 
             modules.Add(basicModule);
 
-            return ModuleMapper.Map(modules);
+            return [.. modules.Select(module => new ModuleModel(module))];
         }
         catch
         {

@@ -83,7 +83,7 @@ public class TokenServiceTests
 
     private class ExtendedUserResponse : UserResponse
     {
-        public Guid CompanyId { get; set; }
+        public Guid CompanyId { get; init; }
 
         public List<string>? Roles { get; set; }
 

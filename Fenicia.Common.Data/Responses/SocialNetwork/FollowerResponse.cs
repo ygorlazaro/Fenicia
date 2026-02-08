@@ -1,14 +1,16 @@
+using Fenicia.Common.Data.Models.SocialNetwork;
+
 namespace Fenicia.Common.Data.Responses.SocialNetwork;
 
-public class FollowerResponse
+public class FollowerResponse(FollowerModel model)
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = model.Id;
 
-    public Guid UserId { get; set; }
+    public Guid UserId { get; set; } = model.UserId;
 
-    public Guid FollowerId { get; set; }
+    public Guid FollowerId { get; set; } = model.FollowerId;
 
-    public DateTime FollowDate { get; set; }
+    public DateTime FollowDate { get; set; } = model.FollowDate;
 
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } = model.IsActive;
 }

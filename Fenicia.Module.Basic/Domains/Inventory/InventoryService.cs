@@ -12,11 +12,13 @@ public class InventoryService(IProductRepository productRepository) : IInventory
         int perPage = 10)
     {
         var productInventory = await productRepository.GetInventoryAsync(productId, ct, page, perPage);
-
-        var inventory = InventoryResponse.Map(productInventory);
-        inventory.TotalCostPrice = await productRepository.GetTotalCostPriceByProductAsync(productId, ct);
-        inventory.TotalSalesPrice = await productRepository.GetTotalSalesPriceProductAsync(productId, ct);
-        inventory.TotalQuantity = await productRepository.GetTotalQuantityProductAsync(productId, ct);
+        var inventory = new InventoryResponse
+        {
+            Items = [.. productInventory.Select(i => new InventoryDetailResponse(i))],
+            TotalCostPrice = await productRepository.GetTotalCostPriceByProductAsync(productId, ct),
+            TotalSalesPrice = await productRepository.GetTotalSalesPriceProductAsync(productId, ct),
+            TotalQuantity = await productRepository.GetTotalQuantityProductAsync(productId, ct)
+        };
 
         return inventory;
     }
@@ -29,10 +31,13 @@ public class InventoryService(IProductRepository productRepository) : IInventory
     {
         var productInventory = await productRepository.GetInventoryByCategoryAsync(categoryId, ct, page, perPage);
 
-        var inventory = InventoryResponse.Map(productInventory);
-        inventory.TotalCostPrice = await productRepository.GetTotalCostPriceByCategoryAsync(categoryId, ct);
-        inventory.TotalSalesPrice = await productRepository.GetTotalSalesPriceCategoryAsync(categoryId, ct);
-        inventory.TotalQuantity = await productRepository.GetTotalQuantityCategoryAsync(categoryId, ct);
+        var inventory = new InventoryResponse
+        {
+            Items = [.. productInventory.Select(i => new InventoryDetailResponse(i))],
+            TotalCostPrice = await productRepository.GetTotalCostPriceByProductAsync(categoryId, ct),
+            TotalSalesPrice = await productRepository.GetTotalSalesPriceProductAsync(categoryId, ct),
+            TotalQuantity = await productRepository.GetTotalQuantityProductAsync(categoryId, ct)
+        };
 
         return inventory;
     }
@@ -41,10 +46,14 @@ public class InventoryService(IProductRepository productRepository) : IInventory
     {
         var productInventory = await productRepository.GetInventoryAsync(ct, page, perPage);
 
-        var inventory = InventoryResponse.Map(productInventory);
-        inventory.TotalCostPrice = await productRepository.GetTotalCostPriceAsync(ct);
-        inventory.TotalSalesPrice = await productRepository.GetTotalSalesPriceAsync(ct);
-        inventory.TotalQuantity = await productRepository.GetTotalQuantityAsync(ct);
+        var inventory = new InventoryResponse
+        {
+            Items = [.. productInventory.Select(i => new InventoryDetailResponse(i))],
+            TotalCostPrice = await productRepository.GetTotalCostPriceAsync(ct),
+            TotalSalesPrice = await productRepository.GetTotalSalesPriceAsync(ct),
+            TotalQuantity = await productRepository.GetTotalQuantityAsync(ct)
+        };
+
 
         return inventory;
     }

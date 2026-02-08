@@ -1,5 +1,4 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Mappers.Basic;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Auth;
@@ -68,7 +67,7 @@ public class StockMovementService(
         var movements =
             await stockMovementRepository.GetMovementAsync(productId, startDate, endDate, ct, page, perPage);
 
-        return StockMovementMapper.Map(movements);
+        return [..movements.Select(m => new StockMovementResponse(m))];
     }
 
     public async Task<List<StockMovementResponse>> GetMovementAsync(
@@ -79,13 +78,13 @@ public class StockMovementService(
         int perPage = 10)
     {
         var movements = await stockMovementRepository.GetMovementAsync(startDate, endDate, ct, page, perPage);
-
-        return StockMovementMapper.Map(movements);
+        
+        return [..movements.Select(m=>  new StockMovementResponse(m))];
     }
 
     public async Task<StockMovementResponse?> AddAsync(StockMovementRequest request, CancellationToken ct)
     {
-        var stockMovement = StockMovementMapper.Map(request);
+        var stockMovement = new StockMovementModel(request);
 
         stockMovementRepository.Add(stockMovement);
 
@@ -96,27 +95,27 @@ public class StockMovementService(
 
         await stockMovementRepository.SaveChangesAsync(ct);
 
-        return StockMovementMapper.Map(stockMovement);
+        return new StockMovementResponse(stockMovement);
     }
 
     public async Task<StockMovementResponse?> UpdateAsync(Guid id, StockMovementRequest request, CancellationToken ct)
     {
-        var moviment = await stockMovementRepository.GetByIdAsync(id, ct);
+        var stockMovement = await stockMovementRepository.GetByIdAsync(id, ct);
 
-        if (moviment is null) return null;
+        if (stockMovement is null) return null;
 
-        moviment.Date = request.Date;
-        moviment.Type = request.Type;
-        moviment.ProductId = request.ProductId;
-        moviment.CustomerId = request.CustomerId;
-        moviment.Quantity = request.Quantity;
-        moviment.Price = request.Price;
-        moviment.SupplierId = request.SupplierId;
+        stockMovement.Date = request.Date;
+        stockMovement.Type = request.Type;
+        stockMovement.ProductId = request.ProductId;
+        stockMovement.CustomerId = request.CustomerId;
+        stockMovement.Quantity = request.Quantity;
+        stockMovement.Price = request.Price;
+        stockMovement.SupplierId = request.SupplierId;
 
-        stockMovementRepository.Update(moviment);
+        stockMovementRepository.Update(stockMovement);
 
         await stockMovementRepository.SaveChangesAsync(ct);
 
-        return StockMovementMapper.Map(moviment);
+        return new StockMovementResponse(stockMovement);
     }
 }

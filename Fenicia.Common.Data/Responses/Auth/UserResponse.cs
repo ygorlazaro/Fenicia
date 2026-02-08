@@ -1,10 +1,27 @@
+using Fenicia.Common.Data.Models.Auth;
+
 namespace Fenicia.Common.Data.Responses.Auth;
 
 public class UserResponse
 {
-    public string Name { get; set; } = null!;
+    public UserResponse()
+    {
+        this.Id = Guid.Empty;
+        this.Name = string.Empty;
+        this.Email = string.Empty;
+    }
+    
+    public UserResponse(UserModel model)
+    {
+        this.Id = model.Id;
+        this.Name = model.Name;
+        this.Email = model.Email;
 
-    public string Email { get; set; } = null!;
+    }
+
+    public string Name { get; set; }
+
+    public string Email { get; set; }
 
     public Guid Id { get; set; }
 }

@@ -9,7 +9,7 @@ public interface ICompanyService
 
     Task<List<CompanyResponse>> GetByUserIdAsync(Guid userId, CancellationToken ct, int page = 1, int perPage = 10);
 
-    Task<CompanyResponse?> PatchAsync(Guid companyId, Guid userId, CompanyUpdateRequest company, CancellationToken ct);
+    Task<CompanyResponse?> PatchAsync(Guid companyId, Guid userId, CompanyUpdateRequest request, CancellationToken ct);
 
     Task<int> CountByUserIdAsync(Guid userId, CancellationToken ct);
 

@@ -1,4 +1,3 @@
-using Fenicia.Common.Data.Mappers.Basic;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
@@ -13,9 +12,9 @@ public class OrderService(
     IOrderDetailRepository orderDetailRepository,
     IStockMovementRepository stockMovementRepository) : IOrderService
 {
-    public async Task<OrderResponse?> AddAsync(OrderRequest orderRequest, CancellationToken ct)
+    public async Task<OrderResponse?> AddAsync(OrderRequest request, CancellationToken ct)
     {
-        var order = OrderMapper.Map(orderRequest);
+        var order = new OrderModel(request);
         var total = order.Details.Sum(d => d.Price);
 
         order.TotalAmount = total;
@@ -37,6 +36,6 @@ public class OrderService(
 
         await orderRepository.SaveChangesAsync(ct);
 
-        return OrderMapper.Map(order);
+        return new OrderResponse(order);
     }
 }

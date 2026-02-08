@@ -2,11 +2,22 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+using Fenicia.Common.Data.Requests.Basic;
+
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("order_details")]
-public class OrderDetailModel : BaseModel
+public sealed class OrderDetailModel : BaseModel
 {
+    public OrderDetailModel(OrderDetailRequest request)
+    {
+        this.OrderId = request.OrderId;
+        this.ProductId = request.ProductId;
+        this.Price = request.Price;
+        this.Quantity = request.Quantity;
+        this.Id = request.Id;
+    }
+
     [Required]
     [Column("order_id")]
     public Guid OrderId { get; set; }
@@ -22,11 +33,11 @@ public class OrderDetailModel : BaseModel
 
     [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
-    public virtual OrderModel Order { get; set; } = null!;
+    public OrderModel Order { get; set; } = null!;
 
     [JsonIgnore]
     [ForeignKey(nameof(ProductId))]
-    public virtual ProductModel Product { get; set; } = null!;
+    public ProductModel Product { get; set; } = null!;
 
     [Column("quantity")]
     [Range(0.01, double.MaxValue)]

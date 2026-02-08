@@ -15,9 +15,7 @@ public interface IBaseRepository<T>
 
     void Update(T entity);
 
-    void Delete(T entity);
-
-    void Delete(Guid id);
+    Task DeleteAsync(Guid id, CancellationToken ct);
 
     Task<int> SaveChangesAsync(CancellationToken ct);
 

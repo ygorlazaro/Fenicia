@@ -9,5 +9,5 @@ public class EmployeeRequest
     [Required]
     public Guid PositionId { get; set; }
 
-    public PersonRequest Person { get; set; }
+    public PersonRequest Person { get; set; } = null!;
 }

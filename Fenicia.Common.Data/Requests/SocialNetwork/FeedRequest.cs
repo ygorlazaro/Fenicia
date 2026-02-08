@@ -6,7 +6,7 @@ public class FeedRequest
 {
     [Required]
     [MaxLength(512)]
-    public string Text { get; set; }
+    public string Text { get; set; } = string.Empty;
 
     public Guid Id { get; set; }
 

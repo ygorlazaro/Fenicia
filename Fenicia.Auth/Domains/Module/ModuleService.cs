@@ -1,4 +1,3 @@
-using Fenicia.Common.Data.Mappers.Auth;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -11,14 +10,14 @@ public class ModuleService(IModuleRepository moduleRepository) : IModuleService
     {
         var modules = await moduleRepository.GetAllAsync(ct, page, perPage);
 
-        return ModuleMapper.Map(modules);
+        return [.. modules.Select(module => new ModuleResponse(module))];
     }
 
     public async Task<List<ModuleResponse>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
         var enumerable = request as Guid[] ?? [.. request];
         var modules = await moduleRepository.GetManyOrdersAsync(enumerable, ct);
-        var response = ModuleMapper.Map(modules);
+        var response = modules.Select(module => new ModuleResponse(module)).ToList();
 
         return response;
     }
@@ -27,7 +26,7 @@ public class ModuleService(IModuleRepository moduleRepository) : IModuleService
     {
         var module = await moduleRepository.GetModuleByTypeAsync(moduleType, ct);
 
-        return module is null ? null : ModuleMapper.Map(module);
+        return module is null ? null : new ModuleResponse(module);
     }
 
     public async Task<int> CountAsync(CancellationToken ct)
@@ -54,16 +53,16 @@ public class ModuleService(IModuleRepository moduleRepository) : IModuleService
             new() { Name = "Plus", Price = 20, Type = ModuleType.Plus }
         };
 
-        var response = await moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, ct);
+        var modules = await moduleRepository.LoadModulesAtDatabaseAsync(modulesToSave, ct);
 
-        return ModuleMapper.Map(response);
+        return [.. modules.Select(module => new ModuleResponse(module))];
     }
 
     public async Task<List<ModuleResponse>> GetUserModulesAsync(Guid userId, Guid companyId, CancellationToken ct)
     {
-        var userModules = await moduleRepository.GetUserModulesAsync(userId, companyId, ct);
+        var modules = await moduleRepository.GetUserModulesAsync(userId, companyId, ct);
 
-        return ModuleMapper.Map(userModules);
+        return [.. modules.Select(module => new ModuleResponse(module))];
     }
 
     public async Task<List<ModuleResponse>> GetModuleAndSubmoduleAsync(
@@ -73,6 +72,6 @@ public class ModuleService(IModuleRepository moduleRepository) : IModuleService
     {
         var modules = await moduleRepository.GetModuleAndSubmoduleAsync(userId, companyId, ct);
 
-        return ModuleMapper.Map(modules);
+        return [.. modules.Select(module => new ModuleResponse(module))];
     }
 }

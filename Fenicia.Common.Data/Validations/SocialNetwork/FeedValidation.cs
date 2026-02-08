@@ -15,27 +15,3 @@ public class FeedValidation : AbstractValidator<FeedRequest>
             .WithMessage("Text cannot be longer than 512 characters");
     }
 }
-
-public class UserValidation : AbstractValidator<UserRequest>
-{
-    public UserValidation()
-    {
-        RuleFor(x => x.Name)
-            .NotEmpty()
-            .WithMessage("Name cannot be empty")
-            .MaximumLength(50)
-            .WithMessage("Name cannot be longer than 50 characters");
-
-        RuleFor(x => x.Email)
-            .NotEmpty()
-            .WithMessage("Email cannot be empty")
-            .EmailAddress()
-            .WithMessage("Email cannot be empty");
-
-        RuleFor(x => x.Username)
-            .NotEmpty()
-            .WithMessage("Username cannot be empty")
-            .MaximumLength(50)
-            .WithMessage("Username cannot be longer than 50 characters");
-    }
-}

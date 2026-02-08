@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Mappers.Basic;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 
@@ -10,41 +10,41 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
     {
         var employees = await employeeRepository.GetAllAsync(ct, page, perPage);
 
-        return EmployeeMapper.Map(employees);
+        return [.. employees.Select(e => new EmployeeResponse(e))];
     }
 
     public async Task<EmployeeResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
         var employee = await employeeRepository.GetByIdAsync(id, ct);
 
-        return employee is null ? null : EmployeeMapper.Map(employee);
+        return employee is null ? null : new EmployeeResponse(employee);
     }
 
     public async Task<EmployeeResponse?> AddAsync(EmployeeRequest request, CancellationToken ct)
     {
-        var employee = EmployeeMapper.Map(request);
+        var employee = new EmployeeModel(request);
 
         employeeRepository.Add(employee);
 
         await employeeRepository.SaveChangesAsync(ct);
 
-        return EmployeeMapper.Map(employee);
+        return new EmployeeResponse(employee);
     }
 
     public async Task<EmployeeResponse?> UpdateAsync(EmployeeRequest request, CancellationToken ct)
     {
-        var employee = EmployeeMapper.Map(request);
+        var employee = new EmployeeModel(request);
 
         employeeRepository.Update(employee);
 
         await employeeRepository.SaveChangesAsync(ct);
 
-        return EmployeeMapper.Map(employee);
+        return new EmployeeResponse(employee);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct)
     {
-        employeeRepository.Delete(id);
+        await employeeRepository.DeleteAsync(id, ct);
 
         await employeeRepository.SaveChangesAsync(ct);
     }
@@ -57,6 +57,6 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
     {
         var employees = await employeeRepository.GetByPositionIdAsync(positionId, ct, page, perPage);
 
-        return EmployeeMapper.Map(employees);
+        return [.. employees.Select(e => new EmployeeResponse(e))];
     }
 }

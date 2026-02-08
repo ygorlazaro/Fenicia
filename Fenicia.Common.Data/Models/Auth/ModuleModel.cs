@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Enums.Auth;
 
 using Microsoft.EntityFrameworkCore;
@@ -9,13 +10,26 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("modules")]
-public class ModuleModel : BaseModel
+public sealed class ModuleModel : BaseModel
 {
+    public ModuleModel()
+    {
+        this.Name = string.Empty;
+    }
+    
+    public ModuleModel(ModuleResponse response)
+    {
+        this.Id = response.Id;
+        this.Name = response.Name;
+        this.Price = response.Price;
+        this.Type = response.Type;
+    }
+
     [Required]
     [MaxLength(30)]
     [MinLength(3)]
     [Column("name")]
-    public string Name { get; set; } = null!;
+    public string Name { get; set; }
 
     [Required]
     [Range(0.01, double.MaxValue)]
@@ -29,10 +43,10 @@ public class ModuleModel : BaseModel
     public ModuleType Type { get; set; }
 
     [JsonIgnore]
-    public virtual List<SubscriptionCreditModel> SubscriptionCredits { get; set; } = [];
+    public List<SubscriptionCreditModel> SubscriptionCredits { get; set; } = [];
 
     [JsonIgnore]
-    public virtual List<OrderDetailModel> OrderDetails { get; set; } = [];
+    public List<OrderDetailModel> OrderDetails { get; set; } = [];
 
-    public virtual List<SubmoduleModel> Submodules { get; set; } = [];
+    public List<SubmoduleModel> Submodules { get; set; } = [];
 }

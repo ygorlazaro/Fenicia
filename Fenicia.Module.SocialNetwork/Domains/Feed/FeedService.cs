@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Mappers.SocialNetwork;
+using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Data.Requests.SocialNetwork;
 using Fenicia.Common.Data.Responses.SocialNetwork;
 
@@ -14,18 +14,18 @@ public class FeedService(IFeedRepository feedRepository) : IFeedService
     {
         var feed = await feedRepository.GetFollowingFeedAsync(userId, ct, page, perPage);
 
-        return FeedMapper.Map(feed);
+        return [..feed.Select(f => new FeedResponse(f))];
     }
 
     public async Task<FeedResponse> AddAsync(Guid userId, FeedRequest request, CancellationToken ct)
     {
         request.UserId = userId;
-        var model = FeedMapper.Map(request);
+        var model = new FeedModel(request);
 
         feedRepository.Add(model);
 
         await feedRepository.SaveChangesAsync(ct);
 
-        return FeedMapper.Map(model);
+        return new FeedResponse(model);
     }
 }

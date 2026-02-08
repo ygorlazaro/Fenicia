@@ -2,15 +2,39 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+using Fenicia.Common.Data.Requests.Auth;
+
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("companies")]
-public class CompanyModel : BaseModel
+public sealed class CompanyModel: BaseModel
 {
+    public CompanyModel()
+    {
+        this.Name = string.Empty;
+        this.Cnpj = string.Empty;
+        this.Id = Guid.Empty;
+        this.TimeZone = string.Empty;
+    }
+    
+    public CompanyModel(CompanyUpdateRequest request)
+    {
+        this.Name = request.Name;
+        this.TimeZone = request.Timezone;
+    }
+
+    public CompanyModel(CompanyRequest request)
+    {
+        this.Name = request.Name;
+        this.Cnpj = request.Cnpj;
+        this.TimeZone = string.Empty;
+    }
+
+
     [Required]
     [MaxLength(50)]
     [Column("name")]
-    public string Name { get; set; } = null!;
+    public string Name { get; set; }
 
     [Required]
     [MinLength(14)]
@@ -25,7 +49,7 @@ public class CompanyModel : BaseModel
     [Required]
     [MaxLength(256)]
     [Column("time_zone")]
-    public string TimeZone { get; set; } = TimeZoneInfo.Local.StandardName;
+    public string TimeZone { get; set; }
 
     [Required]
     [MaxLength(10)]
@@ -36,15 +60,15 @@ public class CompanyModel : BaseModel
     public Guid? AddressId { get; set; }
 
     [JsonIgnore]
-    public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
+    public List<UserRoleModel> UsersRoles { get; set; } = [];
 
     [JsonIgnore]
-    public virtual List<SubscriptionModel> Subscriptions { get; set; } = null!;
+    public List<SubscriptionModel> Subscriptions { get; set; } = null!;
 
     [ForeignKey(nameof(AddressId))]
     [JsonIgnore]
-    public virtual AddressModel? Address { get; set; }
+    public AddressModel? Address { get; set; }
 
     [JsonIgnore]
-    public virtual List<OrderModel> Orders { get; set; } = [];
+    public List<OrderModel> Orders { get; set; } = [];
 }
