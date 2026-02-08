@@ -1,5 +1,4 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Mappers.Auth;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -39,7 +38,7 @@ public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepo
 
         await subscriptionRepository.SaveChangesAsync(ct);
 
-        return SubscriptionMapper.Map(subscription);
+        return new SubscriptionResponse(subscription);
     }
 
     public async Task<List<Guid>> GetValidSubscriptionsAsync(Guid companyId, CancellationToken ct)

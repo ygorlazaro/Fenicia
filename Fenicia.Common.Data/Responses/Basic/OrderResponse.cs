@@ -1,9 +1,21 @@
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Responses.Basic;
 
 public class OrderResponse
 {
+    public OrderResponse(OrderModel model)
+    {
+        this.CustomerId = model.CustomerId;
+        this.Details = [.. model.Details.Select(d => new OrderDetailResponse(d))];
+        this.SaleDate = model.SaleDate;
+        this.Status = model.Status;
+        this.TotalAmount = model.TotalAmount;
+        this.UserId = model.UserId;
+        this.Id = model.Id;
+    }
+
     public Guid CustomerId { get; set; }
 
     public List<OrderDetailResponse> Details { get; set; }

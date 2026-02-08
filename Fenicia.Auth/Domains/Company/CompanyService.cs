@@ -1,7 +1,7 @@
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
-using Fenicia.Common.Data.Mappers.Auth;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Requests.Auth;
 using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Exceptions;
@@ -18,7 +18,7 @@ public class CompanyService(
         var company = await companyRepository.GetByCnpjAsync(cnpj, false, ct)
                       ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
 
-        return CompanyMapper.Map(company);
+        return new CompanyResponse(company);
     }
 
     public async Task<List<CompanyResponse>> GetByUserIdAsync(
@@ -28,9 +28,9 @@ public class CompanyService(
         int perPage = 10)
     {
         var companies = await companyRepository.GetByUserIdAsync(userId, true, ct, page, perPage);
-        var companiesResponse = CompanyMapper.Map(companies);
+        var response = companies.Select(c => new CompanyResponse(c)).ToList(); 
 
-        foreach (var company in companiesResponse)
+        foreach (var company in response)
         {
             var role = await roleService.GetByUserAndCompanyAsync(userId, company.Id, ct);
 
@@ -39,13 +39,13 @@ public class CompanyService(
             company.Role = role;
         }
 
-        return companiesResponse;
+        return response;
     }
 
     public async Task<CompanyResponse?> PatchAsync(
         Guid companyId,
         Guid userId,
-        CompanyUpdateRequest company,
+        CompanyUpdateRequest request,
         CancellationToken ct)
     {
         var existing = await companyRepository.CheckCompanyExistsAsync(companyId, true, ct);
@@ -56,16 +56,17 @@ public class CompanyService(
 
         if (!hasAdminRole) throw new PermissionDeniedException(TextConstants.PermissionDeniedMessage);
 
-        var companyToUpdate = CompanyMapper.Map(company);
+        var company = new CompanyModel(request)
+        {
+            Id = companyId
+        };
 
-        companyToUpdate.Id = companyId;
-
-        companyRepository.Update(companyToUpdate);
+        companyRepository.Update(company);
         var saved = await companyRepository.SaveChangesAsync(ct);
 
         return saved == 0
             ? throw new NotSavedException(TextConstants.ThereWasAnErrorEditingMessage)
-            : CompanyMapper.Map(companyToUpdate);
+            : new CompanyResponse(company);
     }
 
     public async Task<int> CountByUserIdAsync(Guid userId, CancellationToken ct)

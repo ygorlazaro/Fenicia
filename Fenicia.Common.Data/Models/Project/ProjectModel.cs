@@ -4,7 +4,7 @@ namespace Fenicia.Common.Data.Models.Project;
 
 public class ProjectModel : BaseModel
 {
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     public string? Description { get; set; }
 

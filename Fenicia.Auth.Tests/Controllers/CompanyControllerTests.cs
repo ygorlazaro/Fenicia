@@ -36,7 +36,7 @@ public class CompanyControllerTests
         var userId = Guid.NewGuid();
         var companies = new List<CompanyResponse>
             { new() { Id = Guid.NewGuid(), Name = "Test", Cnpj = "12345678901234" } };
-        var countResponse = 1;
+        const int countResponse = 1;
 
         this.companyServiceMock
             .Setup(x => x.GetByUserIdAsync(userId, this.cancellationToken, this.query.Page, this.query.PerPage))

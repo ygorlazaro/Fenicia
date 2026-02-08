@@ -3,29 +3,21 @@ using Fenicia.Common.Data.Models.Auth;
 namespace Fenicia.Common.Data.Responses.Auth;
 
 [Serializable]
-public class SubmoduleResponse
+public class SubmoduleResponse()
 {
-    public Guid Id { get; set; }
+    public SubmoduleResponse(SubmoduleModel model) : this()
+    {
+        this.Id = model.Id;
+        this.Name = model.Name;
+        this.Description = model.Description;
+        this.Route = model.Route;
+    }
 
-    public string Name { get; set; } = null!;
+    public Guid Id { get; set; } = Guid.Empty;
+
+    public string Name { get; set; } = string.Empty;
 
     public string? Description { get; set; }
 
-    public string Route { get; set; } = null!;
-
-    public static SubmoduleResponse Map(SubmoduleModel submodules)
-    {
-        return new SubmoduleResponse
-        {
-            Id = submodules.Id,
-            Name = submodules.Name,
-            Description = submodules.Description,
-            Route = submodules.Route
-        };
-    }
-
-    public static SubmoduleResponse[] Map(List<SubmoduleModel> submodules)
-    {
-        return [.. submodules.Select(Map)];
-    }
+    public string Route { get; set; } = string.Empty;
 }

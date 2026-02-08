@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fenicia.Common.Data.Requests.Basic;
 
-public class OrderDetailRequest
+public abstract class OrderDetailRequest
 {
     [Required]
     public Guid ProductId { get; set; }

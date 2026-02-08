@@ -7,6 +7,7 @@ public class HrContext(DbContextOptions<HrContext> options) : DbContext(options)
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
+        SoftDeleteQueryExtension.AddSoftDeleteSupport(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }

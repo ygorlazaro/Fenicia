@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Mappers.Basic;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 
@@ -10,41 +10,41 @@ public class CustomerService(ICustomerRepository customerRepository) : ICustomer
     {
         var customers = await customerRepository.GetAllAsync(ct, page, perPage);
 
-        return CustomerMapper.Map(customers);
+        return [.. customers.Select(c => new CustomerResponse(c))];
     }
 
     public async Task<CustomerResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
         var customer = await customerRepository.GetByIdAsync(id, ct);
 
-        return customer is null ? null : CustomerMapper.Map(customer);
+        return customer is null ? null : new CustomerResponse(customer);
     }
 
     public async Task<CustomerResponse?> AddAsync(CustomerRequest request, CancellationToken ct)
     {
-        var customer = CustomerMapper.Map(request);
+        var customer = new CustomerModel(request);
 
         customerRepository.Add(customer);
 
         await customerRepository.SaveChangesAsync(ct);
 
-        return CustomerMapper.Map(customer);
+        return new CustomerResponse(customer);
     }
 
     public async Task<CustomerResponse?> UpdateAsync(CustomerRequest request, CancellationToken ct)
     {
-        var customer = CustomerMapper.Map(request);
+        var customer = new CustomerModel(request);
 
         customerRepository.Update(customer);
 
         await customerRepository.SaveChangesAsync(ct);
 
-        return CustomerMapper.Map(customer);
+        return new CustomerResponse(customer);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct)
     {
-        customerRepository.Delete(id);
+        await customerRepository.DeleteAsync(id, ct);
 
         await customerRepository.SaveChangesAsync(ct);
     }

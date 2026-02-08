@@ -7,6 +7,7 @@ public class EcommerceContext(DbContextOptions<EcommerceContext> options) : DbCo
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
+        SoftDeleteQueryExtension.AddSoftDeleteSupport(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }

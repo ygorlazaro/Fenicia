@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Mappers.Basic;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 
@@ -10,41 +10,41 @@ public class PositionService(IPositionRepository positionRepository) : IPosition
     {
         var positions = await positionRepository.GetAllAsync(ct, page, perPage);
 
-        return PositionMapper.Map(positions);
+        return [.. positions.Select(p => new PositionResponse(p))];
     }
 
     public async Task<PositionResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var positin = await positionRepository.GetByIdAsync(id, ct);
+        var position = await positionRepository.GetByIdAsync(id, ct);
 
-        return positin is null ? null : PositionMapper.Map(positin);
+        return position is null ? null : new PositionResponse(position);
     }
 
     public async Task<PositionResponse?> AddAsync(PositionRequest request, CancellationToken ct)
     {
-        var position = PositionMapper.Map(request);
+        var position = new PositionModel(request);
 
         positionRepository.Add(position);
 
         await positionRepository.SaveChangesAsync(ct);
 
-        return PositionMapper.Map(position);
+        return new PositionResponse(position);
     }
 
     public async Task<PositionResponse?> UpdateAsync(PositionRequest request, CancellationToken ct)
     {
-        var position = PositionMapper.Map(request);
+        var position = new PositionModel(request);
 
         positionRepository.Update(position);
 
         await positionRepository.SaveChangesAsync(ct);
 
-        return PositionMapper.Map(position);
+        return new PositionResponse(position);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct)
     {
-        positionRepository.Delete(id);
+        await positionRepository.DeleteAsync(id, ct);
 
         await positionRepository.SaveChangesAsync(ct);
     }

@@ -1,64 +1,56 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Fenicia.Common.Data.Requests.Basic;
+
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("people")]
-public class PersonModel : BaseModel
+public class PersonModel(PersonRequest request) : BaseModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; }
+    public string Name { get; set; } = request.Name;
 
     [MaxLength(14)]
-    public string? Cpf { get; set; }
-
-        = null!;
+    public string? Cpf { get; set; } = request.Cpf;
 
     [Required]
     [MaxLength(100)]
-    public string Street { get; set; }
+    public string Street { get; set; } = request.Street;
 
-        = null!;
 
     [Required]
     [MaxLength(10)]
-    public string Number { get; set; }
+    public string Number { get; set; } = request.Number;
 
-        = null!;
 
     [MaxLength(10)]
-    public string Complement { get; set; }
+    public string Complement { get; set; } = request.Complement;
 
-        = null!;
 
     [MaxLength(50)]
-    public string Neighborhood { get; set; }
+    public string Neighborhood { get; set; } = request.Neighborhood;
 
-        = null!;
 
     [Required]
     [MaxLength(8)]
-    public string ZipCode { get; set; }
+    public string ZipCode { get; set; } = request.ZipCode;
 
-        = null!;
 
     [Required]
-    public Guid StateId { get; set; }
+    public Guid StateId { get; set; } = request.StateId;
 
     [Required]
     [MaxLength(50)]
-    public string City { get; set; }
+    public string City { get; set; } = request.City;
 
-        = null!;
 
     [MaxLength(20)]
-    public string PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; } = request.PhoneNumber;
 
     [ForeignKey(nameof(StateId))]
-    public virtual StateModel State { get; set; }
-
-        = null!;
+    public virtual StateModel State { get; set; } = null!;
 
     public virtual CustomerModel? Customer { get; set; }
 

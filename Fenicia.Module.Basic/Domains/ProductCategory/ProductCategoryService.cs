@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Mappers.Basic;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 
@@ -10,41 +10,41 @@ public class ProductCategoryService(IProductCategoryRepository productCategoryRe
     {
         var productCategories = await productCategoryRepository.GetAllAsync(ct, page, perPage);
 
-        return ProductCategoryMapper.Map(productCategories);
+        return [..productCategories.Select(pc => new ProductCategoryResponse(pc))];
     }
 
     public async Task<ProductCategoryResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var productCategories = await productCategoryRepository.GetByIdAsync(id, ct);
+        var productCategory = await productCategoryRepository.GetByIdAsync(id, ct);
 
-        return productCategories is null ? null : ProductCategoryMapper.Map(productCategories);
+        return productCategory is null ? null : new ProductCategoryResponse(productCategory);
     }
 
     public async Task<ProductCategoryResponse?> AddAsync(ProductCategoryRequest request, CancellationToken ct)
     {
-        var productCategories = ProductCategoryMapper.Map(request);
+        var productCategory = new ProductCategoryModel(request);
 
-        productCategoryRepository.Add(productCategories);
+        productCategoryRepository.Add(productCategory);
 
         await productCategoryRepository.SaveChangesAsync(ct);
 
-        return ProductCategoryMapper.Map(productCategories);
+        return new ProductCategoryResponse(productCategory);
     }
 
     public async Task<ProductCategoryResponse?> UpdateAsync(ProductCategoryRequest request, CancellationToken ct)
     {
-        var productCategories = ProductCategoryMapper.Map(request);
+        var productCategory = new ProductCategoryModel(request);
 
-        productCategoryRepository.Update(productCategories);
+        productCategoryRepository.Update(productCategory);
 
         await productCategoryRepository.SaveChangesAsync(ct);
 
-        return ProductCategoryMapper.Map(productCategories);
+        return new ProductCategoryResponse(productCategory);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct)
     {
-        productCategoryRepository.Delete(id);
+        await productCategoryRepository.DeleteAsync(id, ct);
 
         await productCategoryRepository.SaveChangesAsync(ct);
     }

@@ -218,7 +218,7 @@ public class CompanyServiceTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Id, Is.EqualTo(expectedResponse.Id));
+            Assert.That(result?.Id, Is.EqualTo(expectedResponse.Id));
             Assert.That(result.Name, Is.EqualTo(expectedResponse.Name));
             Assert.That(result.Cnpj, Is.EqualTo(expectedResponse.Cnpj));
             Assert.That(result.Language, Is.EqualTo(expectedResponse.Language));

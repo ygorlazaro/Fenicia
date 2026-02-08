@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Common.Data.Abstracts;
 
 public class BaseRepository<T>(DbContext context) : IBaseRepository<T>
-    where T : BaseModel, new()
+    where T : BaseModel
 {
     public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken ct)
     {
@@ -34,16 +34,17 @@ public class BaseRepository<T>(DbContext context) : IBaseRepository<T>
         context.Entry(entity).State = EntityState.Modified;
     }
 
-    public virtual void Delete(T entity)
+    public virtual async Task DeleteAsync(Guid id, CancellationToken ct)
     {
-        context.Set<T>().Remove(entity);
-    }
+        var model = await GetByIdAsync(id, ct);
 
-    public virtual void Delete(Guid id)
-    {
-        var entity = new T { Id = id };
-        context.Set<T>().Attach(entity);
-        context.Set<T>().Remove(entity);
+        if (model is null)
+        {
+            return;
+        }
+
+        model.Deleted = DateTime.Now;
+        context.Set<T>().Update(model);
     }
 
     public virtual async Task<int> SaveChangesAsync(CancellationToken ct)

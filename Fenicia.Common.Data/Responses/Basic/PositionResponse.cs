@@ -1,8 +1,10 @@
+using Fenicia.Common.Data.Models.Basic;
+
 namespace Fenicia.Common.Data.Responses.Basic;
 
-public class PositionResponse
+public class PositionResponse(PositionModel model)
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = model.Id;
 
-    public string Name { get; set; }
+    public string Name { get; set; } = model.Name;
 }

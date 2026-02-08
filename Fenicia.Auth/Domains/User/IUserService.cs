@@ -13,7 +13,7 @@ public interface IUserService
 
     Task<UserResponse> GetUserForRefreshAsync(Guid userId, CancellationToken ct);
 
-    Task<UserResponse> GetUserIdFromEmailAsync(string email, CancellationToken ct);
+    Task<Guid?> GetUserIdFromEmailAsync(string email, CancellationToken ct);
 
-    Task<UserResponse> ChangePasswordAsync(Guid userId, string password, CancellationToken t);
+    Task<UserResponse> ChangePasswordAsync(Guid userId, string password, CancellationToken ct);
 }

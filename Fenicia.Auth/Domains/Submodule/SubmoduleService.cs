@@ -1,4 +1,3 @@
-using Fenicia.Common.Data.Mappers.Auth;
 using Fenicia.Common.Data.Responses.Auth;
 
 namespace Fenicia.Auth.Domains.Submodule;
@@ -9,6 +8,6 @@ public class SubmoduleService(ISubmoduleRepository submoduleRepository) : ISubmo
     {
         var submodules = await submoduleRepository.GetByModuleIdAsync(moduleId, ct);
 
-        return SubmoduleMapper.Map(submodules);
+        return [.. submodules.Select(submodule => new SubmoduleResponse(submodule))];
     }
 }

@@ -1,4 +1,3 @@
-using Fenicia.Common.Data.Mappers.SocialNetwork;
 using Fenicia.Common.Data.Models.SocialNetwork;
 using Fenicia.Common.Data.Responses.SocialNetwork;
 
@@ -20,7 +19,7 @@ public class FollowerService(IFollowerRepository followerRepository) : IFollower
 
         await followerRepository.SaveChangesAsync(ct);
 
-        return FollowerMapper.Map(follower);
+        return new FollowerResponse(follower);
     }
 
     public async Task<FollowerResponse?> UnfollowAsync(Guid userId, Guid followerId, CancellationToken ct)
@@ -35,7 +34,7 @@ public class FollowerService(IFollowerRepository followerRepository) : IFollower
 
         await followerRepository.SaveChangesAsync(ct);
 
-        return FollowerMapper.Map(follower);
+        return new FollowerResponse(follower);
     }
 
     public async Task<List<FollowerResponse>> GetFollowersAsync(
@@ -46,7 +45,7 @@ public class FollowerService(IFollowerRepository followerRepository) : IFollower
     {
         var followers = await followerRepository.GetFollowersAsync(userId, ct, page, perPage);
 
-        return FollowerMapper.Map(followers);
+        return [..followers.Select(f=> new FollowerResponse(f))];
     }
 
     public async Task<int> CountAsync(Guid userId, CancellationToken ct)

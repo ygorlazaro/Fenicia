@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Mappers.Basic;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 
@@ -10,41 +10,41 @@ public class ProductService(IProductRepository productRepository) : IProductServ
     {
         var products = await productRepository.GetAllAsync(ct, page, perPage);
 
-        return ProductMapper.Map(products);
+        return [..products.Select(p => new ProductResponse(p))];
     }
 
     public async Task<ProductResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
         var product = await productRepository.GetByIdAsync(id, ct);
 
-        return product is null ? null : ProductMapper.Map(product);
+        return product is null ? null : new ProductResponse(product);
     }
 
     public async Task<ProductResponse?> AddAsync(ProductRequest request, CancellationToken ct)
     {
-        var product = ProductMapper.Map(request);
+        var product = new ProductModel(request);
 
         productRepository.Add(product);
 
         await productRepository.SaveChangesAsync(ct);
 
-        return ProductMapper.Map(product);
+        return new ProductResponse(product);
     }
 
     public async Task<ProductResponse?> UpdateAsync(ProductRequest request, CancellationToken ct)
     {
-        var product = ProductMapper.Map(request);
+        var product = new ProductModel(request);
 
         productRepository.Update(product);
 
         await productRepository.SaveChangesAsync(ct);
 
-        return ProductMapper.Map(product);
+        return new ProductResponse(product);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct)
     {
-        productRepository.Delete(id);
+        await productRepository.DeleteAsync(id, ct);
 
         await productRepository.SaveChangesAsync(ct);
     }
@@ -57,6 +57,6 @@ public class ProductService(IProductRepository productRepository) : IProductServ
     {
         var products = await productRepository.GetByCategoryIdAsync(categoryId, ct, page, perPage);
 
-        return ProductMapper.Map(products);
+        return [..products.Select(p => new ProductResponse(p))];
     }
 }

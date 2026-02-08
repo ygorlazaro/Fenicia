@@ -19,8 +19,8 @@ public class FollowerModel : BaseModel
         = true;
 
     [ForeignKey(nameof(UserId))]
-    public UserModel User { get; set; }
+    public UserModel User { get; set; } = null!;
 
     [ForeignKey(nameof(FollowerId))]
-    public UserModel Follower { get; set; }
+    public UserModel Follower { get; set; } = null!;
 }
