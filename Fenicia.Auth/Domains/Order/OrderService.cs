@@ -11,7 +11,7 @@ using Fenicia.Common.Migrations.Services;
 
 namespace Fenicia.Auth.Domains.Order;
 
-public sealed class OrderService(
+public  class OrderService(
     IOrderRepository orderRepository,
     IModuleService moduleService,
     ISubscriptionService subscriptionService,

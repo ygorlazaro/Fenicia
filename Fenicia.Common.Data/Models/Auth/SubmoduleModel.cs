@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("submodules")]
-public sealed class SubmoduleModel : BaseModel
+public  class SubmoduleModel : BaseModel
 {
     [Required]
     [MaxLength(50)]
