@@ -6,7 +6,7 @@ using Fenicia.Common.Data.Requests.Basic;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("employees")]
-public sealed class EmployeeModel : BaseModel
+public  class EmployeeModel : BaseModel
 {
     public EmployeeModel(EmployeeRequest request)
     {

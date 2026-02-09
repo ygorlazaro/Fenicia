@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-public sealed class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository) : IRefreshTokenService
+public  class RefreshTokenService(IRefreshTokenRepository refreshTokenRepository) : IRefreshTokenService
 {
     public string GenerateRefreshToken(Guid userId)
     {

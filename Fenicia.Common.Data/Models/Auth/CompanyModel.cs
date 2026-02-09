@@ -7,7 +7,7 @@ using Fenicia.Common.Data.Requests.Auth;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("companies")]
-public sealed class CompanyModel: BaseModel
+public  class CompanyModel: BaseModel
 {
     public CompanyModel()
     {

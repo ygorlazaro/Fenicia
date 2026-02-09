@@ -4,7 +4,7 @@ using StackExchange.Redis;
 
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-public sealed class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshTokenRepository
+public  class RefreshTokenRepository(IConnectionMultiplexer redis) : IRefreshTokenRepository
 {
     private const string RedisPrefix = "refresh_token:";
     private readonly IDatabase redisDb = redis.GetDatabase();

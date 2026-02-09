@@ -1,6 +1,6 @@
 namespace Fenicia.Common.Data.Requests.Basic;
 
-public sealed class PersonRequest
+public  class PersonRequest
 {
     public string Name { get; set; } = null!;
 

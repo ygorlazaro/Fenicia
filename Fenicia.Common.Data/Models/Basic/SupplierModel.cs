@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.WebUtilities;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("suppliers")]
-public sealed class SupplierModel(SupplierRequest request) : BaseModel
+public  class SupplierModel(SupplierRequest request) : BaseModel
 {
     [MaxLength(14)]
     public string? Cnpj { get; set; } = request.Cnpj;

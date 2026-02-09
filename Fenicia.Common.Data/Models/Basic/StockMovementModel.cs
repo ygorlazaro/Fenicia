@@ -7,7 +7,7 @@ using Fenicia.Common.Enums.Basic;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("stock_movements")]
-public sealed class StockMovementModel : BaseModel
+public  class StockMovementModel : BaseModel
 {
     public StockMovementModel(StockMovementRequest request)
     {
