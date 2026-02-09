@@ -4,6 +4,8 @@ using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Providers;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Module.Projects.Domains.Project;
+using Fenicia.Module.Projects.Domains.Task;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +43,10 @@ public class Program
                                               .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
+        builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
+        builder.Services.AddTransient<IProjectService, ProjectService>();
+        builder.Services.AddTransient<ITaskRepository, TaskRepository>();
+        builder.Services.AddTransient<ITaskService, TaskService>();
 
         builder.Services.AddDbContext<ProjectContext>((sp, o) =>
         {

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("modules")]
-public sealed class ModuleModel : BaseModel
+public  class ModuleModel : BaseModel
 {
     public ModuleModel()
     {

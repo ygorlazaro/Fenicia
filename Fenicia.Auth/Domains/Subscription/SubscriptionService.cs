@@ -5,7 +5,7 @@ using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Auth.Domains.Subscription;
 
-public sealed class SubscriptionService(ISubscriptionRepository subscriptionRepository) : ISubscriptionService
+public  class SubscriptionService(ISubscriptionRepository subscriptionRepository) : ISubscriptionService
 {
     public async Task<SubscriptionResponse> CreateCreditsForOrderAsync(
         OrderModel order,
