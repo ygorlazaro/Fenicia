@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import logo from "../assets/logo.jpeg";
 import Login from '../components/Login.vue';
 
-enum ViewEnum  {
+enum ViewEnum {
   Login,
   SignUp
 }
@@ -15,13 +15,10 @@ const currentView = ref(ViewEnum.Login)
 
 <template>
   <main>
-    <div class="is-flex is-flex-direction-column is-align-items-center">
+    <b-image :src="logo" rounded class="is-128x128 mb-4" />
 
-      <b-image :src="logo" rounded class="is-128x128 mb-4" />
+    <Login v-if="currentView === ViewEnum.Login" @on-navigate="currentView = ViewEnum.SignUp" />
 
-      <Login v-if="currentView === ViewEnum.Login" @on-navigate="currentView = ViewEnum.SignUp" />
-
-      <SignUp v-else @on-navigate="currentView = ViewEnum.Login" />
-    </div>
+    <SignUp v-else @on-navigate="currentView = ViewEnum.Login" />
   </main>
 </template>

@@ -17,8 +17,9 @@ const authStore = useAuthStore();
 
   <b-loading is-full-page v-model="loadingStore.isLoading" :can-cancel="true"></b-loading>
 
-  <RouterView />
+  <div class="is-flex is-flex-direction-column is-align-items-center">
+    <RouterView />
+  </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

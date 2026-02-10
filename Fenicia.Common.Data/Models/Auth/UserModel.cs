@@ -29,6 +29,4 @@ public  class UserModel : BaseModel
 
     [JsonIgnore]
     public List<OrderModel> Orders { get; set; } = [];
-
-    public virtual List<AttachmentModel> Attachments { get; set; } = [];
 }

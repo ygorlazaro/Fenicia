@@ -14,3 +14,13 @@ export type CompanyRequest = {
   name: string;
   cnpj: string;
 }
+
+export type ForgotPasswordRequest = {
+  email: string;
+}
+
+export type RecoverPasswordRequest = {
+  email: string;
+  code: string;
+  password: string;
+}
