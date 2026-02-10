@@ -18,6 +18,21 @@ const router = createRouter({
       path: '/order',
       name: 'order',
       component: () => import("../views/OrderView.vue")
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import("../views/ForgotPassword.vue")
+    },
+    {
+      path: '/recover-password',
+      name: 'recover-password',
+      component: () => import("../views/RecoverPassword.vue")
+    },
+    {
+      path: '/basic/categories',
+      name: 'basic-categories',
+      component: () => import("../views/basic/Categories.vue")
     }
   ],
 })

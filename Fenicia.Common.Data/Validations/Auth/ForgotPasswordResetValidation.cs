@@ -22,9 +22,7 @@ public class ForgotPasswordResetValidation : AbstractValidator<ForgotPasswordRes
 
         RuleFor(x => x.Password)
             .NotEmpty()
-            .WithMessage("Password is required")
-            .Length(6)
-            .WithMessage("Password is invalid");
+            .WithMessage("Password is required");
 
     }
 }
