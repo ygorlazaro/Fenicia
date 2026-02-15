@@ -1,3 +1,4 @@
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Requests.Auth;
 using Fenicia.Common.Data.Responses.Auth;
 
@@ -15,5 +16,5 @@ public interface IUserService
 
     Task<Guid?> GetUserIdFromEmailAsync(string email, CancellationToken ct);
 
-    Task<UserResponse> ChangePasswordAsync(Guid userId, string password, CancellationToken ct);
+    Task<UserModel> ChangePasswordAsync(Guid userId, string password, CancellationToken ct);
 }

@@ -1,11 +1,13 @@
 using System.Net.Mime;
 
+using Fenicia.Auth.Domains.Module.GetModules;
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Responses.Auth;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using ModuleResponse = Fenicia.Common.Data.Responses.Auth.ModuleResponse;
 
 namespace Fenicia.Auth.Domains.Module;
 
@@ -14,7 +16,7 @@ namespace Fenicia.Auth.Domains.Module;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ModuleController(IModuleService moduleService) : ControllerBase
+public class ModuleController : ControllerBase
 {
     [HttpGet]
     [AllowAnonymous]
@@ -22,15 +24,14 @@ public class ModuleController(IModuleService moduleService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<ModuleResponse>>>> GetAllModulesAsync(
         [FromQuery] PaginationQuery query,
+        [FromServices] GetModulesHandler handler,
         WideEventContext wide,
         CancellationToken cancellationToken)
     {
         wide.UserId = "Guest";
 
-        var modules = await moduleService.GetAllOrderedAsync(cancellationToken, query.Page, query.PerPage);
-        var total = await moduleService.CountAsync(cancellationToken);
-        var pagination = new Pagination<List<ModuleResponse>>(modules, total, query);
+        var modules = await handler.Handle(new GetModulesRequest(query.Page, query.PerPage), cancellationToken);
 
-        return Ok(pagination);
+        return Ok(modules);
     }
 }

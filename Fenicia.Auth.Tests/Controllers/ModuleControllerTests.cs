@@ -18,7 +18,7 @@ public class ModuleControllerTests
     public void Setup()
     {
         this.moduleServiceMock = new Mock<IModuleService>();
-        this.sut = new ModuleController(this.moduleServiceMock.Object);
+        this.sut = new ModuleController();
     }
 
     [Test]

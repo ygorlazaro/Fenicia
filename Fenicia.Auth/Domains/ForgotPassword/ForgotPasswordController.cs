@@ -1,7 +1,8 @@
 using System.Net.Mime;
 
+using Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
+using Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Requests.Auth;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,35 +14,35 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ForgotPasswordController(IForgotPasswordService forgotPasswordService) : ControllerBase
+public class ForgotPasswordController : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> ForgotPassword(
-        [FromBody] ForgotPasswordReset reset,
+    public async Task ForgotPassword(
+        [FromBody] ForgotPasswordCommand reset,
+        [FromServices] ForgotPasswordHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = reset.Email;
 
-        var response = await forgotPasswordService.SaveForgotPasswordAsync(reset, ct);
-
-        return Ok(response);
+        await handler.Handle(reset, ct);
     }
 
     [HttpPost("reset")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ResetPassword(
-        [FromBody] ForgotPasswordResetRequest resetRequest,
+        [FromBody] ResetPasswordCommand request,
+        [FromServices] ResetPasswordHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
-        wide.UserId = resetRequest.Email;
+        wide.UserId = request.Email;
 
-        var response = await forgotPasswordService.ResetPasswordAsync(resetRequest, ct);
+        await handler.Handle(request, ct);
 
-        return Ok(response);
+        return Ok();
     }
 }

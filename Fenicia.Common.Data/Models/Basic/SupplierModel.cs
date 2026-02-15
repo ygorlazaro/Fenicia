@@ -3,8 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Fenicia.Common.Data.Requests.Basic;
 
-using Microsoft.AspNetCore.WebUtilities;
-
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("suppliers")]
