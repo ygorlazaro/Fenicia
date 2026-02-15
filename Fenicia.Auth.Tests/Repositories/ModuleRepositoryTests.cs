@@ -87,7 +87,10 @@ public class ModuleRepositoryTests
                 Name = this.faker.Commerce.ProductName()
             };
             modules.Add(module);
-            if (i < 3) requestedIDs.Add(module.Id);
+            if (i < 3)
+            {
+                requestedIDs.Add(module.Id);
+            }
         }
 
         await this.context.Modules.AddRangeAsync(modules, this.cancellationToken);

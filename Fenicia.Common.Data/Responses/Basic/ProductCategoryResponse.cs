@@ -1,5 +1,4 @@
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Data.Requests.Basic;
 
 namespace Fenicia.Common.Data.Responses.Basic;
 

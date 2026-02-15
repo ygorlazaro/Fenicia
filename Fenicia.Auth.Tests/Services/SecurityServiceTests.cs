@@ -110,7 +110,10 @@ public class SecurityServiceTests
 
             for (var j = 0; j < passwordCount; j++)
             {
-                if (i == j) continue;
+                if (i == j)
+                {
+                    continue;
+                }
 
                 var incorrectResult = this.sut.VerifyPassword(passwords[i], hashedPasswords[j]);
                 Assert.That(incorrectResult, Is.False, $"Password {i} should not verify against hash {j}");

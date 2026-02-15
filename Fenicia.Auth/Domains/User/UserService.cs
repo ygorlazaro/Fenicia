@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;
@@ -27,7 +26,10 @@ public class UserService(
     {
         var attempts = await loginAttemptService.GetAttemptsAsync(request.Email, ct);
 
-        if (attempts >= 5) throw new PermissionDeniedException(TextConstants.TooManyAttempts);
+        if (attempts >= 5)
+        {
+            throw new PermissionDeniedException(TextConstants.TooManyAttempts);
+        }
 
         var user = await userRepository.GetByEmailAsync(request.Email, ct);
 
@@ -59,9 +61,15 @@ public class UserService(
         var isExistingUser = await userRepository.CheckUserExistsAsync(request.Email, ct);
         var isExistingCompany = await companyRepository.CheckCompanyExistsAsync(request.Company.Cnpj, true, ct);
 
-        if (isExistingUser) throw new ArgumentException(TextConstants.EmailExistsMessage);
+        if (isExistingUser)
+        {
+            throw new ArgumentException(TextConstants.EmailExistsMessage);
+        }
 
-        if (isExistingCompany) throw new ArgumentException(TextConstants.CompanyExistsMessage);
+        if (isExistingCompany)
+        {
+            throw new ArgumentException(TextConstants.CompanyExistsMessage);
+        }
 
         var hashedPassword = securityService.HashPassword(request.Password);
         var userRequest = new UserModel
@@ -118,7 +126,7 @@ public class UserService(
         };
     }
 
-    public async Task<UserResponse> ChangePasswordAsync(Guid userId, string password, CancellationToken ct)
+    public async Task<UserModel> ChangePasswordAsync(Guid userId, string password, CancellationToken ct)
     {
         var user = await userRepository.GetByIdAsync(userId, ct)
                    ?? throw new ArgumentException(TextConstants.ItemNotFoundMessage);
@@ -126,8 +134,9 @@ public class UserService(
 
         user.Password = hashedPassword;
         userRepository.Update(user);
+
         await userRepository.SaveChangesAsync(ct);
 
-        return new UserResponse(user);
+        return user;
     }
 }

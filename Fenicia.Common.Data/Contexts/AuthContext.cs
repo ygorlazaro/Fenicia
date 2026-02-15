@@ -36,7 +36,10 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
     {
         foreach (var item in this.ChangeTracker.Entries())
         {
-            if (item.Entity is not BaseModel model) continue;
+            if (item.Entity is not BaseModel model)
+            {
+                continue;
+            }
 
             switch (item.State)
             {

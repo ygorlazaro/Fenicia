@@ -37,7 +37,10 @@ public class UserController(IUserService userService, IFollowerService followerS
     {
         var userId = ClaimReader.UserId(this.User);
 
-        if (userId != id) ClaimReader.ValidateRole(this.User, "Admin");
+        if (userId != id)
+        {
+            ClaimReader.ValidateRole(this.User, "Admin");
+        }
 
         var response = await userService.UpdateAsync(id, request, ct);
 

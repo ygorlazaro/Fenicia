@@ -29,7 +29,9 @@ public class Program
         var commonApiSettingsPath =
             Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
         if (!File.Exists(commonApiSettingsPath))
+        {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
+        }
 
         configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
 
@@ -51,7 +53,10 @@ public class Program
 
             var connString = config.GetConnectionString("PosConnection")?.Replace("{tenant}", tenantId);
 
-            if (string.IsNullOrWhiteSpace(connString)) throw new Exception("Connection string inválida");
+            if (string.IsNullOrWhiteSpace(connString))
+            {
+                throw new Exception("Connection string inválida");
+            }
 
             o.UseNpgsql(connString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });

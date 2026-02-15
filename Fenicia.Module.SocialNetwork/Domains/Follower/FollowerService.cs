@@ -26,7 +26,10 @@ public class FollowerService(IFollowerRepository followerRepository) : IFollower
     {
         var follower = await followerRepository.FindFollowerAsync(userId, followerId, ct);
 
-        if (follower is null) return null;
+        if (follower is null)
+        {
+            return null;
+        }
 
         follower.IsActive = false;
 

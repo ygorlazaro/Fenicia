@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 
 using AspNetCoreRateLimit;
 
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Module;
@@ -51,7 +50,9 @@ public static class Program
             Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
 
         if (!File.Exists(commonApiSettingsPath))
+        {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
+        }
 
         configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
 
@@ -210,7 +211,6 @@ public static class Program
 
         builder.Services.AddScoped<WideEventContext>();
 
-        builder.Services.AddTransient<ICompanyService, CompanyService>();
         builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();
         builder.Services.AddTransient<ILoginAttemptService, RedisLoginAttemptService>();
         builder.Services.AddTransient<IModuleService, ModuleService>();
@@ -226,7 +226,6 @@ public static class Program
         builder.Services.AddTransient<ISubmoduleService, SubmoduleService>();
         builder.Services.AddTransient<IRoleService, RoleService>();
 
-        builder.Services.AddTransient<ICompanyRepository, CompanyRepository>();
         builder.Services.AddTransient<IForgotPasswordRepository, ForgotPasswordRepository>();
         builder.Services.AddTransient<IModuleRepository, ModuleRepository>();
         builder.Services.AddTransient<IOrderRepository, OrderRepository>();
@@ -262,7 +261,9 @@ public static class Program
             var seqUrl = context.Configuration["Seq:Url"];
 
             if (!string.IsNullOrWhiteSpace(seqUrl))
+            {
                 config.Enrich.FromLogContext().Enrich.WithEnvironmentUserName().WriteTo.Console().WriteTo.Seq(seqUrl);
+            }
         });
 
         Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
