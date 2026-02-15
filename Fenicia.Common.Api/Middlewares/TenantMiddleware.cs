@@ -12,7 +12,10 @@ public class TenantMiddleware(RequestDelegate next)
         {
             var tenantId = context.User.FindFirst("companyId")?.Value;
 
-            if (!string.IsNullOrWhiteSpace(tenantId)) tenantProvider.SetTenant(tenantId);
+            if (!string.IsNullOrWhiteSpace(tenantId))
+            {
+                tenantProvider.SetTenant(tenantId);
+            }
         }
 
         await next(context);

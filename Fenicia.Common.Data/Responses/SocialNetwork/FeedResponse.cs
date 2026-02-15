@@ -1,5 +1,4 @@
 using Fenicia.Common.Data.Models.SocialNetwork;
-using Fenicia.Common.Data.Requests.SocialNetwork;
 
 namespace Fenicia.Common.Data.Responses.SocialNetwork;
 

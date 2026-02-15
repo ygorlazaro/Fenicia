@@ -17,8 +17,10 @@ public class MigrationService : IMigrationService
             var rawConnectionString = AppSettingsReader.GetConnectionString(connectionStringName);
 
             if (string.IsNullOrWhiteSpace(rawConnectionString))
+            {
                 throw new InvalidOperationException(
                     $"Connection string '{connectionStringName}' not found in appsettings.json");
+            }
 
             var connectionString = rawConnectionString.Replace("{tenant}", companyId.ToString());
             var optionsBuilderType = typeof(DbContextOptionsBuilder<>).MakeGenericType(dbContextType);

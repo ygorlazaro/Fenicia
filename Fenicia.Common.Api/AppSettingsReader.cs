@@ -9,7 +9,10 @@ public static class AppSettingsReader
         var configuration = GetConfiguration();
         var value = configuration.GetConnectionString(connectionStringName);
 
-        if (!string.IsNullOrWhiteSpace(value)) return value;
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
 
         var allKeys = configuration.GetSection("ConnectionStrings").GetChildren().Select(x => x.Key);
         var keysList = string.Join(", ", allKeys);

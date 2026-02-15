@@ -2,7 +2,6 @@ using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Requests.Auth;
-using Fenicia.Common.Data.Responses.Auth;
 
 using Moq;
 

@@ -64,7 +64,10 @@ public class TokenController(
 
         var isValidToken = await refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, ct);
 
-        if (!isValidToken) return BadRequest("Invalid client request");
+        if (!isValidToken)
+        {
+            return BadRequest("Invalid client request");
+        }
 
         await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, ct);
 

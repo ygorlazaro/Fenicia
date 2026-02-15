@@ -1,6 +1,5 @@
 using System.Security.Claims;
 
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Requests.Auth;
@@ -10,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Moq;
+
+using CompanyController = Fenicia.Auth.Domains.Company.GetCompaniesByUser.CompanyController;
 
 namespace Fenicia.Auth.Tests.Controllers;
 

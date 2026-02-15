@@ -13,7 +13,10 @@ public  class SubscriptionService(ISubscriptionRepository subscriptionRepository
         Guid companyId,
         CancellationToken ct)
     {
-        if (details.Count == 0) throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
+        if (details.Count == 0)
+        {
+            throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
+        }
 
         var credits = order.Details.Select(d => new SubscriptionCreditModel
         {

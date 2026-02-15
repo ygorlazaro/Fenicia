@@ -1,6 +1,5 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.LoginAttempt;
 using Fenicia.Auth.Domains.Role;
 using Fenicia.Auth.Domains.Security;

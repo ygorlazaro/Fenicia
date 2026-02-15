@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Migrations;
 using Fenicia.Auth.Domains.SubscriptionCredit;
 using Fenicia.Common.Data.Responses.Auth;
