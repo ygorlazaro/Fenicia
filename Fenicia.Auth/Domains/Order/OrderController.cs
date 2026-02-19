@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Order.CreateNewOrder;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Responses.Auth;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +16,9 @@ namespace Fenicia.Auth.Domains.Order;
 public class OrderController : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<OrderResponse>> CreateNewOrderAsync(
+    public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(
         CreateNewOrderCommand request,
         [FromHeader] Headers headers,
         [FromServices] CreateNewOrderHandler handler,
@@ -32,6 +30,11 @@ public class OrderController : ControllerBase
         var userId = ClaimReader.UserId(this.User);
         var companyId = headers.CompanyId;
         var order = await handler.Handle(new CreateNewOrderCommand(userId, companyId, request.Modules), ct);
+
+        if (order is null)
+        {
+            return BadRequest();
+        }
 
         return Ok(order);
     }

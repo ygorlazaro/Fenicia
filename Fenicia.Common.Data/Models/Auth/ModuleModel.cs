@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Enums.Auth;
 
 using Microsoft.EntityFrameworkCore;
@@ -15,14 +14,6 @@ public  class ModuleModel : BaseModel
     public ModuleModel()
     {
         this.Name = string.Empty;
-    }
-    
-    public ModuleModel(ModuleResponse response)
-    {
-        this.Id = response.Id;
-        this.Name = response.Name;
-        this.Price = response.Price;
-        this.Type = response.Type;
     }
 
     [Required]

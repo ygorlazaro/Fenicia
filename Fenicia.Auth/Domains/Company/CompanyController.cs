@@ -4,8 +4,6 @@ using Fenicia.Auth.Domains.Company.GetCompaniesByUser;
 using Fenicia.Auth.Domains.Company.UpdateCompany;
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Requests.Auth;
-using Fenicia.Common.Data.Responses.Auth;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,10 +18,9 @@ namespace Fenicia.Auth.Domains.Company;
 public class CompanyController : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(Pagination<IEnumerable<CompanyResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<IEnumerable<CompanyResponse>>>> GetByLoggedUser(
+    public async Task<ActionResult<Pagination<IEnumerable<CompanyListItemResponse>>>> GetByLoggedUser(
           [FromQuery] PaginationQuery query,
         [FromServices] GetCompaniesByUserHandler handler,
         WideEventContext wide,
@@ -38,16 +35,15 @@ public class CompanyController : ControllerBase
     }
 
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(typeof(CompanyResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<CompanyResponse>> PatchAsync(
+    public async Task<ActionResult> PatchAsync(
        [FromRoute] Guid id,
-        [FromBody] CompanyUpdateRequest request,
+        [FromBody] UpdateCompanyCommand request,
         [FromServices] UpdateCompanyHandler handler,
         WideEventContext wide,
         CancellationToken ct)
@@ -56,7 +52,7 @@ public class CompanyController : ControllerBase
         wide.UserId = userId.ToString();
 
         await handler.Handle(
-            new UpdateCompanyCommand(id, userId, request.Name, request.Timezone),
+            request,
             ct
         );
 

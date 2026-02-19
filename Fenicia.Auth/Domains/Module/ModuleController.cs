@@ -7,8 +7,6 @@ using Fenicia.Common.API;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using ModuleResponse = Fenicia.Common.Data.Responses.Auth.ModuleResponse;
-
 namespace Fenicia.Auth.Domains.Module;
 
 [Authorize]

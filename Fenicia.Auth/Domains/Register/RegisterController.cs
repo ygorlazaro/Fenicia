@@ -1,9 +1,8 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.User.CreateNewUser;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Requests.Auth;
-using Fenicia.Common.Data.Responses.Auth;
+using Fenicia.Module.SocialNetwork.Domains.User;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,17 +16,17 @@ namespace Fenicia.Auth.Domains.Register;
 public class RegisterController(IUserService userService) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UserResponse>> CreateNewUserAsync(
-        UserRequest request,
+    public async Task<ActionResult<CreateNewUserResponse>> CreateNewUserAsync(
+        CreateNewUserQuery request,
+        [FromServices] CreateNewUserHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = request.Email;
 
-        var userResponse = await userService.CreateNewUserAsync(request, ct);
+        var userResponse = await handler.Handle(request, ct);
 
         return Ok(userResponse);
     }
