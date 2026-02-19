@@ -3,20 +3,6 @@ using System.Text.Json.Serialization;
 
 using AspNetCoreRateLimit;
 
-using Fenicia.Auth.Domains.ForgotPassword;
-using Fenicia.Auth.Domains.LoginAttempt;
-using Fenicia.Auth.Domains.Module;
-using Fenicia.Auth.Domains.Order;
-using Fenicia.Auth.Domains.RefreshToken;
-using Fenicia.Auth.Domains.Role;
-using Fenicia.Auth.Domains.Security;
-using Fenicia.Auth.Domains.State;
-using Fenicia.Auth.Domains.Submodule;
-using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.SubscriptionCredit;
-using Fenicia.Auth.Domains.Token;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.API.Middlewares;
@@ -211,33 +197,7 @@ public static class Program
 
         builder.Services.AddScoped<WideEventContext>();
 
-        builder.Services.AddTransient<IForgotPasswordService, ForgotPasswordService>();
-        builder.Services.AddTransient<ILoginAttemptService, RedisLoginAttemptService>();
-        builder.Services.AddTransient<IModuleService, ModuleService>();
-        builder.Services.AddTransient<IOrderService, OrderService>();
-        builder.Services.AddTransient<IRefreshTokenService, RefreshTokenService>();
-        builder.Services.AddTransient<ISecurityService, SecurityService>();
-        builder.Services.AddTransient<ISubscriptionCreditService, SubscriptionCreditService>();
-        builder.Services.AddTransient<ISubscriptionService, SubscriptionService>();
-        builder.Services.AddTransient<ITokenService, TokenService>();
-        builder.Services.AddTransient<IUserRoleService, UserRoleService>();
-        builder.Services.AddTransient<IUserService, UserService>();
         builder.Services.AddTransient<IMigrationService, MigrationService>();
-        builder.Services.AddTransient<ISubmoduleService, SubmoduleService>();
-        builder.Services.AddTransient<IRoleService, RoleService>();
-
-        builder.Services.AddTransient<IForgotPasswordRepository, ForgotPasswordRepository>();
-        builder.Services.AddTransient<IModuleRepository, ModuleRepository>();
-        builder.Services.AddTransient<IOrderRepository, OrderRepository>();
-        builder.Services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
-        builder.Services.AddTransient<IRoleRepository, RoleRepository>();
-        builder.Services.AddTransient<ISubscriptionCreditRepository, SubscriptionCreditRepository>();
-        builder.Services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
-        builder.Services.AddTransient<IStateRepository, StateRepository>();
-        builder.Services.AddTransient<IUserRepository, UserRepository>();
-        builder.Services.AddTransient<IUserRoleRepository, UserRoleRepository>();
-        builder.Services.AddTransient<ISubmoduleRepository, SubmoduleRepository>();
-
         builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
 
         builder.Services.AddResponseCompression(o => { o.EnableForHttps = true; });

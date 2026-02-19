@@ -2,8 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Data.Requests.Auth;
-
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("companies")]
@@ -16,20 +14,6 @@ public  class CompanyModel: BaseModel
         this.Id = Guid.Empty;
         this.TimeZone = string.Empty;
     }
-    
-    public CompanyModel(CompanyUpdateRequest request)
-    {
-        this.Name = request.Name;
-        this.TimeZone = request.Timezone;
-    }
-
-    public CompanyModel(CompanyRequest request)
-    {
-        this.Name = request.Name;
-        this.Cnpj = request.Cnpj;
-        this.TimeZone = string.Empty;
-    }
-
 
     [Required]
     [MaxLength(50)]

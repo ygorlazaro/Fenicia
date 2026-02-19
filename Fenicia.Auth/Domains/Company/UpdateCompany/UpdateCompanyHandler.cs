@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
@@ -7,15 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Company.UpdateCompany;
 
-public sealed class UpdateCompanyHandler(AuthContext db, IUserRoleService userRoleService)
+public sealed class UpdateCompanyHandler(AuthContext context)
 {
     public async Task Handle(UpdateCompanyCommand command, CancellationToken ct)
     {
-        var company = await db.Companies
+        var company = await context.Companies
                           .FirstOrDefaultAsync(c => c.Id == command.CompanyId && c.IsActive, ct)
                       ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
 
-        var isAdmin = await userRoleService.HasRoleAsync(
+        var isAdmin = await HasRoleAsync(
             command.UserId,
             command.CompanyId,
             "Admin",
@@ -30,6 +29,17 @@ public sealed class UpdateCompanyHandler(AuthContext db, IUserRoleService userRo
         company.Name = command.Name;
         company.TimeZone = command.TimeZone;
 
-        await db.SaveChangesAsync(ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    private async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken ct)
+    {
+        var query = from ur in context.UserRoles
+                    where ur.UserId == userId
+                          && ur.CompanyId == companyId
+                          && ur.Role.Name == "Admin"
+                    select 1;
+
+        return await query.AnyAsync(ct);
     }
 }

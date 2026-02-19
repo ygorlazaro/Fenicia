@@ -3,7 +3,7 @@ using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Data.Responses.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.OrderDetail;
-using Fenicia.Module.Basic.Domains.StockMoviment;
+using Fenicia.Module.Basic.Domains.StockMovement;
 
 namespace Fenicia.Module.Basic.Domains.Order;
 

@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Auth.Domains.Submodule.GetByModuleId;
 using Fenicia.Common;
 using Fenicia.Common.API;
 
@@ -13,20 +14,20 @@ namespace Fenicia.Auth.Domains.Submodule;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SubmoduleController(ISubmoduleService submoduleService) : ControllerBase
+public class SubmoduleController() : ControllerBase
 {
     [HttpGet("{moduleId:Guid}")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(Pagination<List<SubmoduleService>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<SubmoduleService>>>> GetByModuleIdAsync(
+    public async Task<ActionResult<Pagination<List<GetByModuleResponse>>>> GetByModuleIdAsync(
         [FromRoute] Guid moduleId,
+        [FromServices] GetByModuleIdHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = "Guest";
 
-        var submodules = await submoduleService.GetByModuleIdAsync(moduleId, ct);
+        var submodules = await handler.Handle(moduleId, ct);
 
         return Ok(submodules);
     }

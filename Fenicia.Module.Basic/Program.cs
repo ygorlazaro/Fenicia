@@ -13,7 +13,7 @@ using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.State;
-using Fenicia.Module.Basic.Domains.StockMoviment;
+using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.Supplier;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;

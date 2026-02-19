@@ -25,5 +25,3 @@ public class GetModulesHandler(AuthContext db)
         return new Pagination<List<ModuleResponse>>(modules, total, request.Page, request.PerPage);
     }
 }
-
-public sealed record ModuleResponse (Guid Id, string Name, ModuleType Type); 

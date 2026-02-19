@@ -14,4 +14,7 @@
         <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj"/>
         <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj"/>
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Responses\Auth\" />
+    </ItemGroup>
 </Project>
