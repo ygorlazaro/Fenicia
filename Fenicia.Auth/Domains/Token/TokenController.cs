@@ -1,10 +1,12 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.RefreshToken;
-using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.RefreshToken.GenerateRefreshToken;
+using Fenicia.Auth.Domains.RefreshToken.InvalidateRefreshToken;
+using Fenicia.Auth.Domains.RefreshToken.ValidateToken;
+using Fenicia.Auth.Domains.Token.GenerateToken;
+using Fenicia.Auth.Domains.Token.GenerateTokenString;
+using Fenicia.Auth.Domains.User.GetUserForRefresh;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Requests.Auth;
-using Fenicia.Common.Data.Responses.Auth;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
@@ -16,19 +18,16 @@ namespace Fenicia.Auth.Domains.Token;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class TokenController(
-    ITokenService tokenService,
-    IRefreshTokenService refreshTokenService,
-    IUserService userService) : ControllerBase
+public class TokenController(GenerateRefreshTokenHandler generateRefreshTokenHandler, GenerateTokenStringHandler generateTokenStringHandler) : ControllerBase
 {
     [HttpPost]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<TokenResponse>> PostAsync(
-        TokenRequest request,
+        [FromServices] GenerateTokenHandler handler,
+        GenerateTokenQuery request,
         WideEventContext wide,
         CancellationToken ct)
     {
@@ -36,7 +35,7 @@ public class TokenController(
         {
             wide.UserId = request.Email;
 
-            var userResponse = await userService.GetForLoginAsync(request, ct);
+            var userResponse = await handler.Handle(request, ct);
 
             return PopulateToken(userResponse);
         }
@@ -56,30 +55,33 @@ public class TokenController(
     [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TokenResponse>> Refresh(
-        RefreshTokenRequest request,
+        ValidateTokenQuery request,
+        [FromServices] ValidateTokenHandler validateTokenHandler,
+        [FromServices] InvalidateRefreshTokenHandler invalidateRefreshTokenHandler,
+        [FromServices] GetUserForRefreshHandler getUserForRefreshHandler,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = request.UserId.ToString();
-
-        var isValidToken = await refreshTokenService.ValidateTokenAsync(request.UserId, request.RefreshToken, ct);
+        
+        var isValidToken = await validateTokenHandler.Handle(request, ct);
 
         if (!isValidToken)
         {
             return BadRequest("Invalid client request");
         }
 
-        await refreshTokenService.InvalidateRefreshTokenAsync(request.RefreshToken, ct);
+        await invalidateRefreshTokenHandler.Handler(request.RefreshToken, ct);
 
-        var userResponse = await userService.GetUserForRefreshAsync(request.UserId, ct);
+        var userResponse = await getUserForRefreshHandler.Handle(request.UserId, ct);
 
-        return PopulateToken(userResponse);
+        return PopulateToken( new GenerateTokenResponse(userResponse.Id, userResponse.Name, userResponse.Email));
     }
 
-    private ActionResult<TokenResponse> PopulateToken(UserResponse user)
+    private ActionResult<TokenResponse> PopulateToken( GenerateTokenResponse user)
     {
-        var token = tokenService.GenerateToken(user);
-        var refreshToken = refreshTokenService.GenerateRefreshToken(user.Id);
+        var token = generateTokenStringHandler.Handle(user);
+        var refreshToken = generateRefreshTokenHandler.Handle(user.Id);
 
         return Ok(new TokenResponse
         {

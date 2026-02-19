@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Subscription;
+using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Order.CreateNewOrder;
 
-public sealed class CreateNewOrderHandler(AuthContext db, ISubscriptionService subscriptionService, IMigrationService migrationService)
+public sealed class CreateNewOrderHandler(AuthContext db, CreateCreditsForOrderHandler createCreditsForOrderHandler, IMigrationService migrationService)
 {
     public async Task<CreateNewOrderResponse?> Handle(CreateNewOrderCommand command, CancellationToken ct)
     {
@@ -43,7 +43,7 @@ public sealed class CreateNewOrderHandler(AuthContext db, ISubscriptionService s
 
         db.Orders.Add(order);
 
-        await subscriptionService.CreateCreditsForOrderAsync(order, details, command.CompanyId, ct);
+        await createCreditsForOrderHandler.Handle(new CreateCreditsForOrderQuery(order.Id, order.CompanyId, order.Details.Select(d => new CreateCreditsForOrderDetailsQuery(d.Id, d.ModuleId) )), ct);
 
         await db.SaveChangesAsync(ct);
         

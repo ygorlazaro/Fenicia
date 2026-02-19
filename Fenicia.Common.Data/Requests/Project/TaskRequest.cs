@@ -1,5 +1,7 @@
 using Fenicia.Common.Enums.Project;
 
+namespace Fenicia.Common.Data.Requests.Project;
+
 public class TaskRequest
 {
     public Guid ProjectId { get; set; }
