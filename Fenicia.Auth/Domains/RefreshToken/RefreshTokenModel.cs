@@ -1,6 +1,6 @@
 namespace Fenicia.Auth.Domains.RefreshToken;
 
-public class RefreshToken
+public class RefreshTokenModel
 {
     public string Token { get; set; } = null!;
 

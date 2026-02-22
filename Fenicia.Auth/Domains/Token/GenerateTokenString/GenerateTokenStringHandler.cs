@@ -62,7 +62,7 @@ public class GenerateTokenStringHandler(IConfiguration configuration)
             return authClaims;
         }
 
-        var modulesList = modulesValue.Select(m => m.ToString()).Where(m => !string.IsNullOrEmpty(m)).ToList();
+        var modulesList = modulesValue.Select(m => m?.ToString()).Where(m => !string.IsNullOrEmpty(m)).ToList();
 
         var hasGodRole = rolesProp != null
                          && (rolesProp.GetValue(user) as IEnumerable<string>)?.Contains("God") == true;

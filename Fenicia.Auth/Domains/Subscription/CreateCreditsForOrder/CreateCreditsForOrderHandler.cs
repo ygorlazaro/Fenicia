@@ -7,7 +7,7 @@ namespace Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 
 public class CreateCreditsForOrderHandler(AuthContext context)
 {
-    public async Task<CreateCreditsForOrderResponse> Handle(
+    public virtual async Task<CreateCreditsForOrderResponse> Handle(
         CreateCreditsForOrderQuery order,
         CancellationToken ct)
     {
