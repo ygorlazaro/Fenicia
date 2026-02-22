@@ -64,7 +64,7 @@ public class TokenController(GenerateRefreshTokenHandler generateRefreshTokenHan
     {
         wide.UserId = request.UserId.ToString();
         
-        var isValidToken = await validateTokenHandler.Handle(request, ct);
+        var isValidToken = await validateTokenHandler.Handle(request);
 
         if (!isValidToken)
         {

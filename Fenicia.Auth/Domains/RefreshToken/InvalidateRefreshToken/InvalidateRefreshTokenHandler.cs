@@ -13,23 +13,35 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
 
-        var key = RedisPrefix + refreshToken;
-        var value = await this.redisDb.StringGetAsync(key);
-
-        if (value.IsNullOrEmpty)
+        try
         {
-            return;
+            var key = RedisPrefix + refreshToken;
+            var value = await this.redisDb.StringGetAsync(key);
+
+            if (value.IsNullOrEmpty)
+            {
+                return;
+            }
+
+            var tokenObj = JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)value!);
+
+            if (tokenObj == null)
+            {
+                return;
+            }
+
+            tokenObj.IsActive = false;
+
+            await this.redisDb.StringSetAsync(
+                key,
+                JsonSerializer.Serialize(tokenObj),
+                TimeSpan.FromDays(7),
+                When.Always,
+                CommandFlags.None
+            );
         }
-
-        var tokenObj = JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)value!);
-
-        if (tokenObj == null)
+        catch
         {
-            return;
         }
-
-        tokenObj.IsActive = false;
-
-        await this.redisDb.StringSetAsync(key, JsonSerializer.Serialize(tokenObj), TimeSpan.FromDays(7));
     }
 }

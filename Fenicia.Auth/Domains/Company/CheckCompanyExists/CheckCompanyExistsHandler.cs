@@ -6,15 +6,15 @@ namespace Fenicia.Auth.Domains.Company.CheckCompanyExists;
 
 public class CheckCompanyExistsHandler(AuthContext context)
 {
-    public async Task<bool> Handle(CheckUserExistsQuery checkUserExistsQuery, CancellationToken ct)
+    public virtual async Task<bool> Handle(CheckUserExistsQuery query, CancellationToken ct)
     {
-        var query = context.Companies.Where(c => c.Cnpj == checkUserExistsQuery.Cnpj);
+        var companies = context.Companies.Where(c => c.Cnpj == query.Cnpj);
 
-        if (checkUserExistsQuery.OnlyActive)
+        if (query.OnlyActive)
         {
-            query = query.Where(c => c.IsActive);
+            companies = companies.Where(c => c.IsActive);
         }
 
-        return await query.AnyAsync();
+        return await companies.AnyAsync(ct);
     }
 }

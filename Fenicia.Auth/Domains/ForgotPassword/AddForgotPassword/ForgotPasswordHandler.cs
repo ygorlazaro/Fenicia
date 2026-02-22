@@ -13,7 +13,7 @@ public sealed class ForgotPasswordHandler(AuthContext db)
         var userId = await db.UserIdByEmailAsync(command.Email, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
 
-        await db.ForgottenPasswords.AddAsync(new ForgotPasswordModel()
+        await db.ForgottenPasswords.AddAsync(new ForgotPasswordModel
         {
             Code = code,
             IsActive = true,

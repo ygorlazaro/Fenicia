@@ -11,6 +11,16 @@ public class GenerateTokenHandler(LoginAttemptHandler loginAttemptHandler, GetBy
 {
     public async Task<GenerateTokenResponse> Handle(GenerateTokenQuery query, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(query.Password))
+        {
+            throw new ArgumentNullException(nameof(query.Password));
+        }
+
+        if (string.IsNullOrWhiteSpace(query.Email))
+        {
+            throw new ArgumentNullException(nameof(query.Email));
+        }
+        
         var attempts = loginAttemptHandler.Handle(query.Email, ct);
 
         if (attempts >= 5)

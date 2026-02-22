@@ -1,5 +1,6 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -12,17 +13,26 @@ public sealed class GetCompaniesByUserHandler(AuthContext db)
         GetCompaniesByUserQuery query,
         CancellationToken ct)
     {
+        if (query.PerPage <= 0)
+        {
+            throw new ItemNotExistsException(TextConstants.ThereWasAnErrorSearchingModulesMessage);
+        }
+        
         var baseQuery = db.UserRoles.Where(ur => ur.UserId == query.UserId && ur.Company.IsActive);
         var total = await baseQuery.CountAsync(ct);
         var items = await baseQuery
             .OrderBy(ur => ur.Company.Name)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
-            .Select(CompanyListItemResponse.Projection)
+            .Select(ur => new CompanyListItemResponse
+            {
+                Id = ur.Company.Id,
+                Name = ur.Company.Name,
+                Cnpj = ur.Company.Cnpj,
+                Role = ur.Role.Name
+            })
             .ToListAsync(ct);
         
         return new Pagination<IEnumerable<CompanyListItemResponse>>(items, total, query.Page, query.PerPage);
-
-
     }
 }

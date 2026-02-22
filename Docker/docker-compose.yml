@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:18  # Recomendo fixar a 18 em vez de 'latest' para evitar sustos no futuro
     container_name: postgres
     restart: always
     environment:
@@ -11,7 +11,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      # Mudança: agora aponta para a raiz do postgres, não para /data
+      - pgdata:/var/lib/postgresql
 
   redis:
     image: redis:latest
@@ -31,8 +32,8 @@ services:
       - ACCEPT_EULA=Y
       - SEQ_FIRSTRUN_NOAUTHENTICATION=True
     ports:
-      - "5341:80"      # UI e ingestão via HTTP
-      - "5342:5342"    # ingestão compacta (opcional)
+      - "5341:80"
+      - "5342:5342"
     volumes:
       - ./data/seq:/data
 
