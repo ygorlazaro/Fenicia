@@ -22,7 +22,6 @@ public class GetUserModuleHandler(AuthContext context)
                     join sc in context.SubscriptionCredits on m.Id equals sc.ModuleId
                     join s in context.Subscriptions on sc.SubscriptionId equals s.Id
                     join ur in context.UserRoles on s.CompanyId equals ur.CompanyId
-                    join sm in context.Submodules on m.Id equals sm.ModuleId
                     where ur.UserId == userId
                           && s.CompanyId == companyId
                           && s.Status == SubscriptionStatus.Active

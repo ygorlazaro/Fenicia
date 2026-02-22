@@ -8,22 +8,32 @@ public class ValidateTokenHandler(IConnectionMultiplexer redis)
 {
     private const string RedisPrefix = "refresh_token:";
     private readonly IDatabase redisDb = redis.GetDatabase();
-    
-    public async Task<bool> Handle(ValidateTokenQuery query, CancellationToken ct)
+
+    public async Task<bool> Handle(ValidateTokenQuery query)
     {
-        ArgumentNullException.ThrowIfNull(query.RefreshToken);
+        if (string.IsNullOrWhiteSpace(query.RefreshToken))
+        {
+            throw new ArgumentNullException(nameof(query.RefreshToken));
+        }
 
-        var key = RedisPrefix + query.RefreshToken;
-        var value = await this.redisDb.StringGetAsync(key);
+        try
+        {
+            var key = RedisPrefix + query.RefreshToken;
+            var value = await this.redisDb.StringGetAsync(key);
 
-        if (value.IsNullOrEmpty)
+            if (value.IsNullOrEmpty)
+            {
+                return false;
+            }
+
+            var tokenObj = JsonSerializer.Deserialize<ValidateTokenResponse>((string)value!);
+
+            return tokenObj != null && tokenObj.UserId == query.UserId && tokenObj.IsActive
+                   && tokenObj.ExpirationDate > DateTime.UtcNow;
+        }
+        catch
         {
             return false;
         }
-
-        var tokenObj = JsonSerializer.Deserialize<ValidateTokenResponse>((string)value!);
-
-        return tokenObj != null && tokenObj.UserId == query.UserId && tokenObj.IsActive
-               && tokenObj.ExpirationDate > DateTime.UtcNow;
     }
 }

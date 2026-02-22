@@ -37,7 +37,7 @@ public sealed class UpdateCompanyHandler(AuthContext context)
         var query = from ur in context.UserRoles
                     where ur.UserId == userId
                           && ur.CompanyId == companyId
-                          && ur.Role.Name == "Admin"
+                          && ur.Role.Name == role
                     select 1;
 
         return await query.AnyAsync(ct);

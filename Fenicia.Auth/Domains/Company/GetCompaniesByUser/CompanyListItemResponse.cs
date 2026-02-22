@@ -11,13 +11,4 @@ public sealed class CompanyListItemResponse
     public string Name { get; init; } = string.Empty;
     public string Cnpj { get; init; } = string.Empty;
     public string Role { get; init; } = string.Empty;
-
-    public static Expression<Func<UserRoleModel, CompanyListItemResponse>> Projection =>
-    ur => new CompanyListItemResponse
-    {
-        Id = ur.Company.Id,
-        Name = ur.Company.Name,
-        Cnpj = ur.Company.Cnpj,
-        Role = ur.Role.Name
-    };
 }

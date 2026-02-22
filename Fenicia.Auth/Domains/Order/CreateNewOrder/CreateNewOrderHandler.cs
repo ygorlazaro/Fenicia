@@ -22,11 +22,11 @@ public sealed class CreateNewOrderHandler(AuthContext db, CreateCreditsForOrderH
             throw new PermissionDeniedException(TextConstants.UserDoestNotExistsAtTheCompany);
         }
 
-        var modules = await PopulateModules(command.Modules, ct) ?? throw new ItemNotExistsException(TextConstants.ModulesNotFound);
+        var modules = await PopulateModules(command.Modules, ct);
 
         if (modules.Count == 0)
         {
-            return null;
+            throw new ItemNotExistsException(TextConstants.ModulesNotFound);
         }
 
         var totalAmount = modules.Sum(m => m.Price);
@@ -52,7 +52,7 @@ public sealed class CreateNewOrderHandler(AuthContext db, CreateCreditsForOrderH
         return new CreateNewOrderResponse(order.Id);
     }
 
-    private async Task<List<ModuleModel>?> PopulateModules(List<Guid> request, CancellationToken ct)
+    private async Task<List<ModuleModel>> PopulateModules(List<Guid> request, CancellationToken ct)
     {
         try
         {
@@ -68,7 +68,7 @@ public sealed class CreateNewOrderHandler(AuthContext db, CreateCreditsForOrderH
 
             if (basicModule is null)
             {
-                return null;
+                return [];
             }
 
             modules.Add(basicModule);
@@ -77,7 +77,7 @@ public sealed class CreateNewOrderHandler(AuthContext db, CreateCreditsForOrderH
         }
         catch
         {
-            return null;
+            return [];
         }
     }
 

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using AspNetCoreRateLimit;
 
+using Fenicia.Auth.Domains.Company.CheckCompanyExists;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.API.Middlewares;
@@ -199,6 +200,8 @@ public static class Program
 
         builder.Services.AddTransient<IMigrationService, MigrationService>();
         builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
+
+        builder.Services.AddTransient<CheckCompanyExistsHandler>();
 
         builder.Services.AddResponseCompression(o => { o.EnableForHttps = true; });
     }

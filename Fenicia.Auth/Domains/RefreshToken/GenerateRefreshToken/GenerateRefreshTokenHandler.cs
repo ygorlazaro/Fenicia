@@ -14,7 +14,7 @@ public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
 
-        var refreshToken = new RefreshToken
+        var refreshToken = new RefreshTokenModel
         {
             Token = Convert.ToBase64String(randomNumber),
             UserId = userId,
@@ -30,14 +30,20 @@ public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
     private const string RedisPrefix = "refresh_token:";
     private readonly IDatabase redisDb = redis.GetDatabase();
 
-    private void Add(RefreshToken refreshToken)
+    private void Add(RefreshTokenModel refreshToken)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
 
         var key = RedisPrefix + refreshToken.Token;
         var value = JsonSerializer.Serialize(refreshToken);
 
-        this.redisDb.StringSet(key, value, TimeSpan.FromDays(7));
+        this.redisDb.StringSet(
+            key,
+            value,
+            TimeSpan.FromDays(7),
+            When.Always,
+            CommandFlags.None
+        );
     }
 
 }

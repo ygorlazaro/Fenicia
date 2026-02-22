@@ -8,7 +8,13 @@ public static class UserQueries
 {
     public async static Task<Guid?> UserIdByEmailAsync(this AuthContext db, string email, CancellationToken ct)
     {
-        return await db.Users.Where(u => u.Email == email).Select(u => u.Id).FirstOrDefaultAsync(ct);
+        var result = await db.Users.Where(u => u.Email == email).Select(u => u.Id).FirstOrDefaultAsync(ct);
+        
+        if (Guid.Empty == result)
+        {
+            return null;
+        }
+        return result;
     }
 
     public async static Task<bool> UserExistsAsync(this AuthContext db, Guid userId, Guid companyId, CancellationToken ct)
