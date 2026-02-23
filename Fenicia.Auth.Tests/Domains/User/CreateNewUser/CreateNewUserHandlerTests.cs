@@ -7,7 +7,6 @@ using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.CreateNewUser;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Migrations.Services;
 

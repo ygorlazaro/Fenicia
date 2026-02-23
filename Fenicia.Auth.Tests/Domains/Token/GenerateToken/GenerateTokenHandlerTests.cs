@@ -175,8 +175,11 @@ public class GenerateTokenHandlerTests
 
         // Verify increment was called by checking cache
         var key = $"login-attempt:{query.Email.ToLower()}";
-        Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
-        Assert.That(count, Is.EqualTo(1), "Should have incremented attempts");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
+            Assert.That(count, Is.EqualTo(1), "Should have incremented attempts");
+        }
     }
 
     [Test]
