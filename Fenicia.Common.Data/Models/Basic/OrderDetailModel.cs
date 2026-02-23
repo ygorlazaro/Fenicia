@@ -2,22 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Data.Requests.Basic;
-
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("order_details")]
 public class OrderDetailModel : BaseModel
 {
-    public OrderDetailModel(OrderDetailRequest request)
-    {
-        this.OrderId = request.OrderId;
-        this.ProductId = request.ProductId;
-        this.Price = request.Price;
-        this.Quantity = request.Quantity;
-        this.Id = request.Id;
-    }
-
     [Required]
     [Column("order_id")]
     public Guid OrderId { get; set; }

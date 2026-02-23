@@ -1,6 +1,7 @@
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Requests.Basic;
+using Fenicia.Module.Basic.Domains.Order.CreateOrder;
 using Fenicia.Module.Basic.Domains.OrderDetail;
+using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,14 +11,15 @@ namespace Fenicia.Module.Basic.Domains.Order;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
-public class OrderController(IOrderService orderService, IOrderDetailService orderDetailService) : ControllerBase
+public class OrderController(
+    CreateOrderHandler createOrderHandler,
+    GetOrderDetailsByOrderIdHandler getOrderDetailsByOrderIdHandler) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreateOrderAsync([FromBody] OrderRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreateOrderAsync([FromBody] CreateOrderCommand command, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
-        request.UserId = userId;
-        var order = await orderService.AddAsync(request, ct);
+        var order = await createOrderHandler.Handle(command with { UserId = userId }, ct);
 
         return new CreatedResult(string.Empty, order);
     }
@@ -25,7 +27,7 @@ public class OrderController(IOrderService orderService, IOrderDetailService ord
     [HttpGet("{id:guid}/detail")]
     public async Task<IActionResult> GetDetailsAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var details = await orderDetailService.GetByOrderIdAsync(id, ct);
+        var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);
 
         return Ok(details);
     }
