@@ -16,8 +16,7 @@ public class UpdateCustomerHandler(BasicContext context)
 
         customer.Person.Name = command.Name;
         customer.Person.Email = command.Email;
-        customer.Person.Cpf = command.Cpf;
-        customer.Person.Document = command.Cpf;
+        customer.Person.Document = command.Document;
         customer.Person.PhoneNumber = command.PhoneNumber;
         customer.Person.Street = command.Street;
         customer.Person.Number = command.Number;

@@ -65,7 +65,7 @@ public class UpdateEmployeeHandlerTests
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
                 Email = "old@email.com",
-                Cpf = "123.456.789-00",
+                Document = "123.456.789-00",
                 Street = "Old Street",
                 Number = "100",
                 ZipCode = "12345-000",
@@ -102,7 +102,7 @@ public class UpdateEmployeeHandlerTests
         {
             Assert.That(result.Person.Name, Is.EqualTo("New Name"));
             Assert.That(result.Person.Email, Is.EqualTo("new@email.com"));
-            Assert.That(result.Person.Cpf, Is.EqualTo("987.654.321-00"));
+            Assert.That(result.Person.Document, Is.EqualTo("987.654.321-00"));
             Assert.That(result.PositionId, Is.EqualTo(position2Id));
         }
     }
@@ -183,7 +183,7 @@ public class UpdateEmployeeHandlerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
@@ -241,7 +241,7 @@ public class UpdateEmployeeHandlerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
@@ -299,7 +299,7 @@ public class UpdateEmployeeHandlerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
@@ -357,7 +357,7 @@ public class UpdateEmployeeHandlerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
@@ -415,7 +415,7 @@ public class UpdateEmployeeHandlerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
@@ -473,7 +473,7 @@ public class UpdateEmployeeHandlerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
@@ -531,7 +531,7 @@ public class UpdateEmployeeHandlerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
@@ -599,7 +599,7 @@ public class UpdateEmployeeHandlerTests
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
                 Email = "old@email.com",
-                Cpf = "123.456.789-00",
+                Document = "123.456.789-00",
                 Street = "Old Street",
                 Number = "100",
                 ZipCode = "12345-000",

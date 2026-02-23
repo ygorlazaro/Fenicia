@@ -18,7 +18,7 @@ public class UpdateEmployeeHandler(BasicContext context)
         employee.PositionId = command.PositionId;
         employee.Person.Name = command.Name;
         employee.Person.Email = command.Email;
-        employee.Person.Cpf = command.Cpf;
+        employee.Person.Document = command.Document;
         employee.Person.PhoneNumber = command.PhoneNumber;
         employee.Person.Street = command.Street;
         employee.Person.Number = command.Number;
@@ -39,7 +39,7 @@ public class UpdateEmployeeHandler(BasicContext context)
             new PersonResponse(
                 employee.Person.Name,
                 employee.Person.Email,
-                employee.Person.Cpf,
+                employee.Person.Document,
                 employee.Person.PhoneNumber,
                 new AddressResponse(
                     employee.Person.City,

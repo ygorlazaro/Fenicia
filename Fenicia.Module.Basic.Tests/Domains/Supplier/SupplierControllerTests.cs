@@ -125,7 +125,7 @@ public class SupplierControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = this.faker.Random.Replace("(##) #####-####"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("###"),
@@ -147,7 +147,7 @@ public class SupplierControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = this.faker.Random.Replace("(##) #####-####"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("###"),
@@ -195,7 +195,7 @@ public class SupplierControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = this.faker.Random.Replace("(##) #####-####"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("###"),
@@ -303,7 +303,7 @@ public class SupplierControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = this.faker.Random.Replace("(##) #####-####")
             }
         };
@@ -389,7 +389,7 @@ public class SupplierControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##")
+                Document = this.faker.Random.Replace("###.###.###-##")
             }
         };
 

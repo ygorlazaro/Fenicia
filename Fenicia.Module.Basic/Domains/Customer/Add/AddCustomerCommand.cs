@@ -4,7 +4,7 @@ public record AddCustomerCommand(
     Guid Id,
     string Name,
     string? Email,
-    string? Cpf,
+    string? Document,
     string? Phone,
     string? City,
     string? Complement,

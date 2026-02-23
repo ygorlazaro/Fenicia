@@ -20,7 +20,7 @@ public class GetAllSupplierHandler(BasicContext context)
             new PersonResponse(
                 s.Person.Name,
                 s.Person.Email,
-                s.Person.Cpf,
+                s.Person.Document,
                 s.Person.PhoneNumber,
                 new AddressResponse(
                     s.Person.City,

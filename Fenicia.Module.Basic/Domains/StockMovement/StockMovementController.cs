@@ -1,3 +1,5 @@
+using System.Net.Mime;
+
 using Fenicia.Module.Basic.Domains.StockMovement.Add;
 using Fenicia.Module.Basic.Domains.StockMovement.GetMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.Update;
@@ -10,12 +12,16 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 [ApiController]
 [Authorize]
 [Route("[controller]")]
+[Produces(MediaTypeNames.Application.Json)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class StockMovementController(
     GetStockMovementHandler getStockMovementHandler,
     AddStockMovementHandler addStockMovementHandler,
     UpdateStockMovementHandler updateStockMovementHandler) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StockMovementResponse>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<StockMovementResponse>> GetAsync([FromQuery] StockMovementQuery query, CancellationToken ct)
     {
         var stockMovimentation =
@@ -25,6 +31,10 @@ public class StockMovementController(
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StockMovementResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<StockMovementResponse>> PostAsync([FromBody] AddStockMovementCommand command, CancellationToken ct)
     {
         var stockMovimentation = await addStockMovementHandler.Handle(command, ct);
@@ -34,6 +44,12 @@ public class StockMovementController(
 
     [HttpPatch("{id:guid}")]
     [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StockMovementResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<StockMovementResponse>> PatchAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateStockMovementCommand command,

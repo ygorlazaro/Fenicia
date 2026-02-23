@@ -1,3 +1,5 @@
+using System.Net.Mime;
+
 using Fenicia.Module.Basic.Domains.Product.Add;
 using Fenicia.Module.Basic.Domains.Product.Delete;
 using Fenicia.Module.Basic.Domains.Product.GetAll;
@@ -13,6 +15,8 @@ namespace Fenicia.Module.Basic.Domains.Product;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
+[Produces(MediaTypeNames.Application.Json)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProductController(
     GetAllProductHandler getAllProductHandler,
     GetProductByIdHandler getProductByIdHandler,
@@ -21,6 +25,8 @@ public class ProductController(
     DeleteProductHandler deleteProductHandler) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductResponse>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProductResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var products = await getAllProductHandler.Handle(new GetAllProductQuery(page, perPage), ct);
@@ -29,6 +35,9 @@ public class ProductController(
     }
 
     [HttpGet("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProductResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var product = await getProductByIdHandler.Handle(new GetProductByIdQuery(id), ct);
@@ -37,6 +46,10 @@ public class ProductController(
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ProductResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<ProductResponse>> PostAsync([FromBody] AddProductCommand command, CancellationToken ct)
     {
         var product = await addProductHandler.Handle(command, ct);
@@ -45,6 +58,11 @@ public class ProductController(
     }
 
     [HttpPatch("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<ProductResponse>> PatchAsync(
         [FromBody] UpdateProductCommand command,
         [FromRoute] Guid id,
@@ -56,6 +74,8 @@ public class ProductController(
     }
 
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProductResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteProductHandler.Handle(new DeleteProductCommand(id), ct);

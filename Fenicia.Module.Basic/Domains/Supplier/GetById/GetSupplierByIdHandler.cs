@@ -20,7 +20,7 @@ public class GetSupplierByIdHandler(BasicContext context)
             new PersonResponse(
                 supplier.Person.Name,
                 supplier.Person.Email,
-                supplier.Person.Cpf,
+                supplier.Person.Document,
                 supplier.Person.PhoneNumber,
                 new AddressResponse(
                     supplier.Person.City,

@@ -48,7 +48,7 @@ public class DeleteSupplierHandlerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),

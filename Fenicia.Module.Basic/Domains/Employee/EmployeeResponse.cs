@@ -9,7 +9,7 @@ public record EmployeeResponse(
 public record PersonResponse(
     string Name,
     string? Email,
-    string? Cpf,
+    string? Document,
     string? Phone,
     AddressResponse? Address);
 

@@ -17,7 +17,7 @@ public class UpdateSupplierHandler(BasicContext context)
         supplier.Cnpj = command.Cnpj;
         supplier.Person.Name = command.Name;
         supplier.Person.Email = command.Email;
-        supplier.Person.Cpf = command.Cpf;
+        supplier.Person.Document = command.Document;
         supplier.Person.PhoneNumber = command.PhoneNumber ?? string.Empty;
         supplier.Person.Street = command.Street ?? string.Empty;
         supplier.Person.Number = command.Number ?? string.Empty;
@@ -37,7 +37,7 @@ public class UpdateSupplierHandler(BasicContext context)
             new PersonResponse(
                 supplier.Person.Name,
                 supplier.Person.Email,
-                supplier.Person.Cpf,
+                supplier.Person.Document,
                 supplier.Person.PhoneNumber,
                 new AddressResponse(
                     supplier.Person.City,
