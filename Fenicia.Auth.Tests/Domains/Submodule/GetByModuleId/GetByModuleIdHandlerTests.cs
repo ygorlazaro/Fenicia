@@ -91,7 +91,7 @@ public class GetByModuleIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(0), "Should return empty list for module without submodules");
+        Assert.That(result, Is.Empty, "Should return empty list for module without submodules");
     }
 
     [Test]
@@ -105,7 +105,7 @@ public class GetByModuleIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(0), "Should return empty list for empty database");
+        Assert.That(result, Is.Empty, "Should return empty list for empty database");
     }
 
     [Test]

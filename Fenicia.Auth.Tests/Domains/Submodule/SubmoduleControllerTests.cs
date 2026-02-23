@@ -74,7 +74,7 @@ public class SubmoduleControllerTests
         Assert.That(returnedSubmodules, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedSubmodules.Count, Is.Zero);
+            Assert.That(returnedSubmodules, Is.Empty);
             Assert.That(wide.UserId, Is.EqualTo("Guest"));
         }
     }
@@ -168,7 +168,7 @@ public class SubmoduleControllerTests
 
         var returnedSubmodules = okResult.Value as List<GetByModuleResponse>;
         Assert.That(returnedSubmodules, Is.Not.Null);
-        Assert.That(returnedSubmodules.Count, Is.Zero);
+        Assert.That(returnedSubmodules, Is.Empty);
     }
 
     [Test]

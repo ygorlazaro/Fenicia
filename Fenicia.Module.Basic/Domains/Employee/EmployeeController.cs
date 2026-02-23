@@ -20,7 +20,7 @@ public class EmployeeController(
     DeleteEmployeeHandler deleteEmployeeHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<EmployeeResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var employees = await getAllEmployeeHandler.Handle(new GetAllEmployeeQuery(page, perPage), ct);
 
@@ -28,7 +28,7 @@ public class EmployeeController(
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<EmployeeResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var employee = await getEmployeeByIdHandler.Handle(new GetEmployeeByIdQuery(id), ct);
 
@@ -36,7 +36,7 @@ public class EmployeeController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] AddEmployeeCommand command, CancellationToken ct)
+    public async Task<ActionResult<EmployeeResponse>> PostAsync([FromBody] AddEmployeeCommand command, CancellationToken ct)
     {
         var employee = await addEmployeeHandler.Handle(command, ct);
 
@@ -44,7 +44,7 @@ public class EmployeeController(
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync(
+    public async Task<ActionResult<EmployeeResponse>> PatchAsync(
         [FromBody] UpdateEmployeeCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -55,7 +55,7 @@ public class EmployeeController(
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<EmployeeResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteEmployeeHandler.Handle(new DeleteEmployeeCommand(id), ct);
 

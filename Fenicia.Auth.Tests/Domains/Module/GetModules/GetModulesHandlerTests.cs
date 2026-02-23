@@ -168,7 +168,7 @@ public class GetModulesHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data.Count, Is.EqualTo(0), "Should return empty list");
+            Assert.That(result.Data, Is.Empty, "Should return empty list");
             Assert.That(result.Total, Is.EqualTo(0), "Total should be 0");
         }
     }
@@ -197,7 +197,7 @@ public class GetModulesHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data.Count, Is.EqualTo(0), "Should return empty data for page beyond total");
+            Assert.That(result.Data, Is.Empty, "Should return empty data for page beyond total");
             Assert.That(result.Total, Is.EqualTo(1), "Total should still be 1");
         }
     }
