@@ -60,7 +60,7 @@ public class AddCustomerHandlerTests
         {
             Assert.That(result.Person.Name, Is.EqualTo(command.Name));
             Assert.That(result.Person.Email, Is.EqualTo(command.Email));
-            Assert.That(result.Person.Document, Is.EqualTo(command.Cpf));
+            Assert.That(result.Person.Document, Is.EqualTo(command.Document));
         }
     }
 

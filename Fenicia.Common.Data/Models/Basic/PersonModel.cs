@@ -11,7 +11,7 @@ public class PersonModel : BaseModel
     public string Name { get; set; }
 
     [MaxLength(14)]
-    public string? Cpf { get; set; }
+    public string? Document { get; set; }
 
     [MaxLength(100)]
     public string? Street { get; set; }
@@ -46,9 +46,6 @@ public class PersonModel : BaseModel
     [MaxLength(20)]
     public string? PhoneNumber { get; set; }
     
-    [MaxLength(20)]
-    public string? Document { get; set; }
-
     [ForeignKey(nameof(StateId))]
     public virtual StateModel State { get; set; } = null!;
 

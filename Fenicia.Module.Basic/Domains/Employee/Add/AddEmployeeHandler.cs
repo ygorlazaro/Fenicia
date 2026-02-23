@@ -12,7 +12,7 @@ public class AddEmployeeHandler(BasicContext context)
             Id = Guid.NewGuid(),
             Name = command.Name,
             Email = command.Email,
-            Cpf = command.Cpf,
+            Document = command.Document,
             PhoneNumber = command.PhoneNumber,
             Street = command.Street,
             Number = command.Number,
@@ -42,7 +42,7 @@ public class AddEmployeeHandler(BasicContext context)
             new PersonResponse(
                 person.Name,
                 person.Email,
-                person.Cpf,
+                person.Document,
                 person.PhoneNumber,
                 new AddressResponse(
                     person.City,

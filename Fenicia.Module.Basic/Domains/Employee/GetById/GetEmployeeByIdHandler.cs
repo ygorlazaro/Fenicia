@@ -22,7 +22,7 @@ public class GetEmployeeByIdHandler(BasicContext context)
             new PersonResponse(
                 employee.Person.Name,
                 employee.Person.Email,
-                employee.Person.Cpf,
+                employee.Person.Document,
                 employee.Person.PhoneNumber,
                 new AddressResponse(
                     employee.Person.City,

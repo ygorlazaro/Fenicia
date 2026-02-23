@@ -6,7 +6,7 @@ public record AddSupplierCommand(
     Guid Id,
     string Name,
     string? Email,
-    string? Cpf,
+    string? Document,
     string? Phone,
     string? City,
     string? Complement,
@@ -21,7 +21,7 @@ public record UpdateSupplierCommand(
     Guid Id,
     string Name,
     string? Email,
-    string? Cpf,
+    string? Document,
     string? Phone,
     string? City,
     string? Complement,
@@ -42,7 +42,7 @@ public record SupplierResponse(
 public record PersonResponse(
     string Name,
     string? Email,
-    string? Cpf,
+    string? Document,
     string? Phone,
     AddressResponse? Address);
 
