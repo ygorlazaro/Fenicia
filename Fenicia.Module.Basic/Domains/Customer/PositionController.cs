@@ -1,3 +1,5 @@
+using System.Net.Mime;
+
 using Fenicia.Module.Basic.Domains.Customer.Add;
 using Fenicia.Module.Basic.Domains.Customer.Delete;
 using Fenicia.Module.Basic.Domains.Customer.GetAll;
@@ -12,6 +14,8 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
+[Produces(MediaTypeNames.Application.Json)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class PositionController(
     GetAllCustomerHandler getAllCustomerHandler,
     GetCustomerByIdHandler getCustomerByIdHandler,
@@ -20,6 +24,8 @@ public class PositionController(
     DeleteCustomerHandler deleteCustomerHandler) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CustomerResponse>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CustomerResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var customers = await getAllCustomerHandler.Handle(new GetAllCustomerQuery(page, perPage), ct);
@@ -28,6 +34,9 @@ public class PositionController(
     }
 
     [HttpGet("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CustomerResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var customer = await getCustomerByIdHandler.Handle(new GetCustomerByIdQuery(id), ct);
@@ -36,6 +45,10 @@ public class PositionController(
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CustomerResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CustomerResponse>> PostAsync([FromBody] AddCustomerCommand command, CancellationToken ct)
     {
         var customer = await addCustomerHandler.Handle(command, ct);
@@ -44,6 +57,11 @@ public class PositionController(
     }
 
     [HttpPatch("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CustomerResponse>> PatchAsync(
         [FromBody] UpdateCustomerCommand command,
         [FromRoute] Guid id,
@@ -55,6 +73,8 @@ public class PositionController(
     }
 
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<CustomerResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteCustomerHandler.Handle(new DeleteCustomerCommand(id), ct);

@@ -1,3 +1,5 @@
+using System.Net.Mime;
+
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Order.CreateOrder;
 using Fenicia.Module.Basic.Domains.OrderDetail;
@@ -11,11 +13,17 @@ namespace Fenicia.Module.Basic.Domains.Order;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
+[Produces(MediaTypeNames.Application.Json)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class OrderController(
     CreateOrderHandler createOrderHandler,
     GetOrderDetailsByOrderIdHandler getOrderDetailsByOrderIdHandler) : ControllerBase
 {
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OrderResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<OrderResponse>> CreateOrderAsync([FromBody] CreateOrderCommand command, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
@@ -25,6 +33,8 @@ public class OrderController(
     }
 
     [HttpGet("{id:guid}/detail")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<OrderDetailResponse>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<OrderResponse>> GetDetailsAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);

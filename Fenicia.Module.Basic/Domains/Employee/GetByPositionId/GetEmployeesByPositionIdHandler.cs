@@ -23,7 +23,7 @@ public class GetEmployeesByPositionIdHandler(BasicContext context)
             new PersonResponse(
                 e.Person.Name,
                 e.Person.Email,
-                e.Person.Cpf,
+                e.Person.Document,
                 e.Person.PhoneNumber,
                 new AddressResponse(
                     e.Person.City,

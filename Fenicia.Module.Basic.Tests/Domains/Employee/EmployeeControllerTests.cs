@@ -130,7 +130,7 @@ public class EmployeeControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = this.faker.Random.Replace("(##) #####-####")
             }
         };
@@ -145,7 +145,7 @@ public class EmployeeControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = this.faker.Random.Replace("(##) #####-####")
             }
         };
@@ -193,7 +193,7 @@ public class EmployeeControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = this.faker.Random.Replace("(##) #####-####")
             }
         };
@@ -309,7 +309,7 @@ public class EmployeeControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##"),
+                Document = this.faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = this.faker.Random.Replace("(##) #####-####")
             }
         };
@@ -405,7 +405,7 @@ public class EmployeeControllerTests
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
                 Email = this.faker.Internet.Email(),
-                Cpf = this.faker.Random.Replace("###.###.###-##")
+                Document = this.faker.Random.Replace("###.###.###-##")
             }
         };
 

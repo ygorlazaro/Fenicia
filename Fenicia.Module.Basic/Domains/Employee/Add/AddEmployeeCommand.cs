@@ -5,7 +5,7 @@ public record AddEmployeeCommand(
     Guid PositionId,
     string Name,
     string? Email,
-    string? Cpf,
+    string? Document,
     string? Phone,
     string? City,
     string? Complement,
