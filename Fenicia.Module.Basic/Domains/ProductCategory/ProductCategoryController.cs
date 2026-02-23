@@ -1,6 +1,11 @@
 using Fenicia.Common;
-using Fenicia.Common.Data.Requests.Basic;
-using Fenicia.Module.Basic.Domains.Product;
+using Fenicia.Module.Basic.Domains.Product.GetAll;
+using Fenicia.Module.Basic.Domains.Product.GetByCategoryId;
+using Fenicia.Module.Basic.Domains.ProductCategory.Add;
+using Fenicia.Module.Basic.Domains.ProductCategory.Delete;
+using Fenicia.Module.Basic.Domains.ProductCategory.GetAll;
+using Fenicia.Module.Basic.Domains.ProductCategory.GetById;
+using Fenicia.Module.Basic.Domains.ProductCategory.Update;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +15,18 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class ProductCategoryController(IProductCategoryService productCategoryService, IProductService productService)
-    : ControllerBase
+public class ProductCategoryController(
+    GetAllProductCategoryHandler getAllProductCategoryHandler,
+    GetProductCategoryByIdHandler getProductCategoryByIdHandler,
+    AddProductCategoryHandler addProductCategoryHandler,
+    UpdateProductCategoryHandler updateProductCategoryHandler,
+    DeleteProductCategoryHandler deleteProductCategoryHandler,
+    GetProductsByCategoryIdHandler getProductsByCategoryIdHandler) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAsync(CancellationToken ct)
     {
-        var productCategory = await productCategoryService.GetAllAsync(ct);
+        var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(), ct);
 
         return Ok(productCategory);
     }
@@ -24,26 +34,26 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var productCategory = await productCategoryService.GetByIdAsync(id, ct);
+        var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id), ct);
 
         return productCategory is null ? NotFound() : Ok(productCategory);
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] ProductCategoryRequest request, CancellationToken ct)
+    public async Task<IActionResult> PostAsync([FromBody] AddProductCategoryCommand command, CancellationToken ct)
     {
-        var productCategory = await productCategoryService.AddAsync(request, ct);
+        var productCategory = await addProductCategoryHandler.Handle(command, ct);
 
         return new CreatedResult(string.Empty, productCategory);
     }
 
     [HttpPatch("{id:guid}")]
     public async Task<IActionResult> PatchAsync(
-        [FromBody] ProductCategoryRequest request,
+        [FromBody] UpdateProductCategoryCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
     {
-        var productCategory = await productCategoryService.UpdateAsync(request, ct);
+        var productCategory = await updateProductCategoryHandler.Handle(command with { Id = id }, ct);
 
         return productCategory is null ? NotFound() : Ok(productCategory);
     }
@@ -51,7 +61,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        await productCategoryService.DeleteAsync(id, ct);
+        await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id), ct);
 
         return NoContent();
     }
@@ -62,7 +72,7 @@ public class ProductCategoryController(IProductCategoryService productCategorySe
         [FromQuery] PaginationQuery query,
         CancellationToken ct)
     {
-        var products = await productService.GetByCategoryIdAsync(categoryId, ct, query.Page, query.PerPage);
+        var products = await getProductsByCategoryIdHandler.Handle(new GetProductsByCategoryIdQuery(categoryId, query.Page, query.PerPage), ct);
 
         return Ok(products);
     }
