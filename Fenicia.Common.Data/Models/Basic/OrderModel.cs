@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-using Fenicia.Common.Data.Requests.Basic;
 using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Common.Data.Models.Basic;
@@ -10,16 +9,6 @@ namespace Fenicia.Common.Data.Models.Basic;
 [Table("orders")]
 public class OrderModel : BaseModel
 {
-    public OrderModel(OrderRequest request)
-    {
-        this.CustomerId = request.CustomerId;
-        this.Details = [.. request.Details.Select(d => new OrderDetailModel(d))];
-        this.SaleDate = request.SaleDate;
-        this.Status = request.Status;
-        this.UserId = request.UserId;
-        this.Id = request.Id;
-    }
-
     [Required]
     public Guid UserId { get; set; }
 

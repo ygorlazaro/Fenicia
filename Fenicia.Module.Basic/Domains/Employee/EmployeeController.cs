@@ -1,4 +1,8 @@
-using Fenicia.Common.Data.Requests.Basic;
+using Fenicia.Module.Basic.Domains.Employee.Add;
+using Fenicia.Module.Basic.Domains.Employee.Delete;
+using Fenicia.Module.Basic.Domains.Employee.GetAll;
+using Fenicia.Module.Basic.Domains.Employee.GetById;
+using Fenicia.Module.Basic.Domains.Employee.Update;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,12 +12,17 @@ namespace Fenicia.Module.Basic.Domains.Employee;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class EmployeeController(IEmployeeService employeeService) : ControllerBase
+public class EmployeeController(
+    GetAllEmployeeHandler getAllEmployeeHandler,
+    GetEmployeeByIdHandler getEmployeeByIdHandler,
+    AddEmployeeHandler addEmployeeHandler,
+    UpdateEmployeeHandler updateEmployeeHandler,
+    DeleteEmployeeHandler deleteEmployeeHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync(CancellationToken ct)
+    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        var employees = await employeeService.GetAllAsync(ct);
+        var employees = await getAllEmployeeHandler.Handle(new GetAllEmployeeQuery(page, perPage), ct);
 
         return Ok(employees);
     }
@@ -21,26 +30,26 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var employee = await employeeService.GetByIdAsync(id, ct);
+        var employee = await getEmployeeByIdHandler.Handle(new GetEmployeeByIdQuery(id), ct);
 
         return employee is null ? NotFound() : Ok(employee);
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] EmployeeRequest request, CancellationToken ct)
+    public async Task<IActionResult> PostAsync([FromBody] AddEmployeeCommand command, CancellationToken ct)
     {
-        var employee = await employeeService.AddAsync(request, ct);
+        var employee = await addEmployeeHandler.Handle(command, ct);
 
         return new CreatedResult(string.Empty, employee);
     }
 
     [HttpPatch("{id:guid}")]
     public async Task<IActionResult> PatchAsync(
-        [FromBody] EmployeeRequest request,
+        [FromBody] UpdateEmployeeCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
     {
-        var employee = await employeeService.UpdateAsync(request, ct);
+        var employee = await updateEmployeeHandler.Handle(command with { Id = id }, ct);
 
         return employee is null ? NotFound() : Ok(employee);
     }
@@ -48,7 +57,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        await employeeService.DeleteAsync(id, ct);
+        await deleteEmployeeHandler.Handle(new DeleteEmployeeCommand(id), ct);
 
         return NoContent();
     }
