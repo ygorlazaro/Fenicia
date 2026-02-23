@@ -8,13 +8,13 @@ public class ResetAttemptsHandler(IMemoryCache cache)
 {
     private const string KeyPrefix = "login-attempt:";
 
-    public Task Handle(string email, CancellationToken ct)
+    public Task Handle(string email)
     {
         cache.Remove(GetKey(email));
 
         return Task.CompletedTask;
     }
-    
+
     private static string GetKey(string email)
     {
         ArgumentNullException.ThrowIfNull(email);

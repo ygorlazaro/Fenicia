@@ -1,5 +1,9 @@
 using System.Security.Claims;
 
+using Bogus;
+using Bogus.Extensions.Brazil;
+
+using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.CreateNewOrder;
 using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 using Fenicia.Common.API;
@@ -21,20 +25,11 @@ namespace Fenicia.Auth.Tests.Domains.Order;
 [TestFixture]
 public class OrderControllerTests
 {
-    private Auth.Domains.Order.OrderController controller = null!;
-    private AuthContext context = null!;
-    private CreateNewOrderHandler createNewOrderHandler = null!;
-    private Mock<CreateCreditsForOrderHandler> mockCreateCreditsForOrderHandler = null!;
-    private Mock<IMigrationService> mockMigrationService = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testUserId;
-    private Guid testCompanyId;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -42,10 +37,11 @@ public class OrderControllerTests
         this.testCompanyId = Guid.NewGuid();
         this.mockCreateCreditsForOrderHandler = new Mock<CreateCreditsForOrderHandler>(this.context);
         this.mockMigrationService = new Mock<IMigrationService>();
-        this.createNewOrderHandler = new CreateNewOrderHandler(this.context, this.mockCreateCreditsForOrderHandler.Object, this.mockMigrationService.Object);
+        this.createNewOrderHandler = new CreateNewOrderHandler(this.context,
+            this.mockCreateCreditsForOrderHandler.Object, this.mockMigrationService.Object);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new Auth.Domains.Order.OrderController
+        this.controller = new OrderController
         {
             ControllerContext = new ControllerContext
             {
@@ -54,6 +50,7 @@ public class OrderControllerTests
         };
 
         SetupUserClaims(this.testUserId);
+        this.faker = new Faker();
     }
 
     [TearDown]
@@ -61,6 +58,16 @@ public class OrderControllerTests
     {
         this.context.Dispose();
     }
+
+    private OrderController controller = null!;
+    private AuthContext context = null!;
+    private CreateNewOrderHandler createNewOrderHandler = null!;
+    private Mock<CreateCreditsForOrderHandler> mockCreateCreditsForOrderHandler = null!;
+    private Mock<IMigrationService> mockMigrationService = null!;
+    private Mock<HttpContext> mockHttpContext = null!;
+    private Guid testUserId;
+    private Guid testCompanyId;
+    private Faker faker = null!;
 
     private void SetupUserClaims(Guid userId)
     {
@@ -75,8 +82,6 @@ public class OrderControllerTests
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
-
-    #region CreateNewOrderAsync Tests
 
     [Test]
     public void CreateNewOrderAsync_WhenUserDoesNotBelongToCompany_ThrowsPermissionDeniedException()
@@ -109,16 +114,16 @@ public class OrderControllerTests
         var user = new UserModel
         {
             Id = this.testUserId,
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = this.testCompanyId,
-            Name = "Test Company",
-            Cnpj = "12.345.678/0001-90",
+            Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Company.Cnpj(),
             IsActive = true,
             TimeZone = "UTC",
             Language = "pt-BR"
@@ -162,24 +167,24 @@ public class OrderControllerTests
         var module = new ModuleModel
         {
             Id = moduleId,
-            Name = "Basic Module",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = this.faker.Finance.Amount(10, 100)
         };
 
         var user = new UserModel
         {
             Id = this.testUserId,
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = this.testCompanyId,
-            Name = "Test Company",
-            Cnpj = "12.345.678/0001-90",
+            Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Company.Cnpj(),
             IsActive = true,
             TimeZone = "UTC",
             Language = "pt-BR"
@@ -204,7 +209,8 @@ public class OrderControllerTests
         var headers = new Headers { CompanyId = this.testCompanyId };
 
         this.mockMigrationService
-            .Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -232,7 +238,8 @@ public class OrderControllerTests
         }
 
         // Verify order was created
-        var createdOrder = await this.context.Orders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, cancellationToken: cancellationToken);
+        var createdOrder =
+            await this.context.Orders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, cancellationToken);
         Assert.That(createdOrder, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -252,24 +259,24 @@ public class OrderControllerTests
         var module = new ModuleModel
         {
             Id = moduleId,
-            Name = "Basic Module",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = this.faker.Finance.Amount(10, 100)
         };
 
         var user = new UserModel
         {
             Id = this.testUserId,
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         var company = new CompanyModel
         {
             Id = this.testCompanyId,
-            Name = "Test Company",
-            Cnpj = "12.345.678/0001-90",
+            Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Company.Cnpj(),
             IsActive = true,
             TimeZone = "UTC",
             Language = "pt-BR"
@@ -294,7 +301,8 @@ public class OrderControllerTests
         var headers = new Headers { CompanyId = this.testCompanyId };
 
         this.mockMigrationService
-            .Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -309,15 +317,11 @@ public class OrderControllerTests
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
     }
 
-    #endregion
-
-    #region Attribute Tests
-
     [Test]
     public void OrderController_HasAuthorizeAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Order.OrderController);
+        var controllerType = typeof(OrderController);
 
         // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -330,10 +334,11 @@ public class OrderControllerTests
     public void OrderController_HasRouteAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Order.OrderController);
+        var controllerType = typeof(OrderController);
 
         // Act
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.That(routeAttribute, Is.Not.Null, "OrderController should have Route attribute");
@@ -344,15 +349,14 @@ public class OrderControllerTests
     public void OrderController_HasProducesAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Order.OrderController);
+        var controllerType = typeof(OrderController);
 
         // Act
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.That(producesAttribute, Is.Not.Null, "OrderController should have Produces attribute");
         Assert.That(producesAttribute!.ContentTypes.FirstOrDefault(), Is.EqualTo("application/json"));
     }
-
-    #endregion
 }

@@ -6,8 +6,6 @@ namespace Fenicia.Auth.Domains.User.GetByEmail;
 
 public class GetByEmailHandler(AuthContext context)
 {
-    private const int ExpirationMinutes = 15;
-    
     public virtual async Task<GetByEmailResponse?> Handle(string email, CancellationToken ct)
     {
         var query = from user in context.Users

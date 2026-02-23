@@ -10,12 +10,12 @@ public class ChangePasswordHandler(AuthContext context, HashPasswordHandler hash
 {
     public async Task<ChangePasswordResponse> Handle(ChangePasswordQuery query, CancellationToken ct)
     {
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Id ==  query.Id, ct)
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == query.Id, ct)
                    ?? throw new ArgumentException(TextConstants.ItemNotFoundMessage);
         var hashedPassword = hashPasswordHandler.Handle(query.Password);
 
         user.Password = hashedPassword;
-        
+
         context.Entry(user).State = EntityState.Modified;
 
         await context.SaveChangesAsync(ct);

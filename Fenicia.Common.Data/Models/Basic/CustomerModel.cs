@@ -5,7 +5,7 @@ using Fenicia.Common.Data.Requests.Basic;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("customers")]
-public  class CustomerModel : BaseModel
+public class CustomerModel : BaseModel
 {
     public CustomerModel(CustomerRequest request)
     {

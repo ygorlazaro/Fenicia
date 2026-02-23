@@ -7,9 +7,6 @@ namespace Fenicia.Auth.Tests.Domains.LoginAttempt.ResetAttempts;
 [TestFixture]
 public class ResetAttemptsHandlerTests
 {
-    private IMemoryCache cache = null!;
-    private ResetAttemptsHandler handler = null!;
-
     [SetUp]
     public void SetUp()
     {
@@ -23,6 +20,9 @@ public class ResetAttemptsHandlerTests
         this.cache.Dispose();
     }
 
+    private IMemoryCache cache = null!;
+    private ResetAttemptsHandler handler = null!;
+
     [Test]
     public async Task Handle_WhenAttemptsExist_RemovesAttempts()
     {
@@ -32,7 +32,7 @@ public class ResetAttemptsHandlerTests
         this.cache.Set(key, 5);
 
         // Act
-        await this.handler.Handle(email, CancellationToken.None);
+        await this.handler.Handle(email);
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
@@ -46,7 +46,7 @@ public class ResetAttemptsHandlerTests
         var email = "test@example.com";
 
         // Act
-        await this.handler.Handle(email, CancellationToken.None);
+        await this.handler.Handle(email);
 
         // Assert
         Assert.Pass("Should complete successfully even when no attempts exist");
@@ -62,7 +62,7 @@ public class ResetAttemptsHandlerTests
         this.cache.Set(key, 3);
 
         // Act
-        await this.handler.Handle(upperCaseEmail, CancellationToken.None);
+        await this.handler.Handle(upperCaseEmail);
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
@@ -70,10 +70,10 @@ public class ResetAttemptsHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
+    public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handle(null!, CancellationToken.None));
+        Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handle(null!));
     }
 
     [Test]
@@ -85,7 +85,7 @@ public class ResetAttemptsHandlerTests
         this.cache.Set(key, 2);
 
         // Act
-        await this.handler.Handle(email, CancellationToken.None);
+        await this.handler.Handle(email);
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
@@ -104,7 +104,7 @@ public class ResetAttemptsHandlerTests
         this.cache.Set(key2, 4);
 
         // Act
-        await this.handler.Handle(email1, CancellationToken.None);
+        await this.handler.Handle(email1);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -124,7 +124,7 @@ public class ResetAttemptsHandlerTests
         this.cache.Set(key, 100);
 
         // Act
-        await this.handler.Handle(email, CancellationToken.None);
+        await this.handler.Handle(email);
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
@@ -138,9 +138,9 @@ public class ResetAttemptsHandlerTests
         var email = "test@example.com";
 
         // Act
-        await this.handler.Handle(email, CancellationToken.None);
-        await this.handler.Handle(email, CancellationToken.None);
-        await this.handler.Handle(email, CancellationToken.None);
+        await this.handler.Handle(email);
+        await this.handler.Handle(email);
+        await this.handler.Handle(email);
 
         // Assert
         Assert.Pass("Should handle multiple resets without errors");

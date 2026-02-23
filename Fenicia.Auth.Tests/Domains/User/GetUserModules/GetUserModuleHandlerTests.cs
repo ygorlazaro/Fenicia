@@ -1,5 +1,3 @@
-using Bogus;
-
 using Fenicia.Auth.Domains.User.GetUserModules;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -12,20 +10,15 @@ namespace Fenicia.Auth.Tests.Domains.User.GetUserModules;
 [TestFixture]
 public class GetUserModuleHandlerTests
 {
-    private AuthContext context = null!;
-    private GetUserModuleHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
         this.handler = new GetUserModuleHandler(this.context);
-        this.faker = new Faker();
     }
 
     [TearDown]
@@ -33,6 +26,9 @@ public class GetUserModuleHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private GetUserModuleHandler handler = null!;
 
     [Test]
     public async Task Handler_WhenUserHasActiveSubscription_ReturnsModules()
@@ -108,7 +104,7 @@ public class GetUserModuleHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(1), "Should return 1 module");
+        Assert.That(result, Has.Count.EqualTo(1), "Should return 1 module");
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result[0].Id, Is.EqualTo(moduleId), "ModuleId should match");
@@ -445,7 +441,7 @@ public class GetUserModuleHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(2), "Should return 2 modules");
+        Assert.That(result, Has.Count.EqualTo(2), "Should return 2 modules");
     }
 
     [Test]
@@ -584,6 +580,6 @@ public class GetUserModuleHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(1), "Should return unique modules only");
+        Assert.That(result, Has.Count.EqualTo(1), "Should return unique modules only");
     }
 }

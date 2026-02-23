@@ -7,17 +7,16 @@ namespace Fenicia.Auth.Domains.LoginAttempt.LoginAttempt;
 public class LoginAttemptHandler(IMemoryCache cache)
 {
     private const string KeyPrefix = "login-attempt:";
-    
-    public virtual int Handle(string email, CancellationToken ct)
+
+    public virtual int Handle(string email)
     {
         return cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0;
     }
-    
+
     private static string GetKey(string email)
     {
         ArgumentNullException.ThrowIfNull(email);
 
         return $"{KeyPrefix}{email.ToLower(CultureInfo.InvariantCulture)}";
     }
-        
 }

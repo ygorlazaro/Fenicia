@@ -14,4 +14,3 @@ public class CommentModel(CommentRequest request) : BaseModel
 
     public virtual UserModel User { get; set; } = null!;
 }
-

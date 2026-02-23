@@ -10,9 +10,6 @@ namespace Fenicia.Auth.Tests.Domains.Token.GenerateTokenString;
 [TestFixture]
 public class GenerateTokenStringHandlerTests
 {
-    private IConfiguration configuration = null!;
-    private GenerateTokenStringHandler handler = null!;
-
     [SetUp]
     public void SetUp()
     {
@@ -27,6 +24,9 @@ public class GenerateTokenStringHandlerTests
 
         this.handler = new GenerateTokenStringHandler(this.configuration);
     }
+
+    private IConfiguration configuration = null!;
+    private GenerateTokenStringHandler handler = null!;
 
     [Test]
     public void Handle_WhenValidUser_ReturnsValidToken()
@@ -79,13 +79,14 @@ public class GenerateTokenStringHandlerTests
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
-        
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(jwtToken.Claims.FirstOrDefault(c => c.Type == "userId")?.Value, Is.EqualTo(userId.ToString()));
             Assert.That(jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value, Is.EqualTo(email));
             Assert.That(jwtToken.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value, Is.EqualTo(name));
-            Assert.That(jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti), Is.Not.Null, "Should have JTI claim");
+            Assert.That(jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti), Is.Not.Null,
+                "Should have JTI claim");
         }
     }
 
@@ -127,10 +128,10 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var roleClaims = jwtToken.Claims.Where(c => c.Type == "role").ToList();
-        
+
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(roleClaims.Count, Is.EqualTo(3), "Should have 3 role claims");
+            Assert.That(roleClaims, Has.Count.EqualTo(3), "Should have 3 role claims");
             Assert.That(roleClaims.Select(c => c.Value), Does.Contain("Admin"));
             Assert.That(roleClaims.Select(c => c.Value), Does.Contain("User"));
             Assert.That(roleClaims.Select(c => c.Value), Does.Contain("Manager"));
@@ -154,10 +155,10 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
-        
+
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(moduleClaims.Count, Is.EqualTo(3), "Should have 3 module claims");
+            Assert.That(moduleClaims, Has.Count.EqualTo(3), "Should have 3 module claims");
             Assert.That(moduleClaims.Select(c => c.Value), Does.Contain("erp"));
             Assert.That(moduleClaims.Select(c => c.Value), Does.Contain("basic"));
             Assert.That(moduleClaims.Select(c => c.Value), Does.Contain("social"));
@@ -182,7 +183,7 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
-        
+
         Assert.That(moduleClaims, Does.Contain("erp"), "Should auto-add erp module for God role");
     }
 
@@ -204,7 +205,7 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
-        
+
         var erpCount = moduleClaims.Count(m => m == "erp");
         Assert.That(erpCount, Is.EqualTo(1), "Should not duplicate erp module");
     }
@@ -263,8 +264,8 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var roleClaims = jwtToken.Claims.Where(c => c.Type == "role").ToList();
-        
-        Assert.That(roleClaims.Count, Is.EqualTo(2), "Should only have non-empty roles");
+
+        Assert.That(roleClaims, Has.Count.EqualTo(2), "Should only have non-empty roles");
     }
 
     [Test]
@@ -284,21 +285,25 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
-        
-        Assert.That(moduleClaims.Count, Is.EqualTo(2), "Should only have non-empty modules");
+
+        Assert.That(moduleClaims, Has.Count.EqualTo(2), "Should only have non-empty modules");
     }
 
     // Helper classes for testing properties that don't exist in base response
-    public record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId)
+    private record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId)
         : GenerateTokenResponse(Id, Name, Email);
 
-    public record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, IEnumerable<string> Roles)
+    private record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, IEnumerable<string> Roles)
         : GenerateTokenResponse(Id, Name, Email);
 
-    public record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, IEnumerable<string> Modules)
+    private record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, IEnumerable<string> Modules)
         : GenerateTokenResponse(Id, Name, Email);
 
-    public record GenerateTokenResponseWithRolesAndModules(
-        Guid Id, string Name, string Email, IEnumerable<string> Roles, IEnumerable<string> Modules)
+    private record GenerateTokenResponseWithRolesAndModules(
+        Guid Id,
+        string Name,
+        string Email,
+        IEnumerable<string> Roles,
+        IEnumerable<string> Modules)
         : GenerateTokenResponse(Id, Name, Email);
 }

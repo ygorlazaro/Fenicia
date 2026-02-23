@@ -12,7 +12,7 @@ public class ProjectService(IProjectRepository repository) : IProjectService
         {
             Owner = userId
         };
-        
+
         repository.Add(project);
 
         await repository.SaveChangesAsync(ct);

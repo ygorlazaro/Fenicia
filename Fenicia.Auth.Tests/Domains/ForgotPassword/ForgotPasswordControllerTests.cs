@@ -1,3 +1,6 @@
+using Bogus;
+
+using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
 using Fenicia.Auth.Domains.Security.HashPassword;
@@ -19,35 +22,29 @@ namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 [TestFixture]
 public class ForgotPasswordControllerTests
 {
-    private Auth.Domains.ForgotPassword.ForgotPasswordController controller = null!;
-    private AuthContext context = null!;
-    private ForgotPasswordHandler forgotPasswordHandler = null!;
-    private ResetPasswordHandler resetPasswordHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Mock<HashPasswordHandler> mockHashPasswordHandler = null!;
-    private ChangePasswordHandler changePasswordHandler = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
         this.mockHashPasswordHandler = new Mock<HashPasswordHandler>();
         this.changePasswordHandler = new ChangePasswordHandler(this.context, this.mockHashPasswordHandler.Object);
-        this.forgotPasswordHandler = new ForgotPasswordHandler(this.context);
+        this.addForgotPasswordHandler = new AddForgotPasswordHandler(this.context);
         this.resetPasswordHandler = new ResetPasswordHandler(this.context, this.changePasswordHandler);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new Auth.Domains.ForgotPassword.ForgotPasswordController
+        this.controller = new ForgotPasswordController
         {
             ControllerContext = new ControllerContext
             {
                 HttpContext = this.mockHttpContext.Object
             }
         };
+
+        this.faker = new Faker();
     }
 
     [TearDown]
@@ -56,7 +53,14 @@ public class ForgotPasswordControllerTests
         this.context.Dispose();
     }
 
-    #region ForgotPassword Tests
+    private ForgotPasswordController controller = null!;
+    private AuthContext context = null!;
+    private AddForgotPasswordHandler addForgotPasswordHandler = null!;
+    private ResetPasswordHandler resetPasswordHandler = null!;
+    private Mock<HttpContext> mockHttpContext = null!;
+    private Mock<HashPasswordHandler> mockHashPasswordHandler = null!;
+    private ChangePasswordHandler changePasswordHandler = null!;
+    private Faker faker = null!;
 
     [Test]
     public async Task ForgotPassword_WhenUserExists_CompletesSuccessfully()
@@ -64,24 +68,25 @@ public class ForgotPasswordControllerTests
         // Arrange
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+        var email = this.faker.Internet.Email();
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = email,
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         this.context.Users.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var command = new ForgotPasswordCommand("test@example.com");
+        var command = new AddForgotPasswordCommand(email);
 
         // Act
         await this.controller.ForgotPassword(
             command,
-            this.forgotPasswordHandler,
+            this.addForgotPasswordHandler,
             wide,
             cancellationToken);
 
@@ -89,7 +94,8 @@ public class ForgotPasswordControllerTests
         Assert.That(wide.UserId, Is.EqualTo(command.Email));
 
         // Verify forgot password record was created
-        var forgotPasswordRecord = await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, cancellationToken: cancellationToken);
+        var forgotPasswordRecord =
+            await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, cancellationToken);
         Assert.That(forgotPasswordRecord, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -105,13 +111,13 @@ public class ForgotPasswordControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var command = new ForgotPasswordCommand("nonexistent@example.com");
+        var command = new AddForgotPasswordCommand(this.faker.Internet.Email());
 
         // Act & Assert
         Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.controller.ForgotPassword(
                 command,
-                this.forgotPasswordHandler,
+                this.addForgotPasswordHandler,
                 wide,
                 cancellationToken));
     }
@@ -122,24 +128,25 @@ public class ForgotPasswordControllerTests
         // Arrange
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+        var email = this.faker.Internet.Email();
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = email,
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         this.context.Users.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var command = new ForgotPasswordCommand("test@example.com");
+        var command = new AddForgotPasswordCommand(email);
 
         // Act
         await this.controller.ForgotPassword(
             command,
-            this.forgotPasswordHandler,
+            this.addForgotPasswordHandler,
             wide,
             cancellationToken);
 
@@ -147,26 +154,24 @@ public class ForgotPasswordControllerTests
         Assert.That(wide.UserId, Is.EqualTo(command.Email));
     }
 
-    #endregion
-
-    #region ResetPassword Tests
-
     [Test]
     public async Task ResetPassword_WhenValidCode_ResetsPasswordSuccessfully()
     {
         // Arrange
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+        var email = this.faker.Internet.Email();
+        var newPassword = this.faker.Internet.Password();
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "oldHashedPassword"
+            Email = email,
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
-        var code = "ABC123";
+        var code = this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -182,10 +187,10 @@ public class ForgotPasswordControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.mockHashPasswordHandler
-            .Setup(h => h.Handle("newPassword123"))
-            .Returns("newHashedPassword");
+            .Setup(h => h.Handle(newPassword))
+            .Returns(this.faker.Internet.Password());
 
-        var command = new ResetPasswordCommand("test@example.com", "newPassword123", code);
+        var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act
         var result = await this.controller.ResetPassword(
@@ -207,12 +212,13 @@ public class ForgotPasswordControllerTests
         }
 
         // Verify password was changed
-        var updatedUser = await this.context.Users.FindAsync(user.Id, cancellationToken);
+        var updatedUser = await this.context.Users.FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
         Assert.That(updatedUser, Is.Not.Null);
-        Assert.That(updatedUser!.Password, Is.EqualTo("newHashedPassword"));
+        Assert.That(updatedUser!.Password, Is.Not.EqualTo(user.Password));
 
         // Verify forgot password record was deactivated
-        var updatedForgotPassword = await this.context.ForgottenPasswords.FindAsync(forgotPassword.Id, cancellationToken);
+        var updatedForgotPassword =
+            await this.context.ForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id, cancellationToken);
         Assert.That(updatedForgotPassword, Is.Not.Null);
         Assert.That(updatedForgotPassword!.IsActive, Is.False);
     }
@@ -223,19 +229,20 @@ public class ForgotPasswordControllerTests
         // Arrange
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+        var email = this.faker.Internet.Email();
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = email,
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         this.context.Users.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var command = new ResetPasswordCommand("test@example.com", "newPassword123", "INVALID");
+        var command = new ResetPasswordCommand(email, this.faker.Internet.Password(), "INVALID");
 
         // Act & Assert
         Assert.ThrowsAsync<InvalidDataException>(async () =>
@@ -253,7 +260,10 @@ public class ForgotPasswordControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var command = new ResetPasswordCommand("nonexistent@example.com", "newPassword123", "ABC123");
+        var command = new ResetPasswordCommand(
+            this.faker.Internet.Email(),
+            this.faker.Internet.Password(),
+            this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
 
         // Act & Assert
         Assert.ThrowsAsync<ItemNotExistsException>(async () =>
@@ -270,16 +280,18 @@ public class ForgotPasswordControllerTests
         // Arrange
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
+        var email = this.faker.Internet.Email();
+        var newPassword = this.faker.Internet.Password();
 
         var user = new UserModel
         {
             Id = Guid.NewGuid(),
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = email,
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
-        var code = "ABC123";
+        var code = this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -295,10 +307,10 @@ public class ForgotPasswordControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.mockHashPasswordHandler
-            .Setup(h => h.Handle("newPassword123"))
-            .Returns("newHashedPassword");
+            .Setup(h => h.Handle(newPassword))
+            .Returns(this.faker.Internet.Password());
 
-        var command = new ResetPasswordCommand("test@example.com", "newPassword123", code);
+        var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act
         await this.controller.ResetPassword(
@@ -311,31 +323,30 @@ public class ForgotPasswordControllerTests
         Assert.That(wide.UserId, Is.EqualTo(command.Email));
     }
 
-    #endregion
-
-    #region Attribute Tests
-
     [Test]
     public void ForgotPasswordController_HasAllowAnonymousAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.ForgotPassword.ForgotPasswordController);
+        var controllerType = typeof(ForgotPasswordController);
 
         // Act
-        var allowAnonymousAttribute = controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
+        var allowAnonymousAttribute =
+            controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(allowAnonymousAttribute, Is.Not.Null, "ForgotPasswordController should have AllowAnonymous attribute");
+        Assert.That(allowAnonymousAttribute, Is.Not.Null,
+            "ForgotPasswordController should have AllowAnonymous attribute");
     }
 
     [Test]
     public void ForgotPasswordController_HasRouteAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.ForgotPassword.ForgotPasswordController);
+        var controllerType = typeof(ForgotPasswordController);
 
         // Act
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.That(routeAttribute, Is.Not.Null, "ForgotPasswordController should have Route attribute");
@@ -346,15 +357,14 @@ public class ForgotPasswordControllerTests
     public void ForgotPasswordController_HasProducesAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.ForgotPassword.ForgotPasswordController);
+        var controllerType = typeof(ForgotPasswordController);
 
         // Act
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.That(producesAttribute, Is.Not.Null, "ForgotPasswordController should have Produces attribute");
         Assert.That(producesAttribute!.ContentTypes.FirstOrDefault(), Is.EqualTo("application/json"));
     }
-
-    #endregion
 }

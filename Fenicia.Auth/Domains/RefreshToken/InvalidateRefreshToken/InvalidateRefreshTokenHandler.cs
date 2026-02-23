@@ -8,7 +8,7 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
 {
     private const string RedisPrefix = "refresh_token:";
     private readonly IDatabase redisDb = redis.GetDatabase();
-    
+
     public async Task Handler(string refreshToken, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
@@ -18,17 +18,11 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
             var key = RedisPrefix + refreshToken;
             var value = await this.redisDb.StringGetAsync(key);
 
-            if (value.IsNullOrEmpty)
-            {
-                return;
-            }
+            if (value.IsNullOrEmpty) return;
 
             var tokenObj = JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)value!);
 
-            if (tokenObj == null)
-            {
-                return;
-            }
+            if (tokenObj == null) return;
 
             tokenObj.IsActive = false;
 
@@ -42,6 +36,7 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
         }
         catch
         {
+            // ignored
         }
     }
 }

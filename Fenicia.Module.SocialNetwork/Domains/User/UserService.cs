@@ -16,7 +16,7 @@ public class UserService(IUserRepository userRepository) : IUserService
 
         await userRepository.SaveChangesAsync(ct);
 
-        return new UserResponse(user) ;
+        return new UserResponse(user);
     }
 
     public async Task<UserResponse?> GetByIdAsync(Guid id, CancellationToken ct)

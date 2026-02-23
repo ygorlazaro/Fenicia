@@ -1,5 +1,9 @@
 using System.Security.Claims;
 
+using Bogus;
+using Bogus.Extensions.Brazil;
+
+using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Company.GetCompaniesByUser;
 using Fenicia.Auth.Domains.Company.UpdateCompany;
 using Fenicia.Common;
@@ -20,18 +24,11 @@ namespace Fenicia.Auth.Tests.Domains.Company;
 [TestFixture]
 public class CompanyControllerTests
 {
-    private Auth.Domains.Company.CompanyController controller = null!;
-    private AuthContext context = null!;
-    private GetCompaniesByUserHandler getCompaniesByUserHandler = null!;
-    private UpdateCompanyHandler updateCompanyHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testUserId;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -40,7 +37,7 @@ public class CompanyControllerTests
         this.updateCompanyHandler = new UpdateCompanyHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new Auth.Domains.Company.CompanyController
+        this.controller = new CompanyController
         {
             ControllerContext = new ControllerContext
             {
@@ -49,6 +46,7 @@ public class CompanyControllerTests
         };
 
         SetupUserClaims(this.testUserId);
+        this.faker = new Faker();
     }
 
     [TearDown]
@@ -56,6 +54,14 @@ public class CompanyControllerTests
     {
         this.context.Dispose();
     }
+
+    private CompanyController controller = null!;
+    private AuthContext context = null!;
+    private GetCompaniesByUserHandler getCompaniesByUserHandler = null!;
+    private UpdateCompanyHandler updateCompanyHandler = null!;
+    private Mock<HttpContext> mockHttpContext = null!;
+    private Guid testUserId;
+    private Faker faker = null!;
 
     private void SetupUserClaims(Guid userId)
     {
@@ -70,8 +76,6 @@ public class CompanyControllerTests
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
-
-    #region GetByLoggedUser Tests
 
     [Test]
     public async Task GetByLoggedUser_WhenUserHasNoCompanies_ReturnsOkWithEmptyPagination()
@@ -95,7 +99,7 @@ public class CompanyControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPagination = okResult.Value as Pagination<IEnumerable<CompanyListItemResponse>>;
+        var returnedPagination = okResult.Value as Pagination<IEnumerable<GetCompaniesByUserResponse>>;
         Assert.That(returnedPagination, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -115,8 +119,8 @@ public class CompanyControllerTests
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = "Test Company",
-            Cnpj = "12.345.678/0001-90",
+            Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Company.Cnpj(),
             IsActive = true,
             TimeZone = "UTC",
             Language = "pt-BR"
@@ -131,9 +135,9 @@ public class CompanyControllerTests
         var user = new UserModel
         {
             Id = this.testUserId,
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -168,13 +172,13 @@ public class CompanyControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPagination = okResult.Value as Pagination<IEnumerable<CompanyListItemResponse>>;
+        var returnedPagination = okResult.Value as Pagination<IEnumerable<GetCompaniesByUserResponse>>;
         Assert.That(returnedPagination, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedPagination!.Data.Count(), Is.EqualTo(1));
             Assert.That(returnedPagination.Total, Is.EqualTo(1));
-            Assert.That(returnedPagination.Data.First().Name, Is.EqualTo("Test Company"));
+            Assert.That(returnedPagination.Data.First().Name, Is.EqualTo(company.Name));
             Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
         }
     }
@@ -198,10 +202,6 @@ public class CompanyControllerTests
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
     }
 
-    #endregion
-
-    #region PatchAsync Tests
-
     [Test]
     public async Task PatchAsync_WhenUserIsAdminAndCompanyExists_ReturnsNoContent()
     {
@@ -214,8 +214,8 @@ public class CompanyControllerTests
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = "Original Company",
-            Cnpj = "12.345.678/0001-90",
+            Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Company.Cnpj(),
             IsActive = true,
             TimeZone = "UTC",
             Language = "pt-BR"
@@ -230,9 +230,9 @@ public class CompanyControllerTests
         var user = new UserModel
         {
             Id = this.testUserId,
-            Email = "admin@example.com",
-            Name = "Admin User",
-            Password = "hashedPassword"
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -249,7 +249,7 @@ public class CompanyControllerTests
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, "Updated Company", "America/Sao_Paulo");
+        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "America/Sao_Paulo");
 
         // Act
         var result = await this.controller.PatchAsync(
@@ -272,24 +272,24 @@ public class CompanyControllerTests
         }
 
         // Verify company was updated
-        var updatedCompany = await this.context.Companies.FindAsync(companyId);
+        var updatedCompany = await this.context.Companies.FirstOrDefaultAsync(c => c.Id == companyId, cancellationToken);
         Assert.That(updatedCompany, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(updatedCompany!.Name, Is.EqualTo("Updated Company"));
+            Assert.That(updatedCompany!.Name, Is.EqualTo(request.Name));
             Assert.That(updatedCompany.TimeZone, Is.EqualTo("America/Sao_Paulo"));
         }
     }
 
     [Test]
-    public async Task PatchAsync_WhenCompanyDoesNotExist_ThrowsItemNotExistsException()
+    public void PatchAsync_WhenCompanyDoesNotExist_ThrowsItemNotExistsException()
     {
         // Arrange
         var companyId = Guid.NewGuid();
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, "Updated Company", "UTC");
+        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
 
         // Act & Assert
         Assert.ThrowsAsync<ItemNotExistsException>(async () =>
@@ -313,8 +313,8 @@ public class CompanyControllerTests
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = "Test Company",
-            Cnpj = "12.345.678/0001-90",
+            Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Company.Cnpj(),
             IsActive = true,
             TimeZone = "UTC",
             Language = "pt-BR"
@@ -329,9 +329,9 @@ public class CompanyControllerTests
         var user = new UserModel
         {
             Id = this.testUserId,
-            Email = "member@example.com",
-            Name = "Member User",
-            Password = "hashedPassword"
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         var userRoleMapping = new UserRoleModel
@@ -348,7 +348,7 @@ public class CompanyControllerTests
         this.context.UserRoles.Add(userRoleMapping);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, "Updated Company", "UTC");
+        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
 
         // Act & Assert
         Assert.ThrowsAsync<PermissionDeniedException>(async () =>
@@ -372,8 +372,8 @@ public class CompanyControllerTests
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = "Test Company",
-            Cnpj = "12.345.678/0001-90",
+            Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Company.Cnpj(),
             IsActive = true,
             TimeZone = "UTC",
             Language = "pt-BR"
@@ -388,9 +388,9 @@ public class CompanyControllerTests
         var user = new UserModel
         {
             Id = this.testUserId,
-            Email = "admin@example.com",
-            Name = "Admin User",
-            Password = "hashedPassword"
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -407,7 +407,7 @@ public class CompanyControllerTests
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, "Updated Company", "UTC");
+        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
 
         // Act
         await this.controller.PatchAsync(
@@ -421,15 +421,11 @@ public class CompanyControllerTests
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
     }
 
-    #endregion
-
-    #region Attribute Tests
-
     [Test]
     public void CompanyController_HasAuthorizeAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Company.CompanyController);
+        var controllerType = typeof(CompanyController);
 
         // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -442,10 +438,11 @@ public class CompanyControllerTests
     public void CompanyController_HasRouteAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Company.CompanyController);
+        var controllerType = typeof(CompanyController);
 
         // Act
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.That(routeAttribute, Is.Not.Null, "CompanyController should have Route attribute");
@@ -456,10 +453,11 @@ public class CompanyControllerTests
     public void CompanyController_HasProducesAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Company.CompanyController);
+        var controllerType = typeof(CompanyController);
 
         // Act
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.That(producesAttribute, Is.Not.Null, "CompanyController should have Produces attribute");
@@ -470,16 +468,15 @@ public class CompanyControllerTests
     public void PatchAsync_HasAuthorizeRolesAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Company.CompanyController);
-        var methodInfo = controllerType.GetMethod(nameof(Auth.Domains.Company.CompanyController.PatchAsync));
+        var controllerType = typeof(CompanyController);
+        var methodInfo = controllerType.GetMethod(nameof(CompanyController.PatchAsync));
 
         // Act
-        var authorizeAttribute = methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute =
+            methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.That(authorizeAttribute, Is.Not.Null, "PatchAsync should have Authorize attribute");
         Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
     }
-
-    #endregion
 }

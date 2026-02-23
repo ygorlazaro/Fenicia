@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("users_roles")]
-public  class UserRoleModel : BaseModel
+public class UserRoleModel : BaseModel
 {
     [Required]
     [Column("user_id")]

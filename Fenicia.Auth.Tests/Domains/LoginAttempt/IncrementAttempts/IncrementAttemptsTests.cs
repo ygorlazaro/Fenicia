@@ -5,14 +5,11 @@ namespace Fenicia.Auth.Tests.Domains.LoginAttempt.IncrementAttempts;
 [TestFixture]
 public class IncrementAttemptsTests
 {
-    private IMemoryCache cache = null!;
-    private Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts.IncrementAttempts handler = null!;
-
     [SetUp]
     public void SetUp()
     {
         this.cache = new MemoryCache(new MemoryCacheOptions());
-        this.handler = new Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts.IncrementAttempts(this.cache);
+        this.handler = new Auth.Domains.LoginAttempt.IncrementAttempts.IncrementAttempts(this.cache);
     }
 
     [TearDown]
@@ -20,6 +17,9 @@ public class IncrementAttemptsTests
     {
         this.cache.Dispose();
     }
+
+    private IMemoryCache cache = null!;
+    private Auth.Domains.LoginAttempt.IncrementAttempts.IncrementAttempts handler = null!;
 
     [Test]
     public async Task Handle_WhenNoPreviousAttempts_SetsCountToOne()
@@ -79,7 +79,7 @@ public class IncrementAttemptsTests
     }
 
     [Test]
-    public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
+    public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
         Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handle(null!));

@@ -11,10 +11,6 @@ namespace Fenicia.Auth.Tests.Domains.RefreshToken.InvalidateRefreshToken;
 [TestFixture]
 public class InvalidateRefreshTokenHandlerTests
 {
-    private Mock<IConnectionMultiplexer> redisMock = null!;
-    private Mock<IDatabase> redisDbMock = null!;
-    private InvalidateRefreshTokenHandler handler = null!;
-
     [SetUp]
     public void SetUp()
     {
@@ -26,6 +22,10 @@ public class InvalidateRefreshTokenHandlerTests
 
         this.handler = new InvalidateRefreshTokenHandler(this.redisMock.Object);
     }
+
+    private Mock<IConnectionMultiplexer> redisMock = null!;
+    private Mock<IDatabase> redisDbMock = null!;
+    private InvalidateRefreshTokenHandler handler = null!;
 
     [Test]
     public async Task Handler_WhenTokenExists_SetsIsActiveToFalse()
@@ -58,7 +58,8 @@ public class InvalidateRefreshTokenHandlerTests
         this.redisDbMock.Verify(
             x => x.StringSetAsync(
                 It.Is<RedisKey>(k => k == key),
-                It.Is<RedisValue>(v => JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false),
+                It.Is<RedisValue>(v =>
+                    JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false),
                 It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)),
                 It.IsAny<When>(),
                 It.IsAny<CommandFlags>()
@@ -95,14 +96,14 @@ public class InvalidateRefreshTokenHandlerTests
     }
 
     [Test]
-    public async Task Handler_WhenTokenIsNull_ThrowsArgumentNullException()
+    public void Handler_WhenTokenIsNull_ThrowsArgumentNullException()
     {
         // Arrange
         string? refreshToken = null;
 
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await this.handler.Handler(refreshToken!, CancellationToken.None)
+        Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await this.handler.Handler(refreshToken!, CancellationToken.None)
         );
     }
 
@@ -162,7 +163,8 @@ public class InvalidateRefreshTokenHandlerTests
         this.redisDbMock.Verify(
             x => x.StringSetAsync(
                 It.Is<RedisKey>(k => k == key),
-                It.Is<RedisValue>(v => JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false),
+                It.Is<RedisValue>(v =>
+                    JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false),
                 It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)),
                 It.IsAny<When>(),
                 It.IsAny<CommandFlags>()
@@ -202,7 +204,8 @@ public class InvalidateRefreshTokenHandlerTests
         this.redisDbMock.Verify(
             x => x.StringSetAsync(
                 It.Is<RedisKey>(k => k == key),
-                It.Is<RedisValue>(v => JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false),
+                It.Is<RedisValue>(v =>
+                    JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false),
                 It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)),
                 It.IsAny<When>(),
                 It.IsAny<CommandFlags>()
@@ -251,10 +254,10 @@ public class InvalidateRefreshTokenHandlerTests
         );
     }
 
-    private static bool IsValidToken(RedisValue v, string refreshToken, Guid userId, DateTime  expirationDate)
+    private static bool IsValidToken(RedisValue v, string refreshToken, Guid userId, DateTime expirationDate)
     {
         var updatedToken = JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!);
-        
+
         return updatedToken?.Token == refreshToken
                && updatedToken.UserId == userId
                && updatedToken.ExpirationDate == expirationDate;

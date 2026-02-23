@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models.Project;
 
 [Table("users")]
-public  class UserModel : BaseModel
+public class UserModel : BaseModel
 {
     [Required]
     [EmailAddress]

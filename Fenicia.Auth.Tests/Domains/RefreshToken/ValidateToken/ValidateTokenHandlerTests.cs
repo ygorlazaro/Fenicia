@@ -11,10 +11,6 @@ namespace Fenicia.Auth.Tests.Domains.RefreshToken.ValidateToken;
 [TestFixture]
 public class ValidateTokenHandlerTests
 {
-    private Mock<IConnectionMultiplexer> redisMock = null!;
-    private Mock<IDatabase> redisDbMock = null!;
-    private ValidateTokenHandler handler = null!;
-
     [SetUp]
     public void SetUp()
     {
@@ -26,6 +22,10 @@ public class ValidateTokenHandlerTests
 
         this.handler = new ValidateTokenHandler(this.redisMock.Object);
     }
+
+    private Mock<IConnectionMultiplexer> redisMock = null!;
+    private Mock<IDatabase> redisDbMock = null!;
+    private ValidateTokenHandler handler = null!;
 
     [Test]
     public async Task Handle_WhenTokenIsValidAndActive_ReturnsTrue()
@@ -169,15 +169,14 @@ public class ValidateTokenHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenRefreshTokenIsNull_ThrowsArgumentNullException()
+    public void Handle_WhenRefreshTokenIsNull_ThrowsArgumentException()
     {
         // Arrange
         var userId = Guid.NewGuid();
         var query = new ValidateTokenQuery(userId, null!);
 
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentNullException>(
-            async () => await this.handler.Handle(query)
+        Assert.ThrowsAsync<ArgumentException>(async () => await this.handler.Handle(query)
         );
     }
 

@@ -5,5 +5,4 @@ namespace Fenicia.Module.Projects.Domains.Task;
 
 public interface ITaskRepository : IBaseRepository<TaskModel>
 {
-
 }

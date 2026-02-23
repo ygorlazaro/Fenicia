@@ -1,3 +1,6 @@
+using Bogus;
+
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.GetModules;
 using Fenicia.Common;
 using Fenicia.Common.API;
@@ -17,23 +20,19 @@ namespace Fenicia.Auth.Tests.Domains.Module;
 [TestFixture]
 public class ModuleControllerTests
 {
-    private Auth.Domains.Module.ModuleController controller = null!;
-    private AuthContext context = null!;
-    private GetModulesHandler getModulesHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
         this.getModulesHandler = new GetModulesHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
+        this.faker = new Faker();
 
-        this.controller = new Auth.Domains.Module.ModuleController
+        this.controller = new ModuleController
         {
             ControllerContext = new ControllerContext
             {
@@ -48,7 +47,11 @@ public class ModuleControllerTests
         this.context.Dispose();
     }
 
-    #region GetAllModulesAsync Tests
+    private ModuleController controller = null!;
+    private AuthContext context = null!;
+    private GetModulesHandler getModulesHandler = null!;
+    private Mock<HttpContext> mockHttpContext = null!;
+    private Faker faker = null!;
 
     [Test]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsOkWithEmptyPagination()
@@ -72,7 +75,7 @@ public class ModuleControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPagination = okResult.Value as Pagination<List<ModuleResponse>>;
+        var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.That(returnedPagination, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -89,7 +92,7 @@ public class ModuleControllerTests
         var module1 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Basic Module",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m
         };
@@ -97,7 +100,7 @@ public class ModuleControllerTests
         var module2 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Social Network",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.SocialNetwork,
             Price = 20.0m
         };
@@ -123,11 +126,11 @@ public class ModuleControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPagination = okResult.Value as Pagination<List<ModuleResponse>>;
+        var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.That(returnedPagination, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedPagination!.Data.Count, Is.EqualTo(2));
+            Assert.That(returnedPagination!.Data, Has.Count.EqualTo(2));
             Assert.That(returnedPagination.Total, Is.EqualTo(2));
             Assert.That(wide.UserId, Is.EqualTo("Guest"));
         }
@@ -140,7 +143,7 @@ public class ModuleControllerTests
         var erpModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "ERP",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Erp,
             Price = 100.0m
         };
@@ -148,7 +151,7 @@ public class ModuleControllerTests
         var authModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Auth",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Auth,
             Price = 50.0m
         };
@@ -156,7 +159,7 @@ public class ModuleControllerTests
         var basicModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Basic",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m
         };
@@ -182,12 +185,12 @@ public class ModuleControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPagination = okResult.Value as Pagination<List<ModuleResponse>>;
+        var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.That(returnedPagination, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedPagination!.Data.Count, Is.EqualTo(1));
-            Assert.That(returnedPagination.Data[0].Name, Is.EqualTo("Basic"));
+            Assert.That(returnedPagination!.Data, Has.Count.EqualTo(1));
+            Assert.That(returnedPagination.Data[0].Name, Is.EqualTo(basicModule.Name));
         }
     }
 
@@ -215,12 +218,12 @@ public class ModuleControllerTests
     {
         // Arrange
         var modules = new List<ModuleModel>();
-        for (int i = 0; i < 25; i++)
+        for (var i = 0; i < 25; i++)
         {
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                Name = $"Module {i}",
+                Name = $"Module {this.faker.Commerce.ProductName()} {i}",
                 Type = (ModuleType)(i % 10 + 1),
                 Price = 10.0m
             });
@@ -247,26 +250,22 @@ public class ModuleControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPagination = okResult.Value as Pagination<List<ModuleResponse>>;
+        var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.That(returnedPagination, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedPagination!.Data.Count, Is.EqualTo(10));
+            Assert.That(returnedPagination!.Data, Has.Count.EqualTo(10));
             Assert.That(returnedPagination.Total, Is.EqualTo(25));
             Assert.That(returnedPagination.Page, Is.EqualTo(2));
             Assert.That(returnedPagination.PerPage, Is.EqualTo(10));
         }
     }
 
-    #endregion
-
-    #region Attribute Tests
-
     [Test]
     public void ModuleController_HasAuthorizeAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Module.ModuleController);
+        var controllerType = typeof(ModuleController);
 
         // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -279,10 +278,11 @@ public class ModuleControllerTests
     public void ModuleController_HasRouteAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Module.ModuleController);
+        var controllerType = typeof(ModuleController);
 
         // Act
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.That(routeAttribute, Is.Not.Null, "ModuleController should have Route attribute");
@@ -293,10 +293,11 @@ public class ModuleControllerTests
     public void ModuleController_HasProducesAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Module.ModuleController);
+        var controllerType = typeof(ModuleController);
 
         // Act
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.That(producesAttribute, Is.Not.Null, "ModuleController should have Produces attribute");
@@ -307,15 +308,14 @@ public class ModuleControllerTests
     public void GetAllModulesAsync_HasAllowAnonymousAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Module.ModuleController);
-        var methodInfo = controllerType.GetMethod(nameof(Auth.Domains.Module.ModuleController.GetAllModulesAsync));
+        var controllerType = typeof(ModuleController);
+        var methodInfo = controllerType.GetMethod(nameof(ModuleController.GetAllModulesAsync));
 
         // Act
-        var allowAnonymousAttribute = methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
+        var allowAnonymousAttribute =
+            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.That(allowAnonymousAttribute, Is.Not.Null, "GetAllModulesAsync should have AllowAnonymous attribute");
     }
-
-    #endregion
 }

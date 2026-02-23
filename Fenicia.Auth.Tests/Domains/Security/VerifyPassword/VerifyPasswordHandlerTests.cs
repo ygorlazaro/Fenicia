@@ -1,3 +1,5 @@
+using Bogus;
+
 using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.Security.VerifyPassword;
 
@@ -6,21 +8,23 @@ namespace Fenicia.Auth.Tests.Domains.Security.VerifyPassword;
 [TestFixture]
 public class VerifyPasswordHandlerTests
 {
-    private VerifyPasswordHandler handler = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-
     [SetUp]
     public void SetUp()
     {
+        this.faker = new Faker();
         this.handler = new VerifyPasswordHandler();
         this.hashPasswordHandler = new HashPasswordHandler();
     }
+
+    private Faker faker = null!;
+    private VerifyPasswordHandler handler = null!;
+    private HashPasswordHandler hashPasswordHandler = null!;
 
     [Test]
     public void Handle_WhenPasswordMatchesHash_ReturnsTrue()
     {
         // Arrange
-        var password = "SecurePassword123!";
+        var password = this.faker.Internet.Password();
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
@@ -34,8 +38,8 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenPasswordDoesNotMatchHash_ReturnsFalse()
     {
         // Arrange
-        var password = "SecurePassword123!";
-        var wrongPassword = "WrongPassword456!";
+        var password = this.faker.Internet.Password();
+        var wrongPassword = this.faker.Internet.Password();
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
@@ -49,7 +53,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenPasswordIsNull_ReturnsFalse()
     {
         // Arrange
-        var hashedPassword = this.hashPasswordHandler.Handle("SomePassword");
+        var hashedPassword = this.hashPasswordHandler.Handle(this.faker.Internet.Password());
 
         // Act
         var result = this.handler.Handle(null!, hashedPassword);
@@ -62,7 +66,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenHashedPasswordIsNull_ReturnsFalse()
     {
         // Arrange
-        var password = "SecurePassword123!";
+        var password = this.faker.Internet.Password();
 
         // Act
         var result = this.handler.Handle(password, null!);
@@ -85,7 +89,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenPasswordIsEmpty_ReturnsFalse()
     {
         // Arrange
-        var hashedPassword = this.hashPasswordHandler.Handle("SomePassword");
+        var hashedPassword = this.hashPasswordHandler.Handle(this.faker.Internet.Password());
 
         // Act
         var result = this.handler.Handle(string.Empty, hashedPassword);
@@ -98,7 +102,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenHashedPasswordIsEmpty_ReturnsFalse()
     {
         // Arrange
-        var password = "SecurePassword123!";
+        var password = this.faker.Internet.Password();
 
         // Act
         var result = this.handler.Handle(password, string.Empty);
@@ -111,8 +115,8 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenPasswordHasDifferentCase_ReturnsFalse()
     {
         // Arrange
-        var password = "SecurePassword123!";
-        var wrongCasePassword = "securepassword123!";
+        var password = this.faker.Internet.Password();
+        var wrongCasePassword = password.ToLowerInvariant();
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
@@ -126,8 +130,8 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenHashIsInvalidFormat_ReturnsFalse()
     {
         // Arrange
-        var password = "SecurePassword123!";
-        var invalidHash = "invalid_hash_format";
+        var password = this.faker.Internet.Password();
+        var invalidHash = this.faker.Lorem.Word();
 
         // Act
         var result = this.handler.Handle(password, invalidHash);
@@ -140,7 +144,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenPasswordContainsSpecialCharacters_VerifiesCorrectly()
     {
         // Arrange
-        var password = "P@$$w0rd!#$%^&*()_+";
+        var password = $"P@$$w0rd!{this.faker.Random.AlphaNumeric(10)}";
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
@@ -154,7 +158,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenPasswordIsVeryLong_VerifiesCorrectly()
     {
         // Arrange
-        var password = new string('a', 1000);
+        var password = this.faker.Lorem.Paragraphs(3);
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
@@ -168,7 +172,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenPasswordIsShort_VerifiesCorrectly()
     {
         // Arrange
-        var password = "a";
+        var password = this.faker.Random.Char().ToString();
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
@@ -182,7 +186,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenPasswordContainsUnicode_VerifiesCorrectly()
     {
         // Arrange
-        var password = "Password 日本語 🔐";
+        var password = $"{this.faker.Internet.Password()} 日本語 🔐";
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
@@ -196,8 +200,8 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenDifferentPasswordsProduceDifferentHashes()
     {
         // Arrange
-        var password1 = "Password1";
-        var password2 = "Password2";
+        var password1 = this.faker.Internet.Password();
+        var password2 = this.faker.Internet.Password();
         var hash1 = this.hashPasswordHandler.Handle(password1);
         var hash2 = this.hashPasswordHandler.Handle(password2);
 
