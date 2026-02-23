@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security.HashPassword;
+using Fenicia.Auth.Domains.Security.VerifyPassword;
 using Fenicia.Auth.Domains.User.ChangePassword;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -12,16 +13,11 @@ namespace Fenicia.Auth.Tests.Domains.User.ChangePassword;
 [TestFixture]
 public class ChangePasswordHandlerTests
 {
-    private AuthContext context = null!;
-    private ChangePasswordHandler handler = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -35,6 +31,11 @@ public class ChangePasswordHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private ChangePasswordHandler handler = null!;
+    private HashPasswordHandler hashPasswordHandler = null!;
+    private Faker faker = null!;
 
     [Test]
     public async Task Handle_WhenUserExists_ChangesPasswordSuccessfully()
@@ -75,7 +76,7 @@ public class ChangePasswordHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenUserDoesNotExist_ThrowsArgumentException()
+    public void Handle_WhenUserDoesNotExist_ThrowsArgumentException()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -83,8 +84,8 @@ public class ChangePasswordHandlerTests
         var query = new ChangePasswordQuery(userId, newPassword);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ArgumentException>(
-            async () => await this.handler.Handle(query, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.handler.Handle(query, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Item not found"));
     }
@@ -118,7 +119,8 @@ public class ChangePasswordHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(updatedUser!.Password, Is.Not.EqualTo(newPassword), "Password should be hashed");
-            Assert.That(updatedUser.Password.Length, Is.GreaterThan(newPassword.Length), "Hashed password should be longer");
+            Assert.That(updatedUser.Password.Length, Is.GreaterThan(newPassword.Length),
+                "Hashed password should be longer");
         }
     }
 
@@ -148,8 +150,8 @@ public class ChangePasswordHandlerTests
         // Assert
         var updatedUser = await this.context.Users.FindAsync(userId);
         Assert.That(updatedUser, Is.Not.Null);
-        
-        var verifyHandler = new Fenicia.Auth.Domains.Security.VerifyPassword.VerifyPasswordHandler();
+
+        var verifyHandler = new VerifyPasswordHandler();
         var isValid = verifyHandler.Handle(newPassword, updatedUser!.Password);
         Assert.That(isValid, Is.True, "New password should be verifiable");
     }
@@ -235,7 +237,7 @@ public class ChangePasswordHandlerTests
     }
 
     [Test]
-    public async Task Handle_WithEmptyDatabase_ThrowsArgumentException()
+    public void Handle_WithEmptyDatabase_ThrowsArgumentException()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -243,8 +245,8 @@ public class ChangePasswordHandlerTests
         var query = new ChangePasswordQuery(userId, newPassword);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ArgumentException>(
-            async () => await this.handler.Handle(query, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.handler.Handle(query, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Item not found"));
     }
@@ -270,8 +272,8 @@ public class ChangePasswordHandlerTests
         var query = new ChangePasswordQuery(userId, newPassword);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ArgumentException>(
-            async () => await this.handler.Handle(query, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.handler.Handle(query, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Invalid password"));
     }

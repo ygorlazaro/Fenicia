@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace Fenicia.Auth.Domains.Company.UpdateCompany;
 
-public sealed class UpdateCompanyValidator: AbstractValidator<UpdateCompanyCommand>
+public sealed class UpdateCompanyValidator : AbstractValidator<UpdateCompanyCommand>
 {
     public UpdateCompanyValidator()
     {

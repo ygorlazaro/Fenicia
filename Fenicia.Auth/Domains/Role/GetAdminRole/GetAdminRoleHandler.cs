@@ -11,5 +11,5 @@ public class GetAdminRoleHandler(AuthContext context)
         return await context.Roles.Where(role => role.Name == "Admin")
             .Select(r => new GetAdminRoleResponse(r.Id, r.Name))
             .FirstOrDefaultAsync(ct);
-    }   
+    }
 }

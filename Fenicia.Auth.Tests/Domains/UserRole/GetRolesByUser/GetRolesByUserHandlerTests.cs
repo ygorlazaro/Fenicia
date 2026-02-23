@@ -1,5 +1,3 @@
-using Bogus;
-
 using Fenicia.Auth.Domains.UserRole.GetRolesByUser;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -11,20 +9,15 @@ namespace Fenicia.Auth.Tests.Domains.UserRole.GetRolesByUser;
 [TestFixture]
 public class GetRolesByUserHandlerTests
 {
-    private AuthContext context = null!;
-    private GetRolesByUserHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
         this.handler = new GetRolesByUserHandler(this.context);
-        this.faker = new Faker();
     }
 
     [TearDown]
@@ -32,6 +25,9 @@ public class GetRolesByUserHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private GetRolesByUserHandler handler = null!;
 
     [Test]
     public async Task Handler_WhenUserHasRoles_ReturnsRoles()

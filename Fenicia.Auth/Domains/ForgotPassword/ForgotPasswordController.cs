@@ -20,8 +20,8 @@ public class ForgotPasswordController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task ForgotPassword(
-        [FromBody] ForgotPasswordCommand reset,
-        [FromServices] ForgotPasswordHandler handler,
+        [FromBody] AddForgotPasswordCommand reset,
+        [FromServices] AddForgotPasswordHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {

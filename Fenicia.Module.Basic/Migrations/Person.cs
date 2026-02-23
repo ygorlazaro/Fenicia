@@ -1,608 +1,607 @@
-using Microsoft.EntityFrameworkCore.Migrations;
-
 #nullable disable
 
-namespace Fenicia.Module.Basic.Migrations
+using Microsoft.EntityFrameworkCore.Migrations;
+
+namespace Fenicia.Module.Basic.Migrations;
+
+/// <inheritdoc />
+public partial class Person : Migration
 {
     /// <inheritdoc />
-    public partial class Person : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "fk_customers_states_state_id",
-                table: "customers");
-
-            migrationBuilder.DropForeignKey(
-                name: "fk_employees_states_state_id",
-                table: "employees");
-
-            migrationBuilder.DropForeignKey(
-                name: "fk_suppliers_states_state_id",
-                table: "suppliers");
-
-            migrationBuilder.DropIndex(
-                name: "ix_employees_state_id",
-                table: "employees");
-
-            migrationBuilder.DropIndex(
-                name: "ix_customers_state_id",
-                table: "customers");
-
-            migrationBuilder.DropColumn(
-                name: "city",
-                table: "suppliers");
-
-            migrationBuilder.DropColumn(
-                name: "complement",
-                table: "suppliers");
-
-            migrationBuilder.DropColumn(
-                name: "name",
-                table: "suppliers");
-
-            migrationBuilder.DropColumn(
-                name: "neighborhood",
-                table: "suppliers");
-
-            migrationBuilder.DropColumn(
-                name: "number",
-                table: "suppliers");
-
-            migrationBuilder.DropColumn(
-                name: "street",
-                table: "suppliers");
-
-            migrationBuilder.DropColumn(
-                name: "zip_code",
-                table: "suppliers");
-
-            migrationBuilder.DropColumn(
-                name: "city",
-                table: "employees");
-
-            migrationBuilder.DropColumn(
-                name: "complement",
-                table: "employees");
-
-            migrationBuilder.DropColumn(
-                name: "cpf",
-                table: "employees");
-
-            migrationBuilder.DropColumn(
-                name: "name",
-                table: "employees");
-
-            migrationBuilder.DropColumn(
-                name: "neighborhood",
-                table: "employees");
-
-            migrationBuilder.DropColumn(
-                name: "number",
-                table: "employees");
-
-            migrationBuilder.DropColumn(
-                name: "street",
-                table: "employees");
-
-            migrationBuilder.DropColumn(
-                name: "zip_code",
-                table: "employees");
-
-            migrationBuilder.DropColumn(
-                name: "city",
-                table: "customers");
-
-            migrationBuilder.DropColumn(
-                name: "complement",
-                table: "customers");
-
-            migrationBuilder.DropColumn(
-                name: "cpf",
-                table: "customers");
-
-            migrationBuilder.DropColumn(
-                name: "name",
-                table: "customers");
-
-            migrationBuilder.DropColumn(
-                name: "neighborhood",
-                table: "customers");
-
-            migrationBuilder.DropColumn(
-                name: "number",
-                table: "customers");
-
-            migrationBuilder.DropColumn(
-                name: "street",
-                table: "customers");
-
-            migrationBuilder.DropColumn(
-                name: "zip_code",
-                table: "customers");
-
-            migrationBuilder.RenameColumn(
-                name: "state_id",
-                table: "suppliers",
-                newName: "person_id");
-
-            migrationBuilder.RenameColumn(
-                name: "cpf",
-                table: "suppliers",
-                newName: "cnpj");
-
-            migrationBuilder.RenameIndex(
-                name: "ix_suppliers_state_id",
-                table: "suppliers",
-                newName: "ix_suppliers_person_id");
-
-            migrationBuilder.RenameColumn(
-                name: "selling_price",
-                table: "products",
-                newName: "sales_price");
-
-            migrationBuilder.RenameColumn(
-                name: "state_id",
-                table: "employees",
-                newName: "person_id");
-
-            migrationBuilder.RenameColumn(
-                name: "state_id",
-                table: "customers",
-                newName: "person_id");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "state_model_id",
-                table: "suppliers",
-                type: "uuid",
-                nullable: true);
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "cost_price",
-                table: "products",
-                type: "numeric",
-                nullable: true,
-                oldClrType: typeof(decimal),
-                oldType: "numeric");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "state_model_id",
-                table: "employees",
-                type: "uuid",
-                nullable: true);
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "state_model_id",
-                table: "customers",
-                type: "uuid",
-                nullable: true);
-
-            migrationBuilder.CreateTable(
-                name: "people",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    cpf = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: true),
-                    street = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    number = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    complement = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    neighborhood = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    zip_code = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
-                    state_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    city = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_people", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_people_states_state_id",
-                        column: x => x.state_id,
-                        principalTable: "states",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "ix_suppliers_state_model_id",
-                table: "suppliers",
-                column: "state_model_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_employees_person_id",
-                table: "employees",
-                column: "person_id",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "ix_employees_state_model_id",
-                table: "employees",
-                column: "state_model_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_customers_person_id",
-                table: "customers",
-                column: "person_id",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "ix_customers_state_model_id",
-                table: "customers",
-                column: "state_model_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_people_state_id",
-                table: "people",
-                column: "state_id");
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_customers_people_person_id",
-                table: "customers",
-                column: "person_id",
-                principalTable: "people",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_customers_states_state_model_id",
-                table: "customers",
-                column: "state_model_id",
-                principalTable: "states",
-                principalColumn: "id");
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_employees_people_person_id",
-                table: "employees",
-                column: "person_id",
-                principalTable: "people",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_employees_states_state_model_id",
-                table: "employees",
-                column: "state_model_id",
-                principalTable: "states",
-                principalColumn: "id");
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_suppliers_people_person_id",
-                table: "suppliers",
-                column: "person_id",
-                principalTable: "people",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_suppliers_states_state_model_id",
-                table: "suppliers",
-                column: "state_model_id",
-                principalTable: "states",
-                principalColumn: "id");
-        }
-
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropForeignKey(
-                name: "fk_customers_people_person_id",
-                table: "customers");
-
-            migrationBuilder.DropForeignKey(
-                name: "fk_customers_states_state_model_id",
-                table: "customers");
-
-            migrationBuilder.DropForeignKey(
-                name: "fk_employees_people_person_id",
-                table: "employees");
-
-            migrationBuilder.DropForeignKey(
-                name: "fk_employees_states_state_model_id",
-                table: "employees");
-
-            migrationBuilder.DropForeignKey(
-                name: "fk_suppliers_people_person_id",
-                table: "suppliers");
-
-            migrationBuilder.DropForeignKey(
-                name: "fk_suppliers_states_state_model_id",
-                table: "suppliers");
-
-            migrationBuilder.DropTable(
-                name: "people");
-
-            migrationBuilder.DropIndex(
-                name: "ix_suppliers_state_model_id",
-                table: "suppliers");
-
-            migrationBuilder.DropIndex(
-                name: "ix_employees_person_id",
-                table: "employees");
-
-            migrationBuilder.DropIndex(
-                name: "ix_employees_state_model_id",
-                table: "employees");
-
-            migrationBuilder.DropIndex(
-                name: "ix_customers_person_id",
-                table: "customers");
-
-            migrationBuilder.DropIndex(
-                name: "ix_customers_state_model_id",
-                table: "customers");
-
-            migrationBuilder.DropColumn(
-                name: "state_model_id",
-                table: "suppliers");
-
-            migrationBuilder.DropColumn(
-                name: "state_model_id",
-                table: "employees");
-
-            migrationBuilder.DropColumn(
-                name: "state_model_id",
-                table: "customers");
-
-            migrationBuilder.RenameColumn(
-                name: "person_id",
-                table: "suppliers",
-                newName: "state_id");
-
-            migrationBuilder.RenameColumn(
-                name: "cnpj",
-                table: "suppliers",
-                newName: "cpf");
-
-            migrationBuilder.RenameIndex(
-                name: "ix_suppliers_person_id",
-                table: "suppliers",
-                newName: "ix_suppliers_state_id");
-
-            migrationBuilder.RenameColumn(
-                name: "sales_price",
-                table: "products",
-                newName: "selling_price");
-
-            migrationBuilder.RenameColumn(
-                name: "person_id",
-                table: "employees",
-                newName: "state_id");
-
-            migrationBuilder.RenameColumn(
-                name: "person_id",
-                table: "customers",
-                newName: "state_id");
-
-            migrationBuilder.AddColumn<string>(
-                name: "city",
-                table: "suppliers",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "complement",
-                table: "suppliers",
-                type: "character varying(10)",
-                maxLength: 10,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "name",
-                table: "suppliers",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "neighborhood",
-                table: "suppliers",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "number",
-                table: "suppliers",
-                type: "character varying(10)",
-                maxLength: 10,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "street",
-                table: "suppliers",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "zip_code",
-                table: "suppliers",
-                type: "character varying(9)",
-                maxLength: 9,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AlterColumn<decimal>(
-                name: "cost_price",
-                table: "products",
-                type: "numeric",
-                nullable: false,
-                defaultValue: 0m,
-                oldClrType: typeof(decimal),
-                oldType: "numeric",
-                oldNullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "city",
-                table: "employees",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "complement",
-                table: "employees",
-                type: "character varying(10)",
-                maxLength: 10,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "cpf",
-                table: "employees",
-                type: "character varying(14)",
-                maxLength: 14,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "name",
-                table: "employees",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "neighborhood",
-                table: "employees",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "number",
-                table: "employees",
-                type: "character varying(10)",
-                maxLength: 10,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "street",
-                table: "employees",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "zip_code",
-                table: "employees",
-                type: "character varying(9)",
-                maxLength: 9,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "city",
-                table: "customers",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "complement",
-                table: "customers",
-                type: "character varying(10)",
-                maxLength: 10,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "cpf",
-                table: "customers",
-                type: "character varying(14)",
-                maxLength: 14,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "name",
-                table: "customers",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "neighborhood",
-                table: "customers",
-                type: "character varying(50)",
-                maxLength: 50,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "number",
-                table: "customers",
-                type: "character varying(10)",
-                maxLength: 10,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "street",
-                table: "customers",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "zip_code",
-                table: "customers",
-                type: "character varying(9)",
-                maxLength: 9,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_employees_state_id",
-                table: "employees",
-                column: "state_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_customers_state_id",
-                table: "customers",
-                column: "state_id");
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_customers_states_state_id",
-                table: "customers",
-                column: "state_id",
-                principalTable: "states",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_employees_states_state_id",
-                table: "employees",
-                column: "state_id",
-                principalTable: "states",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "fk_suppliers_states_state_id",
-                table: "suppliers",
-                column: "state_id",
-                principalTable: "states",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
-        }
+        migrationBuilder.DropForeignKey(
+            "fk_customers_states_state_id",
+            "customers");
+
+        migrationBuilder.DropForeignKey(
+            "fk_employees_states_state_id",
+            "employees");
+
+        migrationBuilder.DropForeignKey(
+            "fk_suppliers_states_state_id",
+            "suppliers");
+
+        migrationBuilder.DropIndex(
+            "ix_employees_state_id",
+            "employees");
+
+        migrationBuilder.DropIndex(
+            "ix_customers_state_id",
+            "customers");
+
+        migrationBuilder.DropColumn(
+            "city",
+            "suppliers");
+
+        migrationBuilder.DropColumn(
+            "complement",
+            "suppliers");
+
+        migrationBuilder.DropColumn(
+            "name",
+            "suppliers");
+
+        migrationBuilder.DropColumn(
+            "neighborhood",
+            "suppliers");
+
+        migrationBuilder.DropColumn(
+            "number",
+            "suppliers");
+
+        migrationBuilder.DropColumn(
+            "street",
+            "suppliers");
+
+        migrationBuilder.DropColumn(
+            "zip_code",
+            "suppliers");
+
+        migrationBuilder.DropColumn(
+            "city",
+            "employees");
+
+        migrationBuilder.DropColumn(
+            "complement",
+            "employees");
+
+        migrationBuilder.DropColumn(
+            "cpf",
+            "employees");
+
+        migrationBuilder.DropColumn(
+            "name",
+            "employees");
+
+        migrationBuilder.DropColumn(
+            "neighborhood",
+            "employees");
+
+        migrationBuilder.DropColumn(
+            "number",
+            "employees");
+
+        migrationBuilder.DropColumn(
+            "street",
+            "employees");
+
+        migrationBuilder.DropColumn(
+            "zip_code",
+            "employees");
+
+        migrationBuilder.DropColumn(
+            "city",
+            "customers");
+
+        migrationBuilder.DropColumn(
+            "complement",
+            "customers");
+
+        migrationBuilder.DropColumn(
+            "cpf",
+            "customers");
+
+        migrationBuilder.DropColumn(
+            "name",
+            "customers");
+
+        migrationBuilder.DropColumn(
+            "neighborhood",
+            "customers");
+
+        migrationBuilder.DropColumn(
+            "number",
+            "customers");
+
+        migrationBuilder.DropColumn(
+            "street",
+            "customers");
+
+        migrationBuilder.DropColumn(
+            "zip_code",
+            "customers");
+
+        migrationBuilder.RenameColumn(
+            "state_id",
+            "suppliers",
+            "person_id");
+
+        migrationBuilder.RenameColumn(
+            "cpf",
+            "suppliers",
+            "cnpj");
+
+        migrationBuilder.RenameIndex(
+            "ix_suppliers_state_id",
+            table: "suppliers",
+            newName: "ix_suppliers_person_id");
+
+        migrationBuilder.RenameColumn(
+            "selling_price",
+            "products",
+            "sales_price");
+
+        migrationBuilder.RenameColumn(
+            "state_id",
+            "employees",
+            "person_id");
+
+        migrationBuilder.RenameColumn(
+            "state_id",
+            "customers",
+            "person_id");
+
+        migrationBuilder.AddColumn<Guid>(
+            "state_model_id",
+            "suppliers",
+            "uuid",
+            nullable: true);
+
+        migrationBuilder.AlterColumn<decimal>(
+            "cost_price",
+            "products",
+            "numeric",
+            nullable: true,
+            oldClrType: typeof(decimal),
+            oldType: "numeric");
+
+        migrationBuilder.AddColumn<Guid>(
+            "state_model_id",
+            "employees",
+            "uuid",
+            nullable: true);
+
+        migrationBuilder.AddColumn<Guid>(
+            "state_model_id",
+            "customers",
+            "uuid",
+            nullable: true);
+
+        migrationBuilder.CreateTable(
+            "people",
+            table => new
+            {
+                id = table.Column<Guid>("uuid", nullable: false),
+                name = table.Column<string>("character varying(50)", maxLength: 50, nullable: false),
+                cpf = table.Column<string>("character varying(14)", maxLength: 14, nullable: true),
+                street = table.Column<string>("character varying(100)", maxLength: 100, nullable: false),
+                number = table.Column<string>("character varying(10)", maxLength: 10, nullable: false),
+                complement = table.Column<string>("character varying(10)", maxLength: 10, nullable: false),
+                neighborhood = table.Column<string>("character varying(50)", maxLength: 50, nullable: false),
+                zip_code = table.Column<string>("character varying(8)", maxLength: 8, nullable: false),
+                state_id = table.Column<Guid>("uuid", nullable: false),
+                city = table.Column<string>("character varying(50)", maxLength: 50, nullable: false),
+                phone_number = table.Column<string>("character varying(20)", maxLength: 20, nullable: false),
+                created = table.Column<DateTime>("timestamp with time zone", nullable: false),
+                updated = table.Column<DateTime>("timestamp with time zone", nullable: true),
+                deleted = table.Column<DateTime>("timestamp with time zone", nullable: true)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("pk_people", x => x.id);
+                table.ForeignKey(
+                    "fk_people_states_state_id",
+                    x => x.state_id,
+                    "states",
+                    "id",
+                    onDelete: ReferentialAction.Cascade);
+            });
+
+        migrationBuilder.CreateIndex(
+            "ix_suppliers_state_model_id",
+            "suppliers",
+            "state_model_id");
+
+        migrationBuilder.CreateIndex(
+            "ix_employees_person_id",
+            "employees",
+            "person_id",
+            unique: true);
+
+        migrationBuilder.CreateIndex(
+            "ix_employees_state_model_id",
+            "employees",
+            "state_model_id");
+
+        migrationBuilder.CreateIndex(
+            "ix_customers_person_id",
+            "customers",
+            "person_id",
+            unique: true);
+
+        migrationBuilder.CreateIndex(
+            "ix_customers_state_model_id",
+            "customers",
+            "state_model_id");
+
+        migrationBuilder.CreateIndex(
+            "ix_people_state_id",
+            "people",
+            "state_id");
+
+        migrationBuilder.AddForeignKey(
+            "fk_customers_people_person_id",
+            "customers",
+            "person_id",
+            "people",
+            principalColumn: "id",
+            onDelete: ReferentialAction.Cascade);
+
+        migrationBuilder.AddForeignKey(
+            "fk_customers_states_state_model_id",
+            "customers",
+            "state_model_id",
+            "states",
+            principalColumn: "id");
+
+        migrationBuilder.AddForeignKey(
+            "fk_employees_people_person_id",
+            "employees",
+            "person_id",
+            "people",
+            principalColumn: "id",
+            onDelete: ReferentialAction.Cascade);
+
+        migrationBuilder.AddForeignKey(
+            "fk_employees_states_state_model_id",
+            "employees",
+            "state_model_id",
+            "states",
+            principalColumn: "id");
+
+        migrationBuilder.AddForeignKey(
+            "fk_suppliers_people_person_id",
+            "suppliers",
+            "person_id",
+            "people",
+            principalColumn: "id",
+            onDelete: ReferentialAction.Cascade);
+
+        migrationBuilder.AddForeignKey(
+            "fk_suppliers_states_state_model_id",
+            "suppliers",
+            "state_model_id",
+            "states",
+            principalColumn: "id");
+    }
+
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.DropForeignKey(
+            "fk_customers_people_person_id",
+            "customers");
+
+        migrationBuilder.DropForeignKey(
+            "fk_customers_states_state_model_id",
+            "customers");
+
+        migrationBuilder.DropForeignKey(
+            "fk_employees_people_person_id",
+            "employees");
+
+        migrationBuilder.DropForeignKey(
+            "fk_employees_states_state_model_id",
+            "employees");
+
+        migrationBuilder.DropForeignKey(
+            "fk_suppliers_people_person_id",
+            "suppliers");
+
+        migrationBuilder.DropForeignKey(
+            "fk_suppliers_states_state_model_id",
+            "suppliers");
+
+        migrationBuilder.DropTable(
+            "people");
+
+        migrationBuilder.DropIndex(
+            "ix_suppliers_state_model_id",
+            "suppliers");
+
+        migrationBuilder.DropIndex(
+            "ix_employees_person_id",
+            "employees");
+
+        migrationBuilder.DropIndex(
+            "ix_employees_state_model_id",
+            "employees");
+
+        migrationBuilder.DropIndex(
+            "ix_customers_person_id",
+            "customers");
+
+        migrationBuilder.DropIndex(
+            "ix_customers_state_model_id",
+            "customers");
+
+        migrationBuilder.DropColumn(
+            "state_model_id",
+            "suppliers");
+
+        migrationBuilder.DropColumn(
+            "state_model_id",
+            "employees");
+
+        migrationBuilder.DropColumn(
+            "state_model_id",
+            "customers");
+
+        migrationBuilder.RenameColumn(
+            "person_id",
+            "suppliers",
+            "state_id");
+
+        migrationBuilder.RenameColumn(
+            "cnpj",
+            "suppliers",
+            "cpf");
+
+        migrationBuilder.RenameIndex(
+            "ix_suppliers_person_id",
+            table: "suppliers",
+            newName: "ix_suppliers_state_id");
+
+        migrationBuilder.RenameColumn(
+            "sales_price",
+            "products",
+            "selling_price");
+
+        migrationBuilder.RenameColumn(
+            "person_id",
+            "employees",
+            "state_id");
+
+        migrationBuilder.RenameColumn(
+            "person_id",
+            "customers",
+            "state_id");
+
+        migrationBuilder.AddColumn<string>(
+            "city",
+            "suppliers",
+            "character varying(50)",
+            maxLength: 50,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "complement",
+            "suppliers",
+            "character varying(10)",
+            maxLength: 10,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "name",
+            "suppliers",
+            "character varying(50)",
+            maxLength: 50,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "neighborhood",
+            "suppliers",
+            "character varying(50)",
+            maxLength: 50,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "number",
+            "suppliers",
+            "character varying(10)",
+            maxLength: 10,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "street",
+            "suppliers",
+            "character varying(100)",
+            maxLength: 100,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "zip_code",
+            "suppliers",
+            "character varying(9)",
+            maxLength: 9,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AlterColumn<decimal>(
+            "cost_price",
+            "products",
+            "numeric",
+            nullable: false,
+            defaultValue: 0m,
+            oldClrType: typeof(decimal),
+            oldType: "numeric",
+            oldNullable: true);
+
+        migrationBuilder.AddColumn<string>(
+            "city",
+            "employees",
+            "character varying(50)",
+            maxLength: 50,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "complement",
+            "employees",
+            "character varying(10)",
+            maxLength: 10,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "cpf",
+            "employees",
+            "character varying(14)",
+            maxLength: 14,
+            nullable: true);
+
+        migrationBuilder.AddColumn<string>(
+            "name",
+            "employees",
+            "character varying(50)",
+            maxLength: 50,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "neighborhood",
+            "employees",
+            "character varying(50)",
+            maxLength: 50,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "number",
+            "employees",
+            "character varying(10)",
+            maxLength: 10,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "street",
+            "employees",
+            "character varying(100)",
+            maxLength: 100,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "zip_code",
+            "employees",
+            "character varying(9)",
+            maxLength: 9,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "city",
+            "customers",
+            "character varying(50)",
+            maxLength: 50,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "complement",
+            "customers",
+            "character varying(10)",
+            maxLength: 10,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "cpf",
+            "customers",
+            "character varying(14)",
+            maxLength: 14,
+            nullable: true);
+
+        migrationBuilder.AddColumn<string>(
+            "name",
+            "customers",
+            "character varying(50)",
+            maxLength: 50,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "neighborhood",
+            "customers",
+            "character varying(50)",
+            maxLength: 50,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "number",
+            "customers",
+            "character varying(10)",
+            maxLength: 10,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "street",
+            "customers",
+            "character varying(100)",
+            maxLength: 100,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.AddColumn<string>(
+            "zip_code",
+            "customers",
+            "character varying(9)",
+            maxLength: 9,
+            nullable: false,
+            defaultValue: "");
+
+        migrationBuilder.CreateIndex(
+            "ix_employees_state_id",
+            "employees",
+            "state_id");
+
+        migrationBuilder.CreateIndex(
+            "ix_customers_state_id",
+            "customers",
+            "state_id");
+
+        migrationBuilder.AddForeignKey(
+            "fk_customers_states_state_id",
+            "customers",
+            "state_id",
+            "states",
+            principalColumn: "id",
+            onDelete: ReferentialAction.Cascade);
+
+        migrationBuilder.AddForeignKey(
+            "fk_employees_states_state_id",
+            "employees",
+            "state_id",
+            "states",
+            principalColumn: "id",
+            onDelete: ReferentialAction.Cascade);
+
+        migrationBuilder.AddForeignKey(
+            "fk_suppliers_states_state_id",
+            "suppliers",
+            "state_id",
+            "states",
+            principalColumn: "id",
+            onDelete: ReferentialAction.Cascade);
     }
 }

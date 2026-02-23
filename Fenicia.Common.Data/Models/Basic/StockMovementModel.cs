@@ -7,23 +7,23 @@ using Fenicia.Common.Enums.Basic;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("stock_movements")]
-public  class StockMovementModel : BaseModel
+public class StockMovementModel : BaseModel
 {
     public StockMovementModel(StockMovementRequest request)
     {
-        this.Id =  request.Id;
+        this.Id = request.Id;
         this.ProductId = request.ProductId;
         this.Quantity = request.Quantity;
         this.Date = request.Date;
         this.Price = request.Price;
         this.Type = request.Type;
         this.CustomerId = request.CustomerId;
-        this.SupplierId =  request.SupplierId;
+        this.SupplierId = request.SupplierId;
     }
 
     public StockMovementModel()
     {
-        
+
     }
 
     [Required]

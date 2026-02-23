@@ -18,7 +18,9 @@ namespace Fenicia.Auth.Domains.Token;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class TokenController(GenerateRefreshTokenHandler generateRefreshTokenHandler, GenerateTokenStringHandler generateTokenStringHandler) : ControllerBase
+public class TokenController(
+    GenerateRefreshTokenHandler generateRefreshTokenHandler,
+    GenerateTokenStringHandler generateTokenStringHandler) : ControllerBase
 {
     [HttpPost]
     [AllowAnonymous]
@@ -63,22 +65,19 @@ public class TokenController(GenerateRefreshTokenHandler generateRefreshTokenHan
         CancellationToken ct)
     {
         wide.UserId = request.UserId.ToString();
-        
+
         var isValidToken = await validateTokenHandler.Handle(request);
 
-        if (!isValidToken)
-        {
-            return BadRequest("Invalid client request");
-        }
+        if (!isValidToken) return BadRequest("Invalid client request");
 
         await invalidateRefreshTokenHandler.Handler(request.RefreshToken, ct);
 
         var userResponse = await getUserForRefreshHandler.Handle(request.UserId, ct);
 
-        return PopulateToken( new GenerateTokenResponse(userResponse.Id, userResponse.Name, userResponse.Email));
+        return PopulateToken(new GenerateTokenResponse(userResponse.Id, userResponse.Name, userResponse.Email));
     }
 
-    private ActionResult<TokenResponse> PopulateToken( GenerateTokenResponse user)
+    private ActionResult<TokenResponse> PopulateToken(GenerateTokenResponse user)
     {
         var token = generateTokenStringHandler.Handle(user);
         var refreshToken = generateRefreshTokenHandler.Handle(user.Id);

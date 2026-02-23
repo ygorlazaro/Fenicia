@@ -7,9 +7,6 @@ namespace Fenicia.Auth.Tests.Domains.LoginAttempt.LoginAttempt;
 [TestFixture]
 public class LoginAttemptHandlerTests
 {
-    private IMemoryCache cache = null!;
-    private LoginAttemptHandler handler = null!;
-
     [SetUp]
     public void SetUp()
     {
@@ -23,6 +20,9 @@ public class LoginAttemptHandlerTests
         this.cache.Dispose();
     }
 
+    private IMemoryCache cache = null!;
+    private LoginAttemptHandler handler = null!;
+
     [Test]
     public void Handle_WhenNoAttemptsExist_ReturnsZero()
     {
@@ -30,7 +30,7 @@ public class LoginAttemptHandlerTests
         var email = "test@example.com";
 
         // Act
-        var result = this.handler.Handle(email, CancellationToken.None);
+        var result = this.handler.Handle(email);
 
         // Assert
         Assert.That(result, Is.EqualTo(0), "Should return 0 when no attempts exist");
@@ -45,7 +45,7 @@ public class LoginAttemptHandlerTests
         this.cache.Set(key, 3);
 
         // Act
-        var result = this.handler.Handle(email, CancellationToken.None);
+        var result = this.handler.Handle(email);
 
         // Assert
         Assert.That(result, Is.EqualTo(3), "Should return the correct attempt count");
@@ -61,7 +61,7 @@ public class LoginAttemptHandlerTests
         this.cache.Set(key, 5);
 
         // Act
-        var result = this.handler.Handle(upperCaseEmail, CancellationToken.None);
+        var result = this.handler.Handle(upperCaseEmail);
 
         // Assert
         Assert.That(result, Is.EqualTo(5), "Should return correct count regardless of case");
@@ -71,7 +71,7 @@ public class LoginAttemptHandlerTests
     public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => this.handler.Handle(null!, CancellationToken.None));
+        Assert.Throws<ArgumentNullException>(() => this.handler.Handle(null!));
     }
 
     [Test]
@@ -81,7 +81,7 @@ public class LoginAttemptHandlerTests
         var email = string.Empty;
 
         // Act
-        var result = this.handler.Handle(email, CancellationToken.None);
+        var result = this.handler.Handle(email);
 
         // Assert
         Assert.That(result, Is.EqualTo(0), "Should return 0 for empty email");
@@ -94,7 +94,7 @@ public class LoginAttemptHandlerTests
         var email = " test@example.com ";
 
         // Act
-        var result = this.handler.Handle(email, CancellationToken.None);
+        var result = this.handler.Handle(email);
 
         // Assert
         Assert.That(result, Is.EqualTo(0), "Should return 0 for email with spaces (not normalized)");
@@ -112,8 +112,8 @@ public class LoginAttemptHandlerTests
         this.cache.Set(key2, 4);
 
         // Act
-        var result1 = this.handler.Handle(email1, CancellationToken.None);
-        var result2 = this.handler.Handle(email2, CancellationToken.None);
+        var result1 = this.handler.Handle(email1);
+        var result2 = this.handler.Handle(email2);
 
         // Assert
         using (Assert.EnterMultipleScope())
@@ -132,7 +132,7 @@ public class LoginAttemptHandlerTests
         this.cache.Set(key, 100);
 
         // Act
-        var result = this.handler.Handle(email, CancellationToken.None);
+        var result = this.handler.Handle(email);
 
         // Assert
         Assert.That(result, Is.EqualTo(100), "Should return high attempt count correctly");

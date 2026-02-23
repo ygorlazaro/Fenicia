@@ -15,7 +15,7 @@ public class TaskService(ITaskRepository taskRepository) : ITaskService
 
         taskRepository.Add(task);
         await taskRepository.SaveChangesAsync(ct);
-        
+
         return new TaskResponse(task);
     }
 }

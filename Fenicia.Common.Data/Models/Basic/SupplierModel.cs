@@ -6,7 +6,7 @@ using Fenicia.Common.Data.Requests.Basic;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("suppliers")]
-public  class SupplierModel(SupplierRequest request) : BaseModel
+public class SupplierModel(SupplierRequest request) : BaseModel
 {
     [MaxLength(14)]
     public string? Cnpj { get; set; } = request.Cnpj;

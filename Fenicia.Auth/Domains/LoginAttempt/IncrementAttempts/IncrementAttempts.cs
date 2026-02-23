@@ -7,9 +7,9 @@ namespace Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts;
 public class IncrementAttempts(IMemoryCache cache)
 {
     private const int ExpirationMinutes = 15;
-  
+
     private const string KeyPrefix = "login-attempt:";
-    
+
     public Task Handle(string email)
     {
         var key = GetKey(email);
@@ -24,7 +24,7 @@ public class IncrementAttempts(IMemoryCache cache)
 
         return Task.CompletedTask;
     }
-    
+
     private static string GetKey(string email)
     {
         ArgumentNullException.ThrowIfNull(email);

@@ -8,15 +8,12 @@ namespace Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 public class CreateCreditsForOrderHandler(AuthContext context)
 {
     public virtual async Task<CreateCreditsForOrderResponse> Handle(
-        CreateCreditsForOrderQuery order,
+        CreateCreditsForOrderQuery query,
         CancellationToken ct)
     {
-        if (!order.Details.Any())
-        {
-            throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
-        }
+        if (!query.Details.Any()) throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
 
-        var credits = order.Details.Select(d => new SubscriptionCreditModel
+        var credits = query.Details.Select(d => new SubscriptionCreditModel
         {
             ModuleId = d.ModuleId,
             IsActive = true,
@@ -28,10 +25,10 @@ public class CreateCreditsForOrderHandler(AuthContext context)
         var subscription = new SubscriptionModel
         {
             Status = SubscriptionStatus.Active,
-            CompanyId = order.CompanyId,
+            CompanyId = query.CompanyId,
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddMonths(1),
-            OrderId = order.Id,
+            OrderId = query.Id,
             Credits = credits
         };
 
@@ -39,6 +36,7 @@ public class CreateCreditsForOrderHandler(AuthContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new CreateCreditsForOrderResponse(subscription.Id, subscription.CompanyId, subscription.StartDate, subscription.EndDate, order.Id, subscription.Status);
+        return new CreateCreditsForOrderResponse(subscription.Id, subscription.CompanyId, subscription.StartDate,
+            subscription.EndDate, query.Id, subscription.Status);
     }
 }

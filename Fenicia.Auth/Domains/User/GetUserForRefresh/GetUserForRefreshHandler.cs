@@ -12,9 +12,9 @@ public class GetUserForRefreshHandler(AuthContext context)
         var query = from u in context.Users
                     where u.Id == userId
                     select new GetUserForRefreshResponse(u.Id, u.Email, u.Name);
-        
+
         var user = await query.FirstOrDefaultAsync(ct);
-        
+
         return user ?? throw new UnauthorizedAccessException(TextConstants.PermissionDeniedMessage);
 
     }

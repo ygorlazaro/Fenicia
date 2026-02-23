@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
 
-public sealed class ForgotPasswordValidator : AbstractValidator<ForgotPasswordCommand>
+public sealed class AddForgotPasswordValidator : AbstractValidator<AddForgotPasswordCommand>
 {
-    public ForgotPasswordValidator()
+    public AddForgotPasswordValidator()
     {
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
     }

@@ -2,19 +2,18 @@
 
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Fenicia.Auth.Migrations
+namespace Fenicia.Auth.Migrations;
+
+/// <inheritdoc />
+public partial class Remove : Migration
 {
     /// <inheritdoc />
-    public partial class Remove : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
-        }
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-        }
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
     }
 }

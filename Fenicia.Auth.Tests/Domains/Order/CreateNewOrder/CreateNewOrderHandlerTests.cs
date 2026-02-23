@@ -18,17 +18,11 @@ namespace Fenicia.Auth.Tests.Domains.Order.CreateNewOrder;
 [TestFixture]
 public class CreateNewOrderHandlerTests
 {
-    private AuthContext context = null!;
-    private CreateNewOrderHandler handler = null!;
-    private Mock<CreateCreditsForOrderHandler> createCreditsForOrderHandlerMock = null!;
-    private Mock<IMigrationService> migrationServiceMock = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -47,6 +41,12 @@ public class CreateNewOrderHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private CreateNewOrderHandler handler = null!;
+    private Mock<CreateCreditsForOrderHandler> createCreditsForOrderHandlerMock = null!;
+    private Mock<IMigrationService> migrationServiceMock = null!;
+    private Faker faker = null!;
 
     [Test]
     public async Task Handle_WhenValidRequest_CreatesOrderSuccessfully()
@@ -99,7 +99,7 @@ public class CreateNewOrderHandlerTests
             Type = ModuleType.Pos,
             Price = 150.00m
         };
-        
+
         var moduleBasic = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -111,13 +111,14 @@ public class CreateNewOrderHandlerTests
         this.context.Users.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
-        this.context.Modules.AddRange([module1, module2, moduleBasic]);
+        this.context.Modules.AddRange(module1, module2, moduleBasic);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
             .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(), SubscriptionStatus.Active
+                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
+                SubscriptionStatus.Active
             ));
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -127,8 +128,8 @@ public class CreateNewOrderHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        
-        var order = await this.context.Orders.FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+
+        var order = await this.context.Orders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.That(order, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -136,12 +137,12 @@ public class CreateNewOrderHandlerTests
             Assert.That(order.CompanyId, Is.EqualTo(companyId), "CompanyId should match");
             Assert.That(order.Status, Is.EqualTo(OrderStatus.Approved), "Status should be Approved");
             Assert.That(order.TotalAmount, Is.EqualTo(400.00m), "TotalAmount should be sum of modules");
-            Assert.That(order.Details.Count, Is.EqualTo(3), "Should have 2 details");
+            Assert.That(order.Details, Has.Count.EqualTo(3), "Should have 2 details");
         }
     }
 
     [Test]
-    public async Task Handle_WhenUserDoesNotExistInCompany_ThrowsPermissionDeniedException()
+    public void Handle_WhenUserDoesNotExistInCompany_ThrowsPermissionDeniedException()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -151,8 +152,8 @@ public class CreateNewOrderHandlerTests
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("User does not exists at the company"));
     }
@@ -200,8 +201,8 @@ public class CreateNewOrderHandlerTests
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Module not found"));
     }
@@ -248,10 +249,10 @@ public class CreateNewOrderHandlerTests
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
-        
+
         // Assert
         Assert.That(ex?.Message, Is.EqualTo("Module not found"));
     }
@@ -308,7 +309,8 @@ public class CreateNewOrderHandlerTests
         this.createCreditsForOrderHandlerMock
             .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(), SubscriptionStatus.Active
+                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
+                SubscriptionStatus.Active
             ));
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -319,7 +321,7 @@ public class CreateNewOrderHandlerTests
         // Assert
         var order = await this.context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.That(order, Is.Not.Null);
-        Assert.That(order!.Details.Count, Is.EqualTo(1), "Should only have 1 detail (Basic module)");
+        Assert.That(order!.Details, Has.Count.EqualTo(1), "Should only have 1 detail (Basic module)");
     }
 
     [Test]
@@ -383,7 +385,8 @@ public class CreateNewOrderHandlerTests
         this.createCreditsForOrderHandlerMock
             .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(), SubscriptionStatus.Active
+                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
+                SubscriptionStatus.Active
             ));
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -394,7 +397,7 @@ public class CreateNewOrderHandlerTests
         // Assert
         var order = await this.context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.That(order, Is.Not.Null);
-        Assert.That(order!.Details.Count, Is.EqualTo(2), "Should have 2 details (Accounting + Basic)");
+        Assert.That(order!.Details, Has.Count.EqualTo(2), "Should have 2 details (Accounting + Basic)");
     }
 
     [Test]
@@ -449,10 +452,10 @@ public class CreateNewOrderHandlerTests
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
-        
+
         // Assert
         Assert.That(ex?.Message, Is.EqualTo("Module not found"));
     }
@@ -499,7 +502,7 @@ public class CreateNewOrderHandlerTests
             Type = ModuleType.Accounting,
             Price = 100.00m
         };
-        
+
         var moduleBasic = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -518,7 +521,8 @@ public class CreateNewOrderHandlerTests
         this.createCreditsForOrderHandlerMock
             .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(), SubscriptionStatus.Active
+                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
+                SubscriptionStatus.Active
             ));
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -593,7 +597,8 @@ public class CreateNewOrderHandlerTests
         this.createCreditsForOrderHandlerMock
             .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(), SubscriptionStatus.Active
+                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
+                SubscriptionStatus.Active
             ));
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -605,7 +610,8 @@ public class CreateNewOrderHandlerTests
         this.migrationServiceMock.Verify(
             x => x.RunMigrationsAsync(
                 companyId,
-                It.Is<List<ModuleType>>(types => types.Contains(ModuleType.Accounting) && types.Contains(ModuleType.Basic)),
+                It.Is<List<ModuleType>>(types =>
+                    types.Contains(ModuleType.Accounting) && types.Contains(ModuleType.Basic)),
                 It.IsAny<CancellationToken>()
             ),
             Times.Once
@@ -672,7 +678,8 @@ public class CreateNewOrderHandlerTests
         this.createCreditsForOrderHandlerMock
             .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(), SubscriptionStatus.Active
+                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
+                SubscriptionStatus.Active
             ));
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -683,7 +690,7 @@ public class CreateNewOrderHandlerTests
         // Assert
         var order = await this.context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.That(order, Is.Not.Null);
-        Assert.That(order!.Details.Count, Is.EqualTo(2), "Should have 2 details (deduplicated module + Basic)");
+        Assert.That(order!.Details, Has.Count.EqualTo(2), "Should have 2 details (deduplicated module + Basic)");
     }
 
     [Test]
@@ -764,7 +771,8 @@ public class CreateNewOrderHandlerTests
         this.createCreditsForOrderHandlerMock
             .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(), SubscriptionStatus.Active
+                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
+                SubscriptionStatus.Active
             ));
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -779,6 +787,6 @@ public class CreateNewOrderHandlerTests
         // Actually looking at the code, it doesn't filter Erp/Auth in GetModulesToOrderAsync
         // The filter is in GetModulesHandler, not in CreateNewOrderHandler
         // So all modules should be included
-        Assert.That(order!.Details.Count, Is.GreaterThanOrEqualTo(2), "Should have at least Accounting + Basic");
+        Assert.That(order!.Details, Has.Count.GreaterThanOrEqualTo(2), "Should have at least Accounting + Basic");
     }
 }

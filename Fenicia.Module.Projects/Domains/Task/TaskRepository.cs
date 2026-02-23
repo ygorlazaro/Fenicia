@@ -6,5 +6,4 @@ namespace Fenicia.Module.Projects.Domains.Task;
 
 public class TaskRepository(ProjectContext context) : BaseRepository<TaskModel>(context), ITaskRepository
 {
-    
 }

@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("order_details")]
-public  class OrderDetailModel : BaseModel
+public class OrderDetailModel : BaseModel
 {
     [Required]
     [Column("order_id")]

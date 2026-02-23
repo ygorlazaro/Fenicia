@@ -7,7 +7,7 @@ using Fenicia.Common.Data.Requests.Basic;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("order_details")]
-public  class OrderDetailModel : BaseModel
+public class OrderDetailModel : BaseModel
 {
     public OrderDetailModel(OrderDetailRequest request)
     {

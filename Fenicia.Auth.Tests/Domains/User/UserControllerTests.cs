@@ -1,5 +1,9 @@
 using System.Security.Claims;
 
+using Bogus;
+using Bogus.Extensions.Brazil;
+
+using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.GetUserModules;
 using Fenicia.Auth.Domains.UserRole.GetUserCompanies;
 using Fenicia.Common.API;
@@ -19,18 +23,11 @@ namespace Fenicia.Auth.Tests.Domains.User;
 [TestFixture]
 public class UserControllerTests
 {
-    private Auth.Domains.User.UserController controller = null!;
-    private AuthContext context = null!;
-    private GetUserModuleHandler getUserModuleHandler = null!;
-    private GetUserCompaniesHandler getUserCompaniesHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testUserId;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -39,13 +36,16 @@ public class UserControllerTests
         this.getUserCompaniesHandler = new GetUserCompaniesHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new Auth.Domains.User.UserController();
-        this.controller.ControllerContext = new ControllerContext
+        this.controller = new UserController
         {
-            HttpContext = this.mockHttpContext.Object
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = this.mockHttpContext.Object
+            }
         };
 
         SetupUserClaims(this.testUserId);
+        this.faker = new Faker();
     }
 
     [TearDown]
@@ -53,6 +53,14 @@ public class UserControllerTests
     {
         this.context.Dispose();
     }
+
+    private UserController controller = null!;
+    private AuthContext context = null!;
+    private GetUserModuleHandler getUserModuleHandler = null!;
+    private GetUserCompaniesHandler getUserCompaniesHandler = null!;
+    private Mock<HttpContext> mockHttpContext = null!;
+    private Guid testUserId;
+    private Faker faker = null!;
 
     private void SetupUserClaims(Guid userId)
     {
@@ -67,8 +75,6 @@ public class UserControllerTests
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
-
-    #region GetUserModulesAsync Tests
 
     [Test]
     public async Task GetUserModulesAsync_WhenUserHasNoModules_ReturnsOkWithEmptyList()
@@ -114,9 +120,9 @@ public class UserControllerTests
         var module = new ModuleModel
         {
             Id = moduleId,
-            Name = "Basic Module",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = this.faker.Finance.Amount(10, 100)
         };
 
         var subscription = new SubscriptionModel
@@ -141,9 +147,9 @@ public class UserControllerTests
         var user = new UserModel
         {
             Id = this.testUserId,
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -181,11 +187,11 @@ public class UserControllerTests
 
         var returnedModules = okResult.Value as List<ModuleResponse>;
         Assert.That(returnedModules, Is.Not.Null);
-        Assert.That(returnedModules.Count, Is.EqualTo(1));
+        Assert.That(returnedModules, Has.Count.EqualTo(1));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedModules[0].Id, Is.EqualTo(moduleId));
-            Assert.That(returnedModules[0].Name, Is.EqualTo("Basic Module"));
+            Assert.That(returnedModules[0].Name, Is.EqualTo(module.Name));
             Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
         }
     }
@@ -209,10 +215,6 @@ public class UserControllerTests
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
     }
-
-    #endregion
-
-    #region GetUserCompanyAsync Tests
 
     [Test]
     public async Task GetUserCompanyAsync_WhenUserHasNoCompanies_ReturnsOkWithEmptyList()
@@ -253,8 +255,8 @@ public class UserControllerTests
         var company = new CompanyModel
         {
             Id = companyId,
-            Name = "Test Company",
-            Cnpj = "12.345.678/0001-90",
+            Name = this.faker.Company.CompanyName(),
+            Cnpj = this.faker.Company.Cnpj(),
             IsActive = true,
             TimeZone = "UTC",
             Language = "pt-BR"
@@ -269,9 +271,9 @@ public class UserControllerTests
         var user = new UserModel
         {
             Id = this.testUserId,
-            Email = "test@example.com",
-            Name = "Test User",
-            Password = "hashedPassword"
+            Email = this.faker.Internet.Email(),
+            Name = this.faker.Person.FullName,
+            Password = this.faker.Internet.Password()
         };
 
         var userRole = new UserRoleModel
@@ -306,12 +308,12 @@ public class UserControllerTests
 
         var returnedCompanies = okResult.Value as List<GetUserCompaniesResponse>;
         Assert.That(returnedCompanies, Is.Not.Null);
-        Assert.That(returnedCompanies.Count, Is.EqualTo(1));
+        Assert.That(returnedCompanies, Has.Count.EqualTo(1));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedCompanies[0].Id, Is.EqualTo(companyId));
             Assert.That(returnedCompanies[0].Role, Is.EqualTo("Admin"));
-            Assert.That(returnedCompanies[0].Company.Name, Is.EqualTo("Test Company"));
+            Assert.That(returnedCompanies[0].Company.Name, Is.EqualTo(company.Name));
             Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
         }
     }
@@ -333,15 +335,11 @@ public class UserControllerTests
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
     }
 
-    #endregion
-
-    #region Attribute Tests
-
     [Test]
     public void UserController_HasAuthorizeAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.User.UserController);
+        var controllerType = typeof(UserController);
 
         // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -354,10 +352,11 @@ public class UserControllerTests
     public void UserController_HasRouteAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.User.UserController);
+        var controllerType = typeof(UserController);
 
         // Act
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.That(routeAttribute, Is.Not.Null, "UserController should have Route attribute");
@@ -368,14 +367,13 @@ public class UserControllerTests
     public void UserController_HasApiControllerAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.User.UserController);
+        var controllerType = typeof(UserController);
 
         // Act
-        var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+        var apiControllerAttribute =
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.That(apiControllerAttribute, Is.Not.Null, "UserController should have ApiController attribute");
     }
-
-    #endregion
 }

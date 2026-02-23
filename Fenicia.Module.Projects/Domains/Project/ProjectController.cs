@@ -9,7 +9,7 @@ namespace Fenicia.Module.Projects.Domains.Project;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
-public class ProjectController(IProjectService projectService): ControllerBase
+public class ProjectController(IProjectService projectService) : ControllerBase
 {
     [HttpPost]
     [Produces("application/json")]

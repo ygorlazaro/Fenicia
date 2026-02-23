@@ -8,7 +8,7 @@ using Fenicia.Common.Enums.Auth;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("orders")]
-public  class OrderModel : BaseModel
+public class OrderModel : BaseModel
 {
     public OrderModel(OrderRequest request)
     {
