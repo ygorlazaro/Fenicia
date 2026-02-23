@@ -13,14 +13,12 @@ public class PersonModel : BaseModel
     [MaxLength(14)]
     public string? Cpf { get; set; }
 
-    [Required]
     [MaxLength(100)]
-    public string Street { get; set; }
+    public string? Street { get; set; }
 
 
-    [Required]
     [MaxLength(10)]
-    public string Number { get; set; }
+    public string? Number { get; set; }
 
 
     [MaxLength(10)]
@@ -30,18 +28,15 @@ public class PersonModel : BaseModel
     [MaxLength(50)]
     public string? Neighborhood { get; set; }
 
-
-    [Required]
     [MaxLength(8)]
-    public string ZipCode { get; set; }
+    public string? ZipCode { get; set; }
 
 
     [Required]
     public Guid StateId { get; set; }
 
-    [Required]
     [MaxLength(50)]
-    public string City { get; set; }
+    public string? City { get; set; }
     
     [MaxLength(50)]
     [EmailAddress]
@@ -49,10 +44,10 @@ public class PersonModel : BaseModel
 
 
     [MaxLength(20)]
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     
     [MaxLength(20)]
-    public string Document { get; set; }
+    public string? Document { get; set; }
 
     [ForeignKey(nameof(StateId))]
     public virtual StateModel State { get; set; } = null!;

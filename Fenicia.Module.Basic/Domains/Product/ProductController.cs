@@ -16,13 +16,12 @@ namespace Fenicia.Module.Basic.Domains.Product;
 public class ProductController(
     GetAllProductHandler getAllProductHandler,
     GetProductByIdHandler getProductByIdHandler,
-    GetProductsByCategoryIdHandler getProductsByCategoryIdHandler,
     AddProductHandler addProductHandler,
     UpdateProductHandler updateProductHandler,
     DeleteProductHandler deleteProductHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<ProductResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var products = await getAllProductHandler.Handle(new GetAllProductQuery(page, perPage), ct);
 
@@ -30,7 +29,7 @@ public class ProductController(
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<ProductResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var product = await getProductByIdHandler.Handle(new GetProductByIdQuery(id), ct);
 
@@ -38,7 +37,7 @@ public class ProductController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] AddProductCommand command, CancellationToken ct)
+    public async Task<ActionResult<ProductResponse>> PostAsync([FromBody] AddProductCommand command, CancellationToken ct)
     {
         var product = await addProductHandler.Handle(command, ct);
 
@@ -46,7 +45,7 @@ public class ProductController(
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync(
+    public async Task<ActionResult<ProductResponse>> PatchAsync(
         [FromBody] UpdateProductCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -57,7 +56,7 @@ public class ProductController(
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<ProductResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteProductHandler.Handle(new DeleteProductCommand(id), ct);
 

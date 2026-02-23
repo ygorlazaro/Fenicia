@@ -77,7 +77,7 @@ public class GetRolesByUserHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Length, Is.EqualTo(0), "Should return empty array");
+        Assert.That(result, Is.Empty, "Should return empty array");
     }
 
     [Test]
@@ -218,7 +218,7 @@ public class GetRolesByUserHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Length, Is.EqualTo(0), "Should return empty array for empty database");
+        Assert.That(result, Is.Empty, "Should return empty array for empty database");
     }
 
     [Test]

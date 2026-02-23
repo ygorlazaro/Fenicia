@@ -20,7 +20,7 @@ public class SupplierController(
     DeleteSupplierHandler deleteSupplierHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<SupplierResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var suppliers = await getAllSupplierHandler.Handle(new GetAllSupplierQuery(page, perPage), ct);
 
@@ -28,7 +28,7 @@ public class SupplierController(
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<SupplierResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var supplier = await getSupplierByIdHandler.Handle(new GetSupplierByIdQuery(id), ct);
 
@@ -36,7 +36,7 @@ public class SupplierController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] AddSupplierCommand command, CancellationToken ct)
+    public async Task<ActionResult<SupplierResponse>> PostAsync([FromBody] AddSupplierCommand command, CancellationToken ct)
     {
         var supplier = await addSupplierHandler.Handle(command, ct);
 
@@ -44,7 +44,7 @@ public class SupplierController(
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync(
+    public async Task<ActionResult<SupplierResponse>> PatchAsync(
         [FromBody] UpdateSupplierCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -55,7 +55,7 @@ public class SupplierController(
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<SupplierResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteSupplierHandler.Handle(new DeleteSupplierCommand(id), ct);
 

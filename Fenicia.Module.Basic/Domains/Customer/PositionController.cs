@@ -12,7 +12,7 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class CustomerController(
+public class PositionController(
     GetAllCustomerHandler getAllCustomerHandler,
     GetCustomerByIdHandler getCustomerByIdHandler,
     AddCustomerHandler addCustomerHandler,
@@ -20,7 +20,7 @@ public class CustomerController(
     DeleteCustomerHandler deleteCustomerHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<CustomerResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var customers = await getAllCustomerHandler.Handle(new GetAllCustomerQuery(page, perPage), ct);
 
@@ -28,7 +28,7 @@ public class CustomerController(
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<CustomerResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var customer = await getCustomerByIdHandler.Handle(new GetCustomerByIdQuery(id), ct);
 
@@ -36,7 +36,7 @@ public class CustomerController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] AddCustomerCommand command, CancellationToken ct)
+    public async Task<ActionResult<CustomerResponse>> PostAsync([FromBody] AddCustomerCommand command, CancellationToken ct)
     {
         var customer = await addCustomerHandler.Handle(command, ct);
 
@@ -44,7 +44,7 @@ public class CustomerController(
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync(
+    public async Task<ActionResult<CustomerResponse>> PatchAsync(
         [FromBody] UpdateCustomerCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -55,7 +55,7 @@ public class CustomerController(
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<CustomerResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteCustomerHandler.Handle(new DeleteCustomerCommand(id), ct);
 

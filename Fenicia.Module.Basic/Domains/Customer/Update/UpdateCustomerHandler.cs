@@ -17,14 +17,15 @@ public class UpdateCustomerHandler(BasicContext context)
         customer.Person.Name = command.Name;
         customer.Person.Email = command.Email;
         customer.Person.Cpf = command.Cpf;
-        customer.Person.PhoneNumber = command.PhoneNumber ?? string.Empty;
-        customer.Person.Street = command.Street ?? string.Empty;
-        customer.Person.Number = command.Number ?? string.Empty;
+        customer.Person.Document = command.Cpf;
+        customer.Person.PhoneNumber = command.PhoneNumber;
+        customer.Person.Street = command.Street;
+        customer.Person.Number = command.Number;
         customer.Person.Complement = command.Complement;
         customer.Person.Neighborhood = command.Neighborhood;
-        customer.Person.ZipCode = command.ZipCode ?? string.Empty;
+        customer.Person.ZipCode = command.ZipCode;
         customer.Person.StateId = command.StateId;
-        customer.Person.City = command.City ?? string.Empty;
+        customer.Person.City = command.City;
 
         context.Customers.Update(customer);
 

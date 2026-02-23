@@ -24,7 +24,7 @@ public class ProductCategoryController(
     GetProductsByCategoryIdHandler getProductsByCategoryIdHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync(CancellationToken ct)
+    public async Task<ActionResult<ProductCategoryResponse>> GetAsync(CancellationToken ct)
     {
         var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(), ct);
 
@@ -32,7 +32,7 @@ public class ProductCategoryController(
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<ProductCategoryResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id), ct);
 
@@ -40,7 +40,7 @@ public class ProductCategoryController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] AddProductCategoryCommand command, CancellationToken ct)
+    public async Task<ActionResult<ProductCategoryResponse>> PostAsync([FromBody] AddProductCategoryCommand command, CancellationToken ct)
     {
         var productCategory = await addProductCategoryHandler.Handle(command, ct);
 
@@ -48,7 +48,7 @@ public class ProductCategoryController(
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync(
+    public async Task<ActionResult<ProductCategoryResponse>> PatchAsync(
         [FromBody] UpdateProductCategoryCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -59,7 +59,7 @@ public class ProductCategoryController(
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<ProductCategoryResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id), ct);
 
@@ -67,7 +67,7 @@ public class ProductCategoryController(
     }
 
     [HttpGet("{id:guid}/product")]
-    public async Task<IActionResult> GetProductsByCategoryAsync(
+    public async Task<ActionResult<ProductCategoryResponse>> GetProductsByCategoryAsync(
         [FromRoute] Guid categoryId,
         [FromQuery] PaginationQuery query,
         CancellationToken ct)

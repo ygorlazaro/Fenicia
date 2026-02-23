@@ -85,7 +85,7 @@ public class GetUserCompaniesHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(0), "Should return empty list");
+        Assert.That(result, Is.Empty, "Should return empty list");
     }
 
     [Test]
@@ -278,7 +278,7 @@ public class GetUserCompaniesHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(0), "Should return empty list for empty database");
+        Assert.That(result, Is.Empty, "Should return empty list for empty database");
     }
 
     [Test]

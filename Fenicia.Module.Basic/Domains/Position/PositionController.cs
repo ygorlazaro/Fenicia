@@ -14,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Position;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
-public class CustomerController(
+public class PositionController(
     GetAllPositionHandler getAllPositionHandler,
     GetPositionByIdHandler getPositionByIdHandler,
     AddPositionHandler addPositionHandler,
@@ -23,7 +23,7 @@ public class CustomerController(
     GetEmployeesByPositionIdHandler getEmployeesByPositionIdHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<PositionResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page, perPage), ct);
 
@@ -31,7 +31,7 @@ public class CustomerController(
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<PositionResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var position = await getPositionByIdHandler.Handle(new GetPositionByIdQuery(id), ct);
 
@@ -39,7 +39,7 @@ public class CustomerController(
     }
 
     [HttpGet("{id:guid}/employee")]
-    public async Task<IActionResult> GetEmployeesByPositionIdAsync(
+    public async Task<ActionResult<PositionResponse>> GetEmployeesByPositionIdAsync(
         [FromRoute] Guid id,
         [FromQuery] PaginationQuery query,
         CancellationToken ct)
@@ -50,7 +50,7 @@ public class CustomerController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] AddPositionCommand command, CancellationToken ct)
+    public async Task<ActionResult<PositionResponse>> PostAsync([FromBody] AddPositionCommand command, CancellationToken ct)
     {
         var position = await addPositionHandler.Handle(command, ct);
 
@@ -58,7 +58,7 @@ public class CustomerController(
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> PatchAsync(
+    public async Task<ActionResult<PositionResponse>> PatchAsync(
         [FromBody] UpdatePositionCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -69,7 +69,7 @@ public class CustomerController(
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<PositionResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deletePositionHandler.Handle(new DeletePositionCommand(id), ct);
 

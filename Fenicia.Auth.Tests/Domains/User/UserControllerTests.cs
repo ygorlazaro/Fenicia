@@ -103,7 +103,7 @@ public class UserControllerTests
         Assert.That(returnedModules, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedModules.Count, Is.Zero);
+            Assert.That(returnedModules, Is.Empty);
             Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
         }
     }
@@ -240,7 +240,7 @@ public class UserControllerTests
         Assert.That(returnedCompanies, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedCompanies.Count, Is.Zero);
+            Assert.That(returnedCompanies, Is.Empty);
             Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
         }
     }

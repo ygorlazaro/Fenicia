@@ -79,7 +79,7 @@ public class ModuleControllerTests
         Assert.That(returnedPagination, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedPagination!.Data.Count, Is.Zero);
+            Assert.That(returnedPagination!.Data, Is.Empty);
             Assert.That(returnedPagination.Total, Is.Zero);
             Assert.That(wide.UserId, Is.EqualTo("Guest"));
         }

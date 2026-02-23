@@ -16,7 +16,7 @@ public class OrderController(
     GetOrderDetailsByOrderIdHandler getOrderDetailsByOrderIdHandler) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> CreateOrderAsync([FromBody] CreateOrderCommand command, CancellationToken ct)
+    public async Task<ActionResult<OrderResponse>> CreateOrderAsync([FromBody] CreateOrderCommand command, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         var order = await createOrderHandler.Handle(command with { UserId = userId }, ct);
@@ -25,7 +25,7 @@ public class OrderController(
     }
 
     [HttpGet("{id:guid}/detail")]
-    public async Task<IActionResult> GetDetailsAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<OrderResponse>> GetDetailsAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);
 

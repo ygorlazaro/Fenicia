@@ -13,14 +13,14 @@ public class AddCustomerHandler(BasicContext context)
             Name = command.Name,
             Email = command.Email,
             Cpf = command.Cpf,
-            PhoneNumber = command.PhoneNumber ?? string.Empty,
-            Street = command.Street ?? string.Empty,
-            Number = command.Number ?? string.Empty,
+            PhoneNumber = command.PhoneNumber,
+            Street = command.Street,
+            Number = command.Number,
             Complement = command.Complement,
             Neighborhood = command.Neighborhood,
-            ZipCode = command.ZipCode ?? string.Empty,
+            ZipCode = command.ZipCode,
             StateId = command.StateId,
-            City = command.City ?? string.Empty
+            City = command.City
         };
 
         var customer = new CustomerModel

@@ -60,6 +60,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{6AD1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Auth.Tests", "Fenicia.Auth.Tests\Fenicia.Auth.Tests.csproj", "{79F6DE1F-1827-443B-8A31-775B179F6B28}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Basic.Tests", "Fenicia.Module.Basic.Tests\Fenicia.Module.Basic.Tests.csproj", "{A7343751-4B3B-4609-8966-20DCC82D84D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -310,6 +312,18 @@ Global
 		{79F6DE1F-1827-443B-8A31-775B179F6B28}.Release|x64.Build.0 = Release|Any CPU
 		{79F6DE1F-1827-443B-8A31-775B179F6B28}.Release|x86.ActiveCfg = Release|Any CPU
 		{79F6DE1F-1827-443B-8A31-775B179F6B28}.Release|x86.Build.0 = Release|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Debug|x64.Build.0 = Debug|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Debug|x86.Build.0 = Debug|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Release|x64.ActiveCfg = Release|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Release|x64.Build.0 = Release|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Release|x86.ActiveCfg = Release|Any CPU
+		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -335,5 +349,6 @@ Global
 		{D6D68C9A-816B-40D9-AA5E-B11596996694} = {6AD13D53-07CA-4BF5-BD47-0CD1C54EED46}
 		{6512C8A2-2118-4176-B243-5F0976016236} = {6AD13D53-07CA-4BF5-BD47-0CD1C54EED46}
 		{79F6DE1F-1827-443B-8A31-775B179F6B28} = {DBB8A2B4-3B16-4BEC-952D-6D1F3E054328}
+		{A7343751-4B3B-4609-8966-20DCC82D84D1} = {DBB8A2B4-3B16-4BEC-952D-6D1F3E054328}
 	EndGlobalSection
 EndGlobal

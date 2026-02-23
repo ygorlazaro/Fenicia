@@ -21,7 +21,7 @@ public class GetInventoryHandler(BasicContext context)
 
         return new InventoryResponse
         {
-            Items = products.Select(p => new InventoryDetailResponse(p.Id, p.Name, p.Quantity, p.CostPrice, p.SalesPrice, p.Category?.Name ?? "")).ToList(),
+            Items = products.Select(p => new InventoryDetailResponse(p.Id, p.Name, p.Quantity, p.CostPrice, p.SalesPrice, p.CategoryId, p.Category?.Name ?? "")).ToList(),
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity

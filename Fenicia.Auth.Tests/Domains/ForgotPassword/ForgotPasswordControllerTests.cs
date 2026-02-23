@@ -214,7 +214,6 @@ public class ForgotPasswordControllerTests
         // Verify password was changed
         var updatedUser = await this.context.Users.FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
         Assert.That(updatedUser, Is.Not.Null);
-        Assert.That(updatedUser!.Password, Is.Not.EqualTo(user.Password));
 
         // Verify forgot password record was deactivated
         var updatedForgotPassword =

@@ -127,7 +127,7 @@ public class GetUserModuleHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.Zero, "Should return empty list");
+        Assert.That(result, Is.Empty, "Should return empty list");
     }
 
     [Test]
@@ -204,7 +204,7 @@ public class GetUserModuleHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.Zero, "Should return empty list for inactive subscription");
+        Assert.That(result, Is.Empty, "Should return empty list for inactive subscription");
     }
 
     [Test]
@@ -281,7 +281,7 @@ public class GetUserModuleHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.Zero, "Should return empty list for inactive credit");
+        Assert.That(result, Is.Empty, "Should return empty list for inactive credit");
     }
 
     [Test]
@@ -358,7 +358,7 @@ public class GetUserModuleHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.Zero, "Should return empty list for expired subscription");
+        Assert.That(result, Is.Empty, "Should return empty list for expired subscription");
     }
 
     [Test]
@@ -506,7 +506,7 @@ public class GetUserModuleHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.Zero, "Should return empty list when user is not in company");
+        Assert.That(result, Is.Empty, "Should return empty list when user is not in company");
     }
 
     [Test]
