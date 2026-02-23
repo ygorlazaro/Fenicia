@@ -1,7 +1,3 @@
-using System.Linq.Expressions;
-
-using Fenicia.Common.Data.Models.Auth;
-
 namespace Fenicia.Auth.Domains.Company.GetCompaniesByUser;
 
 public sealed class CompanyListItemResponse

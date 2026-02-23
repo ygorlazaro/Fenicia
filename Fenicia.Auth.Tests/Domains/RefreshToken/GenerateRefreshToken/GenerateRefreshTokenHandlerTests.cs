@@ -39,8 +39,11 @@ public class GenerateRefreshTokenHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.Empty);
-        Assert.That(Convert.FromBase64String(result), Has.Length.EqualTo(32), "Token should be base64 of 32 bytes");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Is.Not.Empty);
+            Assert.That(Convert.FromBase64String(result), Has.Length.EqualTo(32), "Token should be base64 of 32 bytes");
+        }
     }
 
     [Test]
@@ -54,9 +57,12 @@ public class GenerateRefreshTokenHandlerTests
         var token2 = this.handler.Handle(userId);
         var token3 = this.handler.Handle(userId);
 
-        // Assert
-        Assert.That(token1, Is.Not.EqualTo(token2));
-        Assert.That(token2, Is.Not.EqualTo(token3));
+        using (Assert.EnterMultipleScope())
+        {
+            // Assert
+            Assert.That(token1, Is.Not.EqualTo(token2));
+            Assert.That(token2, Is.Not.EqualTo(token3));
+        }
         Assert.That(token1, Is.Not.EqualTo(token3));
     }
 

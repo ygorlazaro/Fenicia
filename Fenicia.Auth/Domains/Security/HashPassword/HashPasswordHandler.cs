@@ -4,7 +4,7 @@ namespace Fenicia.Auth.Domains.Security.HashPassword;
 
 public class HashPasswordHandler
 {
-    public string Handle(string password)
+    public virtual string Handle(string password)
     {
         if (string.IsNullOrEmpty(password))
         {

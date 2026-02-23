@@ -8,7 +8,7 @@ public class GetByEmailHandler(AuthContext context)
 {
     private const int ExpirationMinutes = 15;
     
-    public async Task<GetByEmailResponse?> Handle(string email, CancellationToken ct)
+    public virtual async Task<GetByEmailResponse?> Handle(string email, CancellationToken ct)
     {
         var query = from user in context.Users
                     where user.Email == email

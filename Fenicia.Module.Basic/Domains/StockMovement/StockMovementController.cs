@@ -1,4 +1,3 @@
-using Fenicia.Common;
 using Fenicia.Common.Data.Requests.Basic;
 
 using Microsoft.AspNetCore.Authorization;
@@ -40,7 +39,7 @@ public class StockMovementController(IStockMovementService stockMovementService)
         return stockMovimentation is null ? NotFound() : new CreatedResult(string.Empty, stockMovimentation);
     }
 
-    public class StockMovementQuery : PaginationQuery
+    public record StockMovementQuery (int Page, int PerPage)
     {
         public DateTime StartDate { get; set; }
 

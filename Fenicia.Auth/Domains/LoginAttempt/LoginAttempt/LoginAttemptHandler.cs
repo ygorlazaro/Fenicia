@@ -8,7 +8,7 @@ public class LoginAttemptHandler(IMemoryCache cache)
 {
     private const string KeyPrefix = "login-attempt:";
     
-    public int Handle(string email, CancellationToken ct)
+    public virtual int Handle(string email, CancellationToken ct)
     {
         return cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0;
     }
