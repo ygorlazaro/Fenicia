@@ -32,6 +32,11 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
 
     public DbSet<SubmoduleModel> Submodules { get; set; } = null!;
 
+    public AuthContext(): this(new DbContextOptions<AuthContext>())
+    {
+        
+    }
+
     public override Task<int> SaveChangesAsync(CancellationToken ct)
     {
         foreach (var item in this.ChangeTracker.Entries())

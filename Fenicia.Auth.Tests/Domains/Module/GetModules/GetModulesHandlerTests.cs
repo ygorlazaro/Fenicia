@@ -1,7 +1,6 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Module.GetModules;
-using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;

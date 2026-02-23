@@ -4,7 +4,6 @@ using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User.ChangePassword;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -116,8 +115,11 @@ public class ChangePasswordHandlerTests
         // Assert
         var updatedUser = await this.context.Users.FindAsync(userId);
         Assert.That(updatedUser, Is.Not.Null);
-        Assert.That(updatedUser!.Password, Is.Not.EqualTo(newPassword), "Password should be hashed");
-        Assert.That(updatedUser.Password.Length, Is.GreaterThan(newPassword.Length), "Hashed password should be longer");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(updatedUser!.Password, Is.Not.EqualTo(newPassword), "Password should be hashed");
+            Assert.That(updatedUser.Password.Length, Is.GreaterThan(newPassword.Length), "Hashed password should be longer");
+        }
     }
 
     [Test]
@@ -189,9 +191,11 @@ public class ChangePasswordHandlerTests
         // Assert
         var updatedUser1 = await this.context.Users.FindAsync(userId1);
         var updatedUser2 = await this.context.Users.FindAsync(userId2);
-        
-        Assert.That(updatedUser1!.Password, Is.Not.EqualTo(oldPassword1), "User1 password should change");
-        Assert.That(updatedUser2!.Password, Is.EqualTo(oldPassword2), "User2 password should not change");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(updatedUser1!.Password, Is.Not.EqualTo(oldPassword1), "User1 password should change");
+            Assert.That(updatedUser2!.Password, Is.EqualTo(oldPassword2), "User2 password should not change");
+        }
     }
 
     [Test]

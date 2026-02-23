@@ -4,7 +4,7 @@ namespace Fenicia.Auth.Domains.Security.VerifyPassword;
 
 public class VerifyPasswordHandler
 {
-    public bool Handle(string password, string hashedPassword)
+    public virtual bool Handle(string password, string hashedPassword)
     {
         try
         {

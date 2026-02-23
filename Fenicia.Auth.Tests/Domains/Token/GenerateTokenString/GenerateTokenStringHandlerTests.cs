@@ -1,5 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 using Fenicia.Auth.Domains.Token.GenerateToken;
 using Fenicia.Auth.Domains.Token.GenerateTokenString;

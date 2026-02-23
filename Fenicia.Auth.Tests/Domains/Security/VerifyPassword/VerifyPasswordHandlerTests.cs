@@ -1,6 +1,5 @@
 using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.Security.VerifyPassword;
-using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Tests.Domains.Security.VerifyPassword;
 

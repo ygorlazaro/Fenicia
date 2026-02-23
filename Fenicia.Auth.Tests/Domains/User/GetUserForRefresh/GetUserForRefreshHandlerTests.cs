@@ -3,7 +3,6 @@ using Bogus;
 using Fenicia.Auth.Domains.User.GetUserForRefresh;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
 

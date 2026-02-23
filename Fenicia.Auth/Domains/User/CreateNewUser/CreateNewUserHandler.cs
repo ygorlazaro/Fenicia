@@ -40,7 +40,7 @@ public class CreateNewUserHandler(AuthContext context, CheckUserExistsHandle che
         {
             Name = request.Company.Name,
             Cnpj = request.Company.Cnpj,
-            TimeZone = request.Company.TimeZone,
+            TimeZone = request.Company.TimeZone
         };
 
         context.Companies.Add(companyRequest);
