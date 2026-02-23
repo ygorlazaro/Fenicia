@@ -19,14 +19,14 @@ public class UpdateEmployeeHandler(BasicContext context)
         employee.Person.Name = command.Name;
         employee.Person.Email = command.Email;
         employee.Person.Cpf = command.Cpf;
-        employee.Person.PhoneNumber = command.PhoneNumber ?? string.Empty;
-        employee.Person.Street = command.Street ?? string.Empty;
-        employee.Person.Number = command.Number ?? string.Empty;
+        employee.Person.PhoneNumber = command.PhoneNumber;
+        employee.Person.Street = command.Street;
+        employee.Person.Number = command.Number;
         employee.Person.Complement = command.Complement;
         employee.Person.Neighborhood = command.Neighborhood;
-        employee.Person.ZipCode = command.ZipCode ?? string.Empty;
+        employee.Person.ZipCode = command.ZipCode;
         employee.Person.StateId = command.StateId;
-        employee.Person.City = command.City ?? string.Empty;
+        employee.Person.City = command.City;
 
         context.Employees.Update(employee);
 

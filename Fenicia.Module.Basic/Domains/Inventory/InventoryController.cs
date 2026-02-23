@@ -16,23 +16,23 @@ public class InventoryController(
     GetInventoryByCategoryHandler getInventoryByCategoryHandler) : ControllerBase
 {
     [HttpGet("/products/{productId:guid}")]
-    public async Task<IActionResult> GetInventoryByProductIdAsync([FromRoute] Guid productId, CancellationToken ct)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryByProductIdAsync([FromRoute] Guid productId, CancellationToken ct)
     {
-        var inventory = await getInventoryByProductHandler.Handle(new GetInventoryByProductQuery(productId, 1, 10), ct);
+        var inventory = await getInventoryByProductHandler.Handle(new GetInventoryByProductQuery(productId), ct);
 
         return Ok(inventory);
     }
 
     [HttpGet("/category/{categoryId:guid}")]
-    public async Task<IActionResult> GetInventoryByCategoryIdAsync([FromRoute] Guid categoryId, CancellationToken ct)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryByCategoryIdAsync([FromRoute] Guid categoryId, CancellationToken ct)
     {
-        var inventory = await getInventoryByCategoryHandler.Handle(new GetInventoryByCategoryQuery(categoryId, 1, 10), ct);
+        var inventory = await getInventoryByCategoryHandler.Handle(new GetInventoryByCategoryQuery(categoryId), ct);
 
         return Ok(inventory);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetInventoryAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<InventoryResponse>> GetInventoryAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var inventory = await getInventoryHandler.Handle(new GetInventoryQuery(page, perPage), ct);
 

@@ -24,7 +24,7 @@ public class CreateOrderHandler(BasicContext context)
             SaleDate = command.SaleDate,
             Status = command.Status,
             Details = details,
-            TotalAmount = details.Sum(d => d.Price)
+            TotalAmount = details.Select(d => d.Price * (decimal)d.Quantity).Sum()
         };
 
         context.Orders.Add(order);

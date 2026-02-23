@@ -14,4 +14,5 @@ public record InventoryDetailResponse(
     double Quantity,
     decimal? CostPrice,
     decimal SalesPrice,
+    Guid CategoryId,
     string CategoryName);

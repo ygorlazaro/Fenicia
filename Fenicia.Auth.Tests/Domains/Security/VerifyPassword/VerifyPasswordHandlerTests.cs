@@ -158,7 +158,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenPasswordIsVeryLong_VerifiesCorrectly()
     {
         // Arrange
-        var password = this.faker.Lorem.Paragraphs(3);
+        var password = this.faker.Lorem.Paragraphs();
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act

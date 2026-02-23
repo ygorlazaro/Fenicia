@@ -16,7 +16,7 @@ public class StockMovementController(
     UpdateStockMovementHandler updateStockMovementHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAsync([FromQuery] StockMovementQuery query, CancellationToken ct)
+    public async Task<ActionResult<StockMovementResponse>> GetAsync([FromQuery] StockMovementQuery query, CancellationToken ct)
     {
         var stockMovimentation =
             await getStockMovementHandler.Handle(new GetStockMovementQuery(query.StartDate, query.EndDate, query.Page, query.PerPage), ct);
@@ -25,7 +25,7 @@ public class StockMovementController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] AddStockMovementCommand command, CancellationToken ct)
+    public async Task<ActionResult<StockMovementResponse>> PostAsync([FromBody] AddStockMovementCommand command, CancellationToken ct)
     {
         var stockMovimentation = await addStockMovementHandler.Handle(command, ct);
 
@@ -34,7 +34,7 @@ public class StockMovementController(
 
     [HttpPatch("{id:guid}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> PatchAsync(
+    public async Task<ActionResult<StockMovementResponse>> PatchAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateStockMovementCommand command,
         CancellationToken cancellationToken)
