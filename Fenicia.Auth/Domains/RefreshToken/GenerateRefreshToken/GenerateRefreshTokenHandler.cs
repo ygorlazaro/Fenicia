@@ -7,6 +7,9 @@ namespace Fenicia.Auth.Domains.RefreshToken.GenerateRefreshToken;
 
 public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
 {
+    private const string RedisPrefix = "refresh_token:";
+    private readonly IDatabase redisDb = redis.GetDatabase();
+
     public string Handle(Guid userId)
     {
         var randomNumber = new byte[32];
@@ -14,21 +17,13 @@ public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
 
-        var refreshToken = new RefreshTokenModel
-        {
-            Token = Convert.ToBase64String(randomNumber),
-            UserId = userId,
-            ExpirationDate = DateTime.UtcNow.AddDays(7),
-            IsActive = true
-        };
-        
+        var stringToken = Convert.ToBase64String(randomNumber);
+        var refreshToken = new RefreshTokenModel(stringToken, DateTime.UtcNow.AddDays(7), userId);
+
         Add(refreshToken);
 
         return refreshToken.Token;
     }
-    
-    private const string RedisPrefix = "refresh_token:";
-    private readonly IDatabase redisDb = redis.GetDatabase();
 
     private void Add(RefreshTokenModel refreshToken)
     {
@@ -45,5 +40,4 @@ public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
             CommandFlags.None
         );
     }
-
 }

@@ -11,15 +11,11 @@ namespace Fenicia.Auth.Tests.Domains.User.GetUserForRefresh;
 [TestFixture]
 public class GetUserForRefreshHandlerTests
 {
-    private AuthContext context = null!;
-    private GetUserForRefreshHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -32,6 +28,10 @@ public class GetUserForRefreshHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private GetUserForRefreshHandler handler = null!;
+    private Faker faker = null!;
 
     [Test]
     public async Task Handle_WhenUserExists_ReturnsUserResponse()
@@ -66,14 +66,14 @@ public class GetUserForRefreshHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenUserDoesNotExist_ThrowsUnauthorizedAccessException()
+    public void Handle_WhenUserDoesNotExist_ThrowsUnauthorizedAccessException()
     {
         // Arrange
         var userId = Guid.NewGuid();
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<UnauthorizedAccessException>(
-            async () => await this.handler.Handle(userId, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
+            await this.handler.Handle(userId, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Permission denied"));
     }
@@ -121,14 +121,14 @@ public class GetUserForRefreshHandlerTests
     }
 
     [Test]
-    public async Task Handle_WithEmptyDatabase_ThrowsUnauthorizedAccessException()
+    public void Handle_WithEmptyDatabase_ThrowsUnauthorizedAccessException()
     {
         // Arrange
         var userId = Guid.NewGuid();
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<UnauthorizedAccessException>(
-            async () => await this.handler.Handle(userId, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
+            await this.handler.Handle(userId, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Permission denied"));
     }

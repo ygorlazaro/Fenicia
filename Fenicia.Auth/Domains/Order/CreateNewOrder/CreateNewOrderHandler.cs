@@ -11,23 +11,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Order.CreateNewOrder;
 
-public sealed class CreateNewOrderHandler(AuthContext db, CreateCreditsForOrderHandler createCreditsForOrderHandler, IMigrationService migrationService)
+public class CreateNewOrderHandler(
+    AuthContext db,
+    CreateCreditsForOrderHandler createCreditsForOrderHandler,
+    IMigrationService migrationService)
 {
-    public async Task<CreateNewOrderResponse?> Handle(CreateNewOrderCommand command, CancellationToken ct)
+    public virtual async Task<CreateNewOrderResponse?> Handle(CreateNewOrderCommand command, CancellationToken ct)
     {
         var existingUser = await db.UserExistsAsync(command.UserId, command.CompanyId, ct);
 
-        if (!existingUser)
-        {
-            throw new PermissionDeniedException(TextConstants.UserDoestNotExistsAtTheCompany);
-        }
+        if (!existingUser) throw new PermissionDeniedException(TextConstants.UserDoestNotExistsAtTheCompany);
 
         var modules = await PopulateModules(command.Modules, ct);
 
-        if (modules.Count == 0)
-        {
-            throw new ItemNotExistsException(TextConstants.ModulesNotFound);
-        }
+        if (modules.Count == 0) throw new ItemNotExistsException(TextConstants.ModulesNotFound);
 
         var totalAmount = modules.Sum(m => m.Price);
         var details = modules.Select(m => new OrderDetailModel { ModuleId = m.Id, Price = m.Price }).ToList();
@@ -43,10 +40,12 @@ public sealed class CreateNewOrderHandler(AuthContext db, CreateCreditsForOrderH
 
         db.Orders.Add(order);
 
-        await createCreditsForOrderHandler.Handle(new CreateCreditsForOrderQuery(order.Id, order.CompanyId, order.Details.Select(d => new CreateCreditsForOrderDetailsQuery(d.Id, d.ModuleId) )), ct);
+        await createCreditsForOrderHandler.Handle(
+            new CreateCreditsForOrderQuery(order.Id, order.CompanyId,
+                order.Details.Select(d => new CreateCreditsForOrderDetailsQuery(d.Id, d.ModuleId))), ct);
 
         await db.SaveChangesAsync(ct);
-        
+
         await migrationService.RunMigrationsAsync(command.CompanyId, [.. modules.Select(m => m.Type)], ct);
 
         return new CreateNewOrderResponse(order.Id);
@@ -59,17 +58,11 @@ public sealed class CreateNewOrderHandler(AuthContext db, CreateCreditsForOrderH
             var uniqueModules = request.Distinct();
             var modules = await GetModulesToOrderAsync(uniqueModules, ct);
 
-            if (modules.Any(m => m.Type == ModuleType.Basic))
-            {
-                return modules;
-            }
+            if (modules.Any(m => m.Type == ModuleType.Basic)) return modules;
 
             var basicModule = await GetModuleByTypeAsync(ModuleType.Basic, ct);
 
-            if (basicModule is null)
-            {
-                return [];
-            }
+            if (basicModule is null) return [];
 
             modules.Add(basicModule);
 

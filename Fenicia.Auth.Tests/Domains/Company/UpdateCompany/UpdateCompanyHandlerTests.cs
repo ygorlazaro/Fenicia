@@ -14,15 +14,11 @@ namespace Fenicia.Auth.Tests.Domains.Company.UpdateCompany;
 [TestFixture]
 public class UpdateCompanyHandlerTests
 {
-    private AuthContext context = null!;
-    private UpdateCompanyHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -35,6 +31,10 @@ public class UpdateCompanyHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private UpdateCompanyHandler handler = null!;
+    private Faker faker = null!;
 
     [Test]
     public async Task Handle_WhenUserIsAdmin_CompanyIsUpdatedSuccessfully()
@@ -132,8 +132,8 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo(TextConstants.ItemNotFoundMessage));
     }
@@ -192,8 +192,8 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo(TextConstants.ItemNotFoundMessage));
     }
@@ -252,8 +252,8 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo(TextConstants.PermissionDeniedMessage));
     }
@@ -313,8 +313,8 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo(TextConstants.PermissionDeniedMessage));
     }
@@ -384,8 +384,8 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo(TextConstants.PermissionDeniedMessage));
     }
@@ -553,7 +553,8 @@ public class UpdateCompanyHandlerTests
         Assert.That(updatedCompany, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(updatedCompany!.Name, Is.EqualTo("Updated by Admin 2"), "Company name should be updated by admin2");
+            Assert.That(updatedCompany!.Name, Is.EqualTo("Updated by Admin 2"),
+                "Company name should be updated by admin2");
             Assert.That(updatedCompany.TimeZone, Is.EqualTo("Asia/Tokyo"), "TimeZone should be updated");
         }
     }
@@ -595,8 +596,8 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo(TextConstants.PermissionDeniedMessage));
     }
@@ -655,8 +656,8 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo(TextConstants.PermissionDeniedMessage));
     }
@@ -715,8 +716,8 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo(TextConstants.PermissionDeniedMessage));
     }
@@ -803,8 +804,8 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo(TextConstants.ItemNotFoundMessage));
     }

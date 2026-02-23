@@ -26,10 +26,7 @@ public class FollowerService(IFollowerRepository followerRepository) : IFollower
     {
         var follower = await followerRepository.FindFollowerAsync(userId, followerId, ct);
 
-        if (follower is null)
-        {
-            return null;
-        }
+        if (follower is null) return null;
 
         follower.IsActive = false;
 
@@ -48,7 +45,7 @@ public class FollowerService(IFollowerRepository followerRepository) : IFollower
     {
         var followers = await followerRepository.GetFollowersAsync(userId, ct, page, perPage);
 
-        return [..followers.Select(f=> new FollowerResponse(f))];
+        return [..followers.Select(f => new FollowerResponse(f))];
     }
 
     public async Task<int> CountAsync(Guid userId, CancellationToken ct)

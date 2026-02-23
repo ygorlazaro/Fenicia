@@ -3,7 +3,7 @@ using Serilog.Context;
 
 namespace Fenicia.Auth;
 
-public  class CorrelationIdMiddleware(RequestDelegate next)
+public class CorrelationIdMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
     {

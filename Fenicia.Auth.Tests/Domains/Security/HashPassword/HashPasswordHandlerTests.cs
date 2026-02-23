@@ -1,23 +1,28 @@
+using Bogus;
+
 using Fenicia.Auth.Domains.Security.HashPassword;
+using Fenicia.Auth.Domains.Security.VerifyPassword;
 
 namespace Fenicia.Auth.Tests.Domains.Security.HashPassword;
 
 [TestFixture]
 public class HashPasswordHandlerTests
 {
-    private HashPasswordHandler handler = null!;
-
     [SetUp]
     public void SetUp()
     {
+        this.faker = new Faker();
         this.handler = new HashPasswordHandler();
     }
+
+    private Faker faker = null!;
+    private HashPasswordHandler handler = null!;
 
     [Test]
     public void Handle_WhenValidPassword_ReturnsHashedPassword()
     {
         // Arrange
-        var password = "SecurePassword123!";
+        var password = this.faker.Internet.Password();
 
         // Act
         var result = this.handler.Handle(password);
@@ -32,7 +37,7 @@ public class HashPasswordHandlerTests
     public void Handle_WhenSamePasswordIsHashedTwice_ReturnsDifferentHashes()
     {
         // Arrange
-        var password = "SecurePassword123!";
+        var password = this.faker.Internet.Password();
 
         // Act
         var hash1 = this.handler.Handle(password);
@@ -68,7 +73,7 @@ public class HashPasswordHandlerTests
     public void Handle_WhenPasswordContainsSpecialCharacters_ReturnsHashedPassword()
     {
         // Arrange
-        var password = "P@$$w0rd!#$%^&*()_+";
+        var password = $"P@$$w0rd!{this.faker.Random.AlphaNumeric(10)}";
 
         // Act
         var result = this.handler.Handle(password);
@@ -82,7 +87,7 @@ public class HashPasswordHandlerTests
     public void Handle_WhenPasswordIsVeryLong_ReturnsHashedPassword()
     {
         // Arrange
-        var password = new string('a', 1000);
+        var password = this.faker.Lorem.Paragraphs(5);
 
         // Act
         var result = this.handler.Handle(password);
@@ -96,7 +101,7 @@ public class HashPasswordHandlerTests
     public void Handle_WhenPasswordIsShort_ReturnsHashedPassword()
     {
         // Arrange
-        var password = "a";
+        var password = this.faker.Random.Char().ToString();
 
         // Act
         var result = this.handler.Handle(password);
@@ -110,7 +115,7 @@ public class HashPasswordHandlerTests
     public void Handle_WhenPasswordContainsUnicode_ReturnsHashedPassword()
     {
         // Arrange
-        var password = "Password 日本語 🔐";
+        var password = $"{this.faker.Internet.Password()} 日本語 🔐";
 
         // Act
         var result = this.handler.Handle(password);
@@ -124,13 +129,13 @@ public class HashPasswordHandlerTests
     public void Handle_VerifiedPasswordCanBeVerified()
     {
         // Arrange
-        var password = "SecurePassword123!";
+        var password = this.faker.Internet.Password();
 
         // Act
         var hashedPassword = this.handler.Handle(password);
 
         // Assert
-        var verifyHandler = new Fenicia.Auth.Domains.Security.VerifyPassword.VerifyPasswordHandler();
+        var verifyHandler = new VerifyPasswordHandler();
         var isValid = verifyHandler.Handle(password, hashedPassword);
         Assert.That(isValid, Is.True, "Hashed password should be verifiable");
     }
@@ -139,7 +144,7 @@ public class HashPasswordHandlerTests
     public void Handle_WhenPasswordHasWhitespace_ReturnsHashedPassword()
     {
         // Arrange
-        var password = "  password with spaces  ";
+        var password = $"  {this.faker.Internet.Password()} with spaces  ";
 
         // Act
         var result = this.handler.Handle(password);

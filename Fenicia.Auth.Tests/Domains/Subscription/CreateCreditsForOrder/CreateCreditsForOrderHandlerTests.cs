@@ -1,5 +1,3 @@
-using Bogus;
-
 using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
@@ -11,20 +9,15 @@ namespace Fenicia.Auth.Tests.Domains.Subscription.CreateCreditsForOrder;
 [TestFixture]
 public class CreateCreditsForOrderHandlerTests
 {
-    private AuthContext context = null!;
-    private CreateCreditsForOrderHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
         this.handler = new CreateCreditsForOrderHandler(this.context);
-        this.faker = new Faker();
     }
 
     [TearDown]
@@ -32,6 +25,9 @@ public class CreateCreditsForOrderHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private CreateCreditsForOrderHandler handler = null!;
 
     [Test]
     public async Task Handle_WhenValidDetails_CreatesSubscriptionAndCreditsSuccessfully()
@@ -57,15 +53,15 @@ public class CreateCreditsForOrderHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        
-        var subscription = await this.context.Subscriptions.FirstOrDefaultAsync(s => s.Id == result.Id);
+
+        var subscription = await this.context.Subscriptions.Include(subscriptionModel => subscriptionModel.Credits).FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(subscription!.CompanyId, Is.EqualTo(companyId), "CompanyId should match");
             Assert.That(subscription.OrderId, Is.EqualTo(orderId), "OrderId should match");
             Assert.That(subscription.Status, Is.EqualTo(SubscriptionStatus.Active), "Status should be Active");
-            Assert.That(subscription.Credits.Count, Is.EqualTo(2), "Should have 2 credits");
+            Assert.That(subscription.Credits, Has.Count.EqualTo(2), "Should have 2 credits");
         }
     }
 
@@ -90,9 +86,10 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits).FirstOrDefaultAsync(s => s.Id == result.Id);
+        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+            .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
-        
+
         var credit = subscription!.Credits.First();
         using (Assert.EnterMultipleScope())
         {
@@ -130,24 +127,24 @@ public class CreateCreditsForOrderHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(subscription!.StartDate, Is.GreaterThanOrEqualTo(beforeCall), "StartDate should be set");
-            Assert.That(subscription.EndDate, Is.GreaterThan(subscription.StartDate), "EndDate should be after StartDate");
-            Assert.That(subscription.EndDate.Month, Is.EqualTo(subscription.StartDate.AddMonths(1).Month), "EndDate should be 1 month after StartDate");
+            Assert.That(subscription.EndDate, Is.GreaterThan(subscription.StartDate),
+                "EndDate should be after StartDate");
+            Assert.That(subscription.EndDate.Month, Is.EqualTo(subscription.StartDate.AddMonths(1).Month),
+                "EndDate should be 1 month after StartDate");
         }
     }
 
     [Test]
-    public async Task Handle_WhenNoDetails_ThrowsArgumentException()
+    public void Handle_WhenNoDetails_ThrowsArgumentException()
     {
         // Arrange
         var orderId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var details = new List<CreateCreditsForOrderDetailsQuery>();
-
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, details);
+        var query = new CreateCreditsForOrderQuery(orderId, companyId, []);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ArgumentException>(
-            async () => await this.handler.Handle(query, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this.handler.Handle(query, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Ocorreu um problema para adicionar créditos de assinatura"));
     }
@@ -168,9 +165,10 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits).FirstOrDefaultAsync(s => s.Id == result.Id);
+        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+            .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
-        Assert.That(subscription!.Credits.Count, Is.EqualTo(5), "Should create 5 credits");
+        Assert.That(subscription!.Credits, Has.Count.EqualTo(5), "Should create 5 credits");
     }
 
     [Test]
@@ -222,11 +220,12 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits).FirstOrDefaultAsync(s => s.Id == result.Id);
+        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+            .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(subscription!.Credits.Count, Is.EqualTo(1), "Should have 1 credit");
+            Assert.That(subscription!.Credits, Has.Count.EqualTo(1), "Should have 1 credit");
             Assert.That(subscription.Credits[0].ModuleId, Is.EqualTo(module1Id), "ModuleId should match");
         }
     }
@@ -247,7 +246,8 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits).FirstOrDefaultAsync(s => s.Id == result.Id);
+        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+            .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
         Assert.That(subscription!.Credits.All(c => c.IsActive), Is.True, "All credits should be active");
     }
@@ -274,9 +274,9 @@ public class CreateCreditsForOrderHandlerTests
 
         // Assert
         Assert.That(result1.Id, Is.Not.EqualTo(result2.Id), "Should create separate subscriptions");
-        
+
         var subscriptions = await this.context.Subscriptions.ToListAsync();
-        Assert.That(subscriptions.Count, Is.EqualTo(2), "Should have 2 subscriptions");
+        Assert.That(subscriptions, Has.Count.EqualTo(2), "Should have 2 subscriptions");
     }
 
     [Test]
@@ -301,8 +301,9 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits).FirstOrDefaultAsync(s => s.Id == result.Id);
+        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+            .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
-        Assert.That(subscription!.Credits.Count, Is.EqualTo(2), "Should create 2 credits even for same module");
+        Assert.That(subscription!.Credits, Has.Count.EqualTo(2), "Should create 2 credits even for same module");
     }
 }

@@ -13,10 +13,7 @@ public static class ClaimReader
     {
         var access = user.Claims.Where(c => c.Type == "role").Any(x => x.Value == roleToSearch);
 
-        if (!access)
-        {
-            throw new UnauthorizedAccessException();
-        }
+        if (!access) throw new UnauthorizedAccessException();
     }
 
     private static Guid GetGuidClaimValue(ClaimsPrincipal user, string claimType)

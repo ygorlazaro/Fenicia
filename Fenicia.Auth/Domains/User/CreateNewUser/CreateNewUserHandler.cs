@@ -9,23 +9,23 @@ using Fenicia.Common.Migrations.Services;
 
 namespace Fenicia.Auth.Domains.User.CreateNewUser;
 
-public class CreateNewUserHandler(AuthContext context, CheckUserExistsHandle checkUserExistsHandler, CheckCompanyExistsHandler  checkCompanyExistsHandler, HashPasswordHandler  hashPasswordHandler, GetAdminRoleHandler  getAdminRoleHandler, IMigrationService migrationService)
+public class CreateNewUserHandler(
+    AuthContext context,
+    CheckUserExistsHandle checkUserExistsHandler,
+    CheckCompanyExistsHandler checkCompanyExistsHandler,
+    HashPasswordHandler hashPasswordHandler,
+    GetAdminRoleHandler getAdminRoleHandler,
+    IMigrationService migrationService)
 {
     public async Task<CreateNewUserResponse> Handle(CreateNewUserQuery request, CancellationToken ct)
     {
         var isExistingUser = await checkUserExistsHandler.Handle(request.Email, ct);
-        var checkUserExistsQuery = new CheckUserExistsQuery(request.Company.Cnpj, OnlyActive: true);
+        var checkUserExistsQuery = new CheckCompanyExistsQuery(request.Company.Cnpj, true);
         var isExistingCompany = await checkCompanyExistsHandler.Handle(checkUserExistsQuery, ct);
 
-        if (isExistingUser)
-        {
-            throw new ArgumentException(TextConstants.EmailExistsMessage);
-        }
+        if (isExistingUser) throw new ArgumentException(TextConstants.EmailExistsMessage);
 
-        if (isExistingCompany)
-        {
-            throw new ArgumentException(TextConstants.CompanyExistsMessage);
-        }
+        if (isExistingCompany) throw new ArgumentException(TextConstants.CompanyExistsMessage);
 
         var hashedPassword = hashPasswordHandler.Handle(request.Password);
         var userRequest = new UserModel

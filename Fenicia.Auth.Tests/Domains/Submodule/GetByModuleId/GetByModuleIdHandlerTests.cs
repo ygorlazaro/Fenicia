@@ -11,15 +11,11 @@ namespace Fenicia.Auth.Tests.Domains.Submodule.GetByModuleId;
 [TestFixture]
 public class GetByModuleIdHandlerTests
 {
-    private AuthContext context = null!;
-    private GetByModuleIdHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -33,6 +29,10 @@ public class GetByModuleIdHandlerTests
         this.context.Dispose();
     }
 
+    private AuthContext context = null!;
+    private GetByModuleIdHandler handler = null!;
+    private Faker faker = null!;
+
     [Test]
     public async Task Handle_WhenSubmodulesExist_ReturnsSubmodulesForModule()
     {
@@ -41,18 +41,18 @@ public class GetByModuleIdHandlerTests
         var submodule1 = new SubmoduleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Submodule 1",
-            Description = "Description 1",
-            Route = "/api/submodule1",
+            Name = this.faker.Commerce.ProductName(),
+            Description = this.faker.Commerce.ProductDescription(),
+            Route = $"/api/{this.faker.Lorem.Word()}",
             ModuleId = moduleId
         };
 
         var submodule2 = new SubmoduleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Submodule 2",
-            Description = "Description 2",
-            Route = "/api/submodule2",
+            Name = this.faker.Commerce.ProductName(),
+            Description = this.faker.Commerce.ProductDescription(),
+            Route = $"/api/{this.faker.Lorem.Word()}",
             ModuleId = moduleId
         };
 
@@ -64,7 +64,7 @@ public class GetByModuleIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(2), "Should return 2 submodules");
+        Assert.That(result, Has.Count.EqualTo(2), "Should return 2 submodules");
     }
 
     [Test]
@@ -77,9 +77,9 @@ public class GetByModuleIdHandlerTests
         var submodule = new SubmoduleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Submodule 1",
-            Description = "Description 1",
-            Route = "/api/submodule1",
+            Name = this.faker.Commerce.ProductName(),
+            Description = this.faker.Commerce.ProductDescription(),
+            Route = $"/api/{this.faker.Lorem.Word()}",
             ModuleId = otherModuleId
         };
 
@@ -165,7 +165,7 @@ public class GetByModuleIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(1), "Should return 1 submodule");
+        Assert.That(result, Has.Count.EqualTo(1), "Should return 1 submodule");
         Assert.That(result[0].Description, Is.Null, "Description should be null");
     }
 
@@ -213,7 +213,7 @@ public class GetByModuleIdHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Count, Is.EqualTo(2), "Should return only submodules for module1");
+            Assert.That(result, Has.Count.EqualTo(2), "Should return only submodules for module1");
             Assert.That(result.All(sm => sm.ModuleId == moduleId1), Is.True, "All submodules should belong to module1");
         }
     }
@@ -225,7 +225,7 @@ public class GetByModuleIdHandlerTests
         var moduleId1 = Guid.NewGuid();
         var moduleId2 = Guid.NewGuid();
 
-        for (int i = 0; i < 5; i++)
+        for (var i = 0; i < 5; i++)
         {
             this.context.Submodules.Add(new SubmoduleModel
             {
@@ -237,7 +237,7 @@ public class GetByModuleIdHandlerTests
             });
         }
 
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             this.context.Submodules.Add(new SubmoduleModel
             {
@@ -258,8 +258,8 @@ public class GetByModuleIdHandlerTests
         // Assert
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result1.Count, Is.EqualTo(5), "Module1 should have 5 submodules");
-            Assert.That(result2.Count, Is.EqualTo(3), "Module2 should have 3 submodules");
+            Assert.That(result1, Has.Count.EqualTo(5), "Module1 should have 5 submodules");
+            Assert.That(result2, Has.Count.EqualTo(3), "Module2 should have 3 submodules");
         }
     }
 }

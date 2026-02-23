@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("companies")]
-public  class CompanyModel: BaseModel
+public class CompanyModel : BaseModel
 {
     public CompanyModel()
     {

@@ -37,9 +37,7 @@ public static class Program
             Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
 
         if (!File.Exists(commonApiSettingsPath))
-        {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
-        }
 
         configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
 
@@ -224,9 +222,7 @@ public static class Program
             var seqUrl = context.Configuration["Seq:Url"];
 
             if (!string.IsNullOrWhiteSpace(seqUrl))
-            {
                 config.Enrich.FromLogContext().Enrich.WithEnvironmentUserName().WriteTo.Console().WriteTo.Seq(seqUrl);
-            }
         });
 
         Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();

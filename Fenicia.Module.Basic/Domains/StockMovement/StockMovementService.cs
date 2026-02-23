@@ -78,8 +78,8 @@ public class StockMovementService(
         int perPage = 10)
     {
         var movements = await stockMovementRepository.GetMovementAsync(startDate, endDate, ct, page, perPage);
-        
-        return [..movements.Select(m=>  new StockMovementResponse(m))];
+
+        return [..movements.Select(m => new StockMovementResponse(m))];
     }
 
     public async Task<StockMovementResponse?> AddAsync(StockMovementRequest request, CancellationToken ct)
@@ -89,13 +89,9 @@ public class StockMovementService(
         stockMovementRepository.Add(stockMovement);
 
         if (stockMovement.Type == StockMovementType.In)
-        {
             await productRepository.IncreaseStockAsync(stockMovement.ProductId, stockMovement.Quantity, ct);
-        }
         else if (stockMovement.Type == StockMovementType.In)
-        {
             await productRepository.DecreastStockAsync(stockMovement.ProductId, stockMovement.Quantity, ct);
-        }
 
         await stockMovementRepository.SaveChangesAsync(ct);
 
@@ -106,10 +102,7 @@ public class StockMovementService(
     {
         var stockMovement = await stockMovementRepository.GetByIdAsync(id, ct);
 
-        if (stockMovement is null)
-        {
-            return null;
-        }
+        if (stockMovement is null) return null;
 
         stockMovement.Date = request.Date;
         stockMovement.Type = request.Type;

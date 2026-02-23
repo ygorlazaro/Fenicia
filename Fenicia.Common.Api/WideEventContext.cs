@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace Fenicia.Common.API;
 
-public  class WideEventContext
+public class WideEventContext
 {
     public string TraceId { get; } = Activity.Current?.TraceId.ToString() ?? string.Empty;
 

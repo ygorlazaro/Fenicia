@@ -43,10 +43,7 @@ public class Program
 
             var connString = config.GetConnectionString("Contracts")?.Replace("{tenant}", tenantId);
 
-            if (string.IsNullOrWhiteSpace(connString))
-            {
-                throw new Exception("Connection string inválida");
-            }
+            if (string.IsNullOrWhiteSpace(connString)) throw new Exception("Connection string inválida");
 
             o.UseNpgsql(connString).EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });

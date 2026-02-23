@@ -13,7 +13,7 @@ public class GetUserModuleHandler(AuthContext context)
 
         return await request.Distinct().ToListAsync(ct);
     }
-    
+
     private IQueryable<ModuleResponse> ValidModuleBySubscriptionQuery(Guid userId, Guid companyId)
     {
         var now = DateTime.Now;

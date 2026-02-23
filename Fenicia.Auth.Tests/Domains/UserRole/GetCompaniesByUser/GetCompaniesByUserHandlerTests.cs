@@ -1,5 +1,3 @@
-using Bogus;
-
 using Fenicia.Auth.Domains.UserRole.GetCompaniesByUser;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -11,20 +9,15 @@ namespace Fenicia.Auth.Tests.Domains.UserRole.GetCompaniesByUser;
 [TestFixture]
 public class GetCompaniesByUserHandlerTests
 {
-    private AuthContext context = null!;
-    private GetCompaniesByUserHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
         this.handler = new GetCompaniesByUserHandler(this.context);
-        this.faker = new Faker();
     }
 
     [TearDown]
@@ -32,6 +25,9 @@ public class GetCompaniesByUserHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private GetCompaniesByUserHandler handler = null!;
 
     [Test]
     public async Task GetUserCompaniesAsync_WhenUserHasCompanies_ReturnsCompanies()
@@ -77,7 +73,7 @@ public class GetCompaniesByUserHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(1), "Should return 1 company");
+        Assert.That(result, Has.Count.EqualTo(1), "Should return 1 company");
     }
 
     [Test]
@@ -171,7 +167,7 @@ public class GetCompaniesByUserHandlerTests
         var companies = new List<CompanyModel>();
         var userRoles = new List<UserRoleModel>();
 
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             var company = new CompanyModel
             {
@@ -205,7 +201,7 @@ public class GetCompaniesByUserHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(3), "Should return all 3 companies");
+        Assert.That(result, Has.Count.EqualTo(3), "Should return all 3 companies");
     }
 
     [Test]
@@ -273,7 +269,7 @@ public class GetCompaniesByUserHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Count, Is.EqualTo(1), "Should return only user1's company");
+            Assert.That(result, Has.Count.EqualTo(1), "Should return only user1's company");
             Assert.That(result[0].Company.Id, Is.EqualTo(company1.Id), "Should return company1");
         }
     }
@@ -363,7 +359,7 @@ public class GetCompaniesByUserHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Count, Is.EqualTo(2), "Should return 2 companies");
+            Assert.That(result, Has.Count.EqualTo(2), "Should return 2 companies");
             Assert.That(result.Any(r => r.Role == "Admin"), Is.True, "Should have Admin role");
             Assert.That(result.Any(r => r.Role == "User"), Is.True, "Should have User role");
         }

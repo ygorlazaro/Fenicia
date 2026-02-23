@@ -12,15 +12,11 @@ namespace Fenicia.Auth.Tests.Domains.Module.GetModules;
 [TestFixture]
 public class GetModulesHandlerTests
 {
-    private AuthContext context = null!;
-    private GetModulesHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -34,6 +30,10 @@ public class GetModulesHandlerTests
         this.context.Dispose();
     }
 
+    private AuthContext context = null!;
+    private GetModulesHandler handler = null!;
+    private Faker faker = null!;
+
     [Test]
     public async Task Handle_WhenModulesExist_ReturnsPaginatedModules()
     {
@@ -41,7 +41,7 @@ public class GetModulesHandlerTests
         var module1 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Basic Module",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m
         };
@@ -49,7 +49,7 @@ public class GetModulesHandlerTests
         var module2 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Social Network",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.SocialNetwork,
             Price = 20.0m
         };
@@ -66,7 +66,7 @@ public class GetModulesHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data.Count, Is.EqualTo(2), "Should return 2 modules");
+            Assert.That(result.Data, Has.Count.EqualTo(2), "Should return 2 modules");
             Assert.That(result.Total, Is.EqualTo(2), "Total should be 2");
             Assert.That(result.Page, Is.EqualTo(1), "Page should be 1");
             Assert.That(result.PerPage, Is.EqualTo(10), "PerPage should be 10");
@@ -80,7 +80,7 @@ public class GetModulesHandlerTests
         var erpModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "ERP",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Erp,
             Price = 100.0m
         };
@@ -88,7 +88,7 @@ public class GetModulesHandlerTests
         var authModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Auth",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Auth,
             Price = 50.0m
         };
@@ -96,7 +96,7 @@ public class GetModulesHandlerTests
         var basicModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Basic",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m
         };
@@ -113,8 +113,8 @@ public class GetModulesHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data.Count, Is.EqualTo(1), "Should exclude ERP and Auth modules");
-            Assert.That(result.Data[0].Name, Is.EqualTo("Basic"), "Should return only Basic module");
+            Assert.That(result.Data, Has.Count.EqualTo(1), "Should exclude ERP and Auth modules");
+            Assert.That(result.Data[0].Name, Is.EqualTo(basicModule.Name), "Should return only Basic module");
             Assert.That(result.Total, Is.EqualTo(1), "Total should be 1");
         }
     }
@@ -124,12 +124,12 @@ public class GetModulesHandlerTests
     {
         // Arrange
         var modules = new List<ModuleModel>();
-        for (int i = 0; i < 25; i++)
+        for (var i = 0; i < 25; i++)
         {
             modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
-                Name = $"Module {i}",
+                Name = $"Module {this.faker.Commerce.ProductName()} {i}",
                 Type = (ModuleType)(i % 10 + 1),
                 Price = 10.0m
             });
@@ -147,7 +147,7 @@ public class GetModulesHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data.Count, Is.EqualTo(10), "Should return 10 modules for page 2");
+            Assert.That(result.Data, Has.Count.EqualTo(10), "Should return 10 modules for page 2");
             Assert.That(result.Total, Is.EqualTo(25), "Total should be 25");
             Assert.That(result.Page, Is.EqualTo(2), "Page should be 2");
             Assert.That(result.PerPage, Is.EqualTo(10), "PerPage should be 10");
@@ -209,7 +209,7 @@ public class GetModulesHandlerTests
         var module1 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Social Network",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.SocialNetwork,
             Price = 20.0m
         };
@@ -217,7 +217,7 @@ public class GetModulesHandlerTests
         var module2 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Basic Module",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m
         };
@@ -225,7 +225,7 @@ public class GetModulesHandlerTests
         var module3 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "HR Module",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Hr,
             Price = 30.0m
         };
@@ -242,7 +242,7 @@ public class GetModulesHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data.Count, Is.EqualTo(3), "Should return 3 modules");
+            Assert.That(result.Data, Has.Count.EqualTo(3), "Should return 3 modules");
             Assert.That(result.Data[0].Type, Is.EqualTo(ModuleType.Basic), "First should be Basic");
             Assert.That(result.Data[1].Type, Is.EqualTo(ModuleType.SocialNetwork), "Second should be SocialNetwork");
             Assert.That(result.Data[2].Type, Is.EqualTo(ModuleType.Hr), "Third should be Hr");
@@ -256,7 +256,7 @@ public class GetModulesHandlerTests
         var module = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = "Basic Module",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m
         };
@@ -286,7 +286,7 @@ public class GetModulesHandlerTests
         var module = new ModuleModel
         {
             Id = moduleId,
-            Name = "Test Module",
+            Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
             Price = 10.0m
         };
@@ -306,7 +306,7 @@ public class GetModulesHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(moduleResponse.Id, Is.EqualTo(moduleId), "Id should match");
-            Assert.That(moduleResponse.Name, Is.EqualTo("Test Module"), "Name should match");
+            Assert.That(moduleResponse.Name, Is.EqualTo(module.Name), "Name should match");
             Assert.That(moduleResponse.Type, Is.EqualTo(ModuleType.Basic), "Type should match");
         }
     }

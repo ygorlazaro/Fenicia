@@ -1,3 +1,5 @@
+using Bogus;
+
 using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Auth.Tests;
@@ -7,11 +9,19 @@ public class CorrelationIdMiddlewareTests
 {
     private const string HeaderName = "X-Correlation-ID";
 
+    [SetUp]
+    public void SetUp()
+    {
+        this.faker = new Faker();
+    }
+
+    private Faker faker = null!;
+
     [Test]
     public async Task InvokeAsync_WhenHeaderPresent_PassesThroughAndSetsResponseHeader()
     {
         var context = new DefaultHttpContext();
-        const string existing = "existing-correlation-id";
+        var existing = this.faker.Random.Guid().ToString();
         context.Request.Headers[HeaderName] = existing;
 
         var called = false;

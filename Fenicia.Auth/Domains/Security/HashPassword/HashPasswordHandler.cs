@@ -6,14 +6,10 @@ public class HashPasswordHandler
 {
     public virtual string Handle(string password)
     {
-        if (string.IsNullOrEmpty(password))
-        {
-            throw new ArgumentException(TextConstants.InvalidPasswordMessage);
-        }
+        if (string.IsNullOrEmpty(password)) throw new ArgumentException(TextConstants.InvalidPasswordMessage);
 
         var hashed = BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
 
         return hashed ?? throw new Exception("Error hashing password");
     }
-
 }

@@ -20,8 +20,8 @@ public class CompanyController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<IEnumerable<CompanyListItemResponse>>>> GetByLoggedUser(
-          [FromQuery] PaginationQuery query,
+    public async Task<ActionResult<Pagination<IEnumerable<GetCompaniesByUserResponse>>>> GetByLoggedUser(
+        [FromQuery] PaginationQuery query,
         [FromServices] GetCompaniesByUserHandler handler,
         WideEventContext wide,
         CancellationToken ct)
@@ -42,7 +42,7 @@ public class CompanyController : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> PatchAsync(
-       [FromRoute] Guid id,
+        [FromRoute] Guid id,
         [FromBody] UpdateCompanyCommand request,
         [FromServices] UpdateCompanyHandler handler,
         WideEventContext wide,

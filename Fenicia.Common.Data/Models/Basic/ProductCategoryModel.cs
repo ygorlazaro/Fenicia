@@ -6,7 +6,7 @@ using Fenicia.Common.Data.Requests.Basic;
 namespace Fenicia.Common.Data.Models.Basic;
 
 [Table("product_categories")]
-public  class ProductCategoryModel : BaseModel
+public class ProductCategoryModel : BaseModel
 {
     public ProductCategoryModel(ProductCategoryRequest request)
     {

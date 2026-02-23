@@ -7,7 +7,7 @@
     <ItemGroup>
         <PackageReference Include="Extensions.FluentValidation.Br" Version="1.0.2"/>
         <PackageReference Include="FluentValidation" Version="12.1.1"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0"/>
     </ItemGroup>
     <ItemGroup>
@@ -15,6 +15,6 @@
         <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj"/>
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Responses\Auth\" />
+        <Folder Include="Responses\Auth\"/>
     </ItemGroup>
 </Project>

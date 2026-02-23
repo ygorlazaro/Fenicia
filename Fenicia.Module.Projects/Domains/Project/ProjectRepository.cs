@@ -6,5 +6,4 @@ namespace Fenicia.Module.Projects.Domains.Project;
 
 public class ProjectRepository(ProjectContext context) : BaseRepository<ProjectModel>(context), IProjectRepository
 {
-    
 }

@@ -39,7 +39,7 @@ public class StockMovementController(IStockMovementService stockMovementService)
         return stockMovimentation is null ? NotFound() : new CreatedResult(string.Empty, stockMovimentation);
     }
 
-    public record StockMovementQuery (int Page, int PerPage)
+    public record StockMovementQuery(int Page, int PerPage)
     {
         public DateTime StartDate { get; set; }
 

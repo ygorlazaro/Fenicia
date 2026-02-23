@@ -11,10 +11,12 @@ namespace Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
 
 public class ResetPasswordHandler(AuthContext db, ChangePasswordHandler changePasswordHandler)
 {
-    public async Task Handle(ResetPasswordCommand command, CancellationToken ct)
+    public virtual async Task Handle(ResetPasswordCommand command, CancellationToken ct)
     {
-        var userId = await db.UserIdByEmailAsync(command.Email, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
-        var currentCode = await GetFromUserIdAndCodeAsync(userId, command.Code, ct) ?? throw new InvalidDataException(TextConstants.InvalidForgetCode);
+        var userId = await db.UserIdByEmailAsync(command.Email, ct)
+                     ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
+        var currentCode = await GetFromUserIdAndCodeAsync(userId, command.Code, ct)
+                          ?? throw new InvalidDataException(TextConstants.InvalidForgetCode);
 
         await changePasswordHandler.Handle(new ChangePasswordQuery(currentCode.UserId, command.Password), ct);
         await InvalidateCodeAsync(currentCode.Id, ct);
@@ -33,10 +35,7 @@ public class ResetPasswordHandler(AuthContext db, ChangePasswordHandler changePa
     {
         var forgotPassword = await db.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == id, ct);
 
-        if (forgotPassword is null)
-        {
-            return;
-        }
+        if (forgotPassword is null) return;
 
         forgotPassword.IsActive = false;
 
@@ -44,5 +43,4 @@ public class ResetPasswordHandler(AuthContext db, ChangePasswordHandler changePa
 
         await db.SaveChangesAsync(ct);
     }
-
 }

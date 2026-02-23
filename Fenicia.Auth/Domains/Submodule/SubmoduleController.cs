@@ -14,7 +14,7 @@ namespace Fenicia.Auth.Domains.Submodule;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SubmoduleController() : ControllerBase
+public class SubmoduleController : ControllerBase
 {
     [HttpGet("{moduleId:Guid}")]
     [AllowAnonymous]

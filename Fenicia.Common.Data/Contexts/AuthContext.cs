@@ -6,6 +6,11 @@ namespace Fenicia.Common.Data.Contexts;
 
 public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(options)
 {
+    public AuthContext() : this(new DbContextOptions<AuthContext>())
+    {
+
+    }
+
     public DbSet<RoleModel> Roles { get; set; } = null!;
 
     public DbSet<UserModel> Users { get; set; } = null!;
@@ -32,19 +37,11 @@ public class AuthContext(DbContextOptions<AuthContext> options) : DbContext(opti
 
     public DbSet<SubmoduleModel> Submodules { get; set; } = null!;
 
-    public AuthContext(): this(new DbContextOptions<AuthContext>())
-    {
-        
-    }
-
     public override Task<int> SaveChangesAsync(CancellationToken ct)
     {
         foreach (var item in this.ChangeTracker.Entries())
         {
-            if (item.Entity is not BaseModel model)
-            {
-                continue;
-            }
+            if (item.Entity is not BaseModel model) continue;
 
             switch (item.State)
             {

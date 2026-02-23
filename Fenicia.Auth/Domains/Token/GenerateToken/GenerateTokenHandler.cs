@@ -7,26 +7,21 @@ using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Domains.Token.GenerateToken;
 
-public class GenerateTokenHandler(LoginAttemptHandler loginAttemptHandler, GetByEmailHandler getByEmailHandler, IncrementAttempts incrementAttemptsHandler, VerifyPasswordHandler verifyPasswordHandler)
+public class GenerateTokenHandler(
+    LoginAttemptHandler loginAttemptHandler,
+    GetByEmailHandler getByEmailHandler,
+    IncrementAttempts incrementAttemptsHandler,
+    VerifyPasswordHandler verifyPasswordHandler)
 {
     public async Task<GenerateTokenResponse> Handle(GenerateTokenQuery query, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(query.Password))
-        {
-            throw new ArgumentNullException(nameof(query.Password));
-        }
+        if (string.IsNullOrWhiteSpace(query.Password)) throw new ArgumentException(nameof(query.Password));
 
-        if (string.IsNullOrWhiteSpace(query.Email))
-        {
-            throw new ArgumentNullException(nameof(query.Email));
-        }
-        
-        var attempts = loginAttemptHandler.Handle(query.Email, ct);
+        if (string.IsNullOrWhiteSpace(query.Email)) throw new ArgumentException(nameof(query.Email));
 
-        if (attempts >= 5)
-        {
-            throw new PermissionDeniedException(TextConstants.TooManyAttempts);
-        }
+        var attempts = loginAttemptHandler.Handle(query.Email);
+
+        if (attempts >= 5) throw new PermissionDeniedException(TextConstants.TooManyAttempts);
 
         var user = await getByEmailHandler.Handle(query.Email, ct);
 
@@ -42,7 +37,7 @@ public class GenerateTokenHandler(LoginAttemptHandler loginAttemptHandler, GetBy
 
         if (isValidPassword)
         {
-            loginAttemptHandler.Handle(query.Email, ct);
+            loginAttemptHandler.Handle(query.Email);
 
             return new GenerateTokenResponse(user.Id, user.Name, user.Email);
         }

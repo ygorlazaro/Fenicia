@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Fenicia.Common.API.Middlewares;
 
-public  class WideEventMiddleware(
+public class WideEventMiddleware(
     RequestDelegate next,
     ILogger<WideEventMiddleware> logger)
 {

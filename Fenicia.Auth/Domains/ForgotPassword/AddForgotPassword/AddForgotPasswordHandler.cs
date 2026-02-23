@@ -6,11 +6,12 @@ using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
 
-public sealed class ForgotPasswordHandler(AuthContext db)
+public class AddForgotPasswordHandler(AuthContext db)
 {
-    public async Task Handle(ForgotPasswordCommand command, CancellationToken ct)
+    public virtual async Task Handle(AddForgotPasswordCommand command, CancellationToken ct)
     {
-        var userId = await db.UserIdByEmailAsync(command.Email, ct) ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
+        var userId = await db.UserIdByEmailAsync(command.Email, ct)
+                     ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
 
         await db.ForgottenPasswords.AddAsync(new ForgotPasswordModel

@@ -33,7 +33,10 @@ public class UserController : ControllerBase
 
     [HttpGet("company")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserCompaniesResponse))]
-    public async Task<ActionResult<GetUserCompaniesResponse>> GetUserCompanyAsync([FromServices] GetUserCompaniesHandler handler, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<GetUserCompaniesResponse>> GetUserCompanyAsync(
+        [FromServices] GetUserCompaniesHandler handler,
+        WideEventContext wide,
+        CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
 

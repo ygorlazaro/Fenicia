@@ -11,20 +11,14 @@ public class ValidateTokenHandler(IConnectionMultiplexer redis)
 
     public async Task<bool> Handle(ValidateTokenQuery query)
     {
-        if (string.IsNullOrWhiteSpace(query.RefreshToken))
-        {
-            throw new ArgumentNullException(nameof(query.RefreshToken));
-        }
+        if (string.IsNullOrWhiteSpace(query.RefreshToken)) throw new ArgumentException("Invalid refresh token");
 
         try
         {
             var key = RedisPrefix + query.RefreshToken;
             var value = await this.redisDb.StringGetAsync(key);
 
-            if (value.IsNullOrEmpty)
-            {
-                return false;
-            }
+            if (value.IsNullOrEmpty) return false;
 
             var tokenObj = JsonSerializer.Deserialize<ValidateTokenResponse>((string)value!);
 

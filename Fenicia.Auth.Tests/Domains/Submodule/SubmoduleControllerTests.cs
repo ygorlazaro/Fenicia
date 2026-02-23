@@ -1,3 +1,4 @@
+using Fenicia.Auth.Domains.Submodule;
 using Fenicia.Auth.Domains.Submodule.GetByModuleId;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
@@ -15,17 +16,11 @@ namespace Fenicia.Auth.Tests.Domains.Submodule;
 [TestFixture]
 public class SubmoduleControllerTests
 {
-    private Auth.Domains.Submodule.SubmoduleController controller = null!;
-    private AuthContext context = null!;
-    private GetByModuleIdHandler getByModuleIdHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testModuleId;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -33,7 +28,7 @@ public class SubmoduleControllerTests
         this.getByModuleIdHandler = new GetByModuleIdHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new Auth.Domains.Submodule.SubmoduleController
+        this.controller = new SubmoduleController
         {
             ControllerContext = new ControllerContext
             {
@@ -48,7 +43,11 @@ public class SubmoduleControllerTests
         this.context.Dispose();
     }
 
-    #region GetByModuleIdAsync Tests
+    private SubmoduleController controller = null!;
+    private AuthContext context = null!;
+    private GetByModuleIdHandler getByModuleIdHandler = null!;
+    private Mock<HttpContext> mockHttpContext = null!;
+    private Guid testModuleId;
 
     [Test]
     public async Task GetByModuleIdAsync_WhenNoSubmodulesExist_ReturnsOkWithEmptyList()
@@ -124,7 +123,7 @@ public class SubmoduleControllerTests
 
         var returnedSubmodules = okResult.Value as List<GetByModuleResponse>;
         Assert.That(returnedSubmodules, Is.Not.Null);
-        Assert.That(returnedSubmodules.Count, Is.EqualTo(2));
+        Assert.That(returnedSubmodules, Has.Count.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedSubmodules[0].ModuleId, Is.EqualTo(this.testModuleId));
@@ -190,15 +189,11 @@ public class SubmoduleControllerTests
         Assert.That(wide.UserId, Is.EqualTo("Guest"));
     }
 
-    #endregion
-
-    #region Attribute Tests
-
     [Test]
     public void SubmoduleController_HasAuthorizeAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Submodule.SubmoduleController);
+        var controllerType = typeof(SubmoduleController);
 
         // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -211,10 +206,11 @@ public class SubmoduleControllerTests
     public void SubmoduleController_HasRouteAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Submodule.SubmoduleController);
+        var controllerType = typeof(SubmoduleController);
 
         // Act
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute =
+            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.That(routeAttribute, Is.Not.Null, "SubmoduleController should have Route attribute");
@@ -225,10 +221,11 @@ public class SubmoduleControllerTests
     public void SubmoduleController_HasProducesAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Submodule.SubmoduleController);
+        var controllerType = typeof(SubmoduleController);
 
         // Act
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute =
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.That(producesAttribute, Is.Not.Null, "SubmoduleController should have Produces attribute");
@@ -239,10 +236,11 @@ public class SubmoduleControllerTests
     public void SubmoduleController_HasApiControllerAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Submodule.SubmoduleController);
+        var controllerType = typeof(SubmoduleController);
 
         // Act
-        var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+        var apiControllerAttribute =
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.That(apiControllerAttribute, Is.Not.Null, "SubmoduleController should have ApiController attribute");
@@ -252,15 +250,14 @@ public class SubmoduleControllerTests
     public void GetByModuleIdAsync_HasAllowAnonymousAttribute()
     {
         // Arrange
-        var controllerType = typeof(Auth.Domains.Submodule.SubmoduleController);
-        var methodInfo = controllerType.GetMethod(nameof(Auth.Domains.Submodule.SubmoduleController.GetByModuleIdAsync));
+        var controllerType = typeof(SubmoduleController);
+        var methodInfo = controllerType.GetMethod(nameof(SubmoduleController.GetByModuleIdAsync));
 
         // Act
-        var allowAnonymousAttribute = methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
+        var allowAnonymousAttribute =
+            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.That(allowAnonymousAttribute, Is.Not.Null, "GetByModuleIdAsync should have AllowAnonymous attribute");
     }
-
-    #endregion
 }

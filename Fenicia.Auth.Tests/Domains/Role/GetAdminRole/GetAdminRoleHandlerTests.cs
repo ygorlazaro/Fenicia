@@ -1,5 +1,3 @@
-using Bogus;
-
 using Fenicia.Auth.Domains.Role.GetAdminRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -11,20 +9,15 @@ namespace Fenicia.Auth.Tests.Domains.Role.GetAdminRole;
 [TestFixture]
 public class GetAdminRoleHandlerTests
 {
-    private AuthContext context = null!;
-    private GetAdminRoleHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
         this.handler = new GetAdminRoleHandler(this.context);
-        this.faker = new Faker();
     }
 
     [TearDown]
@@ -32,6 +25,9 @@ public class GetAdminRoleHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private GetAdminRoleHandler handler = null!;
 
     [Test]
     public async Task Handle_WhenAdminRoleExists_ReturnsAdminRole()

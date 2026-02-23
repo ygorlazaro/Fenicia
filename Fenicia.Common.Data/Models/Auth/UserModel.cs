@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models.Auth;
 
 [Table("users")]
-public  class UserModel : BaseModel
+public class UserModel : BaseModel
 {
     [Required]
     [EmailAddress]

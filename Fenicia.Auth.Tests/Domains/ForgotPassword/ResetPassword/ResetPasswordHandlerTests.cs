@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
+using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User.ChangePassword;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -13,20 +14,15 @@ namespace Fenicia.Auth.Tests.Domains.ForgotPassword.ResetPassword;
 [TestFixture]
 public class ResetPasswordHandlerTests
 {
-    private AuthContext context = null!;
-    private ResetPasswordHandler handler = null!;
-    private ChangePasswordHandler changePasswordHandler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
-        var hashPasswordHandler = new Fenicia.Auth.Domains.Security.HashPassword.HashPasswordHandler();
+        var hashPasswordHandler = new HashPasswordHandler();
         this.changePasswordHandler = new ChangePasswordHandler(this.context, hashPasswordHandler);
         this.handler = new ResetPasswordHandler(this.context, this.changePasswordHandler);
         this.faker = new Faker();
@@ -37,6 +33,11 @@ public class ResetPasswordHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private ResetPasswordHandler handler = null!;
+    private ChangePasswordHandler changePasswordHandler = null!;
+    private Faker faker = null!;
 
     [Test]
     public async Task Handle_WhenValidCode_ResetsPasswordSuccessfully()
@@ -84,7 +85,7 @@ public class ResetPasswordHandlerTests
     }
 
     [Test]
-    public async Task Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
+    public void Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -94,8 +95,8 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Item not found"));
     }
@@ -134,8 +135,8 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, invalidCode);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidDataException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Invalid code"));
     }
@@ -173,8 +174,8 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidDataException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Invalid code"));
     }
@@ -212,8 +213,8 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidDataException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Invalid code"));
     }
@@ -261,8 +262,8 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email2, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidDataException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Invalid code"));
     }
@@ -303,8 +304,8 @@ public class ResetPasswordHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Act & Assert - Second use
-        var ex = Assert.ThrowsAsync<InvalidDataException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Invalid code"));
     }
@@ -357,7 +358,7 @@ public class ResetPasswordHandlerTests
     }
 
     [Test]
-    public async Task Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
+    public void Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -367,8 +368,8 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(
-            async () => await this.handler.Handle(command, CancellationToken.None)
+        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None)
         );
         Assert.That(ex?.Message, Is.EqualTo("Item not found"));
     }

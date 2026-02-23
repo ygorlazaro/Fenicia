@@ -13,15 +13,11 @@ namespace Fenicia.Auth.Tests.Domains.Company.GetCompaniesByUser;
 [TestFixture]
 public class GetCompaniesByUserHandlerTests
 {
-    private AuthContext context = null!;
-    private GetCompaniesByUserHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -34,6 +30,10 @@ public class GetCompaniesByUserHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private GetCompaniesByUserHandler handler = null!;
+    private Faker faker = null!;
 
     [Test]
     public async Task Handle_WhenUserHasNoCompanies_ReturnsEmptyPagination()

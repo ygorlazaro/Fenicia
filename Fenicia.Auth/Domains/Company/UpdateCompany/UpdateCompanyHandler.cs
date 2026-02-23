@@ -21,10 +21,7 @@ public sealed class UpdateCompanyHandler(AuthContext context)
             ct
         );
 
-        if (!isAdmin)
-        {
-            throw new PermissionDeniedException(TextConstants.PermissionDeniedMessage);
-        }
+        if (!isAdmin) throw new PermissionDeniedException(TextConstants.PermissionDeniedMessage);
 
         company.Name = command.Name;
         company.TimeZone = command.TimeZone;
@@ -34,11 +31,9 @@ public sealed class UpdateCompanyHandler(AuthContext context)
 
     private async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken ct)
     {
-        var query = from ur in context.UserRoles
-                    where ur.UserId == userId
-                          && ur.CompanyId == companyId
-                          && ur.Role.Name == role
-                    select 1;
+        var query = context.UserRoles.Where(ur => ur.UserId == userId
+                                                  && ur.CompanyId == companyId && ur.Role.Name == role)
+            .Select(ur => 1);
 
         return await query.AnyAsync(ct);
     }

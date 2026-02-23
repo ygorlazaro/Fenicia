@@ -12,10 +12,6 @@ namespace Fenicia.Auth.Tests.Domains.RefreshToken.GenerateRefreshToken;
 [TestFixture]
 public class GenerateRefreshTokenHandlerTests
 {
-    private Mock<IConnectionMultiplexer> redisMock = null!;
-    private Mock<IDatabase> redisDbMock = null!;
-    private GenerateRefreshTokenHandler handler = null!;
-
     [SetUp]
     public void SetUp()
     {
@@ -27,6 +23,10 @@ public class GenerateRefreshTokenHandlerTests
 
         this.handler = new GenerateRefreshTokenHandler(this.redisMock.Object);
     }
+
+    private Mock<IConnectionMultiplexer> redisMock = null!;
+    private Mock<IDatabase> redisDbMock = null!;
+    private GenerateRefreshTokenHandler handler = null!;
 
     [Test]
     public void Handle_GeneratesValidRefreshToken()
@@ -63,6 +63,7 @@ public class GenerateRefreshTokenHandlerTests
             Assert.That(token1, Is.Not.EqualTo(token2));
             Assert.That(token2, Is.Not.EqualTo(token3));
         }
+
         Assert.That(token1, Is.Not.EqualTo(token3));
     }
 
@@ -114,7 +115,7 @@ public class GenerateRefreshTokenHandlerTests
     private static bool IsValidToken(RedisValue value, string result, Guid userId)
     {
         var tokenObj = JsonSerializer.Deserialize<RefreshTokenModel>((string)value!);
-        
+
         return tokenObj != null
                && tokenObj.Token == result
                && tokenObj.UserId == userId
@@ -126,7 +127,6 @@ public class GenerateRefreshTokenHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var beforeCall = DateTime.UtcNow;
 
         // Act
         this.handler.Handle(userId);
@@ -188,7 +188,7 @@ public class GenerateRefreshTokenHandlerTests
         var userId = Guid.NewGuid();
 
         // Act
-        var result = this.handler.Handle(userId);
+        this.handler.Handle(userId);
 
         // Assert
         this.redisDbMock.Verify(
@@ -211,13 +211,13 @@ public class GenerateRefreshTokenHandlerTests
         var tokens = new List<string>();
 
         // Act
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
             tokens.Add(this.handler.Handle(userId));
         }
 
         // Assert
         var distinctTokens = tokens.Distinct().ToList();
-        Assert.That(distinctTokens.Count, Is.EqualTo(10), "All tokens should be unique");
+        Assert.That(distinctTokens, Has.Count.EqualTo(10), "All tokens should be unique");
     }
 }

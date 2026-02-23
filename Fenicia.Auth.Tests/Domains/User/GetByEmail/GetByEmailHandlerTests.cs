@@ -11,15 +11,11 @@ namespace Fenicia.Auth.Tests.Domains.User.GetByEmail;
 [TestFixture]
 public class GetByEmailHandlerTests
 {
-    private AuthContext context = null!;
-    private GetByEmailHandler handler = null!;
-    private Faker faker = null!;
-
     [SetUp]
     public void SetUp()
     {
         var options = new DbContextOptionsBuilder<AuthContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new AuthContext(options);
@@ -32,6 +28,10 @@ public class GetByEmailHandlerTests
     {
         this.context.Dispose();
     }
+
+    private AuthContext context = null!;
+    private GetByEmailHandler handler = null!;
+    private Faker faker = null!;
 
     [Test]
     public async Task Handle_WhenUserExists_ReturnsUserResponse()

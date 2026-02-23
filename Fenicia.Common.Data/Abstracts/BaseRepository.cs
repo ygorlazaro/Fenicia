@@ -38,10 +38,7 @@ public class BaseRepository<T>(DbContext context) : IBaseRepository<T>
     {
         var model = await GetByIdAsync(id, ct);
 
-        if (model is null)
-        {
-            return;
-        }
+        if (model is null) return;
 
         model.Deleted = DateTime.Now;
         context.Set<T>().Update(model);
