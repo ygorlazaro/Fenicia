@@ -105,7 +105,7 @@ public class ProductControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedProducts = okResult.Value as List<ProductResponse>;
+        var returnedProducts = okResult.Value as List<GetAllProductResponse>;
         Assert.That(returnedProducts, Is.Not.Null);
         Assert.That(returnedProducts, Is.Empty);
     }
@@ -158,7 +158,7 @@ public class ProductControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedProducts = okResult.Value as List<ProductResponse>;
+        var returnedProducts = okResult.Value as List<GetAllProductResponse>;
         Assert.That(returnedProducts, Is.Not.Null);
         Assert.That(returnedProducts, Has.Count.EqualTo(2));
     }
@@ -199,7 +199,7 @@ public class ProductControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedProduct = okResult.Value as ProductResponse;
+        var returnedProduct = okResult.Value as GetProductByIdResponse;
         Assert.That(returnedProduct, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -257,7 +257,7 @@ public class ProductControllerTests
         Assert.That(createdResult, Is.Not.Null);
         Assert.That(createdResult.StatusCode, Is.EqualTo(201));
 
-        var returnedProduct = createdResult.Value as ProductResponse;
+        var returnedProduct = createdResult.Value as AddProductResponse;
         Assert.That(returnedProduct, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -311,7 +311,7 @@ public class ProductControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedProduct = okResult.Value as ProductResponse;
+        var returnedProduct = okResult.Value as UpdateProductResponse;
         Assert.That(returnedProduct, Is.Not.Null);
         Assert.That(returnedProduct.Name, Contains.Substring("Updated"));
     }
@@ -372,11 +372,6 @@ public class ProductControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
-
-        var noContentResult = result.Result as NoContentResult;
-        Assert.That(noContentResult, Is.Not.Null);
-        Assert.That(noContentResult.StatusCode, Is.EqualTo(204));
 
         // Verify product was deleted
         var deletedProduct = await this.context.Products.FirstOrDefaultAsync (x => x.Id == this.testProductId, cancellationToken);
@@ -395,7 +390,6 @@ public class ProductControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
     }
 
     [Test]

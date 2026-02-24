@@ -7,5 +7,3 @@ public record UpdateProductCommand(
     decimal SellingPrice,
     double Quantity,
     Guid CategoryId);
-
-public record DeleteProductCommand(Guid Id);

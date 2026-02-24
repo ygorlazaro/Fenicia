@@ -6,11 +6,14 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory.Update;
 
 public class UpdateProductCategoryHandler(BasicContext context)
 {
-    public async Task<ProductCategoryResponse?> Handle(UpdateProductCategoryCommand command, CancellationToken ct)
+    public async Task<UpdateProductCategoryRecord?> Handle(UpdateProductCategoryCommand command, CancellationToken ct)
     {
         var category = await context.ProductCategories.FirstOrDefaultAsync(c => c.Id == command.Id, ct);
 
-        if (category is null) return null;
+        if (category is null)
+        {
+            return null;
+        }
 
         category.Name = command.Name;
 
@@ -18,6 +21,6 @@ public class UpdateProductCategoryHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new ProductCategoryResponse(category.Id, category.Name);
+        return new UpdateProductCategoryRecord(category.Id, category.Name);
     }
 }

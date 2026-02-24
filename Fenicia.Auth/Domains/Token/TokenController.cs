@@ -68,7 +68,10 @@ public class TokenController(
 
         var isValidToken = await validateTokenHandler.Handle(request);
 
-        if (!isValidToken) return BadRequest("Invalid client request");
+        if (!isValidToken)
+        {
+            return BadRequest("Invalid client request");
+        }
 
         await invalidateRefreshTokenHandler.Handler(request.RefreshToken, ct);
 

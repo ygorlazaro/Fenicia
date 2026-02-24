@@ -2,7 +2,6 @@ using Bogus;
 
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -64,7 +63,7 @@ public class GetSupplierByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(supplierId));
-            Assert.That(result.Person.Name, Is.EqualTo(supplier.Person.Name));
+            Assert.That(result.Cnpj, Is.EqualTo(supplier.Cnpj));
         }
     }
 

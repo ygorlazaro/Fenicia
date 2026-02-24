@@ -69,8 +69,7 @@ public class GetCustomerByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(customerId));
-            Assert.That(result.Person.Name, Is.EqualTo(customer.Person.Name));
-            Assert.That(result.Person.Email, Is.EqualTo(customer.Person.Email));
+            Assert.That(result.PersonId, Is.EqualTo(customer.Person.Id));
         }
     }
 
@@ -98,52 +97,6 @@ public class GetCustomerByIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Null);
-    }
-
-    [Test]
-    public async Task Handle_VerifiesPersonDataIsIncluded()
-    {
-        // Arrange
-        var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
-        {
-            Id = customerId,
-            PersonId = Guid.NewGuid(),
-            Person = new PersonModel
-            {
-                Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
-            }
-        };
-
-        this.context.Customers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
-
-        var query = new GetCustomerByIdQuery(customerId);
-
-        // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Person.Name, Is.Not.Null);
-            Assert.That(result.Person.Email, Is.Not.Null);
-            Assert.That(result.Person.Address, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Person.Address?.City, Is.EqualTo(customer.Person.City));
-            Assert.That(result.Person.Address.Street, Is.EqualTo(customer.Person.Street));
-        }
     }
 
     [Test]
@@ -202,9 +155,8 @@ public class GetCustomerByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(customer1Id));
-            Assert.That(result.Person.Name, Is.EqualTo(customer1.Person.Name));
+            Assert.That(result.PersonId, Is.EqualTo(customer1.Person.Id));
         }
-        Assert.That(result.Person.Name, Is.Not.EqualTo(customer2.Person.Name));
     }
 
     [Test]
@@ -244,9 +196,7 @@ public class GetCustomerByIdHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Person.Address?.Complement, Is.Null);
-            Assert.That(result.Person.Address?.Neighborhood, Is.Null);
-            Assert.That(result.Person.Address?.City, Is.Null);
+            Assert.That(result.PersonId, Is.EqualTo(customer.Person.Id));
         }
     }
 }

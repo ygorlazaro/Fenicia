@@ -100,8 +100,8 @@ public class GetAllCustomerHandlerTests
         Assert.That(result, Has.Count.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result[0].Person.Name, Is.EqualTo(customer1.Person.Name));
-            Assert.That(result[1].Person.Name, Is.EqualTo(customer2.Person.Name));
+            Assert.That(result[0].PersonId, Is.EqualTo(customer1.Person.Id));
+            Assert.That(result[1].PersonId, Is.EqualTo(customer2.Person.Id));
         }
     }
 
@@ -217,46 +217,5 @@ public class GetAllCustomerHandlerTests
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Has.Count.EqualTo(10));
-    }
-
-    [Test]
-    public async Task Handle_VerifiesPersonDataIsIncluded()
-    {
-        // Arrange
-        var customer = new CustomerModel
-        {
-            Id = Guid.NewGuid(),
-            PersonId = Guid.NewGuid(),
-            Person = new PersonModel
-            {
-                Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
-            }
-        };
-
-        this.context.Customers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
-
-        var query = new GetAllCustomerQuery();
-
-        // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result[0].Person.Name, Is.Not.Null);
-            Assert.That(result[0].Person.Email, Is.Not.Null);
-            Assert.That(result[0].Person.Address, Is.Not.Null);
-        }
     }
 }

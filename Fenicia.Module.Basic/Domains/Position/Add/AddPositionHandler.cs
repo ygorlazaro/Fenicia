@@ -5,7 +5,7 @@ namespace Fenicia.Module.Basic.Domains.Position.Add;
 
 public class AddPositionHandler(BasicContext context)
 {
-    public async Task<PositionResponse> Handle(AddPositionCommand command, CancellationToken ct)
+    public async Task<AddPositionResponse> Handle(AddPositionCommand command, CancellationToken ct)
     {
         var position = new PositionModel
         {
@@ -17,6 +17,6 @@ public class AddPositionHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new PositionResponse(position.Id, position.Name);
+        return new AddPositionResponse(position.Id, position.Name);
     }
 }

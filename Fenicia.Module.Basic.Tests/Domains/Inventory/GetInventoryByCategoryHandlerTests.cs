@@ -2,7 +2,6 @@ using Bogus;
 
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByCategory;
 
 using Microsoft.EntityFrameworkCore;

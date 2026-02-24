@@ -1,6 +1,5 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
 
 using Microsoft.EntityFrameworkCore;

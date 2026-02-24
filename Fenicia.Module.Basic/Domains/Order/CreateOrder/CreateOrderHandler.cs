@@ -6,7 +6,7 @@ namespace Fenicia.Module.Basic.Domains.Order.CreateOrder;
 
 public class CreateOrderHandler(BasicContext context)
 {
-    public async Task<OrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)
+    public async Task<CreateOrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)
     {
         var details = command.Details.Select(d => new OrderDetailModel
         {
@@ -47,6 +47,6 @@ public class CreateOrderHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new OrderResponse(order.Id, order.UserId, order.CustomerId, order.TotalAmount, order.SaleDate, order.Status);
+        return new CreateOrderResponse(order.Id, order.UserId, order.CustomerId, order.TotalAmount, order.SaleDate, order.Status);
     }
 }

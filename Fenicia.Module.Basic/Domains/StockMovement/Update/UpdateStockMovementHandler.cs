@@ -6,13 +6,16 @@ namespace Fenicia.Module.Basic.Domains.StockMovement.Update;
 
 public class UpdateStockMovementHandler(BasicContext context)
 {
-    public async Task<StockMovementResponse?> Handle(UpdateStockMovementCommand command, CancellationToken ct)
+    public async Task<UpdateStockMovementResponse?> Handle(UpdateStockMovementCommand command, CancellationToken ct)
     {
         var stockMovement = await context.StockMovements
             .Include(s => s.Product)
             .FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
-        if (stockMovement is null) return null;
+        if (stockMovement is null)
+        {
+            return null;
+        }
 
         stockMovement.Date = command.Date;
         stockMovement.Type = command.Type;
@@ -26,6 +29,6 @@ public class UpdateStockMovementHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new StockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId);
+        return new UpdateStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId);
     }
 }

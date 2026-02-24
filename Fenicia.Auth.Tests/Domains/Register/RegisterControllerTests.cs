@@ -8,7 +8,6 @@ using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Migrations.Services;
-using Fenicia.Module.SocialNetwork.Domains.User;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -45,7 +44,7 @@ public class RegisterControllerTests
 
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new RegisterController(Mock.Of<IUserService>())
+        this.controller = new RegisterController()
         {
             ControllerContext = new ControllerContext
             {

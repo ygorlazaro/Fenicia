@@ -32,8 +32,7 @@ public class PersonModel : BaseModel
     public string? ZipCode { get; set; }
 
 
-    [Required]
-    public Guid StateId { get; set; }
+    public Guid? StateId { get; set; }
 
     [MaxLength(50)]
     public string? City { get; set; }
@@ -41,7 +40,6 @@ public class PersonModel : BaseModel
     [MaxLength(50)]
     [EmailAddress]
     public string? Email { get; set; }
-
 
     [MaxLength(20)]
     public string? PhoneNumber { get; set; }

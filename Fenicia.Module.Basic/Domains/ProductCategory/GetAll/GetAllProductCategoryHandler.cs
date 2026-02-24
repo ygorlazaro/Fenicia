@@ -6,10 +6,10 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory.GetAll;
 
 public class GetAllProductCategoryHandler(BasicContext context)
 {
-    public async Task<List<ProductCategoryResponse>> Handle(GetAllProductCategoryQuery query, CancellationToken ct)
+    public async Task<List<GetAllProductCategoryResponse>> Handle(GetAllProductCategoryQuery query, CancellationToken ct)
     {
-        var categories = await context.ProductCategories.ToListAsync(ct);
-
-        return categories.Select(c => new ProductCategoryResponse(c.Id, c.Name)).ToList();
+        return await context.ProductCategories
+            .Select(pc => new GetAllProductCategoryResponse(pc.Id, pc.Name))
+            .ToListAsync(ct);
     }
 }

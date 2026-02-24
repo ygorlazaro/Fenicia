@@ -241,6 +241,9 @@ public class GenerateTokenHandlerTests
     private void SetupCacheAttempts(string email, int attempts)
     {
         var key = $"login-attempt:{email.ToLower()}";
-        if (attempts > 0) this.cache.Set(key, attempts);
+        if (attempts > 0)
+        {
+            this.cache.Set(key, attempts);
+        }
     }
 }

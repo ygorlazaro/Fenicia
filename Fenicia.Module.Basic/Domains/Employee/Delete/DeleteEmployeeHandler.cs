@@ -10,7 +10,10 @@ public class DeleteEmployeeHandler(BasicContext context)
     {
         var employee = await context.Employees.FirstOrDefaultAsync(e => e.Id == command.Id, ct);
 
-        if (employee is null) return;
+        if (employee is null)
+        {
+            return;
+        }
 
         employee.Deleted = DateTime.Now;
 

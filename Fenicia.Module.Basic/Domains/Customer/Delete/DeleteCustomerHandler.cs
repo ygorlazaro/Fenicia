@@ -10,7 +10,10 @@ public class DeleteCustomerHandler(BasicContext context)
     {
         var customer = await context.Customers.FirstOrDefaultAsync(c => c.Id == command.Id, ct);
 
-        if (customer is null) return;
+        if (customer is null)
+        {
+            return;
+        }
 
         customer.Deleted = DateTime.Now;
 

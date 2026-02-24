@@ -1,8 +1,6 @@
 using System.Net.Mime;
 
 using Fenicia.Common;
-using Fenicia.Module.Basic.Domains.Product;
-using Fenicia.Module.Basic.Domains.Product.GetAll;
 using Fenicia.Module.Basic.Domains.Product.GetByCategoryId;
 using Fenicia.Module.Basic.Domains.ProductCategory.Add;
 using Fenicia.Module.Basic.Domains.ProductCategory.Delete;
@@ -29,9 +27,9 @@ public class ProductCategoryController(
     GetProductsByCategoryIdHandler getProductsByCategoryIdHandler) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductCategoryResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductCategoryResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ProductCategoryResponse>> GetAsync(CancellationToken ct)
+    public async Task<ActionResult<List<GetAllProductCategoryResponse>>> GetAsync(CancellationToken ct)
     {
         var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(), ct);
 
@@ -39,10 +37,10 @@ public class ProductCategoryController(
     }
 
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductCategoryResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductCategoryByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ProductCategoryResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetProductCategoryByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id), ct);
 
@@ -50,11 +48,11 @@ public class ProductCategoryController(
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ProductCategoryResponse))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProductCategoryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<ProductCategoryResponse>> PostAsync([FromBody] AddProductCategoryCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddProductCategoryResponse>> PostAsync([FromBody] AddProductCategoryCommand command, CancellationToken ct)
     {
         var productCategory = await addProductCategoryHandler.Handle(command, ct);
 
@@ -62,12 +60,12 @@ public class ProductCategoryController(
     }
 
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductCategoryResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProductCategoryRecord))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<ProductCategoryResponse>> PatchAsync(
+    public async Task<ActionResult<UpdateProductCategoryRecord>> PatchAsync(
         [FromBody] UpdateProductCategoryCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -80,7 +78,7 @@ public class ProductCategoryController(
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ProductCategoryResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id), ct);
 
@@ -88,9 +86,9 @@ public class ProductCategoryController(
     }
 
     [HttpGet("{id:guid}/product")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetProductsByCategoryIdResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ProductCategoryResponse>> GetProductsByCategoryAsync(
+    public async Task<ActionResult<List<GetProductsByCategoryIdResponse>>> GetProductsByCategoryAsync(
         [FromRoute] Guid categoryId,
         [FromQuery] PaginationQuery query,
         CancellationToken ct)

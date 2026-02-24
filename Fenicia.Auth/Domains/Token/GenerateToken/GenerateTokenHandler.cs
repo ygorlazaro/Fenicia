@@ -15,13 +15,22 @@ public class GenerateTokenHandler(
 {
     public async Task<GenerateTokenResponse> Handle(GenerateTokenQuery query, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(query.Password)) throw new ArgumentException(nameof(query.Password));
+        if (string.IsNullOrWhiteSpace(query.Password))
+        {
+            throw new ArgumentException(nameof(query.Password));
+        }
 
-        if (string.IsNullOrWhiteSpace(query.Email)) throw new ArgumentException(nameof(query.Email));
+        if (string.IsNullOrWhiteSpace(query.Email))
+        {
+            throw new ArgumentException(nameof(query.Email));
+        }
 
         var attempts = loginAttemptHandler.Handle(query.Email);
 
-        if (attempts >= 5) throw new PermissionDeniedException(TextConstants.TooManyAttempts);
+        if (attempts >= 5)
+        {
+            throw new PermissionDeniedException(TextConstants.TooManyAttempts);
+        }
 
         var user = await getByEmailHandler.Handle(query.Email, ct);
 

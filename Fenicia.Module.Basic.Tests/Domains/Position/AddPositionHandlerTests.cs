@@ -1,5 +1,4 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.Add;
 
 using Microsoft.EntityFrameworkCore;

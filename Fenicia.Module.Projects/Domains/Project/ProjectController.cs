@@ -17,7 +17,7 @@ public class ProjectController(IProjectService projectService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> PostAsync([FromBody] ProjectRequest request, CancellationToken ct)
+    public async Task<ActionResult> PostAsync([FromBody] ProjectRequest request, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         var project = await projectService.AddAsync(request, userId, ct);

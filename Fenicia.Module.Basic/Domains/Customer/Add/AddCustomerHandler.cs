@@ -5,7 +5,7 @@ namespace Fenicia.Module.Basic.Domains.Customer.Add;
 
 public class AddCustomerHandler(BasicContext context)
 {
-    public async Task<CustomerResponse> Handle(AddCustomerCommand command, CancellationToken ct)
+    public async Task<AddCustomerResponse> Handle(AddCustomerCommand command, CancellationToken ct)
     {
         var person = new PersonModel
         {
@@ -34,20 +34,6 @@ public class AddCustomerHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new CustomerResponse(
-            customer.Id,
-            new PersonResponse(
-                person.Name,
-                person.Email,
-                person.Document,
-                person.PhoneNumber,
-                new AddressResponse(
-                    person.City,
-                    person.Complement,
-                    person.Neighborhood,
-                    person.Number,
-                    person.StateId,
-                    person.Street,
-                    person.ZipCode)));
+        return new AddCustomerResponse(customer.Id, person.Id);
     }
 }

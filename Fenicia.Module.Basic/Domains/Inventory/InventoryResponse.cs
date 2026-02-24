@@ -7,12 +7,3 @@ public class InventoryResponse
     public decimal TotalSalesPrice { get; set; }
     public double TotalQuantity { get; set; }
 }
-
-public record InventoryDetailResponse(
-    Guid Id,
-    string Name,
-    double Quantity,
-    decimal? CostPrice,
-    decimal SalesPrice,
-    Guid CategoryId,
-    string CategoryName);

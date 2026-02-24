@@ -20,7 +20,7 @@ public class ModuleController : ControllerBase
     [AllowAnonymous]
     [ProducesResponseType(typeof(Pagination<List<GetModuleResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetModuleResponse>>>> GetAllModulesAsync(
+    public async Task<ActionResult<List<GetModuleResponse>>> GetAllModulesAsync(
         [FromQuery] PaginationQuery query,
         [FromServices] GetModulesHandler handler,
         WideEventContext wide,

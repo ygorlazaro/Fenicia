@@ -1,5 +1,4 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.Add;
 
 using Microsoft.EntityFrameworkCore;

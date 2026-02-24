@@ -10,7 +10,10 @@ public class CheckCompanyExistsHandler(AuthContext context)
     {
         var companies = context.Companies.Where(c => c.Cnpj == query.Cnpj);
 
-        if (query.OnlyActive) companies = companies.Where(c => c.IsActive);
+        if (query.OnlyActive)
+        {
+            companies = companies.Where(c => c.IsActive);
+        }
 
         return await companies.AnyAsync(ct);
     }

@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.CreateOrder;
 
 using Microsoft.EntityFrameworkCore;

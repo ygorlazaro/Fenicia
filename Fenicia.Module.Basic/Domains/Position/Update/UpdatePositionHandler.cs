@@ -6,11 +6,14 @@ namespace Fenicia.Module.Basic.Domains.Position.Update;
 
 public class UpdatePositionHandler(BasicContext context)
 {
-    public async Task<PositionResponse?> Handle(UpdatePositionCommand command, CancellationToken ct)
+    public async Task<UpdatePositionResponse?> Handle(UpdatePositionCommand command, CancellationToken ct)
     {
         var position = await context.Positions.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
-        if (position is null) return null;
+        if (position is null)
+        {
+            return null;
+        }
 
         position.Name = command.Name;
 
@@ -18,6 +21,6 @@ public class UpdatePositionHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new PositionResponse(position.Id, position.Name);
+        return new UpdatePositionResponse(position.Id, position.Name);
     }
 }

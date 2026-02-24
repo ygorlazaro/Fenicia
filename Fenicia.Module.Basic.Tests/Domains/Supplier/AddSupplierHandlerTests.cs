@@ -1,7 +1,6 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.Add;
 
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +41,6 @@ public class AddSupplierHandlerTests
             this.faker.Company.CompanyName(),
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             "Suite 100",
             this.faker.Address.CityPrefix(),
@@ -61,7 +59,6 @@ public class AddSupplierHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Person.Name, Is.EqualTo(command.Name));
             Assert.That(result.Cnpj, Is.EqualTo(command.Cnpj));
         }
     }
@@ -75,7 +72,6 @@ public class AddSupplierHandlerTests
             this.faker.Company.CompanyName(),
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            null,
             null,
             null,
             null,
@@ -107,7 +103,6 @@ public class AddSupplierHandlerTests
             this.faker.Company.CompanyName(),
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            null,
             null,
             null,
             null,

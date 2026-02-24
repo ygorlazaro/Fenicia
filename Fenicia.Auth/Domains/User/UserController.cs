@@ -33,7 +33,7 @@ public class UserController : ControllerBase
 
     [HttpGet("company")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserCompaniesResponse))]
-    public async Task<ActionResult<GetUserCompaniesResponse>> GetUserCompanyAsync(
+    public async Task<ActionResult<List<GetUserCompaniesResponse>>> GetUserCompanyAsync(
         [FromServices] GetUserCompaniesHandler handler,
         WideEventContext wide,
         CancellationToken ct)

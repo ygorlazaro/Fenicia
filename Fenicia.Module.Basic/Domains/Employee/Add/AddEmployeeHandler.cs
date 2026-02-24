@@ -5,7 +5,7 @@ namespace Fenicia.Module.Basic.Domains.Employee.Add;
 
 public class AddEmployeeHandler(BasicContext context)
 {
-    public async Task<EmployeeResponse> Handle(AddEmployeeCommand command, CancellationToken ct)
+    public async Task<AddEmployeeResponse> Handle(AddEmployeeCommand command, CancellationToken ct)
     {
         var person = new PersonModel
         {
@@ -35,22 +35,9 @@ public class AddEmployeeHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new EmployeeResponse(
+        return new AddEmployeeResponse(
             employee.Id,
             employee.PositionId,
-            string.Empty,
-            new PersonResponse(
-                person.Name,
-                person.Email,
-                person.Document,
-                person.PhoneNumber,
-                new AddressResponse(
-                    person.City,
-                    person.Complement,
-                    person.Neighborhood,
-                    person.Number,
-                    person.StateId,
-                    person.Street,
-                    person.ZipCode)));
+            employee.PersonId);
     }
 }

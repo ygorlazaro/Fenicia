@@ -5,7 +5,7 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory.Add;
 
 public class AddProductCategoryHandler(BasicContext context)
 {
-    public async Task<ProductCategoryResponse> Handle(AddProductCategoryCommand command, CancellationToken ct)
+    public async Task<AddProductCategoryResponse> Handle(AddProductCategoryCommand command, CancellationToken ct)
     {
         var category = new ProductCategoryModel
         {
@@ -17,6 +17,6 @@ public class AddProductCategoryHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new ProductCategoryResponse(category.Id, category.Name);
+        return new AddProductCategoryResponse(category.Id, category.Name);
     }
 }

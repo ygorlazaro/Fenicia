@@ -77,8 +77,7 @@ public class GetEmployeeByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(employeeId));
-            Assert.That(result.Person.Name, Is.EqualTo(employee.Person.Name));
-            Assert.That(result.Person.Email, Is.EqualTo(employee.Person.Email));
+            Assert.That(result.PersonId, Is.EqualTo(employee.Person.Id));
             Assert.That(result.PositionId, Is.EqualTo(position.Id));
         }
     }
@@ -150,18 +149,7 @@ public class GetEmployeeByIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Person.Name, Is.Not.Null);
-            Assert.That(result.Person.Email, Is.Not.Null);
-            Assert.That(result.Person.Address, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Person.Address?.City, Is.EqualTo(employee.Person.City));
-            Assert.That(result.Person.Address.Street, Is.EqualTo(employee.Person.Street));
-            Assert.That(result.PositionId, Is.EqualTo(position.Id));
-        }
+        Assert.That(result.PositionId, Is.EqualTo(position.Id));
     }
 
     [Test]
@@ -228,9 +216,7 @@ public class GetEmployeeByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(employee1Id));
-            Assert.That(result.Person.Name, Is.EqualTo(employee1.Person.Name));
         }
-        Assert.That(result.Person.Name, Is.Not.EqualTo(employee2.Person.Name));
     }
 
     [Test]
@@ -276,11 +262,5 @@ public class GetEmployeeByIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Person.Address?.Complement, Is.Null);
-            Assert.That(result.Person.Address?.Neighborhood, Is.Null);
-            Assert.That(result.Person.Address?.City, Is.Null);
-        }
     }
 }

@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.Delete;
-using Fenicia.Module.Basic.Domains.Product.Update;
 
 using Microsoft.EntityFrameworkCore;
 

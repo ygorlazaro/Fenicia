@@ -1,7 +1,6 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Submodule.GetByModuleId;
-using Fenicia.Common;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
@@ -19,7 +18,7 @@ public class SubmoduleController : ControllerBase
     [HttpGet("{moduleId:Guid}")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<List<GetByModuleResponse>>>> GetByModuleIdAsync(
+    public async Task<ActionResult<List<GetByModuleResponse>>> GetByModuleIdAsync(
         [FromRoute] Guid moduleId,
         [FromServices] GetByModuleIdHandler handler,
         WideEventContext wide,

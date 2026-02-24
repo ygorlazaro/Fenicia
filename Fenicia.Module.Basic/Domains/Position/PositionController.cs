@@ -23,7 +23,7 @@ public class PositionController(
     GetEmployeesByPositionIdHandler getEmployeesByPositionIdHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<PositionResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllPositionResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page, perPage), ct);
 
@@ -31,7 +31,7 @@ public class PositionController(
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<PositionResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetPositionByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var position = await getPositionByIdHandler.Handle(new GetPositionByIdQuery(id), ct);
 
@@ -39,7 +39,7 @@ public class PositionController(
     }
 
     [HttpGet("{id:guid}/employee")]
-    public async Task<ActionResult<PositionResponse>> GetEmployeesByPositionIdAsync(
+    public async Task<ActionResult<List<GetEmployeesByPositionIdResponse>>> GetEmployeesByPositionIdAsync(
         [FromRoute] Guid id,
         [FromQuery] PaginationQuery query,
         CancellationToken ct)
@@ -50,7 +50,7 @@ public class PositionController(
     }
 
     [HttpPost]
-    public async Task<ActionResult<PositionResponse>> PostAsync([FromBody] AddPositionCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddPositionResponse>> PostAsync([FromBody] AddPositionCommand command, CancellationToken ct)
     {
         var position = await addPositionHandler.Handle(command, ct);
 
@@ -58,7 +58,7 @@ public class PositionController(
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<ActionResult<PositionResponse>> PatchAsync(
+    public async Task<ActionResult<UpdatePositionResponse>> PatchAsync(
         [FromBody] UpdatePositionCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -69,7 +69,7 @@ public class PositionController(
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<ActionResult<PositionResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deletePositionHandler.Handle(new DeletePositionCommand(id), ct);
 

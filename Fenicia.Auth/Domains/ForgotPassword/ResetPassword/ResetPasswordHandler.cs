@@ -35,7 +35,10 @@ public class ResetPasswordHandler(AuthContext db, ChangePasswordHandler changePa
     {
         var forgotPassword = await db.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == id, ct);
 
-        if (forgotPassword is null) return;
+        if (forgotPassword is null)
+        {
+            return;
+        }
 
         forgotPassword.IsActive = false;
 

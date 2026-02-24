@@ -10,7 +10,10 @@ public class DeleteSupplierHandler(BasicContext context)
     {
         var supplier = await context.Suppliers.FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
-        if (supplier is null) return;
+        if (supplier is null)
+        {
+            return;
+        }
 
         supplier.Deleted = DateTime.Now;
 

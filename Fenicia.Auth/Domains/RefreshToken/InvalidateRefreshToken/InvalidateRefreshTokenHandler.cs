@@ -18,11 +18,17 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
             var key = RedisPrefix + refreshToken;
             var value = await this.redisDb.StringGetAsync(key);
 
-            if (value.IsNullOrEmpty) return;
+            if (value.IsNullOrEmpty)
+            {
+                return;
+            }
 
             var tokenObj = JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)value!);
 
-            if (tokenObj == null) return;
+            if (tokenObj == null)
+            {
+                return;
+            }
 
             tokenObj.IsActive = false;
 

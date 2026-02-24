@@ -1,7 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
-using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.Update;
 
 using Microsoft.EntityFrameworkCore;

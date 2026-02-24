@@ -24,9 +24,9 @@ public class EmployeeController(
     DeleteEmployeeHandler deleteEmployeeHandler) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<EmployeeResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllEmployeeResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<EmployeeResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllEmployeeResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var employees = await getAllEmployeeHandler.Handle(new GetAllEmployeeQuery(page, perPage), ct);
 
@@ -34,10 +34,10 @@ public class EmployeeController(
     }
 
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeeResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetEmployeeByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<EmployeeResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetEmployeeByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var employee = await getEmployeeByIdHandler.Handle(new GetEmployeeByIdQuery(id), ct);
 
@@ -45,11 +45,11 @@ public class EmployeeController(
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(EmployeeResponse))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddEmployeeResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<EmployeeResponse>> PostAsync([FromBody] AddEmployeeCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddEmployeeResponse>> PostAsync([FromBody] AddEmployeeCommand command, CancellationToken ct)
     {
         var employee = await addEmployeeHandler.Handle(command, ct);
 
@@ -57,12 +57,12 @@ public class EmployeeController(
     }
 
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeeResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateEmployeeResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<EmployeeResponse>> PatchAsync(
+    public async Task<ActionResult<UpdateEmployeeResponse>> PatchAsync(
         [FromBody] UpdateEmployeeCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -75,7 +75,7 @@ public class EmployeeController(
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<EmployeeResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteEmployeeHandler.Handle(new DeleteEmployeeCommand(id), ct);
 

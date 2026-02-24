@@ -1,6 +1,5 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +55,6 @@ public class UpdateSupplierHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             "Suite 200",
             "New Neighborhood",
@@ -74,7 +72,6 @@ public class UpdateSupplierHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Person.Name, Is.EqualTo("New Name"));
             Assert.That(result.Cnpj, Is.EqualTo("98.765.432/0001-10"));
         }
     }
@@ -87,7 +84,6 @@ public class UpdateSupplierHandlerTests
             Guid.NewGuid(),
             "New Name",
             "new@email.com",
-            null,
             null,
             null,
             null,
@@ -114,7 +110,6 @@ public class UpdateSupplierHandlerTests
             Guid.NewGuid(),
             "New Name",
             "new@email.com",
-            null,
             null,
             null,
             null,
@@ -158,7 +153,6 @@ public class UpdateSupplierHandlerTests
             supplierId,
             "New Name",
             "new@email.com",
-            null,
             null,
             null,
             null,

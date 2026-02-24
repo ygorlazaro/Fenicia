@@ -5,7 +5,7 @@ namespace Fenicia.Module.Basic.Domains.Product.Add;
 
 public class AddProductHandler(BasicContext context)
 {
-    public async Task<ProductResponse> Handle(AddProductCommand command, CancellationToken ct)
+    public async Task<AddProductResponse> Handle(AddProductCommand command, CancellationToken ct)
     {
         var product = new ProductModel
         {
@@ -21,7 +21,7 @@ public class AddProductHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new ProductResponse(
+        return new AddProductResponse(
             product.Id,
             product.Name,
             product.CostPrice,

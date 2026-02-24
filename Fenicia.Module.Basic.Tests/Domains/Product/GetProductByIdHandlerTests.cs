@@ -1,6 +1,5 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Product.GetAll;
 using Fenicia.Module.Basic.Domains.Product.GetById;
 
 using Microsoft.EntityFrameworkCore;

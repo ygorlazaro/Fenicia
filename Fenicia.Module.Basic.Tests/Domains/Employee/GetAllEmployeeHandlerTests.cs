@@ -109,8 +109,8 @@ public class GetAllEmployeeHandlerTests
         Assert.That(result, Has.Count.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result[0].Person.Name, Is.EqualTo(employee1.Person.Name));
-            Assert.That(result[1].Person.Name, Is.EqualTo(employee2.Person.Name));
+            Assert.That(result[0].PersonId, Is.EqualTo(employee1.Person.Id));
+            Assert.That(result[1].PersonId, Is.EqualTo(employee2.Person.Id));
         }
     }
 
@@ -295,9 +295,7 @@ public class GetAllEmployeeHandlerTests
         Assert.That(result, Has.Count.EqualTo(1));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result[0].Person.Name, Is.Not.Null);
-            Assert.That(result[0].Person.Email, Is.Not.Null);
-            Assert.That(result[0].Person.Address, Is.Not.Null);
+            Assert.That(result[0].PersonId, Is.EqualTo(employee.Person.Id));
             Assert.That(result[0].PositionId, Is.EqualTo(position.Id));
         }
     }

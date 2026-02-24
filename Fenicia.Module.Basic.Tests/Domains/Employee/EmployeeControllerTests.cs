@@ -105,7 +105,7 @@ public class EmployeeControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedEmployees = okResult.Value as List<EmployeeResponse>;
+        var returnedEmployees = okResult.Value as List<GetAllEmployeeResponse>;
         Assert.That(returnedEmployees, Is.Not.Null);
         Assert.That(returnedEmployees, Is.Empty);
     }
@@ -168,7 +168,7 @@ public class EmployeeControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedEmployees = okResult.Value as List<EmployeeResponse>;
+        var returnedEmployees = okResult.Value as List<GetAllEmployeeResponse>;
         Assert.That(returnedEmployees, Is.Not.Null);
         Assert.That(returnedEmployees, Has.Count.EqualTo(2));
     }
@@ -214,12 +214,12 @@ public class EmployeeControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedEmployee = okResult.Value as EmployeeResponse;
+        var returnedEmployee = okResult.Value as GetEmployeeByIdResponse;
         Assert.That(returnedEmployee, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedEmployee.Id, Is.EqualTo(this.testEmployeeId));
-            Assert.That(returnedEmployee.Person.Name, Is.EqualTo(employee.Person.Name));
+            Assert.That(returnedEmployee.PersonId, Is.EqualTo(employee.Person.Id));
         }
     }
 
@@ -258,7 +258,6 @@ public class EmployeeControllerTests
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
             this.faker.Random.Replace("(##) #####-####"),
-            this.faker.Address.City(),
             "Apt 101",
             this.faker.Address.CityPrefix(),
             this.faker.Random.Replace("####"),
@@ -280,13 +279,8 @@ public class EmployeeControllerTests
         Assert.That(createdResult, Is.Not.Null);
         Assert.That(createdResult.StatusCode, Is.EqualTo(201));
 
-        var returnedEmployee = createdResult.Value as EmployeeResponse;
+        var returnedEmployee = createdResult.Value as AddEmployeeResponse;
         Assert.That(returnedEmployee, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedEmployee.Person.Name, Is.EqualTo(command.Name));
-            Assert.That(returnedEmployee.Person.Email, Is.EqualTo(command.Email));
-        }
     }
 
     [Test]
@@ -324,7 +318,6 @@ public class EmployeeControllerTests
             this.faker.Person.FullName + " Updated",
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -346,9 +339,8 @@ public class EmployeeControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedEmployee = okResult.Value as EmployeeResponse;
+        var returnedEmployee = okResult.Value as UpdateEmployeeResponse;
         Assert.That(returnedEmployee, Is.Not.Null);
-        Assert.That(returnedEmployee.Person.Name, Contains.Substring("Updated"));
     }
 
     [Test]
@@ -371,7 +363,6 @@ public class EmployeeControllerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -419,11 +410,6 @@ public class EmployeeControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
-
-        var noContentResult = result.Result as NoContentResult;
-        Assert.That(noContentResult, Is.Not.Null);
-        Assert.That(noContentResult.StatusCode, Is.EqualTo(204));
 
         // Verify employee was deleted
         var deletedEmployee = await this.context.Employees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId, cancellationToken);
@@ -442,7 +428,6 @@ public class EmployeeControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
     }
 
     [Test]

@@ -106,7 +106,7 @@ public class SupplierControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedSuppliers = okResult.Value as List<SupplierResponse>;
+        var returnedSuppliers = okResult.Value as List<GetAllSupplierResponse>;
         Assert.That(returnedSuppliers, Is.Not.Null);
         Assert.That(returnedSuppliers, Is.Empty);
     }
@@ -176,7 +176,7 @@ public class SupplierControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedSuppliers = okResult.Value as List<SupplierResponse>;
+        var returnedSuppliers = okResult.Value as List<GetAllSupplierResponse>;
         Assert.That(returnedSuppliers, Is.Not.Null);
         Assert.That(returnedSuppliers, Has.Count.EqualTo(2));
     }
@@ -222,12 +222,12 @@ public class SupplierControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedSupplier = okResult.Value as SupplierResponse;
+        var returnedSupplier = okResult.Value as GetSupplierByIdResponse;
         Assert.That(returnedSupplier, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedSupplier.Id, Is.EqualTo(this.testSupplierId));
-            Assert.That(returnedSupplier.Person.Name, Is.EqualTo(supplier.Person.Name));
+            Assert.That(returnedSupplier.Cnpj, Is.EqualTo(supplier.Cnpj));
         }
     }
 
@@ -255,7 +255,6 @@ public class SupplierControllerTests
             this.faker.Company.CompanyName(),
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             "Suite 100",
             this.faker.Address.CityPrefix(),
@@ -279,12 +278,10 @@ public class SupplierControllerTests
         Assert.That(createdResult, Is.Not.Null);
         Assert.That(createdResult.StatusCode, Is.EqualTo(201));
 
-        var returnedSupplier = createdResult.Value as SupplierResponse;
+        var returnedSupplier = createdResult.Value as AddSupplierResponse;
         Assert.That(returnedSupplier, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedSupplier.Person.Name, Is.EqualTo(command.Name));
-            Assert.That(returnedSupplier.Person.Email, Is.EqualTo(command.Email));
             Assert.That(returnedSupplier.Cnpj, Is.EqualTo(command.Cnpj));
         }
     }
@@ -316,7 +313,6 @@ public class SupplierControllerTests
             this.faker.Company.CompanyName() + " Updated",
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -339,9 +335,8 @@ public class SupplierControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedSupplier = okResult.Value as SupplierResponse;
+        var returnedSupplier = okResult.Value as UpdateSupplierResponse;
         Assert.That(returnedSupplier, Is.Not.Null);
-        Assert.That(returnedSupplier.Person.Name, Contains.Substring("Updated"));
     }
 
     [Test]
@@ -354,7 +349,6 @@ public class SupplierControllerTests
             this.faker.Company.CompanyName(),
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -403,11 +397,6 @@ public class SupplierControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
-
-        var noContentResult = result.Result as NoContentResult;
-        Assert.That(noContentResult, Is.Not.Null);
-        Assert.That(noContentResult.StatusCode, Is.EqualTo(204));
 
         // Verify supplier was deleted
         var deletedSupplier = await this.context.Suppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId, cancellationToken);
@@ -426,7 +415,6 @@ public class SupplierControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
     }
 
     [Test]

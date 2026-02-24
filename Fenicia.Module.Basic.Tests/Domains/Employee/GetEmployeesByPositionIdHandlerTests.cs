@@ -325,9 +325,7 @@ public class GetEmployeesByPositionIdHandlerTests
         Assert.That(result, Has.Count.EqualTo(1));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result[0].Person.Name, Is.Not.Null);
-            Assert.That(result[0].Person.Email, Is.Not.Null);
-            Assert.That(result[0].Person.Address, Is.Not.Null);
+            Assert.That(result[0].PersonId, Is.EqualTo(employee.PersonId));
             Assert.That(result[0].PositionId, Is.EqualTo(positionId));
         }
     }

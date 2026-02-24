@@ -24,9 +24,9 @@ public class SupplierController(
     DeleteSupplierHandler deleteSupplierHandler) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<SupplierResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllSupplierResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<SupplierResponse>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllSupplierResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         var suppliers = await getAllSupplierHandler.Handle(new GetAllSupplierQuery(page, perPage), ct);
 
@@ -34,10 +34,10 @@ public class SupplierController(
     }
 
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SupplierResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetSupplierByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<SupplierResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetSupplierByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var supplier = await getSupplierByIdHandler.Handle(new GetSupplierByIdQuery(id), ct);
 
@@ -45,11 +45,11 @@ public class SupplierController(
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SupplierResponse))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddSupplierResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<SupplierResponse>> PostAsync([FromBody] AddSupplierCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddSupplierResponse>> PostAsync([FromBody] AddSupplierCommand command, CancellationToken ct)
     {
         var supplier = await addSupplierHandler.Handle(command, ct);
 
@@ -57,12 +57,12 @@ public class SupplierController(
     }
 
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SupplierResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateSupplierResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<SupplierResponse>> PatchAsync(
+    public async Task<ActionResult<UpdateSupplierResponse>> PatchAsync(
         [FromBody] UpdateSupplierCommand command,
         [FromRoute] Guid id,
         CancellationToken ct)
@@ -75,7 +75,7 @@ public class SupplierController(
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<SupplierResponse>> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
     {
         await deleteSupplierHandler.Handle(new DeleteSupplierCommand(id), ct);
 
