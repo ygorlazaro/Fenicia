@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Builder;
+
 using Serilog;
 
-namespace Fenicia.Auth.Startup;
+namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaLoggingExtensions
 {

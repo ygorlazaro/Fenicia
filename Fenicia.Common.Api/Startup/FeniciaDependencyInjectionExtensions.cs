@@ -1,11 +1,9 @@
-using Fenicia.Auth.Domains.Company.CheckCompanyExists;
-using Fenicia.Common.API;
-using Fenicia.Common.Migrations.Services;
-using Fenicia.Externals.Email;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 using StackExchange.Redis;
 
-namespace Fenicia.Auth.Startup;
+namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaDependencyInjectionExtensions
 {
@@ -22,13 +20,7 @@ public static class FeniciaDependencyInjectionExtensions
         });
 
         builder.Services.AddScoped<WideEventContext>();
-
-        builder.Services.AddTransient<CheckCompanyExistsHandler>();
-
         builder.Services.AddResponseCompression(o => { o.EnableForHttps = true; });
-
-        builder.Services.AddTransient<IMigrationService, MigrationService>();
-        builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
 
         return builder;
     }

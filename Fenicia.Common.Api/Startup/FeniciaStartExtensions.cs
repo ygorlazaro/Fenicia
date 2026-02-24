@@ -2,11 +2,14 @@ using AspNetCoreRateLimit;
 
 using Fenicia.Common.API.Middlewares;
 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+
 using Scalar.AspNetCore;
 
 using Serilog;
 
-namespace Fenicia.Auth.Startup;
+namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaStartExtensions
 {

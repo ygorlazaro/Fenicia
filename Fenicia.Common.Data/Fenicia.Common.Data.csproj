@@ -11,7 +11,6 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0"/>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Fenicia.Common.Api\Fenicia.Common.Api.csproj"/>
         <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj"/>
     </ItemGroup>
     <ItemGroup>

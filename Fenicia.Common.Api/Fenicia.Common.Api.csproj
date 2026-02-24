@@ -8,20 +8,59 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0"/>
+        <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.3.9"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.12.46" />
+        <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="3.0.0"/>
+        <PackageReference Include="Scalar.AspNetCore" Version="2.12.46"/>
+        <PackageReference Include="Serilog.Enrichers.Context" Version="4.6.5"/>
+        <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1"/>
+        <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0"/>
+        <PackageReference Include="StackExchange.Redis" Version="2.11.3"/>
     </ItemGroup>
     <ItemGroup>
+        <Reference Include="Fenicia.Common.Data">
+          <HintPath>..\Fenicia.Module.Basic.Tests\bin\Debug\net10.0\Fenicia.Common.Data.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.AspNetCore.Authentication.JwtBearer">
+          <HintPath>..\..\..\.nuget\packages\microsoft.aspnetcore.authentication.jwtbearer\10.0.3\lib\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll</HintPath>
+        </Reference>
         <Reference Include="Microsoft.AspNetCore.Mvc.Abstractions">
             <HintPath>..\..\..\..\..\run\host\usr\lib\dotnet\shared\Microsoft.AspNetCore.App\9.0.5\Microsoft.AspNetCore.Mvc.Abstractions.dll</HintPath>
         </Reference>
         <Reference Include="Microsoft.AspNetCore.Mvc.Core">
             <HintPath>..\..\..\..\..\run\host\usr\lib\dotnet\shared\Microsoft.AspNetCore.App\9.0.5\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
         </Reference>
+        <Reference Include="Microsoft.EntityFrameworkCore">
+          <HintPath>..\..\..\.nuget\packages\microsoft.entityframeworkcore\10.0.3\lib\net10.0\Microsoft.EntityFrameworkCore.dll</HintPath>
+        </Reference>
         <Reference Include="Microsoft.Extensions.Logging.Abstractions">
             <HintPath>..\..\..\.nuget\packages\microsoft.extensions.logging.abstractions\9.0.5\lib\net9.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+        </Reference>
+        <Reference Include="Microsoft.IdentityModel.Tokens">
+          <HintPath>..\..\..\.nuget\packages\microsoft.identitymodel.tokens\8.16.0\lib\net10.0\Microsoft.IdentityModel.Tokens.dll</HintPath>
+        </Reference>
+        <Reference Include="Scalar.AspNetCore">
+          <HintPath>..\..\..\.nuget\packages\scalar.aspnetcore\2.12.46\lib\net10.0\Scalar.AspNetCore.dll</HintPath>
+        </Reference>
+        <Reference Include="Serilog">
+          <HintPath>..\..\..\.nuget\packages\serilog\4.3.0\lib\net9.0\Serilog.dll</HintPath>
+        </Reference>
+        <Reference Include="StackExchange.Redis">
+          <HintPath>..\..\..\.nuget\packages\stackexchange.redis\2.11.3\lib\net8.0\StackExchange.Redis.dll</HintPath>
         </Reference>
     </ItemGroup>
     <ItemGroup>
@@ -32,6 +71,7 @@
         </Content>
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\Fenicia.Common.Data\Fenicia.Common.Data.csproj" />
         <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj"/>
     </ItemGroup>
 </Project>

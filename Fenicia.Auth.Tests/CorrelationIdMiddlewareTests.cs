@@ -1,5 +1,7 @@
 using Bogus;
 
+using Fenicia.Common.API;
+
 using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Auth.Tests;
