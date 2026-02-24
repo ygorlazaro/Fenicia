@@ -6,13 +6,16 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Update;
 
 public class UpdateSupplierHandler(BasicContext context)
 {
-    public async Task<SupplierResponse?> Handle(UpdateSupplierCommand command, CancellationToken ct)
+    public async Task<UpdateSupplierResponse?> Handle(UpdateSupplierCommand command, CancellationToken ct)
     {
         var supplier = await context.Suppliers
             .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
-        if (supplier is null) return null;
+        if (supplier is null)
+        {
+            return null;
+        }
 
         supplier.Cnpj = command.Cnpj;
         supplier.Person.Name = command.Name;
@@ -31,21 +34,8 @@ public class UpdateSupplierHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new SupplierResponse(
+        return new UpdateSupplierResponse(
             supplier.Id,
-            supplier.Cnpj,
-            new PersonResponse(
-                supplier.Person.Name,
-                supplier.Person.Email,
-                supplier.Person.Document,
-                supplier.Person.PhoneNumber,
-                new AddressResponse(
-                    supplier.Person.City,
-                    supplier.Person.Complement,
-                    supplier.Person.Neighborhood,
-                    supplier.Person.Number,
-                    supplier.Person.StateId,
-                    supplier.Person.Street,
-                    supplier.Person.ZipCode)));
+            supplier.Cnpj);
     }
 }

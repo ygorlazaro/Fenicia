@@ -10,7 +10,10 @@ public class DeletePositionHandler(BasicContext context)
     {
         var position = await context.Positions.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
-        if (position is null) return;
+        if (position is null)
+        {
+            return;
+        }
 
         position.Deleted = DateTime.Now;
 

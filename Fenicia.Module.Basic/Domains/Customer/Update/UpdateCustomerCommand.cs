@@ -5,7 +5,6 @@ public record UpdateCustomerCommand(
     string Name,
     string? Email,
     string? Document,
-    string? Phone,
     string? City,
     string? Complement,
     string? Neighborhood,

@@ -6,13 +6,12 @@ namespace Fenicia.Module.Basic.Domains.Position.GetAll;
 
 public class GetAllPositionHandler(BasicContext context)
 {
-    public async Task<List<PositionResponse>> Handle(GetAllPositionQuery query, CancellationToken ct)
+    public async Task<List<GetAllPositionResponse>> Handle(GetAllPositionQuery query, CancellationToken ct)
     {
-        var positions = await context.Positions
+        return await context.Positions
+            .Select(p => new GetAllPositionResponse(p.Id, p.Name))
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(ct);
-
-        return positions.Select(p => new PositionResponse(p.Id, p.Name)).ToList();
     }
 }

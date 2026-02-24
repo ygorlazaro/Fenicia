@@ -12,7 +12,10 @@ public sealed class GetCompaniesByUserHandler(AuthContext db)
         GetCompaniesByUserQuery query,
         CancellationToken ct)
     {
-        if (query.PerPage <= 0) throw new ItemNotExistsException(TextConstants.ThereWasAnErrorSearchingModulesMessage);
+        if (query.PerPage <= 0)
+        {
+            throw new ItemNotExistsException(TextConstants.ThereWasAnErrorSearchingModulesMessage);
+        }
 
         var baseQuery = db.UserRoles.Where(ur => ur.UserId == query.UserId && ur.Company.IsActive);
         var total = await baseQuery.CountAsync(ct);

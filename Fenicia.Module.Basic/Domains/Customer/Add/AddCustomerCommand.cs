@@ -5,12 +5,11 @@ public record AddCustomerCommand(
     string Name,
     string? Email,
     string? Document,
-    string? Phone,
     string? City,
     string? Complement,
     string? Neighborhood,
     string? Number,
-    Guid StateId,
+    Guid? StateId,
     string? Street,
     string? ZipCode,
     string? PhoneNumber);

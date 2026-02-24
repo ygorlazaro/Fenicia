@@ -10,7 +10,10 @@ public class DeleteProductCategoryHandler(BasicContext context)
     {
         var category = await context.ProductCategories.FirstOrDefaultAsync(c => c.Id == command.Id, ct);
 
-        if (category is null) return;
+        if (category is null)
+        {
+            return;
+        }
 
         category.Deleted = DateTime.Now;
 

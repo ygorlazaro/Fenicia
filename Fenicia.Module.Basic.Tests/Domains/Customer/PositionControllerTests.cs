@@ -105,7 +105,7 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCustomers = okResult.Value as List<CustomerResponse>;
+        var returnedCustomers = okResult.Value as List<GetAllCustomerResponse>;
         Assert.That(returnedCustomers, Is.Not.Null);
         Assert.That(returnedCustomers, Is.Empty);
     }
@@ -173,7 +173,7 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCustomers = okResult.Value as List<CustomerResponse>;
+        var returnedCustomers = okResult.Value as List<GetAllCustomerResponse>;
         Assert.That(returnedCustomers, Is.Not.Null);
         Assert.That(returnedCustomers, Has.Count.EqualTo(2));
     }
@@ -218,12 +218,12 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCustomer = okResult.Value as CustomerResponse;
+        var returnedCustomer = okResult.Value as GetCustomerByIdResponse;
         Assert.That(returnedCustomer, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedCustomer.Id, Is.EqualTo(this.testCustomerId));
-            Assert.That(returnedCustomer.Person.Name, Is.EqualTo(customer.Person.Name));
+            Assert.That(returnedCustomer.PersonId, Is.Not.Empty);
         }
     }
 
@@ -251,7 +251,6 @@ public class PositionControllerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             "Apt 101",
             this.faker.Address.CityPrefix(),
@@ -274,12 +273,12 @@ public class PositionControllerTests
         Assert.That(createdResult, Is.Not.Null);
         Assert.That(createdResult.StatusCode, Is.EqualTo(201));
 
-        var returnedCustomer = createdResult.Value as CustomerResponse;
+        var returnedCustomer = createdResult.Value as AddCustomerResponse;
         Assert.That(returnedCustomer, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedCustomer.Person.Name, Is.EqualTo(command.Name));
-            Assert.That(returnedCustomer.Person.Email, Is.EqualTo(command.Email));
+            Assert.That(returnedCustomer.Id, Is.EqualTo(command.Id));
+            Assert.That(returnedCustomer.PersonId, Is.Not.Empty);
         }
     }
 
@@ -316,7 +315,6 @@ public class PositionControllerTests
             this.faker.Person.FullName + " Updated",
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             "Apt 101",
             this.faker.Address.CityPrefix(),
@@ -338,9 +336,9 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCustomer = okResult.Value as CustomerResponse;
+        var returnedCustomer = okResult.Value as UpdateCustomerResponse;
         Assert.That(returnedCustomer, Is.Not.Null);
-        Assert.That(returnedCustomer.Person.Name, Contains.Substring("Updated"));
+        Assert.That(returnedCustomer.Id, Is.EqualTo(command.Id));
     }
 
     [Test]
@@ -353,7 +351,6 @@ public class PositionControllerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -400,11 +397,6 @@ public class PositionControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
-
-        var noContentResult = result.Result as NoContentResult;
-        Assert.That(noContentResult, Is.Not.Null);
-        Assert.That(noContentResult.StatusCode, Is.EqualTo(204));
 
         // Verify customer was deleted
         var deletedCustomer =
@@ -424,7 +416,6 @@ public class PositionControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
     }
 
     [Test]

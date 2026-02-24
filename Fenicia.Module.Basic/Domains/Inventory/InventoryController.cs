@@ -19,7 +19,7 @@ public class InventoryController(
     GetInventoryByProductHandler getInventoryByProductHandler,
     GetInventoryByCategoryHandler getInventoryByCategoryHandler) : ControllerBase
 {
-    [HttpGet("/products/{productId:guid}")]
+    [HttpGet("/product/{productId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<InventoryResponse>> GetInventoryByProductIdAsync([FromRoute] Guid productId, CancellationToken ct)

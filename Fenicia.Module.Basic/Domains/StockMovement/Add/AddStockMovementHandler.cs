@@ -8,7 +8,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement.Add;
 
 public class AddStockMovementHandler(BasicContext context)
 {
-    public async Task<StockMovementResponse> Handle(AddStockMovementCommand command, CancellationToken ct)
+    public async Task<AddStockMovementResponse> Handle(AddStockMovementCommand command, CancellationToken ct)
     {
         var stockMovement = new StockMovementModel
         {
@@ -28,20 +28,18 @@ public class AddStockMovementHandler(BasicContext context)
 
         if (product is not null)
         {
-            if (command.Type == StockMovementType.In)
+            product.Quantity = command.Type switch
             {
-                product.Quantity += command.Quantity;
-            }
-            else if (command.Type == StockMovementType.Out)
-            {
-                product.Quantity -= command.Quantity;
-            }
+                StockMovementType.In => product.Quantity += command.Quantity,
+                StockMovementType.Out => product.Quantity -= command.Quantity,
+                _ => throw new ArgumentOutOfRangeException()
+            };
 
             context.Products.Update(product);
         }
 
         await context.SaveChangesAsync(ct);
 
-        return new StockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId);
+        return new AddStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId);
     }
 }

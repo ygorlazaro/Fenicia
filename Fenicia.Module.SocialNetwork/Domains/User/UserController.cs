@@ -14,7 +14,7 @@ public class UserController(IUserService userService, IFollowerService followerS
 {
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateUser([FromBody] UserRequest request, CancellationToken ct)
+    public async Task<ActionResult> CreateUser([FromBody] UserRequest request, CancellationToken ct)
     {
         var user = await userService.AddAsync(request, ct);
 
@@ -22,7 +22,7 @@ public class UserController(IUserService userService, IFollowerService followerS
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetUserByIdASync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> GetUserByIdASync([FromRoute] Guid id, CancellationToken ct)
     {
         var user = await userService.GetByIdAsync(id, ct);
 
@@ -30,14 +30,17 @@ public class UserController(IUserService userService, IFollowerService followerS
     }
 
     [HttpPatch("{id:guid}")]
-    public async Task<IActionResult> UpdateUserAsync(
+    public async Task<ActionResult> UpdateUserAsync(
         [FromRoute] Guid id,
         [FromBody] UserRequest request,
         CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
 
-        if (userId != id) ClaimReader.ValidateRole(this.User, "Admin");
+        if (userId != id)
+        {
+            ClaimReader.ValidateRole(this.User, "Admin");
+        }
 
         var response = await userService.UpdateAsync(id, request, ct);
 
@@ -46,7 +49,7 @@ public class UserController(IUserService userService, IFollowerService followerS
 
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteUser([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteUser([FromRoute] Guid id, CancellationToken ct)
     {
         await userService.DeleteAsync(id, ct);
 
@@ -54,7 +57,7 @@ public class UserController(IUserService userService, IFollowerService followerS
     }
 
     [HttpPost("{id:guid}/follow")]
-    public async Task<IActionResult> FollowAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> FollowAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         var follower = await followerService.FollowAsync(userId, id, ct);
@@ -63,7 +66,7 @@ public class UserController(IUserService userService, IFollowerService followerS
     }
 
     [HttpDelete("{id:guid}/unfollow")]
-    public async Task<IActionResult> UnfollowAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> UnfollowAsync([FromRoute] Guid id, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
 

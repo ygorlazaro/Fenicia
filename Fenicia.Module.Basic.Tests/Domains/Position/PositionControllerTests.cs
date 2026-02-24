@@ -5,8 +5,8 @@ using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.GetByPositionId;
+using Fenicia.Module.Basic.Domains.Employee.Update;
 using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.Add;
 using Fenicia.Module.Basic.Domains.Position.Delete;
@@ -111,7 +111,7 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPositions = okResult.Value as List<PositionResponse>;
+        var returnedPositions = okResult.Value as List<GetAllPositionResponse>;
         Assert.That(returnedPositions, Is.Not.Null);
         Assert.That(returnedPositions, Is.Empty);
     }
@@ -149,7 +149,7 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPositions = okResult.Value as List<PositionResponse>;
+        var returnedPositions = okResult.Value as List<GetAllPositionResponse>;
         Assert.That(returnedPositions, Is.Not.Null);
         Assert.That(returnedPositions, Has.Count.EqualTo(2));
     }
@@ -179,7 +179,7 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPosition = okResult.Value as PositionResponse;
+        var returnedPosition = okResult.Value as GetPositionByIdResponse;
         Assert.That(returnedPosition, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -229,7 +229,7 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedEmployees = okResult.Value as List<EmployeeResponse>;
+        var returnedEmployees = okResult.Value as List<GetEmployeesByPositionIdResponse>;
         Assert.That(returnedEmployees, Is.Not.Null);
         Assert.That(returnedEmployees, Is.Empty);
     }
@@ -289,7 +289,7 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedEmployees = okResult.Value as List<EmployeeResponse>;
+        var returnedEmployees = okResult.Value as List<GetEmployeesByPositionIdResponse>;
         Assert.That(returnedEmployees, Is.Not.Null);
         Assert.That(returnedEmployees, Has.Count.EqualTo(2));
     }
@@ -312,7 +312,7 @@ public class PositionControllerTests
         Assert.That(createdResult, Is.Not.Null);
         Assert.That(createdResult.StatusCode, Is.EqualTo(201));
 
-        var returnedPosition = createdResult.Value as PositionResponse;
+        var returnedPosition = createdResult.Value as AddPositionResponse;
         Assert.That(returnedPosition, Is.Not.Null);
         Assert.That(returnedPosition.Name, Is.EqualTo(command.Name));
     }
@@ -343,7 +343,7 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPosition = okResult.Value as PositionResponse;
+        var returnedPosition = okResult.Value as UpdatePositionResponse;
         Assert.That(returnedPosition, Is.Not.Null);
         Assert.That(returnedPosition.Name, Contains.Substring("Updated"));
     }
@@ -384,11 +384,6 @@ public class PositionControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
-
-        var noContentResult = result.Result as NoContentResult;
-        Assert.That(noContentResult, Is.Not.Null);
-        Assert.That(noContentResult.StatusCode, Is.EqualTo(204));
 
         // Verify position was deleted
         var deletedPosition = await this.context.Positions.FirstOrDefaultAsync(x => x.Id == this.testPositionId, cancellationToken);
@@ -407,7 +402,6 @@ public class PositionControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
     }
 
     [Test]

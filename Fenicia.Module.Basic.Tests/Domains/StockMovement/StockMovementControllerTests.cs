@@ -103,7 +103,7 @@ public class StockMovementControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedMovements = okResult.Value as List<StockMovementResponse>;
+        var returnedMovements = okResult.Value as List<GetStockMovementResponse>;
         Assert.That(returnedMovements, Is.Not.Null);
         Assert.That(returnedMovements, Is.Empty);
     }
@@ -163,7 +163,7 @@ public class StockMovementControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedMovements = okResult.Value as List<StockMovementResponse>;
+        var returnedMovements = okResult.Value as List<GetStockMovementResponse>;
         Assert.That(returnedMovements, Is.Not.Null);
         Assert.That(returnedMovements, Has.Count.EqualTo(2));
     }
@@ -208,7 +208,7 @@ public class StockMovementControllerTests
         Assert.That(createdResult, Is.Not.Null);
         Assert.That(createdResult.StatusCode, Is.EqualTo(201));
 
-        var returnedMovement = createdResult.Value as StockMovementResponse;
+        var returnedMovement = createdResult.Value as AddStockMovementResponse;
         Assert.That(returnedMovement, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -270,7 +270,7 @@ public class StockMovementControllerTests
         var createdResult = result.Result as CreatedResult;
         Assert.That(createdResult, Is.Not.Null);
 
-        var returnedMovement = createdResult.Value as StockMovementResponse;
+        var returnedMovement = createdResult.Value as UpdateStockMovementResponse;
         Assert.That(returnedMovement, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

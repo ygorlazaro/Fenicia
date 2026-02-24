@@ -41,7 +41,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             "Apt 101",
             this.faker.Address.CityPrefix(),
@@ -58,9 +57,8 @@ public class AddCustomerHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Person.Name, Is.EqualTo(command.Name));
-            Assert.That(result.Person.Email, Is.EqualTo(command.Email));
-            Assert.That(result.Person.Document, Is.EqualTo(command.Document));
+            Assert.That(result.Id, Is.EqualTo(command.Id));
+            Assert.That(result.PersonId, Is.Not.Empty);
         }
     }
 
@@ -73,7 +71,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            null,
             this.faker.Address.City(),
             null,
             null,
@@ -88,7 +85,6 @@ public class AddCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Phone, Is.Null);
     }
 
     [Test]
@@ -100,7 +96,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -115,7 +110,6 @@ public class AddCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.Street, Is.Null);
     }
 
     [Test]
@@ -127,7 +121,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -142,7 +135,6 @@ public class AddCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.ZipCode, Is.Null);
     }
 
     [Test]
@@ -154,7 +146,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -169,7 +160,6 @@ public class AddCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.Number, Is.Null);
     }
 
     [Test]
@@ -181,7 +171,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -196,7 +185,6 @@ public class AddCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.Complement, Is.Null);
     }
 
     [Test]
@@ -208,7 +196,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -223,7 +210,6 @@ public class AddCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.Neighborhood, Is.Null);
     }
 
     [Test]
@@ -235,7 +221,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             null,
             null,
             null,
@@ -250,7 +235,6 @@ public class AddCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.City, Is.Null);
     }
 
     [Test]
@@ -262,7 +246,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             "Apt 101",
             this.faker.Address.CityPrefix(),
@@ -297,7 +280,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,
@@ -312,7 +294,6 @@ public class AddCustomerHandlerTests
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
             this.faker.Random.Replace("###.###.###-##"),
-            this.faker.Random.Replace("(##) #####-####"),
             this.faker.Address.City(),
             null,
             null,

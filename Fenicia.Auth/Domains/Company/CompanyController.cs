@@ -20,7 +20,7 @@ public class CompanyController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Pagination<IEnumerable<GetCompaniesByUserResponse>>>> GetByLoggedUser(
+    public async Task<ActionResult<GetCompaniesByUserResponse>> GetByLoggedUser(
         [FromQuery] PaginationQuery query,
         [FromServices] GetCompaniesByUserHandler handler,
         WideEventContext wide,

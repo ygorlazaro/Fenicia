@@ -13,7 +13,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Feed;
 public class FeedController(IFeedService feedService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetFeedAsync(CancellationToken ct, [FromQuery] PaginationQuery query)
+    public async Task<ActionResult> GetFeedAsync(CancellationToken ct, [FromQuery] PaginationQuery query)
     {
         var userId = ClaimReader.UserId(this.User);
         var feed = await feedService.GetFollowingFeedAsync(userId, ct, query.Page, query.PerPage);
@@ -22,7 +22,7 @@ public class FeedController(IFeedService feedService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] FeedRequest request, CancellationToken ct)
+    public async Task<ActionResult> PostAsync([FromBody] FeedRequest request, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         var feed = await feedService.AddAsync(userId, request, ct);

@@ -5,7 +5,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Add;
 
 public class AddSupplierHandler(BasicContext context)
 {
-    public async Task<SupplierResponse> Handle(AddSupplierCommand command, CancellationToken ct)
+    public async Task<AddSupplierResponse> Handle(AddSupplierCommand command, CancellationToken ct)
     {
         var person = new PersonModel
         {
@@ -35,21 +35,9 @@ public class AddSupplierHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new SupplierResponse(
+        return new AddSupplierResponse(
             supplier.Id,
-            supplier.Cnpj,
-            new PersonResponse(
-                person.Name,
-                person.Email,
-                person.Document,
-                person.PhoneNumber,
-                new AddressResponse(
-                    person.City,
-                    person.Complement,
-                    person.Neighborhood,
-                    person.Number,
-                    person.StateId,
-                    person.Street,
-                    person.ZipCode)));
+            supplier.Cnpj
+        );
     }
 }

@@ -1,5 +1,4 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.Product.Update;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +10,10 @@ public class DeleteProductHandler(BasicContext context)
     {
         var product = await context.Products.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
-        if (product is null) return;
+        if (product is null)
+        {
+            return;
+        }
 
         product.Deleted = DateTime.Now;
 

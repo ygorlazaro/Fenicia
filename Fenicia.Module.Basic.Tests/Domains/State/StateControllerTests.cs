@@ -84,7 +84,7 @@ public class StateControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedStates = okResult.Value as List<StateModel>;
+        var returnedStates = okResult.Value as List<GetAllStateResponse>;
         Assert.That(returnedStates, Is.Not.Null);
         Assert.That(returnedStates, Is.Empty);
     }
@@ -122,7 +122,7 @@ public class StateControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedStates = okResult.Value as List<StateModel>;
+        var returnedStates = okResult.Value as List<GetAllStateResponse>;
         Assert.That(returnedStates, Is.Not.Null);
         Assert.That(returnedStates, Has.Count.EqualTo(2));
     }

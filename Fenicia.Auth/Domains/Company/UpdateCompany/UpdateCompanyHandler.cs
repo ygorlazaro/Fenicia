@@ -21,7 +21,10 @@ public sealed class UpdateCompanyHandler(AuthContext context)
             ct
         );
 
-        if (!isAdmin) throw new PermissionDeniedException(TextConstants.PermissionDeniedMessage);
+        if (!isAdmin)
+        {
+            throw new PermissionDeniedException(TextConstants.PermissionDeniedMessage);
+        }
 
         company.Name = command.Name;
         company.TimeZone = command.TimeZone;

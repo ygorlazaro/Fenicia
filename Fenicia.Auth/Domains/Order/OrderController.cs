@@ -31,7 +31,10 @@ public class OrderController : ControllerBase
         var companyId = headers.CompanyId;
         var order = await handler.Handle(new CreateNewOrderCommand(userId, companyId, request.Modules), ct);
 
-        if (order is null) return BadRequest();
+        if (order is null)
+        {
+            return BadRequest();
+        }
 
         return Ok(order);
     }

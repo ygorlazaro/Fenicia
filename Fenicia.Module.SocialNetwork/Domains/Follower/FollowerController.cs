@@ -13,7 +13,7 @@ namespace Fenicia.Module.SocialNetwork.Domains.Follower;
 public class FollowerController(IFollowerService followerService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetFollowersAsync([FromQuery] PaginationQuery query, CancellationToken ct)
+    public async Task<ActionResult> GetFollowersAsync([FromQuery] PaginationQuery query, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         var followers = await followerService.GetFollowersAsync(userId, ct);
