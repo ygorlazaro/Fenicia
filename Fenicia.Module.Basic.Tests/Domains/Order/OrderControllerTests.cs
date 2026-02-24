@@ -7,7 +7,6 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.CreateOrder;
-using Fenicia.Module.Basic.Domains.OrderDetail;
 using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
 
 using Microsoft.AspNetCore.Authorization;
@@ -135,7 +134,7 @@ public class OrderControllerTests
         Assert.That(createdResult, Is.Not.Null);
         Assert.That(createdResult.StatusCode, Is.EqualTo(201));
 
-        var returnedOrder = createdResult.Value as OrderResponse;
+        var returnedOrder = createdResult.Value as CreateOrderResponse;
         Assert.That(returnedOrder, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -193,7 +192,7 @@ public class OrderControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedDetails = okResult.Value as List<OrderDetailResponse>;
+        var returnedDetails = okResult.Value as List<GetOrderDetailsByOrderIdResponse>;
         Assert.That(returnedDetails, Is.Not.Null);
         Assert.That(returnedDetails, Has.Count.EqualTo(2));
     }
@@ -215,7 +214,7 @@ public class OrderControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedDetails = okResult.Value as List<OrderDetailResponse>;
+        var returnedDetails = okResult.Value as List<GetOrderDetailsByOrderIdResponse>;
         Assert.That(returnedDetails, Is.Not.Null);
         Assert.That(returnedDetails, Is.Empty);
     }
@@ -270,7 +269,7 @@ public class OrderControllerTests
         var createdResult = result.Result as CreatedResult;
         Assert.That(createdResult, Is.Not.Null);
 
-        var returnedOrder = createdResult.Value as OrderResponse;
+        var returnedOrder = createdResult.Value as CreateOrderResponse;
         Assert.That(returnedOrder, Is.Not.Null);
         Assert.That(returnedOrder.UserId, Is.EqualTo(this.testUserId));
     }

@@ -6,13 +6,16 @@ namespace Fenicia.Module.Basic.Domains.Product.Update;
 
 public class UpdateProductHandler(BasicContext context)
 {
-    public async Task<ProductResponse?> Handle(UpdateProductCommand command, CancellationToken ct)
+    public async Task<UpdateProductResponse?> Handle(UpdateProductCommand command, CancellationToken ct)
     {
         var product = await context.Products
             .Include(p => p.Category)
             .FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
-        if (product is null) return null;
+        if (product is null)
+        {
+            return null;
+        }
 
         product.Name = command.Name;
         product.CostPrice = command.CostPrice;
@@ -24,7 +27,7 @@ public class UpdateProductHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new ProductResponse(
+        return new UpdateProductResponse(
             product.Id,
             product.Name,
             product.CostPrice,

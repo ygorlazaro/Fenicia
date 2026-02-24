@@ -6,14 +6,17 @@ namespace Fenicia.Module.Basic.Domains.Employee.Update;
 
 public class UpdateEmployeeHandler(BasicContext context)
 {
-    public async Task<EmployeeResponse?> Handle(UpdateEmployeeCommand command, CancellationToken ct)
+    public async Task<UpdateEmployeeResponse?> Handle(UpdateEmployeeCommand command, CancellationToken ct)
     {
         var employee = await context.Employees
             .Include(e => e.Person)
             .Include(e => e.Position)
             .FirstOrDefaultAsync(e => e.Id == command.Id, ct);
 
-        if (employee is null) return null;
+        if (employee is null)
+        {
+            return null;
+        }
 
         employee.PositionId = command.PositionId;
         employee.Person.Name = command.Name;
@@ -32,22 +35,9 @@ public class UpdateEmployeeHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new EmployeeResponse(
+        return new UpdateEmployeeResponse(
             employee.Id,
             employee.PositionId,
-            employee.Position.Name,
-            new PersonResponse(
-                employee.Person.Name,
-                employee.Person.Email,
-                employee.Person.Document,
-                employee.Person.PhoneNumber,
-                new AddressResponse(
-                    employee.Person.City,
-                    employee.Person.Complement,
-                    employee.Person.Neighborhood,
-                    employee.Person.Number,
-                    employee.Person.StateId,
-                    employee.Person.Street,
-                    employee.Person.ZipCode)));
+            employee.PersonId);
     }
 }

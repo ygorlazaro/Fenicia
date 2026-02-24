@@ -23,9 +23,15 @@ public class CreateNewUserHandler(
         var checkUserExistsQuery = new CheckCompanyExistsQuery(request.Company.Cnpj, true);
         var isExistingCompany = await checkCompanyExistsHandler.Handle(checkUserExistsQuery, ct);
 
-        if (isExistingUser) throw new ArgumentException(TextConstants.EmailExistsMessage);
+        if (isExistingUser)
+        {
+            throw new ArgumentException(TextConstants.EmailExistsMessage);
+        }
 
-        if (isExistingCompany) throw new ArgumentException(TextConstants.CompanyExistsMessage);
+        if (isExistingCompany)
+        {
+            throw new ArgumentException(TextConstants.CompanyExistsMessage);
+        }
 
         var hashedPassword = hashPasswordHandler.Handle(request.Password);
         var userRequest = new UserModel

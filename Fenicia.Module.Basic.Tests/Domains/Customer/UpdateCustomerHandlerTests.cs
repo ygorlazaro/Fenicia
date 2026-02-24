@@ -64,7 +64,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             "Apt 202",
             "New Neighborhood",
@@ -81,9 +80,8 @@ public class UpdateCustomerHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Person.Name, Is.EqualTo("New Name"));
-            Assert.That(result.Person.Email, Is.EqualTo("new@email.com"));
-            Assert.That(result.Person.Document, Is.EqualTo("987.654.321-00"));
+            Assert.That(result.PersonId, Is.EqualTo(customer.Person.Id));
+            Assert.That(result.Id, Is.EqualTo(customerId));
         }
     }
 
@@ -96,7 +94,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             null,
             null,
@@ -122,7 +119,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             null,
             null,
@@ -170,7 +166,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            null,
             "New City",
             null,
             null,
@@ -185,7 +180,7 @@ public class UpdateCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Phone, Is.Null);
+        Assert.That(result.PersonId, Is.Not.Empty);
     }
 
     [Test]
@@ -219,7 +214,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             null,
             null,
@@ -234,7 +228,7 @@ public class UpdateCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.Street, Is.Null);
+        Assert.That(result.PersonId, Is.Not.Empty);
     }
 
     [Test]
@@ -268,7 +262,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             null,
             null,
@@ -283,7 +276,7 @@ public class UpdateCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.ZipCode, Is.Null);
+        Assert.That(result.PersonId, Is.Not.Empty);
     }
 
     [Test]
@@ -317,7 +310,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             null,
             null,
@@ -332,7 +324,7 @@ public class UpdateCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.Number, Is.Null);
+        Assert.That(result.PersonId, Is.Not.Empty);
     }
 
     [Test]
@@ -366,7 +358,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             null,
             null,
@@ -381,7 +372,7 @@ public class UpdateCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.Complement, Is.Null);
+        Assert.That(result.PersonId, Is.Not.Empty);
     }
 
     [Test]
@@ -415,7 +406,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             null,
             null,
@@ -430,7 +420,7 @@ public class UpdateCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.Neighborhood, Is.Null);
+        Assert.That(result.PersonId, Is.Not.Empty);
     }
 
     [Test]
@@ -464,7 +454,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             null,
             null,
             null,
@@ -479,7 +468,7 @@ public class UpdateCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Person.Address?.City, Is.Null);
+        Assert.That(result.PersonId, Is.Not.Empty);
     }
 
     [Test]
@@ -513,7 +502,6 @@ public class UpdateCustomerHandlerTests
             "New Name",
             "new@email.com",
             "987.654.321-00",
-            "(11) 98765-4321",
             "New City",
             "Apt 202",
             "New Neighborhood",

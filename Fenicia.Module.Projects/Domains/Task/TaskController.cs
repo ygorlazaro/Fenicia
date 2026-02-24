@@ -12,7 +12,7 @@ namespace Fenicia.Module.Projects.Domains.Task;
 public class TaskController(ITaskService taskService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> PostAsync([FromBody] TaskRequest request, CancellationToken ct)
+    public async Task<ActionResult> PostAsync([FromBody] TaskRequest request, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         var task = await taskService.AddAsync(request, userId, ct);

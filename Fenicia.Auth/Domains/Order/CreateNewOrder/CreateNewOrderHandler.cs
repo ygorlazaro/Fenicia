@@ -20,11 +20,17 @@ public class CreateNewOrderHandler(
     {
         var existingUser = await db.UserExistsAsync(command.UserId, command.CompanyId, ct);
 
-        if (!existingUser) throw new PermissionDeniedException(TextConstants.UserDoestNotExistsAtTheCompany);
+        if (!existingUser)
+        {
+            throw new PermissionDeniedException(TextConstants.UserDoestNotExistsAtTheCompany);
+        }
 
         var modules = await PopulateModules(command.Modules, ct);
 
-        if (modules.Count == 0) throw new ItemNotExistsException(TextConstants.ModulesNotFound);
+        if (modules.Count == 0)
+        {
+            throw new ItemNotExistsException(TextConstants.ModulesNotFound);
+        }
 
         var totalAmount = modules.Sum(m => m.Price);
         var details = modules.Select(m => new OrderDetailModel { ModuleId = m.Id, Price = m.Price }).ToList();
@@ -58,11 +64,17 @@ public class CreateNewOrderHandler(
             var uniqueModules = request.Distinct();
             var modules = await GetModulesToOrderAsync(uniqueModules, ct);
 
-            if (modules.Any(m => m.Type == ModuleType.Basic)) return modules;
+            if (modules.Any(m => m.Type == ModuleType.Basic))
+            {
+                return modules;
+            }
 
             var basicModule = await GetModuleByTypeAsync(ModuleType.Basic, ct);
 
-            if (basicModule is null) return [];
+            if (basicModule is null)
+            {
+                return [];
+            }
 
             modules.Add(basicModule);
 

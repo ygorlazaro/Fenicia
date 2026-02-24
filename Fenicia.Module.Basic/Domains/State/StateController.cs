@@ -1,6 +1,5 @@
 using System.Net.Mime;
 
-using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.State.GetAll;
 
 using Microsoft.AspNetCore.Authorization;
@@ -16,9 +15,9 @@ namespace Fenicia.Module.Basic.Domains.State;
 public class StateController(GetAllStateHandler getAllStateHandler) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StateModel>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllStateResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<StateModel>> GetAllAsync(CancellationToken ct)
+    public async Task<ActionResult<List<GetAllStateResponse>>> GetAllAsync(CancellationToken ct)
     {
         var states = await getAllStateHandler.Handle(new GetAllStateQuery(), ct);
 

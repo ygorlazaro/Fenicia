@@ -11,7 +11,10 @@ public class CreateCreditsForOrderHandler(AuthContext context)
         CreateCreditsForOrderQuery query,
         CancellationToken ct)
     {
-        if (!query.Details.Any()) throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
+        if (!query.Details.Any())
+        {
+            throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
+        }
 
         var credits = query.Details.Select(d => new SubscriptionCreditModel
         {

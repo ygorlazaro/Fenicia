@@ -6,13 +6,16 @@ namespace Fenicia.Module.Basic.Domains.Customer.Update;
 
 public class UpdateCustomerHandler(BasicContext context)
 {
-    public async Task<CustomerResponse?> Handle(UpdateCustomerCommand command, CancellationToken ct)
+    public async Task<UpdateCustomerResponse?> Handle(UpdateCustomerCommand command, CancellationToken ct)
     {
         var customer = await context.Customers
             .Include(c => c.Person)
             .FirstOrDefaultAsync(c => c.Id == command.Id, ct);
 
-        if (customer is null) return null;
+        if (customer is null)
+        {
+            return null;
+        }
 
         customer.Person.Name = command.Name;
         customer.Person.Email = command.Email;
@@ -30,20 +33,6 @@ public class UpdateCustomerHandler(BasicContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new CustomerResponse(
-            customer.Id,
-            new PersonResponse(
-                customer.Person.Name,
-                customer.Person.Email,
-                customer.Person.Document,
-                customer.Person.PhoneNumber,
-                new AddressResponse(
-                    customer.Person.City,
-                    customer.Person.Complement,
-                    customer.Person.Neighborhood,
-                    customer.Person.Number,
-                    customer.Person.StateId,
-                    customer.Person.Street,
-                    customer.Person.ZipCode)));
+        return new UpdateCustomerResponse(customer.Id, customer.PersonId);
     }
 }

@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Auth.Domains.User.CreateNewUser;
 using Fenicia.Common.API;
-using Fenicia.Module.SocialNetwork.Domains.User;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +12,7 @@ namespace Fenicia.Auth.Domains.Register;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class RegisterController(IUserService userService) : ControllerBase
+public class RegisterController : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

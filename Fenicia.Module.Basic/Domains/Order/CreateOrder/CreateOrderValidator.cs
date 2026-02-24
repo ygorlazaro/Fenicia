@@ -12,13 +12,3 @@ public class CreateOrderValidator : AbstractValidator<CreateOrderCommand>
         RuleForEach(c => c.Details).SetValidator(new OrderDetailValidator());
     }
 }
-
-public class OrderDetailValidator : AbstractValidator<OrderDetailCommand>
-{
-    public OrderDetailValidator()
-    {
-        RuleFor(d => d.ProductId).NotEmpty();
-        RuleFor(d => d.Price).GreaterThan(0);
-        RuleFor(d => d.Quantity).GreaterThan(0);
-    }
-}

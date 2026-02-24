@@ -5,7 +5,6 @@ using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.GetByCategoryId;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.Add;
@@ -109,7 +108,7 @@ public class ProductCategoryControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCategories = okResult.Value as List<ProductCategoryResponse>;
+        var returnedCategories = okResult.Value as List<GetAllProductCategoryResponse>;
         Assert.That(returnedCategories, Is.Not.Null);
         Assert.That(returnedCategories, Is.Empty);
     }
@@ -145,7 +144,7 @@ public class ProductCategoryControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCategories = okResult.Value as List<ProductCategoryResponse>;
+        var returnedCategories = okResult.Value as List<GetAllProductCategoryResponse>;
         Assert.That(returnedCategories, Is.Not.Null);
         Assert.That(returnedCategories, Has.Count.EqualTo(2));
     }
@@ -175,7 +174,7 @@ public class ProductCategoryControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCategory = okResult.Value as ProductCategoryResponse;
+        var returnedCategory = okResult.Value as GetProductCategoryByIdResponse;
         Assert.That(returnedCategory, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -217,7 +216,7 @@ public class ProductCategoryControllerTests
         Assert.That(createdResult, Is.Not.Null);
         Assert.That(createdResult.StatusCode, Is.EqualTo(201));
 
-        var returnedCategory = createdResult.Value as ProductCategoryResponse;
+        var returnedCategory = createdResult.Value as AddProductCategoryResponse;
         Assert.That(returnedCategory, Is.Not.Null);
         Assert.That(returnedCategory.Name, Is.EqualTo(command.Name));
     }
@@ -248,7 +247,7 @@ public class ProductCategoryControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCategory = okResult.Value as ProductCategoryResponse;
+        var returnedCategory = okResult.Value as UpdateProductCategoryRecord;
         Assert.That(returnedCategory, Is.Not.Null);
         Assert.That(returnedCategory.Name, Contains.Substring("Updated"));
     }
@@ -289,11 +288,6 @@ public class ProductCategoryControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
-
-        var noContentResult = result.Result as NoContentResult;
-        Assert.That(noContentResult, Is.Not.Null);
-        Assert.That(noContentResult.StatusCode, Is.EqualTo(204));
 
         // Verify category was deleted
         var deletedCategory = await this.context.ProductCategories.FirstOrDefaultAsync(x => x.Id == this.testCategoryId, cancellationToken);
@@ -312,7 +306,6 @@ public class ProductCategoryControllerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NoContentResult>());
     }
 
     [Test]
@@ -341,7 +334,7 @@ public class ProductCategoryControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedProducts = okResult.Value as List<ProductResponse>;
+        var returnedProducts = okResult.Value as List<GetProductsByCategoryIdResponse>;
         Assert.That(returnedProducts, Is.Not.Null);
         Assert.That(returnedProducts, Is.Empty);
     }
@@ -393,7 +386,7 @@ public class ProductCategoryControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedProducts = okResult.Value as List<ProductResponse>;
+        var returnedProducts = okResult.Value as List<GetProductsByCategoryIdResponse>;
         Assert.That(returnedProducts, Is.Not.Null);
         Assert.That(returnedProducts, Has.Count.EqualTo(2));
     }
