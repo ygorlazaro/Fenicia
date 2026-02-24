@@ -313,7 +313,7 @@ public class UserControllerTests
         {
             Assert.That(returnedCompanies[0].Id, Is.EqualTo(companyId));
             Assert.That(returnedCompanies[0].Role, Is.EqualTo("Admin"));
-            Assert.That(returnedCompanies[0].Company.Name, Is.EqualTo(company.Name));
+            Assert.That(returnedCompanies[0].CompanyName, Is.EqualTo(company.Name));
             Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
         }
     }

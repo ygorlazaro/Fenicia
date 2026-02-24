@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Fenicia.Auth.Startup;
+namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaDatabaseExtensions
 {

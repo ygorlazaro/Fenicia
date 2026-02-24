@@ -1,5 +1,8 @@
-using Fenicia.Auth.Startup;
+using Fenicia.Auth.Domains.Company.CheckCompanyExists;
+using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Migrations.Services;
+using Fenicia.Externals.Email;
 
 namespace Fenicia.Auth;
 
@@ -26,7 +29,13 @@ public static class Program
             .AddFeniciaRateLimiting(configuration)
             .AddFeniciaCors()
             .AddFeniciaControllers(configuration)
-            .AddFeniciaDependencyInjection()
-            .Start();
+            .AddFeniciaDependencyInjection();
+        
+        builder.Services.AddTransient<IMigrationService, MigrationService>();
+        builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
+        
+        builder.Services.AddTransient<CheckCompanyExistsHandler>();
+
+        builder.Start();
     }
 }

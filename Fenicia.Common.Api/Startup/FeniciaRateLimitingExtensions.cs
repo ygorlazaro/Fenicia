@@ -1,6 +1,10 @@
 using AspNetCoreRateLimit;
 
-namespace Fenicia.Auth.Startup;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaRateLimitingExtensions
 {

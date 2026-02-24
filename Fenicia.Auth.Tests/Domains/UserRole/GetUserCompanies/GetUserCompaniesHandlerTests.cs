@@ -139,9 +139,9 @@ public class GetUserCompaniesHandlerTests
         {
             Assert.That(response.Id, Is.EqualTo(companyId), "CompanyId should match");
             Assert.That(response.Role, Is.EqualTo(roleName), "Role should match");
-            Assert.That(response.Company.Id, Is.EqualTo(companyId), "Company.Id should match");
-            Assert.That(response.Company.Name, Is.EqualTo(companyName), "Company.Name should match");
-            Assert.That(response.Company.Cnpj, Is.EqualTo(cnpj), "Company.Cnpj should match");
+            Assert.That(response.CompanyId, Is.EqualTo(companyId), "Company.Id should match");
+            Assert.That(response.CompanyName, Is.EqualTo(companyName), "Company.Name should match");
+            Assert.That(response.Cnpj, Is.EqualTo(cnpj), "Company.Cnpj should match");
         }
     }
 
@@ -261,9 +261,9 @@ public class GetUserCompaniesHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result1, Has.Count.EqualTo(1), "Should return only user1's company");
-            Assert.That(result1[0].Company.Id, Is.EqualTo(company1.Id), "Should return company1");
+            Assert.That(result1[0].CompanyId, Is.EqualTo(company1.Id), "Should return company1");
             Assert.That(result2, Has.Count.EqualTo(1), "Should return only user2's company");
-            Assert.That(result2[0].Company.Id, Is.EqualTo(company2.Id), "Should return company2");
+            Assert.That(result2[0].CompanyId, Is.EqualTo(company2.Id), "Should return company2");
         }
     }
 

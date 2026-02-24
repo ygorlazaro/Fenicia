@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Http;
+
 using Serilog;
 using Serilog.Context;
 
-namespace Fenicia.Auth;
+namespace Fenicia.Common.API;
 
 public class CorrelationIdMiddleware(RequestDelegate next)
 {
