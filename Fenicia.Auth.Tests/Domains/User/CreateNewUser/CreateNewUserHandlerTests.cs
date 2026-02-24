@@ -27,7 +27,7 @@ public class CreateNewUserHandlerTests
             .Options;
 
         this.context = new AuthContext(options);
-        this.checkUserExistsHandlerMock = new Mock<CheckUserExistsHandle>(this.context);
+        this.checkUserExistsHandlerMock = new Mock<CheckUserExistsHandler>(this.context);
         this.checkCompanyExistsHandlerMock = new Mock<CheckCompanyExistsHandler>(this.context);
         this.hashPasswordHandler = new HashPasswordHandler();
         this.getAdminRoleHandlerMock = new Mock<GetAdminRoleHandler>(this.context);
@@ -51,7 +51,7 @@ public class CreateNewUserHandlerTests
 
     private AuthContext context = null!;
     private CreateNewUserHandler handler = null!;
-    private Mock<CheckUserExistsHandle> checkUserExistsHandlerMock = null!;
+    private Mock<CheckUserExistsHandler> checkUserExistsHandlerMock = null!;
     private Mock<CheckCompanyExistsHandler> checkCompanyExistsHandlerMock = null!;
     private HashPasswordHandler hashPasswordHandler = null!;
     private Mock<GetAdminRoleHandler> getAdminRoleHandlerMock = null!;

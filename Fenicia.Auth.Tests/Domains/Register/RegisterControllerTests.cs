@@ -29,7 +29,7 @@ public class RegisterControllerTests
             .Options;
 
         this.context = new AuthContext(options);
-        this.mockCheckUserExistsHandler = new Mock<CheckUserExistsHandle>(this.context);
+        this.mockCheckUserExistsHandler = new Mock<CheckUserExistsHandler>(this.context);
         this.mockCheckCompanyExistsHandler = new Mock<CheckCompanyExistsHandler>(this.context);
         this.mockHashPasswordHandler = new Mock<HashPasswordHandler>();
         this.mockGetAdminRoleHandler = new Mock<GetAdminRoleHandler>(this.context);
@@ -62,7 +62,7 @@ public class RegisterControllerTests
     private RegisterController controller = null!;
     private AuthContext context = null!;
     private CreateNewUserHandler createNewUserHandler = null!;
-    private Mock<CheckUserExistsHandle> mockCheckUserExistsHandler = null!;
+    private Mock<CheckUserExistsHandler> mockCheckUserExistsHandler = null!;
     private Mock<CheckCompanyExistsHandler> mockCheckCompanyExistsHandler = null!;
     private Mock<HashPasswordHandler> mockHashPasswordHandler = null!;
     private Mock<GetAdminRoleHandler> mockGetAdminRoleHandler = null!;
