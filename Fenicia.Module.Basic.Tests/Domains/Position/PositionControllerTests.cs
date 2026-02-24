@@ -6,7 +6,6 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee.GetByPositionId;
-using Fenicia.Module.Basic.Domains.Employee.Update;
 using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.Add;
 using Fenicia.Module.Basic.Domains.Position.Delete;

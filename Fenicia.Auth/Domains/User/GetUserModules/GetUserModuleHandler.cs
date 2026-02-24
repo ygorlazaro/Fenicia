@@ -7,14 +7,14 @@ namespace Fenicia.Auth.Domains.User.GetUserModules;
 
 public class GetUserModuleHandler(AuthContext context)
 {
-    public async Task<List<ModuleResponse>> Handler(GetUserModulesQuery query, CancellationToken ct)
+    public async Task<List<GetUserModulesResponse>> Handler(GetUserModulesQuery query, CancellationToken ct)
     {
         var request = ValidModuleBySubscriptionQuery(query.UserId, query.CompanyId);
 
         return await request.Distinct().ToListAsync(ct);
     }
 
-    private IQueryable<ModuleResponse> ValidModuleBySubscriptionQuery(Guid userId, Guid companyId)
+    private IQueryable<GetUserModulesResponse> ValidModuleBySubscriptionQuery(Guid userId, Guid companyId)
     {
         var now = DateTime.Now;
 
@@ -28,7 +28,7 @@ public class GetUserModuleHandler(AuthContext context)
                           && now >= s.StartDate && now <= s.EndDate
                           && sc.IsActive
                           && now >= sc.StartDate && now <= sc.EndDate
-                    select new ModuleResponse(m.Id, m.Name, m.Type);
+                    select new GetUserModulesResponse(m.Id, m.Name, m.Type);
 
         return query;
     }

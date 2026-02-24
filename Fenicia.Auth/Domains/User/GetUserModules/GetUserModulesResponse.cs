@@ -2,4 +2,4 @@ using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Auth.Domains.User.GetUserModules;
 
-public record ModuleResponse(Guid Id, string Name, ModuleType Type);
+public record GetUserModulesResponse(Guid Id, string Name, ModuleType Type);
