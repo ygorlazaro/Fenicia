@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Tests.Domains.User;
 
 [TestFixture]
-public class CheckUserExistsHandleTests
+public class CheckUserExistsHandlerTests
 {
     [SetUp]
     public void SetUp()
@@ -19,7 +19,7 @@ public class CheckUserExistsHandleTests
             .Options;
 
         this.context = new AuthContext(options);
-        this.handler = new CheckUserExistsHandle(this.context);
+        this.handler = new CheckUserExistsHandler(this.context);
         this.faker = new Faker();
     }
 
@@ -30,7 +30,7 @@ public class CheckUserExistsHandleTests
     }
 
     private AuthContext context = null!;
-    private CheckUserExistsHandle handler = null!;
+    private CheckUserExistsHandler handler = null!;
     private Faker faker = null!;
 
     [Test]

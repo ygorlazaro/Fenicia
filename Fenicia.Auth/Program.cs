@@ -1,4 +1,5 @@
 using Fenicia.Auth.Domains.Company.CheckCompanyExists;
+using Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Migrations.Services;
@@ -28,13 +29,16 @@ public static class Program
             .AddFeniciaDbContext<AuthContext>(configuration, "Fenicia.Auth", "Auth")
             .AddFeniciaRateLimiting(configuration)
             .AddFeniciaCors()
-            .AddFeniciaControllers(configuration)
-            .AddFeniciaDependencyInjection();
-        
-        builder.Services.AddTransient<IMigrationService, MigrationService>();
-        builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
-        
-        builder.Services.AddTransient<CheckCompanyExistsHandler>();
+            .AddFeniciaAuthentication(configuration)
+            .AddFeniciaControllers()
+            .AddFeniciaDependencyInjection(() =>
+            {
+                builder.Services.AddTransient<IMigrationService, MigrationService>();
+                builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
+
+                builder.Services.AddScoped<IncrementAttempts>();
+            });
+            
 
         builder.Start();
     }

@@ -11,7 +11,7 @@ namespace Fenicia.Auth.Domains.User.CreateNewUser;
 
 public class CreateNewUserHandler(
     AuthContext context,
-    CheckUserExistsHandle checkUserExistsHandler,
+    CheckUserExistsHandler checkUserExistsHandler,
     CheckCompanyExistsHandler checkCompanyExistsHandler,
     HashPasswordHandler hashPasswordHandler,
     GetAdminRoleHandler getAdminRoleHandler,

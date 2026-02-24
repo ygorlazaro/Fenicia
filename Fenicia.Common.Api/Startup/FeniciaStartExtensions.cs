@@ -13,7 +13,7 @@ namespace Fenicia.Common.API.Startup;
 
 public static class FeniciaStartExtensions
 {
-    public static void Start(this WebApplicationBuilder builder)
+    public static void Start(this WebApplicationBuilder builder, string? segment = null, string? moduleRequirement = null)
     {
         var app = builder.Build();
 
@@ -47,6 +47,13 @@ public static class FeniciaStartExtensions
 
         app.UseAuthentication();
         app.UseAuthorization();
+        
+        if (segment != null && moduleRequirement != null)
+        {
+            app.UseWhen(o => o.Request.Path.StartsWithSegments(segment),
+                appBuilder => appBuilder.UseModuleRequirement(moduleRequirement));
+        }
+
         app.UseIpRateLimiting();
         app.MapControllers();
 
