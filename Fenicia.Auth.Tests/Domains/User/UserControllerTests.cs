@@ -99,7 +99,7 @@ public class UserControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedModules = okResult.Value as List<ModuleResponse>;
+        var returnedModules = okResult.Value as List<GetUserModulesResponse>;
         Assert.That(returnedModules, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -185,7 +185,7 @@ public class UserControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedModules = okResult.Value as List<ModuleResponse>;
+        var returnedModules = okResult.Value as List<GetUserModulesResponse>;
         Assert.That(returnedModules, Is.Not.Null);
         Assert.That(returnedModules, Has.Count.EqualTo(1));
         using (Assert.EnterMultipleScope())

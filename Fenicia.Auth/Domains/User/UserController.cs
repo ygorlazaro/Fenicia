@@ -13,8 +13,8 @@ namespace Fenicia.Auth.Domains.User;
 public class UserController : ControllerBase
 {
     [HttpGet("module")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModuleResponse))]
-    public async Task<ActionResult<List<ModuleResponse>>> GetUserModulesAsync(
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserModulesResponse))]
+    public async Task<ActionResult<List<GetUserModulesResponse>>> GetUserModulesAsync(
         [FromHeader] Headers headers,
         [FromServices] GetUserModuleHandler handler,
         WideEventContext wide,
