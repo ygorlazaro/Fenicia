@@ -11,7 +11,7 @@ public class SupplierModel : BaseModel
 
     public Guid PersonId { get; set; } = Guid.Empty;
 
-    public PersonModel Person { get; set; } 
+    public PersonModel Person { get; set; } = null!;
 
     public List<StockMovementModel> StockMovements { get; set; } = [];
 }

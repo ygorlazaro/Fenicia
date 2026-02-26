@@ -37,7 +37,7 @@ public static class FeniciaControllersExtensions
             };
         });
 
-        var targetAssembly = assembly ?? Assembly.GetEntryAssembly();
+        var targetAssembly = (assembly ?? Assembly.GetEntryAssembly()) ?? throw new InvalidOperationException("Could not determine the assembly to load controllers from.");
 
         builder.Services.AddControllers()
             .ConfigureApplicationPartManager(manager =>

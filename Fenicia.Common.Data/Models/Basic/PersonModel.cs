@@ -8,7 +8,7 @@ public class PersonModel : BaseModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     [MaxLength(14)]
     public string? Document { get; set; }
