@@ -136,6 +136,6 @@ public class UpdatePositionHandlerTests
             Assert.That(updatedPosition1.Name, Is.EqualTo("Senior Developer"));
             Assert.That(notUpdatedPosition2, Is.Not.Null);
         }
-        Assert.That(notUpdatedPosition2.Name, Is.EqualTo("Designer"));
+        Assert.That(notUpdatedPosition2!.Name, Is.EqualTo("Designer"));
     }
 }

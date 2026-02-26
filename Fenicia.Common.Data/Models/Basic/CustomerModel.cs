@@ -11,5 +11,5 @@ public class CustomerModel : BaseModel
 
     public Guid PersonId { get; set; }
 
-    public PersonModel Person { get; set; }
+    public PersonModel Person { get; set; } = null!;
 }

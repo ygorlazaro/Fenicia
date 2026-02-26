@@ -8,7 +8,7 @@ public class ProductCategoryModel : BaseModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public List<ProductModel> Products { get; set; } = null!;
 }

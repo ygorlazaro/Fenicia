@@ -8,7 +8,6 @@ public class PositionModel : BaseModel
 {
     [Required]
     [MaxLength(50)]
-    public string Name { get; set; }
-
+    public string Name { get; set; } = null!;
     public virtual List<EmployeeModel> Employees { get; set; } = null!;
 }

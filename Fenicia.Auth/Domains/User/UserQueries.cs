@@ -10,12 +10,7 @@ public static class UserQueries
     {
         var result = await db.Users.Where(u => u.Email == email).Select(u => u.Id).FirstOrDefaultAsync(ct);
 
-        if (Guid.Empty == result)
-        {
-            return null;
-        }
-
-        return result;
+        return Guid.Empty == result ? null : result;
     }
 
     public async static Task<bool> UserExistsAsync(

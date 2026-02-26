@@ -29,7 +29,7 @@ public class OrderModel : BaseModel
     public OrderStatus Status { get; set; }
 
     [JsonIgnore]
-    public List<OrderDetailModel> Details { get; set; }
+    public List<OrderDetailModel> Details { get; set; } = null!;
 
     [ForeignKey(nameof(CustomerId))]
     [JsonIgnore]

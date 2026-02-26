@@ -37,7 +37,7 @@ public static class FeniciaDependencyInjectionExtensions
     /// </summary>
     private static void RegisterAllHandlers(this IServiceCollection services)
     {
-        var assembly = Assembly.GetEntryAssembly();
+        var assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Could not determine the entry assembly for handler registration.");
 
         var handlerTypes = assembly.GetTypes()
             .Where(t => t is { IsClass: true, IsAbstract: false, IsPublic: true }

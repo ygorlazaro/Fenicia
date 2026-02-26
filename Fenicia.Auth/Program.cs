@@ -1,4 +1,3 @@
-using Fenicia.Auth.Domains.Company.CheckCompanyExists;
 using Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data.Contexts;
