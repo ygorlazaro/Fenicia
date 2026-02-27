@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Supplier.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ public class GetSupplierByIdHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetSupplierByIdHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +29,7 @@ public class GetSupplierByIdHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetSupplierByIdHandler handler = null!;
     private Faker faker = null!;
 
@@ -38,11 +38,11 @@ public class GetSupplierByIdHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var supplier = new SupplierModel
+        var supplier = new BasicSupplier
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -50,7 +50,7 @@ public class GetSupplierByIdHandlerTests
             }
         };
 
-        this.context.Suppliers.Add(supplier);
+        this.context.BasicSuppliers.Add(supplier);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetSupplierByIdQuery(supplierId);

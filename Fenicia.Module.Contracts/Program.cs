@@ -34,14 +34,14 @@ public class Program
 
         builder.Services.AddScoped<TenantProvider>();
 
-        builder.Services.AddDbContext<ContractsContext>((sp, o) =>
+        builder.Services.AddDbContext<DefaultContext>((sp, o) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
 
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
 
-            var connString = config.GetConnectionString("Contracts")?.Replace("{tenant}", tenantId);
+            var connString = config.GetConnectionString("Auth");
 
             if (string.IsNullOrWhiteSpace(connString))
             {

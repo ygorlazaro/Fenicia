@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Employee.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ public class GetAllEmployeeHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetAllEmployeeHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +29,7 @@ public class GetAllEmployeeHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetAllEmployeeHandler handler = null!;
     private Faker faker = null!;
 
@@ -51,19 +51,19 @@ public class GetAllEmployeeHandlerTests
     public async Task Handle_WithEmployees_ReturnsAllEmployees()
     {
         // Arrange
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
 
-        var employee1 = new EmployeeModel
+        var employee1 = new BasicEmployee
         {
             Id = Guid.NewGuid(),
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -77,12 +77,12 @@ public class GetAllEmployeeHandlerTests
             }
         };
 
-        var employee2 = new EmployeeModel
+        var employee2 = new BasicEmployee
         {
             Id = Guid.NewGuid(),
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -96,7 +96,7 @@ public class GetAllEmployeeHandlerTests
             }
         };
 
-        this.context.Employees.AddRange(employee1, employee2);
+        this.context.BasicEmployees.AddRange(employee1, employee2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllEmployeeQuery();
@@ -118,21 +118,21 @@ public class GetAllEmployeeHandlerTests
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
         {
-            var employee = new EmployeeModel
+            var employee = new BasicEmployee
             {
                 Id = Guid.NewGuid(),
                 PositionId = position.Id,
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -145,7 +145,7 @@ public class GetAllEmployeeHandlerTests
                     City = this.faker.Address.City()
                 }
             };
-            this.context.Employees.Add(employee);
+            this.context.BasicEmployees.Add(employee);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -164,21 +164,21 @@ public class GetAllEmployeeHandlerTests
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
 
         for (var i = 0; i < 5; i++)
         {
-            var employee = new EmployeeModel
+            var employee = new BasicEmployee
             {
                 Id = Guid.NewGuid(),
                 PositionId = position.Id,
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -191,7 +191,7 @@ public class GetAllEmployeeHandlerTests
                     City = this.faker.Address.City()
                 }
             };
-            this.context.Employees.Add(employee);
+            this.context.BasicEmployees.Add(employee);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -210,21 +210,21 @@ public class GetAllEmployeeHandlerTests
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
         {
-            var employee = new EmployeeModel
+            var employee = new BasicEmployee
             {
                 Id = Guid.NewGuid(),
                 PositionId = position.Id,
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -237,7 +237,7 @@ public class GetAllEmployeeHandlerTests
                     City = this.faker.Address.City()
                 }
             };
-            this.context.Employees.Add(employee);
+            this.context.BasicEmployees.Add(employee);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -256,19 +256,19 @@ public class GetAllEmployeeHandlerTests
     public async Task Handle_VerifiesPersonAndPositionDataIsIncluded()
     {
         // Arrange
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
 
-        var employee = new EmployeeModel
+        var employee = new BasicEmployee
         {
             Id = Guid.NewGuid(),
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -282,7 +282,7 @@ public class GetAllEmployeeHandlerTests
             }
         };
 
-        this.context.Employees.Add(employee);
+        this.context.BasicEmployees.Add(employee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllEmployeeQuery();

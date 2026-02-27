@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Company.GetCompaniesByUser;
 
-public sealed class GetCompaniesByUserHandler(AuthContext db)
+public sealed class GetCompaniesByUserHandler(DefaultContext db)
 {
     public async Task<Pagination<IEnumerable<GetCompaniesByUserResponse>>> Handle(
         GetCompaniesByUserQuery query,

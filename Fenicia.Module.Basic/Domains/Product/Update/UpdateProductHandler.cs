@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product.Update;
 
-public class UpdateProductHandler(BasicContext context)
+public class UpdateProductHandler(DefaultContext context)
 {
     public async Task<UpdateProductResponse?> Handle(UpdateProductCommand command, CancellationToken ct)
     {
-        var product = await context.Products
+        var product = await context.BasicProducts
             .Include(p => p.Category)
             .FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
@@ -23,7 +23,7 @@ public class UpdateProductHandler(BasicContext context)
         product.Quantity = command.Quantity;
         product.CategoryId = command.CategoryId;
 
-        context.Products.Update(product);
+        context.BasicProducts.Update(product);
 
         await context.SaveChangesAsync(ct);
 

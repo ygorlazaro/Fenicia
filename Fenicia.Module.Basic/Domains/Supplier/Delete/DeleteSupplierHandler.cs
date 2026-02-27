@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Delete;
 
-public class DeleteSupplierHandler(BasicContext context)
+public class DeleteSupplierHandler(DefaultContext context)
 {
     public async Task Handle(DeleteSupplierCommand command, CancellationToken ct)
     {
-        var supplier = await context.Suppliers.FirstOrDefaultAsync(s => s.Id == command.Id, ct);
+        var supplier = await context.BasicSuppliers.FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
         if (supplier is null)
         {
@@ -17,7 +17,7 @@ public class DeleteSupplierHandler(BasicContext context)
 
         supplier.Deleted = DateTime.Now;
 
-        context.Suppliers.Update(supplier);
+        context.BasicSuppliers.Update(supplier);
 
         await context.SaveChangesAsync(ct);
     }

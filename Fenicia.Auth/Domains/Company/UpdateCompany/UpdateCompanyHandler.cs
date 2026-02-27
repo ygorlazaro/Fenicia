@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Company.UpdateCompany;
 
-public sealed class UpdateCompanyHandler(AuthContext context)
+public sealed class UpdateCompanyHandler(DefaultContext context)
 {
     public async Task Handle(UpdateCompanyCommand command, CancellationToken ct)
     {

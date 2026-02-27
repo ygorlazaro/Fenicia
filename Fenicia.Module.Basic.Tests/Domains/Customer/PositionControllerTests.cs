@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.Add;
 using Fenicia.Module.Basic.Domains.Customer.Delete;
@@ -26,11 +26,11 @@ public class PositionControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.testCustomerId = Guid.NewGuid();
         this.getAllCustomerHandler = new GetAllCustomerHandler(this.context);
         this.getCustomerByIdHandler = new GetCustomerByIdHandler(this.context);
@@ -63,7 +63,7 @@ public class PositionControllerTests
     }
 
     private PositionController controller = null!;
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetAllCustomerHandler getAllCustomerHandler = null!;
     private GetCustomerByIdHandler getCustomerByIdHandler = null!;
     private AddCustomerHandler addCustomerHandler = null!;
@@ -114,11 +114,11 @@ public class PositionControllerTests
     public async Task GetAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
         // Arrange
-        var customer1 = new CustomerModel
+        var customer1 = new BasicCustomer
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -135,11 +135,11 @@ public class PositionControllerTests
             }
         };
 
-        var customer2 = new CustomerModel
+        var customer2 = new BasicCustomer
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -156,7 +156,7 @@ public class PositionControllerTests
             }
         };
 
-        this.context.Customers.AddRange(customer1, customer2);
+        this.context.BasicCustomers.AddRange(customer1, customer2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var page = 1;
@@ -182,11 +182,11 @@ public class PositionControllerTests
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsOkWithCustomer()
     {
         // Arrange
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -203,7 +203,7 @@ public class PositionControllerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -286,11 +286,11 @@ public class PositionControllerTests
     public async Task PatchAsync_WhenCustomerExists_ReturnsOkWithUpdatedCustomer()
     {
         // Arrange
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -307,7 +307,7 @@ public class PositionControllerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -374,11 +374,11 @@ public class PositionControllerTests
     public async Task DeleteAsync_WhenCustomerExists_ReturnsNoContent()
     {
         // Arrange
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -387,7 +387,7 @@ public class PositionControllerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -400,7 +400,7 @@ public class PositionControllerTests
 
         // Verify customer was deleted
         var deletedCustomer =
-            await this.context.Customers.FirstOrDefaultAsync(x => this.testCustomerId == x.Id, CancellationToken.None);
+            await this.context.BasicCustomers.FirstOrDefaultAsync(x => this.testCustomerId == x.Id, CancellationToken.None);
         Assert.That(deletedCustomer, Is.Null);
     }
 

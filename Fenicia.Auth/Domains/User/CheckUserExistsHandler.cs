@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User;
 
-public class CheckUserExistsHandler(AuthContext context)
+public class CheckUserExistsHandler(DefaultContext context)
 {
     public virtual async Task<bool> Handle(string email, CancellationToken ct)
     {
-        return await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct) != null;
+        return await context.AuthUsers.FirstOrDefaultAsync(u => u.Email == email, ct) != null;
     }
 }

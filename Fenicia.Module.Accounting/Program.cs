@@ -46,12 +46,12 @@ public class Program
 
         builder.Services.AddScoped<TenantProvider>();
 
-        builder.Services.AddDbContext<AccountingContext>((sp, options) =>
+        builder.Services.AddDbContext<DefaultContext>((sp, options) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
-            var connString = config.GetConnectionString("Accounting")?.Replace("{tenant}", tenantId);
+            var connString = config.GetConnectionString("Accounting");
 
             if (string.IsNullOrWhiteSpace(connString))
             {

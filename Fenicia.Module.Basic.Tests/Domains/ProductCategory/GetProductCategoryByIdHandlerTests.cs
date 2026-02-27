@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.ProductCategory.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +12,11 @@ public class GetProductCategoryByIdHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetProductCategoryByIdHandler(this.context);
     }
 
@@ -26,7 +26,7 @@ public class GetProductCategoryByIdHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetProductCategoryByIdHandler handler = null!;
 
     [Test]
@@ -34,13 +34,13 @@ public class GetProductCategoryByIdHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = categoryId,
             Name = "Electronics"
         };
 
-        this.context.ProductCategories.Add(category);
+        this.context.BasicProductCategories.Add(category);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductCategoryByIdQuery(categoryId);
@@ -90,10 +90,10 @@ public class GetProductCategoryByIdHandlerTests
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
-        var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
+        var category1 = new BasicProductCategory { Id = category1Id, Name = "Electronics" };
+        var category2 = new BasicProductCategory { Id = category2Id, Name = "Books" };
 
-        this.context.ProductCategories.AddRange(category1, category2);
+        this.context.BasicProductCategories.AddRange(category1, category2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductCategoryByIdQuery(category1Id);

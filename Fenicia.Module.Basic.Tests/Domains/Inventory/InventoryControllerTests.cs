@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventory;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByCategory;
@@ -24,11 +24,11 @@ public class InventoryControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.testProductId = Guid.NewGuid();
         this.testCategoryId = Guid.NewGuid();
         this.getInventoryHandler = new GetInventoryHandler(this.context);
@@ -58,7 +58,7 @@ public class InventoryControllerTests
     }
 
     private InventoryController controller = null!;
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetInventoryHandler getInventoryHandler = null!;
     private GetInventoryByProductHandler getInventoryByProductHandler = null!;
     private GetInventoryByCategoryHandler getInventoryByCategoryHandler = null!;
@@ -114,13 +114,13 @@ public class InventoryControllerTests
     public async Task GetInventoryAsync_WhenProductsExist_ReturnsOkWithInventory()
     {
         // Arrange
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product1 = new ProductModel
+        var product1 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -130,7 +130,7 @@ public class InventoryControllerTests
             CategoryId = category.Id
         };
 
-        var product2 = new ProductModel
+        var product2 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -140,8 +140,8 @@ public class InventoryControllerTests
             CategoryId = category.Id
         };
 
-        this.context.ProductCategories.Add(category);
-        this.context.Products.AddRange(product1, product2);
+        this.context.BasicProductCategories.Add(category);
+        this.context.BasicProducts.AddRange(product1, product2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var page = 1;
@@ -173,13 +173,13 @@ public class InventoryControllerTests
     public async Task GetInventoryByProductIdAsync_WhenProductExists_ReturnsOkWithInventory()
     {
         // Arrange
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -189,8 +189,8 @@ public class InventoryControllerTests
             CategoryId = category.Id
         };
 
-        this.context.ProductCategories.Add(category);
-        this.context.Products.Add(product);
+        this.context.BasicProductCategories.Add(category);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -241,13 +241,13 @@ public class InventoryControllerTests
     public async Task GetInventoryByCategoryIdAsync_WhenCategoryExists_ReturnsOkWithInventory()
     {
         // Arrange
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product1 = new ProductModel
+        var product1 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -257,7 +257,7 @@ public class InventoryControllerTests
             CategoryId = category.Id
         };
 
-        var product2 = new ProductModel
+        var product2 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -267,8 +267,8 @@ public class InventoryControllerTests
             CategoryId = category.Id
         };
 
-        this.context.ProductCategories.Add(category);
-        this.context.Products.AddRange(product1, product2);
+        this.context.BasicProductCategories.Add(category);
+        this.context.BasicProducts.AddRange(product1, product2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;

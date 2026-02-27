@@ -7,7 +7,7 @@ using Fenicia.Auth.Domains.Token.GenerateToken;
 using Fenicia.Auth.Domains.User.GetByEmail;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
@@ -26,11 +26,11 @@ public class GenerateTokenHandlerTests
         this.incrementAttemptsHandler = new IncrementAttempts(this.cache);
         this.verifyPasswordHandler = new VerifyPasswordHandler();
 
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         this.getByEmailHandler = new GetByEmailHandler(this.context);
         this.handler = new GenerateTokenHandler(
             this.loginAttemptHandler,
@@ -53,7 +53,7 @@ public class GenerateTokenHandlerTests
     private IncrementAttempts incrementAttemptsHandler = null!;
     private VerifyPasswordHandler verifyPasswordHandler = null!;
     private GenerateTokenHandler handler = null!;
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private Faker faker = null!;
 
     [Test]
@@ -93,7 +93,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, password);
         SetupCacheAttempts(email, 0);
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = query.Email,
@@ -101,7 +101,7 @@ public class GenerateTokenHandlerTests
             Password = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -126,7 +126,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, this.faker.Internet.Password());
         SetupCacheAttempts(email, 2);
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = query.Email,
@@ -134,7 +134,7 @@ public class GenerateTokenHandlerTests
             Password = BCrypt.Net.BCrypt.HashPassword(correctPassword)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
@@ -152,7 +152,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, password);
         SetupCacheAttempts(email, 4);
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = query.Email,
@@ -160,7 +160,7 @@ public class GenerateTokenHandlerTests
             Password = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -176,7 +176,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, this.faker.Internet.Password());
         SetupCacheAttempts(email, 0);
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = query.Email,
@@ -184,7 +184,7 @@ public class GenerateTokenHandlerTests
             Password = BCrypt.Net.BCrypt.HashPassword(correctPassword)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
@@ -221,7 +221,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, string.Empty);
         SetupCacheAttempts(email, 0);
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = query.Email,
@@ -229,7 +229,7 @@ public class GenerateTokenHandlerTests
             Password = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert

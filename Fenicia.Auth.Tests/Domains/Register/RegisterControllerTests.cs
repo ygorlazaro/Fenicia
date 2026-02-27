@@ -6,8 +6,6 @@ using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.CreateNewUser;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Migrations.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,23 +22,21 @@ public class RegisterControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         this.mockCheckUserExistsHandler = new Mock<CheckUserExistsHandler>(this.context);
         this.mockCheckCompanyExistsHandler = new Mock<CheckCompanyExistsHandler>(this.context);
         this.mockHashPasswordHandler = new Mock<HashPasswordHandler>();
         this.mockGetAdminRoleHandler = new Mock<GetAdminRoleHandler>(this.context);
-        this.mockMigrationService = new Mock<IMigrationService>();
         this.createNewUserHandler = new CreateNewUserHandler(
             this.context,
             this.mockCheckUserExistsHandler.Object,
             this.mockCheckCompanyExistsHandler.Object,
             this.mockHashPasswordHandler.Object,
-            this.mockGetAdminRoleHandler.Object,
-            this.mockMigrationService.Object);
+            this.mockGetAdminRoleHandler.Object);
 
         this.mockHttpContext = new Mock<HttpContext>();
 
@@ -60,13 +56,12 @@ public class RegisterControllerTests
     }
 
     private RegisterController controller = null!;
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private CreateNewUserHandler createNewUserHandler = null!;
     private Mock<CheckUserExistsHandler> mockCheckUserExistsHandler = null!;
     private Mock<CheckCompanyExistsHandler> mockCheckCompanyExistsHandler = null!;
     private Mock<HashPasswordHandler> mockHashPasswordHandler = null!;
     private Mock<GetAdminRoleHandler> mockGetAdminRoleHandler = null!;
-    private Mock<IMigrationService> mockMigrationService = null!;
     private Mock<HttpContext> mockHttpContext = null!;
 
     [Test]
@@ -186,11 +181,6 @@ public class RegisterControllerTests
             .Setup(h => h.Handle(cancellationToken))
             .ReturnsAsync(adminRole);
 
-        this.mockMigrationService
-            .Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
         // Act
         var result = await this.controller.CreateNewUserAsync(
             query,
@@ -217,7 +207,7 @@ public class RegisterControllerTests
         }
 
         // Verify user was created
-        var createdUser = await this.context.Users.FirstOrDefaultAsync(u => u.Email == query.Email, cancellationToken: cancellationToken);
+        var createdUser = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, cancellationToken: cancellationToken);
         Assert.That(createdUser, Is.Not.Null);
         Assert.That(createdUser!.Password, Is.EqualTo("hashedPassword"));
 
@@ -261,11 +251,6 @@ public class RegisterControllerTests
         this.mockGetAdminRoleHandler
             .Setup(h => h.Handle(cancellationToken))
             .ReturnsAsync(adminRole);
-
-        this.mockMigrationService
-            .Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
 
         // Act
         await this.controller.CreateNewUserAsync(

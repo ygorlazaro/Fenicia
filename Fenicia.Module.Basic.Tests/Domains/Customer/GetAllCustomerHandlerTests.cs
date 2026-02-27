@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Customer.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ public class GetAllCustomerHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetAllCustomerHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +29,7 @@ public class GetAllCustomerHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetAllCustomerHandler handler = null!;
     private Faker faker = null!;
 
@@ -51,11 +51,11 @@ public class GetAllCustomerHandlerTests
     public async Task Handle_WithCustomers_ReturnsAllCustomers()
     {
         // Arrange
-        var customer1 = new CustomerModel
+        var customer1 = new BasicCustomer
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -69,11 +69,11 @@ public class GetAllCustomerHandlerTests
             }
         };
 
-        var customer2 = new CustomerModel
+        var customer2 = new BasicCustomer
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -87,7 +87,7 @@ public class GetAllCustomerHandlerTests
             }
         };
 
-        this.context.Customers.AddRange(customer1, customer2);
+        this.context.BasicCustomers.AddRange(customer1, customer2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery();
@@ -111,11 +111,11 @@ public class GetAllCustomerHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var customer = new CustomerModel
+            var customer = new BasicCustomer
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -128,7 +128,7 @@ public class GetAllCustomerHandlerTests
                     City = this.faker.Address.City()
                 }
             };
-            this.context.Customers.Add(customer);
+            this.context.BasicCustomers.Add(customer);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -149,11 +149,11 @@ public class GetAllCustomerHandlerTests
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var customer = new CustomerModel
+            var customer = new BasicCustomer
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -166,7 +166,7 @@ public class GetAllCustomerHandlerTests
                     City = this.faker.Address.City()
                 }
             };
-            this.context.Customers.Add(customer);
+            this.context.BasicCustomers.Add(customer);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -187,11 +187,11 @@ public class GetAllCustomerHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var customer = new CustomerModel
+            var customer = new BasicCustomer
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -204,7 +204,7 @@ public class GetAllCustomerHandlerTests
                     City = this.faker.Address.City()
                 }
             };
-            this.context.Customers.Add(customer);
+            this.context.BasicCustomers.Add(customer);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);

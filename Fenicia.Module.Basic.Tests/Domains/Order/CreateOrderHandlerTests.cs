@@ -1,9 +1,9 @@
-using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order.CreateOrder;
 
 using Microsoft.EntityFrameworkCore;
+using Fenicia.Common.Data.Contexts;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 
@@ -13,11 +13,11 @@ public class CreateOrderHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new CreateOrderHandler(this.context);
     }
 
@@ -27,7 +27,7 @@ public class CreateOrderHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private CreateOrderHandler handler = null!;
 
     [Test]
@@ -110,7 +110,7 @@ public class CreateOrderHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var stockMovements = await this.context.StockMovements.ToListAsync();
+        var stockMovements = await this.context.BasicStockMovements.ToListAsync();
         Assert.That(stockMovements, Has.Count.EqualTo(1));
         using (Assert.EnterMultipleScope())
         {
@@ -141,7 +141,7 @@ public class CreateOrderHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var orders = await this.context.Orders.ToListAsync();
+        var orders = await this.context.BasicOrders.ToListAsync();
         Assert.That(orders, Has.Count.EqualTo(1));
         using (Assert.EnterMultipleScope())
         {
@@ -171,7 +171,7 @@ public class CreateOrderHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var orderDetails = await this.context.OrderDetails.ToListAsync();
+        var orderDetails = await this.context.BasicOrderDetails.ToListAsync();
         Assert.That(orderDetails, Has.Count.EqualTo(2));
     }
 }

@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product.Delete;
 
-public class DeleteProductHandler(BasicContext context)
+public class DeleteProductHandler(DefaultContext context)
 {
     public async Task Handle(DeleteProductCommand command, CancellationToken ct)
     {
-        var product = await context.Products.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
+        var product = await context.BasicProducts.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
         if (product is null)
         {
@@ -17,7 +17,7 @@ public class DeleteProductHandler(BasicContext context)
 
         product.Deleted = DateTime.Now;
 
-        context.Products.Update(product);
+        context.BasicProducts.Update(product);
 
         await context.SaveChangesAsync(ct);
     }

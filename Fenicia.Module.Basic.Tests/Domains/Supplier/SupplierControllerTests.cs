@@ -4,7 +4,7 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.Add;
 using Fenicia.Module.Basic.Domains.Supplier.Delete;
@@ -27,11 +27,11 @@ public class SupplierControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.testSupplierId = Guid.NewGuid();
         this.getAllSupplierHandler = new GetAllSupplierHandler(this.context);
         this.getSupplierByIdHandler = new GetSupplierByIdHandler(this.context);
@@ -64,7 +64,7 @@ public class SupplierControllerTests
     }
 
     private SupplierController controller = null!;
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetAllSupplierHandler getAllSupplierHandler = null!;
     private GetSupplierByIdHandler getSupplierByIdHandler = null!;
     private AddSupplierHandler addSupplierHandler = null!;
@@ -115,12 +115,12 @@ public class SupplierControllerTests
     public async Task GetAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
         // Arrange
-        var supplier1 = new SupplierModel
+        var supplier1 = new BasicSupplier
         {
             Id = Guid.NewGuid(),
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -137,12 +137,12 @@ public class SupplierControllerTests
             }
         };
 
-        var supplier2 = new SupplierModel
+        var supplier2 = new BasicSupplier
         {
             Id = Guid.NewGuid(),
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -159,7 +159,7 @@ public class SupplierControllerTests
             }
         };
 
-        this.context.Suppliers.AddRange(supplier1, supplier2);
+        this.context.BasicSuppliers.AddRange(supplier1, supplier2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var page = 1;
@@ -185,12 +185,12 @@ public class SupplierControllerTests
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsOkWithSupplier()
     {
         // Arrange
-        var supplier = new SupplierModel
+        var supplier = new BasicSupplier
         {
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -207,7 +207,7 @@ public class SupplierControllerTests
             }
         };
 
-        this.context.Suppliers.Add(supplier);
+        this.context.BasicSuppliers.Add(supplier);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -290,12 +290,12 @@ public class SupplierControllerTests
     public async Task PatchAsync_WhenSupplierExists_ReturnsOkWithUpdatedSupplier()
     {
         // Arrange
-        var supplier = new SupplierModel
+        var supplier = new BasicSupplier
         {
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -305,7 +305,7 @@ public class SupplierControllerTests
             }
         };
 
-        this.context.Suppliers.Add(supplier);
+        this.context.BasicSuppliers.Add(supplier);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateSupplierCommand(
@@ -373,12 +373,12 @@ public class SupplierControllerTests
     public async Task DeleteAsync_WhenSupplierExists_ReturnsNoContent()
     {
         // Arrange
-        var supplier = new SupplierModel
+        var supplier = new BasicSupplier
         {
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -387,7 +387,7 @@ public class SupplierControllerTests
             }
         };
 
-        this.context.Suppliers.Add(supplier);
+        this.context.BasicSuppliers.Add(supplier);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -399,7 +399,7 @@ public class SupplierControllerTests
         Assert.That(result, Is.Not.Null);
 
         // Verify supplier was deleted
-        var deletedSupplier = await this.context.Suppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId, cancellationToken);
+        var deletedSupplier = await this.context.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId, cancellationToken);
         Assert.That(deletedSupplier, Is.Null);
     }
 

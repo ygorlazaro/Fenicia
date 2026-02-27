@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Product.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +12,11 @@ public class DeleteProductHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new DeleteProductHandler(this.context);
     }
 
@@ -26,7 +26,7 @@ public class DeleteProductHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private DeleteProductHandler handler = null!;
 
     [Test]
@@ -34,7 +34,7 @@ public class DeleteProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = productId,
             Name = "Product",
@@ -44,7 +44,7 @@ public class DeleteProductHandlerTests
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProductCommand(productId);
@@ -54,7 +54,7 @@ public class DeleteProductHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedProduct = await this.context.Products.FindAsync([productId], CancellationToken.None);
+        var deletedProduct = await this.context.BasicProducts.FindAsync([productId], CancellationToken.None);
         Assert.That(deletedProduct, Is.Not.Null);
         Assert.That(deletedProduct.Deleted, Is.Not.Null);
         Assert.That(deletedProduct.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
@@ -71,7 +71,7 @@ public class DeleteProductHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var products = await this.context.Products.ToListAsync();
+        var products = await this.context.BasicProducts.ToListAsync();
         Assert.That(products, Is.Empty);
     }
 
@@ -82,7 +82,7 @@ public class DeleteProductHandlerTests
         var product1Id = Guid.NewGuid();
         var product2Id = Guid.NewGuid();
 
-        var product1 = new ProductModel
+        var product1 = new BasicProduct
         {
             Id = product1Id,
             Name = "Product 1",
@@ -92,7 +92,7 @@ public class DeleteProductHandlerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var product2 = new ProductModel
+        var product2 = new BasicProduct
         {
             Id = product2Id,
             Name = "Product 2",
@@ -102,7 +102,7 @@ public class DeleteProductHandlerTests
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.Products.AddRange(product1, product2);
+        this.context.BasicProducts.AddRange(product1, product2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProductCommand(product1Id);
@@ -111,8 +111,8 @@ public class DeleteProductHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedProduct = await this.context.Products.FindAsync([product1Id], CancellationToken.None);
-        var notDeletedProduct = await this.context.Products.FindAsync([product2Id], CancellationToken.None);
+        var deletedProduct = await this.context.BasicProducts.FindAsync([product1Id], CancellationToken.None);
+        var notDeletedProduct = await this.context.BasicProducts.FindAsync([product2Id], CancellationToken.None);
 
         Assert.That(deletedProduct, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -133,7 +133,7 @@ public class DeleteProductHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var products = await this.context.Products.ToListAsync();
+        var products = await this.context.BasicProducts.ToListAsync();
         Assert.That(products, Is.Empty);
     }
 }

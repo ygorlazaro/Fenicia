@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Submodule.GetByModuleId;
 
-public class GetByModuleIdHandler(AuthContext context)
+public class GetByModuleIdHandler(DefaultContext context)
 {
     public virtual async Task<List<GetByModuleResponse>> Handle(Guid moduleId, CancellationToken ct)
     {

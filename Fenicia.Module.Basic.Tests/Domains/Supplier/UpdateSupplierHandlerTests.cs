@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Supplier.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +12,11 @@ public class UpdateSupplierHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new UpdateSupplierHandler(this.context);
     }
 
@@ -26,7 +26,7 @@ public class UpdateSupplierHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private UpdateSupplierHandler handler = null!;
 
     [Test]
@@ -34,12 +34,12 @@ public class UpdateSupplierHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var supplier = new SupplierModel
+        var supplier = new BasicSupplier
         {
             Id = supplierId,
             Cnpj = "12.345.678/0001-90",
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -47,7 +47,7 @@ public class UpdateSupplierHandlerTests
             }
         };
 
-        this.context.Suppliers.Add(supplier);
+        this.context.BasicSuppliers.Add(supplier);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateSupplierCommand(
@@ -133,12 +133,12 @@ public class UpdateSupplierHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var supplier = new SupplierModel
+        var supplier = new BasicSupplier
         {
             Id = supplierId,
             Cnpj = "12.345.678/0001-90",
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -146,7 +146,7 @@ public class UpdateSupplierHandlerTests
             }
         };
 
-        this.context.Suppliers.Add(supplier);
+        this.context.BasicSuppliers.Add(supplier);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateSupplierCommand(
@@ -168,7 +168,7 @@ public class UpdateSupplierHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedSupplier = await this.context.Suppliers
+        var updatedSupplier = await this.context.BasicSuppliers
             .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == supplierId);
 

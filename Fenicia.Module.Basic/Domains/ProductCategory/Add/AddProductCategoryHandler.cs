@@ -1,19 +1,19 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Add;
 
-public class AddProductCategoryHandler(BasicContext context)
+public class AddProductCategoryHandler(DefaultContext context)
 {
     public async Task<AddProductCategoryResponse> Handle(AddProductCategoryCommand command, CancellationToken ct)
     {
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = command.Id,
             Name = command.Name
         };
 
-        context.ProductCategories.Add(category);
+        context.BasicProductCategories.Add(category);
 
         await context.SaveChangesAsync(ct);
 

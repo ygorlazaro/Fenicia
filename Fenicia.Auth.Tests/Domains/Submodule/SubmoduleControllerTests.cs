@@ -2,7 +2,7 @@ using Fenicia.Auth.Domains.Submodule;
 using Fenicia.Auth.Domains.Submodule.GetByModuleId;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,11 +19,11 @@ public class SubmoduleControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         this.testModuleId = Guid.NewGuid();
         this.getByModuleIdHandler = new GetByModuleIdHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
@@ -44,7 +44,7 @@ public class SubmoduleControllerTests
     }
 
     private SubmoduleController controller = null!;
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private GetByModuleIdHandler getByModuleIdHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Guid testModuleId;
@@ -83,7 +83,7 @@ public class SubmoduleControllerTests
     public async Task GetByModuleIdAsync_WhenSubmodulesExist_ReturnsOkWithSubmodules()
     {
         // Arrange
-        var submodule1 = new SubmoduleModel
+        var submodule1 = new AuthSubmodule
         {
             Id = Guid.NewGuid(),
             Name = "Submodule 1",
@@ -92,7 +92,7 @@ public class SubmoduleControllerTests
             Route = "/api/submodule1"
         };
 
-        var submodule2 = new SubmoduleModel
+        var submodule2 = new AuthSubmodule
         {
             Id = Guid.NewGuid(),
             Name = "Submodule 2",
@@ -137,7 +137,7 @@ public class SubmoduleControllerTests
         // Arrange
         var differentModuleId = Guid.NewGuid();
 
-        var submodule = new SubmoduleModel
+        var submodule = new AuthSubmodule
         {
             Id = Guid.NewGuid(),
             Name = "Submodule for different module",

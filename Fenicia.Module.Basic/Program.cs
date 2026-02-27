@@ -11,7 +11,7 @@ public abstract class Program
         var tenantId = FeniciaModuleLoader.Load(args, out var configuration, out var builder);
 
         builder.AddFeniciaLogging()
-            .AddFeniciaDbContext<BasicContext>(configuration, "Fenicia.Module.Basic", "Basic", tenantId)
+            .AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth", tenantId)
             .AddFeniciaRateLimiting(configuration)
             .AddFeniciaCors()
             .AddFeniciaAuthentication(configuration)
