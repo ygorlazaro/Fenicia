@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Customer.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ public class GetCustomerByIdHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetCustomerByIdHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +29,7 @@ public class GetCustomerByIdHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetCustomerByIdHandler handler = null!;
     private Faker faker = null!;
 
@@ -38,11 +38,11 @@ public class GetCustomerByIdHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -56,7 +56,7 @@ public class GetCustomerByIdHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customerId);
@@ -106,11 +106,11 @@ public class GetCustomerByIdHandlerTests
         var customer1Id = Guid.NewGuid();
         var customer2Id = Guid.NewGuid();
 
-        var customer1 = new CustomerModel
+        var customer1 = new BasicCustomer
         {
             Id = customer1Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -124,11 +124,11 @@ public class GetCustomerByIdHandlerTests
             }
         };
 
-        var customer2 = new CustomerModel
+        var customer2 = new BasicCustomer
         {
             Id = customer2Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FirstName,
@@ -142,7 +142,7 @@ public class GetCustomerByIdHandlerTests
             }
         };
 
-        this.context.Customers.AddRange(customer1, customer2);
+        this.context.BasicCustomers.AddRange(customer1, customer2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customer1Id);
@@ -164,11 +164,11 @@ public class GetCustomerByIdHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -184,7 +184,7 @@ public class GetCustomerByIdHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customerId);

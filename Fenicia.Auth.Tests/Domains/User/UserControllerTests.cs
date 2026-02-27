@@ -8,7 +8,7 @@ using Fenicia.Auth.Domains.User.GetUserModules;
 using Fenicia.Auth.Domains.UserRole.GetUserCompanies;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
 
 using Microsoft.AspNetCore.Authorization;
@@ -26,11 +26,11 @@ public class UserControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         this.testUserId = Guid.NewGuid();
         this.getUserModuleHandler = new GetUserModuleHandler(this.context);
         this.getUserCompaniesHandler = new GetUserCompaniesHandler(this.context);
@@ -55,7 +55,7 @@ public class UserControllerTests
     }
 
     private UserController controller = null!;
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private GetUserModuleHandler getUserModuleHandler = null!;
     private GetUserCompaniesHandler getUserCompaniesHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
@@ -117,7 +117,7 @@ public class UserControllerTests
         var subscriptionId = Guid.NewGuid();
         var subscriptionCreditId = Guid.NewGuid();
 
-        var module = new ModuleModel
+        var module = new AuthModule
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
@@ -125,7 +125,7 @@ public class UserControllerTests
             Price = this.faker.Finance.Amount(10, 100)
         };
 
-        var subscription = new SubscriptionModel
+        var subscription = new AuthSubscription
         {
             Id = subscriptionId,
             CompanyId = companyId,
@@ -134,7 +134,7 @@ public class UserControllerTests
             EndDate = DateTime.Now.AddDays(30)
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
+        var subscriptionCredit = new AuthSubscriptionCredit
         {
             Id = subscriptionCreditId,
             SubscriptionId = subscriptionId,
@@ -144,7 +144,7 @@ public class UserControllerTests
             EndDate = DateTime.Now.AddDays(30)
         };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -152,7 +152,7 @@ public class UserControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -163,7 +163,7 @@ public class UserControllerTests
         this.context.Modules.Add(module);
         this.context.Subscriptions.Add(subscription);
         this.context.SubscriptionCredits.Add(subscriptionCredit);
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -252,7 +252,7 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -262,13 +262,13 @@ public class UserControllerTests
             Language = "pt-BR"
         };
 
-        var role = new RoleModel
+        var role = new AuthRole
         {
             Id = roleId,
             Name = "Admin"
         };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -276,7 +276,7 @@ public class UserControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -286,7 +286,7 @@ public class UserControllerTests
 
         this.context.Companies.Add(company);
         this.context.Roles.Add(role);
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 

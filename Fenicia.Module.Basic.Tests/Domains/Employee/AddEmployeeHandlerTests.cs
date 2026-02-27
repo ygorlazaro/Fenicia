@@ -13,11 +13,11 @@ public class AddEmployeeHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new AddEmployeeHandler(this.context);
         this.faker = new Faker();
     }
@@ -28,7 +28,7 @@ public class AddEmployeeHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private AddEmployeeHandler handler = null!;
     private Faker faker = null!;
 
@@ -270,7 +270,7 @@ public class AddEmployeeHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var employee = await this.context.Employees
+        var employee = await this.context.BasicEmployees
             .Include(e => e.Person)
             .FirstOrDefaultAsync(e => e.Id == command.Id);
 
@@ -321,7 +321,7 @@ public class AddEmployeeHandlerTests
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var employees = await this.context.Employees.ToListAsync();
+        var employees = await this.context.BasicEmployees.ToListAsync();
         Assert.That(employees, Has.Count.EqualTo(2));
     }
 }

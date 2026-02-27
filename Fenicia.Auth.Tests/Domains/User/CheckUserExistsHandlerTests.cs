@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +14,11 @@ public class CheckUserExistsHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new CheckUserExistsHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +29,7 @@ public class CheckUserExistsHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private CheckUserExistsHandler handler = null!;
     private Faker faker = null!;
 
@@ -39,7 +39,7 @@ public class CheckUserExistsHandlerTests
         // Arrange
         var email = this.faker.Internet.Email();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -47,7 +47,7 @@ public class CheckUserExistsHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -77,7 +77,7 @@ public class CheckUserExistsHandlerTests
         var email = "test@example.com";
         var upperCaseEmail = "TEST@EXAMPLE.COM";
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -85,7 +85,7 @@ public class CheckUserExistsHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -102,7 +102,7 @@ public class CheckUserExistsHandlerTests
         var email1 = "user1@example.com";
         var email2 = "user2@example.com";
 
-        var user1 = new UserModel
+        var user1 = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = email1,
@@ -110,7 +110,7 @@ public class CheckUserExistsHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var user2 = new UserModel
+        var user2 = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = email2,
@@ -118,7 +118,7 @@ public class CheckUserExistsHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.AddRange(user1, user2);
+        this.context.AuthUsers.AddRange(user1, user2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -155,7 +155,7 @@ public class CheckUserExistsHandlerTests
         var email = "test@example.com";
         var emailWithSpaces = " test@example.com ";
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -163,7 +163,7 @@ public class CheckUserExistsHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -180,7 +180,7 @@ public class CheckUserExistsHandlerTests
         var email = "test@example.com";
         var emailWithExtra = "test@example.com.";
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -188,7 +188,7 @@ public class CheckUserExistsHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act

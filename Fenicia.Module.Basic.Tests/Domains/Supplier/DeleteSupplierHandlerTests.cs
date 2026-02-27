@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Supplier.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ public class DeleteSupplierHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new DeleteSupplierHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +29,7 @@ public class DeleteSupplierHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private DeleteSupplierHandler handler = null!;
     private Faker faker = null!;
 
@@ -38,11 +38,11 @@ public class DeleteSupplierHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var supplier = new SupplierModel
+        var supplier = new BasicSupplier
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -56,7 +56,7 @@ public class DeleteSupplierHandlerTests
             }
         };
 
-        this.context.Suppliers.Add(supplier);
+        this.context.BasicSuppliers.Add(supplier);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteSupplierCommand(supplierId);
@@ -66,7 +66,7 @@ public class DeleteSupplierHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedSupplier = await this.context.Suppliers.FindAsync([supplierId], CancellationToken.None);
+        var deletedSupplier = await this.context.BasicSuppliers.FindAsync([supplierId], CancellationToken.None);
         Assert.That(deletedSupplier, Is.Not.Null);
         Assert.That(deletedSupplier.Deleted, Is.Not.Null);
         Assert.That(deletedSupplier.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
@@ -83,7 +83,7 @@ public class DeleteSupplierHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var suppliers = await this.context.Suppliers.ToListAsync();
+        var suppliers = await this.context.BasicSuppliers.ToListAsync();
         Assert.That(suppliers, Is.Empty);
     }
 
@@ -94,29 +94,29 @@ public class DeleteSupplierHandlerTests
         var supplier1Id = Guid.NewGuid();
         var supplier2Id = Guid.NewGuid();
 
-        var supplier1 = new SupplierModel
+        var supplier1 = new BasicSupplier
         {
             Id = supplier1Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName()
             }
         };
 
-        var supplier2 = new SupplierModel
+        var supplier2 = new BasicSupplier
         {
             Id = supplier2Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName()
             }
         };
 
-        this.context.Suppliers.AddRange(supplier1, supplier2);
+        this.context.BasicSuppliers.AddRange(supplier1, supplier2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteSupplierCommand(supplier1Id);
@@ -125,8 +125,8 @@ public class DeleteSupplierHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedSupplier = await this.context.Suppliers.FindAsync([supplier1Id], CancellationToken.None);
-        var notDeletedSupplier = await this.context.Suppliers.FindAsync([supplier2Id], CancellationToken.None);
+        var deletedSupplier = await this.context.BasicSuppliers.FindAsync([supplier1Id], CancellationToken.None);
+        var notDeletedSupplier = await this.context.BasicSuppliers.FindAsync([supplier2Id], CancellationToken.None);
 
         Assert.That(deletedSupplier, Is.Not.Null);
         using (Assert.EnterMultipleScope())

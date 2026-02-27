@@ -5,7 +5,7 @@ using Fenicia.Auth.Domains.Module.GetModules;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
 
 using Microsoft.AspNetCore.Authorization;
@@ -23,11 +23,11 @@ public class ModuleControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         this.getModulesHandler = new GetModulesHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
         this.faker = new Faker();
@@ -48,7 +48,7 @@ public class ModuleControllerTests
     }
 
     private ModuleController controller = null!;
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private GetModulesHandler getModulesHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Faker faker = null!;
@@ -89,7 +89,7 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_WhenModulesExist_ReturnsOkWithPagination()
     {
         // Arrange
-        var module1 = new ModuleModel
+        var module1 = new AuthModule
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -97,7 +97,7 @@ public class ModuleControllerTests
             Price = 10.0m
         };
 
-        var module2 = new ModuleModel
+        var module2 = new AuthModule
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -140,7 +140,7 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_ExcludesErpAndAuthModuleTypes()
     {
         // Arrange
-        var erpModule = new ModuleModel
+        var erpModule = new AuthModule
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -148,7 +148,7 @@ public class ModuleControllerTests
             Price = 100.0m
         };
 
-        var authModule = new ModuleModel
+        var authModule = new AuthModule
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -156,7 +156,7 @@ public class ModuleControllerTests
             Price = 50.0m
         };
 
-        var basicModule = new ModuleModel
+        var basicModule = new AuthModule
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -217,10 +217,10 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var modules = new List<ModuleModel>();
+        var modules = new List<AuthModule>();
         for (var i = 0; i < 25; i++)
         {
-            modules.Add(new ModuleModel
+            modules.Add(new AuthModule
             {
                 Id = Guid.NewGuid(),
                 Name = $"Module {this.faker.Commerce.ProductName()} {i}",

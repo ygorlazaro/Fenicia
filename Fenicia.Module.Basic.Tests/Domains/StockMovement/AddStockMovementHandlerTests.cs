@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement.Add;
 
@@ -13,11 +13,11 @@ public class AddStockMovementHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new AddStockMovementHandler(this.context);
     }
 
@@ -27,14 +27,14 @@ public class AddStockMovementHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private AddStockMovementHandler handler = null!;
 
     [Test]
     public async Task Handle_WithValidCommand_AddsStockMovementAndReturnsResponse()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -43,7 +43,7 @@ public class AddStockMovementHandlerTests
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddStockMovementCommand(
@@ -74,7 +74,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_WithStockMovementIn_IncreasesProductQuantity()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -83,7 +83,7 @@ public class AddStockMovementHandlerTests
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddStockMovementCommand(
@@ -100,7 +100,7 @@ public class AddStockMovementHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedProduct = await this.context.Products.FindAsync([product.Id], CancellationToken.None);
+        var updatedProduct = await this.context.BasicProducts.FindAsync([product.Id], CancellationToken.None);
         Assert.That(updatedProduct, Is.Not.Null);
         Assert.That(updatedProduct.Quantity, Is.EqualTo(110));
     }
@@ -109,7 +109,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_WithStockMovementOut_DecreasesProductQuantity()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -118,7 +118,7 @@ public class AddStockMovementHandlerTests
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddStockMovementCommand(
@@ -135,7 +135,7 @@ public class AddStockMovementHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedProduct = await this.context.Products.FindAsync([product.Id], CancellationToken.None);
+        var updatedProduct = await this.context.BasicProducts.FindAsync([product.Id], CancellationToken.None);
         Assert.That(updatedProduct, Is.Not.Null);
         Assert.That(updatedProduct.Quantity, Is.EqualTo(90));
     }
@@ -159,7 +159,7 @@ public class AddStockMovementHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        var movement = await this.context.StockMovements.FindAsync([command.Id], CancellationToken.None);
+        var movement = await this.context.BasicStockMovements.FindAsync([command.Id], CancellationToken.None);
         Assert.That(movement, Is.Not.Null);
     }
 
@@ -167,7 +167,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_VerifiesStockMovementWasSavedToDatabase()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -176,7 +176,7 @@ public class AddStockMovementHandlerTests
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddStockMovementCommand(
@@ -193,7 +193,7 @@ public class AddStockMovementHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var movement = await this.context.StockMovements.FindAsync([command.Id], CancellationToken.None);
+        var movement = await this.context.BasicStockMovements.FindAsync([command.Id], CancellationToken.None);
         Assert.That(movement, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

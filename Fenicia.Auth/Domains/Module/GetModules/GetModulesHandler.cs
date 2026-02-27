@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Module.GetModules;
 
-public class GetModulesHandler(AuthContext db)
+public class GetModulesHandler(DefaultContext db)
 {
     public async Task<Pagination<List<GetModuleResponse>>> Handle(GetModulesRequest query, CancellationToken ct)
     {

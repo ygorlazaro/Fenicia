@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Position.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +12,11 @@ public class DeletePositionHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new DeletePositionHandler(this.context);
     }
 
@@ -26,7 +26,7 @@ public class DeletePositionHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private DeletePositionHandler handler = null!;
 
     [Test]
@@ -34,13 +34,13 @@ public class DeletePositionHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = positionId,
             Name = "Developer"
         };
 
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeletePositionCommand(positionId);
@@ -50,7 +50,7 @@ public class DeletePositionHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedPosition = await this.context.Positions.FindAsync([positionId], CancellationToken.None);
+        var deletedPosition = await this.context.BasicPositions.FindAsync([positionId], CancellationToken.None);
         Assert.That(deletedPosition, Is.Not.Null);
         Assert.That(deletedPosition.Deleted, Is.Not.Null);
         Assert.That(deletedPosition.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
@@ -67,7 +67,7 @@ public class DeletePositionHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var positions = await this.context.Positions.ToListAsync();
+        var positions = await this.context.BasicPositions.ToListAsync();
         Assert.That(positions, Is.Empty);
     }
 
@@ -78,10 +78,10 @@ public class DeletePositionHandlerTests
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
-        var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
+        var position1 = new BasicPosition { Id = position1Id, Name = "Developer" };
+        var position2 = new BasicPosition { Id = position2Id, Name = "Designer" };
 
-        this.context.Positions.AddRange(position1, position2);
+        this.context.BasicPositions.AddRange(position1, position2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeletePositionCommand(position1Id);
@@ -90,8 +90,8 @@ public class DeletePositionHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedPosition = await this.context.Positions.FindAsync([position1Id], CancellationToken.None);
-        var notDeletedPosition = await this.context.Positions.FindAsync([position2Id], CancellationToken.None);
+        var deletedPosition = await this.context.BasicPositions.FindAsync([position1Id], CancellationToken.None);
+        var notDeletedPosition = await this.context.BasicPositions.FindAsync([position2Id], CancellationToken.None);
 
         Assert.That(deletedPosition, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -112,7 +112,7 @@ public class DeletePositionHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var positions = await this.context.Positions.ToListAsync();
+        var positions = await this.context.BasicPositions.ToListAsync();
         Assert.That(positions, Is.Empty);
     }
 }

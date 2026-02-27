@@ -1,6 +1,6 @@
 using Fenicia.Auth.Domains.Role.GetAdminRole;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +12,11 @@ public class GetAdminRoleHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetAdminRoleHandler(this.context);
     }
 
@@ -26,7 +26,7 @@ public class GetAdminRoleHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private GetAdminRoleHandler handler = null!;
 
     [Test]
@@ -35,7 +35,7 @@ public class GetAdminRoleHandlerTests
         // Arrange
         var adminRoleId = Guid.NewGuid();
 
-        var adminRole = new RoleModel
+        var adminRole = new AuthRole
         {
             Id = adminRoleId,
             Name = "Admin"
@@ -60,7 +60,7 @@ public class GetAdminRoleHandlerTests
     public async Task Handle_WhenAdminRoleDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var role = new RoleModel
+        var role = new AuthRole
         {
             Id = Guid.NewGuid(),
             Name = "User"
@@ -82,19 +82,19 @@ public class GetAdminRoleHandlerTests
         // Arrange
         var adminRoleId = Guid.NewGuid();
 
-        var adminRole = new RoleModel
+        var adminRole = new AuthRole
         {
             Id = adminRoleId,
             Name = "Admin"
         };
 
-        var userRole = new RoleModel
+        var userRole = new AuthRole
         {
             Id = Guid.NewGuid(),
             Name = "User"
         };
 
-        var managerRole = new RoleModel
+        var managerRole = new AuthRole
         {
             Id = Guid.NewGuid(),
             Name = "Manager"
@@ -119,7 +119,7 @@ public class GetAdminRoleHandlerTests
     public async Task Handle_WhenAdminRoleNameHasDifferentCase_ReturnsNull()
     {
         // Arrange
-        var role = new RoleModel
+        var role = new AuthRole
         {
             Id = Guid.NewGuid(),
             Name = "admin"
@@ -149,7 +149,7 @@ public class GetAdminRoleHandlerTests
     public async Task Handle_WhenAdminRoleNameHasExtraSpaces_ReturnsNull()
     {
         // Arrange
-        var role = new RoleModel
+        var role = new AuthRole
         {
             Id = Guid.NewGuid(),
             Name = " Admin "
@@ -172,13 +172,13 @@ public class GetAdminRoleHandlerTests
         var adminRoleId1 = Guid.NewGuid();
         var adminRoleId2 = Guid.NewGuid();
 
-        var adminRole1 = new RoleModel
+        var adminRole1 = new AuthRole
         {
             Id = adminRoleId1,
             Name = "Admin"
         };
 
-        var adminRole2 = new RoleModel
+        var adminRole2 = new AuthRole
         {
             Id = adminRoleId2,
             Name = "Admin"

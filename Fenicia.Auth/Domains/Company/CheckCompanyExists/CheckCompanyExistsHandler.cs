@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Company.CheckCompanyExists;
 
-public class CheckCompanyExistsHandler(AuthContext context)
+public class CheckCompanyExistsHandler(DefaultContext context)
 {
     public virtual async Task<bool> Handle(CheckCompanyExistsQuery query, CancellationToken ct)
     {

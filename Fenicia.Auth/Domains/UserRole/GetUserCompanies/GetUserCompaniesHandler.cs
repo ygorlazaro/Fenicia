@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.UserRole.GetUserCompanies;
 
-public class GetUserCompaniesHandler(AuthContext context)
+public class GetUserCompaniesHandler(DefaultContext context)
 {
     public async Task<List<GetUserCompaniesResponse>> Handle(
         Guid userId,

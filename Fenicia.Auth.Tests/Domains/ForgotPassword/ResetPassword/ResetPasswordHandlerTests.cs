@@ -4,7 +4,7 @@ using Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
 using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User.ChangePassword;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +17,11 @@ public class ResetPasswordHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         var hashPasswordHandler = new HashPasswordHandler();
         this.changePasswordHandler = new ChangePasswordHandler(this.context, hashPasswordHandler);
         this.handler = new ResetPasswordHandler(this.context, this.changePasswordHandler);
@@ -34,7 +34,7 @@ public class ResetPasswordHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private ResetPasswordHandler handler = null!;
     private ChangePasswordHandler changePasswordHandler = null!;
     private Faker faker = null!;
@@ -48,7 +48,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -56,7 +56,7 @@ public class ResetPasswordHandlerTests
             Password = "old_hashed_password"
         };
 
-        var forgotPassword = new ForgotPasswordModel
+        var forgotPassword = new AuthForgotPassowrd
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -65,7 +65,7 @@ public class ResetPasswordHandlerTests
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.ForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -75,7 +75,7 @@ public class ResetPasswordHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.Users.FindAsync(userId);
+        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
         Assert.That(updatedUser, Is.Not.Null);
         Assert.That(updatedUser!.Password, Is.Not.EqualTo("old_hashed_password"), "Password should be changed");
 
@@ -111,7 +111,7 @@ public class ResetPasswordHandlerTests
         var invalidCode = "INVALID";
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -119,7 +119,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password"
         };
 
-        var forgotPassword = new ForgotPasswordModel
+        var forgotPassword = new AuthForgotPassowrd
         {
             Id = Guid.NewGuid(),
             Code = validCode,
@@ -128,7 +128,7 @@ public class ResetPasswordHandlerTests
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.ForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -150,7 +150,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -158,7 +158,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password"
         };
 
-        var forgotPassword = new ForgotPasswordModel
+        var forgotPassword = new AuthForgotPassowrd
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -167,7 +167,7 @@ public class ResetPasswordHandlerTests
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.ForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -189,7 +189,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -197,7 +197,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password"
         };
 
-        var forgotPassword = new ForgotPasswordModel
+        var forgotPassword = new AuthForgotPassowrd
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -206,7 +206,7 @@ public class ResetPasswordHandlerTests
             ExpirationDate = DateTime.UtcNow.AddMinutes(-10)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.ForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -230,7 +230,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user1 = new UserModel
+        var user1 = new AuthUser
         {
             Id = userId1,
             Email = email1,
@@ -238,7 +238,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password1"
         };
 
-        var user2 = new UserModel
+        var user2 = new AuthUser
         {
             Id = userId2,
             Email = email2,
@@ -246,7 +246,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password2"
         };
 
-        var forgotPassword = new ForgotPasswordModel
+        var forgotPassword = new AuthForgotPassowrd
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -255,7 +255,7 @@ public class ResetPasswordHandlerTests
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.Users.AddRange(user1, user2);
+        this.context.AuthUsers.AddRange(user1, user2);
         this.context.ForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -277,7 +277,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -285,7 +285,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password"
         };
 
-        var forgotPassword = new ForgotPasswordModel
+        var forgotPassword = new AuthForgotPassowrd
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -294,7 +294,7 @@ public class ResetPasswordHandlerTests
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.ForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -319,7 +319,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -327,7 +327,7 @@ public class ResetPasswordHandlerTests
             Password = "old_hashed_password"
         };
 
-        var forgotPassword = new ForgotPasswordModel
+        var forgotPassword = new AuthForgotPassowrd
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -336,7 +336,7 @@ public class ResetPasswordHandlerTests
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.ForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -346,7 +346,7 @@ public class ResetPasswordHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.Users.FindAsync(userId);
+        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
         Assert.That(updatedUser, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

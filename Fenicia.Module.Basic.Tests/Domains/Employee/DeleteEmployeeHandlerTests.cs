@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Employee.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ public class DeleteEmployeeHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new DeleteEmployeeHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +29,7 @@ public class DeleteEmployeeHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private DeleteEmployeeHandler handler = null!;
     private Faker faker = null!;
 
@@ -38,12 +38,12 @@ public class DeleteEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var employee = new EmployeeModel
+        var employee = new BasicEmployee
         {
             Id = employeeId,
             PositionId = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -57,7 +57,7 @@ public class DeleteEmployeeHandlerTests
             }
         };
 
-        this.context.Employees.Add(employee);
+        this.context.BasicEmployees.Add(employee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteEmployeeCommand(employeeId);
@@ -67,7 +67,7 @@ public class DeleteEmployeeHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedEmployee = await this.context.Employees.FindAsync([employeeId], CancellationToken.None);
+        var deletedEmployee = await this.context.BasicEmployees.FindAsync([employeeId], CancellationToken.None);
         Assert.That(deletedEmployee, Is.Not.Null);
         Assert.That(deletedEmployee.Deleted, Is.Not.Null);
         Assert.That(deletedEmployee.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
@@ -84,7 +84,7 @@ public class DeleteEmployeeHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var employees = await this.context.Employees.ToListAsync();
+        var employees = await this.context.BasicEmployees.ToListAsync();
         Assert.That(employees, Is.Empty);
     }
 
@@ -95,12 +95,12 @@ public class DeleteEmployeeHandlerTests
         var employee1Id = Guid.NewGuid();
         var employee2Id = Guid.NewGuid();
 
-        var employee1 = new EmployeeModel
+        var employee1 = new BasicEmployee
         {
             Id = employee1Id,
             PositionId = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -114,12 +114,12 @@ public class DeleteEmployeeHandlerTests
             }
         };
 
-        var employee2 = new EmployeeModel
+        var employee2 = new BasicEmployee
         {
             Id = employee2Id,
             PositionId = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -133,7 +133,7 @@ public class DeleteEmployeeHandlerTests
             }
         };
 
-        this.context.Employees.AddRange(employee1, employee2);
+        this.context.BasicEmployees.AddRange(employee1, employee2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteEmployeeCommand(employee1Id);
@@ -142,8 +142,8 @@ public class DeleteEmployeeHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedEmployee = await this.context.Employees.FindAsync([employee1Id], CancellationToken.None);
-        var notDeletedEmployee = await this.context.Employees.FindAsync([employee2Id], CancellationToken.None);
+        var deletedEmployee = await this.context.BasicEmployees.FindAsync([employee1Id], CancellationToken.None);
+        var notDeletedEmployee = await this.context.BasicEmployees.FindAsync([employee2Id], CancellationToken.None);
 
         Assert.That(deletedEmployee, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -164,7 +164,7 @@ public class DeleteEmployeeHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var employees = await this.context.Employees.ToListAsync();
+        var employees = await this.context.BasicEmployees.ToListAsync();
         Assert.That(employees, Is.Empty);
     }
 }

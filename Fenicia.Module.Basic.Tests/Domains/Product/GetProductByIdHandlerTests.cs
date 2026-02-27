@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Product.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +12,11 @@ public class GetProductByIdHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetProductByIdHandler(this.context);
     }
 
@@ -26,7 +26,7 @@ public class GetProductByIdHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetProductByIdHandler handler = null!;
 
     [Test]
@@ -34,10 +34,10 @@ public class GetProductByIdHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.ProductCategories.Add(category);
+        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        this.context.BasicProductCategories.Add(category);
 
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = productId,
             Name = "Product",
@@ -47,7 +47,7 @@ public class GetProductByIdHandlerTests
             CategoryId = category.Id
         };
 
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductByIdQuery(productId);
@@ -97,10 +97,10 @@ public class GetProductByIdHandlerTests
         // Arrange
         var product1Id = Guid.NewGuid();
         var product2Id = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.ProductCategories.Add(category);
+        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        this.context.BasicProductCategories.Add(category);
 
-        var product1 = new ProductModel
+        var product1 = new BasicProduct
         {
             Id = product1Id,
             Name = "Product 1",
@@ -110,7 +110,7 @@ public class GetProductByIdHandlerTests
             CategoryId = category.Id
         };
 
-        var product2 = new ProductModel
+        var product2 = new BasicProduct
         {
             Id = product2Id,
             Name = "Product 2",
@@ -120,7 +120,7 @@ public class GetProductByIdHandlerTests
             CategoryId = category.Id
         };
 
-        this.context.Products.AddRange(product1, product2);
+        this.context.BasicProducts.AddRange(product1, product2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductByIdQuery(product1Id);

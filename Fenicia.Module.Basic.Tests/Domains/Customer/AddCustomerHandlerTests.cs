@@ -13,11 +13,11 @@ public class AddCustomerHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new AddCustomerHandler(this.context);
         this.faker = new Faker();
     }
@@ -28,7 +28,7 @@ public class AddCustomerHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private AddCustomerHandler handler = null!;
     private Faker faker = null!;
 
@@ -259,7 +259,7 @@ public class AddCustomerHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var customer = await this.context.Customers
+        var customer = await this.context.BasicCustomers
             .Include(c => c.Person)
             .FirstOrDefaultAsync(c => c.Id == command.Id);
 
@@ -308,7 +308,7 @@ public class AddCustomerHandlerTests
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var customers = await this.context.Customers.ToListAsync();
+        var customers = await this.context.BasicCustomers.ToListAsync();
         Assert.That(customers, Has.Count.EqualTo(2));
     }
 }

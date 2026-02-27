@@ -7,8 +7,6 @@ using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.CreateNewUser;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Migrations.Services;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -22,23 +20,21 @@ public class CreateNewUserHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         this.checkUserExistsHandlerMock = new Mock<CheckUserExistsHandler>(this.context);
         this.checkCompanyExistsHandlerMock = new Mock<CheckCompanyExistsHandler>(this.context);
         this.hashPasswordHandler = new HashPasswordHandler();
         this.getAdminRoleHandlerMock = new Mock<GetAdminRoleHandler>(this.context);
-        this.migrationServiceMock = new Mock<IMigrationService>();
         this.handler = new CreateNewUserHandler(
             this.context,
             this.checkUserExistsHandlerMock.Object,
             this.checkCompanyExistsHandlerMock.Object,
             this.hashPasswordHandler,
-            this.getAdminRoleHandlerMock.Object,
-            this.migrationServiceMock.Object
+            this.getAdminRoleHandlerMock.Object
         );
         this.faker = new Faker();
     }
@@ -49,13 +45,12 @@ public class CreateNewUserHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private CreateNewUserHandler handler = null!;
     private Mock<CheckUserExistsHandler> checkUserExistsHandlerMock = null!;
     private Mock<CheckCompanyExistsHandler> checkCompanyExistsHandlerMock = null!;
     private HashPasswordHandler hashPasswordHandler = null!;
     private Mock<GetAdminRoleHandler> getAdminRoleHandlerMock = null!;
-    private Mock<IMigrationService> migrationServiceMock = null!;
     private Faker faker = null!;
 
     [Test]
@@ -90,7 +85,7 @@ public class CreateNewUserHandlerTests
         // Assert
         Assert.That(result, Is.Not.Null);
 
-        var user = await this.context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.That(user, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -237,46 +232,6 @@ public class CreateNewUserHandlerTests
     }
 
     [Test]
-    public async Task Handle_CallsMigrationServiceForBasicModule()
-    {
-        // Arrange
-        var email = this.faker.Internet.Email();
-        var password = this.faker.Internet.Password();
-        var name = this.faker.Person.FullName;
-        var cnpj = this.faker.Company.Cnpj();
-        var companyName = this.faker.Company.CompanyName();
-        var timeZone = "UTC";
-
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.checkCompanyExistsHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CheckCompanyExistsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.getAdminRoleHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
-
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
-
-        // Act
-        await this.handler.Handle(request, CancellationToken.None);
-
-        // Assert
-        this.migrationServiceMock.Verify(
-            x => x.RunMigrationsAsync(
-                It.IsAny<Guid>(),
-                It.Is<List<ModuleType>>(types => types.Contains(ModuleType.Basic)),
-                It.IsAny<CancellationToken>()
-            ),
-            Times.Once
-        );
-    }
-
-    [Test]
     public async Task Handle_ReturnsCorrectResponseData()
     {
         // Arrange
@@ -347,7 +302,7 @@ public class CreateNewUserHandlerTests
         await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var user = await this.context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.That(user, Is.Not.Null);
         Assert.That(user!.Password, Is.Not.EqualTo(password), "Password should be hashed");
     }

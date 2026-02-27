@@ -1,13 +1,13 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 
 namespace Fenicia.Module.Basic.Domains.Product.Add;
 
-public class AddProductHandler(BasicContext context)
+public class AddProductHandler(DefaultContext context)
 {
     public async Task<AddProductResponse> Handle(AddProductCommand command, CancellationToken ct)
     {
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = command.Id,
             Name = command.Name,
@@ -17,7 +17,7 @@ public class AddProductHandler(BasicContext context)
             CategoryId = command.CategoryId
         };
 
-        context.Products.Add(product);
+        context.BasicProducts.Add(product);
 
         await context.SaveChangesAsync(ct);
 

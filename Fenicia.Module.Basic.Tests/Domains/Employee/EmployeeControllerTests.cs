@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.Add;
 using Fenicia.Module.Basic.Domains.Employee.Delete;
@@ -26,11 +26,11 @@ public class EmployeeControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.testEmployeeId = Guid.NewGuid();
         this.getAllEmployeeHandler = new GetAllEmployeeHandler(this.context);
         this.getEmployeeByIdHandler = new GetEmployeeByIdHandler(this.context);
@@ -63,7 +63,7 @@ public class EmployeeControllerTests
     }
 
     private EmployeeController controller = null!;
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetAllEmployeeHandler getAllEmployeeHandler = null!;
     private GetEmployeeByIdHandler getEmployeeByIdHandler = null!;
     private AddEmployeeHandler addEmployeeHandler = null!;
@@ -114,18 +114,18 @@ public class EmployeeControllerTests
     public async Task GetAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var employee1 = new EmployeeModel
+        var employee1 = new BasicEmployee
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -135,12 +135,12 @@ public class EmployeeControllerTests
             }
         };
 
-        var employee2 = new EmployeeModel
+        var employee2 = new BasicEmployee
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -150,8 +150,8 @@ public class EmployeeControllerTests
             }
         };
 
-        this.context.Positions.Add(position);
-        this.context.Employees.AddRange(employee1, employee2);
+        this.context.BasicPositions.Add(position);
+        this.context.BasicEmployees.AddRange(employee1, employee2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var page = 1;
@@ -177,18 +177,18 @@ public class EmployeeControllerTests
     public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOkWithEmployee()
     {
         // Arrange
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var employee = new EmployeeModel
+        var employee = new BasicEmployee
         {
             Id = this.testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -198,8 +198,8 @@ public class EmployeeControllerTests
             }
         };
 
-        this.context.Positions.Add(position);
-        this.context.Employees.Add(employee);
+        this.context.BasicPositions.Add(position);
+        this.context.BasicEmployees.Add(employee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -242,13 +242,13 @@ public class EmployeeControllerTests
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithEmployee()
     {
         // Arrange
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddEmployeeCommand(
@@ -287,18 +287,18 @@ public class EmployeeControllerTests
     public async Task PatchAsync_WhenEmployeeExists_ReturnsOkWithUpdatedEmployee()
     {
         // Arrange
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var employee = new EmployeeModel
+        var employee = new BasicEmployee
         {
             Id = this.testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -308,8 +308,8 @@ public class EmployeeControllerTests
             }
         };
 
-        this.context.Positions.Add(position);
-        this.context.Employees.Add(employee);
+        this.context.BasicPositions.Add(position);
+        this.context.BasicEmployees.Add(employee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
@@ -348,13 +348,13 @@ public class EmployeeControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
@@ -386,12 +386,12 @@ public class EmployeeControllerTests
     public async Task DeleteAsync_WhenEmployeeExists_ReturnsNoContent()
     {
         // Arrange
-        var employee = new EmployeeModel
+        var employee = new BasicEmployee
         {
             Id = this.testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -400,7 +400,7 @@ public class EmployeeControllerTests
             }
         };
 
-        this.context.Employees.Add(employee);
+        this.context.BasicEmployees.Add(employee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -412,7 +412,7 @@ public class EmployeeControllerTests
         Assert.That(result, Is.Not.Null);
 
         // Verify employee was deleted
-        var deletedEmployee = await this.context.Employees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId, cancellationToken);
+        var deletedEmployee = await this.context.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId, cancellationToken);
         Assert.That(deletedEmployee, Is.Null);
     }
 

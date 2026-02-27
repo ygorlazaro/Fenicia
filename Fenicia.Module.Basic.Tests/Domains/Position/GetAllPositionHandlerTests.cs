@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Position.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ public class GetAllPositionHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetAllPositionHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +29,7 @@ public class GetAllPositionHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetAllPositionHandler handler = null!;
     private Faker faker = null!;
 
@@ -51,10 +51,10 @@ public class GetAllPositionHandlerTests
     public async Task Handle_WithPositions_ReturnsAllPositions()
     {
         // Arrange
-        var position1 = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        var position2 = new PositionModel { Id = Guid.NewGuid(), Name = "Designer" };
+        var position1 = new BasicPosition { Id = Guid.NewGuid(), Name = "Developer" };
+        var position2 = new BasicPosition { Id = Guid.NewGuid(), Name = "Designer" };
 
-        this.context.Positions.AddRange(position1, position2);
+        this.context.BasicPositions.AddRange(position1, position2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery();
@@ -78,12 +78,12 @@ public class GetAllPositionHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var position = new PositionModel
+            var position = new BasicPosition
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
             };
-            this.context.Positions.Add(position);
+            this.context.BasicPositions.Add(position);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -104,12 +104,12 @@ public class GetAllPositionHandlerTests
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var position = new PositionModel
+            var position = new BasicPosition
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
             };
-            this.context.Positions.Add(position);
+            this.context.BasicPositions.Add(position);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -130,12 +130,12 @@ public class GetAllPositionHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var position = new PositionModel
+            var position = new BasicPosition
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
             };
-            this.context.Positions.Add(position);
+            this.context.BasicPositions.Add(position);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);

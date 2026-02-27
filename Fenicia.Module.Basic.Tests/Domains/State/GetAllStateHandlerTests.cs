@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.State.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +14,11 @@ public class GetAllStateHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetAllStateHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +29,7 @@ public class GetAllStateHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetAllStateHandler handler = null!;
     private Faker faker = null!;
 
@@ -51,14 +51,14 @@ public class GetAllStateHandlerTests
     public async Task Handle_WithStates_ReturnsAllStates()
     {
         // Arrange
-        var state1 = new StateModel
+        var state1 = new AuthState
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
 
-        var state2 = new StateModel
+        var state2 = new AuthState
         {
             Id = Guid.NewGuid(),
             Name = "Rio de Janeiro",
@@ -89,7 +89,7 @@ public class GetAllStateHandlerTests
         // Arrange
         for (var i = 0; i < 27; i++)
         {
-            var state = new StateModel
+            var state = new AuthState
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Address.State()} {i}",
@@ -114,7 +114,7 @@ public class GetAllStateHandlerTests
     public async Task Handle_VerifiesStateDataIsCorrect()
     {
         // Arrange
-        var state = new StateModel
+        var state = new AuthState
         {
             Id = Guid.NewGuid(),
             Name = "Minas Gerais",

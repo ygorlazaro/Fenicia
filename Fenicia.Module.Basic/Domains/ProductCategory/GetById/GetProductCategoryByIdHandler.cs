@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory.GetById;
 
-public class GetProductCategoryByIdHandler(BasicContext context)
+public class GetProductCategoryByIdHandler(DefaultContext context)
 {
     public async Task<GetProductCategoryByIdResponse?> Handle(GetProductCategoryByIdQuery query, CancellationToken ct)
     {
-        return await context.ProductCategories
+        return await context.BasicProductCategories
             .Select(pc => new GetProductCategoryByIdResponse(pc.Id, pc.Name))
             .FirstOrDefaultAsync(c => c.Id == query.Id, ct);
     }

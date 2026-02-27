@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.GetUserModules;
 
-public class GetUserModuleHandler(AuthContext context)
+public class GetUserModuleHandler(DefaultContext context)
 {
     public async Task<List<GetUserModulesResponse>> Handler(GetUserModulesQuery query, CancellationToken ct)
     {

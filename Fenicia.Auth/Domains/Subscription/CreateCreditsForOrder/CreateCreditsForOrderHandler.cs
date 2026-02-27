@@ -1,11 +1,11 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 
-public class CreateCreditsForOrderHandler(AuthContext context)
+public class CreateCreditsForOrderHandler(DefaultContext context)
 {
     public virtual async Task<CreateCreditsForOrderResponse> Handle(
         CreateCreditsForOrderQuery query,
@@ -16,7 +16,7 @@ public class CreateCreditsForOrderHandler(AuthContext context)
             throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
         }
 
-        var credits = query.Details.Select(d => new SubscriptionCreditModel
+        var credits = query.Details.Select(d => new AuthSubscriptionCredit
         {
             ModuleId = d.ModuleId,
             IsActive = true,
@@ -25,7 +25,7 @@ public class CreateCreditsForOrderHandler(AuthContext context)
             OrderDetailId = d.Id
         }).ToList();
 
-        var subscription = new SubscriptionModel
+        var subscription = new AuthSubscription
         {
             Status = SubscriptionStatus.Active,
             CompanyId = query.CompanyId,

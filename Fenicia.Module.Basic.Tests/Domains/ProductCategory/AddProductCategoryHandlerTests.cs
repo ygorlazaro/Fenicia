@@ -11,11 +11,11 @@ public class AddProductCategoryHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new AddProductCategoryHandler(this.context);
     }
 
@@ -25,7 +25,7 @@ public class AddProductCategoryHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private AddProductCategoryHandler handler = null!;
 
     [Test]
@@ -56,7 +56,7 @@ public class AddProductCategoryHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var category = await this.context.ProductCategories.FindAsync([command.Id], CancellationToken.None);
+        var category = await this.context.BasicProductCategories.FindAsync([command.Id], CancellationToken.None);
         Assert.That(category, Is.Not.Null);
         Assert.That(category.Name, Is.EqualTo(command.Name));
     }
@@ -73,7 +73,7 @@ public class AddProductCategoryHandlerTests
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var categories = await this.context.ProductCategories.ToListAsync();
+        var categories = await this.context.BasicProductCategories.ToListAsync();
         Assert.That(categories, Has.Count.EqualTo(2));
     }
 }

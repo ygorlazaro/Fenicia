@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement.GetMovement;
 
@@ -13,11 +13,11 @@ public class GetStockMovementHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new GetStockMovementHandler(this.context);
     }
 
@@ -27,7 +27,7 @@ public class GetStockMovementHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetStockMovementHandler handler = null!;
 
     [Test]
@@ -50,7 +50,7 @@ public class GetStockMovementHandlerTests
     public async Task Handle_WithMovementsInDateRange_ReturnsFilteredList()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -59,9 +59,9 @@ public class GetStockMovementHandlerTests
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
 
-        var movement1 = new StockMovementModel
+        var movement1 = new BasicStockMovement
         {
             Id = Guid.NewGuid(),
             Quantity = 10,
@@ -71,7 +71,7 @@ public class GetStockMovementHandlerTests
             ProductId = product.Id
         };
 
-        var movement2 = new StockMovementModel
+        var movement2 = new BasicStockMovement
         {
             Id = Guid.NewGuid(),
             Quantity = 20,
@@ -81,7 +81,7 @@ public class GetStockMovementHandlerTests
             ProductId = product.Id
         };
 
-        var movement3 = new StockMovementModel
+        var movement3 = new BasicStockMovement
         {
             Id = Guid.NewGuid(),
             Quantity = 30,
@@ -91,7 +91,7 @@ public class GetStockMovementHandlerTests
             ProductId = product.Id
         };
 
-        this.context.StockMovements.AddRange(movement1, movement2, movement3);
+        this.context.BasicStockMovements.AddRange(movement1, movement2, movement3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var startDate = DateTime.Now.AddDays(-10);
@@ -111,7 +111,7 @@ public class GetStockMovementHandlerTests
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -120,11 +120,11 @@ public class GetStockMovementHandlerTests
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
 
         for (var i = 0; i < 25; i++)
         {
-            var movement = new StockMovementModel
+            var movement = new BasicStockMovement
             {
                 Id = Guid.NewGuid(),
                 Quantity = 10,
@@ -133,7 +133,7 @@ public class GetStockMovementHandlerTests
                 Type = StockMovementType.In,
                 ProductId = product.Id
             };
-            this.context.StockMovements.Add(movement);
+            this.context.BasicStockMovements.Add(movement);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -154,7 +154,7 @@ public class GetStockMovementHandlerTests
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -163,11 +163,11 @@ public class GetStockMovementHandlerTests
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
 
         for (var i = 0; i < 5; i++)
         {
-            var movement = new StockMovementModel
+            var movement = new BasicStockMovement
             {
                 Id = Guid.NewGuid(),
                 Quantity = 10,
@@ -176,7 +176,7 @@ public class GetStockMovementHandlerTests
                 Type = StockMovementType.In,
                 ProductId = product.Id
             };
-            this.context.StockMovements.Add(movement);
+            this.context.BasicStockMovements.Add(movement);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);

@@ -1,14 +1,14 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Order.CreateOrder;
 
-public class CreateOrderHandler(BasicContext context)
+public class CreateOrderHandler(DefaultContext context)
 {
     public async Task<CreateOrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)
     {
-        var details = command.Details.Select(d => new OrderDetailModel
+        var details = command.Details.Select(d => new BasicOrderDetail
         {
             Id = Guid.NewGuid(),
             ProductId = d.ProductId,
@@ -16,7 +16,7 @@ public class CreateOrderHandler(BasicContext context)
             Quantity = d.Quantity
         }).ToList();
 
-        var order = new OrderModel
+        var order = new BasicOrder
         {
             Id = Guid.NewGuid(),
             UserId = command.UserId,
@@ -27,9 +27,9 @@ public class CreateOrderHandler(BasicContext context)
             TotalAmount = details.Select(d => d.Price * (decimal)d.Quantity).Sum()
         };
 
-        context.Orders.Add(order);
+        context.BasicOrders.Add(order);
 
-        var stockMovements = details.Select(d => new StockMovementModel
+        var stockMovements = details.Select(d => new BasicStockMovement
         {
             Id = Guid.NewGuid(),
             Date = DateTime.Now,
@@ -42,7 +42,7 @@ public class CreateOrderHandler(BasicContext context)
 
         foreach (var stockMovement in stockMovements)
         {
-            context.StockMovements.Add(stockMovement);
+            context.BasicStockMovements.Add(stockMovement);
         }
 
         await context.SaveChangesAsync(ct);

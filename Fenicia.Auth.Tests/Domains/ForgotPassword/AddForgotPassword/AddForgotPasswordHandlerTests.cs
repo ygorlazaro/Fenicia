@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
@@ -15,11 +15,11 @@ public class AddForgotPasswordHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options);
         this.handler = new AddForgotPasswordHandler(this.context);
         this.faker = new Faker();
     }
@@ -30,7 +30,7 @@ public class AddForgotPasswordHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private AddForgotPasswordHandler handler = null!;
     private Faker faker = null!;
 
@@ -41,7 +41,7 @@ public class AddForgotPasswordHandlerTests
         var userId = Guid.NewGuid();
         var email = this.faker.Internet.Email();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -49,7 +49,7 @@ public class AddForgotPasswordHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddForgotPasswordCommand(email);
@@ -92,7 +92,7 @@ public class AddForgotPasswordHandlerTests
         var email = "test@example.com";
         var upperCaseEmail = "TEST@EXAMPLE.COM";
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -100,7 +100,7 @@ public class AddForgotPasswordHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddForgotPasswordCommand(upperCaseEmail);
@@ -121,7 +121,7 @@ public class AddForgotPasswordHandlerTests
         var email1 = "user1@example.com";
         var email2 = "user2@example.com";
 
-        var user1 = new UserModel
+        var user1 = new AuthUser
         {
             Id = userId1,
             Email = email1,
@@ -129,7 +129,7 @@ public class AddForgotPasswordHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var user2 = new UserModel
+        var user2 = new AuthUser
         {
             Id = userId2,
             Email = email2,
@@ -137,7 +137,7 @@ public class AddForgotPasswordHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.AddRange(user1, user2);
+        this.context.AuthUsers.AddRange(user1, user2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddForgotPasswordCommand(email1);
@@ -166,7 +166,7 @@ public class AddForgotPasswordHandlerTests
         var userId = Guid.NewGuid();
         var email = this.faker.Internet.Email();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -174,7 +174,7 @@ public class AddForgotPasswordHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddForgotPasswordCommand(email);
@@ -216,7 +216,7 @@ public class AddForgotPasswordHandlerTests
         var email1 = "user1@example.com";
         var email2 = "user2@example.com";
 
-        var user1 = new UserModel
+        var user1 = new AuthUser
         {
             Id = userId1,
             Email = email1,
@@ -224,7 +224,7 @@ public class AddForgotPasswordHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var user2 = new UserModel
+        var user2 = new AuthUser
         {
             Id = userId2,
             Email = email2,
@@ -232,7 +232,7 @@ public class AddForgotPasswordHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.AddRange(user1, user2);
+        this.context.AuthUsers.AddRange(user1, user2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command1 = new AddForgotPasswordCommand(email1);
