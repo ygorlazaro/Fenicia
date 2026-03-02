@@ -1,4 +1,5 @@
 using Fenicia.Auth.Domains.UserRole.GetCompaniesByUser;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 
@@ -16,7 +17,7 @@ public class GetCompaniesByUserHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetCompaniesByUserHandler(this.context);
     }
 

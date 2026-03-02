@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("followers", Schema = "social_network")]
-public class SNFollower : BaseModel
+public class SNFollower : BaseCompanyModel
 {
     [Required]
     public Guid UserId { get; set; }

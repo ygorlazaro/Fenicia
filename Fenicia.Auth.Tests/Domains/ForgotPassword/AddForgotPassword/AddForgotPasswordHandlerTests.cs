@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
@@ -19,7 +20,7 @@ public class AddForgotPasswordHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new AddForgotPasswordHandler(this.context);
         this.faker = new Faker();
     }

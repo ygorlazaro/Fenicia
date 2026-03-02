@@ -1,3 +1,4 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Position.Add;
 
@@ -15,7 +16,8 @@ public class AddPositionHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new AddPositionHandler(this.context);
     }
 
@@ -25,6 +27,7 @@ public class AddPositionHandlerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private DefaultContext context = null!;
     private AddPositionHandler handler = null!;
 

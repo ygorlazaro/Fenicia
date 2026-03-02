@@ -7,6 +7,7 @@ using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.GetUserModules;
 using Fenicia.Auth.Domains.UserRole.GetUserCompanies;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
@@ -30,7 +31,7 @@ public class UserControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.getUserModuleHandler = new GetUserModuleHandler(this.context);
         this.getUserCompaniesHandler = new GetUserCompaniesHandler(this.context);

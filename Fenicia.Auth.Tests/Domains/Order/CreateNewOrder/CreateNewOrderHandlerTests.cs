@@ -3,6 +3,7 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Order.CreateNewOrder;
 using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
@@ -24,7 +25,7 @@ public class CreateNewOrderHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.createCreditsForOrderHandlerMock = new Mock<CreateCreditsForOrderHandler>(this.context);
         this.handler = new CreateNewOrderHandler(
             this.context,

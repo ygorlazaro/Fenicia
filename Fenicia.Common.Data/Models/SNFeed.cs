@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("feeds", Schema = "social_network")]
-public class SNFeed : BaseModel
+public class SNFeed : BaseCompanyModel
 {
     [Required]
     public DateTime Date { get; set; } = DateTime.Now;

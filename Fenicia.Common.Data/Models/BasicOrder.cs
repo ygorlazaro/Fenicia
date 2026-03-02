@@ -7,7 +7,7 @@ using Fenicia.Common.Enums.Auth;
 namespace Fenicia.Common.Data.Models;
 
 [Table("orders", Schema = "basic")]
-public class BasicOrder : BaseModel
+public class BasicOrder : BaseCompanyModel
 {
     [Required]
     public Guid UserId { get; set; }

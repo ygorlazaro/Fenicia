@@ -3,6 +3,7 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company.UpdateCompany;
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
@@ -21,7 +22,7 @@ public class UpdateCompanyHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new UpdateCompanyHandler(this.context);
         this.faker = new Faker();
     }

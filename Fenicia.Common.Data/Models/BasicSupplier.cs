@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("suppliers", Schema = "basic")]
-public class BasicSupplier : BaseModel
+public class BasicSupplier : BaseCompanyModel
 {
     [MaxLength(14)]
     public string? Cnpj { get; set; }

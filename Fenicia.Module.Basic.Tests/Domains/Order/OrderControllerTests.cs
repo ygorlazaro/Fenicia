@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
@@ -28,7 +29,8 @@ public class OrderControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.testOrderId = Guid.NewGuid();
         this.testUserId = Guid.NewGuid();
         this.testCustomerId = Guid.NewGuid();
@@ -56,6 +58,7 @@ public class OrderControllerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private OrderController controller = null!;
     private DefaultContext context = null!;
     private CreateOrderHandler createOrderHandler = null!;

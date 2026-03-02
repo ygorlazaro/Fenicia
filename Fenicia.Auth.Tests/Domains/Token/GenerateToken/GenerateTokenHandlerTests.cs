@@ -6,6 +6,7 @@ using Fenicia.Auth.Domains.Security.VerifyPassword;
 using Fenicia.Auth.Domains.Token.GenerateToken;
 using Fenicia.Auth.Domains.User.GetByEmail;
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
@@ -30,7 +31,7 @@ public class GenerateTokenHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.getByEmailHandler = new GetByEmailHandler(this.context);
         this.handler = new GenerateTokenHandler(
             this.loginAttemptHandler,

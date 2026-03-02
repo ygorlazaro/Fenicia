@@ -6,6 +6,7 @@ using Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
 using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User.ChangePassword;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
@@ -29,7 +30,7 @@ public class ForgotPasswordControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.mockHashPasswordHandler = new Mock<HashPasswordHandler>();
         this.changePasswordHandler = new ChangePasswordHandler(this.context, this.mockHashPasswordHandler.Object);
         this.addForgotPasswordHandler = new AddForgotPasswordHandler(this.context);

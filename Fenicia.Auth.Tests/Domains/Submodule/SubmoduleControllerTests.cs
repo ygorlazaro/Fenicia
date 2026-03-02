@@ -1,6 +1,7 @@
 using Fenicia.Auth.Domains.Submodule;
 using Fenicia.Auth.Domains.Submodule.GetByModuleId;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 
@@ -23,7 +24,7 @@ public class SubmoduleControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.testModuleId = Guid.NewGuid();
         this.getByModuleIdHandler = new GetByModuleIdHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();

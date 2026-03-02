@@ -6,6 +6,7 @@ using Fenicia.Auth.Domains.Role.GetAdminRole;
 using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.CreateNewUser;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,7 @@ public class CreateNewUserHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.checkUserExistsHandlerMock = new Mock<CheckUserExistsHandler>(this.context);
         this.checkCompanyExistsHandlerMock = new Mock<CheckCompanyExistsHandler>(this.context);
         this.hashPasswordHandler = new HashPasswordHandler();

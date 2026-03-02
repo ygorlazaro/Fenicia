@@ -4,6 +4,7 @@ using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.GetModules;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
@@ -27,7 +28,7 @@ public class ModuleControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.getModulesHandler = new GetModulesHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
         this.faker = new Faker();

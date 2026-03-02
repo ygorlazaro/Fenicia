@@ -1,3 +1,4 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Product.Update;
@@ -16,7 +17,8 @@ public class UpdateProductHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new UpdateProductHandler(this.context);
     }
 
@@ -26,6 +28,7 @@ public class UpdateProductHandlerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private DefaultContext context = null!;
     private UpdateProductHandler handler = null!;
 
