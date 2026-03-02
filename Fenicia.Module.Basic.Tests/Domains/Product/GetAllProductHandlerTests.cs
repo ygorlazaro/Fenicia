@@ -1,3 +1,4 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Product.GetAll;
@@ -16,7 +17,8 @@ public class GetAllProductHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new GetAllProductHandler(this.context);
     }
 
@@ -26,6 +28,7 @@ public class GetAllProductHandlerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private DefaultContext context = null!;
     private GetAllProductHandler handler = null!;
 

@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.User.GetByEmail;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 
@@ -18,7 +19,7 @@ public class GetByEmailHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetByEmailHandler(this.context);
         this.faker = new Faker();
     }

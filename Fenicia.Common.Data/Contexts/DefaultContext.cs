@@ -1,14 +1,27 @@
+using System.Reflection;
+
 using Fenicia.Common.Data.Models;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Contexts;
 
-public class DefaultContext(DbContextOptions<DefaultContext> options) : DbContext(options)
+public class DefaultContext : DbContext
 {
-    public DefaultContext() : this(new DbContextOptions<DefaultContext>())
-    {
 
+    private readonly ICompanyContext companyContext;
+
+    public Guid? CurrentCompanyId => this.companyContext.CompanyId;
+
+    public DefaultContext(DbContextOptions<DefaultContext> options, ICompanyContext companyContext) : base(options)
+    {
+        this.companyContext = companyContext;
+    }
+
+    public DefaultContext() : base(new DbContextOptions<DefaultContext>())
+    {
+        this.companyContext = new CompanyContext(new HttpContextAccessor());
     }
 
     public DbSet<AuthRole> Roles { get; set; } = null!;
@@ -84,14 +97,60 @@ public class DefaultContext(DbContextOptions<DefaultContext> options) : DbContex
             }
         }
 
+        ApplyCompanyId();
+
         return base.SaveChangesAsync(ct);
+    }
+
+    private void ApplyCompanyId()
+    {
+        var entries = this.ChangeTracker
+            .Entries<BaseCompanyModel>()
+            .Where(e => e.State == EntityState.Added);
+
+        foreach (var entry in entries)
+        {
+            if (this.CurrentCompanyId == null)
+            {
+                throw new InvalidOperationException("CompanyId is required");
+            }
+
+            entry.Entity.CompanyId = this.CurrentCompanyId.Value;
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
         SoftDeleteQueryExtension.AddSoftDeleteSupport(modelBuilder);
+        ApplyCompanyFilter(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
+    }
+
+
+    private void ApplyCompanyFilter(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
+            {
+                var method = typeof(DefaultContext)
+                    .GetMethod(nameof(SetCompanyFilter),
+                        BindingFlags.NonPublic | BindingFlags.Instance)!
+                    .MakeGenericMethod(entityType.ClrType);
+
+                method.Invoke(this, new object[] { modelBuilder });
+            }
+        }
+    }
+
+    private void SetCompanyFilter<TEntity>(ModelBuilder modelBuilder)
+        where TEntity : BaseCompanyModel
+    {
+        modelBuilder.Entity<TEntity>()
+            .HasQueryFilter(e =>
+                this.CurrentCompanyId == null ||
+                e.CompanyId == this.CurrentCompanyId);
     }
 }

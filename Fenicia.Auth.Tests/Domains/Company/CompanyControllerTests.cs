@@ -8,6 +8,7 @@ using Fenicia.Auth.Domains.Company.GetCompaniesByUser;
 using Fenicia.Auth.Domains.Company.UpdateCompany;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
@@ -31,7 +32,7 @@ public class CompanyControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.getCompaniesByUserHandler = new GetCompaniesByUserHandler(this.context);
         this.updateCompanyHandler = new UpdateCompanyHandler(this.context);

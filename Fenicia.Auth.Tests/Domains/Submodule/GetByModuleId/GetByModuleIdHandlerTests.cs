@@ -1,6 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Submodule.GetByModuleId;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 
@@ -18,7 +19,7 @@ public class GetByModuleIdHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetByModuleIdHandler(this.context);
         this.faker = new Faker();
     }

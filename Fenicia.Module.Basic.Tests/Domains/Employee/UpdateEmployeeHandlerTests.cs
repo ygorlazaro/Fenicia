@@ -1,5 +1,6 @@
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Employee.Update;
@@ -18,7 +19,8 @@ public class UpdateEmployeeHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new UpdateEmployeeHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,6 +31,7 @@ public class UpdateEmployeeHandlerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private DefaultContext context = null!;
     private UpdateEmployeeHandler handler = null!;
     private Faker faker = null!;

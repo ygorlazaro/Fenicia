@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Bogus;
 
 using Fenicia.Common;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Product.GetByCategoryId;
@@ -32,7 +33,8 @@ public class ProductCategoryControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.testCategoryId = Guid.NewGuid();
         this.getAllProductCategoryHandler = new GetAllProductCategoryHandler(this.context);
         this.getProductCategoryByIdHandler = new GetProductCategoryByIdHandler(this.context);
@@ -66,6 +68,7 @@ public class ProductCategoryControllerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private ProductCategoryController controller = null!;
     private DefaultContext context = null!;
     private GetAllProductCategoryHandler getAllProductCategoryHandler = null!;

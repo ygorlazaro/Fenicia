@@ -6,7 +6,7 @@ using Fenicia.Common.Enums.Basic;
 namespace Fenicia.Common.Data.Models;
 
 [Table("stock_movements", Schema = "basic")]
-public class BasicStockMovement : BaseModel
+public class BasicStockMovement : BaseCompanyModel
 {
     [Required]
     public Guid ProductId { get; set; }

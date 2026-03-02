@@ -3,6 +3,7 @@ using Bogus;
 using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.Security.VerifyPassword;
 using Fenicia.Auth.Domains.User.ChangePassword;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 
@@ -20,7 +21,7 @@ public class ChangePasswordHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.hashPasswordHandler = new HashPasswordHandler();
         this.handler = new ChangePasswordHandler(this.context, this.hashPasswordHandler);
         this.faker = new Faker();

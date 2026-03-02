@@ -5,6 +5,7 @@ using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.CreateNewUser;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +27,7 @@ public class RegisterControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.mockCheckUserExistsHandler = new Mock<CheckUserExistsHandler>(this.context);
         this.mockCheckCompanyExistsHandler = new Mock<CheckCompanyExistsHandler>(this.context);
         this.mockHashPasswordHandler = new Mock<HashPasswordHandler>();

@@ -14,6 +14,7 @@ using Fenicia.Auth.Domains.Token.GenerateTokenString;
 using Fenicia.Auth.Domains.User.GetByEmail;
 using Fenicia.Auth.Domains.User.GetUserForRefresh;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 
@@ -40,7 +41,7 @@ public class TokenControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         var cache = new MemoryCache(new MemoryCacheOptions());
 

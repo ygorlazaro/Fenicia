@@ -1,5 +1,6 @@
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Supplier.Add;
 
@@ -17,7 +18,8 @@ public class AddSupplierHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new AddSupplierHandler(this.context);
         this.faker = new Faker();
     }
@@ -28,6 +30,7 @@ public class AddSupplierHandlerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private DefaultContext context = null!;
     private AddSupplierHandler handler = null!;
     private Faker faker = null!;

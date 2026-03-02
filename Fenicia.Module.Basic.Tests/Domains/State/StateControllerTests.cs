@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.State;
@@ -26,7 +27,8 @@ public class StateControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.getAllStateHandler = new GetAllStateHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
@@ -48,6 +50,7 @@ public class StateControllerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private StateController controller = null!;
     private DefaultContext context = null!;
     private GetAllStateHandler getAllStateHandler = null!;

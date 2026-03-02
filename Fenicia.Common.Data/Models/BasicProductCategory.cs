@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("product_categories", Schema = "basic")]
-public class BasicProductCategory : BaseModel
+public class BasicProductCategory : BaseCompanyModel
 {
     [Required]
     [MaxLength(50)]

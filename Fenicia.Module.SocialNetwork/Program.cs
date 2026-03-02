@@ -6,7 +6,6 @@ using Fenicia.Common.API.Providers;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 using Scalar.AspNetCore;

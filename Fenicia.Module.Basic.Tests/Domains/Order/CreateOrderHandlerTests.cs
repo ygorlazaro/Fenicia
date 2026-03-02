@@ -1,3 +1,4 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order.CreateOrder;
@@ -17,7 +18,8 @@ public class CreateOrderHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new CreateOrderHandler(this.context);
     }
 
@@ -27,6 +29,7 @@ public class CreateOrderHandlerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private DefaultContext context = null!;
     private CreateOrderHandler handler = null!;
 

@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Employee;
@@ -30,7 +31,8 @@ public class EmployeeControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.testEmployeeId = Guid.NewGuid();
         this.getAllEmployeeHandler = new GetAllEmployeeHandler(this.context);
         this.getEmployeeByIdHandler = new GetEmployeeByIdHandler(this.context);
@@ -62,6 +64,7 @@ public class EmployeeControllerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private EmployeeController controller = null!;
     private DefaultContext context = null!;
     private GetAllEmployeeHandler getAllEmployeeHandler = null!;

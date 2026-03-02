@@ -1,4 +1,5 @@
 using Fenicia.Auth.Domains.User.GetUserModules;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
@@ -17,7 +18,7 @@ public class GetUserModuleHandlerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetUserModuleHandler(this.context);
     }
 

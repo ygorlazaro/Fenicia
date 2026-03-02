@@ -7,6 +7,7 @@ using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.CreateNewOrder;
 using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
@@ -31,7 +32,7 @@ public class OrderControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.testCompanyId = Guid.NewGuid();
         this.mockCreateCreditsForOrderHandler = new Mock<CreateCreditsForOrderHandler>(this.context);

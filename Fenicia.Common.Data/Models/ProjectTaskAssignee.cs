@@ -5,7 +5,7 @@ using Fenicia.Common.Enums.Project;
 namespace Fenicia.Common.Data.Models;
 
 [Table("task_assignees", Schema = "project")]
-public class ProjectTaskAssignee: BaseModel
+public class ProjectTaskAssignee : BaseCompanyModel
 {
     public Guid TaskId { get; set; } = Guid.Empty;
 
