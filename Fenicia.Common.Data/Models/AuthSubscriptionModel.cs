@@ -7,7 +7,7 @@ using Fenicia.Common.Enums.Auth;
 namespace Fenicia.Common.Data.Models;
 
 [Table("subscriptions", Schema = "auth")]
-public class AuthSubscription : BaseModel
+public class AuthSubscriptionModel : BaseModel
 {
     [Required]
     public SubscriptionStatus Status { get; set; }
@@ -25,11 +25,11 @@ public class AuthSubscription : BaseModel
 
     [JsonIgnore]
     [ForeignKey(nameof(CompanyId))]
-    public AuthCompany Company { get; set; } = null!;
+    public AuthCompanyModel CompanyModel { get; set; } = null!;
 
     [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
-    public virtual AuthOrder? Order { get; set; }
+    public virtual AuthOrderModel? Order { get; set; }
 
     [JsonIgnore]
     public virtual List<AuthSubscriptionCreditModel> Credits { get; set; } = null!;

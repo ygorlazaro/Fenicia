@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models;
 
 [Table("users", Schema = "auth")]
-public class AuthUser : BaseModel
+public class AuthUserModel : BaseModel
 {
     [Required]
     [EmailAddress]
@@ -28,7 +28,7 @@ public class AuthUser : BaseModel
     public List<AuthUserRoleModel> UsersRoles { get; set; } = [];
 
     [JsonIgnore]
-    public List<AuthOrder> Orders { get; set; } = [];
+    public List<AuthOrderModel> Orders { get; set; } = [];
 
     [JsonIgnore]
     public List<ProjectTaskModel> Tasks { get; set; } = [];
@@ -39,7 +39,7 @@ public class AuthUser : BaseModel
     [InverseProperty(nameof(SNFollowerModel.Follower))]
     public List<SNFollowerModel> Followers { get; set; } = [];
 
-    [InverseProperty(nameof(SNFollowerModel.User))]
+    [InverseProperty(nameof(SNFollowerModel.UserModel))]
     public List<SNFollowerModel> Following { get; set; } = [];
 
     public List<ProjectTaskAssigneeModel> TaskAssignees { get; set; } = [];

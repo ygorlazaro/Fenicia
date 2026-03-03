@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("forgotten_passwords", Schema = "auth")]
-public class AuthForgotPassowrd : BaseModel
+public class AuthForgotPassowrdModel : BaseModel
 {
     [Required]
     [Column("user_id")]

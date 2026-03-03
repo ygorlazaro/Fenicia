@@ -116,7 +116,7 @@ public class ProjectStatusControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectStatus1 = new Common.Data.Models.ProjectStatus
+        var projectStatus1 = new Common.Data.Models.ProjectStatusModel
         {
             Id = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
@@ -126,7 +126,7 @@ public class ProjectStatusControllerTests
             IsFinal = false
         };
 
-        var projectStatus2 = new Common.Data.Models.ProjectStatus
+        var projectStatus2 = new Common.Data.Models.ProjectStatusModel
         {
             Id = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
@@ -162,7 +162,7 @@ public class ProjectStatusControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectStatus = new Common.Data.Models.ProjectStatus
+        var projectStatus = new Common.Data.Models.ProjectStatusModel
         {
             Id = this.testProjectStatusId,
             ProjectId = Guid.NewGuid(),
@@ -249,7 +249,7 @@ public class ProjectStatusControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectStatus = new Common.Data.Models.ProjectStatus
+        var projectStatus = new Common.Data.Models.ProjectStatusModel
         {
             Id = this.testProjectStatusId,
             ProjectId = Guid.NewGuid(),
@@ -314,7 +314,7 @@ public class ProjectStatusControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectStatus = new Common.Data.Models.ProjectStatus
+        var projectStatus = new Common.Data.Models.ProjectStatusModel
         {
             Id = this.testProjectStatusId,
             ProjectId = Guid.NewGuid(),

@@ -28,14 +28,14 @@ public class GetUserProfileHandler(DefaultContext context)
 
         var subscriptions = await context.Subscriptions
             .Include(s => s.Credits)
-                .ThenInclude(c => c.Module)
-            .Include(s => s.Company)
-            .Where(s => s.Company.UsersRoles.Any(u => u.Id == query.UserId))
+                .ThenInclude(c => c.ModuleModel)
+            .Include(s => s.CompanyModel)
+            .Where(s => s.CompanyModel.UsersRoles.Any(u => u.Id == query.UserId))
             .Select(s => new UserSubscriptionResponse
             {
                 Id = s.Id,
                 CompanyId = s.CompanyId,
-                CompanyName = s.Company.Name,
+                CompanyName = s.CompanyModel.Name,
                 Status = s.Status.ToString(),
                 StartDate = s.StartDate,
                 EndDate = s.EndDate,
@@ -43,9 +43,9 @@ public class GetUserProfileHandler(DefaultContext context)
                     .Where(c => c.IsActive)
                     .Select(c => new SubscribedModuleResponse
                     {
-                        Id = c.Module.Id,
-                        Name = c.Module.Name,
-                        Type = c.Module.Type.ToString(),
+                        Id = c.ModuleModel.Id,
+                        Name = c.ModuleModel.Name,
+                        Type = c.ModuleModel.Type.ToString(),
                         SubscribedAt = c.StartDate
                     })
                     .ToList()

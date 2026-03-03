@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Common.Data.Models;
 
 [Table("modules", Schema = "auth")]
-public class AuthModule : BaseModel
+public class AuthModuleModel : BaseModel
 {
-    public AuthModule()
+    public AuthModuleModel()
     {
         this.Name = string.Empty;
     }

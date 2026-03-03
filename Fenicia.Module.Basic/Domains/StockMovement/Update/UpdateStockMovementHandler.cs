@@ -9,7 +9,7 @@ public class UpdateStockMovementHandler(DefaultContext context)
     public async Task<UpdateStockMovementResponse?> Handle(UpdateStockMovementCommand command, CancellationToken ct)
     {
         var stockMovement = await context.BasicStockMovements
-            .Include(s => s.Product)
+            .Include(s => s.ProductModel)
             .FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
         if (stockMovement is null)

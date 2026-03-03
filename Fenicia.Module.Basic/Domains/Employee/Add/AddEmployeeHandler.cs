@@ -7,7 +7,7 @@ public class AddEmployeeHandler(DefaultContext context)
 {
     public async Task<AddEmployeeResponse> Handle(AddEmployeeCommand command, CancellationToken ct)
     {
-        var person = new BasicPerson
+        var person = new BasicPersonModel
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
@@ -23,11 +23,11 @@ public class AddEmployeeHandler(DefaultContext context)
             City = command.City
         };
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = command.Id,
             PositionId = command.PositionId,
-            Person = person,
+            PersonModel = person,
             PersonId = person.Id
         };
 

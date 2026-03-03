@@ -90,7 +90,7 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_WhenModulesExist_ReturnsOkWithPagination()
     {
         // Arrange
-        var module1 = new AuthModule
+        var module1 = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -98,7 +98,7 @@ public class ModuleControllerTests
             Price = 10.0m
         };
 
-        var module2 = new AuthModule
+        var module2 = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -141,7 +141,7 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_ExcludesErpAndAuthModuleTypes()
     {
         // Arrange
-        var erpModule = new AuthModule
+        var erpModule = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -149,7 +149,7 @@ public class ModuleControllerTests
             Price = 100.0m
         };
 
-        var authModule = new AuthModule
+        var authModule = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -157,7 +157,7 @@ public class ModuleControllerTests
             Price = 50.0m
         };
 
-        var basicModule = new AuthModule
+        var basicModule = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -218,10 +218,10 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var modules = new List<AuthModule>();
+        var modules = new List<AuthModuleModel>();
         for (var i = 0; i < 25; i++)
         {
-            modules.Add(new AuthModule
+            modules.Add(new AuthModuleModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Module {this.faker.Commerce.ProductName()} {i}",

@@ -1,30 +1,75 @@
 {
-	"tasks": [
-		{
-			"group": "build",
-			"label": "dotnet: clean",
-			"problemMatcher": [],
-			"task": "clean",
-			"type": "dotnet"
-		},
-		{
-			"args": [
-				"test",
-				"${workspaceFolder}/test/MyApp.Tests.csproj",
-				"/p:CollectCoverage=true",
-				"/p:CoverletOutputFormat=lcov",
-				"/p:CoverletOutput=./lcov.info"
-			],
-			"command": "dotnet",
-			"dependsOn": [],
-			"group": {
-				"isDefault": true,
-				"kind": "test"
-			},
-			"label": "test",
-			"problemMatcher": "$msCompile",
-			"type": "process"
-		}
-	],
-	"version": "2.0.0"
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-auth",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Fenicia.Auth/Fenicia.Auth.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-projects",
+      "type": "dotnet",
+      "command": "dotnet build",
+      "args": [
+        "${workspaceRoot}/Fenicia.Module.Projects/Fenicia.Module.Projects.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "docker-build-all",
+      "type": "shell",
+      "command": "docker-compose -f Docker/docker-compose.yml build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-up",
+      "type": "shell",
+      "command": "docker-compose -f Docker/docker-compose.yml up -d",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-down",
+      "type": "shell",
+      "command": "docker-compose -f Docker/docker-compose.yml down",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-logs",
+      "type": "shell",
+      "command": "docker-compose -f Docker/docker-compose.yml logs -f",
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-restart-auth",
+      "type": "shell",
+      "command": "docker restart fenicia-auth",
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-restart-projects",
+      "type": "shell",
+      "command": "docker restart fenicia-module-projects",
+      "problemMatcher": []
+    }
+  ]
 }

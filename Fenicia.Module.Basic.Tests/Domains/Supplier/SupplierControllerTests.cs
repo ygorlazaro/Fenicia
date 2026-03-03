@@ -118,12 +118,12 @@ public class SupplierControllerTests
     public async Task GetAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
         // Arrange
-        var supplier1 = new BasicSupplier
+        var supplier1 = new BasicSupplierModel
         {
             Id = Guid.NewGuid(),
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -140,12 +140,12 @@ public class SupplierControllerTests
             }
         };
 
-        var supplier2 = new BasicSupplier
+        var supplier2 = new BasicSupplierModel
         {
             Id = Guid.NewGuid(),
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -188,12 +188,12 @@ public class SupplierControllerTests
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsOkWithSupplier()
     {
         // Arrange
-        var supplier = new BasicSupplier
+        var supplier = new BasicSupplierModel
         {
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -293,12 +293,12 @@ public class SupplierControllerTests
     public async Task PatchAsync_WhenSupplierExists_ReturnsOkWithUpdatedSupplier()
     {
         // Arrange
-        var supplier = new BasicSupplier
+        var supplier = new BasicSupplierModel
         {
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -376,12 +376,12 @@ public class SupplierControllerTests
     public async Task DeleteAsync_WhenSupplierExists_ReturnsNoContent()
     {
         // Arrange
-        var supplier = new BasicSupplier
+        var supplier = new BasicSupplierModel
         {
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),

@@ -116,7 +116,7 @@ public class ProjectSubtaskControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectSubtask1 = new Common.Data.Models.ProjectSubtask
+        var projectSubtask1 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -126,7 +126,7 @@ public class ProjectSubtaskControllerTests
             CompletedAt = null
         };
 
-        var projectSubtask2 = new Common.Data.Models.ProjectSubtask
+        var projectSubtask2 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -162,7 +162,7 @@ public class ProjectSubtaskControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectSubtask = new Common.Data.Models.ProjectSubtask
+        var projectSubtask = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = this.testProjectSubtaskId,
             TaskId = Guid.NewGuid(),
@@ -249,7 +249,7 @@ public class ProjectSubtaskControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectSubtask = new Common.Data.Models.ProjectSubtask
+        var projectSubtask = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = this.testProjectSubtaskId,
             TaskId = Guid.NewGuid(),
@@ -314,7 +314,7 @@ public class ProjectSubtaskControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectSubtask = new Common.Data.Models.ProjectSubtask
+        var projectSubtask = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = this.testProjectSubtaskId,
             TaskId = Guid.NewGuid(),

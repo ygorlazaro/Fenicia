@@ -53,7 +53,7 @@ public class GetAllProjectHandlerTests
     public async Task Handle_WithProjects_ReturnsAllProjects()
     {
         // Arrange
-        var project1 = new Common.Data.Models.Project
+        var project1 = new Common.Data.Models.ProjectModel
         {
             Id = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
@@ -64,7 +64,7 @@ public class GetAllProjectHandlerTests
             Owner = Guid.NewGuid()
         };
 
-        var project2 = new Common.Data.Models.Project
+        var project2 = new Common.Data.Models.ProjectModel
         {
             Id = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
@@ -99,7 +99,7 @@ public class GetAllProjectHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var project = new Common.Data.Models.Project
+            var project = new Common.Data.Models.ProjectModel
             {
                 Id = Guid.NewGuid(),
                 Title = $"{this.faker.Lorem.Sentence(5)} {i}",
@@ -130,7 +130,7 @@ public class GetAllProjectHandlerTests
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var project = new Common.Data.Models.Project
+            var project = new Common.Data.Models.ProjectModel
             {
                 Id = Guid.NewGuid(),
                 Title = $"{this.faker.Lorem.Sentence(5)} {i}",
@@ -161,7 +161,7 @@ public class GetAllProjectHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var project = new Common.Data.Models.Project
+            var project = new Common.Data.Models.ProjectModel
             {
                 Id = Guid.NewGuid(),
                 Title = $"{this.faker.Lorem.Sentence(5)} {i}",

@@ -39,7 +39,7 @@ public class GetByModuleIdHandlerTests
     {
         // Arrange
         var moduleId = Guid.NewGuid();
-        var submodule1 = new AuthSubmodule
+        var submodule1 = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -48,7 +48,7 @@ public class GetByModuleIdHandlerTests
             ModuleId = moduleId
         };
 
-        var submodule2 = new AuthSubmodule
+        var submodule2 = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -75,7 +75,7 @@ public class GetByModuleIdHandlerTests
         var moduleId = Guid.NewGuid();
         var otherModuleId = Guid.NewGuid();
 
-        var submodule = new AuthSubmodule
+        var submodule = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -115,7 +115,7 @@ public class GetByModuleIdHandlerTests
         // Arrange
         var moduleId = Guid.NewGuid();
         var submoduleId = Guid.NewGuid();
-        var submodule = new AuthSubmodule
+        var submodule = new AuthSubmoduleModel
         {
             Id = submoduleId,
             Name = "Test Submodule",
@@ -149,7 +149,7 @@ public class GetByModuleIdHandlerTests
     {
         // Arrange
         var moduleId = Guid.NewGuid();
-        var submodule = new AuthSubmodule
+        var submodule = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Submodule without description",
@@ -177,7 +177,7 @@ public class GetByModuleIdHandlerTests
         var moduleId1 = Guid.NewGuid();
         var moduleId2 = Guid.NewGuid();
 
-        var submodule1 = new AuthSubmodule
+        var submodule1 = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Module 1 - Submodule 1",
@@ -186,7 +186,7 @@ public class GetByModuleIdHandlerTests
             ModuleId = moduleId1
         };
 
-        var submodule2 = new AuthSubmodule
+        var submodule2 = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Module 1 - Submodule 2",
@@ -195,7 +195,7 @@ public class GetByModuleIdHandlerTests
             ModuleId = moduleId1
         };
 
-        var submodule3 = new AuthSubmodule
+        var submodule3 = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Module 2 - Submodule 1",
@@ -228,7 +228,7 @@ public class GetByModuleIdHandlerTests
 
         for (var i = 0; i < 5; i++)
         {
-            this.context.Submodules.Add(new AuthSubmodule
+            this.context.Submodules.Add(new AuthSubmoduleModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Submodule {i}",
@@ -240,7 +240,7 @@ public class GetByModuleIdHandlerTests
 
         for (var i = 0; i < 3; i++)
         {
-            this.context.Submodules.Add(new AuthSubmodule
+            this.context.Submodules.Add(new AuthSubmoduleModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Submodule {i}",

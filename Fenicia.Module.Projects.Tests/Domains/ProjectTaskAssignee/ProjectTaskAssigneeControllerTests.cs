@@ -112,7 +112,7 @@ public class ProjectTaskAssigneeControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectTaskAssignee1 = new Common.Data.Models.ProjectTaskAssignee
+        var projectTaskAssignee1 = new Common.Data.Models.ProjectTaskAssigneeModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -121,7 +121,7 @@ public class ProjectTaskAssigneeControllerTests
             AssignedAt = DateTime.UtcNow
         };
 
-        var projectTaskAssignee2 = new Common.Data.Models.ProjectTaskAssignee
+        var projectTaskAssignee2 = new Common.Data.Models.ProjectTaskAssigneeModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -156,7 +156,7 @@ public class ProjectTaskAssigneeControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectTaskAssignee = new Common.Data.Models.ProjectTaskAssignee
+        var projectTaskAssignee = new Common.Data.Models.ProjectTaskAssigneeModel
         {
             Id = this.testProjectTaskAssigneeId,
             TaskId = Guid.NewGuid(),
@@ -241,7 +241,7 @@ public class ProjectTaskAssigneeControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectTaskAssignee = new Common.Data.Models.ProjectTaskAssignee
+        var projectTaskAssignee = new Common.Data.Models.ProjectTaskAssigneeModel
         {
             Id = this.testProjectTaskAssigneeId,
             TaskId = Guid.NewGuid(),
@@ -303,7 +303,7 @@ public class ProjectTaskAssigneeControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectTaskAssignee = new Common.Data.Models.ProjectTaskAssignee
+        var projectTaskAssignee = new Common.Data.Models.ProjectTaskAssigneeModel
         {
             Id = this.testProjectTaskAssigneeId,
             TaskId = Guid.NewGuid(),

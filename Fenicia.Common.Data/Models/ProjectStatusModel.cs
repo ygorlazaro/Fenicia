@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("statuses", Schema = "project")]
-public class ProjectStatus : BaseCompanyModel
+public class ProjectStatusModel : BaseCompanyModel
 {
     public Guid ProjectId { get; set; }
 
@@ -15,7 +15,7 @@ public class ProjectStatus : BaseCompanyModel
 
     public bool IsFinal { get; set; } = false;
 
-    public virtual Project Project { get; set; } = null!;
+    public virtual ProjectModel ProjectModel { get; set; } = null!;
 
     public virtual List<ProjectTaskModel> Tasks { get; set; } = [];
 }

@@ -54,8 +54,8 @@ public class GetAllPositionHandlerTests
     public async Task Handle_WithPositions_ReturnsAllPositions()
     {
         // Arrange
-        var position1 = new BasicPosition { Id = Guid.NewGuid(), Name = "Developer" };
-        var position2 = new BasicPosition { Id = Guid.NewGuid(), Name = "Designer" };
+        var position1 = new BasicPositionModel { Id = Guid.NewGuid(), Name = "Developer" };
+        var position2 = new BasicPositionModel { Id = Guid.NewGuid(), Name = "Designer" };
 
         this.context.BasicPositions.AddRange(position1, position2);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -81,7 +81,7 @@ public class GetAllPositionHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var position = new BasicPosition
+            var position = new BasicPositionModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
@@ -107,7 +107,7 @@ public class GetAllPositionHandlerTests
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var position = new BasicPosition
+            var position = new BasicPositionModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
@@ -133,7 +133,7 @@ public class GetAllPositionHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var position = new BasicPosition
+            var position = new BasicPositionModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"

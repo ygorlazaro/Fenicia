@@ -42,7 +42,7 @@ public class DeleteProjectTaskHandlerTests
         var taskId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
-        var task = new Common.Data.Models.ProjectTask
+        var task = new Common.Data.Models.ProjectTaskModel
         {
             Id = taskId,
             ProjectId = projectId,
@@ -111,7 +111,7 @@ public class DeleteProjectTaskHandlerTests
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
 
-        var task1 = new Common.Data.Models.ProjectTask
+        var task1 = new Common.Data.Models.ProjectTaskModel
         {
             Id = task1Id,
             ProjectId = projectId,
@@ -126,7 +126,7 @@ public class DeleteProjectTaskHandlerTests
             CreatedBy = Guid.NewGuid()
         };
 
-        var task2 = new Common.Data.Models.ProjectTask
+        var task2 = new Common.Data.Models.ProjectTaskModel
         {
             Id = task2Id,
             ProjectId = projectId,
@@ -172,7 +172,7 @@ public class DeleteProjectTaskHandlerTests
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
 
-        var task1 = new Common.Data.Models.ProjectTask
+        var task1 = new Common.Data.Models.ProjectTaskModel
         {
             Id = task1Id,
             ProjectId = projectId,
@@ -187,7 +187,7 @@ public class DeleteProjectTaskHandlerTests
             CreatedBy = Guid.NewGuid()
         };
 
-        var task2 = new Common.Data.Models.ProjectTask
+        var task2 = new Common.Data.Models.ProjectTaskModel
         {
             Id = task2Id,
             ProjectId = projectId,
@@ -202,7 +202,7 @@ public class DeleteProjectTaskHandlerTests
             CreatedBy = Guid.NewGuid()
         };
 
-        var task3 = new Common.Data.Models.ProjectTask
+        var task3 = new Common.Data.Models.ProjectTaskModel
         {
             Id = task3Id,
             ProjectId = projectId,

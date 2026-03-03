@@ -39,7 +39,7 @@ public class GetModulesHandlerTests
     public async Task Handle_WhenModulesExist_ReturnsPaginatedModules()
     {
         // Arrange
-        var module1 = new AuthModule
+        var module1 = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -47,7 +47,7 @@ public class GetModulesHandlerTests
             Price = 10.0m
         };
 
-        var module2 = new AuthModule
+        var module2 = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -78,7 +78,7 @@ public class GetModulesHandlerTests
     public async Task Handle_WhenModulesExist_ExcludesErpAndAuthTypes()
     {
         // Arrange
-        var erpModule = new AuthModule
+        var erpModule = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -86,7 +86,7 @@ public class GetModulesHandlerTests
             Price = 100.0m
         };
 
-        var authModule = new AuthModule
+        var authModule = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -94,7 +94,7 @@ public class GetModulesHandlerTests
             Price = 50.0m
         };
 
-        var basicModule = new AuthModule
+        var basicModule = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -124,10 +124,10 @@ public class GetModulesHandlerTests
     public async Task Handle_WhenPaginationIsApplied_ReturnsCorrectPage()
     {
         // Arrange
-        var modules = new List<AuthModule>();
+        var modules = new List<AuthModuleModel>();
         for (var i = 0; i < 25; i++)
         {
-            modules.Add(new AuthModule
+            modules.Add(new AuthModuleModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Module {this.faker.Commerce.ProductName()} {i}",
@@ -178,7 +178,7 @@ public class GetModulesHandlerTests
     public async Task Handle_WhenPageExceedsTotalPages_ReturnsEmptyData()
     {
         // Arrange
-        var module = new AuthModule
+        var module = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = "Basic Module",
@@ -207,7 +207,7 @@ public class GetModulesHandlerTests
     public async Task Handle_ResultsAreOrderedByType()
     {
         // Arrange
-        var module1 = new AuthModule
+        var module1 = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -215,7 +215,7 @@ public class GetModulesHandlerTests
             Price = 20.0m
         };
 
-        var module2 = new AuthModule
+        var module2 = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -223,7 +223,7 @@ public class GetModulesHandlerTests
             Price = 10.0m
         };
 
-        var module3 = new AuthModule
+        var module3 = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -254,7 +254,7 @@ public class GetModulesHandlerTests
     public async Task Handle_WithDefaultRequest_ReturnsFirstPage()
     {
         // Arrange
-        var module = new AuthModule
+        var module = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -284,7 +284,7 @@ public class GetModulesHandlerTests
     {
         // Arrange
         var moduleId = Guid.NewGuid();
-        var module = new AuthModule
+        var module = new AuthModuleModel
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),

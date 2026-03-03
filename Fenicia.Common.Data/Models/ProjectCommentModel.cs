@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("comments", Schema = "project")]
-public class ProjectComment : BaseCompanyModel
+public class ProjectCommentModel : BaseCompanyModel
 {
     public Guid TaskId { get; set; } = Guid.Empty;
 
@@ -13,7 +13,7 @@ public class ProjectComment : BaseCompanyModel
 
     public virtual ProjectTaskModel TaskModel { get; set; } = null!;
 
-    public virtual AuthUser User { get; set; } = null!;
+    public virtual AuthUserModel UserModel { get; set; } = null!;
 
     public Guid AuthorId { get; set; }
 }

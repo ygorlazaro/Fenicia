@@ -8,7 +8,7 @@ public class CreateOrderHandler(DefaultContext context)
 {
     public async Task<CreateOrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)
     {
-        var details = command.Details.Select(d => new BasicOrderDetail
+        var details = command.Details.Select(d => new BasicOrderDetailModel
         {
             Id = Guid.NewGuid(),
             ProductId = d.ProductId,
@@ -16,7 +16,7 @@ public class CreateOrderHandler(DefaultContext context)
             Quantity = d.Quantity
         }).ToList();
 
-        var order = new BasicOrder
+        var order = new BasicOrderModel
         {
             Id = Guid.NewGuid(),
             UserId = command.UserId,
@@ -29,7 +29,7 @@ public class CreateOrderHandler(DefaultContext context)
 
         context.BasicOrders.Add(order);
 
-        var stockMovements = details.Select(d => new BasicStockMovement
+        var stockMovements = details.Select(d => new BasicStockMovementModel
         {
             Id = Guid.NewGuid(),
             Date = DateTime.Now,

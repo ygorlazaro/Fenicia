@@ -7,7 +7,7 @@ public class AddPositionHandler(DefaultContext context)
 {
     public async Task<AddPositionResponse> Handle(AddPositionCommand command, CancellationToken ct)
     {
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = command.Id,
             Name = command.Name

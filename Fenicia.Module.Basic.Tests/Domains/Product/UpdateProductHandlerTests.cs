@@ -37,11 +37,11 @@ public class UpdateProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category1 = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
-        var category2 = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Books" };
+        var category1 = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category2 = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
         this.context.BasicProductCategories.AddRange(category1, category2);
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = productId,
             Name = "Old Product",
@@ -120,10 +120,10 @@ public class UpdateProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = productId,
             Name = "Old Product",

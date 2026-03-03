@@ -7,7 +7,7 @@ public class AddSupplierHandler(DefaultContext context)
 {
     public async Task<AddSupplierResponse> Handle(AddSupplierCommand command, CancellationToken ct)
     {
-        var person = new BasicPerson
+        var person = new BasicPersonModel
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
@@ -23,10 +23,10 @@ public class AddSupplierHandler(DefaultContext context)
             City = command.City
         };
 
-        var supplier = new BasicSupplier
+        var supplier = new BasicSupplierModel
         {
             Id = command.Id,
-            Person = person,
+            PersonModel = person,
             PersonId = person.Id,
             Cnpj = command.Cnpj,
         };

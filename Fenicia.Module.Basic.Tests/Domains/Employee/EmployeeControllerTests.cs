@@ -117,18 +117,18 @@ public class EmployeeControllerTests
     public async Task GetAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var employee1 = new BasicEmployee
+        var employee1 = new BasicEmployeeModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -138,12 +138,12 @@ public class EmployeeControllerTests
             }
         };
 
-        var employee2 = new BasicEmployee
+        var employee2 = new BasicEmployeeModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -180,18 +180,18 @@ public class EmployeeControllerTests
     public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOkWithEmployee()
     {
         // Arrange
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = this.testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -222,7 +222,7 @@ public class EmployeeControllerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedEmployee.Id, Is.EqualTo(this.testEmployeeId));
-            Assert.That(returnedEmployee.PersonId, Is.EqualTo(employee.Person.Id));
+            Assert.That(returnedEmployee.PersonId, Is.EqualTo(employee.PersonModel.Id));
         }
     }
 
@@ -245,7 +245,7 @@ public class EmployeeControllerTests
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithEmployee()
     {
         // Arrange
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
@@ -290,18 +290,18 @@ public class EmployeeControllerTests
     public async Task PatchAsync_WhenEmployeeExists_ReturnsOkWithUpdatedEmployee()
     {
         // Arrange
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = this.testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -351,7 +351,7 @@ public class EmployeeControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
@@ -389,12 +389,12 @@ public class EmployeeControllerTests
     public async Task DeleteAsync_WhenEmployeeExists_ReturnsNoContent()
     {
         // Arrange
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = this.testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,

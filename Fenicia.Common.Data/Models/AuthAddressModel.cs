@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models;
 
 [Table("addresses", Schema = "auth")]
-public class AuthAddress : BaseModel
+public class AuthAddressModel : BaseModel
 {
     [Required]
     [MaxLength(50)]

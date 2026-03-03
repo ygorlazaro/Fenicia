@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("people", Schema = "basic")]
-public class BasicPerson : BaseCompanyModel
+public class BasicPersonModel : BaseCompanyModel
 {
     [Required]
     [MaxLength(50)]
@@ -45,9 +45,9 @@ public class BasicPerson : BaseCompanyModel
     public string? PhoneNumber { get; set; }
     
     [ForeignKey(nameof(StateId))]
-    public virtual AuthState State { get; set; } = null!;
+    public virtual AuthStateModel StateModel { get; set; } = null!;
 
-    public virtual BasicCustomer? Customer { get; set; }
+    public virtual BasicCustomerModel? Customer { get; set; }
 
-    public virtual BasicEmployee? Employee { get; set; }
+    public virtual BasicEmployeeModel? Employee { get; set; }
 }

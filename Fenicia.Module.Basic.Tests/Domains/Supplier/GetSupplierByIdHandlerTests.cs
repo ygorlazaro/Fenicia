@@ -41,11 +41,11 @@ public class GetSupplierByIdHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var supplier = new BasicSupplier
+        var supplier = new BasicSupplierModel
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),

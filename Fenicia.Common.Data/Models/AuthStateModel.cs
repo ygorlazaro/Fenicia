@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models;
 
 [Table("states", Schema = "auth")]
-public class AuthState : BaseModel
+public class AuthStateModel : BaseModel
 {
     [Required]
     [MaxLength(30)]
@@ -16,7 +16,7 @@ public class AuthState : BaseModel
     public string Uf { get; set; } = null!;
 
     [JsonIgnore]
-    public virtual List<AuthAddress> Addresses { get; set; } = null!;
+    public virtual List<AuthAddressModel> Addresses { get; set; } = null!;
 
     [JsonIgnore]
     public virtual List<BasicPersonModel> People { get; set; } = null!;

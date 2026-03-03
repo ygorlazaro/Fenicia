@@ -6,7 +6,7 @@ using Fenicia.Common.Enums.Basic;
 namespace Fenicia.Common.Data.Models;
 
 [Table("stock_movements", Schema = "basic")]
-public class BasicStockMovement : BaseCompanyModel
+public class BasicStockMovementModel : BaseCompanyModel
 {
     [Required]
     public Guid ProductId { get; set; }
@@ -23,14 +23,14 @@ public class BasicStockMovement : BaseCompanyModel
     public StockMovementType Type { get; set; }
 
     [ForeignKey(nameof(ProductId))]
-    public BasicProduct Product { get; set; } = null!;
+    public BasicProductModel ProductModel { get; set; } = null!;
 
     public Guid? CustomerId { get; set; }
 
     public Guid? SupplierId { get; set; }
 
     [ForeignKey(nameof(CustomerId))]
-    public BasicCustomer? Customer { get; set; }
+    public BasicCustomerModel? Customer { get; set; }
 
     [ForeignKey(nameof(SupplierId))]
     public BasicSupplierModel? Supplier { get; set; }

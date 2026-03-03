@@ -7,7 +7,7 @@ public class AddProductCategoryHandler(DefaultContext context)
 {
     public async Task<AddProductCategoryResponse> Handle(AddProductCategoryCommand command, CancellationToken ct)
     {
-        var category = new BasicProductCategory
+        var category = new BasicProductCategoryModel
         {
             Id = command.Id,
             Name = command.Name

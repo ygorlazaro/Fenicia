@@ -41,11 +41,11 @@ public class GetCustomerByIdHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -72,7 +72,7 @@ public class GetCustomerByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(customerId));
-            Assert.That(result.PersonId, Is.EqualTo(customer.Person.Id));
+            Assert.That(result.PersonId, Is.EqualTo(customer.PersonModel.Id));
         }
     }
 
@@ -109,11 +109,11 @@ public class GetCustomerByIdHandlerTests
         var customer1Id = Guid.NewGuid();
         var customer2Id = Guid.NewGuid();
 
-        var customer1 = new BasicCustomer
+        var customer1 = new BasicCustomerModel
         {
             Id = customer1Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -127,11 +127,11 @@ public class GetCustomerByIdHandlerTests
             }
         };
 
-        var customer2 = new BasicCustomer
+        var customer2 = new BasicCustomerModel
         {
             Id = customer2Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FirstName,
@@ -158,7 +158,7 @@ public class GetCustomerByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(customer1Id));
-            Assert.That(result.PersonId, Is.EqualTo(customer1.Person.Id));
+            Assert.That(result.PersonId, Is.EqualTo(customer1.PersonModel.Id));
         }
     }
 
@@ -167,11 +167,11 @@ public class GetCustomerByIdHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -199,7 +199,7 @@ public class GetCustomerByIdHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.PersonId, Is.EqualTo(customer.Person.Id));
+            Assert.That(result.PersonId, Is.EqualTo(customer.PersonModel.Id));
         }
     }
 }

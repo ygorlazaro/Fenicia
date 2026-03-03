@@ -13,7 +13,7 @@ public class GetProjectTaskByIdHandler(DefaultContext context)
             .Include(pt => pt.Comments)
             .Include(pt => pt.Subtasks)
             .Include(pt => pt.Assignees)
-                .ThenInclude(a => a.User)
+                .ThenInclude(a => a.UserModel)
             .FirstOrDefaultAsync(pt => pt.Id == query.Id, ct);
 
         if (projectTask is null)
@@ -52,7 +52,7 @@ public class GetProjectTaskByIdHandler(DefaultContext context)
             projectTask.Assignees.Select(a => new ProjectTaskAssigneeResponse(
                 a.Id,
                 a.UserId,
-                a.User.Name,
-                a.User.Email)).ToList());
+                a.UserModel.Name,
+                a.UserModel.Email)).ToList());
     }
 }

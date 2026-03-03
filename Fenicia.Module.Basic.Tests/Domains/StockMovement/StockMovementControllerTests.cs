@@ -115,7 +115,7 @@ public class StockMovementControllerTests
     public async Task GetAsync_WhenMovementsExist_ReturnsOkWithMovements()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -125,7 +125,7 @@ public class StockMovementControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var movement1 = new BasicStockMovement
+        var movement1 = new BasicStockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = this.testProductId,
@@ -135,7 +135,7 @@ public class StockMovementControllerTests
             Type = StockMovementType.In
         };
 
-        var movement2 = new BasicStockMovement
+        var movement2 = new BasicStockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = this.testProductId,
@@ -175,7 +175,7 @@ public class StockMovementControllerTests
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithMovement()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -225,7 +225,7 @@ public class StockMovementControllerTests
     public async Task PatchAsync_WhenMovementExists_ReturnsCreatedWithUpdatedMovement()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -235,7 +235,7 @@ public class StockMovementControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var movement = new BasicStockMovement
+        var movement = new BasicStockMovementModel
         {
             Id = this.testMovementId,
             ProductId = this.testProductId,

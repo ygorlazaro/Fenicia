@@ -5,9 +5,9 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models;
 
 [Table("companies", Schema = "auth")]
-public class AuthCompany : BaseModel
+public class AuthCompanyModel : BaseModel
 {
-    public AuthCompany()
+    public AuthCompanyModel()
     {
         this.Name = string.Empty;
         this.Cnpj = string.Empty;

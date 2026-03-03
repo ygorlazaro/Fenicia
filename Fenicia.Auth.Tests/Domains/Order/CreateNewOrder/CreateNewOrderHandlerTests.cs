@@ -55,7 +55,7 @@ public class CreateNewOrderHandlerTests
         var module2Id = Guid.NewGuid();
         var modules = new List<Guid> { module1Id, module2Id };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -63,7 +63,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -73,7 +73,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -81,7 +81,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var module1 = new AuthModule
+        var module1 = new AuthModuleModel
         {
             Id = module1Id,
             Name = "Module 1",
@@ -89,7 +89,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var module2 = new AuthModule
+        var module2 = new AuthModuleModel
         {
             Id = module2Id,
             Name = "Module 2",
@@ -97,7 +97,7 @@ public class CreateNewOrderHandlerTests
             Price = 150.00m
         };
 
-        var moduleBasic = new AuthModule
+        var moduleBasic = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = "Module Basic",
@@ -164,7 +164,7 @@ public class CreateNewOrderHandlerTests
         var nonExistentModuleId = Guid.NewGuid();
         var modules = new List<Guid> { nonExistentModuleId };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -172,7 +172,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -182,7 +182,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -212,7 +212,7 @@ public class CreateNewOrderHandlerTests
         var companyId = Guid.NewGuid();
         var modules = new List<Guid>();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -220,7 +220,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -230,7 +230,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -263,7 +263,7 @@ public class CreateNewOrderHandlerTests
         var basicModuleId = Guid.NewGuid();
         var modules = new List<Guid> { basicModuleId };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -271,7 +271,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -281,7 +281,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -289,7 +289,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var basicModule = new AuthModule
+        var basicModule = new AuthModuleModel
         {
             Id = basicModuleId,
             Name = "Basic Module",
@@ -331,7 +331,7 @@ public class CreateNewOrderHandlerTests
         var basicModuleId = Guid.NewGuid();
         var modules = new List<Guid> { accountingModuleId };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -339,7 +339,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -349,7 +349,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -357,7 +357,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var accountingModule = new AuthModule
+        var accountingModule = new AuthModuleModel
         {
             Id = accountingModuleId,
             Name = "Accounting Module",
@@ -365,7 +365,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var basicModule = new AuthModule
+        var basicModule = new AuthModuleModel
         {
             Id = basicModuleId,
             Name = "Basic Module",
@@ -406,7 +406,7 @@ public class CreateNewOrderHandlerTests
         var accountingModuleId = Guid.NewGuid();
         var modules = new List<Guid> { accountingModuleId };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -414,7 +414,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -424,7 +424,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -432,7 +432,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var accountingModule = new AuthModule
+        var accountingModule = new AuthModuleModel
         {
             Id = accountingModuleId,
             Name = "Accounting Module",
@@ -466,7 +466,7 @@ public class CreateNewOrderHandlerTests
         var module1Id = Guid.NewGuid();
         var modules = new List<Guid> { module1Id };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -474,7 +474,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -484,7 +484,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -492,7 +492,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var module1 = new AuthModule
+        var module1 = new AuthModuleModel
         {
             Id = module1Id,
             Name = "Module 1",
@@ -500,7 +500,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var moduleBasic = new AuthModule
+        var moduleBasic = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = "Module Basic",
@@ -543,7 +543,7 @@ public class CreateNewOrderHandlerTests
         var module1Id = Guid.NewGuid();
         var modules = new List<Guid> { module1Id, module1Id, module1Id };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -551,7 +551,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -561,7 +561,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -569,7 +569,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var module1 = new AuthModule
+        var module1 = new AuthModuleModel
         {
             Id = module1Id,
             Name = "Module 1",
@@ -577,7 +577,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var basicModule = new AuthModule
+        var basicModule = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = "Basic Module",
@@ -620,7 +620,7 @@ public class CreateNewOrderHandlerTests
         var accountingModuleId = Guid.NewGuid();
         var modules = new List<Guid> { erpModuleId, authModuleId, accountingModuleId };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -628,7 +628,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -638,7 +638,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -646,7 +646,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var erpModule = new AuthModule
+        var erpModule = new AuthModuleModel
         {
             Id = erpModuleId,
             Name = "ERP Module",
@@ -654,7 +654,7 @@ public class CreateNewOrderHandlerTests
             Price = 200.00m
         };
 
-        var authModule = new AuthModule
+        var authModule = new AuthModuleModel
         {
             Id = authModuleId,
             Name = "Auth Module",
@@ -662,7 +662,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var accountingModule = new AuthModule
+        var accountingModule = new AuthModuleModel
         {
             Id = accountingModuleId,
             Name = "Accounting Module",
@@ -670,7 +670,7 @@ public class CreateNewOrderHandlerTests
             Price = 150.00m
         };
 
-        var basicModule = new AuthModule
+        var basicModule = new AuthModuleModel
         {
             Id = Guid.NewGuid(),
             Name = "Basic Module",

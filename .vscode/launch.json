@@ -1,7 +1,105 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": []
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Fenicia.Auth (Debug)",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": 1,
+      "pipeTransport": {
+        "pipeCwd": "${workspaceRoot}",
+        "pipeProgram": "docker",
+        "pipeArgs": ["exec", "-i", "fenicia-auth"],
+        "debuggerPath": "/usr/bin/dotnet-dsrouter"
+      },
+      "sourceFileMap": {
+        "/src": "${workspaceRoot}"
+      }
+    },
+    {
+      "name": "Attach to Fenicia.Module.Basic (Debug)",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": 1,
+      "pipeTransport": {
+        "pipeCwd": "${workspaceRoot}",
+        "pipeProgram": "docker",
+        "pipeArgs": ["exec", "-i", "fenicia-module-basic"],
+        "debuggerPath": "/usr/bin/dotnet-dsrouter"
+      },
+      "sourceFileMap": {
+        "/src": "${workspaceRoot}"
+      }
+    },
+    {
+      "name": "Attach to Fenicia.Module.Projects (Debug)",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": 1,
+      "pipeTransport": {
+        "pipeCwd": "${workspaceRoot}",
+        "pipeProgram": "docker",
+        "pipeArgs": ["exec", "-i", "fenicia-module-projects"],
+        "debuggerPath": "/usr/bin/dotnet-dsrouter"
+      },
+      "sourceFileMap": {
+        "/src": "${workspaceRoot}"
+      }
+    },
+    {
+      "name": "Launch and Debug Fenicia.Auth",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-auth",
+      "program": "${workspaceRoot}/Fenicia.Auth/bin/Debug/net10.0/Fenicia.Auth.dll",
+      "args": [],
+      "cwd": "${workspaceRoot}/Fenicia.Auth",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/src": "${workspaceRoot}"
+      }
+    },
+    {
+      "name": "Launch and Debug Fenicia.Module.Projects",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-projects",
+      "program": "${workspaceRoot}/Fenicia.Module.Projects/bin/Debug/net10.0/Fenicia.Module.Projects.dll",
+      "args": [],
+      "cwd": "${workspaceRoot}/Fenicia.Module.Projects",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/src": "${workspaceRoot}"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug All Services",
+      "configurations": [
+        "Attach to Fenicia.Auth (Debug)",
+        "Attach to Fenicia.Module.Basic (Debug)",
+        "Attach to Fenicia.Module.Projects (Debug)"
+      ],
+      "presentation": {
+        "hidden": false,
+        "group": "1_all",
+        "order": 1
+      }
+    }
+  ]
 }

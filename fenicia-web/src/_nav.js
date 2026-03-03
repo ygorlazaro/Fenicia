@@ -1,13 +1,17 @@
 import React from 'react';
 import CIcon from '@coreui/icons-react';
 import {
-  cilCalculator,
-  cilPeople,
-  cilCart,
-  cilBuilding,
-  cilLayers,
-  cilMove,
-  cilStar,
+    cilCalculator,
+    cilPeople,
+    cilCart,
+    cilBuilding,
+    cilLayers,
+    cilMove,
+    cilList,
+    cilNotes,
+    cilPaperclip,
+    cilDiamond,
+    cilUser
 } from '@coreui/icons';
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react';
 
@@ -16,6 +20,16 @@ const _nav = [
     component: CNavTitle,
     name: 'Módulos',
   },
+{
+    component: CNavItem,
+    name: 'Assinar Módulos',
+    to: '/subscription',
+    icon: <CIcon icon={cilDiamond} customClassName="nav-icon" />,
+    badge: {
+        color: 'success',
+        text: 'NEW',
+    },
+},
   {
     component: CNavGroup,
     name: 'Básico',
@@ -79,14 +93,54 @@ const _nav = [
     ],
   },
   {
-    component: CNavItem,
-    name: 'Assinar Módulos',
-    to: '/subscription',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
-    badge: {
-      color: 'success',
-      text: 'NEW',
-    },
+    component: CNavGroup,
+    name: 'Projetos',
+    to: '/project',
+    icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Projetos',
+        to: '/project/projects',
+        icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'Status',
+        to: '/project/status',
+        icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'Tarefas',
+        to: '/project/tasks',
+        icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'Subtarefas',
+        to: '/project/subtasks',
+        icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'Comentários',
+        to: '/project/comments',
+        icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'Anexos',
+        to: '/project/attachments',
+        icon: <CIcon icon={cilPaperclip} customClassName="nav-icon" />,
+      },
+      {
+        component: CNavItem,
+        name: 'Responsáveis',
+        to: '/project/task-assignees',
+        icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+      },
+    ],
   },
 ];
 

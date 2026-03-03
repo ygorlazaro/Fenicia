@@ -31,8 +31,8 @@ public class CreateNewOrderHandler(
         }
 
         var totalAmount = modules.Sum(m => m.Price);
-        var details = modules.Select(m => new AuthOrderDetail { ModuleId = m.Id, Price = m.Price }).ToList();
-        var order = new AuthOrder
+        var details = modules.Select(m => new AuthOrderDetailModel { ModuleId = m.Id, Price = m.Price }).ToList();
+        var order = new AuthOrderModel
         {
             SaleDate = DateTime.UtcNow,
             Status = OrderStatus.Approved,
@@ -53,7 +53,7 @@ public class CreateNewOrderHandler(
         return new CreateNewOrderResponse(order.Id);
     }
 
-    private async Task<List<AuthModule>> PopulateModules(List<Guid> request, CancellationToken ct)
+    private async Task<List<AuthModuleModel>> PopulateModules(List<Guid> request, CancellationToken ct)
     {
         try
         {
@@ -82,14 +82,14 @@ public class CreateNewOrderHandler(
         }
     }
 
-    private async Task<List<AuthModule>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
+    private async Task<List<AuthModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
         return await db.Modules.Where(module => request.Any(r => r == module.Id))
             .OrderBy(module => module.Type)
             .ToListAsync(ct);
     }
 
-    private async Task<AuthModule?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
+    private async Task<AuthModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
     {
         return await db.Modules.FirstOrDefaultAsync(m => m.Type == moduleType, ct);
     }

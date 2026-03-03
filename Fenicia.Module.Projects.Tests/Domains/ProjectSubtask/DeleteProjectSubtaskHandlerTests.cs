@@ -41,7 +41,7 @@ public class DeleteProjectSubtaskHandlerTests
         // Arrange
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var subtask = new Common.Data.Models.ProjectSubtask
+        var subtask = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtaskId,
             TaskId = taskId,
@@ -104,7 +104,7 @@ public class DeleteProjectSubtaskHandlerTests
         var subtask2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
-        var subtask1 = new Common.Data.Models.ProjectSubtask
+        var subtask1 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtask1Id,
             TaskId = taskId,
@@ -114,7 +114,7 @@ public class DeleteProjectSubtaskHandlerTests
             CompletedAt = null
         };
 
-        var subtask2 = new Common.Data.Models.ProjectSubtask
+        var subtask2 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtask2Id,
             TaskId = taskId,
@@ -154,7 +154,7 @@ public class DeleteProjectSubtaskHandlerTests
         var subtask3Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
-        var subtask1 = new Common.Data.Models.ProjectSubtask
+        var subtask1 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtask1Id,
             TaskId = taskId,
@@ -164,7 +164,7 @@ public class DeleteProjectSubtaskHandlerTests
             CompletedAt = null
         };
 
-        var subtask2 = new Common.Data.Models.ProjectSubtask
+        var subtask2 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtask2Id,
             TaskId = taskId,
@@ -174,7 +174,7 @@ public class DeleteProjectSubtaskHandlerTests
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        var subtask3 = new Common.Data.Models.ProjectSubtask
+        var subtask3 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtask3Id,
             TaskId = taskId,

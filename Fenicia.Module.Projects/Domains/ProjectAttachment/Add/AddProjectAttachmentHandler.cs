@@ -6,7 +6,7 @@ public class AddProjectAttachmentHandler(DefaultContext context)
 {
     public async Task<AddProjectAttachmentResponse> Handle(AddProjectAttachmentCommand command, CancellationToken ct)
     {
-        var projectAttachment = new Common.Data.Models.ProjectAttachment
+        var projectAttachment = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = command.Id,
             TaskId = command.TaskId,

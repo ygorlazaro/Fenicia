@@ -55,7 +55,7 @@ public class GetAllProjectTaskHandlerTests
         // Arrange
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
-        var task1 = new Common.Data.Models.ProjectTask
+        var task1 = new Common.Data.Models.ProjectTaskModel
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
@@ -70,7 +70,7 @@ public class GetAllProjectTaskHandlerTests
             CreatedBy = Guid.NewGuid()
         };
 
-        var task2 = new Common.Data.Models.ProjectTask
+        var task2 = new Common.Data.Models.ProjectTaskModel
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
@@ -111,7 +111,7 @@ public class GetAllProjectTaskHandlerTests
         var statusId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var task = new Common.Data.Models.ProjectTask
+            var task = new Common.Data.Models.ProjectTaskModel
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
@@ -148,7 +148,7 @@ public class GetAllProjectTaskHandlerTests
         var statusId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
         {
-            var task = new Common.Data.Models.ProjectTask
+            var task = new Common.Data.Models.ProjectTaskModel
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
@@ -185,7 +185,7 @@ public class GetAllProjectTaskHandlerTests
         var statusId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var task = new Common.Data.Models.ProjectTask
+            var task = new Common.Data.Models.ProjectTaskModel
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
