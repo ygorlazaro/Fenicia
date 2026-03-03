@@ -14,4 +14,6 @@ public class ProjectComment : BaseCompanyModel
     public virtual ProjectTask Task { get; set; } = null!;
 
     public virtual AuthUser User { get; set; } = null!;
+
+    public Guid AuthorId { get; set; }
 }

@@ -41,4 +41,6 @@ public class AuthUser : BaseModel
 
     [InverseProperty(nameof(SNFollower.User))]
     public List<SNFollower> Following { get; set; } = [];
+
+    public List<ProjectTaskAssignee> TaskAssignees { get; set; } = [];
 }

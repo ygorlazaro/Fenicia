@@ -18,4 +18,8 @@ public class ProjectAttachment : BaseCompanyModel
     public virtual ProjectTask Task { get; set; } = null!;
 
     public virtual AuthUser User { get; set; } = null!;
+
+    public string ContentType { get; set; }
+
+    public long Size { get; set; }
 }

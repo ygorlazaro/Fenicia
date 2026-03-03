@@ -324,7 +324,7 @@ public class CompanyControllerTests
         var userRole = new AuthRole
         {
             Id = userRoleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         var user = new AuthUser

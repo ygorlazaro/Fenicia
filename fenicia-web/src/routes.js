@@ -5,6 +5,7 @@ const AuthRegister = React.lazy(() => import("./views/auth/register"));
 const AuthCompany = React.lazy(() => import("./views/auth/company"));
 const ForgotPassword = React.lazy(() => import("./views/auth/forgot-password"));
 const ResetPassword = React.lazy(() => import("./views/auth/reset-password"));
+const Profile = React.lazy(() => import("./views/profile"));
 const Subscription = React.lazy(() => import("./views/subscription"));
 const EmployeeList = React.lazy(() => import("./views/basic/employee"));
 const PositionList = React.lazy(() => import("./views/basic/position"));
@@ -117,6 +118,7 @@ const routes = [
   { path: '/auth/company', name: 'Company Selection', element: AuthCompany },
   { path: '/auth/forgot-password', name: 'Forgot Password', element: ForgotPassword },
   { path: '/auth/reset-password', name: 'Reset Password', element: ResetPassword },
+  { path: '/profile', name: 'Profile', element: Profile },
   { path: '/subscription', name: 'Subscription', element: Subscription },
   { path: '/basic/employees', name: 'Employees', element: EmployeeList },
   { path: '/basic/positions', name: 'Positions', element: PositionList },

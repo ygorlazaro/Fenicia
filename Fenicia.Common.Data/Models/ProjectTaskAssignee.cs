@@ -14,6 +14,8 @@ public class ProjectTaskAssignee : BaseCompanyModel
     public AssigneeRole Role { get; set; } = AssigneeRole.Owner;
 
     public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
+    
+    public virtual AuthUser User { get; set; }
 
     public virtual ProjectTask Task { get; set; } = null!;
 }

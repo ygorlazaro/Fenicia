@@ -179,3 +179,36 @@ export interface NavItem {
   path?: string;
   exact?: boolean;
 }
+
+// Profile Types
+export interface UserProfileResponse {
+  id: string;
+  name: string;
+  email: string;
+  companies: UserCompany[];
+  subscriptions: UserSubscription[];
+}
+
+export interface UserCompany {
+  id: string;
+  name: string;
+  cnpj: string;
+  isDefault: boolean;
+}
+
+export interface UserSubscription {
+  id: string;
+  companyId: string;
+  companyName: string;
+  status: string;
+  startDate: string;
+  endDate?: string;
+  modules: SubscribedModule[];
+}
+
+export interface SubscribedModule {
+  id: string;
+  name: string;
+  type: string;
+  subscribedAt: string;
+}

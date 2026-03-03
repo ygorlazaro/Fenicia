@@ -220,14 +220,14 @@ public class UpdateCompanyHandlerTests
         var role = new AuthRole
         {
             Id = roleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         var user = new AuthUser
         {
             Id = userId,
-            Email = "member@example.com",
-            Name = "Member User",
+            Email = "Contributor@example.com",
+            Name = "Contributor User",
             Password = this.faker.Internet.Password()
         };
 
@@ -419,7 +419,7 @@ public class UpdateCompanyHandlerTests
         var memberRole = new AuthRole
         {
             Id = memberRoleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         var user = new AuthUser

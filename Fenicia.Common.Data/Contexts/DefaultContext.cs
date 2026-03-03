@@ -74,6 +74,20 @@ public class DefaultContext : DbContext
 
     public DbSet<SNFollower> SNFollowers { get; set; }
 
+    public DbSet<Project> Projects { get; set; }
+
+    public DbSet<ProjectStatus> ProjectStatuses { get; set; }
+
+    public DbSet<ProjectTask> ProjectTasks { get; set; }
+
+    public DbSet<ProjectSubtask> ProjectSubtasks { get; set; }
+
+    public DbSet<ProjectComment> ProjectComments { get; set; }
+
+    public DbSet<ProjectAttachment> ProjectAttachments { get; set; }
+
+    public DbSet<ProjectTaskAssignee> ProjectTaskAssignees { get; set; }
+
     public override Task<int> SaveChangesAsync(CancellationToken ct)
     {
         foreach (var item in this.ChangeTracker.Entries())
