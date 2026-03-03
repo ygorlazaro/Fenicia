@@ -17,5 +17,5 @@ public class ProjectStatus : BaseCompanyModel
 
     public virtual Project Project { get; set; } = null!;
 
-    public virtual List<ProjectTask> Tasks { get; set; } = [];
+    public virtual List<ProjectTaskModel> Tasks { get; set; } = [];
 }

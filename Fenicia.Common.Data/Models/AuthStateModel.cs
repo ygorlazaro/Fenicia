@@ -19,5 +19,5 @@ public class AuthState : BaseModel
     public virtual List<AuthAddress> Addresses { get; set; } = null!;
 
     [JsonIgnore]
-    public virtual List<BasicPerson> People { get; set; } = null!;
+    public virtual List<BasicPersonModel> People { get; set; } = null!;
 }

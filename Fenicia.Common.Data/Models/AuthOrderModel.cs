@@ -29,14 +29,14 @@ public class AuthOrder : BaseModel
     public OrderStatus Status { get; set; }
 
     [JsonIgnore]
-    public virtual AuthSubscription? Subscription { get; set; }
+    public virtual AuthSubscriptionModel? Subscription { get; set; }
 
     [JsonIgnore]
-    public virtual List<AuthOrderDetail> Details { get; set; } = null!;
+    public virtual List<AuthOrderDetailModel> Details { get; set; } = null!;
 
     [ForeignKey(nameof(UserId))]
     [JsonIgnore]
-    public virtual AuthUser User { get; set; } = null!;
+    public virtual AuthUserModel UserModel { get; set; } = null!;
 
     [ForeignKey(nameof(CompanyId))]
     [JsonIgnore]

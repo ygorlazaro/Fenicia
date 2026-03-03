@@ -29,7 +29,7 @@ public class BasicOrder : BaseCompanyModel
     public OrderStatus Status { get; set; }
 
     [JsonIgnore]
-    public List<BasicOrderDetail> Details { get; set; } = null!;
+    public List<BasicOrderDetailModel> Details { get; set; } = null!;
 
     [ForeignKey(nameof(CustomerId))]
     [JsonIgnore]

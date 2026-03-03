@@ -26,5 +26,5 @@ public class AuthForgotPassowrd : BaseModel
     public bool IsActive { get; set; } = true;
 
     [ForeignKey(nameof(UserId))]
-    public virtual AuthUser User { get; set; } = null!;
+    public virtual AuthUserModel UserModel { get; set; } = null!;
 }

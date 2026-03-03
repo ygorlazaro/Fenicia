@@ -33,5 +33,5 @@ public class BasicStockMovement : BaseCompanyModel
     public BasicCustomer? Customer { get; set; }
 
     [ForeignKey(nameof(SupplierId))]
-    public BasicSupplier? Supplier { get; set; }
+    public BasicSupplierModel? Supplier { get; set; }
 }

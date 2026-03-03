@@ -17,7 +17,7 @@ public class Project : BaseCompanyModel
 
     public Guid Owner { get; set; }
 
-    public virtual List<ProjectStatus> Statuses { get; set; } = [];
+    public virtual List<ProjectStatusModel> Statuses { get; set; } = [];
 
-    public virtual List<ProjectTask> Tasks { get; set; } = [];
+    public virtual List<ProjectTaskModel> Tasks { get; set; } = [];
 }

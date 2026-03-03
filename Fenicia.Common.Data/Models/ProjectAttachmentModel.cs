@@ -15,7 +15,7 @@ public class ProjectAttachment : BaseCompanyModel
 
     public Guid UploadedBy { get; set; } = Guid.Empty;
 
-    public virtual ProjectTask Task { get; set; } = null!;
+    public virtual ProjectTaskModel TaskModel { get; set; } = null!;
 
     public virtual AuthUser User { get; set; } = null!;
 

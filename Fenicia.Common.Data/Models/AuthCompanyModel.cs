@@ -44,15 +44,15 @@ public class AuthCompany : BaseModel
     public Guid? AddressId { get; set; }
 
     [JsonIgnore]
-    public List<AuthUserRole> UsersRoles { get; set; } = [];
+    public List<AuthUserRoleModel> UsersRoles { get; set; } = [];
 
     [JsonIgnore]
-    public List<AuthSubscription> Subscriptions { get; set; } = null!;
+    public List<AuthSubscriptionModel> Subscriptions { get; set; } = null!;
 
     [ForeignKey(nameof(AddressId))]
     [JsonIgnore]
-    public AuthAddress? Address { get; set; }
+    public AuthAddressModel? Address { get; set; }
 
     [JsonIgnore]
-    public List<AuthOrder> Orders { get; set; } = [];
+    public List<AuthOrderModel> Orders { get; set; } = [];
 }

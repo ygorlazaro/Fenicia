@@ -26,7 +26,7 @@ public class BasicOrderDetail : BaseCompanyModel
 
     [JsonIgnore]
     [ForeignKey(nameof(ProductId))]
-    public BasicProduct Product { get; set; } = null!;
+    public BasicProductModel ProductModel { get; set; } = null!;
 
     [Column("quantity")]
     [Range(0.01, double.MaxValue)]
