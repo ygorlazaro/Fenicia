@@ -388,7 +388,7 @@ public class PositionControllerTests
         Assert.That(result, Is.Not.Null);
 
         // Verify position was deleted
-        var deletedPosition = await this.context.BasicPositions.FirstOrDefaultAsync(x => x.Id == this.testPositionId, cancellationToken);
+        var deletedPosition = await this.context.BasicPositions.FirstOrDefaultAsync(x => x.Id == this.testPositionId && x.Deleted == null, cancellationToken);
         Assert.That(deletedPosition, Is.Null);
     }
 

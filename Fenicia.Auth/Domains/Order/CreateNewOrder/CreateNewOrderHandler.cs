@@ -44,11 +44,11 @@ public class CreateNewOrderHandler(
 
         db.Orders.Add(order);
 
+        await db.SaveChangesAsync(ct);
+
         await createCreditsForOrderHandler.Handle(
             new CreateCreditsForOrderQuery(order.Id, order.CompanyId,
                 order.Details.Select(d => new CreateCreditsForOrderDetailsQuery(d.Id, d.ModuleId))), ct);
-
-        await db.SaveChangesAsync(ct);
 
         return new CreateNewOrderResponse(order.Id);
     }

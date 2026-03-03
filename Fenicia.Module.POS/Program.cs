@@ -43,6 +43,8 @@ public class Program
                                               .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
+        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddDbContext<DefaultContext>((sp, o) =>
         {

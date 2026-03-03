@@ -415,7 +415,7 @@ public class EmployeeControllerTests
         Assert.That(result, Is.Not.Null);
 
         // Verify employee was deleted
-        var deletedEmployee = await this.context.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId, cancellationToken);
+        var deletedEmployee = await this.context.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId && x.Deleted == null, cancellationToken);
         Assert.That(deletedEmployee, Is.Null);
     }
 

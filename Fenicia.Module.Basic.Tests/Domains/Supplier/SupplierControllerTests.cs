@@ -402,7 +402,7 @@ public class SupplierControllerTests
         Assert.That(result, Is.Not.Null);
 
         // Verify supplier was deleted
-        var deletedSupplier = await this.context.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId, cancellationToken);
+        var deletedSupplier = await this.context.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId && x.Deleted == null, cancellationToken);
         Assert.That(deletedSupplier, Is.Null);
     }
 
