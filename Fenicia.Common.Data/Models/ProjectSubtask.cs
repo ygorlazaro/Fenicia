@@ -16,4 +16,6 @@ public class ProjectSubtask : BaseCompanyModel
     public DateTime? CompletedAt { get; set; }
 
     public virtual ProjectTask Task { get; set; } = null!;
+
+    public DateTime? DueDate { get; set; }
 }

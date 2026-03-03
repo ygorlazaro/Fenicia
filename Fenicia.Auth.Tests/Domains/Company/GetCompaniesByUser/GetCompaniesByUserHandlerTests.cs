@@ -228,7 +228,7 @@ public class GetCompaniesByUserHandlerTests
         var role = new AuthRole
         {
             Id = roleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         var user = new AuthUser
@@ -332,7 +332,7 @@ public class GetCompaniesByUserHandlerTests
         var role = new AuthRole
         {
             Id = roleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         this.context.Companies.AddRange(companies);
@@ -405,7 +405,7 @@ public class GetCompaniesByUserHandlerTests
         var role = new AuthRole
         {
             Id = roleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         this.context.Companies.AddRange(companies);
@@ -461,7 +461,7 @@ public class GetCompaniesByUserHandlerTests
         var role = new AuthRole
         {
             Id = roleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         var userRole = new AuthUserRole
@@ -521,7 +521,7 @@ public class GetCompaniesByUserHandlerTests
         var role2 = new AuthRole
         {
             Id = roleId2,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         var user = new AuthUser
@@ -569,7 +569,7 @@ public class GetCompaniesByUserHandlerTests
 
             var items = result.Data.ToList();
             Assert.That(items.Any(i => i.Role == "Admin"), Is.True, "Should have Admin role");
-            Assert.That(items.Any(i => i.Role == "Member"), Is.True, "Should have Member role");
+            Assert.That(items.Any(i => i.Role == "Contributor"), Is.True, "Should have \"Contributor\" role");
         }
     }
 
@@ -620,7 +620,7 @@ public class GetCompaniesByUserHandlerTests
         var role = new AuthRole
         {
             Id = roleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         var userRole1 = new AuthUserRole
@@ -697,7 +697,7 @@ public class GetCompaniesByUserHandlerTests
         var role = new AuthRole
         {
             Id = roleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         var userRoles = new List<AuthUserRole>
@@ -767,7 +767,7 @@ public class GetCompaniesByUserHandlerTests
         var role = new AuthRole
         {
             Id = roleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
         var userRole = new AuthUserRole
@@ -803,7 +803,7 @@ public class GetCompaniesByUserHandlerTests
         var roles = new List<AuthRole>();
         var userRoles = new List<AuthUserRole>();
 
-        var roleNames = new[] { "Admin", "Manager", "Member", "Viewer" };
+        var roleNames = new[] { "Admin", "Manager", "Contributor", "Viewer" };
 
         for (var i = 0; i < roleNames.Length; i++)
         {

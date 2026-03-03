@@ -22,6 +22,7 @@ const Subscription = () => {
     const navigate = useNavigate();
     const [modules, setModules] = useState([]);
     const [selectedModules, setSelectedModules] = useState([]);
+    const [subscribedModuleIds, setSubscribedModuleIds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [ordering, setOrdering] = useState(false);
     const [error, setError] = useState(null);
@@ -35,12 +36,23 @@ const Subscription = () => {
         try {
             setLoading(true);
             setError(null);
-            const response = await moduleClient.getModules(1, 50);
-            console.log('Modules response:', response);
             
+            // Fetch available modules and subscribed modules in parallel
+            const [modulesResponse, subscribedIds] = await Promise.all([
+                moduleClient.getModules(1, 50),
+                moduleClient.getSubscribedModuleIds()
+            ]);
+
+            console.log('Modules response:', modulesResponse);
+            console.log('Subscribed module IDs:', subscribedIds);
+
             // Handle pagination response - response should have data array
-            const modulesList = response?.data || response?.items || [];
+            const modulesList = modulesResponse?.data || modulesResponse?.items || [];
             setModules(modulesList);
+            setSubscribedModuleIds(subscribedIds);
+            
+            // Pre-select already subscribed modules (they will be disabled)
+            setSelectedModules(subscribedIds);
         } catch (err) {
             console.error('Failed to load modules:', err);
             setError(err.response?.data?.title || 'Falha ao carregar módulos.');
@@ -50,7 +62,12 @@ const Subscription = () => {
     };
 
     const handleToggleModule = (moduleId) => {
-        setSelectedModules(prev => 
+        // Prevent toggling already subscribed modules
+        if (subscribedModuleIds.includes(moduleId)) {
+            return;
+        }
+        
+        setSelectedModules(prev =>
             prev.includes(moduleId)
                 ? prev.filter(id => id !== moduleId)
                 : [...prev, moduleId]
@@ -67,9 +84,12 @@ const Subscription = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        if (selectedModules.length === 0) {
-            setError('Selecione pelo menos um módulo.');
+
+        // Filter out already subscribed modules - only send new modules
+        const newModules = selectedModules.filter(id => !subscribedModuleIds.includes(id));
+
+        if (newModules.length === 0) {
+            setError('Selecione pelo menos um módulo novo.');
             return;
         }
 
@@ -78,10 +98,10 @@ const Subscription = () => {
 
         try {
             await orderClient.createOrder({
-                modules: selectedModules
+                modules: newModules
             });
             setSuccess(true);
-            
+
             // Redirect to dashboard after 3 seconds
             setTimeout(() => {
                 navigate('/dashboard');
@@ -150,39 +170,57 @@ const Subscription = () => {
 
                                     <CForm onSubmit={handleSubmit}>
                                         <CRow className="g-4">
-                                            {modules.map((module) => (
-                                                <CCol md={6} lg={4} key={module.id}>
-                                                    <CCard 
-                                                        className={`h-100 ${
-                                                            selectedModules.includes(module.id) 
-                                                                ? 'border-primary' 
-                                                                : ''
-                                                        }`}
-                                                        style={{
-                                                            cursor: 'pointer',
-                                                            transition: 'all 0.2s'
-                                                        }}
-                                                        onClick={() => handleToggleModule(module.id)}
-                                                    >
-                                                        <CCardBody>
-                                                            <CFormCheck
-                                                                type="checkbox"
-                                                                id={`module-${module.id}`}
-                                                                label={module.name}
-                                                                checked={selectedModules.includes(module.id)}
-                                                                onChange={() => handleToggleModule(module.id)}
-                                                                className="mb-2"
-                                                            />
-                                                            <div className="text-muted small mb-2">
-                                                                Tipo: {module.type}
-                                                            </div>
-                                                            <div className="fw-bold text-primary">
-                                                                {module.price ? formatPrice(module.price) : 'Sob consulta'}
-                                                            </div>
-                                                        </CCardBody>
-                                                    </CCard>
-                                                </CCol>
-                                            ))}
+                                            {modules.map((module) => {
+                                                const isSubscribed = subscribedModuleIds.includes(module.id);
+                                                const isSelected = selectedModules.includes(module.id);
+                                                
+                                                return (
+                                                    <CCol md={6} lg={4} key={module.id}>
+                                                        <CCard
+                                                            className={`h-100 ${
+                                                                isSelected && !isSubscribed
+                                                                    ? 'border-primary'
+                                                                    : isSubscribed
+                                                                      ? 'border-secondary bg-light'
+                                                                      : ''
+                                                            }`}
+                                                            style={{
+                                                                cursor: isSubscribed ? 'not-allowed' : 'pointer',
+                                                                transition: 'all 0.2s',
+                                                                opacity: isSubscribed ? 0.6 : 1
+                                                            }}
+                                                            onClick={() => handleToggleModule(module.id)}
+                                                        >
+                                                            <CCardBody>
+                                                                <CFormCheck
+                                                                    type="checkbox"
+                                                                    id={`module-${module.id}`}
+                                                                    label={
+                                                                        <>
+                                                                            {module.name}
+                                                                            {isSubscribed && (
+                                                                                <span className="ms-2 badge bg-success">
+                                                                                    Já assinado
+                                                                                </span>
+                                                                            )}
+                                                                        </>
+                                                                    }
+                                                                    checked={isSelected}
+                                                                    onChange={() => handleToggleModule(module.id)}
+                                                                    disabled={isSubscribed}
+                                                                    className="mb-2"
+                                                                />
+                                                                <div className="text-muted small mb-2">
+                                                                    Tipo: {module.type}
+                                                                </div>
+                                                                <div className="fw-bold text-primary">
+                                                                    {module.price ? formatPrice(module.price) : 'Sob consulta'}
+                                                                </div>
+                                                            </CCardBody>
+                                                        </CCard>
+                                                    </CCol>
+                                                );
+                                            })}
                                         </CRow>
 
                                         <div className="mt-4 d-flex gap-2">

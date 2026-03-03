@@ -45,6 +45,10 @@ const AppHeaderDropdown = () => {
     navigate('/auth/login');
   };
 
+  const handleProfile = () => {
+    navigate('/profile');
+  };
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0" caret={false}>
@@ -58,6 +62,10 @@ const AppHeaderDropdown = () => {
           <small className="text-muted">{companyName}</small>
         </div>
         <CDropdownDivider />
+        <CDropdownItem onClick={handleProfile}>
+          <CIcon icon={cilUser} className="me-2" />
+          Perfil
+        </CDropdownItem>
         <CDropdownItem onClick={handleLogout}>
           <CIcon icon={cilAccountLogout} className="me-2" />
           Sair

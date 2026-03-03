@@ -25,6 +25,27 @@ export class AuthModuleClient extends ApiClient {
 
     return response.data;
   }
+
+  /**
+   * Get all subscribed module IDs for the current user
+   * Fetches profile and extracts module IDs from all subscriptions
+   * @returns {Promise<string[]>} Array of subscribed module IDs
+   */
+  async getSubscribedModuleIds() {
+    const response = await this.getClient().get('/subscription/profile');
+    const profile = response.data;
+
+    if (!profile.subscriptions || profile.subscriptions.length === 0) {
+      return [];
+    }
+
+    // Extract all module IDs from all subscriptions
+    const moduleIds = profile.subscriptions.flatMap(subscription =>
+      subscription.modules.map(module => module.id)
+    );
+
+    return moduleIds;
+  }
 }
 
 export default AuthModuleClient;
