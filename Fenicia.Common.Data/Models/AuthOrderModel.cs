@@ -7,7 +7,7 @@ using Fenicia.Common.Enums.Auth;
 namespace Fenicia.Common.Data.Models;
 
 [Table("orders", Schema = "auth")]
-public class AuthOrder : BaseModel
+public class AuthOrderModel : BaseModel
 {
     [Required]
     public Guid UserId { get; set; }
@@ -40,5 +40,5 @@ public class AuthOrder : BaseModel
 
     [ForeignKey(nameof(CompanyId))]
     [JsonIgnore]
-    public virtual AuthCompany Company { get; set; } = null!;
+    public virtual AuthCompanyModel CompanyModel { get; set; } = null!;
 }

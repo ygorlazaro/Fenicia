@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models;
 
 [Table("submodules", Schema = "auth")]
-public class AuthSubmodule : BaseModel
+public class AuthSubmoduleModel : BaseModel
 {
     [Required]
     [MaxLength(50)]
@@ -27,5 +27,5 @@ public class AuthSubmodule : BaseModel
 
     [ForeignKey(nameof(ModuleId))]
     [JsonIgnore]
-    public AuthModule Module { get; set; } = null!;
+    public AuthModuleModel ModuleModel { get; set; } = null!;
 }

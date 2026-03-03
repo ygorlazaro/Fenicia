@@ -11,7 +11,7 @@ public class UserResponse
         this.Email = string.Empty;
     }
 
-    public UserResponse(AuthUser model)
+    public UserResponse(AuthUserModel model)
     {
         this.Id = model.Id;
         this.Name = model.Name;

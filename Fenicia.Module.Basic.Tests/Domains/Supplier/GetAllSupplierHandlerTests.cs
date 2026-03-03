@@ -54,11 +54,11 @@ public class GetAllSupplierHandlerTests
     public async Task Handle_WithSuppliers_ReturnsAllSuppliers()
     {
         // Arrange
-        var supplier1 = new BasicSupplier
+        var supplier1 = new BasicSupplierModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -66,11 +66,11 @@ public class GetAllSupplierHandlerTests
             }
         };
 
-        var supplier2 = new BasicSupplier
+        var supplier2 = new BasicSupplierModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -97,11 +97,11 @@ public class GetAllSupplierHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var supplier = new BasicSupplier
+            var supplier = new BasicSupplierModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPerson
+                PersonModel = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Company.CompanyName()} {i}"

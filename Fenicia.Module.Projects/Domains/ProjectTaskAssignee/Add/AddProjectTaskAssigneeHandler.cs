@@ -7,7 +7,7 @@ public class AddProjectTaskAssigneeHandler(DefaultContext context)
 {
     public async Task<AddProjectTaskAssigneeResponse> Handle(AddProjectTaskAssigneeCommand command, CancellationToken ct)
     {
-        var assignee = new Common.Data.Models.ProjectTaskAssignee
+        var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
         {
             Id = command.Id,
             TaskId = command.TaskId,

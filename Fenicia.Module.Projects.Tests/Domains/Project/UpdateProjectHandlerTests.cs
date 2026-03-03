@@ -40,7 +40,7 @@ public class UpdateProjectHandlerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var project = new Common.Data.Models.Project
+        var project = new Common.Data.Models.ProjectModel
         {
             Id = projectId,
             Title = "Old Title",
@@ -122,7 +122,7 @@ public class UpdateProjectHandlerTests
         var project1Id = Guid.NewGuid();
         var project2Id = Guid.NewGuid();
 
-        var project1 = new Common.Data.Models.Project
+        var project1 = new Common.Data.Models.ProjectModel
         {
             Id = project1Id,
             Title = "Project 1 Title",
@@ -133,7 +133,7 @@ public class UpdateProjectHandlerTests
             Owner = Guid.NewGuid()
         };
 
-        var project2 = new Common.Data.Models.Project
+        var project2 = new Common.Data.Models.ProjectModel
         {
             Id = project2Id,
             Title = "Project 2 Title",
@@ -184,7 +184,7 @@ public class UpdateProjectHandlerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var project = new Common.Data.Models.Project
+        var project = new Common.Data.Models.ProjectModel
         {
             Id = projectId,
             Title = this.faker.Lorem.Sentence(5),

@@ -7,7 +7,7 @@ using Fenicia.Common.Enums.Auth;
 namespace Fenicia.Common.Data.Models;
 
 [Table("orders", Schema = "basic")]
-public class BasicOrder : BaseCompanyModel
+public class BasicOrderModel : BaseCompanyModel
 {
     [Required]
     public Guid UserId { get; set; }
@@ -33,5 +33,5 @@ public class BasicOrder : BaseCompanyModel
 
     [ForeignKey(nameof(CustomerId))]
     [JsonIgnore]
-    public BasicCustomer Customer { get; set; } = null!;
+    public BasicCustomerModel CustomerModel { get; set; } = null!;
 }

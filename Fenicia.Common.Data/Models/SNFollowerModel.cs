@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("followers", Schema = "social_network")]
-public class SNFollower : BaseCompanyModel
+public class SNFollowerModel : BaseCompanyModel
 {
     [Required]
     public Guid UserId { get; set; }
@@ -20,8 +20,8 @@ public class SNFollower : BaseCompanyModel
         = true;
 
     [ForeignKey(nameof(UserId))]
-    public AuthUser User { get; set; } = null!;
+    public AuthUserModel UserModel { get; set; } = null!;
 
     [ForeignKey(nameof(FollowerId))]
-    public AuthUser Follower { get; set; } = null!;
+    public AuthUserModel Follower { get; set; } = null!;
 }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("products", Schema = "basic")]
-public class BasicProduct : BaseCompanyModel
+public class BasicProductModel : BaseCompanyModel
 {
     [Required]
     [MaxLength(50)]
@@ -26,5 +26,5 @@ public class BasicProduct : BaseCompanyModel
 
     public List<BasicStockMovementModel> StockMovements { get; set; } = null!;
 
-    public List<BasicOrderDetail> OrderDetails { get; set; } = null!;
+    public List<BasicOrderDetailModel> OrderDetails { get; set; } = null!;
 }

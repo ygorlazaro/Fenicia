@@ -116,7 +116,7 @@ public class ProjectCommentControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectComment1 = new Common.Data.Models.ProjectComment
+        var projectComment1 = new Common.Data.Models.ProjectCommentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -124,7 +124,7 @@ public class ProjectCommentControllerTests
             Content = this.faker.Lorem.Paragraph()
         };
 
-        var projectComment2 = new Common.Data.Models.ProjectComment
+        var projectComment2 = new Common.Data.Models.ProjectCommentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -158,7 +158,7 @@ public class ProjectCommentControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectComment = new Common.Data.Models.ProjectComment
+        var projectComment = new Common.Data.Models.ProjectCommentModel
         {
             Id = this.testProjectCommentId,
             TaskId = Guid.NewGuid(),
@@ -241,7 +241,7 @@ public class ProjectCommentControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectComment = new Common.Data.Models.ProjectComment
+        var projectComment = new Common.Data.Models.ProjectCommentModel
         {
             Id = this.testProjectCommentId,
             TaskId = Guid.NewGuid(),
@@ -296,7 +296,7 @@ public class ProjectCommentControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectComment = new Common.Data.Models.ProjectComment
+        var projectComment = new Common.Data.Models.ProjectCommentModel
         {
             Id = this.testProjectCommentId,
             TaskId = Guid.NewGuid(),

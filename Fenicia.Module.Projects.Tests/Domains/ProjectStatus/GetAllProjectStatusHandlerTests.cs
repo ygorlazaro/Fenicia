@@ -54,7 +54,7 @@ public class GetAllProjectStatusHandlerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var status1 = new Common.Data.Models.ProjectStatus
+        var status1 = new Common.Data.Models.ProjectStatusModel
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
@@ -64,7 +64,7 @@ public class GetAllProjectStatusHandlerTests
             IsFinal = false
         };
 
-        var status2 = new Common.Data.Models.ProjectStatus
+        var status2 = new Common.Data.Models.ProjectStatusModel
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
@@ -99,7 +99,7 @@ public class GetAllProjectStatusHandlerTests
         var projectId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var status = new Common.Data.Models.ProjectStatus
+            var status = new Common.Data.Models.ProjectStatusModel
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
@@ -130,7 +130,7 @@ public class GetAllProjectStatusHandlerTests
         var projectId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
         {
-            var status = new Common.Data.Models.ProjectStatus
+            var status = new Common.Data.Models.ProjectStatusModel
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
@@ -161,7 +161,7 @@ public class GetAllProjectStatusHandlerTests
         var projectId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var status = new Common.Data.Models.ProjectStatus
+            var status = new Common.Data.Models.ProjectStatusModel
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,

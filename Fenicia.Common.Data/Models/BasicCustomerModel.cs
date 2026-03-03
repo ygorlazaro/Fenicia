@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("customers", Schema = "basic")]
-public class BasicCustomer : BaseCompanyModel
+public class BasicCustomerModel : BaseCompanyModel
 {
     public List<BasicStockMovementModel> StockMovements { get; set; } = [];
 

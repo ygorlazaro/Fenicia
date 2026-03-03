@@ -5,7 +5,7 @@ using Fenicia.Common.Enums.Project;
 namespace Fenicia.Common.Data.Models;
 
 [Table("task_assignees", Schema = "project")]
-public class ProjectTaskAssignee : BaseCompanyModel
+public class ProjectTaskAssigneeModel : BaseCompanyModel
 {
     public Guid TaskId { get; set; } = Guid.Empty;
 
@@ -15,7 +15,7 @@ public class ProjectTaskAssignee : BaseCompanyModel
 
     public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
     
-    public virtual AuthUser User { get; set; }
+    public virtual AuthUserModel UserModel { get; set; }
 
-    public virtual ProjectTask Task { get; set; } = null!;
+    public virtual ProjectTaskModel TaskModel { get; set; } = null!;
 }

@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models;
 
 [Table("order_details", Schema = "auth")]
-public class AuthOrderDetail : BaseModel
+public class AuthOrderDetailModel : BaseModel
 {
     [Required]
     [Column("order_id")]
@@ -22,11 +22,11 @@ public class AuthOrderDetail : BaseModel
 
     [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
-    public AuthOrder Order { get; set; } = null!;
+    public AuthOrderModel OrderModel { get; set; } = null!;
 
     [JsonIgnore]
     [ForeignKey(nameof(ModuleId))]
-    public AuthModule Module { get; set; } = null!;
+    public AuthModuleModel ModuleModel { get; set; } = null!;
 
     [JsonIgnore]
     public AuthSubscriptionCreditModel? SubscriptionCredit { get; set; }

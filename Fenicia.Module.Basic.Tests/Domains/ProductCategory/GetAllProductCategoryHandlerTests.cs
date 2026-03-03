@@ -50,8 +50,8 @@ public class GetAllProductCategoryHandlerTests
     public async Task Handle_WithCategories_ReturnsAllCategories()
     {
         // Arrange
-        var category1 = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
-        var category2 = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Books" };
+        var category1 = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category2 = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
 
         this.context.BasicProductCategories.AddRange(category1, category2);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -77,7 +77,7 @@ public class GetAllProductCategoryHandlerTests
         // Arrange
         for (var i = 0; i < 20; i++)
         {
-            var category = new BasicProductCategory
+            var category = new BasicProductCategoryModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Category {i}"

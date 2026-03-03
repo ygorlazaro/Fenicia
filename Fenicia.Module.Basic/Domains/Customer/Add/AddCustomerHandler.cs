@@ -7,7 +7,7 @@ public class AddCustomerHandler(DefaultContext context)
 {
     public async Task<AddCustomerResponse> Handle(AddCustomerCommand command, CancellationToken ct)
     {
-        var person = new BasicPerson
+        var person = new BasicPersonModel
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
@@ -23,10 +23,10 @@ public class AddCustomerHandler(DefaultContext context)
             City = command.City
         };
 
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = command.Id,
-            Person = person,
+            PersonModel = person,
             PersonId = person.Id
         };
 

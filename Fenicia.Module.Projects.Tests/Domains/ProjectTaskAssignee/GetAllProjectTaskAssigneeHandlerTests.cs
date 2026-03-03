@@ -52,7 +52,7 @@ public class GetAllProjectTaskAssigneeHandlerTests
         var taskId = Guid.NewGuid();
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
-        var assignee1 = new Common.Data.Models.ProjectTaskAssignee
+        var assignee1 = new Common.Data.Models.ProjectTaskAssigneeModel
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
@@ -61,7 +61,7 @@ public class GetAllProjectTaskAssigneeHandlerTests
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
-        var assignee2 = new Common.Data.Models.ProjectTaskAssignee
+        var assignee2 = new Common.Data.Models.ProjectTaskAssigneeModel
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
@@ -95,7 +95,7 @@ public class GetAllProjectTaskAssigneeHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var assignee = new Common.Data.Models.ProjectTaskAssignee
+            var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
@@ -125,7 +125,7 @@ public class GetAllProjectTaskAssigneeHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
         {
-            var assignee = new Common.Data.Models.ProjectTaskAssignee
+            var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
@@ -155,7 +155,7 @@ public class GetAllProjectTaskAssigneeHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var assignee = new Common.Data.Models.ProjectTaskAssignee
+            var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,

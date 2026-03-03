@@ -1,32 +1,60 @@
 version: '3.8'
 
+# =============================================================================
+# Fenicia Platform - Complete Docker Compose Configuration
+# Supports debugging in Rider/VSCode
+# =============================================================================
+# To enable debugging:
+# 1. Set DOTNET_ENVIRONMENT=Development (already set)
+# 2. Use the provided VS Code launch.json configuration
+# 3. For Rider: Use "Attach to Process" with the exposed debug port
+# =============================================================================
+
 services:
+  # ===========================================================================
+  # Infrastructure Services
+  # ===========================================================================
+  
   postgres:
-    image: postgres:18  # Recomendo fixar a 18 em vez de 'latest' para evitar sustos no futuro
-    container_name: postgres
+    image: postgres:18
+    container_name: fenicia-postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fenicia
     ports:
       - "5432:5432"
     volumes:
-      # Mudança: agora aponta para a raiz do postgres, não para /data
-      - pgdata:/var/lib/postgresql
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - fenicia-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
-    image: redis:latest
-    container_name: redis
+    image: redis:7-alpine
+    container_name: fenicia-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
     command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - fenicia-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   seq:
-    image: datalust/seq:latest
-    container_name: seq-local
+    image: datalust/seq:2024
+    container_name: fenicia-seq
     restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
@@ -35,8 +63,334 @@ services:
       - "5341:80"
       - "5342:5342"
     volumes:
-      - ./data/seq:/data
+      - seq-data:/data
+    networks:
+      - fenicia-network
+
+  # ===========================================================================
+  # Frontend - React Web Application
+  # ===========================================================================
+  
+  fenicia-web:
+    build:
+      context: ./fenicia-web
+      dockerfile: Dockerfile
+    container_name: fenicia-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - fenicia-auth
+      - fenicia-module-basic
+      - fenicia-module-projects
+    networks:
+      - fenicia-network
+    environment:
+      - VITE_AUTH_API_BASE_URL=http://fenicia-auth:8080/api
+      - VITE_BASIC_API_BASE_URL=http://fenicia-module-basic:8080/api
+      - VITE_PROJECTS_API_BASE_URL=http://fenicia-module-projects:8080/api
+
+  # ===========================================================================
+  # Authentication Service
+  # ===========================================================================
+  
+  fenicia-auth:
+    build:
+      context: ./Fenicia.Auth
+      dockerfile: Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-auth
+    restart: unless-stopped
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+      - VITE_AUTH_API_BASE_URL=http://localhost:5000/api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+    volumes:
+      - ./Fenicia.Auth:/src:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ===========================================================================
+  # Module Services
+  # ===========================================================================
+  
+  fenicia-module-basic:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.Basic/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-basic
+    restart: unless-stopped
+    ports:
+      - "5002:8080"
+      - "5003:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+    volumes:
+      - ./Fenicia.Module.Basic:/src:ro
+
+  fenicia-module-projects:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.Projects/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-projects
+    restart: unless-stopped
+    ports:
+      - "5144:8080"
+      - "5145:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+    volumes:
+      - ./Fenicia.Module.Projects:/src:ro
+
+  fenicia-module-accounting:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.Accounting/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-accounting
+    restart: unless-stopped
+    ports:
+      - "5010:8080"
+      - "5011:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+
+  fenicia-module-contracts:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.Contracts/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-contracts
+    restart: unless-stopped
+    ports:
+      - "5012:8080"
+      - "5013:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+
+  fenicia-module-customersupport:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.CustomerSupport/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-customersupport
+    restart: unless-stopped
+    ports:
+      - "5014:8080"
+      - "5015:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+
+  fenicia-module-ecommerce:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.Ecommerce/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-ecommerce
+    restart: unless-stopped
+    ports:
+      - "5016:8080"
+      - "5017:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+
+  fenicia-module-hr:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.HR/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-hr
+    restart: unless-stopped
+    ports:
+      - "5018:8080"
+      - "5019:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+
+  fenicia-module-performanceevaluation:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.PerformanceEvaluation/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-performanceevaluation
+    restart: unless-stopped
+    ports:
+      - "5020:8080"
+      - "5021:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+
+  fenicia-module-pos:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.POS/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-pos
+    restart: unless-stopped
+    ports:
+      - "5022:8080"
+      - "5023:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+
+  fenicia-module-plus:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.Plus/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-plus
+    restart: unless-stopped
+    ports:
+      - "5024:8080"
+      - "5025:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+
+  fenicia-module-socialnetwork:
+    build:
+      context: .
+      dockerfile: Fenicia.Module.SocialNetwork/Dockerfile
+      target: final
+      args:
+        - BUILD_CONFIGURATION=Debug
+    container_name: fenicia-module-socialnetwork
+    restart: unless-stopped
+    ports:
+      - "5026:8080"
+      - "5027:8081"
+    environment:
+      - DOTNET_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ConnectionStrings__Auth=Host=postgres;Port=5432;Database=fenicia;Username=postgres;Password=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fenicia-network
+
+# =============================================================================
+# Networks
+# =============================================================================
+
+networks:
+  fenicia-network:
+    driver: bridge
+
+# =============================================================================
+# Volumes
+# =============================================================================
 
 volumes:
   pgdata:
+    driver: local
   redis-data:
+    driver: local
+  seq-data:
+    driver: local

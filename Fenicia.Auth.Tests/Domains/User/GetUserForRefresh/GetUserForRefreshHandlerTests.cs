@@ -42,7 +42,7 @@ public class GetUserForRefreshHandlerTests
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -90,7 +90,7 @@ public class GetUserForRefreshHandlerTests
         var name1 = this.faker.Person.FullName;
         var name2 = this.faker.Person.FullName;
 
-        var user1 = new AuthUser
+        var user1 = new AuthUserModel
         {
             Id = userId1,
             Email = email1,
@@ -98,7 +98,7 @@ public class GetUserForRefreshHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var user2 = new AuthUser
+        var user2 = new AuthUserModel
         {
             Id = userId2,
             Email = email2,
@@ -143,7 +143,7 @@ public class GetUserForRefreshHandlerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -170,7 +170,7 @@ public class GetUserForRefreshHandlerTests
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,

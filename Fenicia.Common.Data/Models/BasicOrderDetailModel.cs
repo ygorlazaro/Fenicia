@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models;
 
 [Table("order_details", Schema = "basic")]
-public class BasicOrderDetail : BaseCompanyModel
+public class BasicOrderDetailModel : BaseCompanyModel
 {
     [Required]
     [Column("order_id")]
@@ -22,7 +22,7 @@ public class BasicOrderDetail : BaseCompanyModel
 
     [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
-    public BasicOrder Order { get; set; } = null!;
+    public BasicOrderModel OrderModel { get; set; } = null!;
 
     [JsonIgnore]
     [ForeignKey(nameof(ProductId))]

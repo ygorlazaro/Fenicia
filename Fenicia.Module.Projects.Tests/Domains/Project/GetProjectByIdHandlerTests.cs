@@ -40,7 +40,7 @@ public class GetProjectByIdHandlerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var project = new Common.Data.Models.Project
+        var project = new Common.Data.Models.ProjectModel
         {
             Id = projectId,
             Title = this.faker.Lorem.Sentence(5),
@@ -101,7 +101,7 @@ public class GetProjectByIdHandlerTests
         var project1Id = Guid.NewGuid();
         var project2Id = Guid.NewGuid();
 
-        var project1 = new Common.Data.Models.Project
+        var project1 = new Common.Data.Models.ProjectModel
         {
             Id = project1Id,
             Title = this.faker.Lorem.Sentence(5),
@@ -112,7 +112,7 @@ public class GetProjectByIdHandlerTests
             Owner = Guid.NewGuid()
         };
 
-        var project2 = new Common.Data.Models.Project
+        var project2 = new Common.Data.Models.ProjectModel
         {
             Id = project2Id,
             Title = this.faker.Lorem.Sentence(5),
@@ -145,7 +145,7 @@ public class GetProjectByIdHandlerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var project = new Common.Data.Models.Project
+        var project = new Common.Data.Models.ProjectModel
         {
             Id = projectId,
             Title = this.faker.Lorem.Sentence(5),

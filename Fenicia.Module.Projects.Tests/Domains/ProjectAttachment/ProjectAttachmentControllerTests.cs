@@ -116,7 +116,7 @@ public class ProjectAttachmentControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectAttachment1 = new Common.Data.Models.ProjectAttachment
+        var projectAttachment1 = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -127,7 +127,7 @@ public class ProjectAttachmentControllerTests
             ContentType = "application/json"
         };
 
-        var projectAttachment2 = new Common.Data.Models.ProjectAttachment
+        var projectAttachment2 = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -164,7 +164,7 @@ public class ProjectAttachmentControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectAttachment = new Common.Data.Models.ProjectAttachment
+        var projectAttachment = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = this.testProjectAttachmentId,
             TaskId = Guid.NewGuid(),
@@ -253,7 +253,7 @@ public class ProjectAttachmentControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectAttachment = new Common.Data.Models.ProjectAttachment
+        var projectAttachment = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = this.testProjectAttachmentId,
             TaskId = Guid.NewGuid(),
@@ -319,7 +319,7 @@ public class ProjectAttachmentControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectAttachment = new Common.Data.Models.ProjectAttachment
+        var projectAttachment = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = this.testProjectAttachmentId,
             TaskId = Guid.NewGuid(),

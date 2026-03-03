@@ -94,7 +94,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, password);
         SetupCacheAttempts(email, 0);
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = query.Email,
@@ -127,7 +127,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, this.faker.Internet.Password());
         SetupCacheAttempts(email, 2);
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = query.Email,
@@ -153,7 +153,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, password);
         SetupCacheAttempts(email, 4);
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = query.Email,
@@ -177,7 +177,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, this.faker.Internet.Password());
         SetupCacheAttempts(email, 0);
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = query.Email,
@@ -222,7 +222,7 @@ public class GenerateTokenHandlerTests
         var query = new GenerateTokenQuery(email, string.Empty);
         SetupCacheAttempts(email, 0);
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = query.Email,

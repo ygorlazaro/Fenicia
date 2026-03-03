@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("attachments", Schema = "project")]
-public class ProjectAttachment : BaseCompanyModel
+public class ProjectAttachmentModel : BaseCompanyModel
 {
     public Guid TaskId { get; set; }
 
@@ -17,7 +17,7 @@ public class ProjectAttachment : BaseCompanyModel
 
     public virtual ProjectTaskModel TaskModel { get; set; } = null!;
 
-    public virtual AuthUser User { get; set; } = null!;
+    public virtual AuthUserModel UserModel { get; set; } = null!;
 
     public string ContentType { get; set; }
 

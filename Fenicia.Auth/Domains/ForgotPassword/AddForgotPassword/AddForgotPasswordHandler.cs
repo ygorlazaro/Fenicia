@@ -14,7 +14,7 @@ public class AddForgotPasswordHandler(DefaultContext db)
                      ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
 
-        await db.ForgottenPasswords.AddAsync(new AuthForgotPassowrd
+        await db.ForgottenPasswords.AddAsync(new AuthForgotPassowrdModel
         {
             Code = code,
             IsActive = true,

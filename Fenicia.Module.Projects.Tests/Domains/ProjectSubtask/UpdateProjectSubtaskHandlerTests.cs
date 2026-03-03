@@ -41,7 +41,7 @@ public class UpdateProjectSubtaskHandlerTests
         // Arrange
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var subtask = new Common.Data.Models.ProjectSubtask
+        var subtask = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtaskId,
             TaskId = taskId,
@@ -120,7 +120,7 @@ public class UpdateProjectSubtaskHandlerTests
         var subtask2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
-        var subtask1 = new Common.Data.Models.ProjectSubtask
+        var subtask1 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtask1Id,
             TaskId = taskId,
@@ -130,7 +130,7 @@ public class UpdateProjectSubtaskHandlerTests
             CompletedAt = null
         };
 
-        var subtask2 = new Common.Data.Models.ProjectSubtask
+        var subtask2 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtask2Id,
             TaskId = taskId,
@@ -180,7 +180,7 @@ public class UpdateProjectSubtaskHandlerTests
         // Arrange
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var subtask = new Common.Data.Models.ProjectSubtask
+        var subtask = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = subtaskId,
             TaskId = taskId,

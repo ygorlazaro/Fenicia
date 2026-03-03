@@ -45,7 +45,7 @@ public class GetProjectAttachmentByIdHandlerTests
         var fileUrl = this.faker.Internet.Url();
         var fileSize = this.faker.Random.Long(1000, 1000000);
         var uploadedBy = Guid.NewGuid();
-        var attachment = new Common.Data.Models.ProjectAttachment
+        var attachment = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = attachmentId,
             TaskId = taskId,
@@ -107,7 +107,7 @@ public class GetProjectAttachmentByIdHandlerTests
         var attachment2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
-        var attachment1 = new Common.Data.Models.ProjectAttachment
+        var attachment1 = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = attachment1Id,
             TaskId = taskId,
@@ -118,7 +118,7 @@ public class GetProjectAttachmentByIdHandlerTests
             ContentType = "application/json"
         };
 
-        var attachment2 = new Common.Data.Models.ProjectAttachment
+        var attachment2 = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = attachment2Id,
             TaskId = taskId,
@@ -153,7 +153,7 @@ public class GetProjectAttachmentByIdHandlerTests
         var attachmentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var largeFileSize = 1073741824L; // 1 GB
-        var attachment = new Common.Data.Models.ProjectAttachment
+        var attachment = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = attachmentId,
             TaskId = taskId,

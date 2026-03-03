@@ -38,7 +38,7 @@ public class UpdateStockMovementHandlerTests
     {
         // Arrange
         var movementId = Guid.NewGuid();
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -49,7 +49,7 @@ public class UpdateStockMovementHandlerTests
         };
         this.context.BasicProducts.Add(product);
 
-        var movement = new BasicStockMovement
+        var movement = new BasicStockMovementModel
         {
             Id = movementId,
             Quantity = 10,
@@ -131,7 +131,7 @@ public class UpdateStockMovementHandlerTests
     {
         // Arrange
         var movementId = Guid.NewGuid();
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -142,7 +142,7 @@ public class UpdateStockMovementHandlerTests
         };
         this.context.BasicProducts.Add(product);
 
-        var movement = new BasicStockMovement
+        var movement = new BasicStockMovementModel
         {
             Id = movementId,
             Quantity = 10,

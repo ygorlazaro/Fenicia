@@ -116,7 +116,7 @@ public class ProjectControllerTests
     public async Task GetAsync_WhenProjectsExist_ReturnsOkWithProjects()
     {
         // Arrange
-        var project1 = new Common.Data.Models.Project
+        var project1 = new Common.Data.Models.ProjectModel
         {
             Id = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
@@ -126,7 +126,7 @@ public class ProjectControllerTests
             Owner = Guid.NewGuid()
         };
 
-        var project2 = new Common.Data.Models.Project
+        var project2 = new Common.Data.Models.ProjectModel
         {
             Id = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
@@ -163,7 +163,7 @@ public class ProjectControllerTests
     public async Task GetByIdAsync_WhenProjectExists_ReturnsOkWithProject()
     {
         // Arrange
-        var project = new Common.Data.Models.Project
+        var project = new Common.Data.Models.ProjectModel
         {
             Id = this.testProjectId,
             Title = this.faker.Lorem.Sentence(5),
@@ -251,7 +251,7 @@ public class ProjectControllerTests
     public async Task PatchAsync_WhenProjectExists_ReturnsOkWithUpdatedProject()
     {
         // Arrange
-        var project = new Common.Data.Models.Project
+        var project = new Common.Data.Models.ProjectModel
         {
             Id = this.testProjectId,
             Title = this.faker.Lorem.Sentence(5),
@@ -318,7 +318,7 @@ public class ProjectControllerTests
     public async Task DeleteAsync_WhenProjectExists_ReturnsNoContent()
     {
         // Arrange
-        var project = new Common.Data.Models.Project
+        var project = new Common.Data.Models.ProjectModel
         {
             Id = this.testProjectId,
             Title = this.faker.Lorem.Sentence(5),

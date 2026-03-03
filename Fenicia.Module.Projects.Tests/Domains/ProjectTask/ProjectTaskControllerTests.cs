@@ -116,7 +116,7 @@ public class ProjectTaskControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectTask1 = new Common.Data.Models.ProjectTask
+        var projectTask1 = new Common.Data.Models.ProjectTaskModel
         {
             Id = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
@@ -131,7 +131,7 @@ public class ProjectTaskControllerTests
             CreatedBy = Guid.NewGuid()
         };
 
-        var projectTask2 = new Common.Data.Models.ProjectTask
+        var projectTask2 = new Common.Data.Models.ProjectTaskModel
         {
             Id = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
@@ -172,7 +172,7 @@ public class ProjectTaskControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectTask = new Common.Data.Models.ProjectTask
+        var projectTask = new Common.Data.Models.ProjectTaskModel
         {
             Id = this.testProjectTaskId,
             ProjectId = Guid.NewGuid(),
@@ -269,7 +269,7 @@ public class ProjectTaskControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectTask = new Common.Data.Models.ProjectTask
+        var projectTask = new Common.Data.Models.ProjectTaskModel
         {
             Id = this.testProjectTaskId,
             ProjectId = Guid.NewGuid(),
@@ -349,7 +349,7 @@ public class ProjectTaskControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectTask = new Common.Data.Models.ProjectTask
+        var projectTask = new Common.Data.Models.ProjectTaskModel
         {
             Id = this.testProjectTaskId,
             ProjectId = Guid.NewGuid(),

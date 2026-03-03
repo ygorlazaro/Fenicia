@@ -84,7 +84,7 @@ public class SubmoduleControllerTests
     public async Task GetByModuleIdAsync_WhenSubmodulesExist_ReturnsOkWithSubmodules()
     {
         // Arrange
-        var submodule1 = new AuthSubmodule
+        var submodule1 = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Submodule 1",
@@ -93,7 +93,7 @@ public class SubmoduleControllerTests
             Route = "/api/submodule1"
         };
 
-        var submodule2 = new AuthSubmodule
+        var submodule2 = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Submodule 2",
@@ -138,7 +138,7 @@ public class SubmoduleControllerTests
         // Arrange
         var differentModuleId = Guid.NewGuid();
 
-        var submodule = new AuthSubmodule
+        var submodule = new AuthSubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Submodule for different module",

@@ -5,7 +5,7 @@ using Fenicia.Common.Enums.Project;
 namespace Fenicia.Common.Data.Models;
 
 [Table("tasks", Schema = "project")]
-public class ProjectTask : BaseCompanyModel
+public class ProjectTaskModel : BaseCompanyModel
 {
     public Guid ProjectId { get; set; }
 
@@ -27,17 +27,17 @@ public class ProjectTask : BaseCompanyModel
 
     public Guid CreatedBy { get; set; } = Guid.Empty;
 
-    public virtual List<ProjectAttachment> Attachments { get; set; } = [];
+    public virtual List<ProjectAttachmentModel> Attachments { get; set; } = [];
 
-    public virtual List<ProjectComment> Comments { get; set; } = [];
+    public virtual List<ProjectCommentModel> Comments { get; set; } = [];
 
-    public virtual List<ProjectSubtask> Subtasks { get; set; } = [];
+    public virtual List<ProjectSubtaskModel> Subtasks { get; set; } = [];
 
     public virtual List<ProjectTaskAssigneeModel> Assignees { get; set; } = [];
 
-    public virtual ProjectStatus Status { get; set; } = null!;
+    public virtual ProjectStatusModel StatusModel { get; set; } = null!;
 
-    public virtual AuthUser User { get; set; } = null!;
+    public virtual AuthUserModel UserModel { get; set; } = null!;
 
-    public virtual Project Project { get; set; } = null!;
+    public virtual ProjectModel ProjectModel { get; set; } = null!;
 }

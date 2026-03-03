@@ -274,13 +274,13 @@ public class AddEmployeeHandlerTests
 
         // Assert
         var employee = await this.context.BasicEmployees
-            .Include(e => e.Person)
+            .Include(e => e.PersonModel)
             .FirstOrDefaultAsync(e => e.Id == command.Id);
 
         Assert.That(employee, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(employee.Person.Name, Is.EqualTo(command.Name));
+            Assert.That(employee.PersonModel.Name, Is.EqualTo(command.Name));
             Assert.That(employee.PositionId, Is.EqualTo(positionId));
         }
     }

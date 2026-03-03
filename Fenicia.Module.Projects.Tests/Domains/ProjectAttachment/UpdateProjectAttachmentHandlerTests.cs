@@ -41,7 +41,7 @@ public class UpdateProjectAttachmentHandlerTests
         // Arrange
         var attachmentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var attachment = new Common.Data.Models.ProjectAttachment
+        var attachment = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = attachmentId,
             TaskId = taskId,
@@ -124,7 +124,7 @@ public class UpdateProjectAttachmentHandlerTests
         var attachment2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
-        var attachment1 = new Common.Data.Models.ProjectAttachment
+        var attachment1 = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = attachment1Id,
             TaskId = taskId,
@@ -135,7 +135,7 @@ public class UpdateProjectAttachmentHandlerTests
             ContentType = "application/json"
         };
 
-        var attachment2 = new Common.Data.Models.ProjectAttachment
+        var attachment2 = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = attachment2Id,
             TaskId = taskId,
@@ -187,7 +187,7 @@ public class UpdateProjectAttachmentHandlerTests
         // Arrange
         var attachmentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var attachment = new Common.Data.Models.ProjectAttachment
+        var attachment = new Common.Data.Models.ProjectAttachmentModel
         {
             Id = attachmentId,
             TaskId = taskId,

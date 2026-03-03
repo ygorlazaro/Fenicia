@@ -38,7 +38,7 @@ public class GetCompaniesByUserHandlerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -48,13 +48,13 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Admin"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -103,7 +103,7 @@ public class GetCompaniesByUserHandlerTests
         var cnpj = "12.345.678/0001-90";
         var roleName = "Admin";
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = companyName,
@@ -113,13 +113,13 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = roleName
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -158,19 +158,19 @@ public class GetCompaniesByUserHandlerTests
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Admin"
         };
         this.context.Roles.Add(role);
 
-        var companies = new List<AuthCompany>();
-        var userRoles = new List<AuthUserRole>();
+        var companies = new List<AuthCompanyModel>();
+        var userRoles = new List<AuthUserRoleModel>();
 
         for (var i = 0; i < 3; i++)
         {
-            var company = new AuthCompany
+            var company = new AuthCompanyModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Company {i}",
@@ -181,7 +181,7 @@ public class GetCompaniesByUserHandlerTests
             };
             companies.Add(company);
 
-            var userRole = new AuthUserRole
+            var userRole = new AuthUserRoleModel
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
@@ -213,14 +213,14 @@ public class GetCompaniesByUserHandlerTests
         var userId2 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Admin"
         };
         this.context.Roles.Add(role);
 
-        var company1 = new AuthCompany
+        var company1 = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Company 1",
@@ -230,7 +230,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var company2 = new AuthCompany
+        var company2 = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Company 2",
@@ -242,7 +242,7 @@ public class GetCompaniesByUserHandlerTests
 
         this.context.Companies.AddRange(company1, company2);
 
-        var userRole1 = new AuthUserRole
+        var userRole1 = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId1,
@@ -250,7 +250,7 @@ public class GetCompaniesByUserHandlerTests
             RoleId = roleId
         };
 
-        var userRole2 = new AuthUserRole
+        var userRole2 = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId2,
@@ -296,13 +296,13 @@ public class GetCompaniesByUserHandlerTests
         // Arrange
         var userId = Guid.NewGuid();
 
-        var adminRole = new AuthRole
+        var adminRole = new AuthRoleModel
         {
             Id = Guid.NewGuid(),
             Name = "Admin"
         };
 
-        var userRole = new AuthRole
+        var userRole = new AuthRoleModel
         {
             Id = Guid.NewGuid(),
             Name = "User"
@@ -310,7 +310,7 @@ public class GetCompaniesByUserHandlerTests
 
         this.context.Roles.AddRange(adminRole, userRole);
 
-        var company1 = new AuthCompany
+        var company1 = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Company 1",
@@ -320,7 +320,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var company2 = new AuthCompany
+        var company2 = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Company 2",
@@ -332,7 +332,7 @@ public class GetCompaniesByUserHandlerTests
 
         this.context.Companies.AddRange(company1, company2);
 
-        var userRole1 = new AuthUserRole
+        var userRole1 = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -340,7 +340,7 @@ public class GetCompaniesByUserHandlerTests
             RoleId = adminRole.Id
         };
 
-        var userRole2 = new AuthUserRole
+        var userRole2 = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,

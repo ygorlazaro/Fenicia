@@ -54,7 +54,7 @@ public class GetAllProjectSubtaskHandlerTests
     {
         // Arrange
         var taskId = Guid.NewGuid();
-        var subtask1 = new Common.Data.Models.ProjectSubtask
+        var subtask1 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
@@ -64,7 +64,7 @@ public class GetAllProjectSubtaskHandlerTests
             CompletedAt = null
         };
 
-        var subtask2 = new Common.Data.Models.ProjectSubtask
+        var subtask2 = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
@@ -99,7 +99,7 @@ public class GetAllProjectSubtaskHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var subtask = new Common.Data.Models.ProjectSubtask
+            var subtask = new Common.Data.Models.ProjectSubtaskModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
@@ -130,7 +130,7 @@ public class GetAllProjectSubtaskHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
         {
-            var subtask = new Common.Data.Models.ProjectSubtask
+            var subtask = new Common.Data.Models.ProjectSubtaskModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
@@ -161,7 +161,7 @@ public class GetAllProjectSubtaskHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var subtask = new Common.Data.Models.ProjectSubtask
+            var subtask = new Common.Data.Models.ProjectSubtaskModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,

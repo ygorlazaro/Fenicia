@@ -54,14 +54,14 @@ public class GetAllStateHandlerTests
     public async Task Handle_WithStates_ReturnsAllStates()
     {
         // Arrange
-        var state1 = new AuthState
+        var state1 = new AuthStateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
 
-        var state2 = new AuthState
+        var state2 = new AuthStateModel
         {
             Id = Guid.NewGuid(),
             Name = "Rio de Janeiro",
@@ -92,7 +92,7 @@ public class GetAllStateHandlerTests
         // Arrange
         for (var i = 0; i < 27; i++)
         {
-            var state = new AuthState
+            var state = new AuthStateModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Address.State()} {i}",
@@ -117,7 +117,7 @@ public class GetAllStateHandlerTests
     public async Task Handle_VerifiesStateDataIsCorrect()
     {
         // Arrange
-        var state = new AuthState
+        var state = new AuthStateModel
         {
             Id = Guid.NewGuid(),
             Name = "Minas Gerais",

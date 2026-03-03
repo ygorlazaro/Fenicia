@@ -42,7 +42,7 @@ public class UpdateProjectCommentHandlerTests
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment = new Common.Data.Models.ProjectComment
+        var comment = new Common.Data.Models.ProjectCommentModel
         {
             Id = commentId,
             TaskId = taskId,
@@ -108,7 +108,7 @@ public class UpdateProjectCommentHandlerTests
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var comment1 = new Common.Data.Models.ProjectComment
+        var comment1 = new Common.Data.Models.ProjectCommentModel
         {
             Id = comment1Id,
             TaskId = taskId,
@@ -116,7 +116,7 @@ public class UpdateProjectCommentHandlerTests
             Content = "Comment 1 content"
         };
 
-        var comment2 = new Common.Data.Models.ProjectComment
+        var comment2 = new Common.Data.Models.ProjectCommentModel
         {
             Id = comment2Id,
             TaskId = taskId,
@@ -161,7 +161,7 @@ public class UpdateProjectCommentHandlerTests
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment = new Common.Data.Models.ProjectComment
+        var comment = new Common.Data.Models.ProjectCommentModel
         {
             Id = commentId,
             TaskId = taskId,

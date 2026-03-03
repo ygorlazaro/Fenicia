@@ -67,7 +67,7 @@ public class GetCompaniesByUserHandlerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -77,13 +77,13 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Admin"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",
@@ -91,7 +91,7 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -134,7 +134,7 @@ public class GetCompaniesByUserHandlerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Inactive Company",
@@ -144,13 +144,13 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "User"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",
@@ -158,7 +158,7 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -195,7 +195,7 @@ public class GetCompaniesByUserHandlerTests
         var companyId3 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company1 = new AuthCompany
+        var company1 = new AuthCompanyModel
         {
             Id = companyId1,
             Name = "Zebra Company",
@@ -205,7 +205,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var company2 = new AuthCompany
+        var company2 = new AuthCompanyModel
         {
             Id = companyId2,
             Name = "Alpha Company",
@@ -215,7 +215,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var company3 = new AuthCompany
+        var company3 = new AuthCompanyModel
         {
             Id = companyId3,
             Name = "Beta Company",
@@ -225,13 +225,13 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Contributor"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",
@@ -239,7 +239,7 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRoles = new List<AuthUserRole>
+        var userRoles = new List<AuthUserRoleModel>
         {
             new()
             {
@@ -295,12 +295,12 @@ public class GetCompaniesByUserHandlerTests
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var companies = new List<AuthCompany>();
-        var userRoles = new List<AuthUserRole>();
+        var companies = new List<AuthCompanyModel>();
+        var userRoles = new List<AuthUserRoleModel>();
 
         for (var i = 0; i < 25; i++)
         {
-            var company = new AuthCompany
+            var company = new AuthCompanyModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Company {i:D3}",
@@ -311,7 +311,7 @@ public class GetCompaniesByUserHandlerTests
             };
             companies.Add(company);
 
-            var userRole = new AuthUserRole
+            var userRole = new AuthUserRoleModel
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
@@ -321,7 +321,7 @@ public class GetCompaniesByUserHandlerTests
             userRoles.Add(userRole);
         }
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",
@@ -329,7 +329,7 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Contributor"
@@ -368,12 +368,12 @@ public class GetCompaniesByUserHandlerTests
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var companies = new List<AuthCompany>();
-        var userRoles = new List<AuthUserRole>();
+        var companies = new List<AuthCompanyModel>();
+        var userRoles = new List<AuthUserRoleModel>();
 
         for (var i = 0; i < 25; i++)
         {
-            var company = new AuthCompany
+            var company = new AuthCompanyModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Company {i:D3}",
@@ -384,7 +384,7 @@ public class GetCompaniesByUserHandlerTests
             };
             companies.Add(company);
 
-            var userRole = new AuthUserRole
+            var userRole = new AuthUserRoleModel
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
@@ -394,7 +394,7 @@ public class GetCompaniesByUserHandlerTests
             userRoles.Add(userRole);
         }
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",
@@ -402,7 +402,7 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Contributor"
@@ -440,7 +440,7 @@ public class GetCompaniesByUserHandlerTests
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Single Company",
@@ -450,7 +450,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",
@@ -458,13 +458,13 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Contributor"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -502,7 +502,7 @@ public class GetCompaniesByUserHandlerTests
         var roleId1 = Guid.NewGuid();
         var roleId2 = Guid.NewGuid();
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Multi-Role Company",
@@ -512,19 +512,19 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var role1 = new AuthRole
+        var role1 = new AuthRoleModel
         {
             Id = roleId1,
             Name = "Admin"
         };
 
-        var role2 = new AuthRole
+        var role2 = new AuthRoleModel
         {
             Id = roleId2,
             Name = "Contributor"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",
@@ -532,7 +532,7 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRoles = new List<AuthUserRole>
+        var userRoles = new List<AuthUserRoleModel>
         {
             new()
             {
@@ -581,7 +581,7 @@ public class GetCompaniesByUserHandlerTests
         var userId2 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company1 = new AuthCompany
+        var company1 = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "User 1 Company",
@@ -591,7 +591,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var company2 = new AuthCompany
+        var company2 = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "User 2 Company",
@@ -601,7 +601,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var user1 = new AuthUser
+        var user1 = new AuthUserModel
         {
             Id = userId1,
             Email = "user1@example.com",
@@ -609,7 +609,7 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var user2 = new AuthUser
+        var user2 = new AuthUserModel
         {
             Id = userId2,
             Email = "user2@example.com",
@@ -617,13 +617,13 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Contributor"
         };
 
-        var userRole1 = new AuthUserRole
+        var userRole1 = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId1,
@@ -631,7 +631,7 @@ public class GetCompaniesByUserHandlerTests
             CompanyId = company1.Id
         };
 
-        var userRole2 = new AuthUserRole
+        var userRole2 = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId2,
@@ -666,7 +666,7 @@ public class GetCompaniesByUserHandlerTests
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var activeCompany = new AuthCompany
+        var activeCompany = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Active Company",
@@ -676,7 +676,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var inactiveCompany = new AuthCompany
+        var inactiveCompany = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Inactive Company",
@@ -686,7 +686,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",
@@ -694,13 +694,13 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Contributor"
         };
 
-        var userRoles = new List<AuthUserRole>
+        var userRoles = new List<AuthUserRoleModel>
         {
             new()
             {
@@ -746,7 +746,7 @@ public class GetCompaniesByUserHandlerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = "Test Company",
@@ -756,7 +756,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",
@@ -764,13 +764,13 @@ public class GetCompaniesByUserHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Contributor"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -799,15 +799,15 @@ public class GetCompaniesByUserHandlerTests
         // Arrange
         var userId = Guid.NewGuid();
 
-        var companies = new List<AuthCompany>();
-        var roles = new List<AuthRole>();
-        var userRoles = new List<AuthUserRole>();
+        var companies = new List<AuthCompanyModel>();
+        var roles = new List<AuthRoleModel>();
+        var userRoles = new List<AuthUserRoleModel>();
 
         var roleNames = new[] { "Admin", "Manager", "Contributor", "Viewer" };
 
         for (var i = 0; i < roleNames.Length; i++)
         {
-            var company = new AuthCompany
+            var company = new AuthCompanyModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Company {i + 1}",
@@ -818,14 +818,14 @@ public class GetCompaniesByUserHandlerTests
             };
             companies.Add(company);
 
-            var role = new AuthRole
+            var role = new AuthRoleModel
             {
                 Id = Guid.NewGuid(),
                 Name = roleNames[i]
             };
             roles.Add(role);
 
-            var userRole = new AuthUserRole
+            var userRole = new AuthUserRoleModel
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
@@ -835,7 +835,7 @@ public class GetCompaniesByUserHandlerTests
             userRoles.Add(userRole);
         }
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = "test@example.com",

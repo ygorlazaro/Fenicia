@@ -6,7 +6,7 @@ public class AddProjectHandler(DefaultContext context)
 {
     public async Task<AddProjectResponse> Handle(AddProjectCommand command, CancellationToken ct)
     {
-        var project = new Common.Data.Models.Project
+        var project = new Common.Data.Models.ProjectModel
         {
             Id = command.Id,
             Title = command.Title,

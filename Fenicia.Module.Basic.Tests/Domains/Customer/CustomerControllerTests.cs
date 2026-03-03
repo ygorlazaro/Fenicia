@@ -117,11 +117,11 @@ public class CustomerControllerTests
     public async Task GetAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
         // Arrange
-        var customer1 = new BasicCustomer
+        var customer1 = new BasicCustomerModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -138,11 +138,11 @@ public class CustomerControllerTests
             }
         };
 
-        var customer2 = new BasicCustomer
+        var customer2 = new BasicCustomerModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -185,11 +185,11 @@ public class CustomerControllerTests
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsOkWithCustomer()
     {
         // Arrange
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -289,11 +289,11 @@ public class CustomerControllerTests
     public async Task PatchAsync_WhenCustomerExists_ReturnsOkWithUpdatedCustomer()
     {
         // Arrange
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -377,11 +377,11 @@ public class CustomerControllerTests
     public async Task DeleteAsync_WhenCustomerExists_ReturnsNoContent()
     {
         // Arrange
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("project_subtasks", Schema = "project")]
-public class ProjectSubtask : BaseCompanyModel
+public class ProjectSubtaskModel : BaseCompanyModel
 {
     public Guid TaskId { get; set; }
 

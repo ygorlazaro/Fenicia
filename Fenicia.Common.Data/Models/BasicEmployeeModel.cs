@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("employees", Schema = "basic")]
-public class BasicEmployee : BaseCompanyModel
+public class BasicEmployeeModel : BaseCompanyModel
 {
     [Required]
     public Guid PositionId { get; set; }

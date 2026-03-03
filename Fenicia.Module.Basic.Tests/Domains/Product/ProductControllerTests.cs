@@ -117,13 +117,13 @@ public class ProductControllerTests
     public async Task GetAsync_WhenProductsExist_ReturnsOkWithProducts()
     {
         // Arrange
-        var category = new BasicProductCategory
+        var category = new BasicProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product1 = new BasicProduct
+        var product1 = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -133,7 +133,7 @@ public class ProductControllerTests
             CategoryId = category.Id
         };
 
-        var product2 = new BasicProduct
+        var product2 = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -170,13 +170,13 @@ public class ProductControllerTests
     public async Task GetByIdAsync_WhenProductExists_ReturnsOkWithProduct()
     {
         // Arrange
-        var category = new BasicProductCategory
+        var category = new BasicProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -230,7 +230,7 @@ public class ProductControllerTests
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithProduct()
     {
         // Arrange
-        var category = new BasicProductCategory
+        var category = new BasicProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
@@ -274,13 +274,13 @@ public class ProductControllerTests
     public async Task PatchAsync_WhenProductExists_ReturnsOkWithUpdatedProduct()
     {
         // Arrange
-        var category = new BasicProductCategory
+        var category = new BasicProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -324,7 +324,7 @@ public class ProductControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var category = new BasicProductCategory
+        var category = new BasicProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
@@ -355,7 +355,7 @@ public class ProductControllerTests
     public async Task DeleteAsync_WhenProductExists_ReturnsNoContent()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),

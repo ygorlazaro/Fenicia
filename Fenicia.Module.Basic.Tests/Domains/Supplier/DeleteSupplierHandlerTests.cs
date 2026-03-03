@@ -41,11 +41,11 @@ public class DeleteSupplierHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var supplier = new BasicSupplier
+        var supplier = new BasicSupplierModel
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -97,22 +97,22 @@ public class DeleteSupplierHandlerTests
         var supplier1Id = Guid.NewGuid();
         var supplier2Id = Guid.NewGuid();
 
-        var supplier1 = new BasicSupplier
+        var supplier1 = new BasicSupplierModel
         {
             Id = supplier1Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName()
             }
         };
 
-        var supplier2 = new BasicSupplier
+        var supplier2 = new BasicSupplierModel
         {
             Id = supplier2Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName()

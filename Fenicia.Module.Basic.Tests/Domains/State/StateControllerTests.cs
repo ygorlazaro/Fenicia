@@ -96,14 +96,14 @@ public class StateControllerTests
     public async Task GetAllAsync_WhenStatesExist_ReturnsOkWithStates()
     {
         // Arrange
-        var state1 = new AuthState
+        var state1 = new AuthStateModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Address.State(),
             Uf = this.faker.Address.StateAbbr()
         };
 
-        var state2 = new AuthState
+        var state2 = new AuthStateModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Address.State(),

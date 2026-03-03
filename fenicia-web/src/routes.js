@@ -16,6 +16,13 @@ const Products = React.lazy(() => import("./views/basic/product"));
 const Inventory = React.lazy(() => import("./views/basic/inventory"));
 const StockMovement = React.lazy(() => import("./views/basic/stock-movement"));
 const Orders = React.lazy(() => import("./views/basic/order"));
+const ProjectList = React.lazy(() => import("./views/project"));
+const ProjectStatusList = React.lazy(() => import("./views/project/status"));
+const ProjectTaskList = React.lazy(() => import("./views/project/task"));
+const ProjectSubtaskList = React.lazy(() => import("./views/project/subtask"));
+const ProjectCommentList = React.lazy(() => import("./views/project/comment"));
+const ProjectAttachmentList = React.lazy(() => import("./views/project/attachment"));
+const ProjectTaskAssigneeList = React.lazy(() => import("./views/project/task-assignee"));
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -129,6 +136,13 @@ const routes = [
   { path: '/basic/inventory', name: 'Inventory', element: Inventory },
   { path: '/basic/stock-movements', name: 'Stock Movements', element: StockMovement },
   { path: '/basic/orders', name: 'Orders', element: Orders },
+  { path: '/project/projects', name: 'Projects', element: ProjectList },
+  { path: '/project/status', name: 'Project Status', element: ProjectStatusList },
+  { path: '/project/tasks', name: 'Project Tasks', element: ProjectTaskList },
+  { path: '/project/subtasks', name: 'Project Subtasks', element: ProjectSubtaskList },
+  { path: '/project/comments', name: 'Project Comments', element: ProjectCommentList },
+  { path: '/project/attachments', name: 'Project Attachments', element: ProjectAttachmentList },
+  { path: '/project/task-assignees', name: 'Project Task Assignees', element: ProjectTaskAssigneeList },
 ]
 
 export default routes

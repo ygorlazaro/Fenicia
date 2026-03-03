@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Fenicia.Common.Data.Models;
 
 [Table("users_roles", Schema = "auth")]
-public class AuthUserRole : BaseModel
+public class AuthUserRoleModel : BaseModel
 {
     [Required]
     [Column("user_id")]
@@ -21,13 +21,13 @@ public class AuthUserRole : BaseModel
 
     [ForeignKey(nameof(RoleId))]
     [JsonIgnore]
-    public AuthRole Role { get; set; } = null!;
+    public AuthRoleModel RoleModel { get; set; } = null!;
 
     [ForeignKey(nameof(UserId))]
     [JsonIgnore]
-    public AuthUser User { get; set; } = null!;
+    public AuthUserModel UserModel { get; set; } = null!;
 
     [ForeignKey(nameof(CompanyId))]
     [JsonIgnore]
-    public AuthCompany Company { get; set; } = null!;
+    public AuthCompanyModel CompanyModel { get; set; } = null!;
 }

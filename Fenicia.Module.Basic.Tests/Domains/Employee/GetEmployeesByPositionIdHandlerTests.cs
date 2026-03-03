@@ -58,13 +58,13 @@ public class GetEmployeesByPositionIdHandlerTests
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new BasicPosition
+        var position1 = new BasicPositionModel
         {
             Id = position1Id,
             Name = "Developer"
         };
 
-        var position2 = new BasicPosition
+        var position2 = new BasicPositionModel
         {
             Id = position2Id,
             Name = "Designer"
@@ -72,12 +72,12 @@ public class GetEmployeesByPositionIdHandlerTests
 
         this.context.BasicPositions.AddRange(position1, position2);
 
-        var employee1 = new BasicEmployee
+        var employee1 = new BasicEmployeeModel
         {
             Id = Guid.NewGuid(),
             PositionId = position1Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -91,12 +91,12 @@ public class GetEmployeesByPositionIdHandlerTests
             }
         };
 
-        var employee2 = new BasicEmployee
+        var employee2 = new BasicEmployeeModel
         {
             Id = Guid.NewGuid(),
             PositionId = position1Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -110,12 +110,12 @@ public class GetEmployeesByPositionIdHandlerTests
             }
         };
 
-        var employee3 = new BasicEmployee
+        var employee3 = new BasicEmployeeModel
         {
             Id = Guid.NewGuid(),
             PositionId = position2Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -148,7 +148,7 @@ public class GetEmployeesByPositionIdHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = positionId,
             Name = "Developer"
@@ -157,12 +157,12 @@ public class GetEmployeesByPositionIdHandlerTests
 
         for (var i = 0; i < 25; i++)
         {
-            var employee = new BasicEmployee
+            var employee = new BasicEmployeeModel
             {
                 Id = Guid.NewGuid(),
                 PositionId = positionId,
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPerson
+                PersonModel = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -195,7 +195,7 @@ public class GetEmployeesByPositionIdHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = positionId,
             Name = "Developer"
@@ -204,12 +204,12 @@ public class GetEmployeesByPositionIdHandlerTests
 
         for (var i = 0; i < 5; i++)
         {
-            var employee = new BasicEmployee
+            var employee = new BasicEmployeeModel
             {
                 Id = Guid.NewGuid(),
                 PositionId = positionId,
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPerson
+                PersonModel = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -242,7 +242,7 @@ public class GetEmployeesByPositionIdHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = positionId,
             Name = "Developer"
@@ -251,12 +251,12 @@ public class GetEmployeesByPositionIdHandlerTests
 
         for (var i = 0; i < 25; i++)
         {
-            var employee = new BasicEmployee
+            var employee = new BasicEmployeeModel
             {
                 Id = Guid.NewGuid(),
                 PositionId = positionId,
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPerson
+                PersonModel = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -289,19 +289,19 @@ public class GetEmployeesByPositionIdHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = positionId,
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = Guid.NewGuid(),
             PositionId = positionId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,

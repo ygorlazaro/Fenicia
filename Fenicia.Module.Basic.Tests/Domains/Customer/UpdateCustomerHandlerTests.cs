@@ -42,11 +42,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -84,7 +84,7 @@ public class UpdateCustomerHandlerTests
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.PersonId, Is.EqualTo(customer.Person.Id));
+            Assert.That(result.PersonId, Is.EqualTo(customer.PersonModel.Id));
             Assert.That(result.Id, Is.EqualTo(customerId));
         }
     }
@@ -144,11 +144,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -192,11 +192,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -240,11 +240,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -288,11 +288,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -336,11 +336,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -384,11 +384,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -432,11 +432,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -480,11 +480,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -520,15 +520,15 @@ public class UpdateCustomerHandlerTests
 
         // Assert
         var updatedCustomer = await this.context.BasicCustomers
-            .Include(c => c.Person)
+            .Include(c => c.PersonModel)
             .FirstOrDefaultAsync(c => c.Id == customerId);
 
         Assert.That(updatedCustomer, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(updatedCustomer.Person.Name, Is.EqualTo("New Name"));
-            Assert.That(updatedCustomer.Person.Email, Is.EqualTo("new@email.com"));
-            Assert.That(updatedCustomer.Person.City, Is.EqualTo("New City"));
+            Assert.That(updatedCustomer.PersonModel.Name, Is.EqualTo("New Name"));
+            Assert.That(updatedCustomer.PersonModel.Email, Is.EqualTo("new@email.com"));
+            Assert.That(updatedCustomer.PersonModel.City, Is.EqualTo("New City"));
         }
     }
 }

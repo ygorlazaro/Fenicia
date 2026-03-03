@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Fenicia.Common.Data.Models;
 
 [Table("projects", Schema = "project")]
-public class Project : BaseCompanyModel
+public class ProjectModel : BaseCompanyModel
 {
     public string Title { get; set; } = null!;
 

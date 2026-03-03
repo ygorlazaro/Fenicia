@@ -6,7 +6,7 @@ public class AddProjectSubtaskHandler(DefaultContext context)
 {
     public async Task<AddProjectSubtaskResponse> Handle(AddProjectSubtaskCommand command, CancellationToken ct)
     {
-        var projectSubtask = new Common.Data.Models.ProjectSubtask
+        var projectSubtask = new Common.Data.Models.ProjectSubtaskModel
         {
             Id = command.Id,
             TaskId = command.TaskId,
