@@ -31,7 +31,7 @@ public class CreateNewUserHandler(
         }
 
         var hashedPassword = hashPasswordHandler.Handle(request.Password);
-        var userRequest = new AuthUser
+        var userRequest = new AuthUserModel
         {
             Email = request.Email,
             Password = hashedPassword,
@@ -39,7 +39,7 @@ public class CreateNewUserHandler(
         };
         context.AuthUsers.Add(userRequest);
 
-        var companyRequest = new AuthCompany
+        var companyRequest = new AuthCompanyModel
         {
             Name = request.Company.Name,
             Cnpj = request.Company.Cnpj,
@@ -50,10 +50,10 @@ public class CreateNewUserHandler(
 
         var adminRole = await getAdminRoleHandler.Handle(ct)
                         ?? throw new ArgumentException(TextConstants.MissingAdminRoleMessage);
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             UserId = userRequest.Id,
-            Company = companyRequest,
+            CompanyModel = companyRequest,
             RoleId = adminRole.Id
         };
 

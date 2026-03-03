@@ -22,7 +22,7 @@ public class ResetPasswordHandler(DefaultContext db, ChangePasswordHandler chang
         await InvalidateCodeAsync(currentCode.Id, ct);
     }
 
-    private async Task<AuthForgotPassowrd?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
+    private async Task<AuthForgotPassowrdModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
         var query = db.ForgottenPasswords

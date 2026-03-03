@@ -44,13 +44,13 @@ public class UpdateEmployeeHandlerTests
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new BasicPosition
+        var position1 = new BasicPositionModel
         {
             Id = position1Id,
             Name = "Old Position"
         };
 
-        var position2 = new BasicPosition
+        var position2 = new BasicPositionModel
         {
             Id = position2Id,
             Name = "New Position"
@@ -58,12 +58,12 @@ public class UpdateEmployeeHandlerTests
 
         this.context.BasicPositions.AddRange(position1, position2);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position1Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -164,19 +164,19 @@ public class UpdateEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -220,19 +220,19 @@ public class UpdateEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -276,19 +276,19 @@ public class UpdateEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -332,19 +332,19 @@ public class UpdateEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -388,19 +388,19 @@ public class UpdateEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -444,19 +444,19 @@ public class UpdateEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -500,19 +500,19 @@ public class UpdateEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -559,13 +559,13 @@ public class UpdateEmployeeHandlerTests
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new BasicPosition
+        var position1 = new BasicPositionModel
         {
             Id = position1Id,
             Name = "Old Position"
         };
 
-        var position2 = new BasicPosition
+        var position2 = new BasicPositionModel
         {
             Id = position2Id,
             Name = "New Position"
@@ -573,12 +573,12 @@ public class UpdateEmployeeHandlerTests
 
         this.context.BasicPositions.AddRange(position1, position2);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position1Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -615,14 +615,14 @@ public class UpdateEmployeeHandlerTests
 
         // Assert
         var updatedEmployee = await this.context.BasicEmployees
-            .Include(e => e.Person)
+            .Include(e => e.PersonModel)
             .FirstOrDefaultAsync(e => e.Id == employeeId);
 
         Assert.That(updatedEmployee, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(updatedEmployee.Person.Name, Is.EqualTo("New Name"));
-            Assert.That(updatedEmployee.Person.Email, Is.EqualTo("new@email.com"));
+            Assert.That(updatedEmployee.PersonModel.Name, Is.EqualTo("New Name"));
+            Assert.That(updatedEmployee.PersonModel.Email, Is.EqualTo("new@email.com"));
             Assert.That(updatedEmployee.PositionId, Is.EqualTo(position2Id));
         }
     }

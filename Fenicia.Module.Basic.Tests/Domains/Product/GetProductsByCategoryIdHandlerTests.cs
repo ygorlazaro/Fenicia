@@ -54,11 +54,11 @@ public class GetProductsByCategoryIdHandlerTests
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new BasicProductCategory { Id = category1Id, Name = "Electronics" };
-        var category2 = new BasicProductCategory { Id = category2Id, Name = "Books" };
+        var category1 = new BasicProductCategoryModel { Id = category1Id, Name = "Electronics" };
+        var category2 = new BasicProductCategoryModel { Id = category2Id, Name = "Books" };
         this.context.BasicProductCategories.AddRange(category1, category2);
 
-        var product1 = new BasicProduct
+        var product1 = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 1",
@@ -68,7 +68,7 @@ public class GetProductsByCategoryIdHandlerTests
             CategoryId = category1Id
         };
 
-        var product2 = new BasicProduct
+        var product2 = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 2",
@@ -78,7 +78,7 @@ public class GetProductsByCategoryIdHandlerTests
             CategoryId = category1Id
         };
 
-        var product3 = new BasicProduct
+        var product3 = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 3",
@@ -107,12 +107,12 @@ public class GetProductsByCategoryIdHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new BasicProductCategory { Id = categoryId, Name = "Electronics" };
+        var category = new BasicProductCategoryModel { Id = categoryId, Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
-            var product = new BasicProduct
+            var product = new BasicProductModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
@@ -141,12 +141,12 @@ public class GetProductsByCategoryIdHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new BasicProductCategory { Id = categoryId, Name = "Electronics" };
+        var category = new BasicProductCategoryModel { Id = categoryId, Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 5; i++)
         {
-            var product = new BasicProduct
+            var product = new BasicProductModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
@@ -175,10 +175,10 @@ public class GetProductsByCategoryIdHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new BasicProductCategory { Id = categoryId, Name = "Electronics" };
+        var category = new BasicProductCategoryModel { Id = categoryId, Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",

@@ -71,7 +71,7 @@ public class ForgotPasswordControllerTests
         var cancellationToken = CancellationToken.None;
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -131,7 +131,7 @@ public class ForgotPasswordControllerTests
         var cancellationToken = CancellationToken.None;
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -164,7 +164,7 @@ public class ForgotPasswordControllerTests
         var email = this.faker.Internet.Email();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -174,7 +174,7 @@ public class ForgotPasswordControllerTests
 
         var code = this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
-        var forgotPassword = new AuthForgotPassowrd
+        var forgotPassword = new AuthForgotPassowrdModel
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
@@ -231,7 +231,7 @@ public class ForgotPasswordControllerTests
         var cancellationToken = CancellationToken.None;
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -283,7 +283,7 @@ public class ForgotPasswordControllerTests
         var email = this.faker.Internet.Email();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -293,7 +293,7 @@ public class ForgotPasswordControllerTests
 
         var code = this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
-        var forgotPassword = new AuthForgotPassowrd
+        var forgotPassword = new AuthForgotPassowrdModel
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,

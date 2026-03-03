@@ -42,7 +42,7 @@ public class AddForgotPasswordHandlerTests
         var userId = Guid.NewGuid();
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -93,7 +93,7 @@ public class AddForgotPasswordHandlerTests
         var email = "test@example.com";
         var upperCaseEmail = "TEST@EXAMPLE.COM";
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -122,7 +122,7 @@ public class AddForgotPasswordHandlerTests
         var email1 = "user1@example.com";
         var email2 = "user2@example.com";
 
-        var user1 = new AuthUser
+        var user1 = new AuthUserModel
         {
             Id = userId1,
             Email = email1,
@@ -130,7 +130,7 @@ public class AddForgotPasswordHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var user2 = new AuthUser
+        var user2 = new AuthUserModel
         {
             Id = userId2,
             Email = email2,
@@ -167,7 +167,7 @@ public class AddForgotPasswordHandlerTests
         var userId = Guid.NewGuid();
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -217,7 +217,7 @@ public class AddForgotPasswordHandlerTests
         var email1 = "user1@example.com";
         var email2 = "user2@example.com";
 
-        var user1 = new AuthUser
+        var user1 = new AuthUserModel
         {
             Id = userId1,
             Email = email1,
@@ -225,7 +225,7 @@ public class AddForgotPasswordHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var user2 = new AuthUser
+        var user2 = new AuthUserModel
         {
             Id = userId2,
             Email = email2,

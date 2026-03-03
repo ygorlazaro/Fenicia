@@ -46,7 +46,7 @@ public class ChangePasswordHandlerTests
         var newPassword = this.faker.Internet.Password();
         var oldPassword = "old_hashed_password";
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -98,7 +98,7 @@ public class ChangePasswordHandlerTests
         var userId = Guid.NewGuid();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -132,7 +132,7 @@ public class ChangePasswordHandlerTests
         var userId = Guid.NewGuid();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -167,7 +167,7 @@ public class ChangePasswordHandlerTests
         var oldPassword1 = "old_password_1";
         var oldPassword2 = "old_password_2";
 
-        var user1 = new AuthUser
+        var user1 = new AuthUserModel
         {
             Id = userId1,
             Email = this.faker.Internet.Email(),
@@ -175,7 +175,7 @@ public class ChangePasswordHandlerTests
             Password = oldPassword1
         };
 
-        var user2 = new AuthUser
+        var user2 = new AuthUserModel
         {
             Id = userId2,
             Email = this.faker.Internet.Email(),
@@ -210,7 +210,7 @@ public class ChangePasswordHandlerTests
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -259,7 +259,7 @@ public class ChangePasswordHandlerTests
         var userId = Guid.NewGuid();
         var newPassword = string.Empty;
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -288,7 +288,7 @@ public class ChangePasswordHandlerTests
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,

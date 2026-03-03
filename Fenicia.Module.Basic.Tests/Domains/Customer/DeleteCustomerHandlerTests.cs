@@ -41,11 +41,11 @@ public class DeleteCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -97,11 +97,11 @@ public class DeleteCustomerHandlerTests
         var customer1Id = Guid.NewGuid();
         var customer2Id = Guid.NewGuid();
 
-        var customer1 = new BasicCustomer
+        var customer1 = new BasicCustomerModel
         {
             Id = customer1Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -115,11 +115,11 @@ public class DeleteCustomerHandlerTests
             }
         };
 
-        var customer2 = new BasicCustomer
+        var customer2 = new BasicCustomerModel
         {
             Id = customer2Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,

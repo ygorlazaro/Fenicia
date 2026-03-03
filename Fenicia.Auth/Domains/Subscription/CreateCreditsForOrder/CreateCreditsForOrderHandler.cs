@@ -16,7 +16,7 @@ public class CreateCreditsForOrderHandler(DefaultContext context)
             throw new ArgumentException(TextConstants.ThereWasAnErrorAddingModulesMessage);
         }
 
-        var credits = query.Details.Select(d => new AuthSubscriptionCredit
+        var credits = query.Details.Select(d => new AuthSubscriptionCreditModel
         {
             ModuleId = d.ModuleId,
             IsActive = true,
@@ -25,7 +25,7 @@ public class CreateCreditsForOrderHandler(DefaultContext context)
             OrderDetailId = d.Id
         }).ToList();
 
-        var subscription = new AuthSubscription
+        var subscription = new AuthSubscriptionModel
         {
             Status = SubscriptionStatus.Active,
             CompanyId = query.CompanyId,

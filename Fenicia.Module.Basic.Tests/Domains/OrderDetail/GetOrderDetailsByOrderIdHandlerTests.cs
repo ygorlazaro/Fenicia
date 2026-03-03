@@ -54,7 +54,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
         var order1Id = Guid.NewGuid();
         var order2Id = Guid.NewGuid();
 
-        var detail1 = new BasicOrderDetail
+        var detail1 = new BasicOrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = order1Id,
@@ -63,7 +63,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
             Quantity = 5
         };
 
-        var detail2 = new BasicOrderDetail
+        var detail2 = new BasicOrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = order1Id,
@@ -72,7 +72,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
             Quantity = 3
         };
 
-        var detail3 = new BasicOrderDetail
+        var detail3 = new BasicOrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = order2Id,
@@ -100,7 +100,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        var detail = new BasicOrderDetail
+        var detail = new BasicOrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = orderId,

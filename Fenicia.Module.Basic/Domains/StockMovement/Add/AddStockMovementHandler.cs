@@ -10,7 +10,7 @@ public class AddStockMovementHandler(DefaultContext context)
 {
     public async Task<AddStockMovementResponse> Handle(AddStockMovementCommand command, CancellationToken ct)
     {
-        var stockMovement = new BasicStockMovement
+        var stockMovement = new BasicStockMovementModel
         {
             Id = command.Id,
             Quantity = command.Quantity,

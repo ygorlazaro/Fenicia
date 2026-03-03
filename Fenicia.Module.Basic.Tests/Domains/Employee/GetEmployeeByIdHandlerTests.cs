@@ -41,19 +41,19 @@ public class GetEmployeeByIdHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -80,7 +80,7 @@ public class GetEmployeeByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(employeeId));
-            Assert.That(result.PersonId, Is.EqualTo(employee.Person.Id));
+            Assert.That(result.PersonId, Is.EqualTo(employee.PersonModel.Id));
             Assert.That(result.PositionId, Is.EqualTo(position.Id));
         }
     }
@@ -116,19 +116,19 @@ public class GetEmployeeByIdHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -161,19 +161,19 @@ public class GetEmployeeByIdHandlerTests
         // Arrange
         var employee1Id = Guid.NewGuid();
         var employee2Id = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee1 = new BasicEmployee
+        var employee1 = new BasicEmployeeModel
         {
             Id = employee1Id,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -187,12 +187,12 @@ public class GetEmployeeByIdHandlerTests
             }
         };
 
-        var employee2 = new BasicEmployee
+        var employee2 = new BasicEmployeeModel
         {
             Id = employee2Id,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FirstName,
@@ -227,19 +227,19 @@ public class GetEmployeeByIdHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,

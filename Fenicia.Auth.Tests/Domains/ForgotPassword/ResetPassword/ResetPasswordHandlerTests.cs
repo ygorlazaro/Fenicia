@@ -49,7 +49,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -57,7 +57,7 @@ public class ResetPasswordHandlerTests
             Password = "old_hashed_password"
         };
 
-        var forgotPassword = new AuthForgotPassowrd
+        var forgotPassword = new AuthForgotPassowrdModel
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -112,7 +112,7 @@ public class ResetPasswordHandlerTests
         var invalidCode = "INVALID";
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -120,7 +120,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password"
         };
 
-        var forgotPassword = new AuthForgotPassowrd
+        var forgotPassword = new AuthForgotPassowrdModel
         {
             Id = Guid.NewGuid(),
             Code = validCode,
@@ -151,7 +151,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -159,7 +159,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password"
         };
 
-        var forgotPassword = new AuthForgotPassowrd
+        var forgotPassword = new AuthForgotPassowrdModel
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -190,7 +190,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -198,7 +198,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password"
         };
 
-        var forgotPassword = new AuthForgotPassowrd
+        var forgotPassword = new AuthForgotPassowrdModel
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -231,7 +231,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user1 = new AuthUser
+        var user1 = new AuthUserModel
         {
             Id = userId1,
             Email = email1,
@@ -239,7 +239,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password1"
         };
 
-        var user2 = new AuthUser
+        var user2 = new AuthUserModel
         {
             Id = userId2,
             Email = email2,
@@ -247,7 +247,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password2"
         };
 
-        var forgotPassword = new AuthForgotPassowrd
+        var forgotPassword = new AuthForgotPassowrdModel
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -278,7 +278,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -286,7 +286,7 @@ public class ResetPasswordHandlerTests
             Password = "old_password"
         };
 
-        var forgotPassword = new AuthForgotPassowrd
+        var forgotPassword = new AuthForgotPassowrdModel
         {
             Id = Guid.NewGuid(),
             Code = code,
@@ -320,7 +320,7 @@ public class ResetPasswordHandlerTests
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -328,7 +328,7 @@ public class ResetPasswordHandlerTests
             Password = "old_hashed_password"
         };
 
-        var forgotPassword = new AuthForgotPassowrd
+        var forgotPassword = new AuthForgotPassowrdModel
         {
             Id = Guid.NewGuid(),
             Code = code,

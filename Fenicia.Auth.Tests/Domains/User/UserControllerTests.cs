@@ -118,7 +118,7 @@ public class UserControllerTests
         var subscriptionId = Guid.NewGuid();
         var subscriptionCreditId = Guid.NewGuid();
 
-        var module = new AuthModule
+        var module = new AuthModuleModel
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
@@ -126,7 +126,7 @@ public class UserControllerTests
             Price = this.faker.Finance.Amount(10, 100)
         };
 
-        var subscription = new AuthSubscription
+        var subscription = new AuthSubscriptionModel
         {
             Id = subscriptionId,
             CompanyId = companyId,
@@ -135,7 +135,7 @@ public class UserControllerTests
             EndDate = DateTime.Now.AddDays(30)
         };
 
-        var subscriptionCredit = new AuthSubscriptionCredit
+        var subscriptionCredit = new AuthSubscriptionCreditModel
         {
             Id = subscriptionCreditId,
             SubscriptionId = subscriptionId,
@@ -145,7 +145,7 @@ public class UserControllerTests
             EndDate = DateTime.Now.AddDays(30)
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -153,7 +153,7 @@ public class UserControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -253,7 +253,7 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -263,13 +263,13 @@ public class UserControllerTests
             Language = "pt-BR"
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Admin"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -277,7 +277,7 @@ public class UserControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,

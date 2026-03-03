@@ -117,13 +117,13 @@ public class InventoryControllerTests
     public async Task GetInventoryAsync_WhenProductsExist_ReturnsOkWithInventory()
     {
         // Arrange
-        var category = new BasicProductCategory
+        var category = new BasicProductCategoryModel
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product1 = new BasicProduct
+        var product1 = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -133,7 +133,7 @@ public class InventoryControllerTests
             CategoryId = category.Id
         };
 
-        var product2 = new BasicProduct
+        var product2 = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -176,13 +176,13 @@ public class InventoryControllerTests
     public async Task GetInventoryByProductIdAsync_WhenProductExists_ReturnsOkWithInventory()
     {
         // Arrange
-        var category = new BasicProductCategory
+        var category = new BasicProductCategoryModel
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -244,13 +244,13 @@ public class InventoryControllerTests
     public async Task GetInventoryByCategoryIdAsync_WhenCategoryExists_ReturnsOkWithInventory()
     {
         // Arrange
-        var category = new BasicProductCategory
+        var category = new BasicProductCategoryModel
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product1 = new BasicProduct
+        var product1 = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -260,7 +260,7 @@ public class InventoryControllerTests
             CategoryId = category.Id
         };
 
-        var product2 = new BasicProduct
+        var product2 = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),

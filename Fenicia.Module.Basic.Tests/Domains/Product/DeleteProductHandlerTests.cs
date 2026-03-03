@@ -37,7 +37,7 @@ public class DeleteProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = productId,
             Name = "Product",
@@ -85,7 +85,7 @@ public class DeleteProductHandlerTests
         var product1Id = Guid.NewGuid();
         var product2Id = Guid.NewGuid();
 
-        var product1 = new BasicProduct
+        var product1 = new BasicProductModel
         {
             Id = product1Id,
             Name = "Product 1",
@@ -95,7 +95,7 @@ public class DeleteProductHandlerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var product2 = new BasicProduct
+        var product2 = new BasicProductModel
         {
             Id = product2Id,
             Name = "Product 2",

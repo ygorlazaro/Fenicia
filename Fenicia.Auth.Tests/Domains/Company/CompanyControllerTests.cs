@@ -117,7 +117,7 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -127,13 +127,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = roleId,
             Name = "Admin"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -141,7 +141,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -212,7 +212,7 @@ public class CompanyControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -222,13 +222,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var adminRole = new AuthRole
+        var adminRole = new AuthRoleModel
         {
             Id = adminRoleId,
             Name = "Admin"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -236,7 +236,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -311,7 +311,7 @@ public class CompanyControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -321,13 +321,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthRole
+        var userRole = new AuthRoleModel
         {
             Id = userRoleId,
-            Name = "Member"
+            Name = "Contributor"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -335,7 +335,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRoleMapping = new AuthUserRole
+        var userRoleMapping = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -370,7 +370,7 @@ public class CompanyControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -380,13 +380,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var adminRole = new AuthRole
+        var adminRole = new AuthRoleModel
         {
             Id = adminRoleId,
             Name = "Admin"
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -394,7 +394,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,

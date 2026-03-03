@@ -54,11 +54,11 @@ public class GetAllCustomerHandlerTests
     public async Task Handle_WithCustomers_ReturnsAllCustomers()
     {
         // Arrange
-        var customer1 = new BasicCustomer
+        var customer1 = new BasicCustomerModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -72,11 +72,11 @@ public class GetAllCustomerHandlerTests
             }
         };
 
-        var customer2 = new BasicCustomer
+        var customer2 = new BasicCustomerModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -103,8 +103,8 @@ public class GetAllCustomerHandlerTests
         Assert.That(result, Has.Count.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result[0].PersonId, Is.EqualTo(customer1.Person.Id));
-            Assert.That(result[1].PersonId, Is.EqualTo(customer2.Person.Id));
+            Assert.That(result[0].PersonId, Is.EqualTo(customer1.PersonModel.Id));
+            Assert.That(result[1].PersonId, Is.EqualTo(customer2.PersonModel.Id));
         }
     }
 
@@ -114,11 +114,11 @@ public class GetAllCustomerHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var customer = new BasicCustomer
+            var customer = new BasicCustomerModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPerson
+                PersonModel = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -152,11 +152,11 @@ public class GetAllCustomerHandlerTests
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var customer = new BasicCustomer
+            var customer = new BasicCustomerModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPerson
+                PersonModel = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -190,11 +190,11 @@ public class GetAllCustomerHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var customer = new BasicCustomer
+            var customer = new BasicCustomerModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPerson
+                PersonModel = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",

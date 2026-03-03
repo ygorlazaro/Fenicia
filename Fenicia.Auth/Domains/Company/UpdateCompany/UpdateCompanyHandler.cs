@@ -35,7 +35,7 @@ public sealed class UpdateCompanyHandler(DefaultContext context)
     private async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken ct)
     {
         var query = context.UserRoles.Where(ur => ur.UserId == userId
-                                                  && ur.CompanyId == companyId && ur.Role.Name == role)
+                                                  && ur.CompanyId == companyId && ur.RoleModel.Name == role)
             .Select(ur => 1);
 
         return await query.AnyAsync(ct);

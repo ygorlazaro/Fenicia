@@ -16,7 +16,7 @@ public class GetProductsByCategoryIdHandler(DefaultContext context)
                 p.SalesPrice,
                 p.Quantity,
                 p.CategoryId,
-                p.Category.Name))
+                p.CategoryModel.Name))
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(ct);

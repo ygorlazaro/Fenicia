@@ -36,7 +36,7 @@ public class GetAdminRoleHandlerTests
         // Arrange
         var adminRoleId = Guid.NewGuid();
 
-        var adminRole = new AuthRole
+        var adminRole = new AuthRoleModel
         {
             Id = adminRoleId,
             Name = "Admin"
@@ -61,7 +61,7 @@ public class GetAdminRoleHandlerTests
     public async Task Handle_WhenAdminRoleDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = Guid.NewGuid(),
             Name = "User"
@@ -83,19 +83,19 @@ public class GetAdminRoleHandlerTests
         // Arrange
         var adminRoleId = Guid.NewGuid();
 
-        var adminRole = new AuthRole
+        var adminRole = new AuthRoleModel
         {
             Id = adminRoleId,
             Name = "Admin"
         };
 
-        var userRole = new AuthRole
+        var userRole = new AuthRoleModel
         {
             Id = Guid.NewGuid(),
             Name = "User"
         };
 
-        var managerRole = new AuthRole
+        var managerRole = new AuthRoleModel
         {
             Id = Guid.NewGuid(),
             Name = "Manager"
@@ -120,7 +120,7 @@ public class GetAdminRoleHandlerTests
     public async Task Handle_WhenAdminRoleNameHasDifferentCase_ReturnsNull()
     {
         // Arrange
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = Guid.NewGuid(),
             Name = "admin"
@@ -150,7 +150,7 @@ public class GetAdminRoleHandlerTests
     public async Task Handle_WhenAdminRoleNameHasExtraSpaces_ReturnsNull()
     {
         // Arrange
-        var role = new AuthRole
+        var role = new AuthRoleModel
         {
             Id = Guid.NewGuid(),
             Name = " Admin "
@@ -173,13 +173,13 @@ public class GetAdminRoleHandlerTests
         var adminRoleId1 = Guid.NewGuid();
         var adminRoleId2 = Guid.NewGuid();
 
-        var adminRole1 = new AuthRole
+        var adminRole1 = new AuthRoleModel
         {
             Id = adminRoleId1,
             Name = "Admin"
         };
 
-        var adminRole2 = new AuthRole
+        var adminRole2 = new AuthRoleModel
         {
             Id = adminRoleId2,
             Name = "Admin"

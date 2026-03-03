@@ -9,7 +9,7 @@ public class UpdateProductHandler(DefaultContext context)
     public async Task<UpdateProductResponse?> Handle(UpdateProductCommand command, CancellationToken ct)
     {
         var product = await context.BasicProducts
-            .Include(p => p.Category)
+            .Include(p => p.CategoryModel)
             .FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
         if (product is null)
@@ -34,6 +34,6 @@ public class UpdateProductHandler(DefaultContext context)
             product.SalesPrice,
             product.Quantity,
             product.CategoryId,
-            product.Category.Name);
+            product.CategoryModel.Name);
     }
 }

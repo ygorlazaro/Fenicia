@@ -1,4 +1,4 @@
-import { ApiClient } from '../client';
+import {ApiClient} from "src/services/client";
 
 const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5002/api';
 

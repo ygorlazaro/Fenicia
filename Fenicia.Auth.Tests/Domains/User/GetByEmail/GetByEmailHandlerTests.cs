@@ -43,7 +43,7 @@ public class GetByEmailHandlerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -91,7 +91,7 @@ public class GetByEmailHandlerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -122,7 +122,7 @@ public class GetByEmailHandlerTests
         var password1 = this.faker.Internet.Password();
         var password2 = this.faker.Internet.Password();
 
-        var user1 = new AuthUser
+        var user1 = new AuthUserModel
         {
             Id = userId1,
             Email = email1,
@@ -130,7 +130,7 @@ public class GetByEmailHandlerTests
             Password = password1
         };
 
-        var user2 = new AuthUser
+        var user2 = new AuthUserModel
         {
             Id = userId2,
             Email = email2,
@@ -176,7 +176,7 @@ public class GetByEmailHandlerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
@@ -203,7 +203,7 @@ public class GetByEmailHandlerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = userId,
             Email = email,
