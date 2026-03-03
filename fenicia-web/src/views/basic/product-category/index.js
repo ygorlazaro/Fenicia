@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProductCategoryCrud } from './crud/GenericCrud';
+import {ProductCategoryCrud} from "src/views/basic/crud/GenericCrud";
 
 const ProductCategories = () => <ProductCategoryCrud />;
 

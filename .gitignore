@@ -11,3 +11,8 @@ riderModule.iml
 .github/instructions/codacy.instructions.md
 Fenicia.Auth.Tests/TestResults/*
 /**/node_modules/
+
+# Environment variables (keep secrets out of git)
+fenicia-web/.env
+fenicia-web/.env.local
+fenicia-web/.env.production
