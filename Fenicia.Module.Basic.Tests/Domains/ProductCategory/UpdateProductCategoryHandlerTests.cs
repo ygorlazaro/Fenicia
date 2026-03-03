@@ -1,5 +1,6 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.ProductCategory.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +13,12 @@ public class UpdateProductCategoryHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new UpdateProductCategoryHandler(this.context);
     }
 
@@ -26,7 +28,8 @@ public class UpdateProductCategoryHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private UpdateProductCategoryHandler handler = null!;
 
     [Test]
@@ -34,13 +37,13 @@ public class UpdateProductCategoryHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = categoryId,
             Name = "Old Category"
         };
 
-        this.context.ProductCategories.Add(category);
+        this.context.BasicProductCategories.Add(category);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(categoryId, "New Category");
@@ -88,13 +91,13 @@ public class UpdateProductCategoryHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = categoryId,
             Name = "Old Category"
         };
 
-        this.context.ProductCategories.Add(category);
+        this.context.BasicProductCategories.Add(category);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(categoryId, "New Category");
@@ -103,7 +106,7 @@ public class UpdateProductCategoryHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCategory = await this.context.ProductCategories.FindAsync([categoryId], CancellationToken.None);
+        var updatedCategory = await this.context.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
         Assert.That(updatedCategory, Is.Not.Null);
         Assert.That(updatedCategory.Name, Is.EqualTo("New Category"));
     }
@@ -115,10 +118,10 @@ public class UpdateProductCategoryHandlerTests
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
-        var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
+        var category1 = new BasicProductCategory { Id = category1Id, Name = "Electronics" };
+        var category2 = new BasicProductCategory { Id = category2Id, Name = "Books" };
 
-        this.context.ProductCategories.AddRange(category1, category2);
+        this.context.BasicProductCategories.AddRange(category1, category2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(category1Id, "Home Appliances");
@@ -127,8 +130,8 @@ public class UpdateProductCategoryHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCategory1 = await this.context.ProductCategories.FindAsync([category1Id], CancellationToken.None);
-        var notUpdatedCategory2 = await this.context.ProductCategories.FindAsync([category2Id], CancellationToken.None);
+        var updatedCategory1 = await this.context.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
+        var notUpdatedCategory2 = await this.context.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
 
         Assert.That(updatedCategory1, Is.Not.Null);
         using (Assert.EnterMultipleScope())

@@ -1,5 +1,6 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Product.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +13,12 @@ public class GetAllProductHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new GetAllProductHandler(this.context);
     }
 
@@ -26,7 +28,8 @@ public class GetAllProductHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private GetAllProductHandler handler = null!;
 
     [Test]
@@ -47,10 +50,10 @@ public class GetAllProductHandlerTests
     public async Task Handle_WithProducts_ReturnsAllProducts()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.ProductCategories.Add(category);
+        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        this.context.BasicProductCategories.Add(category);
 
-        var product1 = new ProductModel
+        var product1 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product 1",
@@ -60,7 +63,7 @@ public class GetAllProductHandlerTests
             CategoryId = category.Id
         };
 
-        var product2 = new ProductModel
+        var product2 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product 2",
@@ -70,7 +73,7 @@ public class GetAllProductHandlerTests
             CategoryId = category.Id
         };
 
-        this.context.Products.AddRange(product1, product2);
+        this.context.BasicProducts.AddRange(product1, product2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery();
@@ -92,12 +95,12 @@ public class GetAllProductHandlerTests
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.ProductCategories.Add(category);
+        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        this.context.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
-            var product = new ProductModel
+            var product = new BasicProduct
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
@@ -106,7 +109,7 @@ public class GetAllProductHandlerTests
                 Quantity = 100,
                 CategoryId = category.Id
             };
-            this.context.Products.Add(product);
+            this.context.BasicProducts.Add(product);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -125,12 +128,12 @@ public class GetAllProductHandlerTests
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.ProductCategories.Add(category);
+        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        this.context.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 5; i++)
         {
-            var product = new ProductModel
+            var product = new BasicProduct
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
@@ -139,7 +142,7 @@ public class GetAllProductHandlerTests
                 Quantity = 100,
                 CategoryId = category.Id
             };
-            this.context.Products.Add(product);
+            this.context.BasicProducts.Add(product);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -158,10 +161,10 @@ public class GetAllProductHandlerTests
     public async Task Handle_VerifiesCategoryDataIsIncluded()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.ProductCategories.Add(category);
+        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        this.context.BasicProductCategories.Add(category);
 
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -171,7 +174,7 @@ public class GetAllProductHandlerTests
             CategoryId = category.Id
         };
 
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery();

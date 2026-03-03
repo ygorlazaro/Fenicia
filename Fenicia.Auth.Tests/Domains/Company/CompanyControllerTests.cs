@@ -8,8 +8,9 @@ using Fenicia.Auth.Domains.Company.GetCompaniesByUser;
 using Fenicia.Auth.Domains.Company.UpdateCompany;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
@@ -27,11 +28,11 @@ public class CompanyControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.getCompaniesByUserHandler = new GetCompaniesByUserHandler(this.context);
         this.updateCompanyHandler = new UpdateCompanyHandler(this.context);
@@ -56,7 +57,7 @@ public class CompanyControllerTests
     }
 
     private CompanyController controller = null!;
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private GetCompaniesByUserHandler getCompaniesByUserHandler = null!;
     private UpdateCompanyHandler updateCompanyHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
@@ -116,7 +117,7 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -126,13 +127,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var role = new RoleModel
+        var role = new AuthRole
         {
             Id = roleId,
             Name = "Admin"
         };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -140,7 +141,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -150,7 +151,7 @@ public class CompanyControllerTests
 
         this.context.Companies.Add(company);
         this.context.Roles.Add(role);
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -211,7 +212,7 @@ public class CompanyControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -221,13 +222,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var adminRole = new RoleModel
+        var adminRole = new AuthRole
         {
             Id = adminRoleId,
             Name = "Admin"
         };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -235,7 +236,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -245,7 +246,7 @@ public class CompanyControllerTests
 
         this.context.Companies.Add(company);
         this.context.Roles.Add(adminRole);
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -310,7 +311,7 @@ public class CompanyControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -320,13 +321,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new RoleModel
+        var userRole = new AuthRole
         {
             Id = userRoleId,
             Name = "Member"
         };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -334,7 +335,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRoleMapping = new UserRoleModel
+        var userRoleMapping = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -344,7 +345,7 @@ public class CompanyControllerTests
 
         this.context.Companies.Add(company);
         this.context.Roles.Add(userRole);
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.UserRoles.Add(userRoleMapping);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -369,7 +370,7 @@ public class CompanyControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -379,13 +380,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var adminRole = new RoleModel
+        var adminRole = new AuthRole
         {
             Id = adminRoleId,
             Name = "Admin"
         };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -393,7 +394,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -403,7 +404,7 @@ public class CompanyControllerTests
 
         this.context.Companies.Add(company);
         this.context.Roles.Add(adminRole);
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 

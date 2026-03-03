@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position.Delete;
 
-public class DeletePositionHandler(BasicContext context)
+public class DeletePositionHandler(DefaultContext context)
 {
     public async Task Handle(DeletePositionCommand command, CancellationToken ct)
     {
-        var position = await context.Positions.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
+        var position = await context.BasicPositions.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
         if (position is null)
         {
@@ -17,7 +17,7 @@ public class DeletePositionHandler(BasicContext context)
 
         position.Deleted = DateTime.Now;
 
-        context.Positions.Update(position);
+        context.BasicPositions.Update(position);
 
         await context.SaveChangesAsync(ct);
     }

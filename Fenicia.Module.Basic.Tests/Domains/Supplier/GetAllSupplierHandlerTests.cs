@@ -1,7 +1,8 @@
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Supplier.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,12 @@ public class GetAllSupplierHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new GetAllSupplierHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +31,8 @@ public class GetAllSupplierHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private GetAllSupplierHandler handler = null!;
     private Faker faker = null!;
 
@@ -51,11 +54,11 @@ public class GetAllSupplierHandlerTests
     public async Task Handle_WithSuppliers_ReturnsAllSuppliers()
     {
         // Arrange
-        var supplier1 = new SupplierModel
+        var supplier1 = new BasicSupplier
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -63,11 +66,11 @@ public class GetAllSupplierHandlerTests
             }
         };
 
-        var supplier2 = new SupplierModel
+        var supplier2 = new BasicSupplier
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -75,7 +78,7 @@ public class GetAllSupplierHandlerTests
             }
         };
 
-        this.context.Suppliers.AddRange(supplier1, supplier2);
+        this.context.BasicSuppliers.AddRange(supplier1, supplier2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllSupplierQuery();
@@ -94,17 +97,17 @@ public class GetAllSupplierHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var supplier = new SupplierModel
+            var supplier = new BasicSupplier
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Company.CompanyName()} {i}"
                 }
             };
-            this.context.Suppliers.Add(supplier);
+            this.context.BasicSuppliers.Add(supplier);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);

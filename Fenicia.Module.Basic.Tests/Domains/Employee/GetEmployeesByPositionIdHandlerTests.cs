@@ -1,7 +1,8 @@
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Employee.GetByPositionId;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,12 @@ public class GetEmployeesByPositionIdHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new GetEmployeesByPositionIdHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +31,8 @@ public class GetEmployeesByPositionIdHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private GetEmployeesByPositionIdHandler handler = null!;
     private Faker faker = null!;
 
@@ -55,26 +58,26 @@ public class GetEmployeesByPositionIdHandlerTests
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel
+        var position1 = new BasicPosition
         {
             Id = position1Id,
             Name = "Developer"
         };
 
-        var position2 = new PositionModel
+        var position2 = new BasicPosition
         {
             Id = position2Id,
             Name = "Designer"
         };
 
-        this.context.Positions.AddRange(position1, position2);
+        this.context.BasicPositions.AddRange(position1, position2);
 
-        var employee1 = new EmployeeModel
+        var employee1 = new BasicEmployee
         {
             Id = Guid.NewGuid(),
             PositionId = position1Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -88,12 +91,12 @@ public class GetEmployeesByPositionIdHandlerTests
             }
         };
 
-        var employee2 = new EmployeeModel
+        var employee2 = new BasicEmployee
         {
             Id = Guid.NewGuid(),
             PositionId = position1Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -107,12 +110,12 @@ public class GetEmployeesByPositionIdHandlerTests
             }
         };
 
-        var employee3 = new EmployeeModel
+        var employee3 = new BasicEmployee
         {
             Id = Guid.NewGuid(),
             PositionId = position2Id,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -126,7 +129,7 @@ public class GetEmployeesByPositionIdHandlerTests
             }
         };
 
-        this.context.Employees.AddRange(employee1, employee2, employee3);
+        this.context.BasicEmployees.AddRange(employee1, employee2, employee3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(position1Id);
@@ -145,21 +148,21 @@ public class GetEmployeesByPositionIdHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = positionId,
             Name = "Developer"
         };
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
         {
-            var employee = new EmployeeModel
+            var employee = new BasicEmployee
             {
                 Id = Guid.NewGuid(),
                 PositionId = positionId,
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -172,7 +175,7 @@ public class GetEmployeesByPositionIdHandlerTests
                     City = this.faker.Address.City()
                 }
             };
-            this.context.Employees.Add(employee);
+            this.context.BasicEmployees.Add(employee);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -192,21 +195,21 @@ public class GetEmployeesByPositionIdHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = positionId,
             Name = "Developer"
         };
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
 
         for (var i = 0; i < 5; i++)
         {
-            var employee = new EmployeeModel
+            var employee = new BasicEmployee
             {
                 Id = Guid.NewGuid(),
                 PositionId = positionId,
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -219,7 +222,7 @@ public class GetEmployeesByPositionIdHandlerTests
                     City = this.faker.Address.City()
                 }
             };
-            this.context.Employees.Add(employee);
+            this.context.BasicEmployees.Add(employee);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -239,21 +242,21 @@ public class GetEmployeesByPositionIdHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = positionId,
             Name = "Developer"
         };
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
         {
-            var employee = new EmployeeModel
+            var employee = new BasicEmployee
             {
                 Id = Guid.NewGuid(),
                 PositionId = positionId,
                 PersonId = Guid.NewGuid(),
-                Person = new PersonModel
+                Person = new BasicPerson
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -266,7 +269,7 @@ public class GetEmployeesByPositionIdHandlerTests
                     City = this.faker.Address.City()
                 }
             };
-            this.context.Employees.Add(employee);
+            this.context.BasicEmployees.Add(employee);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -286,19 +289,19 @@ public class GetEmployeesByPositionIdHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = positionId,
             Name = "Developer"
         };
-        this.context.Positions.Add(position);
+        this.context.BasicPositions.Add(position);
 
-        var employee = new EmployeeModel
+        var employee = new BasicEmployee
         {
             Id = Guid.NewGuid(),
             PositionId = positionId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -312,7 +315,7 @@ public class GetEmployeesByPositionIdHandlerTests
             }
         };
 
-        this.context.Employees.Add(employee);
+        this.context.BasicEmployees.Add(employee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(positionId);

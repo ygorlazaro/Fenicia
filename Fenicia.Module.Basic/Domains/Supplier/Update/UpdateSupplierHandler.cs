@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Update;
 
-public class UpdateSupplierHandler(BasicContext context)
+public class UpdateSupplierHandler(DefaultContext context)
 {
     public async Task<UpdateSupplierResponse?> Handle(UpdateSupplierCommand command, CancellationToken ct)
     {
-        var supplier = await context.Suppliers
+        var supplier = await context.BasicSuppliers
             .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
@@ -30,7 +30,7 @@ public class UpdateSupplierHandler(BasicContext context)
         supplier.Person.StateId = command.StateId;
         supplier.Person.City = command.City ?? string.Empty;
 
-        context.Suppliers.Update(supplier);
+        context.BasicSuppliers.Update(supplier);
 
         await context.SaveChangesAsync(ct);
 

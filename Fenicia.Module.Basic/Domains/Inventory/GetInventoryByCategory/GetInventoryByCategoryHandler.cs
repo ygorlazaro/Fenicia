@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.GetInventoryByCategory;
 
-public class GetInventoryByCategoryHandler(BasicContext context)
+public class GetInventoryByCategoryHandler(DefaultContext context)
 {
     public async Task<InventoryResponse> Handle(GetInventoryByCategoryQuery query, CancellationToken ct)
     {
-        var products = await context.Products
+        var products = await context.BasicProducts
             .Where(p => p.CategoryId == query.CategoryId)
             .Include(p => p.Category)
             .OrderBy(p => p.Quantity)
@@ -16,9 +16,9 @@ public class GetInventoryByCategoryHandler(BasicContext context)
             .Take(query.PerPage)
             .ToListAsync(ct);
 
-        var totalCostPrice = await context.Products.Where(p => p.CategoryId == query.CategoryId).SumAsync(p => p.CostPrice ?? 0, ct);
-        var totalSalesPrice = await context.Products.Where(p => p.CategoryId == query.CategoryId).SumAsync(p => p.SalesPrice, ct);
-        var totalQuantity = await context.Products.Where(p => p.CategoryId == query.CategoryId).SumAsync(p => p.Quantity, ct);
+        var totalCostPrice = await context.BasicProducts.Where(p => p.CategoryId == query.CategoryId).SumAsync(p => p.CostPrice ?? 0, ct);
+        var totalSalesPrice = await context.BasicProducts.Where(p => p.CategoryId == query.CategoryId).SumAsync(p => p.SalesPrice, ct);
+        var totalQuantity = await context.BasicProducts.Where(p => p.CategoryId == query.CategoryId).SumAsync(p => p.Quantity, ct);
 
         return new InventoryResponse
         {

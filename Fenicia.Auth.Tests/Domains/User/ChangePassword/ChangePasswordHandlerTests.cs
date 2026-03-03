@@ -3,8 +3,9 @@ using Bogus;
 using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.Security.VerifyPassword;
 using Fenicia.Auth.Domains.User.ChangePassword;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,11 +17,11 @@ public class ChangePasswordHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.hashPasswordHandler = new HashPasswordHandler();
         this.handler = new ChangePasswordHandler(this.context, this.hashPasswordHandler);
         this.faker = new Faker();
@@ -32,7 +33,7 @@ public class ChangePasswordHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private ChangePasswordHandler handler = null!;
     private HashPasswordHandler hashPasswordHandler = null!;
     private Faker faker = null!;
@@ -45,7 +46,7 @@ public class ChangePasswordHandlerTests
         var newPassword = this.faker.Internet.Password();
         var oldPassword = "old_hashed_password";
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -53,7 +54,7 @@ public class ChangePasswordHandlerTests
             Password = oldPassword
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new ChangePasswordQuery(userId, newPassword);
@@ -70,7 +71,7 @@ public class ChangePasswordHandlerTests
             Assert.That(result.Email, Is.EqualTo(user.Email), "Email should match");
         }
 
-        var updatedUser = await this.context.Users.FindAsync(userId);
+        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
         Assert.That(updatedUser, Is.Not.Null);
         Assert.That(updatedUser!.Password, Is.Not.EqualTo(oldPassword), "Password should be changed");
     }
@@ -97,7 +98,7 @@ public class ChangePasswordHandlerTests
         var userId = Guid.NewGuid();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -105,7 +106,7 @@ public class ChangePasswordHandlerTests
             Password = "old_password"
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new ChangePasswordQuery(userId, newPassword);
@@ -114,7 +115,7 @@ public class ChangePasswordHandlerTests
         await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.Users.FindAsync(userId);
+        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
         Assert.That(updatedUser, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -131,7 +132,7 @@ public class ChangePasswordHandlerTests
         var userId = Guid.NewGuid();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -139,7 +140,7 @@ public class ChangePasswordHandlerTests
             Password = "old_password"
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new ChangePasswordQuery(userId, newPassword);
@@ -148,7 +149,7 @@ public class ChangePasswordHandlerTests
         await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.Users.FindAsync(userId);
+        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
         Assert.That(updatedUser, Is.Not.Null);
 
         var verifyHandler = new VerifyPasswordHandler();
@@ -166,7 +167,7 @@ public class ChangePasswordHandlerTests
         var oldPassword1 = "old_password_1";
         var oldPassword2 = "old_password_2";
 
-        var user1 = new UserModel
+        var user1 = new AuthUser
         {
             Id = userId1,
             Email = this.faker.Internet.Email(),
@@ -174,7 +175,7 @@ public class ChangePasswordHandlerTests
             Password = oldPassword1
         };
 
-        var user2 = new UserModel
+        var user2 = new AuthUser
         {
             Id = userId2,
             Email = this.faker.Internet.Email(),
@@ -182,7 +183,7 @@ public class ChangePasswordHandlerTests
             Password = oldPassword2
         };
 
-        this.context.Users.AddRange(user1, user2);
+        this.context.AuthUsers.AddRange(user1, user2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new ChangePasswordQuery(userId1, newPassword);
@@ -191,8 +192,8 @@ public class ChangePasswordHandlerTests
         await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser1 = await this.context.Users.FindAsync(userId1);
-        var updatedUser2 = await this.context.Users.FindAsync(userId2);
+        var updatedUser1 = await this.context.AuthUsers.FindAsync(userId1);
+        var updatedUser2 = await this.context.AuthUsers.FindAsync(userId2);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(updatedUser1!.Password, Is.Not.EqualTo(oldPassword1), "User1 password should change");
@@ -209,7 +210,7 @@ public class ChangePasswordHandlerTests
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -217,7 +218,7 @@ public class ChangePasswordHandlerTests
             Password = "old_password"
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new ChangePasswordQuery(userId, newPassword);
@@ -226,7 +227,7 @@ public class ChangePasswordHandlerTests
         await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.Users.FindAsync(userId);
+        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
         Assert.That(updatedUser, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -258,7 +259,7 @@ public class ChangePasswordHandlerTests
         var userId = Guid.NewGuid();
         var newPassword = string.Empty;
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -266,7 +267,7 @@ public class ChangePasswordHandlerTests
             Password = "old_password"
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new ChangePasswordQuery(userId, newPassword);
@@ -287,7 +288,7 @@ public class ChangePasswordHandlerTests
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -295,7 +296,7 @@ public class ChangePasswordHandlerTests
             Password = "old_password"
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new ChangePasswordQuery(userId, newPassword);

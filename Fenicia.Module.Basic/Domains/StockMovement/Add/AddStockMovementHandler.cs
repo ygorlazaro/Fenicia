@@ -1,16 +1,16 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Basic;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement.Add;
 
-public class AddStockMovementHandler(BasicContext context)
+public class AddStockMovementHandler(DefaultContext context)
 {
     public async Task<AddStockMovementResponse> Handle(AddStockMovementCommand command, CancellationToken ct)
     {
-        var stockMovement = new StockMovementModel
+        var stockMovement = new BasicStockMovement
         {
             Id = command.Id,
             Quantity = command.Quantity,
@@ -22,9 +22,9 @@ public class AddStockMovementHandler(BasicContext context)
             SupplierId = command.SupplierId
         };
 
-        context.StockMovements.Add(stockMovement);
+        context.BasicStockMovements.Add(stockMovement);
 
-        var product = await context.Products.FirstOrDefaultAsync(p => p.Id == command.ProductId, ct);
+        var product = await context.BasicProducts.FirstOrDefaultAsync(p => p.Id == command.ProductId, ct);
 
         if (product is not null)
         {
@@ -35,7 +35,7 @@ public class AddStockMovementHandler(BasicContext context)
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            context.Products.Update(product);
+            context.BasicProducts.Update(product);
         }
 
         await context.SaveChangesAsync(ct);

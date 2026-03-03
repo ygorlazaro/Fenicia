@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.UserRole.GetCompaniesByUser;
 
-public class GetCompaniesByUserHandler(AuthContext context)
+public class GetCompaniesByUserHandler(DefaultContext context)
 {
     public async Task<List<UserRoleResponse>> GetUserCompaniesAsync(
         GetCompaniesByUserQuery request,

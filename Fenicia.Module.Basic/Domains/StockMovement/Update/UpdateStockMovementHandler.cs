@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement.Update;
 
-public class UpdateStockMovementHandler(BasicContext context)
+public class UpdateStockMovementHandler(DefaultContext context)
 {
     public async Task<UpdateStockMovementResponse?> Handle(UpdateStockMovementCommand command, CancellationToken ct)
     {
-        var stockMovement = await context.StockMovements
+        var stockMovement = await context.BasicStockMovements
             .Include(s => s.Product)
             .FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
@@ -25,7 +25,7 @@ public class UpdateStockMovementHandler(BasicContext context)
         stockMovement.Price = command.Price;
         stockMovement.SupplierId = command.SupplierId;
 
-        context.StockMovements.Update(stockMovement);
+        context.BasicStockMovements.Update(stockMovement);
 
         await context.SaveChangesAsync(ct);
 

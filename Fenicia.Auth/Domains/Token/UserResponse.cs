@@ -1,4 +1,4 @@
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 
 namespace Fenicia.Auth.Domains.Token;
 
@@ -10,8 +10,8 @@ public class UserResponse
         this.Name = string.Empty;
         this.Email = string.Empty;
     }
-    
-    public UserResponse(UserModel model)
+
+    public UserResponse(AuthUser model)
     {
         this.Id = model.Id;
         this.Name = model.Name;

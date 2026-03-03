@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Role.GetAdminRole;
 
-public class GetAdminRoleHandler(AuthContext context)
+public class GetAdminRoleHandler(DefaultContext context)
 {
     public virtual async Task<GetAdminRoleResponse?> Handle(CancellationToken ct)
     {

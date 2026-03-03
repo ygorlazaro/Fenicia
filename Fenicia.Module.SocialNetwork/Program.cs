@@ -3,13 +3,10 @@ using System.Text;
 using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Providers;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.SocialNetwork.Domains.Feed;
-using Fenicia.Module.SocialNetwork.Domains.Follower;
-using Fenicia.Module.SocialNetwork.Domains.User;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 using Scalar.AspNetCore;
@@ -46,30 +43,22 @@ public class Program
                                               .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
+        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddTransient<IUserRepository, UserRepository>();
-        builder.Services.AddTransient<IUserService, UserService>();
-        builder.Services.AddTransient<IFeedRepository, FeedRepository>();
-        builder.Services.AddTransient<IFeedService, FeedService>();
-        builder.Services.AddTransient<IFollowerRepository, FollowerRepository>();
-        builder.Services.AddTransient<IFollowerService, FollowerService>();
-
-        builder.Services.AddDbContext<SocialNetworkContext>((sp, o) =>
+        builder.Services.AddDbContext<DefaultContext>((sp, o) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
 
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
 
-            var connString = config.GetConnectionString("SocialNetwork")?.Replace("{tenant}", tenantId);
+            var connString = config.GetConnectionString("Auth");
 
             if (string.IsNullOrWhiteSpace(connString))
             {
                 throw new Exception("Connection string inválida");
             }
-
-            o.UseNpgsql(connString, b => b.MigrationsAssembly("Fenicia.Module.SocialNetwork"))
-                .EnableSensitiveDataLogging().UseSnakeCaseNamingConvention();
         });
 
         builder.Services.AddAuthentication(o =>

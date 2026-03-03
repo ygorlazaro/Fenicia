@@ -2,19 +2,17 @@ using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
-using Fenicia.Common.Migrations.Services;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Order.CreateNewOrder;
 
 public class CreateNewOrderHandler(
-    AuthContext db,
-    CreateCreditsForOrderHandler createCreditsForOrderHandler,
-    IMigrationService migrationService)
+    DefaultContext db,
+    CreateCreditsForOrderHandler createCreditsForOrderHandler)
 {
     public virtual async Task<CreateNewOrderResponse?> Handle(CreateNewOrderCommand command, CancellationToken ct)
     {
@@ -33,8 +31,8 @@ public class CreateNewOrderHandler(
         }
 
         var totalAmount = modules.Sum(m => m.Price);
-        var details = modules.Select(m => new OrderDetailModel { ModuleId = m.Id, Price = m.Price }).ToList();
-        var order = new OrderModel
+        var details = modules.Select(m => new AuthOrderDetail { ModuleId = m.Id, Price = m.Price }).ToList();
+        var order = new AuthOrder
         {
             SaleDate = DateTime.UtcNow,
             Status = OrderStatus.Approved,
@@ -46,18 +44,16 @@ public class CreateNewOrderHandler(
 
         db.Orders.Add(order);
 
+        await db.SaveChangesAsync(ct);
+
         await createCreditsForOrderHandler.Handle(
             new CreateCreditsForOrderQuery(order.Id, order.CompanyId,
                 order.Details.Select(d => new CreateCreditsForOrderDetailsQuery(d.Id, d.ModuleId))), ct);
 
-        await db.SaveChangesAsync(ct);
-
-        await migrationService.RunMigrationsAsync(command.CompanyId, [.. modules.Select(m => m.Type)], ct);
-
         return new CreateNewOrderResponse(order.Id);
     }
 
-    private async Task<List<ModuleModel>> PopulateModules(List<Guid> request, CancellationToken ct)
+    private async Task<List<AuthModule>> PopulateModules(List<Guid> request, CancellationToken ct)
     {
         try
         {
@@ -86,14 +82,14 @@ public class CreateNewOrderHandler(
         }
     }
 
-    private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
+    private async Task<List<AuthModule>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
         return await db.Modules.Where(module => request.Any(r => r == module.Id))
             .OrderBy(module => module.Type)
             .ToListAsync(ct);
     }
 
-    private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
+    private async Task<AuthModule?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
     {
         return await db.Modules.FirstOrDefaultAsync(m => m.Type == moduleType, ct);
     }

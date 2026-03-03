@@ -1,3 +1,4 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Position.Add;
 
@@ -11,11 +12,12 @@ public class AddPositionHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new AddPositionHandler(this.context);
     }
 
@@ -25,7 +27,8 @@ public class AddPositionHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private AddPositionHandler handler = null!;
 
     [Test]
@@ -56,7 +59,7 @@ public class AddPositionHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var position = await this.context.Positions.FindAsync([command.Id], CancellationToken.None);
+        var position = await this.context.BasicPositions.FindAsync([command.Id], CancellationToken.None);
         Assert.That(position, Is.Not.Null);
         Assert.That(position.Name, Is.EqualTo(command.Name));
     }
@@ -73,7 +76,7 @@ public class AddPositionHandlerTests
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var positions = await this.context.Positions.ToListAsync();
+        var positions = await this.context.BasicPositions.ToListAsync();
         Assert.That(positions, Has.Count.EqualTo(2));
     }
 }

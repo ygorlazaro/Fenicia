@@ -2,14 +2,14 @@ using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.ChangePassword;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
 
-public class ResetPasswordHandler(AuthContext db, ChangePasswordHandler changePasswordHandler)
+public class ResetPasswordHandler(DefaultContext db, ChangePasswordHandler changePasswordHandler)
 {
     public virtual async Task Handle(ResetPasswordCommand command, CancellationToken ct)
     {
@@ -22,7 +22,7 @@ public class ResetPasswordHandler(AuthContext db, ChangePasswordHandler changePa
         await InvalidateCodeAsync(currentCode.Id, ct);
     }
 
-    private async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
+    private async Task<AuthForgotPassowrd?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
         var query = db.ForgottenPasswords

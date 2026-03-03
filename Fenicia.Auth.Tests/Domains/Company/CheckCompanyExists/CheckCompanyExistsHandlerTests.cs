@@ -2,8 +2,9 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company.CheckCompanyExists;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -15,11 +16,11 @@ public class CheckCompanyExistsHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new CheckCompanyExistsHandler(this.context);
         this.faker = new Faker();
     }
@@ -30,7 +31,7 @@ public class CheckCompanyExistsHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private CheckCompanyExistsHandler handler = null!;
     private Faker faker = null!;
 
@@ -39,7 +40,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",
@@ -80,7 +81,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",
@@ -107,7 +108,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",
@@ -134,7 +135,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",
@@ -163,7 +164,7 @@ public class CheckCompanyExistsHandlerTests
         var cnpj1 = this.faker.Company.Cnpj();
         var cnpj2 = this.faker.Company.Cnpj();
 
-        var company1 = new CompanyModel
+        var company1 = new AuthCompany
         {
             Id = Guid.NewGuid(),
             Name = "Company 1",
@@ -173,7 +174,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        var company2 = new CompanyModel
+        var company2 = new AuthCompany
         {
             Id = Guid.NewGuid(),
             Name = "Company 2",
@@ -201,7 +202,7 @@ public class CheckCompanyExistsHandlerTests
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
 
-        var activeCompany = new CompanyModel
+        var activeCompany = new AuthCompany
         {
             Id = Guid.NewGuid(),
             Name = "Active Company",
@@ -211,7 +212,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        var inactiveCompany = new CompanyModel
+        var inactiveCompany = new AuthCompany
         {
             Id = Guid.NewGuid(),
             Name = "Inactive Company",
@@ -257,7 +258,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",

@@ -14,8 +14,9 @@ using Fenicia.Auth.Domains.Token.GenerateTokenString;
 using Fenicia.Auth.Domains.User.GetByEmail;
 using Fenicia.Auth.Domains.User.GetUserForRefresh;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -36,11 +37,11 @@ public class TokenControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         var cache = new MemoryCache(new MemoryCacheOptions());
 
@@ -89,7 +90,7 @@ public class TokenControllerTests
     }
 
     private TokenController controller = null!;
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private GenerateTokenHandler generateTokenHandler = null!;
     private GenerateTokenStringHandler generateTokenStringHandler = null!;
     private GenerateRefreshTokenHandler generateRefreshTokenHandler = null!;
@@ -179,7 +180,7 @@ public class TokenControllerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = email,
@@ -259,7 +260,7 @@ public class TokenControllerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = email,
@@ -331,7 +332,7 @@ public class TokenControllerTests
 
         var refreshToken = Guid.NewGuid().ToString();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -339,7 +340,7 @@ public class TokenControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new ValidateTokenQuery(this.testUserId, refreshToken);
@@ -389,7 +390,7 @@ public class TokenControllerTests
 
         var refreshToken = Guid.NewGuid().ToString();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -397,7 +398,7 @@ public class TokenControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new ValidateTokenQuery(this.testUserId, refreshToken);

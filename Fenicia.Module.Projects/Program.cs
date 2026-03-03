@@ -4,8 +4,6 @@ using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Providers;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Projects.Domains.Project;
-using Fenicia.Module.Projects.Domains.Task;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -45,19 +43,17 @@ public class Program
                                               .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
-        builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
-        builder.Services.AddTransient<IProjectService, ProjectService>();
-        builder.Services.AddTransient<ITaskRepository, TaskRepository>();
-        builder.Services.AddTransient<ITaskService, TaskService>();
+        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddDbContext<ProjectContext>((sp, o) =>
+        builder.Services.AddDbContext<DefaultContext>((sp, o) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
 
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
 
-            var connString = config.GetConnectionString("Projects")?.Replace("{tenant}", tenantId);
+            var connString = config.GetConnectionString("Auth");
 
             if (string.IsNullOrWhiteSpace(connString))
             {

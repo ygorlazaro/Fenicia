@@ -1,12 +1,12 @@
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
 
-public class AddForgotPasswordHandler(AuthContext db)
+public class AddForgotPasswordHandler(DefaultContext db)
 {
     public virtual async Task Handle(AddForgotPasswordCommand command, CancellationToken ct)
     {
@@ -14,7 +14,7 @@ public class AddForgotPasswordHandler(AuthContext db)
                      ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
 
-        await db.ForgottenPasswords.AddAsync(new ForgotPasswordModel
+        await db.ForgottenPasswords.AddAsync(new AuthForgotPassowrd
         {
             Code = code,
             IsActive = true,

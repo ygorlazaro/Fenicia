@@ -1,5 +1,6 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.ProductCategory.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +13,12 @@ public class GetAllProductCategoryHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new GetAllProductCategoryHandler(this.context);
     }
 
@@ -26,7 +28,8 @@ public class GetAllProductCategoryHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private GetAllProductCategoryHandler handler = null!;
 
     [Test]
@@ -47,10 +50,10 @@ public class GetAllProductCategoryHandlerTests
     public async Task Handle_WithCategories_ReturnsAllCategories()
     {
         // Arrange
-        var category1 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        var category2 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
+        var category1 = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category2 = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Books" };
 
-        this.context.ProductCategories.AddRange(category1, category2);
+        this.context.BasicProductCategories.AddRange(category1, category2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery();
@@ -74,12 +77,12 @@ public class GetAllProductCategoryHandlerTests
         // Arrange
         for (var i = 0; i < 20; i++)
         {
-            var category = new ProductCategoryModel
+            var category = new BasicProductCategory
             {
                 Id = Guid.NewGuid(),
                 Name = $"Category {i}"
             };
-            this.context.ProductCategories.Add(category);
+            this.context.BasicProductCategories.Add(category);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);

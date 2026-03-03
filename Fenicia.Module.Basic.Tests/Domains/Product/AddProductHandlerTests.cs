@@ -1,3 +1,4 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Product.Add;
 
@@ -11,11 +12,12 @@ public class AddProductHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new AddProductHandler(this.context);
     }
 
@@ -25,7 +27,8 @@ public class AddProductHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private AddProductHandler handler = null!;
 
     [Test]
@@ -73,7 +76,7 @@ public class AddProductHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var product = await this.context.Products.FindAsync([command.Id], CancellationToken.None);
+        var product = await this.context.BasicProducts.FindAsync([command.Id], CancellationToken.None);
         Assert.That(product, Is.Not.Null);
         Assert.That(product.Name, Is.EqualTo(command.Name));
     }
@@ -103,7 +106,7 @@ public class AddProductHandlerTests
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var products = await this.context.Products.ToListAsync();
+        var products = await this.context.BasicProducts.ToListAsync();
         Assert.That(products, Has.Count.EqualTo(2));
     }
 

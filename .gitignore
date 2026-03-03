@@ -10,3 +10,4 @@ riderModule.iml
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
 Fenicia.Auth.Tests/TestResults/*
+/**/node_modules/

@@ -1,5 +1,6 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +13,12 @@ public class GetOrderDetailsByOrderIdHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new GetOrderDetailsByOrderIdHandler(this.context);
     }
 
@@ -26,7 +28,8 @@ public class GetOrderDetailsByOrderIdHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private GetOrderDetailsByOrderIdHandler handler = null!;
 
     [Test]
@@ -51,7 +54,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
         var order1Id = Guid.NewGuid();
         var order2Id = Guid.NewGuid();
 
-        var detail1 = new OrderDetailModel
+        var detail1 = new BasicOrderDetail
         {
             Id = Guid.NewGuid(),
             OrderId = order1Id,
@@ -60,7 +63,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
             Quantity = 5
         };
 
-        var detail2 = new OrderDetailModel
+        var detail2 = new BasicOrderDetail
         {
             Id = Guid.NewGuid(),
             OrderId = order1Id,
@@ -69,7 +72,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
             Quantity = 3
         };
 
-        var detail3 = new OrderDetailModel
+        var detail3 = new BasicOrderDetail
         {
             Id = Guid.NewGuid(),
             OrderId = order2Id,
@@ -78,7 +81,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
             Quantity = 2
         };
 
-        this.context.OrderDetails.AddRange(detail1, detail2, detail3);
+        this.context.BasicOrderDetails.AddRange(detail1, detail2, detail3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetOrderDetailsByOrderIdQuery(order1Id);
@@ -97,7 +100,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        var detail = new OrderDetailModel
+        var detail = new BasicOrderDetail
         {
             Id = Guid.NewGuid(),
             OrderId = orderId,
@@ -106,7 +109,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
             Quantity = 10
         };
 
-        this.context.OrderDetails.Add(detail);
+        this.context.BasicOrderDetails.Add(detail);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetOrderDetailsByOrderIdQuery(orderId);

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.GetUserForRefresh;
 
-public class GetUserForRefreshHandler(AuthContext context)
+public class GetUserForRefreshHandler(DefaultContext context)
 {
     public async Task<GetUserForRefreshResponse> Handle(Guid userId, CancellationToken ct)
     {
-        var query = from u in context.Users
+        var query = from u in context.AuthUsers
                     where u.Id == userId
                     select new GetUserForRefreshResponse(u.Id, u.Email, u.Name);
 

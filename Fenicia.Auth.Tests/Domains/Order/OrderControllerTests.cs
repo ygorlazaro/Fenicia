@@ -7,11 +7,11 @@ using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.CreateNewOrder;
 using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 using Fenicia.Common.API;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
-using Fenicia.Common.Migrations.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,17 +28,16 @@ public class OrderControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.testCompanyId = Guid.NewGuid();
         this.mockCreateCreditsForOrderHandler = new Mock<CreateCreditsForOrderHandler>(this.context);
-        this.mockMigrationService = new Mock<IMigrationService>();
         this.createNewOrderHandler = new CreateNewOrderHandler(this.context,
-            this.mockCreateCreditsForOrderHandler.Object, this.mockMigrationService.Object);
+            this.mockCreateCreditsForOrderHandler.Object);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new OrderController
@@ -60,10 +59,9 @@ public class OrderControllerTests
     }
 
     private OrderController controller = null!;
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private CreateNewOrderHandler createNewOrderHandler = null!;
     private Mock<CreateCreditsForOrderHandler> mockCreateCreditsForOrderHandler = null!;
-    private Mock<IMigrationService> mockMigrationService = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Guid testUserId;
     private Guid testCompanyId;
@@ -111,7 +109,7 @@ public class OrderControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -119,7 +117,7 @@ public class OrderControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
@@ -129,7 +127,7 @@ public class OrderControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -137,7 +135,7 @@ public class OrderControllerTests
             CompanyId = this.testCompanyId
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -164,7 +162,7 @@ public class OrderControllerTests
         var cancellationToken = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new ModuleModel
+        var module = new AuthModule
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
@@ -172,7 +170,7 @@ public class OrderControllerTests
             Price = this.faker.Finance.Amount(10, 100)
         };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -180,7 +178,7 @@ public class OrderControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
@@ -190,7 +188,7 @@ public class OrderControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -199,7 +197,7 @@ public class OrderControllerTests
         };
 
         this.context.Modules.Add(module);
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -207,11 +205,6 @@ public class OrderControllerTests
         var modules = new List<Guid> { moduleId };
         var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
         var headers = new Headers { CompanyId = this.testCompanyId };
-
-        this.mockMigrationService
-            .Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
 
         // Act
         var result = await this.controller.CreateNewOrderAsync(
@@ -256,7 +249,7 @@ public class OrderControllerTests
         var cancellationToken = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new ModuleModel
+        var module = new AuthModule
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
@@ -264,7 +257,7 @@ public class OrderControllerTests
             Price = this.faker.Finance.Amount(10, 100)
         };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -272,7 +265,7 @@ public class OrderControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
@@ -282,7 +275,7 @@ public class OrderControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -291,7 +284,7 @@ public class OrderControllerTests
         };
 
         this.context.Modules.Add(module);
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -299,11 +292,6 @@ public class OrderControllerTests
         var modules = new List<Guid> { moduleId };
         var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
         var headers = new Headers { CompanyId = this.testCompanyId };
-
-        this.mockMigrationService
-            .Setup(x => x.RunMigrationsAsync(It.IsAny<Guid>(), It.IsAny<List<ModuleType>>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
 
         // Act
         await this.controller.CreateNewOrderAsync(
