@@ -37,7 +37,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_WithValidCommand_AddsStockMovementAndReturnsResponse()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -77,7 +77,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_WithStockMovementIn_IncreasesProductQuantity()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -112,7 +112,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_WithStockMovementOut_DecreasesProductQuantity()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -170,7 +170,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_VerifiesStockMovementWasSavedToDatabase()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",

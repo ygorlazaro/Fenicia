@@ -1,0 +1,46 @@
+# ==================================================================
+# Dockerfile for Fenicia .NET Modules
+# Supports debugging in Rider/VSCode
+# ==================================================================
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+USER $APP_UID
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+
+# Debug stage (for Rider/VSCode debugging)
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS debug
+WORKDIR /src
+
+# Install debugging tools
+RUN dotnet tool install -g dotnet-monitor
+
+# Copy project file and restore
+ARG PROJECT_NAME
+COPY ["${PROJECT_NAME}/${PROJECT_NAME}.csproj", "${PROJECT_NAME}/"]
+RUN dotnet restore "${PROJECT_NAME}/${PROJECT_NAME}.csproj"
+
+# Copy everything else
+COPY . .
+
+# Build in Debug mode
+WORKDIR "/src/${PROJECT_NAME}"
+RUN dotnet build "${PROJECT_NAME}.csproj" -c Debug -o /app/build
+
+# Publish debug build
+FROM debug AS publish
+ARG PROJECT_NAME
+RUN dotnet publish "${PROJECT_NAME}.csproj" -c Debug -o /app/publish /p:UseAppHost=false
+
+# Final stage with debugging support
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+# Enable debugging
+ENV DOTNET_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://+:8080;https://+:8081
+
+ENTRYPOINT ["dotnet", "--urls", "http://0.0.0.0:8080;https://0.0.0.0:8081", "${PROJECT_NAME}.dll"]

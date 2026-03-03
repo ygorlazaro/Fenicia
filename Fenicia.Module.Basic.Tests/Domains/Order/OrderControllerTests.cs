@@ -87,11 +87,11 @@ public class OrderControllerTests
     public async Task CreateOrderAsync_WithValidCommand_ReturnsCreatedWithOrder()
     {
         // Arrange
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -100,7 +100,7 @@ public class OrderControllerTests
             }
         };
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -151,7 +151,7 @@ public class OrderControllerTests
     public async Task GetDetailsAsync_WhenOrderExists_ReturnsOkWithOrderDetails()
     {
         // Arrange
-        var order = new BasicOrder
+        var order = new BasicOrderModel
         {
             Id = this.testOrderId,
             UserId = this.testUserId,
@@ -161,7 +161,7 @@ public class OrderControllerTests
             TotalAmount = 100.00m
         };
 
-        var orderDetail1 = new BasicOrderDetail
+        var orderDetail1 = new BasicOrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = this.testOrderId,
@@ -170,7 +170,7 @@ public class OrderControllerTests
             Quantity = 2
         };
 
-        var orderDetail2 = new BasicOrderDetail
+        var orderDetail2 = new BasicOrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = this.testOrderId,
@@ -226,11 +226,11 @@ public class OrderControllerTests
     public async Task CreateOrderAsync_SetsUserIdFromClaims()
     {
         // Arrange
-        var customer = new BasicCustomer
+        var customer = new BasicCustomerModel
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -239,7 +239,7 @@ public class OrderControllerTests
             }
         };
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),

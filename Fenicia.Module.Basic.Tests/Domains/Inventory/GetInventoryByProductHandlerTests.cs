@@ -62,10 +62,10 @@ public class GetInventoryByProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = productId,
             Name = this.faker.Commerce.ProductName(),
@@ -101,10 +101,10 @@ public class GetInventoryByProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = productId,
             Name = this.faker.Commerce.ProductName(),
@@ -137,10 +137,10 @@ public class GetInventoryByProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = productId,
             Name = this.faker.Commerce.ProductName(),

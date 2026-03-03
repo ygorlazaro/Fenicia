@@ -17,13 +17,13 @@ public sealed class GetCompaniesByUserHandler(DefaultContext db)
             throw new ItemNotExistsException(TextConstants.ThereWasAnErrorSearchingModulesMessage);
         }
 
-        var baseQuery = db.UserRoles.Where(ur => ur.UserId == query.UserId && ur.Company.IsActive);
+        var baseQuery = db.UserRoles.Where(ur => ur.UserId == query.UserId && ur.CompanyModel.IsActive);
         var total = await baseQuery.CountAsync(ct);
         var items = await baseQuery
-            .OrderBy(ur => ur.Company.Name)
+            .OrderBy(ur => ur.CompanyModel.Name)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
-            .Select(ur => new GetCompaniesByUserResponse(ur.Company.Id, ur.Company.Name, ur.Company.Cnpj, ur.Role.Name))
+            .Select(ur => new GetCompaniesByUserResponse(ur.CompanyModel.Id, ur.CompanyModel.Name, ur.CompanyModel.Cnpj, ur.RoleModel.Name))
             .ToListAsync(ct);
 
         return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(items, total, query.Page, query.PerPage);

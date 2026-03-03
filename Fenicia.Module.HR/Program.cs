@@ -3,6 +3,7 @@ using System.Text;
 using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Providers;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;

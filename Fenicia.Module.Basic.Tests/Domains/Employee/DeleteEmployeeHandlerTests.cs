@@ -41,12 +41,12 @@ public class DeleteEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var employee = new BasicEmployee
+        var employee = new BasicEmployeeModel
         {
             Id = employeeId,
             PositionId = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -98,12 +98,12 @@ public class DeleteEmployeeHandlerTests
         var employee1Id = Guid.NewGuid();
         var employee2Id = Guid.NewGuid();
 
-        var employee1 = new BasicEmployee
+        var employee1 = new BasicEmployeeModel
         {
             Id = employee1Id,
             PositionId = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -117,12 +117,12 @@ public class DeleteEmployeeHandlerTests
             }
         };
 
-        var employee2 = new BasicEmployee
+        var employee2 = new BasicEmployeeModel
         {
             Id = employee2Id,
             PositionId = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPerson
+            PersonModel = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,

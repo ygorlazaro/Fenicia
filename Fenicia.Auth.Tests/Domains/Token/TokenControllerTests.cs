@@ -180,7 +180,7 @@ public class TokenControllerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = email,
@@ -260,7 +260,7 @@ public class TokenControllerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = email,
@@ -332,7 +332,7 @@ public class TokenControllerTests
 
         var refreshToken = Guid.NewGuid().ToString();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -390,7 +390,7 @@ public class TokenControllerTests
 
         var refreshToken = Guid.NewGuid().ToString();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),

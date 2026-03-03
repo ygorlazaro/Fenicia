@@ -109,7 +109,7 @@ public class OrderControllerTests
         var wide = new WideEventContext();
         var cancellationToken = CancellationToken.None;
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -117,7 +117,7 @@ public class OrderControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
@@ -127,7 +127,7 @@ public class OrderControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -162,7 +162,7 @@ public class OrderControllerTests
         var cancellationToken = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new AuthModule
+        var module = new AuthModuleModel
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
@@ -170,7 +170,7 @@ public class OrderControllerTests
             Price = this.faker.Finance.Amount(10, 100)
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -178,7 +178,7 @@ public class OrderControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
@@ -188,7 +188,7 @@ public class OrderControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -249,7 +249,7 @@ public class OrderControllerTests
         var cancellationToken = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new AuthModule
+        var module = new AuthModuleModel
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
@@ -257,7 +257,7 @@ public class OrderControllerTests
             Price = this.faker.Finance.Amount(10, 100)
         };
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -265,7 +265,7 @@ public class OrderControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
@@ -275,7 +275,7 @@ public class OrderControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRole
+        var userRole = new AuthUserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,

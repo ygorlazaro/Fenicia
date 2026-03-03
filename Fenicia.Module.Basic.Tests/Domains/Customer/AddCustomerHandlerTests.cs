@@ -263,14 +263,14 @@ public class AddCustomerHandlerTests
 
         // Assert
         var customer = await this.context.BasicCustomers
-            .Include(c => c.Person)
+            .Include(c => c.PersonModel)
             .FirstOrDefaultAsync(c => c.Id == command.Id);
 
         Assert.That(customer, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(customer.Person.Name, Is.EqualTo(command.Name));
-            Assert.That(customer.Person.Email, Is.EqualTo(command.Email));
+            Assert.That(customer.PersonModel.Name, Is.EqualTo(command.Name));
+            Assert.That(customer.PersonModel.Email, Is.EqualTo(command.Email));
         }
     }
 

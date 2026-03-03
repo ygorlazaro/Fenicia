@@ -53,7 +53,7 @@ public class GetStockMovementHandlerTests
     public async Task Handle_WithMovementsInDateRange_ReturnsFilteredList()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -64,7 +64,7 @@ public class GetStockMovementHandlerTests
         };
         this.context.BasicProducts.Add(product);
 
-        var movement1 = new BasicStockMovement
+        var movement1 = new BasicStockMovementModel
         {
             Id = Guid.NewGuid(),
             Quantity = 10,
@@ -74,7 +74,7 @@ public class GetStockMovementHandlerTests
             ProductId = product.Id
         };
 
-        var movement2 = new BasicStockMovement
+        var movement2 = new BasicStockMovementModel
         {
             Id = Guid.NewGuid(),
             Quantity = 20,
@@ -84,7 +84,7 @@ public class GetStockMovementHandlerTests
             ProductId = product.Id
         };
 
-        var movement3 = new BasicStockMovement
+        var movement3 = new BasicStockMovementModel
         {
             Id = Guid.NewGuid(),
             Quantity = 30,
@@ -114,7 +114,7 @@ public class GetStockMovementHandlerTests
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -127,7 +127,7 @@ public class GetStockMovementHandlerTests
 
         for (var i = 0; i < 25; i++)
         {
-            var movement = new BasicStockMovement
+            var movement = new BasicStockMovementModel
             {
                 Id = Guid.NewGuid(),
                 Quantity = 10,
@@ -157,7 +157,7 @@ public class GetStockMovementHandlerTests
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var product = new BasicProduct
+        var product = new BasicProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -170,7 +170,7 @@ public class GetStockMovementHandlerTests
 
         for (var i = 0; i < 5; i++)
         {
-            var movement = new BasicStockMovement
+            var movement = new BasicStockMovementModel
             {
                 Id = Guid.NewGuid(),
                 Quantity = 10,

@@ -40,7 +40,7 @@ public class CheckUserExistsHandlerTests
         // Arrange
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -78,7 +78,7 @@ public class CheckUserExistsHandlerTests
         var email = "test@example.com";
         var upperCaseEmail = "TEST@EXAMPLE.COM";
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -103,7 +103,7 @@ public class CheckUserExistsHandlerTests
         var email1 = "user1@example.com";
         var email2 = "user2@example.com";
 
-        var user1 = new AuthUser
+        var user1 = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email1,
@@ -111,7 +111,7 @@ public class CheckUserExistsHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var user2 = new AuthUser
+        var user2 = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email2,
@@ -156,7 +156,7 @@ public class CheckUserExistsHandlerTests
         var email = "test@example.com";
         var emailWithSpaces = " test@example.com ";
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -181,7 +181,7 @@ public class CheckUserExistsHandlerTests
         var email = "test@example.com";
         var emailWithExtra = "test@example.com.";
 
-        var user = new AuthUser
+        var user = new AuthUserModel
         {
             Id = Guid.NewGuid(),
             Email = email,

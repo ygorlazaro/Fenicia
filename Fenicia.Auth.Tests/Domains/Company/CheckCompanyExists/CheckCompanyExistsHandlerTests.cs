@@ -40,7 +40,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",
@@ -81,7 +81,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",
@@ -108,7 +108,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",
@@ -135,7 +135,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",
@@ -164,7 +164,7 @@ public class CheckCompanyExistsHandlerTests
         var cnpj1 = this.faker.Company.Cnpj();
         var cnpj2 = this.faker.Company.Cnpj();
 
-        var company1 = new AuthCompany
+        var company1 = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Company 1",
@@ -174,7 +174,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        var company2 = new AuthCompany
+        var company2 = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Company 2",
@@ -202,7 +202,7 @@ public class CheckCompanyExistsHandlerTests
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
 
-        var activeCompany = new AuthCompany
+        var activeCompany = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Active Company",
@@ -212,7 +212,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        var inactiveCompany = new AuthCompany
+        var inactiveCompany = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Inactive Company",
@@ -258,7 +258,7 @@ public class CheckCompanyExistsHandlerTests
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new AuthCompany
+        var company = new AuthCompanyModel
         {
             Id = Guid.NewGuid(),
             Name = "Test Company",

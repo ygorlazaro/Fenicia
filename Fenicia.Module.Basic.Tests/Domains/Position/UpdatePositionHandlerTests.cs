@@ -37,7 +37,7 @@ public class UpdatePositionHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = positionId,
             Name = "Old Position"
@@ -91,7 +91,7 @@ public class UpdatePositionHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new BasicPosition
+        var position = new BasicPositionModel
         {
             Id = positionId,
             Name = "Old Position"
@@ -118,8 +118,8 @@ public class UpdatePositionHandlerTests
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new BasicPosition { Id = position1Id, Name = "Developer" };
-        var position2 = new BasicPosition { Id = position2Id, Name = "Designer" };
+        var position1 = new BasicPositionModel { Id = position1Id, Name = "Developer" };
+        var position2 = new BasicPositionModel { Id = position2Id, Name = "Designer" };
 
         this.context.BasicPositions.AddRange(position1, position2);
         await this.context.SaveChangesAsync(CancellationToken.None);

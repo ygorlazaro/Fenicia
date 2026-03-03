@@ -60,6 +60,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Auth.Tests", "Fenic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Basic.Tests", "Fenicia.Module.Basic.Tests\Fenicia.Module.Basic.Tests.csproj", "{A7343751-4B3B-4609-8966-20DCC82D84D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenicia.Module.Projects.Tests", "Fenicia.Module.Projects.Tests\Fenicia.Module.Projects.Tests.csproj", "{283F0EA6-4BFB-4162-8F78-F69C70496797}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -322,6 +324,18 @@ Global
 		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Release|x64.Build.0 = Release|Any CPU
 		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Release|x86.ActiveCfg = Release|Any CPU
 		{A7343751-4B3B-4609-8966-20DCC82D84D1}.Release|x86.Build.0 = Release|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Debug|x64.Build.0 = Debug|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Debug|x86.Build.0 = Debug|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Release|Any CPU.Build.0 = Release|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Release|x64.ActiveCfg = Release|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Release|x64.Build.0 = Release|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Release|x86.ActiveCfg = Release|Any CPU
+		{283F0EA6-4BFB-4162-8F78-F69C70496797}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -347,5 +361,6 @@ Global
 		{6512C8A2-2118-4176-B243-5F0976016236} = {6AD13D53-07CA-4BF5-BD47-0CD1C54EED46}
 		{79F6DE1F-1827-443B-8A31-775B179F6B28} = {DBB8A2B4-3B16-4BEC-952D-6D1F3E054328}
 		{A7343751-4B3B-4609-8966-20DCC82D84D1} = {DBB8A2B4-3B16-4BEC-952D-6D1F3E054328}
+		{283F0EA6-4BFB-4162-8F78-F69C70496797} = {DBB8A2B4-3B16-4BEC-952D-6D1F3E054328}
 	EndGlobalSection
 EndGlobal

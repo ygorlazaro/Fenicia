@@ -19,11 +19,11 @@ const registerClient = new AuthRegisterClient("http://localhost:5144");
 const AuthRegister = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        name: 'Ygor Lazaro',
-        email: 'ygor@ygorlazaro.com',
-        password: '$@Age14rjy$@',
-        companyName: 'Gato Ninja',
-        cnpj: '23351185000184'
+        name: '',
+        email: '',
+        password: '',
+        companyName: '',
+        cnpj: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

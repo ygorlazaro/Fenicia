@@ -9,7 +9,7 @@ public class UpdateCustomerHandler(DefaultContext context)
     public async Task<UpdateCustomerResponse?> Handle(UpdateCustomerCommand command, CancellationToken ct)
     {
         var customer = await context.BasicCustomers
-            .Include(c => c.Person)
+            .Include(c => c.PersonModel)
             .FirstOrDefaultAsync(c => c.Id == command.Id, ct);
 
         if (customer is null)
@@ -17,17 +17,17 @@ public class UpdateCustomerHandler(DefaultContext context)
             return null;
         }
 
-        customer.Person.Name = command.Name;
-        customer.Person.Email = command.Email;
-        customer.Person.Document = command.Document;
-        customer.Person.PhoneNumber = command.PhoneNumber;
-        customer.Person.Street = command.Street;
-        customer.Person.Number = command.Number;
-        customer.Person.Complement = command.Complement;
-        customer.Person.Neighborhood = command.Neighborhood;
-        customer.Person.ZipCode = command.ZipCode;
-        customer.Person.StateId = command.StateId;
-        customer.Person.City = command.City;
+        customer.PersonModel.Name = command.Name;
+        customer.PersonModel.Email = command.Email;
+        customer.PersonModel.Document = command.Document;
+        customer.PersonModel.PhoneNumber = command.PhoneNumber;
+        customer.PersonModel.Street = command.Street;
+        customer.PersonModel.Number = command.Number;
+        customer.PersonModel.Complement = command.Complement;
+        customer.PersonModel.Neighborhood = command.Neighborhood;
+        customer.PersonModel.ZipCode = command.ZipCode;
+        customer.PersonModel.StateId = command.StateId;
+        customer.PersonModel.City = command.City;
 
         context.BasicCustomers.Update(customer);
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProductCrud } from './crud/GenericCrud';
+import {ProductCrud} from "src/views/basic/crud/GenericCrud";
 
 const Products = () => <ProductCrud />;
 

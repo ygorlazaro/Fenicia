@@ -24,55 +24,69 @@ public class DefaultContext : DbContext
         this.companyContext = new CompanyContext(new HttpContextAccessor());
     }
 
-    public DbSet<AuthRole> Roles { get; set; } = null!;
+    public DbSet<AuthRoleModel> Roles { get; set; } = null!;
 
-    public DbSet<AuthUser> AuthUsers { get; set; } = null!;
+    public DbSet<AuthUserModel> AuthUsers { get; set; } = null!;
 
-    public DbSet<AuthUserRole> UserRoles { get; set; } = null!;
+    public DbSet<AuthUserRoleModel> UserRoles { get; set; } = null!;
 
-    public DbSet<AuthCompany> Companies { get; set; } = null!;
+    public DbSet<AuthCompanyModel> Companies { get; set; } = null!;
 
-    public DbSet<AuthModule> Modules { get; set; } = null!;
+    public DbSet<AuthModuleModel> Modules { get; set; } = null!;
 
-    public DbSet<AuthOrder> Orders { get; set; } = null!;
+    public DbSet<AuthOrderModel> Orders { get; set; } = null!;
 
-    public DbSet<AuthOrderDetail> OrderDetails { get; set; } = null!;
+    public DbSet<AuthOrderDetailModel> OrderDetails { get; set; } = null!;
 
-    public DbSet<AuthSubscription> Subscriptions { get; set; } = null!;
+    public DbSet<AuthSubscriptionModel> Subscriptions { get; set; } = null!;
 
-    public DbSet<AuthSubscriptionCredit> SubscriptionCredits { get; set; } = null!;
+    public DbSet<AuthSubscriptionCreditModel> SubscriptionCredits { get; set; } = null!;
 
-    public DbSet<AuthAddress> Addresses { get; set; } = null!;
+    public DbSet<AuthAddressModel> Addresses { get; set; } = null!;
 
-    public DbSet<AuthState> States { get; set; } = null!;
+    public DbSet<AuthStateModel> States { get; set; } = null!;
 
-    public DbSet<AuthForgotPassowrd> ForgottenPasswords { get; set; } = null!;
+    public DbSet<AuthForgotPassowrdModel> ForgottenPasswords { get; set; } = null!;
 
-    public DbSet<AuthSubmodule> Submodules { get; set; } = null!;
+    public DbSet<AuthSubmoduleModel> Submodules { get; set; } = null!;
 
-    public DbSet<BasicCustomer> BasicCustomers { get; set; }
+    public DbSet<BasicCustomerModel> BasicCustomers { get; set; }
 
-    public DbSet<BasicEmployee> BasicEmployees { get; set; }
+    public DbSet<BasicEmployeeModel> BasicEmployees { get; set; }
 
-    public DbSet<BasicPosition> BasicPositions { get; set; }
+    public DbSet<BasicPositionModel> BasicPositions { get; set; }
 
-    public DbSet<BasicProductCategory> BasicProductCategories { get; set; }
+    public DbSet<BasicProductCategoryModel> BasicProductCategories { get; set; }
 
-    public DbSet<BasicProduct> BasicProducts { get; set; }
+    public DbSet<BasicProductModel> BasicProducts { get; set; }
 
-    public DbSet<BasicStockMovement> BasicStockMovements { get; set; }
+    public DbSet<BasicStockMovementModel> BasicStockMovements { get; set; }
 
-    public DbSet<BasicSupplier> BasicSuppliers { get; set; }
+    public DbSet<BasicSupplierModel> BasicSuppliers { get; set; }
 
-    public DbSet<BasicOrder> BasicOrders { get; set; }
+    public DbSet<BasicOrderModel> BasicOrders { get; set; }
 
-    public DbSet<BasicOrderDetail> BasicOrderDetails { get; set; }
+    public DbSet<BasicOrderDetailModel> BasicOrderDetails { get; set; }
 
-    public DbSet<BasicPerson> BasicPeople { get; set; }
+    public DbSet<BasicPersonModel> BasicPeople { get; set; }
 
-    public DbSet<SNFeed> SNFeeds { get; set; }
+    public DbSet<SNFeedModel> SNFeeds { get; set; }
 
-    public DbSet<SNFollower> SNFollowers { get; set; }
+    public DbSet<SNFollowerModel> SNFollowers { get; set; }
+
+    public DbSet<ProjectModel> Projects { get; set; }
+
+    public DbSet<ProjectStatusModel> ProjectStatuses { get; set; }
+
+    public DbSet<ProjectTaskModel> ProjectTasks { get; set; }
+
+    public DbSet<ProjectSubtaskModel> ProjectSubtasks { get; set; }
+
+    public DbSet<ProjectCommentModel> ProjectComments { get; set; }
+
+    public DbSet<ProjectAttachmentModel> ProjectAttachments { get; set; }
+
+    public DbSet<ProjectTaskAssigneeModel> ProjectTaskAssignees { get; set; }
 
     public override Task<int> SaveChangesAsync(CancellationToken ct)
     {
