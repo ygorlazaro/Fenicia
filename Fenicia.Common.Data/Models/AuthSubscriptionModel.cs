@@ -32,5 +32,5 @@ public class AuthSubscription : BaseModel
     public virtual AuthOrder? Order { get; set; }
 
     [JsonIgnore]
-    public virtual List<AuthSubscriptionCredit> Credits { get; set; } = null!;
+    public virtual List<AuthSubscriptionCreditModel> Credits { get; set; } = null!;
 }

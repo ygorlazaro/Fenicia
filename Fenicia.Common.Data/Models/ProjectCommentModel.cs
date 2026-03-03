@@ -11,7 +11,7 @@ public class ProjectComment : BaseCompanyModel
 
     public string Content { get; set; } = string.Empty;
 
-    public virtual ProjectTask Task { get; set; } = null!;
+    public virtual ProjectTaskModel TaskModel { get; set; } = null!;
 
     public virtual AuthUser User { get; set; } = null!;
 

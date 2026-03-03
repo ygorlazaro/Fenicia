@@ -25,22 +25,22 @@ public class AuthUser : BaseModel
     public string Name { get; set; } = null!;
 
     [JsonIgnore]
-    public List<AuthUserRole> UsersRoles { get; set; } = [];
+    public List<AuthUserRoleModel> UsersRoles { get; set; } = [];
 
     [JsonIgnore]
     public List<AuthOrder> Orders { get; set; } = [];
 
     [JsonIgnore]
-    public List<ProjectTask> Tasks { get; set; } = [];
+    public List<ProjectTaskModel> Tasks { get; set; } = [];
 
     [MaxLength(48)]
     public string? ImageUrl { get; set; }
 
-    [InverseProperty(nameof(SNFollower.Follower))]
-    public List<SNFollower> Followers { get; set; } = [];
+    [InverseProperty(nameof(SNFollowerModel.Follower))]
+    public List<SNFollowerModel> Followers { get; set; } = [];
 
-    [InverseProperty(nameof(SNFollower.User))]
-    public List<SNFollower> Following { get; set; } = [];
+    [InverseProperty(nameof(SNFollowerModel.User))]
+    public List<SNFollowerModel> Following { get; set; } = [];
 
-    public List<ProjectTaskAssignee> TaskAssignees { get; set; } = [];
+    public List<ProjectTaskAssigneeModel> TaskAssignees { get; set; } = [];
 }

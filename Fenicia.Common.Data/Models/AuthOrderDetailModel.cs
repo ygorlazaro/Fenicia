@@ -29,5 +29,5 @@ public class AuthOrderDetail : BaseModel
     public AuthModule Module { get; set; } = null!;
 
     [JsonIgnore]
-    public AuthSubscriptionCredit? SubscriptionCredit { get; set; }
+    public AuthSubscriptionCreditModel? SubscriptionCredit { get; set; }
 }

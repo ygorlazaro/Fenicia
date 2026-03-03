@@ -13,5 +13,5 @@ public class AuthRole : BaseModel
     public string Name { get; set; } = null!;
 
     [JsonIgnore]
-    public virtual List<AuthUserRole> UsersRoles { get; set; } = [];
+    public virtual List<AuthUserRoleModel> UsersRoles { get; set; } = [];
 }

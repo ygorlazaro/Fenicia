@@ -33,7 +33,7 @@ public class ProjectTask : BaseCompanyModel
 
     public virtual List<ProjectSubtask> Subtasks { get; set; } = [];
 
-    public virtual List<ProjectTaskAssignee> Assignees { get; set; } = [];
+    public virtual List<ProjectTaskAssigneeModel> Assignees { get; set; } = [];
 
     public virtual ProjectStatus Status { get; set; } = null!;
 

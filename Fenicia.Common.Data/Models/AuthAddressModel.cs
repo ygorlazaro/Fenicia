@@ -31,5 +31,5 @@ public class AuthAddress : BaseModel
 
     [ForeignKey(nameof(StateId))]
     [JsonIgnore]
-    public virtual AuthState State { get; set; } = null!;
+    public virtual AuthStateModel StateModel { get; set; } = null!;
 }

@@ -34,10 +34,10 @@ public class AuthModule : BaseModel
     public ModuleType Type { get; set; }
 
     [JsonIgnore]
-    public List<AuthSubscriptionCredit> SubscriptionCredits { get; set; } = [];
+    public List<AuthSubscriptionCreditModel> SubscriptionCredits { get; set; } = [];
 
     [JsonIgnore]
-    public List<AuthOrderDetail> OrderDetails { get; set; } = [];
+    public List<AuthOrderDetailModel> OrderDetails { get; set; } = [];
 
-    public List<AuthSubmodule> Submodules { get; set; } = [];
+    public List<AuthSubmoduleModel> Submodules { get; set; } = [];
 }
