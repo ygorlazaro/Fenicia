@@ -3,6 +3,7 @@ using System.Text;
 using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Providers;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -42,7 +43,8 @@ public class Program
                                               .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
-
+        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddDbContext<DefaultContext>((sp, o) =>
         {

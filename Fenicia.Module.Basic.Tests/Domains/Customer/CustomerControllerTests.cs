@@ -22,7 +22,7 @@ using Moq;
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
 [TestFixture]
-public class PositionControllerTests
+public class CustomerControllerTests
 {
     [SetUp]
     public void SetUp()
@@ -41,7 +41,7 @@ public class PositionControllerTests
         this.deleteCustomerHandler = new DeleteCustomerHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new PositionController(
+        this.controller = new CustomerController(
             this.getAllCustomerHandler,
             this.getCustomerByIdHandler,
             this.addCustomerHandler,
@@ -65,7 +65,7 @@ public class PositionControllerTests
     }
 
     private TestCompanyContext companyContext = null!;
-    private PositionController controller = null!;
+    private CustomerController controller = null!;
     private DefaultContext context = null!;
     private GetAllCustomerHandler getAllCustomerHandler = null!;
     private GetCustomerByIdHandler getCustomerByIdHandler = null!;
@@ -403,7 +403,7 @@ public class PositionControllerTests
 
         // Verify customer was deleted
         var deletedCustomer =
-            await this.context.BasicCustomers.FirstOrDefaultAsync(x => this.testCustomerId == x.Id, CancellationToken.None);
+            await this.context.BasicCustomers.FirstOrDefaultAsync(x => this.testCustomerId == x.Id && x.Deleted == null, CancellationToken.None);
         Assert.That(deletedCustomer, Is.Null);
     }
 
@@ -425,7 +425,7 @@ public class PositionControllerTests
     public void CustomerController_HasAuthorizeAttribute()
     {
         // Arrange
-        var controllerType = typeof(PositionController);
+        var controllerType = typeof(CustomerController);
 
         // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
@@ -438,7 +438,7 @@ public class PositionControllerTests
     public void CustomerController_HasRouteAttribute()
     {
         // Arrange
-        var controllerType = typeof(PositionController);
+        var controllerType = typeof(CustomerController);
 
         // Act
         var routeAttribute =
@@ -453,7 +453,7 @@ public class PositionControllerTests
     public void CustomerController_HasApiControllerAttribute()
     {
         // Arrange
-        var controllerType = typeof(PositionController);
+        var controllerType = typeof(CustomerController);
 
         // Act
         var apiControllerAttribute =

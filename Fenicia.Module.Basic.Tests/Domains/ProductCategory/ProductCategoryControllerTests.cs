@@ -293,7 +293,7 @@ public class ProductCategoryControllerTests
         Assert.That(result, Is.Not.Null);
 
         // Verify category was deleted
-        var deletedCategory = await this.context.BasicProductCategories.FirstOrDefaultAsync(x => x.Id == this.testCategoryId, cancellationToken);
+        var deletedCategory = await this.context.BasicProductCategories.FirstOrDefaultAsync(x => x.Id == this.testCategoryId && x.Deleted == null, cancellationToken);
         Assert.That(deletedCategory, Is.Null);
     }
 

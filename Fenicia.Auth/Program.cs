@@ -1,5 +1,6 @@
 using Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts;
 using Fenicia.Common.API.Startup;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Externals.Email;
 
@@ -24,7 +25,6 @@ public static class Program
         builder.Configuration.AddConfiguration(configuration);
 
         builder.AddFeniciaLogging()
-            .AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth")
             .AddFeniciaRateLimiting(configuration)
             .AddFeniciaCors()
             .AddFeniciaAuthentication(configuration)
@@ -32,10 +32,13 @@ public static class Program
             .AddFeniciaDependencyInjection(() =>
             {
                 builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
+                builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+                builder.Services.AddHttpContextAccessor();
 
                 builder.Services.AddScoped<IncrementAttempts>();
-            });
-            
+            })
+            .AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+
 
         builder.Start();
     }

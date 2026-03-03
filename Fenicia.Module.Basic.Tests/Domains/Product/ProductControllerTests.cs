@@ -377,7 +377,7 @@ public class ProductControllerTests
         Assert.That(result, Is.Not.Null);
 
         // Verify product was deleted
-        var deletedProduct = await this.context.BasicProducts.FirstOrDefaultAsync(x => x.Id == this.testProductId, cancellationToken);
+        var deletedProduct = await this.context.BasicProducts.FirstOrDefaultAsync(x => x.Id == this.testProductId && x.Deleted == null, cancellationToken);
         Assert.That(deletedProduct, Is.Null);
     }
 

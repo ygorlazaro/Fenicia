@@ -16,7 +16,7 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class PositionController(
+public class CustomerController(
     GetAllCustomerHandler getAllCustomerHandler,
     GetCustomerByIdHandler getCustomerByIdHandler,
     AddCustomerHandler addCustomerHandler,
