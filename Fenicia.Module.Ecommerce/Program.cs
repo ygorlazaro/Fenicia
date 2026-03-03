@@ -43,15 +43,17 @@ public class Program
                                               .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
+        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddDbContext<EcommerceContext>((sp, o) =>
+        builder.Services.AddDbContext<DefaultContext>((sp, o) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
 
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
 
-            var connString = config.GetConnectionString("EcommerceSupport")?.Replace("{tenant}", tenantId);
+            var connString = config.GetConnectionString("Auth");
 
             if (string.IsNullOrWhiteSpace(connString))
             {

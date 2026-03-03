@@ -2,8 +2,9 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.Add;
 using Fenicia.Module.Basic.Domains.Product.Delete;
@@ -26,11 +27,12 @@ public class ProductControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.testProductId = Guid.NewGuid();
         this.getAllProductHandler = new GetAllProductHandler(this.context);
         this.getProductByIdHandler = new GetProductByIdHandler(this.context);
@@ -62,8 +64,9 @@ public class ProductControllerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private ProductController controller = null!;
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetAllProductHandler getAllProductHandler = null!;
     private GetProductByIdHandler getProductByIdHandler = null!;
     private AddProductHandler addProductHandler = null!;
@@ -114,13 +117,13 @@ public class ProductControllerTests
     public async Task GetAsync_WhenProductsExist_ReturnsOkWithProducts()
     {
         // Arrange
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product1 = new ProductModel
+        var product1 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -130,7 +133,7 @@ public class ProductControllerTests
             CategoryId = category.Id
         };
 
-        var product2 = new ProductModel
+        var product2 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -140,8 +143,8 @@ public class ProductControllerTests
             CategoryId = category.Id
         };
 
-        this.context.ProductCategories.Add(category);
-        this.context.Products.AddRange(product1, product2);
+        this.context.BasicProductCategories.Add(category);
+        this.context.BasicProducts.AddRange(product1, product2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var page = 1;
@@ -167,13 +170,13 @@ public class ProductControllerTests
     public async Task GetByIdAsync_WhenProductExists_ReturnsOkWithProduct()
     {
         // Arrange
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -183,8 +186,8 @@ public class ProductControllerTests
             CategoryId = category.Id
         };
 
-        this.context.ProductCategories.Add(category);
-        this.context.Products.Add(product);
+        this.context.BasicProductCategories.Add(category);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -227,13 +230,13 @@ public class ProductControllerTests
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithProduct()
     {
         // Arrange
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.ProductCategories.Add(category);
+        this.context.BasicProductCategories.Add(category);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddProductCommand(
@@ -271,13 +274,13 @@ public class ProductControllerTests
     public async Task PatchAsync_WhenProductExists_ReturnsOkWithUpdatedProduct()
     {
         // Arrange
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -287,8 +290,8 @@ public class ProductControllerTests
             CategoryId = category.Id
         };
 
-        this.context.ProductCategories.Add(category);
-        this.context.Products.Add(product);
+        this.context.BasicProductCategories.Add(category);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCommand(
@@ -321,13 +324,13 @@ public class ProductControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var category = new ProductCategoryModel
+        var category = new BasicProductCategory
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.ProductCategories.Add(category);
+        this.context.BasicProductCategories.Add(category);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCommand(
@@ -352,7 +355,7 @@ public class ProductControllerTests
     public async Task DeleteAsync_WhenProductExists_ReturnsNoContent()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -362,7 +365,7 @@ public class ProductControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -374,7 +377,7 @@ public class ProductControllerTests
         Assert.That(result, Is.Not.Null);
 
         // Verify product was deleted
-        var deletedProduct = await this.context.Products.FirstOrDefaultAsync (x => x.Id == this.testProductId, cancellationToken);
+        var deletedProduct = await this.context.BasicProducts.FirstOrDefaultAsync(x => x.Id == this.testProductId && x.Deleted == null, cancellationToken);
         Assert.That(deletedProduct, Is.Null);
     }
 

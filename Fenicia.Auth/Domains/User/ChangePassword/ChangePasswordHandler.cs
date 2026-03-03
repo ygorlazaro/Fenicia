@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.ChangePassword;
 
-public class ChangePasswordHandler(AuthContext context, HashPasswordHandler hashPasswordHandler)
+public class ChangePasswordHandler(DefaultContext context, HashPasswordHandler hashPasswordHandler)
 {
     public async Task<ChangePasswordResponse> Handle(ChangePasswordQuery query, CancellationToken ct)
     {
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == query.Id, ct)
+        var user = await context.AuthUsers.FirstOrDefaultAsync(u => u.Id == query.Id, ct)
                    ?? throw new ArgumentException(TextConstants.ItemNotFoundMessage);
         var hashedPassword = hashPasswordHandler.Handle(query.Password);
 

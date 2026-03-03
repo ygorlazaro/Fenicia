@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Update;
 
-public class UpdateEmployeeHandler(BasicContext context)
+public class UpdateEmployeeHandler(DefaultContext context)
 {
     public async Task<UpdateEmployeeResponse?> Handle(UpdateEmployeeCommand command, CancellationToken ct)
     {
-        var employee = await context.Employees
+        var employee = await context.BasicEmployees
             .Include(e => e.Person)
             .Include(e => e.Position)
             .FirstOrDefaultAsync(e => e.Id == command.Id, ct);
@@ -31,7 +31,7 @@ public class UpdateEmployeeHandler(BasicContext context)
         employee.Person.StateId = command.StateId;
         employee.Person.City = command.City;
 
-        context.Employees.Update(employee);
+        context.BasicEmployees.Update(employee);
 
         await context.SaveChangesAsync(ct);
 

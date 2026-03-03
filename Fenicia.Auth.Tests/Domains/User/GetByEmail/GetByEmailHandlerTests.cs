@@ -1,8 +1,9 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.User.GetByEmail;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +15,11 @@ public class GetByEmailHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetByEmailHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +30,7 @@ public class GetByEmailHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private GetByEmailHandler handler = null!;
     private Faker faker = null!;
 
@@ -42,7 +43,7 @@ public class GetByEmailHandlerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -50,7 +51,7 @@ public class GetByEmailHandlerTests
             Password = password
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -90,7 +91,7 @@ public class GetByEmailHandlerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -98,7 +99,7 @@ public class GetByEmailHandlerTests
             Password = password
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -121,7 +122,7 @@ public class GetByEmailHandlerTests
         var password1 = this.faker.Internet.Password();
         var password2 = this.faker.Internet.Password();
 
-        var user1 = new UserModel
+        var user1 = new AuthUser
         {
             Id = userId1,
             Email = email1,
@@ -129,7 +130,7 @@ public class GetByEmailHandlerTests
             Password = password1
         };
 
-        var user2 = new UserModel
+        var user2 = new AuthUser
         {
             Id = userId2,
             Email = email2,
@@ -137,7 +138,7 @@ public class GetByEmailHandlerTests
             Password = password2
         };
 
-        this.context.Users.AddRange(user1, user2);
+        this.context.AuthUsers.AddRange(user1, user2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -175,7 +176,7 @@ public class GetByEmailHandlerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -183,7 +184,7 @@ public class GetByEmailHandlerTests
             Password = password
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -202,7 +203,7 @@ public class GetByEmailHandlerTests
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = email,
@@ -210,7 +211,7 @@ public class GetByEmailHandlerTests
             Password = password
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act

@@ -1,13 +1,13 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Add;
 
-public class AddCustomerHandler(BasicContext context)
+public class AddCustomerHandler(DefaultContext context)
 {
     public async Task<AddCustomerResponse> Handle(AddCustomerCommand command, CancellationToken ct)
     {
-        var person = new PersonModel
+        var person = new BasicPerson
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
@@ -23,14 +23,14 @@ public class AddCustomerHandler(BasicContext context)
             City = command.City
         };
 
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = command.Id,
             Person = person,
             PersonId = person.Id
         };
 
-        context.Customers.Add(customer);
+        context.BasicCustomers.Add(customer);
 
         await context.SaveChangesAsync(ct);
 

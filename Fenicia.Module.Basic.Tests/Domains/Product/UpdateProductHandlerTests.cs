@@ -1,5 +1,6 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Product.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +13,12 @@ public class UpdateProductHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new UpdateProductHandler(this.context);
     }
 
@@ -26,7 +28,8 @@ public class UpdateProductHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private UpdateProductHandler handler = null!;
 
     [Test]
@@ -34,11 +37,11 @@ public class UpdateProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category1 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        var category2 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
-        this.context.ProductCategories.AddRange(category1, category2);
+        var category1 = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category2 = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Books" };
+        this.context.BasicProductCategories.AddRange(category1, category2);
 
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = productId,
             Name = "Old Product",
@@ -48,7 +51,7 @@ public class UpdateProductHandlerTests
             CategoryId = category1.Id
         };
 
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCommand(
@@ -117,10 +120,10 @@ public class UpdateProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.ProductCategories.Add(category);
+        var category = new BasicProductCategory { Id = Guid.NewGuid(), Name = "Electronics" };
+        this.context.BasicProductCategories.Add(category);
 
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = productId,
             Name = "Old Product",
@@ -130,7 +133,7 @@ public class UpdateProductHandlerTests
             CategoryId = category.Id
         };
 
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCommand(
@@ -145,7 +148,7 @@ public class UpdateProductHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedProduct = await this.context.Products.FindAsync([productId], CancellationToken.None);
+        var updatedProduct = await this.context.BasicProducts.FindAsync([productId], CancellationToken.None);
         Assert.That(updatedProduct, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

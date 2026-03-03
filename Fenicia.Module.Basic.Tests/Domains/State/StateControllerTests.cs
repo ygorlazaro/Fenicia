@@ -2,8 +2,9 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.State;
 using Fenicia.Module.Basic.Domains.State.GetAll;
 
@@ -22,11 +23,12 @@ public class StateControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.getAllStateHandler = new GetAllStateHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
@@ -48,8 +50,9 @@ public class StateControllerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private StateController controller = null!;
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetAllStateHandler getAllStateHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Faker faker = null!;
@@ -93,14 +96,14 @@ public class StateControllerTests
     public async Task GetAllAsync_WhenStatesExist_ReturnsOkWithStates()
     {
         // Arrange
-        var state1 = new StateModel
+        var state1 = new AuthState
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Address.State(),
             Uf = this.faker.Address.StateAbbr()
         };
 
-        var state2 = new StateModel
+        var state2 = new AuthState
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Address.State(),

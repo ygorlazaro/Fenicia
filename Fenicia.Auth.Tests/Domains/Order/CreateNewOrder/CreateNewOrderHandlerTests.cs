@@ -3,11 +3,11 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Order.CreateNewOrder;
 using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
-using Fenicia.Common.Migrations.Services;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -21,17 +21,15 @@ public class CreateNewOrderHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.createCreditsForOrderHandlerMock = new Mock<CreateCreditsForOrderHandler>(this.context);
-        this.migrationServiceMock = new Mock<IMigrationService>();
         this.handler = new CreateNewOrderHandler(
             this.context,
-            this.createCreditsForOrderHandlerMock.Object,
-            this.migrationServiceMock.Object
+            this.createCreditsForOrderHandlerMock.Object
         );
         this.faker = new Faker();
     }
@@ -42,10 +40,9 @@ public class CreateNewOrderHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private CreateNewOrderHandler handler = null!;
     private Mock<CreateCreditsForOrderHandler> createCreditsForOrderHandlerMock = null!;
-    private Mock<IMigrationService> migrationServiceMock = null!;
     private Faker faker = null!;
 
     [Test]
@@ -58,7 +55,7 @@ public class CreateNewOrderHandlerTests
         var module2Id = Guid.NewGuid();
         var modules = new List<Guid> { module1Id, module2Id };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -66,7 +63,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = "Test Company",
@@ -76,7 +73,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -84,7 +81,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var module1 = new ModuleModel
+        var module1 = new AuthModule
         {
             Id = module1Id,
             Name = "Module 1",
@@ -92,7 +89,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var module2 = new ModuleModel
+        var module2 = new AuthModule
         {
             Id = module2Id,
             Name = "Module 2",
@@ -100,7 +97,7 @@ public class CreateNewOrderHandlerTests
             Price = 150.00m
         };
 
-        var moduleBasic = new ModuleModel
+        var moduleBasic = new AuthModule
         {
             Id = Guid.NewGuid(),
             Name = "Module Basic",
@@ -108,7 +105,7 @@ public class CreateNewOrderHandlerTests
             Price = 150.00m
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         this.context.Modules.AddRange(module1, module2, moduleBasic);
@@ -167,7 +164,7 @@ public class CreateNewOrderHandlerTests
         var nonExistentModuleId = Guid.NewGuid();
         var modules = new List<Guid> { nonExistentModuleId };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -175,7 +172,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = "Test Company",
@@ -185,7 +182,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -193,7 +190,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -215,7 +212,7 @@ public class CreateNewOrderHandlerTests
         var companyId = Guid.NewGuid();
         var modules = new List<Guid>();
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -223,7 +220,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = "Test Company",
@@ -233,7 +230,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -241,7 +238,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -266,7 +263,7 @@ public class CreateNewOrderHandlerTests
         var basicModuleId = Guid.NewGuid();
         var modules = new List<Guid> { basicModuleId };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -274,7 +271,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = "Test Company",
@@ -284,7 +281,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -292,7 +289,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var basicModule = new ModuleModel
+        var basicModule = new AuthModule
         {
             Id = basicModuleId,
             Name = "Basic Module",
@@ -300,7 +297,7 @@ public class CreateNewOrderHandlerTests
             Price = 50.00m
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         this.context.Modules.Add(basicModule);
@@ -334,7 +331,7 @@ public class CreateNewOrderHandlerTests
         var basicModuleId = Guid.NewGuid();
         var modules = new List<Guid> { accountingModuleId };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -342,7 +339,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = "Test Company",
@@ -352,7 +349,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -360,7 +357,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var accountingModule = new ModuleModel
+        var accountingModule = new AuthModule
         {
             Id = accountingModuleId,
             Name = "Accounting Module",
@@ -368,7 +365,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var basicModule = new ModuleModel
+        var basicModule = new AuthModule
         {
             Id = basicModuleId,
             Name = "Basic Module",
@@ -376,7 +373,7 @@ public class CreateNewOrderHandlerTests
             Price = 50.00m
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         this.context.Modules.AddRange(accountingModule, basicModule);
@@ -409,7 +406,7 @@ public class CreateNewOrderHandlerTests
         var accountingModuleId = Guid.NewGuid();
         var modules = new List<Guid> { accountingModuleId };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -417,7 +414,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = "Test Company",
@@ -427,7 +424,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -435,7 +432,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var accountingModule = new ModuleModel
+        var accountingModule = new AuthModule
         {
             Id = accountingModuleId,
             Name = "Accounting Module",
@@ -443,7 +440,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         this.context.Modules.Add(accountingModule);
@@ -469,7 +466,7 @@ public class CreateNewOrderHandlerTests
         var module1Id = Guid.NewGuid();
         var modules = new List<Guid> { module1Id };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -477,7 +474,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = "Test Company",
@@ -487,7 +484,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -495,7 +492,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var module1 = new ModuleModel
+        var module1 = new AuthModule
         {
             Id = module1Id,
             Name = "Module 1",
@@ -503,7 +500,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var moduleBasic = new ModuleModel
+        var moduleBasic = new AuthModule
         {
             Id = Guid.NewGuid(),
             Name = "Module Basic",
@@ -511,7 +508,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         this.context.Modules.Add(module1);
@@ -538,87 +535,6 @@ public class CreateNewOrderHandlerTests
     }
 
     [Test]
-    public async Task Handle_CallsMigrationServiceWithCorrectParameters()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var accountingModuleId = Guid.NewGuid();
-        var modules = new List<Guid> { accountingModuleId };
-
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
-
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = "Test Company",
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            CompanyId = companyId,
-            RoleId = Guid.NewGuid()
-        };
-
-        var accountingModule = new ModuleModel
-        {
-            Id = accountingModuleId,
-            Name = "Accounting Module",
-            Type = ModuleType.Accounting,
-            Price = 100.00m
-        };
-
-        var basicModule = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Basic Module",
-            Type = ModuleType.Basic,
-            Price = 50.00m
-        };
-
-        this.context.Users.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
-        this.context.Modules.AddRange(accountingModule, basicModule);
-        await this.context.SaveChangesAsync(CancellationToken.None);
-
-        this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
-                SubscriptionStatus.Active
-            ));
-
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
-
-        // Act
-        await this.handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        this.migrationServiceMock.Verify(
-            x => x.RunMigrationsAsync(
-                companyId,
-                It.Is<List<ModuleType>>(types =>
-                    types.Contains(ModuleType.Accounting) && types.Contains(ModuleType.Basic)),
-                It.IsAny<CancellationToken>()
-            ),
-            Times.Once
-        );
-    }
-
-    [Test]
     public async Task Handle_WhenDuplicateModuleIds_RemovesDuplicates()
     {
         // Arrange
@@ -627,7 +543,7 @@ public class CreateNewOrderHandlerTests
         var module1Id = Guid.NewGuid();
         var modules = new List<Guid> { module1Id, module1Id, module1Id };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -635,7 +551,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = "Test Company",
@@ -645,7 +561,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -653,7 +569,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var module1 = new ModuleModel
+        var module1 = new AuthModule
         {
             Id = module1Id,
             Name = "Module 1",
@@ -661,7 +577,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var basicModule = new ModuleModel
+        var basicModule = new AuthModule
         {
             Id = Guid.NewGuid(),
             Name = "Basic Module",
@@ -669,7 +585,7 @@ public class CreateNewOrderHandlerTests
             Price = 50.00m
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         this.context.Modules.AddRange(module1, basicModule);
@@ -704,7 +620,7 @@ public class CreateNewOrderHandlerTests
         var accountingModuleId = Guid.NewGuid();
         var modules = new List<Guid> { erpModuleId, authModuleId, accountingModuleId };
 
-        var user = new UserModel
+        var user = new AuthUser
         {
             Id = userId,
             Email = this.faker.Internet.Email(),
@@ -712,7 +628,7 @@ public class CreateNewOrderHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new CompanyModel
+        var company = new AuthCompany
         {
             Id = companyId,
             Name = "Test Company",
@@ -722,7 +638,7 @@ public class CreateNewOrderHandlerTests
             Language = "pt-BR"
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = Guid.NewGuid(),
             UserId = userId,
@@ -730,7 +646,7 @@ public class CreateNewOrderHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var erpModule = new ModuleModel
+        var erpModule = new AuthModule
         {
             Id = erpModuleId,
             Name = "ERP Module",
@@ -738,7 +654,7 @@ public class CreateNewOrderHandlerTests
             Price = 200.00m
         };
 
-        var authModule = new ModuleModel
+        var authModule = new AuthModule
         {
             Id = authModuleId,
             Name = "Auth Module",
@@ -746,7 +662,7 @@ public class CreateNewOrderHandlerTests
             Price = 100.00m
         };
 
-        var accountingModule = new ModuleModel
+        var accountingModule = new AuthModule
         {
             Id = accountingModuleId,
             Name = "Accounting Module",
@@ -754,7 +670,7 @@ public class CreateNewOrderHandlerTests
             Price = 150.00m
         };
 
-        var basicModule = new ModuleModel
+        var basicModule = new AuthModule
         {
             Id = Guid.NewGuid(),
             Name = "Basic Module",
@@ -762,7 +678,7 @@ public class CreateNewOrderHandlerTests
             Price = 50.00m
         };
 
-        this.context.Users.Add(user);
+        this.context.AuthUsers.Add(user);
         this.context.Companies.Add(company);
         this.context.UserRoles.Add(userRole);
         this.context.Modules.AddRange(erpModule, authModule, accountingModule, basicModule);

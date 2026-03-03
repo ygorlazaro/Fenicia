@@ -1,6 +1,7 @@
 using Fenicia.Auth.Domains.User.GetUserModules;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
 
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +14,11 @@ public class GetUserModuleHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetUserModuleHandler(this.context);
     }
 
@@ -27,7 +28,7 @@ public class GetUserModuleHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private GetUserModuleHandler handler = null!;
 
     [Test]
@@ -44,7 +45,7 @@ public class GetUserModuleHandlerTests
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel
+        var module = new AuthModule
         {
             Id = moduleId,
             Name = "Test Module",
@@ -52,7 +53,7 @@ public class GetUserModuleHandlerTests
             Price = 100.00m
         };
 
-        var subscription = new SubscriptionModel
+        var subscription = new AuthSubscription
         {
             Id = subscriptionId,
             CompanyId = companyId,
@@ -62,7 +63,7 @@ public class GetUserModuleHandlerTests
             OrderId = Guid.NewGuid()
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
+        var subscriptionCredit = new AuthSubscriptionCredit
         {
             Id = subscriptionCreditId,
             ModuleId = moduleId,
@@ -73,7 +74,7 @@ public class GetUserModuleHandlerTests
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = userRoleId,
             UserId = userId,
@@ -81,7 +82,7 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var submodule = new SubmoduleModel
+        var submodule = new AuthSubmodule
         {
             Id = submoduleId,
             ModuleId = moduleId,
@@ -144,7 +145,7 @@ public class GetUserModuleHandlerTests
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel
+        var module = new AuthModule
         {
             Id = moduleId,
             Name = "Test Module",
@@ -152,7 +153,7 @@ public class GetUserModuleHandlerTests
             Price = 100.00m
         };
 
-        var subscription = new SubscriptionModel
+        var subscription = new AuthSubscription
         {
             Id = subscriptionId,
             CompanyId = companyId,
@@ -162,7 +163,7 @@ public class GetUserModuleHandlerTests
             OrderId = Guid.NewGuid()
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
+        var subscriptionCredit = new AuthSubscriptionCredit
         {
             Id = subscriptionCreditId,
             ModuleId = moduleId,
@@ -173,7 +174,7 @@ public class GetUserModuleHandlerTests
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = userRoleId,
             UserId = userId,
@@ -181,7 +182,7 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var submodule = new SubmoduleModel
+        var submodule = new AuthSubmodule
         {
             Id = submoduleId,
             ModuleId = moduleId,
@@ -221,7 +222,7 @@ public class GetUserModuleHandlerTests
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel
+        var module = new AuthModule
         {
             Id = moduleId,
             Name = "Test Module",
@@ -229,7 +230,7 @@ public class GetUserModuleHandlerTests
             Price = 100.00m
         };
 
-        var subscription = new SubscriptionModel
+        var subscription = new AuthSubscription
         {
             Id = subscriptionId,
             CompanyId = companyId,
@@ -239,7 +240,7 @@ public class GetUserModuleHandlerTests
             OrderId = Guid.NewGuid()
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
+        var subscriptionCredit = new AuthSubscriptionCredit
         {
             Id = subscriptionCreditId,
             ModuleId = moduleId,
@@ -250,7 +251,7 @@ public class GetUserModuleHandlerTests
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = userRoleId,
             UserId = userId,
@@ -258,7 +259,7 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var submodule = new SubmoduleModel
+        var submodule = new AuthSubmodule
         {
             Id = submoduleId,
             ModuleId = moduleId,
@@ -298,7 +299,7 @@ public class GetUserModuleHandlerTests
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel
+        var module = new AuthModule
         {
             Id = moduleId,
             Name = "Test Module",
@@ -306,7 +307,7 @@ public class GetUserModuleHandlerTests
             Price = 100.00m
         };
 
-        var subscription = new SubscriptionModel
+        var subscription = new AuthSubscription
         {
             Id = subscriptionId,
             CompanyId = companyId,
@@ -316,7 +317,7 @@ public class GetUserModuleHandlerTests
             OrderId = Guid.NewGuid()
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
+        var subscriptionCredit = new AuthSubscriptionCredit
         {
             Id = subscriptionCreditId,
             ModuleId = moduleId,
@@ -327,7 +328,7 @@ public class GetUserModuleHandlerTests
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = userRoleId,
             UserId = userId,
@@ -335,7 +336,7 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var submodule = new SubmoduleModel
+        var submodule = new AuthSubmodule
         {
             Id = submoduleId,
             ModuleId = moduleId,
@@ -374,7 +375,7 @@ public class GetUserModuleHandlerTests
 
         var now = DateTime.UtcNow;
 
-        var module1 = new ModuleModel
+        var module1 = new AuthModule
         {
             Id = module1Id,
             Name = "Module 1",
@@ -382,7 +383,7 @@ public class GetUserModuleHandlerTests
             Price = 100.00m
         };
 
-        var module2 = new ModuleModel
+        var module2 = new AuthModule
         {
             Id = module2Id,
             Name = "Module 2",
@@ -390,7 +391,7 @@ public class GetUserModuleHandlerTests
             Price = 150.00m
         };
 
-        var subscription = new SubscriptionModel
+        var subscription = new AuthSubscription
         {
             Id = subscriptionId,
             CompanyId = companyId,
@@ -400,7 +401,7 @@ public class GetUserModuleHandlerTests
             OrderId = Guid.NewGuid()
         };
 
-        var credit1 = new SubscriptionCreditModel
+        var credit1 = new AuthSubscriptionCredit
         {
             ModuleId = module1Id,
             SubscriptionId = subscriptionId,
@@ -410,7 +411,7 @@ public class GetUserModuleHandlerTests
             OrderDetailId = Guid.NewGuid()
         };
 
-        var credit2 = new SubscriptionCreditModel
+        var credit2 = new AuthSubscriptionCredit
         {
             ModuleId = module2Id,
             SubscriptionId = subscriptionId,
@@ -420,7 +421,7 @@ public class GetUserModuleHandlerTests
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = userRoleId,
             UserId = userId,
@@ -457,7 +458,7 @@ public class GetUserModuleHandlerTests
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel
+        var module = new AuthModule
         {
             Id = moduleId,
             Name = "Test Module",
@@ -465,7 +466,7 @@ public class GetUserModuleHandlerTests
             Price = 100.00m
         };
 
-        var subscription = new SubscriptionModel
+        var subscription = new AuthSubscription
         {
             Id = subscriptionId,
             CompanyId = differentCompanyId,
@@ -475,7 +476,7 @@ public class GetUserModuleHandlerTests
             OrderId = Guid.NewGuid()
         };
 
-        var subscriptionCredit = new SubscriptionCreditModel
+        var subscriptionCredit = new AuthSubscriptionCredit
         {
             ModuleId = moduleId,
             SubscriptionId = subscriptionId,
@@ -485,7 +486,7 @@ public class GetUserModuleHandlerTests
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = userRoleId,
             UserId = userId,
@@ -521,7 +522,7 @@ public class GetUserModuleHandlerTests
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel
+        var module = new AuthModule
         {
             Id = moduleId,
             Name = "Test Module",
@@ -529,7 +530,7 @@ public class GetUserModuleHandlerTests
             Price = 100.00m
         };
 
-        var subscription = new SubscriptionModel
+        var subscription = new AuthSubscription
         {
             Id = subscriptionId,
             CompanyId = companyId,
@@ -539,7 +540,7 @@ public class GetUserModuleHandlerTests
             OrderId = Guid.NewGuid()
         };
 
-        var credit1 = new SubscriptionCreditModel
+        var credit1 = new AuthSubscriptionCredit
         {
             ModuleId = moduleId,
             SubscriptionId = subscriptionId,
@@ -549,7 +550,7 @@ public class GetUserModuleHandlerTests
             OrderDetailId = Guid.NewGuid()
         };
 
-        var credit2 = new SubscriptionCreditModel
+        var credit2 = new AuthSubscriptionCredit
         {
             ModuleId = moduleId,
             SubscriptionId = subscriptionId,
@@ -559,7 +560,7 @@ public class GetUserModuleHandlerTests
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             Id = userRoleId,
             UserId = userId,

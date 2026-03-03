@@ -1,13 +1,13 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Add;
 
-public class AddEmployeeHandler(BasicContext context)
+public class AddEmployeeHandler(DefaultContext context)
 {
     public async Task<AddEmployeeResponse> Handle(AddEmployeeCommand command, CancellationToken ct)
     {
-        var person = new PersonModel
+        var person = new BasicPerson
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
@@ -23,7 +23,7 @@ public class AddEmployeeHandler(BasicContext context)
             City = command.City
         };
 
-        var employee = new EmployeeModel
+        var employee = new BasicEmployee
         {
             Id = command.Id,
             PositionId = command.PositionId,
@@ -31,7 +31,7 @@ public class AddEmployeeHandler(BasicContext context)
             PersonId = person.Id
         };
 
-        context.Employees.Add(employee);
+        context.BasicEmployees.Add(employee);
 
         await context.SaveChangesAsync(ct);
 

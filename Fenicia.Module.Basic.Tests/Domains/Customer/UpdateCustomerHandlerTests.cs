@@ -1,7 +1,8 @@
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Customer.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,14 +15,17 @@ public class UpdateCustomerHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new UpdateCustomerHandler(this.context);
         this.faker = new Faker();
     }
+
+    private TestCompanyContext companyContext = null!;
 
     [TearDown]
     public void TearDown()
@@ -29,7 +33,7 @@ public class UpdateCustomerHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private UpdateCustomerHandler handler = null!;
     private Faker faker = null!;
 
@@ -38,11 +42,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -56,7 +60,7 @@ public class UpdateCustomerHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -140,11 +144,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -158,7 +162,7 @@ public class UpdateCustomerHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -188,11 +192,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -206,7 +210,7 @@ public class UpdateCustomerHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -236,11 +240,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -254,7 +258,7 @@ public class UpdateCustomerHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -284,11 +288,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -302,7 +306,7 @@ public class UpdateCustomerHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -332,11 +336,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -350,7 +354,7 @@ public class UpdateCustomerHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -380,11 +384,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -398,7 +402,7 @@ public class UpdateCustomerHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -428,11 +432,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -446,7 +450,7 @@ public class UpdateCustomerHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -476,11 +480,11 @@ public class UpdateCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -494,7 +498,7 @@ public class UpdateCustomerHandlerTests
             }
         };
 
-        this.context.Customers.Add(customer);
+        this.context.BasicCustomers.Add(customer);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
@@ -515,7 +519,7 @@ public class UpdateCustomerHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCustomer = await this.context.Customers
+        var updatedCustomer = await this.context.BasicCustomers
             .Include(c => c.Person)
             .FirstOrDefaultAsync(c => c.Id == customerId);
 

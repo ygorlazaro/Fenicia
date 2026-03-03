@@ -3,6 +3,7 @@ using System.Text;
 using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
 using Fenicia.Common.API.Providers;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -33,15 +34,17 @@ public class Program
                                               .InvalidJwtSecretMessage));
 
         builder.Services.AddScoped<TenantProvider>();
+        builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+        builder.Services.AddHttpContextAccessor();
 
-        builder.Services.AddDbContext<ContractsContext>((sp, o) =>
+        builder.Services.AddDbContext<DefaultContext>((sp, o) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
             var tenantProvider = sp.GetRequiredService<TenantProvider>();
 
             var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
 
-            var connString = config.GetConnectionString("Contracts")?.Replace("{tenant}", tenantId);
+            var connString = config.GetConnectionString("Auth");
 
             if (string.IsNullOrWhiteSpace(connString))
             {

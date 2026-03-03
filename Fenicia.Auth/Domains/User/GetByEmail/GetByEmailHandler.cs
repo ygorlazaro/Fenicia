@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.GetByEmail;
 
-public class GetByEmailHandler(AuthContext context)
+public class GetByEmailHandler(DefaultContext context)
 {
     public virtual async Task<GetByEmailResponse?> Handle(string email, CancellationToken ct)
     {
-        var query = from user in context.Users
+        var query = from user in context.AuthUsers
                     where user.Email == email
                     select new GetByEmailResponse(user.Id, user.Email, user.Name, user.Password);
 

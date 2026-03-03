@@ -1,4 +1,5 @@
 using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
 
@@ -12,11 +13,11 @@ public class CreateCreditsForOrderHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AuthContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new AuthContext(options);
+        this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new CreateCreditsForOrderHandler(this.context);
     }
 
@@ -26,7 +27,7 @@ public class CreateCreditsForOrderHandlerTests
         this.context.Dispose();
     }
 
-    private AuthContext context = null!;
+    private DefaultContext context = null!;
     private CreateCreditsForOrderHandler handler = null!;
 
     [Test]

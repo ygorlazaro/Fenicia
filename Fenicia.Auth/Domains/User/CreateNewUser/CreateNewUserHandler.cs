@@ -3,19 +3,16 @@ using Fenicia.Auth.Domains.Role.GetAdminRole;
 using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Migrations.Services;
+using Fenicia.Common.Data.Models;
 
 namespace Fenicia.Auth.Domains.User.CreateNewUser;
 
 public class CreateNewUserHandler(
-    AuthContext context,
-    CheckUserExistsHandle checkUserExistsHandler,
+    DefaultContext context,
+    CheckUserExistsHandler checkUserExistsHandler,
     CheckCompanyExistsHandler checkCompanyExistsHandler,
     HashPasswordHandler hashPasswordHandler,
-    GetAdminRoleHandler getAdminRoleHandler,
-    IMigrationService migrationService)
+    GetAdminRoleHandler getAdminRoleHandler)
 {
     public async Task<CreateNewUserResponse> Handle(CreateNewUserQuery request, CancellationToken ct)
     {
@@ -34,15 +31,15 @@ public class CreateNewUserHandler(
         }
 
         var hashedPassword = hashPasswordHandler.Handle(request.Password);
-        var userRequest = new UserModel
+        var userRequest = new AuthUser
         {
             Email = request.Email,
             Password = hashedPassword,
             Name = request.Name
         };
-        context.Users.Add(userRequest);
+        context.AuthUsers.Add(userRequest);
 
-        var companyRequest = new CompanyModel
+        var companyRequest = new AuthCompany
         {
             Name = request.Company.Name,
             Cnpj = request.Company.Cnpj,
@@ -53,7 +50,7 @@ public class CreateNewUserHandler(
 
         var adminRole = await getAdminRoleHandler.Handle(ct)
                         ?? throw new ArgumentException(TextConstants.MissingAdminRoleMessage);
-        var userRole = new UserRoleModel
+        var userRole = new AuthUserRole
         {
             UserId = userRequest.Id,
             Company = companyRequest,
@@ -63,8 +60,6 @@ public class CreateNewUserHandler(
         context.UserRoles.Add(userRole);
 
         await context.SaveChangesAsync(ct);
-
-        await migrationService.RunMigrationsAsync(companyRequest.Id, [ModuleType.Basic], ct);
 
         var companyResponse =
             new CreateNewUserCompanyResponse(companyRequest.Id, companyRequest.Name, companyRequest.Cnpj);

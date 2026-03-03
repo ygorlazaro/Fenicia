@@ -1,5 +1,6 @@
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement.Update;
 
@@ -13,11 +14,12 @@ public class UpdateStockMovementHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new UpdateStockMovementHandler(this.context);
     }
 
@@ -27,7 +29,8 @@ public class UpdateStockMovementHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private UpdateStockMovementHandler handler = null!;
 
     [Test]
@@ -35,7 +38,7 @@ public class UpdateStockMovementHandlerTests
     {
         // Arrange
         var movementId = Guid.NewGuid();
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -44,9 +47,9 @@ public class UpdateStockMovementHandlerTests
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
 
-        var movement = new StockMovementModel
+        var movement = new BasicStockMovement
         {
             Id = movementId,
             Quantity = 10,
@@ -55,7 +58,7 @@ public class UpdateStockMovementHandlerTests
             Type = StockMovementType.In,
             ProductId = product.Id
         };
-        this.context.StockMovements.Add(movement);
+        this.context.BasicStockMovements.Add(movement);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateStockMovementCommand(
@@ -128,7 +131,7 @@ public class UpdateStockMovementHandlerTests
     {
         // Arrange
         var movementId = Guid.NewGuid();
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -137,9 +140,9 @@ public class UpdateStockMovementHandlerTests
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
 
-        var movement = new StockMovementModel
+        var movement = new BasicStockMovement
         {
             Id = movementId,
             Quantity = 10,
@@ -148,7 +151,7 @@ public class UpdateStockMovementHandlerTests
             Type = StockMovementType.In,
             ProductId = product.Id
         };
-        this.context.StockMovements.Add(movement);
+        this.context.BasicStockMovements.Add(movement);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateStockMovementCommand(
@@ -165,7 +168,7 @@ public class UpdateStockMovementHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedMovement = await this.context.StockMovements.FindAsync([movementId], CancellationToken.None);
+        var updatedMovement = await this.context.BasicStockMovements.FindAsync([movementId], CancellationToken.None);
         Assert.That(updatedMovement, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

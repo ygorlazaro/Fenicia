@@ -1,7 +1,8 @@
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByCategory;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,12 @@ public class GetInventoryByCategoryHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new GetInventoryByCategoryHandler(this.context);
         this.faker = new Faker();
     }
@@ -29,7 +31,8 @@ public class GetInventoryByCategoryHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private GetInventoryByCategoryHandler handler = null!;
     private Faker faker = null!;
 
@@ -61,11 +64,11 @@ public class GetInventoryByCategoryHandlerTests
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
-        var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
-        this.context.ProductCategories.AddRange(category1, category2);
+        var category1 = new BasicProductCategory { Id = category1Id, Name = "Electronics" };
+        var category2 = new BasicProductCategory { Id = category2Id, Name = "Books" };
+        this.context.BasicProductCategories.AddRange(category1, category2);
 
-        var product1 = new ProductModel
+        var product1 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -75,7 +78,7 @@ public class GetInventoryByCategoryHandlerTests
             CategoryId = category1Id
         };
 
-        var product2 = new ProductModel
+        var product2 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -85,7 +88,7 @@ public class GetInventoryByCategoryHandlerTests
             CategoryId = category1Id
         };
 
-        var product3 = new ProductModel
+        var product3 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -95,7 +98,7 @@ public class GetInventoryByCategoryHandlerTests
             CategoryId = category2Id
         };
 
-        this.context.Products.AddRange(product1, product2, product3);
+        this.context.BasicProducts.AddRange(product1, product2, product3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryByCategoryQuery(category1Id);
@@ -114,10 +117,10 @@ public class GetInventoryByCategoryHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
-        this.context.ProductCategories.Add(category);
+        var category = new BasicProductCategory { Id = categoryId, Name = "Electronics" };
+        this.context.BasicProductCategories.Add(category);
 
-        var product1 = new ProductModel
+        var product1 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -127,7 +130,7 @@ public class GetInventoryByCategoryHandlerTests
             CategoryId = categoryId
         };
 
-        var product2 = new ProductModel
+        var product2 = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -137,7 +140,7 @@ public class GetInventoryByCategoryHandlerTests
             CategoryId = categoryId
         };
 
-        this.context.Products.AddRange(product1, product2);
+        this.context.BasicProducts.AddRange(product1, product2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryByCategoryQuery(categoryId);
@@ -160,12 +163,12 @@ public class GetInventoryByCategoryHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
-        this.context.ProductCategories.Add(category);
+        var category = new BasicProductCategory { Id = categoryId, Name = "Electronics" };
+        this.context.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
-            var product = new ProductModel
+            var product = new BasicProduct
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Commerce.ProductName(),
@@ -174,7 +177,7 @@ public class GetInventoryByCategoryHandlerTests
                 Quantity = 100,
                 CategoryId = categoryId
             };
-            this.context.Products.Add(product);
+            this.context.BasicProducts.Add(product);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);

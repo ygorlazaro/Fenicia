@@ -2,8 +2,9 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.CreateOrder;
@@ -24,11 +25,12 @@ public class OrderControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.testOrderId = Guid.NewGuid();
         this.testUserId = Guid.NewGuid();
         this.testCustomerId = Guid.NewGuid();
@@ -56,8 +58,9 @@ public class OrderControllerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private OrderController controller = null!;
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private CreateOrderHandler createOrderHandler = null!;
     private GetOrderDetailsByOrderIdHandler getOrderDetailsByOrderIdHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
@@ -84,11 +87,11 @@ public class OrderControllerTests
     public async Task CreateOrderAsync_WithValidCommand_ReturnsCreatedWithOrder()
     {
         // Arrange
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -97,7 +100,7 @@ public class OrderControllerTests
             }
         };
 
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -107,8 +110,8 @@ public class OrderControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.Customers.Add(customer);
-        this.context.Products.Add(product);
+        this.context.BasicCustomers.Add(customer);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateOrderCommand(
@@ -148,7 +151,7 @@ public class OrderControllerTests
     public async Task GetDetailsAsync_WhenOrderExists_ReturnsOkWithOrderDetails()
     {
         // Arrange
-        var order = new OrderModel
+        var order = new BasicOrder
         {
             Id = this.testOrderId,
             UserId = this.testUserId,
@@ -158,7 +161,7 @@ public class OrderControllerTests
             TotalAmount = 100.00m
         };
 
-        var orderDetail1 = new OrderDetailModel
+        var orderDetail1 = new BasicOrderDetail
         {
             Id = Guid.NewGuid(),
             OrderId = this.testOrderId,
@@ -167,7 +170,7 @@ public class OrderControllerTests
             Quantity = 2
         };
 
-        var orderDetail2 = new OrderDetailModel
+        var orderDetail2 = new BasicOrderDetail
         {
             Id = Guid.NewGuid(),
             OrderId = this.testOrderId,
@@ -176,8 +179,8 @@ public class OrderControllerTests
             Quantity = 3
         };
 
-        this.context.Orders.Add(order);
-        this.context.OrderDetails.AddRange(orderDetail1, orderDetail2);
+        this.context.BasicOrders.Add(order);
+        this.context.BasicOrderDetails.AddRange(orderDetail1, orderDetail2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
@@ -223,11 +226,11 @@ public class OrderControllerTests
     public async Task CreateOrderAsync_SetsUserIdFromClaims()
     {
         // Arrange
-        var customer = new CustomerModel
+        var customer = new BasicCustomer
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            Person = new PersonModel
+            Person = new BasicPerson
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -236,7 +239,7 @@ public class OrderControllerTests
             }
         };
 
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -246,8 +249,8 @@ public class OrderControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.Customers.Add(customer);
-        this.context.Products.Add(product);
+        this.context.BasicCustomers.Add(customer);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateOrderCommand(

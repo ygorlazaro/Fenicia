@@ -2,8 +2,9 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.Add;
@@ -25,11 +26,12 @@ public class StockMovementControllerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.testMovementId = Guid.NewGuid();
         this.testProductId = Guid.NewGuid();
         this.getStockMovementHandler = new GetStockMovementHandler(this.context);
@@ -58,8 +60,9 @@ public class StockMovementControllerTests
         this.context.Dispose();
     }
 
+    private TestCompanyContext companyContext = null!;
     private StockMovementController controller = null!;
-    private BasicContext context = null!;
+    private DefaultContext context = null!;
     private GetStockMovementHandler getStockMovementHandler = null!;
     private AddStockMovementHandler addStockMovementHandler = null!;
     private UpdateStockMovementHandler updateStockMovementHandler = null!;
@@ -112,7 +115,7 @@ public class StockMovementControllerTests
     public async Task GetAsync_WhenMovementsExist_ReturnsOkWithMovements()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -122,7 +125,7 @@ public class StockMovementControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var movement1 = new StockMovementModel
+        var movement1 = new BasicStockMovement
         {
             Id = Guid.NewGuid(),
             ProductId = this.testProductId,
@@ -132,7 +135,7 @@ public class StockMovementControllerTests
             Type = StockMovementType.In
         };
 
-        var movement2 = new StockMovementModel
+        var movement2 = new BasicStockMovement
         {
             Id = Guid.NewGuid(),
             ProductId = this.testProductId,
@@ -142,8 +145,8 @@ public class StockMovementControllerTests
             Type = StockMovementType.Out
         };
 
-        this.context.Products.Add(product);
-        this.context.StockMovements.AddRange(movement1, movement2);
+        this.context.BasicProducts.Add(product);
+        this.context.BasicStockMovements.AddRange(movement1, movement2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new StockMovementController.StockMovementQuery(1, 10)
@@ -172,7 +175,7 @@ public class StockMovementControllerTests
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithMovement()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -182,7 +185,7 @@ public class StockMovementControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.Products.Add(product);
+        this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddStockMovementCommand(
@@ -222,7 +225,7 @@ public class StockMovementControllerTests
     public async Task PatchAsync_WhenMovementExists_ReturnsCreatedWithUpdatedMovement()
     {
         // Arrange
-        var product = new ProductModel
+        var product = new BasicProduct
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -232,7 +235,7 @@ public class StockMovementControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var movement = new StockMovementModel
+        var movement = new BasicStockMovement
         {
             Id = this.testMovementId,
             ProductId = this.testProductId,
@@ -242,8 +245,8 @@ public class StockMovementControllerTests
             Type = StockMovementType.In
         };
 
-        this.context.Products.Add(product);
-        this.context.StockMovements.Add(movement);
+        this.context.BasicProducts.Add(product);
+        this.context.BasicStockMovements.Add(movement);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         SetupAdminUserClaims();

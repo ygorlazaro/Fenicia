@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.GetByPositionId;
 
-public class GetEmployeesByPositionIdHandler(BasicContext context)
+public class GetEmployeesByPositionIdHandler(DefaultContext context)
 {
     public async Task<List<GetEmployeesByPositionIdResponse>> Handle(GetEmployeesByPositionIdQuery query, CancellationToken ct)
     {
-        return await context.Employees
+        return await context.BasicEmployees
             .Where(e => e.PositionId == query.PositionId)
             .Select(e => new GetEmployeesByPositionIdResponse(e.Id, e.PositionId, e.PersonId))
             .Skip((query.Page - 1) * query.PerPage)

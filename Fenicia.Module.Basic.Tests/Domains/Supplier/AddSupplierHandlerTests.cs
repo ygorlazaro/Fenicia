@@ -1,5 +1,6 @@
 using Bogus;
 
+using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Supplier.Add;
 
@@ -13,11 +14,12 @@ public class AddSupplierHandlerTests
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<BasicContext>()
+        var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new BasicContext(options);
+        this.companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, this.companyContext);
         this.handler = new AddSupplierHandler(this.context);
         this.faker = new Faker();
     }
@@ -28,7 +30,8 @@ public class AddSupplierHandlerTests
         this.context.Dispose();
     }
 
-    private BasicContext context = null!;
+    private TestCompanyContext companyContext = null!;
+    private DefaultContext context = null!;
     private AddSupplierHandler handler = null!;
     private Faker faker = null!;
 
@@ -86,7 +89,7 @@ public class AddSupplierHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var supplier = await this.context.Suppliers
+        var supplier = await this.context.BasicSuppliers
             .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 

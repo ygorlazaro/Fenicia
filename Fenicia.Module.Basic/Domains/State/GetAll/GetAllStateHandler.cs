@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.State.GetAll;
 
-public class GetAllStateHandler(BasicContext context)
+public class GetAllStateHandler(DefaultContext context)
 {
     public async Task<List<GetAllStateResponse>> Handle(GetAllStateQuery query, CancellationToken ct)
     {

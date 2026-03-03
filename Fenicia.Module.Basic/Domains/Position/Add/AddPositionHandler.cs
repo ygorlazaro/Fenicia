@@ -1,19 +1,19 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models;
 
 namespace Fenicia.Module.Basic.Domains.Position.Add;
 
-public class AddPositionHandler(BasicContext context)
+public class AddPositionHandler(DefaultContext context)
 {
     public async Task<AddPositionResponse> Handle(AddPositionCommand command, CancellationToken ct)
     {
-        var position = new PositionModel
+        var position = new BasicPosition
         {
             Id = command.Id,
             Name = command.Name
         };
 
-        context.Positions.Add(position);
+        context.BasicPositions.Add(position);
 
         await context.SaveChangesAsync(ct);
 

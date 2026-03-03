@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position.Update;
 
-public class UpdatePositionHandler(BasicContext context)
+public class UpdatePositionHandler(DefaultContext context)
 {
     public async Task<UpdatePositionResponse?> Handle(UpdatePositionCommand command, CancellationToken ct)
     {
-        var position = await context.Positions.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
+        var position = await context.BasicPositions.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
         if (position is null)
         {
@@ -17,7 +17,7 @@ public class UpdatePositionHandler(BasicContext context)
 
         position.Name = command.Name;
 
-        context.Positions.Update(position);
+        context.BasicPositions.Update(position);
 
         await context.SaveChangesAsync(ct);
 
