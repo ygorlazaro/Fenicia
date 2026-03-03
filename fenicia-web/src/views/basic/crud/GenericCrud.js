@@ -7,7 +7,7 @@ import {
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
-import { BasicCustomerClient, BasicSupplierClient, BasicProductCategoryClient } from '../../../services/basic-crud-clients';
+import { BasicCustomerClient, BasicSupplierClient, BasicProductCategoryClient, BasicProductClient } from '../../../services/basic-crud-clients';
 
 const customerClient = new BasicCustomerClient();
 const supplierClient = new BasicSupplierClient();
@@ -306,7 +306,7 @@ const ProductCategoryCrud = () => (
 
 // Product configuration
 const ProductCrud = () => {
-    const productClient = new (require('../../../services/basic-crud-clients').BasicProductClient)();
+    const productClient = new BasicProductClient();
     return (
         <GenericCrud
             entityType="product"
