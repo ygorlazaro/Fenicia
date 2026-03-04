@@ -1,9 +1,6 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
     CModal,
     CModalBody,
     CModalHeader,
@@ -11,30 +8,32 @@ import {
     CSpinner
 } from '@coreui/react';
 
-const CompanySelectModal = ({ 
-    visible, 
-    companies, 
-    loading, 
+const CompanySelectModal = ({
+    visible,
+    companies,
+    loading,
     error,
-    onSelect 
+    onSelect
 }) => {
-    console.log('CompanySelectModal render:', { visible, companies, loading, error, count: companies?.length });
-    
+    const { t } = useTranslation();
+
     return (
-        <CModal 
-            visible={visible} 
-            backdrop="static" 
+        <CModal
+            visible={visible}
+            backdrop="static"
+            keyboard={false}
             size="lg"
-            onClose={() => {}} // Prevent closing
+            onClose={() => {}}
+            scrollable
         >
             <CModalHeader>
-                <CModalTitle>Selecionar Empresa</CModalTitle>
+                <CModalTitle>{t('auth.selectCompany')}</CModalTitle>
             </CModalHeader>
             <CModalBody>
                 {loading && (
                     <div className="text-center py-4">
                         <CSpinner color="primary" />
-                        <p className="mt-2">Carregando empresas...</p>
+                        <p className="mt-2">{t('common.loading')}</p>
                     </div>
                 )}
 
@@ -46,7 +45,7 @@ const CompanySelectModal = ({
 
                 {!loading && !error && companies.length === 0 && (
                     <div className="alert alert-warning" role="alert">
-                        Nenhuma empresa encontrada para este usuário.
+                        {t('auth.noCompanies')}
                     </div>
                 )}
 
@@ -64,7 +63,7 @@ const CompanySelectModal = ({
                             <div className="d-flex gap-2">
                                 <small className="text-muted">CNPJ: {company.cnpj}</small>
                                 {company.isDefault && (
-                                    <span className="badge bg-primary">Padrão</span>
+                                    <span className="badge bg-primary">{t('common.default')}</span>
                                 )}
                             </div>
                         </button>

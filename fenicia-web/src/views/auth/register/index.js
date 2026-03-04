@@ -5,13 +5,12 @@ import {
     CCard,
     CCardBody,
     CCardHeader,
-    CCol,
-    CContainer,
     CForm,
     CFormInput,
     CFormLabel,
-    CRow
+    CAlert
 } from "@coreui/react";
+import AuthLayout from 'src/components/AuthLayout';
 import AuthRegisterClient from '../../../services/auth-register-client';
 
 const registerClient = new AuthRegisterClient("http://localhost:5144");
@@ -53,7 +52,6 @@ const AuthRegister = () => {
                 }
             });
 
-            // Registration successful, redirect to login
             navigate('/auth/login', { 
                 state: { message: 'Conta criada com sucesso! Faça login para continuar.' }
             });
@@ -66,107 +64,100 @@ const AuthRegister = () => {
     };
 
     return (
-        <CContainer className="my-auto">
-            <CRow className="justify-content-center">
-                <CCol md={8} lg={6}>
-                    <CCard className="mb-4">
-                    <CCardHeader>
-                        <strong>Criar Conta</strong>
-                    </CCardHeader>
-                    <CCardBody>
-                        {error && (
-                            <div className="alert alert-danger" role="alert">
-                                {error}
-                            </div>
-                        )}
-                        <CForm onSubmit={handleSubmit}>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="inputName">Nome</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    id="inputName"
-                                    name="name"
-                                    placeholder="Seu nome completo"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="inputEmail">E-mail</CFormLabel>
-                                <CFormInput
-                                    type="email"
-                                    id="inputEmail"
-                                    name="email"
-                                    placeholder="name@example.com"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="inputPassword">Senha</CFormLabel>
-                                <CFormInput
-                                    type="password"
-                                    id="inputPassword"
-                                    name="password"
-                                    placeholder="senha"
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    required
-                                    minLength={6}
-                                />
-                            </div>
-                            <hr className="my-4" />
-                            <h6 className="mb-3">Dados da Empresa</h6>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="inputCompanyName">Nome da Empresa</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    id="inputCompanyName"
-                                    name="companyName"
-                                    placeholder="Razão social da empresa"
-                                    value={formData.companyName}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="inputCnpj">CNPJ</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    id="inputCnpj"
-                                    name="cnpj"
-                                    placeholder="00.000.000/0001-00"
-                                    value={formData.cnpj}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="col-auto">
-                                <CButton 
-                                    color="primary" 
-                                    type="submit" 
-                                    className="mb-3"
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Criando conta...' : 'Criar conta'}
-                                </CButton>
-                            </div>
+        <AuthLayout>
+            <CCard className="mb-4 shadow-sm">
+                <CCardHeader className="bg-primary text-white">
+                    <strong>Criar Conta</strong>
+                </CCardHeader>
+                <CCardBody>
+                    {error && (
+                        <CAlert color="danger" dismissible onClose={() => setError(null)}>
+                            {error}
+                        </CAlert>
+                    )}
+                    <CForm onSubmit={handleSubmit}>
+                        <div className="mb-3">
+                            <CFormLabel htmlFor="inputName">Nome</CFormLabel>
+                            <CFormInput
+                                type="text"
+                                id="inputName"
+                                name="name"
+                                placeholder="Seu nome completo"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <CFormLabel htmlFor="inputEmail">E-mail</CFormLabel>
+                            <CFormInput
+                                type="email"
+                                id="inputEmail"
+                                name="email"
+                                placeholder="name@example.com"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <CFormLabel htmlFor="inputPassword">Senha</CFormLabel>
+                            <CFormInput
+                                type="password"
+                                id="inputPassword"
+                                name="password"
+                                placeholder="senha"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                required
+                                minLength={6}
+                            />
+                        </div>
+                        <hr className="my-4" />
+                        <h6 className="mb-3">Dados da Empresa</h6>
+                        <div className="mb-3">
+                            <CFormLabel htmlFor="inputCompanyName">Nome da Empresa</CFormLabel>
+                            <CFormInput
+                                type="text"
+                                id="inputCompanyName"
+                                name="companyName"
+                                placeholder="Razão social da empresa"
+                                value={formData.companyName}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <CFormLabel htmlFor="inputCnpj">CNPJ</CFormLabel>
+                            <CFormInput
+                                type="text"
+                                id="inputCnpj"
+                                name="cnpj"
+                                placeholder="00.000.000/0001-00"
+                                value={formData.cnpj}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="d-grid gap-2">
+                            <CButton
+                                color="primary"
+                                type="submit"
+                                disabled={loading}
+                            >
+                                {loading ? 'Criando conta...' : 'Criar conta'}
+                            </CButton>
+                        </div>
 
-                            <div className="col-auto">
-                                <Link to="/auth/login">
-                                    <CButton color="secondary" className="mb-3">
-                                        Já tem uma conta? Entrar
-                                    </CButton>
-                                </Link>
-                            </div>
-                        </CForm>
-                    </CCardBody>
-                </CCard>
-                </CCol>
-            </CRow>
-        </CContainer>
+                        <div className="text-center mt-3">
+                            <Link to="/auth/login" className="text-decoration-none">
+                                Já tem uma conta? Entrar
+                            </Link>
+                        </div>
+                    </CForm>
+                </CCardBody>
+            </CCard>
+        </AuthLayout>
     )
 };
 

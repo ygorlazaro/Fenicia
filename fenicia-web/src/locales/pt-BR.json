@@ -20,10 +20,58 @@
     "next": "Próximo",
     "previous": "Anterior",
     "perPage": "por página",
-    "selectPageSize": "Selecionar tamanho da página"
+    "selectPageSize": "Selecionar tamanho da página",
+    "default": "Padrão"
   },
   "auth": {
-    "login": "Entrar",
+    "login": {
+      "title": "Login",
+      "labels": {
+        "email": "E-mail",
+        "password": "Senha",
+        "cnpj": "CNPJ"
+      },
+      "placeholders": {
+        "email": "name@example.com",
+        "password": "senha",
+        "cnpj": "00000000000100"
+      },
+      "buttons": {
+        "login": "Entrar",
+        "loggingIn": "Entrando...",
+        "createAccount": "Criar conta"
+      },
+      "links": {
+        "forgotPassword": "Esqueceu a senha?"
+      },
+      "errors": {
+        "authenticationFailed": "Falha ao autenticar. Verifique suas credenciais."
+      }
+    },
+    "forgotPassword": {
+      "title": "Recuperar Senha",
+      "instructions": "Digite seu e-mail cadastrado e enviaremos um link para redefinir sua senha.",
+      "labels": {
+        "email": "E-mail"
+      },
+      "placeholders": {
+        "email": "name@example.com"
+      },
+      "buttons": {
+        "sendLink": "Enviar link de recuperação",
+        "sending": "Enviando..."
+      },
+      "links": {
+        "backToLogin": "Voltar para o login"
+      },
+      "success": {
+        "title": "Sucesso!",
+        "message": "Enviamos um link de recuperação para o seu e-mail. Verifique sua caixa de entrada e siga as instruções."
+      },
+      "errors": {
+        "requestFailed": "Falha ao solicitar recuperação de senha. Verifique seu e-mail."
+      }
+    },
     "logout": "Sair",
     "register": "Cadastrar",
     "forgotPassword": "Esqueci a senha",
@@ -190,6 +238,12 @@
     "updateSuccess": "Tarefa atualizada com sucesso!",
     "deleteSuccess": "Tarefa excluída com sucesso!",
     "loadError": "Falha ao carregar tarefas."
+  },
+  "language": {
+    "title": "Idioma",
+    "ptBR": "Português",
+    "en": "English",
+    "es": "Español"
   },
   "orders": {
     "title": "Pedidos",
