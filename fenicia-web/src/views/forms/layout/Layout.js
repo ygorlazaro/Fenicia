@@ -50,7 +50,7 @@ const Layout = () => {
           </CCardHeader>
           <CCardBody>
             <p className="text-body-secondary small">
-              By adding <a href="https://coreui.io/docs/layout/gutters/">gutter modifier classes</a>
+              By adding <a href="https://fenicia.gatoninja.com.br/docs/layout/gutters/">gutter modifier classes</a>
               , you can have control over the gutter width in as well the inline as block direction.
             </p>
             <DocsExample href="forms/layout#gutters">
@@ -378,7 +378,7 @@ const Layout = () => {
             <p className="text-body-secondary small">
               Use the <code>&lt;CCol xs=&#34;auto&#34;&gt;</code> class to create horizontal
               layouts. By adding{' '}
-              <a href="https://coreui.io/docs/layout/gutters/">gutter modifier classes</a>, we will
+              <a href="https://fenicia.gatoninja.com.br/docs/layout/gutters/">gutter modifier classes</a>, we will
               have gutters in horizontal and vertical directions. The{' '}
               <code>.align-items-center</code> aligns the form elements to the middle, making the{' '}
               <code>&lt;CFormCheck&gt;</code> align properly.

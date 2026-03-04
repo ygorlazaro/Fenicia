@@ -1,17 +1,17 @@
 {
-  "name": "@coreui/coreui-free-react-admin-template",
-  "version": "5.5.0",
-  "description": "CoreUI Free React Admin Template",
+  "name": "fenicia-gato-ninja",
+  "version": "1.0.0",
+  "description": "Fenicia - Gato Ninja Site Admin Template",
   "homepage": ".",
   "bugs": {
-    "url": "https://github.com/coreui/coreui-free-react-admin-template/issues"
+    "url": "https://github.com/ygorlazaro/fenicia/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:coreui/coreui-free-react-admin-template.git"
+    "url": "git@github.com:ygorlazaro/fenicia.git"
   },
   "license": "MIT",
-  "author": "The CoreUI Team (https://github.com/orgs/coreui/people)",
+  "author": "Ygor Lazaro (fenicia@gatoninja.com.br)",
   "scripts": {
     "build": "vite build",
     "lint": "eslint . --ext ts,tsx",
@@ -32,9 +32,11 @@
     "chart.js": "^4.5.0",
     "classnames": "^2.5.1",
     "core-js": "^3.45.0",
+    "i18next": "^25.8.13",
     "prop-types": "^15.8.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-i18next": "^16.5.4",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.7.1",
     "redux": "5.0.1",
@@ -57,6 +59,7 @@
     "prettier": "3.6.2",
     "sass": "^1.90.0",
     "typescript": "^5.7.2",
-    "vite": "^7.1.0"
+    "vite": "^7.1.0",
+    "vite-plugin-pwa": "^1.2.0"
   }
 }

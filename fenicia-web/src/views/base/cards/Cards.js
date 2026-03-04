@@ -36,9 +36,9 @@ const Cards = () => {
             <p className="text-body-secondary small">
               Cards are built with as little markup and styles as possible but still manage to
               deliver a bunch of control and customization. Built with flexbox, they offer easy
-              alignment and mix well with other CoreUI components. Cards have no top, left, and
+              alignment and mix well with other Fenicia components. Cards have no top, left, and
               right margins by default, so use{' '}
-              <a href="https://coreui.io/docs/utilities/spacing">spacing utilities</a> as needed.
+              <a href="https://fenicia.gatoninja.com.br/docs/utilities/spacing">spacing utilities</a> as needed.
               They have no fixed width to start, so they&#39;ll fill the full width of its parent.
             </p>
             <p className="text-body-secondary small">
@@ -343,7 +343,7 @@ const Cards = () => {
             <h3>Using utilities</h3>
             <p className="text-body-secondary small">
               Use some of{' '}
-              <a href="https://coreui.io/docs/utilities/sizing/">available sizing utilities</a> to
+              <a href="https://fenicia.gatoninja.com.br/docs/utilities/sizing/">available sizing utilities</a> to
               rapidly set a card&#39;s width.
             </p>
             <DocsExample href="components/card/#sizing">
@@ -399,7 +399,7 @@ const Cards = () => {
             <p className="text-body-secondary small">
               You can instantly change the text arrangement of any card—in its whole or specific
               parts—with{' '}
-              <a href="https://coreui.io/docs/utilities/text/#text-alignment">text align classes</a>
+              <a href="https://fenicia.gatoninja.com.br/docs/utilities/text/#text-alignment">text align classes</a>
               .
             </p>
             <DocsExample href="components/card/#text-alignment">
@@ -602,7 +602,7 @@ const Cards = () => {
             </DocsExample>
             <h3>Border</h3>
             <p className="text-body-secondary small">
-              Use <a href="https://coreui.io/docs/utilities/borders/">border utilities</a> to change
+              Use <a href="https://fenicia.gatoninja.com.br/docs/utilities/borders/">border utilities</a> to change
               just the <code>border-color</code> of a card. Note that you can set{' '}
               <code>textColor</code> property on the <code>&lt;CCard&gt;</code> or a subset of the
               card&#39;s contents as shown below.
@@ -636,7 +636,7 @@ const Cards = () => {
             </DocsExample>
             <h3>Top border</h3>
             <p className="text-body-secondary small">
-              Use <a href="https://coreui.io/docs/utilities/borders/">border utilities</a> to change
+              Use <a href="https://fenicia.gatoninja.com.br/docs/utilities/borders/">border utilities</a> to change
               just the <code>border-color</code> of a card. Note that you can set{' '}
               <code>textColor</code> property on the <code>&lt;CCard&gt;</code> or a subset of the
               card&#39;s contents as shown below.

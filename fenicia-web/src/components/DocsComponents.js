@@ -12,7 +12,7 @@ const DocsComponents = (props) => (
           src={ComponentsImg}
           width="160px"
           height="160px"
-          alt="CoreUI PRO hexagon"
+          alt="Fenicia components"
         />
       </div>
       <div className="col-md col-12 px-lg-4">
@@ -28,7 +28,7 @@ const DocsComponents = (props) => (
       <div className="col-md-auto col-12 mt-3 mt-lg-0">
         <a
           className="btn btn-primary text-nowrap text-white"
-          href={`https://coreui.io/react/docs/${props.href}`}
+          href={`https://fenicia.gatoninja.com.br/docs/${props.href}`}
           target="_blank"
           rel="noopener noreferrer"
         >

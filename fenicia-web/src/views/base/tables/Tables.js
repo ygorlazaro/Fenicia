@@ -26,8 +26,8 @@ const Tables = () => {
           </CCardHeader>
           <CCardBody>
             <p className="text-body-secondary small">
-              Using the most basic table CoreUI, here&#39;s how <code>&lt;CTable&gt;</code>-based
-              tables look in CoreUI.
+              Using the most basic table Fenicia, here&#39;s how <code>&lt;CTable&gt;</code>-based
+              tables look in Fenicia.
             </p>
             <DocsExample href="components/table">
               <CTable>
@@ -464,7 +464,7 @@ const Tables = () => {
               </CTable>
             </DocsExample>
             <p className="text-body-secondary small">
-              <a href="https://coreui.io/docs/utilities/borders#border-color">
+              <a href="https://fenicia.gatoninja.com.br/docs/utilities/borders#border-color">
                 Border color utilities
               </a>{' '}
               can be added to change colors:
