@@ -15,35 +15,33 @@ import {
     CRow,
     CCol
 } from '@coreui/react';
-import BasicEmployeeClient from '../services/basic-employee-client';
+import BasicCustomerClient from '../services/basic-crud-clients';
 import { fetchAddressByCep } from '../services/cep-client';
 
-const employeeClient = new BasicEmployeeClient();
+const customerClient = new BasicCustomerClient();
 
-const EmployeeModal = ({ 
-    visible, 
-    onClose, 
-    onSave, 
-    employee, 
-    loading 
+const CustomerModal = ({
+    visible,
+    onClose,
+    onSave,
+    customer,
+    loading
 }) => {
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phoneNumber: '',
-        positionId: '',
+        document: '',
         stateId: '',
         street: '',
         number: '',
         neighborhood: '',
         city: '',
         complement: '',
-        zipCode: '',
-        document: ''
+        zipCode: ''
     });
     const [states, setStates] = useState([]);
-    const [positions, setPositions] = useState([]);
     const [loadingOptions, setLoadingOptions] = useState(true);
     const [error, setError] = useState(null);
 
@@ -54,51 +52,45 @@ const EmployeeModal = ({
     }, [visible]);
 
     useEffect(() => {
-        if (employee) {
+        if (customer) {
             setFormData({
-                name: employee.name || '',
-                email: employee.email || '',
-                phoneNumber: employee.phoneNumber || '',
-                positionId: employee.positionId || '',
-                stateId: employee.stateId || '',
-                street: employee.street || '',
-                number: employee.number || '',
-                neighborhood: employee.neighborhood || '',
-                city: employee.city || '',
-                complement: employee.complement || '',
-                zipCode: employee.zipCode || '',
-                document: employee.document || ''
+                name: customer.name || '',
+                email: customer.email || '',
+                phoneNumber: customer.phoneNumber || '',
+                document: customer.document || '',
+                stateId: customer.stateId || '',
+                street: customer.street || '',
+                number: customer.number || '',
+                neighborhood: customer.neighborhood || '',
+                city: customer.city || '',
+                complement: customer.complement || '',
+                zipCode: customer.zipCode || ''
             });
         } else {
             setFormData({
                 name: '',
                 email: '',
                 phoneNumber: '',
-                positionId: '',
+                document: '',
                 stateId: '',
                 street: '',
                 number: '',
                 neighborhood: '',
                 city: '',
                 complement: '',
-                zipCode: '',
-                document: ''
+                zipCode: ''
             });
         }
         setError(null);
-    }, [employee, visible]);
+    }, [customer, visible]);
 
     const loadOptions = async () => {
         try {
             setLoadingOptions(true);
-            const [statesData, positionsData] = await Promise.all([
-                employeeClient.getStates(),
-                employeeClient.getPositions()
-            ]);
+            const statesData = await customerClient.getStates();
             setStates(statesData || []);
-            setPositions(positionsData || []);
         } catch (err) {
-            console.error('Failed to load options:', err);
+            console.error('Failed to load states:', err);
         } finally {
             setLoadingOptions(false);
         }
@@ -115,7 +107,7 @@ const EmployeeModal = ({
     const handleCepBlur = async (e) => {
         const { name, value } = e.target;
         const cleanCep = value.replace(/\D/g, '');
-        
+
         if (cleanCep.length === 8) {
             const address = await fetchAddressByCep(cleanCep);
             if (address) {
@@ -137,8 +129,8 @@ const EmployeeModal = ({
         e.preventDefault();
         setError(null);
 
-        if (!formData.name || !formData.email || !formData.stateId || !formData.positionId) {
-            setError(t('employees.requiredFields'));
+        if (!formData.name || !formData.email) {
+            setError(t('customers.requiredFields'));
             return;
         }
 
@@ -146,14 +138,14 @@ const EmployeeModal = ({
     };
 
     return (
-        <CModal 
-            visible={visible} 
+        <CModal
+            visible={visible}
             onClose={onClose}
             size="lg"
         >
             <CModalHeader>
                 <CModalTitle>
-                    {employee ? t('employees.edit') : t('employees.new')}
+                    {customer ? t('customers.edit') : t('customers.new')}
                 </CModalTitle>
             </CModalHeader>
             <CForm onSubmit={handleSubmit}>
@@ -167,7 +159,7 @@ const EmployeeModal = ({
                     <CRow>
                         <CCol md={8}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="name">{t('employees.name')} *</CFormLabel>
+                                <CFormLabel htmlFor="name">{t('customers.name')} *</CFormLabel>
                                 <CFormInput
                                     type="text"
                                     id="name"
@@ -180,7 +172,7 @@ const EmployeeModal = ({
                         </CCol>
                         <CCol md={4}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="document">{t('employees.document')}</CFormLabel>
+                                <CFormLabel htmlFor="document">{t('customers.document')}</CFormLabel>
                                 <CFormInput
                                     type="text"
                                     id="document"
@@ -193,7 +185,7 @@ const EmployeeModal = ({
                     </CRow>
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="email">{t('employees.email')} *</CFormLabel>
+                        <CFormLabel htmlFor="email">{t('customers.email')} *</CFormLabel>
                         <CFormInput
                             type="email"
                             id="email"
@@ -204,52 +196,28 @@ const EmployeeModal = ({
                         />
                     </div>
 
-                    <CRow>
-                        <CCol md={6}>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="phoneNumber">{t('employees.phone')}</CFormLabel>
-                                <CFormInput
-                                    type="tel"
-                                    id="phoneNumber"
-                                    name="phoneNumber"
-                                    value={formData.phoneNumber}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
-                        </CCol>
-                        <CCol md={6}>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="positionId">{t('employees.position')} *</CFormLabel>
-                                <CFormSelect
-                                    id="positionId"
-                                    name="positionId"
-                                    value={formData.positionId}
-                                    onChange={handleInputChange}
-                                    disabled={loadingOptions}
-                                    required
-                                >
-                                    <option value="">{t('common.select')}...</option>
-                                    {positions.map(pos => (
-                                        <option key={pos.id} value={pos.id}>
-                                            {pos.name}
-                                        </option>
-                                    ))}
-                                </CFormSelect>
-                            </div>
-                        </CCol>
-                    </CRow>
+                    <div className="mb-3">
+                        <CFormLabel htmlFor="phoneNumber">{t('customers.phone')}</CFormLabel>
+                        <CFormInput
+                            type="tel"
+                            id="phoneNumber"
+                            name="phoneNumber"
+                            value={formData.phoneNumber}
+                            onChange={handleInputChange}
+                        />
+                    </div>
 
-                    <h6 className="mt-4 mb-3">{t('employees.address')}</h6>
+                    <h6 className="mt-4 mb-3">{t('customers.address')}</h6>
 
                     <CRow>
                         <CCol md={3}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="zipCode">{t('employees.zipCode')}</CFormLabel>
-                                <CFormInput 
-                                    type="text" 
-                                    id="zipCode" 
-                                    name="zipCode" 
-                                    value={formData.zipCode} 
+                                <CFormLabel htmlFor="zipCode">{t('customers.zipCode')}</CFormLabel>
+                                <CFormInput
+                                    type="text"
+                                    id="zipCode"
+                                    name="zipCode"
+                                    value={formData.zipCode}
                                     onChange={handleInputChange}
                                     onBlur={handleCepBlur}
                                     placeholder="00000-000"
@@ -259,14 +227,13 @@ const EmployeeModal = ({
                         </CCol>
                         <CCol md={3}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="stateId">{t('employees.state')} *</CFormLabel>
+                                <CFormLabel htmlFor="stateId">{t('customers.state')}</CFormLabel>
                                 <CFormSelect
                                     id="stateId"
                                     name="stateId"
                                     value={formData.stateId}
                                     onChange={handleInputChange}
                                     disabled={loadingOptions}
-                                    required
                                 >
                                     <option value="">{t('common.select')}...</option>
                                     {states.map(state => (
@@ -279,7 +246,7 @@ const EmployeeModal = ({
                         </CCol>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="city">{t('employees.city')}</CFormLabel>
+                                <CFormLabel htmlFor="city">{t('customers.city')}</CFormLabel>
                                 <CFormInput
                                     type="text"
                                     id="city"
@@ -294,7 +261,7 @@ const EmployeeModal = ({
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="street">{t('employees.street')}</CFormLabel>
+                                <CFormLabel htmlFor="street">{t('customers.street')}</CFormLabel>
                                 <CFormInput
                                     type="text"
                                     id="street"
@@ -304,9 +271,9 @@ const EmployeeModal = ({
                                 />
                             </div>
                         </CCol>
-                        <CCol md={3}>
+                        <CCol md={2}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="number">{t('employees.number')}</CFormLabel>
+                                <CFormLabel htmlFor="number">{t('customers.number')}</CFormLabel>
                                 <CFormInput
                                     type="text"
                                     id="number"
@@ -316,9 +283,9 @@ const EmployeeModal = ({
                                 />
                             </div>
                         </CCol>
-                        <CCol md={3}>
+                        <CCol md={4}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="neighborhood">{t('employees.neighborhood')}</CFormLabel>
+                                <CFormLabel htmlFor="neighborhood">{t('customers.neighborhood')}</CFormLabel>
                                 <CFormInput
                                     type="text"
                                     id="neighborhood"
@@ -331,7 +298,7 @@ const EmployeeModal = ({
                     </CRow>
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="complement">{t('employees.complement')}</CFormLabel>
+                        <CFormLabel htmlFor="complement">{t('customers.complement')}</CFormLabel>
                         <CFormInput
                             type="text"
                             id="complement"
@@ -345,8 +312,8 @@ const EmployeeModal = ({
                     <CButton color="secondary" onClick={onClose} disabled={loading || loadingOptions}>
                         {t('common.cancel')}
                     </CButton>
-                    <CButton 
-                        color="primary" 
+                    <CButton
+                        color="primary"
                         type="submit"
                         disabled={loading || loadingOptions}
                     >
@@ -358,4 +325,4 @@ const EmployeeModal = ({
     );
 };
 
-export default EmployeeModal;
+export default CustomerModal;

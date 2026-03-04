@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
@@ -108,9 +109,10 @@ public class EmployeeControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedEmployees = okResult.Value as List<GetAllEmployeeResponse>;
+        var returnedEmployees = okResult.Value as Pagination<List<GetAllEmployeeResponse>>;
         Assert.That(returnedEmployees, Is.Not.Null);
-        Assert.That(returnedEmployees, Is.Empty);
+        Assert.That(returnedEmployees.Data, Is.Empty);
+        Assert.That(returnedEmployees.Total, Is.EqualTo(0));
     }
 
     [Test]
@@ -171,9 +173,10 @@ public class EmployeeControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedEmployees = okResult.Value as List<GetAllEmployeeResponse>;
+        var returnedEmployees = okResult.Value as Pagination<List<GetAllEmployeeResponse>>;
         Assert.That(returnedEmployees, Is.Not.Null);
-        Assert.That(returnedEmployees, Has.Count.EqualTo(2));
+        Assert.That(returnedEmployees.Data, Has.Count.EqualTo(2));
+        Assert.That(returnedEmployees.Total, Is.EqualTo(2));
     }
 
     [Test]

@@ -108,15 +108,24 @@ public class CustomerControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCustomers = okResult.Value as List<GetAllCustomerResponse>;
+        var returnedCustomers = okResult.Value as Pagination<List<GetAllCustomerResponse>>;
         Assert.That(returnedCustomers, Is.Not.Null);
-        Assert.That(returnedCustomers, Is.Empty);
+        Assert.That(returnedCustomers.Data, Is.Empty);
+        Assert.That(returnedCustomers.Total, Is.EqualTo(0));
     }
 
     [Test]
     public async Task GetAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         var customer1 = new BasicCustomerModel
         {
             Id = Guid.NewGuid(),
@@ -133,7 +142,8 @@ public class CustomerControllerTests
                 Complement = "Apt 101",
                 Neighborhood = this.faker.Address.CityPrefix(),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
+                StateId = state.Id,
+                StateModel = state,
                 City = this.faker.Address.City()
             }
         };
@@ -154,7 +164,8 @@ public class CustomerControllerTests
                 Complement = "Apt 202",
                 Neighborhood = this.faker.Address.CityPrefix(),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
+                StateId = state.Id,
+                StateModel = state,
                 City = this.faker.Address.City()
             }
         };
@@ -176,15 +187,31 @@ public class CustomerControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCustomers = okResult.Value as List<GetAllCustomerResponse>;
+        var returnedCustomers = okResult.Value as Pagination<List<GetAllCustomerResponse>>;
         Assert.That(returnedCustomers, Is.Not.Null);
-        Assert.That(returnedCustomers, Has.Count.EqualTo(2));
+        Assert.That(returnedCustomers.Data, Has.Count.EqualTo(2));
+        Assert.That(returnedCustomers.Total, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedCustomers.Data[0].Name, Is.EqualTo(customer1.PersonModel.Name));
+            Assert.That(returnedCustomers.Data[0].Email, Is.EqualTo(customer1.PersonModel.Email));
+            Assert.That(returnedCustomers.Data[1].Name, Is.EqualTo(customer2.PersonModel.Name));
+            Assert.That(returnedCustomers.Data[1].Email, Is.EqualTo(customer2.PersonModel.Email));
+        }
     }
 
     [Test]
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsOkWithCustomer()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         var customer = new BasicCustomerModel
         {
             Id = this.testCustomerId,
@@ -201,7 +228,8 @@ public class CustomerControllerTests
                 Complement = "Apt 101",
                 Neighborhood = this.faker.Address.CityPrefix(),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
+                StateId = state.Id,
+                StateModel = state,
                 City = this.faker.Address.City()
             }
         };
@@ -227,6 +255,8 @@ public class CustomerControllerTests
         {
             Assert.That(returnedCustomer.Id, Is.EqualTo(this.testCustomerId));
             Assert.That(returnedCustomer.PersonId, Is.Not.Empty);
+            Assert.That(returnedCustomer.Name, Is.EqualTo(customer.PersonModel.Name));
+            Assert.That(returnedCustomer.Email, Is.EqualTo(customer.PersonModel.Email));
         }
     }
 

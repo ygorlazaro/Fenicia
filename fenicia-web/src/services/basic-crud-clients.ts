@@ -34,6 +34,11 @@ export class BasicCustomerClient extends ApiClient {
   async delete(id: string): Promise<void> {
     await this.getClient().delete(`/customer/${id}`);
   }
+
+  async getStates(): Promise<any> {
+    const response = await this.getClient().get('/state');
+    return (response as AxiosResponse).data;
+  }
 }
 
 /**

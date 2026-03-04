@@ -11,26 +11,34 @@ public class BasicPersonModel : BaseCompanyModel
     public string Name { get; set; } = null!;
 
     [MaxLength(14)]
-    public string? Document { get; set; }
+    public string? Document
+    {
+        get;
+        set => field = value != null ? new string(value.Where(char.IsDigit).ToArray()) : null;
+    }
 
     [MaxLength(100)]
     public string? Street { get; set; }
 
+    [MaxLength(20)]
+    public string? Number
+    {
+        get;
+        set => field = value != null ? new string(value.Where(char.IsDigit).ToArray()) : null;
+    }
 
-    [MaxLength(10)]
-    public string? Number { get; set; }
-
-
-    [MaxLength(10)]
+    [MaxLength(20)]
     public string? Complement { get; set; }
-
 
     [MaxLength(50)]
     public string? Neighborhood { get; set; }
 
     [MaxLength(8)]
-    public string? ZipCode { get; set; }
-
+    public string? ZipCode
+    {
+        get;
+        set => field = value != null ? new string(value.Where(char.IsDigit).ToArray()) : null;
+    }
 
     public Guid? StateId { get; set; }
 
@@ -42,8 +50,12 @@ public class BasicPersonModel : BaseCompanyModel
     public string? Email { get; set; }
 
     [MaxLength(20)]
-    public string? PhoneNumber { get; set; }
-    
+    public string? PhoneNumber
+    {
+        get;
+        set => field = value != null ? new string(value.Where(char.IsDigit).ToArray()) : null;
+    }
+
     [ForeignKey(nameof(StateId))]
     public virtual AuthStateModel StateModel { get; set; } = null!;
 

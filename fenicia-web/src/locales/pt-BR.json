@@ -28,7 +28,8 @@
     "light": "Claro",
     "dark": "Escuro",
     "auto": "Automático",
-    "requiredField": "Campo obrigatório"
+    "requiredField": "Campo obrigatório",
+    "select": "Selecione"
   },
   "auth": {
     "login": {
@@ -144,8 +145,16 @@
     "phone": "Telefone",
     "email": "E-mail",
     "address": "Endereço",
+    "city": "Cidade",
+    "state": "Estado",
+    "zipCode": "CEP",
+    "street": "Rua",
+    "number": "Número",
+    "neighborhood": "Bairro",
+    "complement": "Complemento",
     "hireDate": "Data de Admissão",
     "salary": "Salário",
+    "requiredFields": "Nome, e-mail, estado e cargo são obrigatórios.",
     "deleteConfirm": "Tem certeza que deseja excluir o funcionário {{name}}?",
     "deleteWarning": "Esta ação não pode ser desfeita.",
     "createSuccess": "Funcionário criado com sucesso!",
@@ -163,11 +172,21 @@
     "email": "E-mail",
     "phone": "Telefone",
     "address": "Endereço",
+    "zipCode": "CEP",
+    "state": "Estado",
+    "city": "Cidade",
+    "neighborhood": "Bairro",
+    "street": "Rua",
+    "number": "Número",
+    "complement": "Complemento",
     "deleteConfirm": "Tem certeza que deseja excluir o cliente {{name}}?",
+    "deleteWarning": "Esta ação não pode ser desfeita.",
     "createSuccess": "Cliente criado com sucesso!",
     "updateSuccess": "Cliente atualizado com sucesso!",
     "deleteSuccess": "Cliente excluído com sucesso!",
-    "loadError": "Falha ao carregar clientes."
+    "loadError": "Falha ao carregar clientes.",
+    "saveError": "Falha ao salvar cliente.",
+    "requiredFields": "Nome e e-mail são obrigatórios."
   },
   "suppliers": {
     "title": "Fornecedores",

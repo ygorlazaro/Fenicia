@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Common;
 using Fenicia.Module.Basic.Domains.Customer.Add;
 using Fenicia.Module.Basic.Domains.Customer.Delete;
 using Fenicia.Module.Basic.Domains.Customer.GetAll;
@@ -24,9 +25,12 @@ public class CustomerController(
     DeleteCustomerHandler deleteCustomerHandler) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<AddCustomerResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllCustomerResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllCustomerResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<Pagination<List<GetAllCustomerResponse>>>> GetAsync(
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        CancellationToken ct = default)
     {
         var customers = await getAllCustomerHandler.Handle(new GetAllCustomerQuery(page, perPage), ct);
 
@@ -34,7 +38,7 @@ public class CustomerController(
     }
 
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateCustomerResponse))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCustomerByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetCustomerByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
@@ -45,7 +49,7 @@ public class CustomerController(
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UpdateCustomerResponse))]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddCustomerResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]

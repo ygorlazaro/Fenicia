@@ -47,13 +47,22 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
+        Assert.That(result.Total, Is.EqualTo(0));
     }
 
     [Test]
     public async Task Handle_WithCustomers_ReturnsAllCustomers()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         var customer1 = new BasicCustomerModel
         {
             Id = Guid.NewGuid(),
@@ -67,8 +76,10 @@ public class GetAllCustomerHandlerTests
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                StateId = state.Id,
+                StateModel = state,
+                City = this.faker.Address.City(),
+                PhoneNumber = this.faker.Phone.PhoneNumber()
             }
         };
 
@@ -85,8 +96,10 @@ public class GetAllCustomerHandlerTests
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                StateId = state.Id,
+                StateModel = state,
+                City = this.faker.Address.City(),
+                PhoneNumber = this.faker.Phone.PhoneNumber()
             }
         };
 
@@ -100,11 +113,17 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result.Data, Has.Count.EqualTo(2));
+        Assert.That(result.Total, Is.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result[0].PersonId, Is.EqualTo(customer1.PersonModel.Id));
-            Assert.That(result[1].PersonId, Is.EqualTo(customer2.PersonModel.Id));
+            Assert.That(result.Data[0].PersonId, Is.EqualTo(customer1.PersonModel.Id));
+            Assert.That(result.Data[0].Name, Is.EqualTo(customer1.PersonModel.Name));
+            Assert.That(result.Data[0].Email, Is.EqualTo(customer1.PersonModel.Email));
+
+            Assert.That(result.Data[1].PersonId, Is.EqualTo(customer2.PersonModel.Id));
+            Assert.That(result.Data[1].Name, Is.EqualTo(customer2.PersonModel.Name));
+            Assert.That(result.Data[1].Email, Is.EqualTo(customer2.PersonModel.Email));
         }
     }
 
@@ -112,6 +131,14 @@ public class GetAllCustomerHandlerTests
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         for (var i = 0; i < 25; i++)
         {
             var customer = new BasicCustomerModel
@@ -127,8 +154,10 @@ public class GetAllCustomerHandlerTests
                     Street = this.faker.Address.StreetName(),
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
-                    StateId = Guid.NewGuid(),
-                    City = this.faker.Address.City()
+                    StateId = state.Id,
+                    StateModel = state,
+                    City = this.faker.Address.City(),
+                    PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
             this.context.BasicCustomers.Add(customer);
@@ -143,13 +172,22 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.That(result.Data, Has.Count.EqualTo(10));
+        Assert.That(result.Total, Is.EqualTo(25));
     }
 
     [Test]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         for (var i = 0; i < 5; i++)
         {
             var customer = new BasicCustomerModel
@@ -165,8 +203,10 @@ public class GetAllCustomerHandlerTests
                     Street = this.faker.Address.StreetName(),
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
-                    StateId = Guid.NewGuid(),
-                    City = this.faker.Address.City()
+                    StateId = state.Id,
+                    StateModel = state,
+                    City = this.faker.Address.City(),
+                    PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
             this.context.BasicCustomers.Add(customer);
@@ -181,13 +221,22 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
+        Assert.That(result.Total, Is.EqualTo(5));
     }
 
     [Test]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         for (var i = 0; i < 25; i++)
         {
             var customer = new BasicCustomerModel
@@ -203,8 +252,10 @@ public class GetAllCustomerHandlerTests
                     Street = this.faker.Address.StreetName(),
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
-                    StateId = Guid.NewGuid(),
-                    City = this.faker.Address.City()
+                    StateId = state.Id,
+                    StateModel = state,
+                    City = this.faker.Address.City(),
+                    PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
             this.context.BasicCustomers.Add(customer);
@@ -219,6 +270,7 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.That(result.Data, Has.Count.EqualTo(10));
+        Assert.That(result.Total, Is.EqualTo(25));
     }
 }

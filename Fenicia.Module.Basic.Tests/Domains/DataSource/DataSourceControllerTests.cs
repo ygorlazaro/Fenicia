@@ -5,8 +5,7 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
-using Fenicia.Module.Basic.Domains.State;
-using Fenicia.Module.Basic.Domains.State.GetAll;
+using Fenicia.Module.Basic.Domains.DataSource;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,10 +14,10 @@ using Microsoft.EntityFrameworkCore;
 
 using Moq;
 
-namespace Fenicia.Module.Basic.Tests.Domains.State;
+namespace Fenicia.Module.Basic.Tests.Domains.DataSource;
 
 [TestFixture]
-public class StateControllerTests
+public class DataSourceControllerTests
 {
     [SetUp]
     public void SetUp()
@@ -29,10 +28,10 @@ public class StateControllerTests
 
         this.companyContext = new TestCompanyContext();
         this.context = new DefaultContext(options, this.companyContext);
-        this.getAllStateHandler = new GetAllStateHandler(this.context);
+        this.getAllPositionForDataSourceHandler = new GetAllPositionForDataSourceHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new StateController(this.getAllStateHandler)
+        this.controller = new DataSourceController(this.getAllPositionForDataSourceHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -51,9 +50,9 @@ public class StateControllerTests
     }
 
     private TestCompanyContext companyContext = null!;
-    private StateController controller = null!;
+    private DataSourceController controller = null!;
     private DefaultContext context = null!;
-    private GetAllStateHandler getAllStateHandler = null!;
+    private GetAllPositionForDataSourceHandler getAllPositionForDataSourceHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Faker faker = null!;
 
@@ -72,13 +71,13 @@ public class StateControllerTests
     }
 
     [Test]
-    public async Task GetAllAsync_WhenNoStatesExist_ReturnsOkWithEmptyList()
+    public async Task GetPositionsAsync_WhenNoPositionsExist_ReturnsOkWithEmptyList()
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllAsync(cancellationToken);
+        var result = await this.controller.GetPositionsAsync(cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -87,36 +86,34 @@ public class StateControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedStates = okResult.Value as List<GetAllStateResponse>;
-        Assert.That(returnedStates, Is.Not.Null);
-        Assert.That(returnedStates, Is.Empty);
+        var returnedPositions = okResult.Value as List<GetAllPositionForDataSourceResponse>;
+        Assert.That(returnedPositions, Is.Not.Null);
+        Assert.That(returnedPositions, Is.Empty);
     }
 
     [Test]
-    public async Task GetAllAsync_WhenStatesExist_ReturnsOkWithStates()
+    public async Task GetPositionsAsync_WhenPositionsExist_ReturnsOkWithPositions()
     {
         // Arrange
-        var state1 = new AuthStateModel
+        var position1 = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Address.State(),
-            Uf = this.faker.Address.StateAbbr()
+            Name = this.faker.Commerce.Department()
         };
 
-        var state2 = new AuthStateModel
+        var position2 = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Address.State(),
-            Uf = this.faker.Address.StateAbbr()
+            Name = this.faker.Commerce.Department()
         };
 
-        this.context.States.AddRange(state1, state2);
+        this.context.BasicPositions.AddRange(position1, position2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllAsync(cancellationToken);
+        var result = await this.controller.GetPositionsAsync(cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -125,43 +122,40 @@ public class StateControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedStates = okResult.Value as List<GetAllStateResponse>;
-        Assert.That(returnedStates, Is.Not.Null);
-        Assert.That(returnedStates, Has.Count.EqualTo(2));
+        var returnedPositions = okResult.Value as List<GetAllPositionForDataSourceResponse>;
+        Assert.That(returnedPositions, Is.Not.Null);
+        Assert.That(returnedPositions, Has.Count.EqualTo(2));
     }
 
     [Test]
-    public async Task GetAllAsync_WhenStatesExist_ReturnsStatesOrderedByUf()
+    public async Task GetPositionsAsync_WhenPositionsExist_ReturnsPositionsOrderedByName()
     {
         // Arrange
-        var state1 = new AuthStateModel
+        var position1 = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
+            Name = "Zebra"
         };
 
-        var state2 = new AuthStateModel
+        var position2 = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
-            Name = "Acre",
-            Uf = "AC"
+            Name = "Alpha"
         };
 
-        var state3 = new AuthStateModel
+        var position3 = new BasicPositionModel
         {
             Id = Guid.NewGuid(),
-            Name = "Rio de Janeiro",
-            Uf = "RJ"
+            Name = "Manager"
         };
 
-        this.context.States.AddRange(state1, state2, state3);
+        this.context.BasicPositions.AddRange(position1, position2, position3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllAsync(cancellationToken);
+        var result = await this.controller.GetPositionsAsync(cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -170,53 +164,53 @@ public class StateControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedStates = okResult.Value as List<GetAllStateResponse>;
-        Assert.That(returnedStates, Is.Not.Null);
-        Assert.That(returnedStates, Has.Count.EqualTo(3));
-        Assert.That(returnedStates[0].Uf, Is.EqualTo("AC"));
-        Assert.That(returnedStates[1].Uf, Is.EqualTo("RJ"));
-        Assert.That(returnedStates[2].Uf, Is.EqualTo("SP"));
+        var returnedPositions = okResult.Value as List<GetAllPositionForDataSourceResponse>;
+        Assert.That(returnedPositions, Is.Not.Null);
+        Assert.That(returnedPositions, Has.Count.EqualTo(3));
+        Assert.That(returnedPositions[0].Name, Is.EqualTo("Alpha"));
+        Assert.That(returnedPositions[1].Name, Is.EqualTo("Manager"));
+        Assert.That(returnedPositions[2].Name, Is.EqualTo("Zebra"));
     }
 
     [Test]
-    public void StateController_HasAuthorizeAttribute()
+    public void DataSourceController_HasAuthorizeAttribute()
     {
         // Arrange
-        var controllerType = typeof(StateController);
+        var controllerType = typeof(DataSourceController);
 
         // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "StateController should have Authorize attribute");
+        Assert.That(authorizeAttribute, Is.Not.Null, "DataSourceController should have Authorize attribute");
     }
 
     [Test]
-    public void StateController_HasRouteAttribute()
+    public void DataSourceController_HasRouteAttribute()
     {
         // Arrange
-        var controllerType = typeof(StateController);
+        var controllerType = typeof(DataSourceController);
 
         // Act
         var routeAttribute =
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "StateController should have Route attribute");
+        Assert.That(routeAttribute, Is.Not.Null, "DataSourceController should have Route attribute");
         Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
     }
 
     [Test]
-    public void StateController_HasApiControllerAttribute()
+    public void DataSourceController_HasApiControllerAttribute()
     {
         // Arrange
-        var controllerType = typeof(StateController);
+        var controllerType = typeof(DataSourceController);
 
         // Act
         var apiControllerAttribute =
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "StateController should have ApiController attribute");
+        Assert.That(apiControllerAttribute, Is.Not.Null, "DataSourceController should have ApiController attribute");
     }
 }
