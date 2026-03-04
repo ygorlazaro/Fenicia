@@ -292,35 +292,6 @@ const GenericCrud = ({ entityType, client, columns, formFields, title }) => {
     );
 };
 
-// Customer configuration
-const CustomerCrud = () => (
-    <GenericCrud
-        entityType="customer"
-        client={customerClient}
-        title="Clientes"
-        columns={[
-            { field: 'name', header: 'Nome' },
-            { field: 'email', header: 'E-mail' },
-            { field: 'phone', header: 'Telefone', render: (v) => v || '-' },
-            { field: 'document', header: 'Documento', render: (v) => v || '-' }
-        ]}
-        formFields={[
-            { name: 'name', label: 'Nome', required: true },
-            { name: 'email', label: 'E-mail', type: 'email', required: true },
-            { name: 'phone', label: 'Telefone' },
-            { name: 'document', label: 'Documento' },
-            { name: 'zipCode', label: 'CEP', type: 'cep' },
-            { name: 'state', label: 'Estado' },
-            { name: 'city', label: 'Cidade' },
-            { name: 'neighborhood', label: 'Bairro' },
-            { name: 'street', label: 'Rua' },
-            { name: 'number', label: 'Número' },
-            { name: 'complement', label: 'Complemento' },
-            { name: 'address', label: 'Endereço', type: 'textarea' }
-        ]}
-    />
-);
-
 // Supplier configuration
 const SupplierCrud = () => (
     <GenericCrud
@@ -396,4 +367,4 @@ const ProductCrud = () => {
     );
 };
 
-export { CustomerCrud, SupplierCrud, ProductCategoryCrud, ProductCrud };
+export { SupplierCrud, ProductCategoryCrud, ProductCrud };

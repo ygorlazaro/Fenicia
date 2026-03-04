@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Common;
 using Fenicia.Module.Basic.Domains.Employee.Add;
 using Fenicia.Module.Basic.Domains.Employee.Delete;
 using Fenicia.Module.Basic.Domains.Employee.GetAll;
@@ -24,9 +25,12 @@ public class EmployeeController(
     DeleteEmployeeHandler deleteEmployeeHandler) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllEmployeeResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllEmployeeResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllEmployeeResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<Pagination<List<GetAllEmployeeResponse>>>> GetAsync(
+        [FromQuery] int page = 1, 
+        [FromQuery] int perPage = 10, 
+        CancellationToken ct = default)
     {
         var employees = await getAllEmployeeHandler.Handle(new GetAllEmployeeQuery(page, perPage), ct);
 

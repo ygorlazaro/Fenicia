@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     CButton,
     CCard,
@@ -28,6 +29,7 @@ import Pagination from '../../../components/Pagination';
 const employeeClient = new BasicEmployeeClient("http://localhost:5083");
 
 const EmployeeList = () => {
+    const { t } = useTranslation();
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -45,6 +47,9 @@ const EmployeeList = () => {
     const [deleting, setDeleting] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
 
+    const paginationRef = useRef(pagination);
+    paginationRef.current = pagination;
+
     useEffect(() => {
         loadEmployees();
     }, [pagination.page, pagination.perPage]);
@@ -53,22 +58,19 @@ const EmployeeList = () => {
         try {
             setLoading(true);
             setError(null);
-            const response = await employeeClient.getAll(pagination.page, pagination.perPage);
-            console.log('Employees API response:', response);
-            
-            // API might return array directly or Pagination object
-            const employeesList = Array.isArray(response) ? response : (response?.data || []);
-            console.log('Employees list:', employeesList);
+            const { page, perPage } = paginationRef.current;
+            const response = await employeeClient.getAll(page, perPage);
+            const isPaginated = response && response.data && Array.isArray(response.data);
+            const employeesList = isPaginated ? response.data : (Array.isArray(response) ? response : []);
+            const totalItems = response?.total ?? employeesList.length;
             setEmployees(employeesList);
             setPagination(prev => ({
                 ...prev,
-                total: response?.total || employeesList.length,
-                pages: response?.pages || 1
+                total: totalItems,
+                pages: Math.ceil(totalItems / prev.perPage) || 1
             }));
         } catch (err) {
-            console.error('Failed to load employees:', err);
-            console.error('Error response:', err.response);
-            setError(err.response?.data?.title || 'Falha ao carregar funcionários.');
+            setError(t('employees.loadError'));
         } finally {
             setLoading(false);
         }
@@ -79,9 +81,15 @@ const EmployeeList = () => {
         setModalVisible(true);
     };
 
-    const handleOpenEdit = (employee) => {
-        setSelectedEmployee(employee);
-        setModalVisible(true);
+    const handleOpenEdit = async (employee) => {
+        try {
+            const fullEmployee = await employeeClient.getById(employee.id);
+            setSelectedEmployee(fullEmployee);
+            setModalVisible(true);
+        } catch (err) {
+            console.error('Failed to load employee details:', err);
+            setError(t('employees.loadError'));
+        }
     };
 
     const handleOpenDelete = (employee) => {
@@ -110,17 +118,16 @@ const EmployeeList = () => {
 
             if (selectedEmployee) {
                 await employeeClient.update(selectedEmployee.id, payload);
-                setSuccessMessage('Funcionário atualizado com sucesso!');
+                setSuccessMessage(t('employees.updateSuccess'));
             } else {
                 await employeeClient.create(payload);
-                setSuccessMessage('Funcionário criado com sucesso!');
+                setSuccessMessage(t('employees.createSuccess'));
             }
             setModalVisible(false);
             loadEmployees();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to save employee:', err);
-            setError(err.response?.data?.title || 'Falha ao salvar funcionário.');
+            setError(t('employees.saveError'));
         } finally {
             setSaving(false);
         }
@@ -132,14 +139,13 @@ const EmployeeList = () => {
         setDeleting(true);
         try {
             await employeeClient.delete(employeeToDelete.id);
-            setSuccessMessage('Funcionário excluído com sucesso!');
+            setSuccessMessage(t('employees.deleteSuccess'));
             setDeleteModalVisible(false);
             setEmployeeToDelete(null);
             loadEmployees();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to delete employee:', err);
-            setError(err.response?.data?.title || 'Falha ao excluir funcionário.');
+            setError(t('employees.loadError'));
         } finally {
             setDeleting(false);
         }
@@ -151,6 +157,15 @@ const EmployeeList = () => {
 
     const handlePerPageChange = (newPerPage) => {
         setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+    };
+
+    const formatPhone = (phone: string) => {
+        if (!phone) return '-';
+        const cleaned = phone.replace(/\D/g, '');
+        if (cleaned.length === 10) {
+            return `(${cleaned.slice(0,2)}) ${cleaned.slice(2,6)}-${cleaned.slice(6)}`;
+        }
+        return phone;
     };
 
     return (
@@ -169,23 +184,23 @@ const EmployeeList = () => {
 
             <CCard>
                 <CCardHeader className="d-flex justify-content-between align-items-center">
-                    <strong>Funcionários</strong>
+                    <strong>{t('employees.title')}</strong>
                     <CButton color="primary" size="sm" onClick={handleOpenAdd}>
                         <CIcon icon={cilPlus} className="me-2" />
-                        Novo
+                        {t('employees.new')}
                     </CButton>
                 </CCardHeader>
                 <CCardBody>
                     {loading && (
                         <div className="text-center py-4">
                             <CSpinner color="primary" />
-                            <p className="mt-2">Carregando...</p>
+                            <p className="mt-2">{t('common.loading')}</p>
                         </div>
                     )}
 
                     {!loading && employees.length === 0 && (
                         <div className="text-center py-4">
-                            <p className="text-muted">Nenhum funcionário cadastrado.</p>
+                            <p className="text-muted">{t('common.noData')}</p>
                         </div>
                     )}
 
@@ -194,13 +209,13 @@ const EmployeeList = () => {
                             <CTable hover responsive>
                                 <CTableHead>
                                     <CTableRow>
-                                        <CTableHeaderCell>Nome</CTableHeaderCell>
-                                        <CTableHeaderCell>E-mail</CTableHeaderCell>
-                                        <CTableHeaderCell>Telefone</CTableHeaderCell>
-                                        <CTableHeaderCell>Cargo</CTableHeaderCell>
-                                        <CTableHeaderCell>Cidade</CTableHeaderCell>
-                                        <CTableHeaderCell>Estado</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-end">Ações</CTableHeaderCell>
+                                        <CTableHeaderCell>{t('employees.name')}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t('employees.email')}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t('employees.phone')}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t('employees.position')}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t('employees.city')}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t('employees.state')}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
                                 <CTableBody>
@@ -244,7 +259,6 @@ const EmployeeList = () => {
                 </CCardBody>
             </CCard>
 
-            {/* Add/Edit Modal */}
             <EmployeeModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
@@ -253,7 +267,6 @@ const EmployeeList = () => {
                 loading={saving}
             />
 
-            {/* Delete Confirmation Modal */}
             <CModal 
                 visible={deleteModalVisible} 
                 onClose={() => setDeleteModalVisible(false)}
@@ -261,15 +274,15 @@ const EmployeeList = () => {
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
-                        Confirmar Exclusão
+                        {t('common.confirmDelete')}
                     </CModalTitle>
                 </CModalHeader>
                 <CModalBody>
                     <p>
-                        Tem certeza que deseja excluir o funcionário <strong>{employeeToDelete?.name}</strong>?
+                        {t('employees.deleteConfirm', { name: employeeToDelete?.name })}
                     </p>
                     <p className="text-danger">
-                        Esta ação não pode ser desfeita.
+                        {t('employees.deleteWarning')}
                     </p>
                 </CModalBody>
                 <CModalFooter>
@@ -278,14 +291,14 @@ const EmployeeList = () => {
                         onClick={() => setDeleteModalVisible(false)}
                         disabled={deleting}
                     >
-                        Cancelar
+                        {t('common.cancel')}
                     </CButton>
                     <CButton 
                         color="danger" 
                         onClick={handleDelete}
                         disabled={deleting}
                     >
-                        {deleting ? 'Excluindo...' : 'Excluir'}
+                        {deleting ? t('common.deleting') : t('common.delete')}
                     </CButton>
                 </CModalFooter>
             </CModal>

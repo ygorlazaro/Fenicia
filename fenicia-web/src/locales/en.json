@@ -28,7 +28,8 @@
     "light": "Light",
     "dark": "Dark",
     "auto": "Auto",
-    "requiredField": "Required field"
+    "requiredField": "Required field",
+    "select": "Select"
   },
   "auth": {
     "login": {
@@ -143,8 +144,16 @@
     "phone": "Phone",
     "email": "Email",
     "address": "Address",
+    "city": "City",
+    "state": "State",
+    "zipCode": "ZIP Code",
+    "street": "Street",
+    "number": "Number",
+    "neighborhood": "Neighborhood",
+    "complement": "Complement",
     "hireDate": "Hire Date",
     "salary": "Salary",
+    "requiredFields": "Name, email, state and position are required.",
     "deleteConfirm": "Are you sure you want to delete the employee {{name}}?",
     "deleteWarning": "This action cannot be undone.",
     "createSuccess": "Employee created successfully!",
@@ -162,11 +171,21 @@
     "email": "Email",
     "phone": "Phone",
     "address": "Address",
+    "zipCode": "ZIP Code",
+    "state": "State",
+    "city": "City",
+    "neighborhood": "Neighborhood",
+    "street": "Street",
+    "number": "Number",
+    "complement": "Complement",
     "deleteConfirm": "Are you sure you want to delete the customer {{name}}?",
+    "deleteWarning": "This action cannot be undone.",
     "createSuccess": "Customer created successfully!",
     "updateSuccess": "Customer updated successfully!",
     "deleteSuccess": "Customer deleted successfully!",
-    "loadError": "Failed to load customers."
+    "loadError": "Failed to load customers.",
+    "saveError": "Failed to save customer.",
+    "requiredFields": "Name and email are required."
   },
   "suppliers": {
     "title": "Suppliers",

@@ -61,6 +61,14 @@ public class GetAllEmployeeHandlerTests
         };
         this.context.BasicPositions.Add(position);
 
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         var employee1 = new BasicEmployeeModel
         {
             Id = Guid.NewGuid(),
@@ -75,8 +83,10 @@ public class GetAllEmployeeHandlerTests
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                StateId = state.Id,
+                StateModel = state,
+                City = this.faker.Address.City(),
+                PhoneNumber = this.faker.Phone.PhoneNumber()
             }
         };
 
@@ -94,8 +104,10 @@ public class GetAllEmployeeHandlerTests
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                StateId = state.Id,
+                StateModel = state,
+                City = this.faker.Address.City(),
+                PhoneNumber = this.faker.Phone.PhoneNumber()
             }
         };
 
@@ -113,7 +125,16 @@ public class GetAllEmployeeHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result[0].PersonId, Is.EqualTo(employee1.PersonModel.Id));
+            Assert.That(result[0].Name, Is.EqualTo(employee1.PersonModel.Name));
+            Assert.That(result[0].Email, Is.EqualTo(employee1.PersonModel.Email));
+            Assert.That(result[0].PositionName, Is.EqualTo(position.Name));
+            Assert.That(result[0].StateName, Is.EqualTo(state.Name));
+
             Assert.That(result[1].PersonId, Is.EqualTo(employee2.PersonModel.Id));
+            Assert.That(result[1].Name, Is.EqualTo(employee2.PersonModel.Name));
+            Assert.That(result[1].Email, Is.EqualTo(employee2.PersonModel.Email));
+            Assert.That(result[1].PositionName, Is.EqualTo(position.Name));
+            Assert.That(result[1].StateName, Is.EqualTo(state.Name));
         }
     }
 
@@ -127,6 +148,14 @@ public class GetAllEmployeeHandlerTests
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
+
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -144,8 +173,10 @@ public class GetAllEmployeeHandlerTests
                     Street = this.faker.Address.StreetName(),
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
-                    StateId = Guid.NewGuid(),
-                    City = this.faker.Address.City()
+                    StateId = state.Id,
+                    StateModel = state,
+                    City = this.faker.Address.City(),
+                    PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
             this.context.BasicEmployees.Add(employee);
@@ -174,6 +205,14 @@ public class GetAllEmployeeHandlerTests
         };
         this.context.BasicPositions.Add(position);
 
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         for (var i = 0; i < 5; i++)
         {
             var employee = new BasicEmployeeModel
@@ -190,8 +229,10 @@ public class GetAllEmployeeHandlerTests
                     Street = this.faker.Address.StreetName(),
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
-                    StateId = Guid.NewGuid(),
-                    City = this.faker.Address.City()
+                    StateId = state.Id,
+                    StateModel = state,
+                    City = this.faker.Address.City(),
+                    PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
             this.context.BasicEmployees.Add(employee);
@@ -220,6 +261,14 @@ public class GetAllEmployeeHandlerTests
         };
         this.context.BasicPositions.Add(position);
 
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         for (var i = 0; i < 25; i++)
         {
             var employee = new BasicEmployeeModel
@@ -236,8 +285,10 @@ public class GetAllEmployeeHandlerTests
                     Street = this.faker.Address.StreetName(),
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
-                    StateId = Guid.NewGuid(),
-                    City = this.faker.Address.City()
+                    StateId = state.Id,
+                    StateModel = state,
+                    City = this.faker.Address.City(),
+                    PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
             this.context.BasicEmployees.Add(employee);
@@ -266,6 +317,14 @@ public class GetAllEmployeeHandlerTests
         };
         this.context.BasicPositions.Add(position);
 
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         var employee = new BasicEmployeeModel
         {
             Id = Guid.NewGuid(),
@@ -280,8 +339,10 @@ public class GetAllEmployeeHandlerTests
                 Street = this.faker.Address.StreetName(),
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                StateId = state.Id,
+                StateModel = state,
+                City = this.faker.Address.City(),
+                PhoneNumber = this.faker.Phone.PhoneNumber()
             }
         };
 
@@ -300,6 +361,9 @@ public class GetAllEmployeeHandlerTests
         {
             Assert.That(result[0].PersonId, Is.EqualTo(employee.PersonModel.Id));
             Assert.That(result[0].PositionId, Is.EqualTo(position.Id));
+            Assert.That(result[0].Name, Is.EqualTo(employee.PersonModel.Name));
+            Assert.That(result[0].PositionName, Is.EqualTo(position.Name));
+            Assert.That(result[0].StateName, Is.EqualTo(state.Name));
         }
     }
 }

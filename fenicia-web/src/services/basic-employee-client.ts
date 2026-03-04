@@ -1,7 +1,7 @@
 import { ApiClient } from './client';
 import { AxiosResponse } from 'axios';
 
-const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5002/api';
+const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5083/api';
 
 /**
  * BasicEmployeeClient - Handles employee CRUD operations
@@ -68,6 +68,26 @@ export class BasicEmployeeClient extends ApiClient {
    */
   async delete(id: string): Promise<void> {
     await this.getClient().delete(`/employee/${id}`);
+  }
+
+  /**
+   * Get all states
+   * GET /state
+   * @returns {Promise<any>}
+   */
+  async getStates(): Promise<any> {
+    const response = await this.getClient().get('/state');
+    return (response as AxiosResponse).data;
+  }
+
+  /**
+   * Get all positions for data source
+   * GET /datasource/position
+   * @returns {Promise<any>}
+   */
+  async getPositions(): Promise<any> {
+    const response = await this.getClient().get('/datasource/position');
+    return (response as AxiosResponse).data;
   }
 }
 
