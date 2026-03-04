@@ -17,6 +17,8 @@ export class AuthClient extends ApiClient {
    * Override setupInterceptors to add default company header for auth requests
    */
   setupInterceptors(): void {
+    super.setupInterceptors();
+
     this.client.interceptors.request.use(
       (config) => {
         const token = this.getToken();

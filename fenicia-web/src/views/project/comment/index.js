@@ -17,14 +17,13 @@ import {
     CModalHeader,
     CModalTitle,
     CSpinner,
-    CAlert,
-    CPagination,
-    CPaginationItem
+    CAlert
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
 import ProjectCommentClient from '../../../services/project-comment-client';
 import ProjectCommentModal from '../../../components/ProjectCommentModal';
+import Pagination from '../../../components/Pagination';
 
 const projectCommentClient = new ProjectCommentClient("http://localhost:5144");
 
@@ -129,8 +128,12 @@ const ProjectCommentList = () => {
         }
     };
 
-    const handlePageChange = (page) => {
-        setPagination(prev => ({ ...prev, page }));
+    const handlePageChange = (newPage) => {
+        setPagination(prev => ({ ...prev, page: newPage }));
+    };
+
+    const handlePerPageChange = (newPerPage) => {
+        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
     const truncateContent = (content, maxLength = 100) => {
@@ -218,45 +221,7 @@ const ProjectCommentList = () => {
                                 </CTableBody>
                             </CTable>
 
-                            <div className="d-flex justify-content-between align-items-center mt-3">
-                                <small className="text-muted">
-                                    Mostrando {comments.length} de {pagination.total} registro(s)
-                                </small>
-                                <CPagination>
-                                    <CPaginationItem
-                                        onClick={() => handlePageChange(pagination.page - 1)}
-                                        disabled={pagination.page === 1}
-                                    >
-                                        Anterior
-                                    </CPaginationItem>
-                                    {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                                        let pageNum = i + 1;
-                                        if (pagination.pages > 5) {
-                                            if (pagination.page > 3) {
-                                                pageNum = pagination.page - 2 + i;
-                                            }
-                                            if (pageNum > pagination.pages) {
-                                                pageNum = pagination.pages - 4 + i;
-                                            }
-                                        }
-                                        return (
-                                            <CPaginationItem
-                                                key={pageNum}
-                                                active={pageNum === pagination.page}
-                                                onClick={() => handlePageChange(pageNum)}
-                                            >
-                                                {pageNum}
-                                            </CPaginationItem>
-                                        );
-                                    })}
-                                    <CPaginationItem
-                                        onClick={() => handlePageChange(pagination.page + 1)}
-                                        disabled={pagination.page === pagination.pages}
-                                    >
-                                        Próximo
-                                    </CPaginationItem>
-                                </CPagination>
-                            </div>
+                            <Pagination pagination={pagination} onPageChange={handlePageChange} onPerPageChange={handlePerPageChange} />
                         </>
                     )}
                 </CCardBody>

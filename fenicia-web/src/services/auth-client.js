@@ -1,6 +1,6 @@
 import { ApiClient } from './client';
 
-const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:5001/api';
+const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:5144';
 
 // Default company ID for initial login (can be overridden)
 const DEFAULT_COMPANY_ID = import.meta.env.VITE_DEFAULT_COMPANY_ID || '00000000-0000-0000-0000-000000000000';
@@ -18,6 +18,8 @@ export class AuthClient extends ApiClient {
    * Override setupInterceptors to add default company header for auth requests
    */
   setupInterceptors() {
+    super.setupInterceptors();
+
     this.client.interceptors.request.use(
       (config) => {
         const token = this.getToken();

@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import {
     CButton, CCard, CCardBody, CCardHeader, CContainer, CTable, CTableBody, CTableDataCell,
     CTableHead, CTableHeaderCell, CTableRow, CModal, CModalBody, CModalFooter, CModalHeader,
-    CModalTitle, CSpinner, CAlert, CPagination, CPaginationItem, CForm, CFormInput, CFormLabel,
+    CModalTitle, CSpinner, CAlert, CForm, CFormInput, CFormLabel,
     CFormSelect, CFormTextarea, CRow, CCol
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
 import { BasicCustomerClient, BasicSupplierClient, BasicProductCategoryClient, BasicProductClient } from '../../../services/basic-crud-clients';
+import Pagination from '../../../components/Pagination';
 
 const customerClient = new BasicCustomerClient();
 const supplierClient = new BasicSupplierClient();
@@ -176,18 +177,11 @@ const GenericCrud = ({ entityType, client, columns, formFields, title }) => {
                                     ))}
                                 </CTableBody>
                             </CTable>
-                            <div className="d-flex justify-content-between align-items-center mt-3">
-                                <small className="text-muted">Mostrando {items.length} de {pagination.total} registro(s)</small>
-                                <CPagination>
-                                    <CPaginationItem onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))} disabled={pagination.page === 1}>Anterior</CPaginationItem>
-                                    {[...Array(Math.min(5, pagination.pages))].map((_, i) => {
-                                        const pageNum = pagination.page > 3 ? pagination.page - 2 + i : i + 1;
-                                        if (pageNum > pagination.pages) return null;
-                                        return (<CPaginationItem key={pageNum} active={pageNum === pagination.page} onClick={() => setPagination(p => ({ ...p, page: pageNum }))}>{pageNum}</CPaginationItem>);
-                                    })}
-                                    <CPaginationItem onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))} disabled={pagination.page === pagination.pages}>Próximo</CPaginationItem>
-                                </CPagination>
-                            </div>
+                            <Pagination
+                                pagination={pagination}
+                                onPageChange={(newPage) => setPagination(p => ({ ...p, page: newPage }))}
+                                onPerPageChange={(newPerPage) => setPagination(p => ({ ...p, perPage: newPerPage, page: 1 }))}
+                            />
                         </>
                     )}
                 </CCardBody>

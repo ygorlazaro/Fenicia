@@ -27,7 +27,7 @@ export class AuthTokenClient extends AuthClient {
       setToken(data.accessToken);
     }
 
-    // Persist company ID if returned (for future use when company selection is implemented)
+    // Persist company ID if returned
     if (data.user?.companyId) {
       setCompanyId(data.user.companyId);
     }
