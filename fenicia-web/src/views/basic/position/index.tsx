@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     CButton,
     CCard,
@@ -28,6 +29,7 @@ import Pagination from '../../../components/Pagination';
 const positionClient = new BasicPositionClient("http://localhost:5083");
 
 const PositionList = () => {
+    const { t } = useTranslation();
     const [positions, setPositions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -45,6 +47,9 @@ const PositionList = () => {
     const [deleting, setDeleting] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
 
+    const paginationRef = useRef(pagination);
+    paginationRef.current = pagination;
+
     useEffect(() => {
         loadPositions();
     }, [pagination.page, pagination.perPage]);
@@ -53,22 +58,19 @@ const PositionList = () => {
         try {
             setLoading(true);
             setError(null);
-            const response = await positionClient.getAll(pagination.page, pagination.perPage);
-            console.log('Positions API response:', response);
-            
-            // API might return array directly or Pagination object
-            const positionsList = Array.isArray(response) ? response : (response?.data || []);
-            console.log('Positions list:', positionsList);
+            const { page, perPage } = paginationRef.current;
+            const response = await positionClient.getAll(page, perPage);
+            const isPaginated = response && response.data && Array.isArray(response.data);
+            const positionsList = isPaginated ? response.data : (Array.isArray(response) ? response : []);
+            const totalItems = response?.total ?? positionsList.length;
             setPositions(positionsList);
             setPagination(prev => ({
                 ...prev,
-                total: response?.total || positionsList.length,
-                pages: response?.pages || 1
+                total: totalItems,
+                pages: Math.ceil(totalItems / prev.perPage) || 1
             }));
         } catch (err) {
-            console.error('Failed to load positions:', err);
-            console.error('Error response:', err.response);
-            setError(err.response?.data?.title || 'Falha ao carregar cargos.');
+            setError(t('positions.loadError'));
         } finally {
             setLoading(false);
         }
@@ -94,17 +96,16 @@ const PositionList = () => {
         try {
             if (selectedPosition) {
                 await positionClient.update(selectedPosition.id, formData);
-                setSuccessMessage('Cargo atualizado com sucesso!');
+                setSuccessMessage(t('positions.updateSuccess'));
             } else {
                 await positionClient.create(formData);
-                setSuccessMessage('Cargo criado com sucesso!');
+                setSuccessMessage(t('positions.createSuccess'));
             }
             setModalVisible(false);
             loadPositions();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to save position:', err);
-            setError(err.response?.data?.title || 'Falha ao salvar cargo.');
+            setError(t('positions.saveError'));
         } finally {
             setSaving(false);
         }
@@ -116,24 +117,25 @@ const PositionList = () => {
         setDeleting(true);
         try {
             await positionClient.delete(positionToDelete.id);
-            setSuccessMessage('Cargo excluído com sucesso!');
+            setSuccessMessage(t('positions.deleteSuccess'));
             setDeleteModalVisible(false);
             setPositionToDelete(null);
             loadPositions();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to delete position:', err);
-            setError(err.response?.data?.title || 'Falha ao excluir cargo.');
+            setError(t('positions.loadError'));
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage) => {
+        console.log('handlePageChange called with:', newPage);
         setPagination(prev => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage) => {
+        console.log('handlePerPageChange called with:', newPerPage);
         setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
@@ -153,23 +155,23 @@ const PositionList = () => {
 
             <CCard>
                 <CCardHeader className="d-flex justify-content-between align-items-center">
-                    <strong>Cargos</strong>
+                    <strong>{t('positions.title')}</strong>
                     <CButton color="primary" size="sm" onClick={handleOpenAdd}>
                         <CIcon icon={cilPlus} className="me-2" />
-                        Novo
+                        {t('positions.new')}
                     </CButton>
                 </CCardHeader>
                 <CCardBody>
                     {loading && (
                         <div className="text-center py-4">
                             <CSpinner color="primary" />
-                            <p className="mt-2">Carregando...</p>
+                            <p className="mt-2">{t('common.loading')}</p>
                         </div>
                     )}
 
                     {!loading && positions.length === 0 && (
                         <div className="text-center py-4">
-                            <p className="text-muted">Nenhum cargo cadastrado.</p>
+                            <p className="text-muted">{t('common.noData')}</p>
                         </div>
                     )}
 
@@ -178,18 +180,14 @@ const PositionList = () => {
                             <CTable hover responsive>
                                 <CTableHead>
                                     <CTableRow>
-                                        <CTableHeaderCell>Nome</CTableHeaderCell>
-                                        <CTableHeaderCell>Código</CTableHeaderCell>
-                                        <CTableHeaderCell>Descrição</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-end">Ações</CTableHeaderCell>
+                                        <CTableHeaderCell>{t('positions.name')}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
                                 <CTableBody>
                                     {positions.map((position) => (
                                         <CTableRow key={position.id}>
                                             <CTableDataCell>{position.name}</CTableDataCell>
-                                            <CTableDataCell>{position.code || '-'}</CTableDataCell>
-                                            <CTableDataCell>{position.description || '-'}</CTableDataCell>
                                             <CTableDataCell className="text-end">
                                                 <CButton 
                                                     color="info" 
@@ -222,7 +220,6 @@ const PositionList = () => {
                 </CCardBody>
             </CCard>
 
-            {/* Add/Edit Modal */}
             <PositionModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
@@ -231,7 +228,6 @@ const PositionList = () => {
                 loading={saving}
             />
 
-            {/* Delete Confirmation Modal */}
             <CModal 
                 visible={deleteModalVisible} 
                 onClose={() => setDeleteModalVisible(false)}
@@ -239,15 +235,15 @@ const PositionList = () => {
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
-                        Confirmar Exclusão
+                        {t('common.confirmDelete')}
                     </CModalTitle>
                 </CModalHeader>
                 <CModalBody>
                     <p>
-                        Tem certeza que deseja excluir o cargo <strong>{positionToDelete?.name}</strong>?
+                        {t('positions.deleteConfirm', { name: positionToDelete?.name })}
                     </p>
                     <p className="text-danger">
-                        Esta ação não pode ser desfeita.
+                        {t('positions.deleteWarning')}
                     </p>
                 </CModalBody>
                 <CModalFooter>
@@ -256,14 +252,14 @@ const PositionList = () => {
                         onClick={() => setDeleteModalVisible(false)}
                         disabled={deleting}
                     >
-                        Cancelar
+                        {t('common.cancel')}
                     </CButton>
                     <CButton 
                         color="danger" 
                         onClick={handleDelete}
                         disabled={deleting}
                     >
-                        {deleting ? 'Excluindo...' : 'Excluir'}
+                        {deleting ? t('common.deleting') : t('common.delete')}
                     </CButton>
                 </CModalFooter>
             </CModal>

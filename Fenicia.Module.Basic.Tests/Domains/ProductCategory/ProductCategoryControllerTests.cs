@@ -102,7 +102,7 @@ public class ProductCategoryControllerTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(cancellationToken);
+        var result = await this.controller.GetAsync(page: 1, perPage: 10, cancellationToken: cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -111,9 +111,10 @@ public class ProductCategoryControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCategories = okResult.Value as List<GetAllProductCategoryResponse>;
+        var returnedCategories = okResult.Value as Pagination<List<GetAllProductCategoryResponse>>;
         Assert.That(returnedCategories, Is.Not.Null);
-        Assert.That(returnedCategories, Is.Empty);
+        Assert.That(returnedCategories.Data, Is.Empty);
+        Assert.That(returnedCategories.Total, Is.EqualTo(0));
     }
 
     [Test]
@@ -138,7 +139,7 @@ public class ProductCategoryControllerTests
         var cancellationToken = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(cancellationToken);
+        var result = await this.controller.GetAsync(page: 1, perPage: 10, cancellationToken: cancellationToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -147,9 +148,10 @@ public class ProductCategoryControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedCategories = okResult.Value as List<GetAllProductCategoryResponse>;
+        var returnedCategories = okResult.Value as Pagination<List<GetAllProductCategoryResponse>>;
         Assert.That(returnedCategories, Is.Not.Null);
-        Assert.That(returnedCategories, Has.Count.EqualTo(2));
+        Assert.That(returnedCategories.Data, Has.Count.EqualTo(2));
+        Assert.That(returnedCategories.Total, Is.EqualTo(2));
     }
 
     [Test]

@@ -23,7 +23,12 @@ public class PositionController(
     GetEmployeesByPositionIdHandler getEmployeesByPositionIdHandler) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<GetAllPositionResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllPositionResponse>>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<Pagination<List<GetAllPositionResponse>>>> GetAsync(
+        [FromQuery] int page = 1, 
+        [FromQuery] int perPage = 10, 
+        CancellationToken ct = default)
     {
         var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page, perPage), ct);
 

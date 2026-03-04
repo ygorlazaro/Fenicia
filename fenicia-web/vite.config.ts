@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react-swc'
 import autoprefixer from 'autoprefixer'
+import path from 'node:path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,17 +16,15 @@ export default defineConfig({
       ],
     },
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        '.js': 'jsx',
-        '.ts': 'tsx',
-      },
-    },
+  esbuild: {
+    target: 'es2020',
   },
   plugins: [react()],
   resolve: {
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.scss'],
+    alias: {
+      src: path.resolve(__dirname, 'src'),
+    },
+    extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json', '.scss'],
   },
   server: {
     port: 3000,

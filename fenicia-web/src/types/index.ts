@@ -17,8 +17,6 @@ declare module '*.gif';
 declare module '*.svg';
 declare module '*.ico';
 
-export {};
-
 // API Response Types
 export interface Pagination<T> {
   data: T;

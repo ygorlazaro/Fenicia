@@ -113,9 +113,10 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPositions = okResult.Value as List<GetAllPositionResponse>;
+        var returnedPositions = okResult.Value as Pagination<List<GetAllPositionResponse>>;
         Assert.That(returnedPositions, Is.Not.Null);
-        Assert.That(returnedPositions, Is.Empty);
+        Assert.That(returnedPositions.Data, Is.Empty);
+        Assert.That(returnedPositions.Total, Is.EqualTo(0));
     }
 
     [Test]
@@ -151,9 +152,10 @@ public class PositionControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedPositions = okResult.Value as List<GetAllPositionResponse>;
+        var returnedPositions = okResult.Value as Pagination<List<GetAllPositionResponse>>;
         Assert.That(returnedPositions, Is.Not.Null);
-        Assert.That(returnedPositions, Has.Count.EqualTo(2));
+        Assert.That(returnedPositions.Data, Has.Count.EqualTo(2));
+        Assert.That(returnedPositions.Total, Is.EqualTo(2));
     }
 
     [Test]
