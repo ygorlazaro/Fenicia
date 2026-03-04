@@ -15,6 +15,7 @@ import {
     cilUser
 } from '@coreui/icons';
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react';
+import {t} from "i18next";
 
 const createNav = (t) => [
   {
@@ -276,6 +277,12 @@ const _nav = [
         icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
       },
     ],
+  },
+  {
+    component: CNavItem,
+    name: t('menu.userManagement') || 'User Management',
+    to: '/auth/user',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
   },
 ];
 

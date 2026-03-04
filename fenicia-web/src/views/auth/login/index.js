@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
-    CCol,
-    CContainer,
     CForm,
     CFormInput,
     CFormLabel,
-    CRow
+    CAlert
 } from "@coreui/react";
+import AuthLayout from 'src/components/AuthLayout';
 import AuthTokenClient from '../../../services/auth-token-client';
 
 const authClient = new AuthTokenClient("http://localhost:5144");
 
 const AuthLogin = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
@@ -40,104 +41,93 @@ const AuthLogin = () => {
         setError(null);
 
         try {
-            const response = await authClient.generateToken({
+            await authClient.generateToken({
                 email: formData.email,
                 password: formData.password,
                 cnpj: formData.cnpj
             });
 
-            // Redirect to company selection
             navigate('/auth/company');
         } catch (err) {
             console.error('Login failed:', err);
-            setError(err.response?.data?.title || 'Falha ao autenticar. Verifique suas credenciais.');
+            setError(err.response?.data?.title || t('auth.login.errors.authenticationFailed', 'Falha ao autenticar. Verifique suas credenciais.'));
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <CContainer className="my-auto">
-            <CRow className="justify-content-center">
-                <CCol md={6} lg={5}>
-                    <CCard className="mb-4">
-                    <CCardHeader>
-                        <strong>Login</strong>
-                    </CCardHeader>
-                    <CCardBody>
-                        {error && (
-                            <div className="alert alert-danger" role="alert">
-                                {error}
-                            </div>
-                        )}
-                        <CForm onSubmit={handleSubmit}>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="inputEmail">E-mail</CFormLabel>
-                                <CFormInput
-                                    type="email"
-                                    id="inputEmail"
-                                    name="email"
-                                    placeholder="name@example.com"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="inputPassword">Senha</CFormLabel>
-                                <CFormInput
-                                    type="password"
-                                    id="inputPassword"
-                                    name="password"
-                                    placeholder="senha"
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <CFormLabel htmlFor="inputCnpj">CNPJ</CFormLabel>
-                                <CFormInput
-                                    type="text"
-                                    id="inputCnpj"
-                                    name="cnpj"
-                                    placeholder="00000000000100"
-                                    value={formData.cnpj}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
-                            <div className="col-auto">
-                                <CButton 
-                                    color="primary" 
-                                    type="submit" 
-                                    className="mb-3"
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Entrando...' : 'Entrar'}
+        <AuthLayout>
+            <CCard className="mb-4 shadow-sm">
+                <CCardHeader className="bg-primary text-white">
+                    <strong>{t('auth.login.title', 'Login')}</strong>
+                </CCardHeader>
+                <CCardBody>
+                    {error && (
+                        <CAlert color="danger" dismissible onClose={() => setError(null)}>
+                            {error}
+                        </CAlert>
+                    )}
+                    <CForm onSubmit={handleSubmit}>
+                        <div className="mb-3">
+                            <CFormLabel htmlFor="inputEmail">{t('auth.login.labels.email', 'E-mail')}</CFormLabel>
+                            <CFormInput
+                                type="email"
+                                id="inputEmail"
+                                name="email"
+                                placeholder={t('auth.login.placeholders.email', 'name@example.com')}
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <CFormLabel htmlFor="inputPassword">{t('auth.login.labels.password', 'Senha')}</CFormLabel>
+                            <CFormInput
+                                type="password"
+                                id="inputPassword"
+                                name="password"
+                                placeholder={t('auth.login.placeholders.password', 'senha')}
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <CFormLabel htmlFor="inputCnpj">{t('auth.login.labels.cnpj', 'CNPJ')}</CFormLabel>
+                            <CFormInput
+                                type="text"
+                                id="inputCnpj"
+                                name="cnpj"
+                                placeholder={t('auth.login.placeholders.cnpj', '00000000000100')}
+                                value={formData.cnpj}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className="d-grid gap-2">
+                            <CButton
+                                color="primary"
+                                type="submit"
+                                disabled={loading}
+                            >
+                                {loading ? t('auth.login.buttons.loggingIn', 'Entrando...') : t('auth.login.buttons.login', 'Entrar')}
+                            </CButton>
+                        </div>
+
+                        <div className="text-center mt-3">
+                            <Link to="/auth/register" className="d-block mb-2">
+                                <CButton color="secondary" className="w-100">
+                                    {t('auth.login.buttons.createAccount', 'Criar conta')}
                                 </CButton>
-                            </div>
-
-                            <div className="col-auto">
-                                <Link to="/auth/register">
-                                    <CButton color="secondary" className="mb-3">
-                                        Criar conta
-                                    </CButton>
-                                </Link>
-                            </div>
-
-                            <div className="col-auto">
-                                <Link to="/auth/forgot-password">
-                                    <CButton color="link" className="mb-3">
-                                        Esqueceu a senha?
-                                    </CButton>
-                                </Link>
-                            </div>
-                        </CForm>
-                    </CCardBody>
-                </CCard>
-                </CCol>
-            </CRow>
-        </CContainer>
+                            </Link>
+                            <Link to="/auth/forgot-password" className="text-decoration-none">
+                                {t('auth.login.links.forgotPassword', 'Esqueceu a senha?')}
+                            </Link>
+                        </div>
+                    </CForm>
+                </CCardBody>
+            </CCard>
+        </AuthLayout>
     )
 };
 

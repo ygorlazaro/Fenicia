@@ -20,13 +20,60 @@
     "next": "Siguiente",
     "previous": "Anterior",
     "perPage": "por página",
-    "selectPageSize": "Seleccionar tamaño de página"
+    "selectPageSize": "Seleccionar tamaño de página",
+    "default": "Predeterminado"
   },
   "auth": {
-    "login": "Iniciar sesión",
+    "login": {
+      "title": "Iniciar sesión",
+      "labels": {
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "cnpj": "CNPJ"
+      },
+      "placeholders": {
+        "email": "name@example.com",
+        "password": "contraseña",
+        "cnpj": "00000000000100"
+      },
+      "buttons": {
+        "login": "Iniciar sesión",
+        "loggingIn": "Iniciando sesión...",
+        "createAccount": "Crear cuenta"
+      },
+      "links": {
+        "forgotPassword": "¿Olvidaste tu contraseña?"
+      },
+      "errors": {
+        "authenticationFailed": "Error de autenticación. Verifique sus credenciales."
+      }
+    },
+    "forgotPassword": {
+      "title": "Recuperar Contraseña",
+      "instructions": "Ingrese su correo electrónico registrado y le enviaremos un enlace para restablecer su contraseña.",
+      "labels": {
+        "email": "Correo electrónico"
+      },
+      "placeholders": {
+        "email": "name@example.com"
+      },
+      "buttons": {
+        "sendLink": "Enviar enlace de recuperación",
+        "sending": "Enviando..."
+      },
+      "links": {
+        "backToLogin": "Volver al inicio de sesión"
+      },
+      "success": {
+        "title": "¡Éxito!",
+        "message": "Enviamos un enlace de recuperación a su correo electrónico. Revise su bandeja de entrada y siga las instrucciones."
+      },
+      "errors": {
+        "requestFailed": "Error al solicitar recuperación de contraseña. Verifique su correo electrónico."
+      }
+    },
     "logout": "Cerrar sesión",
     "register": "Registrarse",
-    "forgotPassword": "Olvidé mi contraseña",
     "resetPassword": "Restablecer contraseña",
     "email": "Correo electrónico",
     "password": "Contraseña",
@@ -190,6 +237,12 @@
     "updateSuccess": "¡Tarea actualizada exitosamente!",
     "deleteSuccess": "¡Tarea eliminada exitosamente!",
     "loadError": "Error al cargar las tareas."
+  },
+  "language": {
+    "title": "Idioma",
+    "ptBR": "Português",
+    "en": "English",
+    "es": "Español"
   },
   "orders": {
     "title": "Pedidos",
