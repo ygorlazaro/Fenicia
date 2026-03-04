@@ -43,7 +43,8 @@ public class GetAllProductCategoryHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
+        Assert.That(result.Total, Is.EqualTo(0));
     }
 
     [Test]
@@ -63,19 +64,74 @@ public class GetAllProductCategoryHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result.Data, Has.Count.EqualTo(2));
+        Assert.That(result.Total, Is.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Any(c => c.Id == category1.Id));
-            Assert.That(result.Any(c => c.Id == category2.Id));
+            Assert.That(result.Data.Any(c => c.Id == category1.Id));
+            Assert.That(result.Data.Any(c => c.Id == category2.Id));
         }
     }
 
     [Test]
-    public async Task Handle_WithMultipleCategories_ReturnsAllWithoutPagination()
+    public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        for (var i = 0; i < 20; i++)
+        for (var i = 0; i < 25; i++)
+        {
+            var category = new BasicProductCategoryModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Category {i}"
+            };
+            this.context.BasicProductCategories.Add(category);
+        }
+
+        await this.context.SaveChangesAsync(CancellationToken.None);
+
+        var query = new GetAllProductCategoryQuery(2);
+
+        // Act
+        var result = await this.handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Data, Has.Count.EqualTo(10));
+        Assert.That(result.Total, Is.EqualTo(25));
+    }
+
+    [Test]
+    public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
+    {
+        // Arrange
+        for (var i = 0; i < 5; i++)
+        {
+            var category = new BasicProductCategoryModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Category {i}"
+            };
+            this.context.BasicProductCategories.Add(category);
+        }
+
+        await this.context.SaveChangesAsync(CancellationToken.None);
+
+        var query = new GetAllProductCategoryQuery(10);
+
+        // Act
+        var result = await this.handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Data, Is.Empty);
+        Assert.That(result.Total, Is.EqualTo(5));
+    }
+
+    [Test]
+    public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
+    {
+        // Arrange
+        for (var i = 0; i < 25; i++)
         {
             var category = new BasicProductCategoryModel
             {
@@ -94,6 +150,7 @@ public class GetAllProductCategoryHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(20));
+        Assert.That(result.Data, Has.Count.EqualTo(10));
+        Assert.That(result.Total, Is.EqualTo(25));
     }
 }

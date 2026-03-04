@@ -93,8 +93,17 @@ public class GetProductCategoryByIdHandlerTests
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new BasicProductCategoryModel { Id = category1Id, Name = "Electronics" };
-        var category2 = new BasicProductCategoryModel { Id = category2Id, Name = "Books" };
+        var category1 = new BasicProductCategoryModel
+        {
+            Id = category1Id,
+            Name = "Electronics"
+        };
+
+        var category2 = new BasicProductCategoryModel
+        {
+            Id = category2Id,
+            Name = "Books"
+        };
 
         this.context.BasicProductCategories.AddRange(category1, category2);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -111,6 +120,5 @@ public class GetProductCategoryByIdHandlerTests
             Assert.That(result.Id, Is.EqualTo(category1Id));
             Assert.That(result.Name, Is.EqualTo("Electronics"));
         }
-        Assert.That(result.Name, Is.Not.EqualTo("Books"));
     }
 }

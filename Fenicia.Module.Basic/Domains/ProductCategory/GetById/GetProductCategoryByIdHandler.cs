@@ -8,8 +8,12 @@ public class GetProductCategoryByIdHandler(DefaultContext context)
 {
     public async Task<GetProductCategoryByIdResponse?> Handle(GetProductCategoryByIdQuery query, CancellationToken ct)
     {
-        return await context.BasicProductCategories
-            .Select(pc => new GetProductCategoryByIdResponse(pc.Id, pc.Name))
+        var category = await context.BasicProductCategories
             .FirstOrDefaultAsync(c => c.Id == query.Id, ct);
+
+        if (category is null)
+            return null;
+
+        return new GetProductCategoryByIdResponse(category.Id, category.Name);
     }
 }
