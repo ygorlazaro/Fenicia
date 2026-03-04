@@ -1,40 +1,27 @@
-import { AuthClient, AUTH_API_BASE_URL } from './auth-client';
+import { AuthClient } from './auth-client';
 import { setToken, setCompanyId } from './client';
-import { TokenResponse } from '../types';
-
-interface GenerateTokenCredentials {
-  email: string;
-  password: string;
-  cnpj?: string;
-}
-
-interface RefreshTokenData {
-  userId: string;
-  refreshToken: string;
-}
+import { AxiosResponse } from 'axios';
 
 /**
  * AuthTokenClient - Handles token authentication operations
  * Implements login and token refresh functionality
- * 
- * Microservice: Authentication
- * Base URL: http://localhost:5144 (from VITE_AUTH_API_BASE_URL)
- * Routes: /token, /token/refresh
  */
 export class AuthTokenClient extends AuthClient {
   constructor(baseURL?: string) {
-    super(baseURL || AUTH_API_BASE_URL);
+    super(baseURL);
   }
 
   /**
    * Authenticate user and generate token
    * POST /token
-   * @param credentials - User credentials
-   * @returns Promise<TokenResponse>
+   * @param {Object} credentials - User credentials
+   * @param {string} credentials.email - User email
+   * @param {string} [credentials.password] - User password (optional depending on implementation)
+   * @returns {Promise<any>}
    */
-  async generateToken(credentials: GenerateTokenCredentials): Promise<TokenResponse> {
-    const response = await this.getClient().post<TokenResponse>('/token', credentials);
-    const data = response.data;
+  async generateToken(credentials: { email: string; password?: string }): Promise<any> {
+    const response = await this.getClient().post('/token', credentials);
+    const data = (response as AxiosResponse).data;
 
     // Persist access token
     if (data.accessToken) {
@@ -52,12 +39,14 @@ export class AuthTokenClient extends AuthClient {
   /**
    * Refresh access token using refresh token
    * POST /token/refresh
-   * @param requestData - Refresh token data
-   * @returns Promise<TokenResponse>
+   * @param {Object} requestData - Refresh token data
+   * @param {string} requestData.userId - User ID
+   * @param {string} requestData.refreshToken - Refresh token
+   * @returns {Promise<any>}
    */
-  async refreshToken(requestData: RefreshTokenData): Promise<TokenResponse> {
-    const response = await this.getClient().post<TokenResponse>('/token/refresh', requestData);
-    const data = response.data;
+  async refreshToken(requestData: { userId: string; refreshToken: string }): Promise<any> {
+    const response = await this.getClient().post('/token/refresh', requestData);
+    const data = (response as AxiosResponse).data;
 
     // Persist new access token
     if (data.accessToken) {

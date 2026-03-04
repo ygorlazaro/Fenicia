@@ -1,12 +1,12 @@
 import { ApiClient, AUTH_API_BASE_URL } from './client';
+import { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+
+// Default company ID for initial login (can be overridden)
+const DEFAULT_COMPANY_ID = import.meta.env.VITE_DEFAULT_COMPANY_ID || '00000000-0000-0000-0000-000000000000';
 
 /**
  * AuthClient - Base class for authentication microservice
  * Extends ApiClient with auth-specific functionality
- * 
- * Microservice: Authentication & Authorization
- * Base URL: http://localhost:5144 (from VITE_AUTH_API_BASE_URL)
- * Routes: /token, /register, /company, /forgotpassword, etc.
  */
 export class AuthClient extends ApiClient {
   constructor(baseURL: string = AUTH_API_BASE_URL) {
@@ -16,31 +16,31 @@ export class AuthClient extends ApiClient {
   /**
    * Override setupInterceptors to add default company header for auth requests
    */
-  setupInterceptors(): void {
+  protected setupInterceptors(): void {
     super.setupInterceptors();
 
-    this.client.interceptors.request.use(
-      (config) => {
+    this.getClient().interceptors.request.use(
+      (config: InternalAxiosRequestConfig) => {
         const token = this.getToken();
         let companyId = this.getCompanyId();
 
-        if (token) {
+        if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
         // Use stored company ID or default for anonymous requests
-        if (companyId || import.meta.env.VITE_DEFAULT_COMPANY_ID) {
-          config.headers['x-company'] = companyId || import.meta.env.VITE_DEFAULT_COMPANY_ID;
+        if ((companyId || DEFAULT_COMPANY_ID) && config.headers) {
+          config.headers['x-company'] = companyId || DEFAULT_COMPANY_ID;
         }
 
         return config;
       },
-      (error) => Promise.reject(error)
+      (error: AxiosError) => Promise.reject(error)
     );
 
-    this.client.interceptors.response.use(
-      (response) => response,
-      (error) => {
+    this.getClient().interceptors.response.use(
+      (response: AxiosResponse) => response,
+      (error: AxiosError) => {
         if (error.response?.status === 401) {
           this.clearAuth();
           window.location.href = '/';

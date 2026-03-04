@@ -9,5 +9,6 @@ public class BasicPositionModel : BaseCompanyModel
     [Required]
     [MaxLength(50)]
     public string Name { get; set; } = null!;
+    
     public virtual List<BasicEmployeeModel> Employees { get; set; } = null!;
 }

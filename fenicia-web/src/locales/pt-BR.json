@@ -3,6 +3,8 @@
     "save": "Salvar",
     "cancel": "Cancelar",
     "delete": "Excluir",
+    "deleting": "Excluindo...",
+    "saving": "Salvando...",
     "edit": "Editar",
     "add": "Adicionar",
     "search": "Pesquisar",
@@ -12,6 +14,7 @@
     "success": "Sucesso",
     "error": "Erro",
     "confirm": "Confirmar",
+    "confirmDelete": "Confirmar Exclusão",
     "actions": "Ações",
     "yes": "Sim",
     "no": "Não",
@@ -24,7 +27,8 @@
     "default": "Padrão",
     "light": "Claro",
     "dark": "Escuro",
-    "auto": "Automático"
+    "auto": "Automático",
+    "requiredField": "Campo obrigatório"
   },
   "auth": {
     "login": {

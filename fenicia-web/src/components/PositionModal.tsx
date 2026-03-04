@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     CButton,
     CForm,
     CFormInput,
     CFormLabel,
-    CFormTextarea,
     CModal,
     CModalBody,
     CModalFooter,
@@ -20,25 +20,20 @@ const PositionModal = ({
     position, 
     loading 
 }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        code: ''
+        name: ''
     });
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (position) {
             setFormData({
-                name: position.name || '',
-                description: position.description || '',
-                code: position.code || ''
+                name: position.name || ''
             });
         } else {
             setFormData({
-                name: '',
-                description: '',
-                code: ''
+                name: ''
             });
         }
         setError(null);
@@ -56,9 +51,8 @@ const PositionModal = ({
         e.preventDefault();
         setError(null);
 
-        // Validation
         if (!formData.name) {
-            setError('Nome é obrigatório.');
+            setError(t('common.requiredField'));
             return;
         }
 
@@ -69,11 +63,10 @@ const PositionModal = ({
         <CModal 
             visible={visible} 
             onClose={onClose}
-            size="lg"
         >
             <CModalHeader>
                 <CModalTitle>
-                    {position ? 'Editar Cargo' : 'Novo Cargo'}
+                    {position ? t('positions.edit') : t('positions.new')}
                 </CModalTitle>
             </CModalHeader>
             <CForm onSubmit={handleSubmit}>
@@ -85,7 +78,7 @@ const PositionModal = ({
                     )}
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="name">Nome *</CFormLabel>
+                        <CFormLabel htmlFor="name">{t('positions.name')} *</CFormLabel>
                         <CFormInput
                             type="text"
                             id="name"
@@ -95,39 +88,17 @@ const PositionModal = ({
                             required
                         />
                     </div>
-
-                    <div className="mb-3">
-                        <CFormLabel htmlFor="code">Código</CFormLabel>
-                        <CFormInput
-                            type="text"
-                            id="code"
-                            name="code"
-                            value={formData.code}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div className="mb-3">
-                        <CFormLabel htmlFor="description">Descrição</CFormLabel>
-                        <CFormTextarea
-                            id="description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleInputChange}
-                            rows={3}
-                        />
-                    </div>
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="secondary" onClick={onClose} disabled={loading}>
-                        Cancelar
+                        {t('common.cancel')}
                     </CButton>
                     <CButton 
                         color="primary" 
                         type="submit"
                         disabled={loading}
                     >
-                        {loading ? 'Salvando...' : 'Salvar'}
+                        {loading ? t('common.saving') : t('common.save')}
                     </CButton>
                 </CModalFooter>
             </CForm>

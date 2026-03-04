@@ -1,4 +1,5 @@
-import {ApiClient} from "src/services/client";
+import { ApiClient } from './client';
+import { AxiosResponse } from 'axios';
 
 const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5002/api';
 
@@ -6,7 +7,7 @@ const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://lo
  * BasicPositionClient - Handles position CRUD operations
  */
 export class BasicPositionClient extends ApiClient {
-  constructor(baseURL = BASIC_API_BASE_URL) {
+  constructor(baseURL: string = BASIC_API_BASE_URL) {
     super(baseURL);
   }
 
@@ -15,36 +16,36 @@ export class BasicPositionClient extends ApiClient {
    * GET /position?page=1&perPage=10
    * @param {number} page - Page number
    * @param {number} perPage - Items per page
-   * @returns {Promise<Pagination<List<GetAllPositionResponse>>>}
+   * @returns {Promise<any>}
    */
-  async getAll(page = 1, perPage = 10) {
+  async getAll(page: number = 1, perPage: number = 10): Promise<any> {
     const response = await this.getClient().get('/position', {
       params: { page, perPage }
     });
 
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 
   /**
    * Get position by ID
    * GET /position/:id
    * @param {string} id - Position ID
-   * @returns {Promise<GetPositionByIdResponse>}
+   * @returns {Promise<any>}
    */
-  async getById(id) {
+  async getById(id: string): Promise<any> {
     const response = await this.getClient().get(`/position/${id}`);
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 
   /**
    * Create new position
    * POST /position
    * @param {Object} position - Position data
-   * @returns {Promise<AddPositionResponse>}
+   * @returns {Promise<any>}
    */
-  async create(position) {
+  async create(position: any): Promise<any> {
     const response = await this.getClient().post('/position', position);
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 
   /**
@@ -52,11 +53,11 @@ export class BasicPositionClient extends ApiClient {
    * PATCH /position/:id
    * @param {string} id - Position ID
    * @param {Object} position - Position data
-   * @returns {Promise<UpdatePositionResponse>}
+   * @returns {Promise<any>}
    */
-  async update(id, position) {
+  async update(id: string, position: any): Promise<any> {
     const response = await this.getClient().patch(`/position/${id}`, position);
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 
   /**
@@ -65,7 +66,7 @@ export class BasicPositionClient extends ApiClient {
    * @param {string} id - Position ID
    * @returns {Promise<void>}
    */
-  async delete(id) {
+  async delete(id: string): Promise<void> {
     await this.getClient().delete(`/position/${id}`);
   }
 
@@ -75,14 +76,14 @@ export class BasicPositionClient extends ApiClient {
    * @param {string} id - Position ID
    * @param {number} page - Page number
    * @param {number} perPage - Items per page
-   * @returns {Promise<List<GetEmployeesByPositionIdResponse>>}
+   * @returns {Promise<any>}
    */
-  async getEmployeesByPosition(id, page = 1, perPage = 10) {
+  async getEmployeesByPosition(id: string, page: number = 1, perPage: number = 10): Promise<any> {
     const response = await this.getClient().get(`/position/${id}/employee`, {
       params: { page, perPage }
     });
 
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 }
 

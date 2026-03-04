@@ -1,4 +1,5 @@
-import {ApiClient} from "src/services/client";
+import { ApiClient } from './client';
+import { AxiosResponse } from 'axios';
 
 const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5002/api';
 
@@ -6,7 +7,7 @@ const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://lo
  * BasicEmployeeClient - Handles employee CRUD operations
  */
 export class BasicEmployeeClient extends ApiClient {
-  constructor(baseURL = BASIC_API_BASE_URL) {
+  constructor(baseURL: string = BASIC_API_BASE_URL) {
     super(baseURL);
   }
 
@@ -15,48 +16,48 @@ export class BasicEmployeeClient extends ApiClient {
    * GET /employee?page=1&perPage=10
    * @param {number} page - Page number
    * @param {number} perPage - Items per page
-   * @returns {Promise<Pagination<List<GetAllEmployeeResponse>>>}
+   * @returns {Promise<any>}
    */
-  async getAll(page = 1, perPage = 10) {
+  async getAll(page: number = 1, perPage: number = 10): Promise<any> {
     const response = await this.getClient().get('/employee', {
       params: { page, perPage }
     });
 
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 
   /**
    * Get employee by ID
    * GET /employee/:id
    * @param {string} id - Employee ID
-   * @returns {Promise<GetEmployeeByIdResponse>}
+   * @returns {Promise<any>}
    */
-  async getById(id) {
+  async getById(id: string): Promise<any> {
     const response = await this.getClient().get(`/employee/${id}`);
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 
   /**
    * Create new employee
    * POST /employee
-   * @param {Object} employee - Employee data
-   * @returns {Promise<AddEmployeeResponse>}
+   * @param {any} employee - Employee data
+   * @returns {Promise<any>}
    */
-  async create(employee) {
+  async create(employee: any): Promise<any> {
     const response = await this.getClient().post('/employee', employee);
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 
   /**
    * Update employee
    * PATCH /employee/:id
    * @param {string} id - Employee ID
-   * @param {Object} employee - Employee data
-   * @returns {Promise<UpdateEmployeeResponse>}
+   * @param {any} employee - Employee data
+   * @returns {Promise<any>}
    */
-  async update(id, employee) {
+  async update(id: string, employee: any): Promise<any> {
     const response = await this.getClient().patch(`/employee/${id}`, employee);
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 
   /**
@@ -65,28 +66,8 @@ export class BasicEmployeeClient extends ApiClient {
    * @param {string} id - Employee ID
    * @returns {Promise<void>}
    */
-  async delete(id) {
+  async delete(id: string): Promise<void> {
     await this.getClient().delete(`/employee/${id}`);
-  }
-
-  /**
-   * Get all states
-   * GET /state
-   * @returns {Promise<List<GetAllStateResponse>>}
-   */
-  async getStates() {
-    const response = await this.getClient().get('/state');
-    return response.data;
-  }
-
-  /**
-   * Get all positions
-   * GET /position
-   * @returns {Promise<List<GetAllPositionResponse>>}
-   */
-  async getPositions() {
-    const response = await this.getClient().get('/position');
-    return response.data;
   }
 }
 

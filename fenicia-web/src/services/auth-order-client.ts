@@ -1,4 +1,5 @@
 import { ApiClient } from './client';
+import { AxiosResponse } from 'axios';
 
 const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:5001/api';
 
@@ -7,7 +8,7 @@ const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://loca
  * Implements creating new orders
  */
 export class AuthOrderClient extends ApiClient {
-  constructor(baseURL = AUTH_API_BASE_URL) {
+  constructor(baseURL: string = AUTH_API_BASE_URL) {
     super(baseURL);
   }
 
@@ -16,14 +17,14 @@ export class AuthOrderClient extends ApiClient {
    * POST /order
    * @param {Object} orderData - Order data
    * @param {Guid[]} orderData.modules - Array of module IDs to subscribe
-   * @returns {Promise<CreateNewOrderResponse>}
+   * @returns {Promise<any>}
    */
-  async createOrder(orderData) {
+  async createOrder(orderData: { modules: string[] }): Promise<any> {
     const response = await this.getClient().post('/order', {
       modules: orderData.modules
     });
 
-    return response.data;
+    return (response as AxiosResponse).data;
   }
 }
 

@@ -1,11 +1,12 @@
 import { AuthClient } from './auth-client';
+import { AxiosResponse } from 'axios';
 
 /**
  * AuthForgotPasswordClient - Handles forgot password operations
  * Implements password reset request and reset functionality
  */
 export class AuthForgotPasswordClient extends AuthClient {
-  constructor(baseURL) {
+  constructor(baseURL?: string) {
     super(baseURL);
   }
 
@@ -15,7 +16,7 @@ export class AuthForgotPasswordClient extends AuthClient {
    * @param {string} email - User email
    * @returns {Promise<void>}
    */
-  async requestReset(email) {
+  async requestReset(email: string): Promise<void> {
     await this.getClient().post('/forgotpassword', {
       email
     });
@@ -30,7 +31,7 @@ export class AuthForgotPasswordClient extends AuthClient {
    * @param {string} resetData.newPassword - New password
    * @returns {Promise<void>}
    */
-  async resetPassword(resetData) {
+  async resetPassword(resetData: { email: string; token: string; newPassword: string }): Promise<void> {
     await this.getClient().post('/forgotpassword/reset', {
       email: resetData.email,
       token: resetData.token,

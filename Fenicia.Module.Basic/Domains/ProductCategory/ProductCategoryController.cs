@@ -27,11 +27,14 @@ public class ProductCategoryController(
     GetProductsByCategoryIdHandler getProductsByCategoryIdHandler) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductCategoryResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductCategoryResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProductCategoryResponse>>> GetAsync(CancellationToken ct)
+    public async Task<ActionResult<Pagination<List<GetAllProductCategoryResponse>>>> GetAsync(
+        [FromQuery] int page = 1, 
+        [FromQuery] int perPage = 10, 
+        CancellationToken ct = default)
     {
-        var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(), ct);
+        var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(page, perPage), ct);
 
         return Ok(productCategory);
     }

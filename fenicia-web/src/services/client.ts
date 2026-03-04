@@ -1,9 +1,7 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
+import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
-// API Base URLs from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:5144';
-const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5083';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5144';
+export const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:5144';
 
 // Storage keys
 const TOKEN_KEY = 'auth_token';
@@ -15,10 +13,8 @@ const COMPANY_ID_KEY = 'company_id';
  */
 export class ApiClient {
   protected client: AxiosInstance;
-  protected baseURL: string;
 
   constructor(baseURL: string = API_BASE_URL) {
-    this.baseURL = baseURL;
     this.client = axios.create({
       baseURL,
       headers: {
@@ -84,11 +80,11 @@ export class ApiClient {
         const token = this.getToken();
         const companyId = this.getCompanyId();
 
-        if (token) {
+        if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
-        if (companyId) {
+        if (companyId && config.headers) {
           config.headers['x-company'] = companyId;
         }
 
@@ -99,7 +95,7 @@ export class ApiClient {
 
     // Response interceptor: Handle 401 errors
     this.client.interceptors.response.use(
-      (response) => response,
+      (response: AxiosResponse) => response,
       (error: AxiosError) => {
         if (error.response?.status === 401) {
           this.clearAuth();
@@ -113,15 +109,8 @@ export class ApiClient {
   /**
    * Get the underlying axios instance
    */
-  protected getClient(): AxiosInstance {
+  public getClient(): AxiosInstance {
     return this.client;
-  }
-
-  /**
-   * Get the base URL
-   */
-  protected getBaseURL(): string {
-    return this.baseURL;
   }
 }
 
@@ -161,8 +150,5 @@ export const clearAuth = (): void => {
 
 // Default instance for backward compatibility
 export const client = new DefaultApiClient().getClient();
-
-// Export base URLs for use in other services
-export { API_BASE_URL, AUTH_API_BASE_URL, BASIC_API_BASE_URL };
 
 export default client;

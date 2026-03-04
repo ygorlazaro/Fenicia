@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { CPagination, CPaginationItem, CFormSelect } from '@coreui/react';
+import { CPagination, CFormSelect } from '@coreui/react';
 
 const PAGE_SIZE_OPTIONS = [2, 10, 20, 50, 100];
 
@@ -8,19 +8,9 @@ const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = 
     const { t } = useTranslation();
     const { page, perPage, total, pages } = pagination;
 
-    const totalPages = pages || Math.ceil(total / perPage) || 1;
-
-    const handlePrevious = () => {
-        if (page > 1) {
-            onPageChange(page - 1);
-        }
-    };
-
-    const handleNext = () => {
-        if (page < totalPages) {
-            onPageChange(page + 1);
-        }
-    };
+    const totalPages = Math.ceil(total / perPage) || 1;
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
 
     const renderPageNumbers = () => {
         const items = [];
@@ -34,13 +24,14 @@ const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = 
 
         for (let i = startPage; i <= endPage; i++) {
             items.push(
-                <CPaginationItem
-                    key={i}
-                    active={i === page}
+                <li 
+                    key={i} 
+                    className={`page-item ${i === page ? 'active' : ''}`}
+                    style={{ cursor: 'pointer' }}
                     onClick={() => onPageChange(i)}
                 >
-                    {i}
-                </CPaginationItem>
+                    <span className="page-link">{i}</span>
+                </li>
             );
         }
 
@@ -73,17 +64,39 @@ const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = 
                 )}
             </div>
             <CPagination>
-                <CPaginationItem
-                    onClick={handlePrevious}
+                <li 
+                    className={`page-item ${!hasPrevPage ? 'disabled' : ''}`}
+                    style={{ 
+                        pointerEvents: hasPrevPage ? 'auto' : 'none',
+                        opacity: hasPrevPage ? 1 : 0.5
+                    }}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        if (hasPrevPage) {
+                            console.log('Clicked Previous, going to page:', page - 1);
+                            onPageChange(page - 1);
+                        }
+                    }}
                 >
-                    {t('common.previous')}
-                </CPaginationItem>
+                    <a className="page-link" href="#" style={{ pointerEvents: 'none' }}>{t('common.previous')}</a>
+                </li>
                 {renderPageNumbers()}
-                <CPaginationItem
-                    onClick={handleNext}
+                <li 
+                    className={`page-item ${!hasNextPage ? 'disabled' : ''}`}
+                    style={{ 
+                        pointerEvents: hasNextPage ? 'auto' : 'none',
+                        opacity: hasNextPage ? 1 : 0.5
+                    }}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        if (hasNextPage) {
+                            console.log('Clicked Next, going to page:', page + 1);
+                            onPageChange(page + 1);
+                        }
+                    }}
                 >
-                    {t('common.next')}
-                </CPaginationItem>
+                    <a className="page-link" href="#" style={{ pointerEvents: 'none' }}>{t('common.next')}</a>
+                </li>
             </CPagination>
         </div>
     );

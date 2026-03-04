@@ -3,11 +3,12 @@ import {
     CButton, CCard, CCardBody, CCardHeader, CContainer, CTable, CTableBody, CTableDataCell,
     CTableHead, CTableHeaderCell, CTableRow, CModal, CModalBody, CModalFooter, CModalHeader,
     CModalTitle, CSpinner, CAlert, CForm, CFormInput, CFormLabel,
-    CFormSelect, CFormTextarea, CRow, CCol
+    CFormSelect, CFormTextarea, CRow, CCol, CInputGroup, CInputGroupText
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
+import { cilPencil, cilTrash, cilPlus, cilWarning, cilSearch } from '@coreui/icons';
 import { BasicCustomerClient, BasicSupplierClient, BasicProductCategoryClient, BasicProductClient } from '../../../services/basic-crud-clients';
+import { fetchAddressByCep } from '../../../services/cep-client';
 import Pagination from '../../../components/Pagination';
 
 const customerClient = new BasicCustomerClient();
@@ -42,12 +43,13 @@ const GenericCrud = ({ entityType, client, columns, formFields, title }) => {
         try {
             setLoading(true);
             const response = await client.getAll(pagination.page, pagination.perPage);
-            const itemsList = Array.isArray(response) ? response : (response?.data || []);
+            const isPaginated = response && response.data && Array.isArray(response.data);
+            const itemsList = isPaginated ? response.data : (Array.isArray(response) ? response : []);
             setItems(itemsList);
             setPagination(prev => ({
                 ...prev,
                 total: response?.total || itemsList.length,
-                pages: response?.pages || 1
+                pages: Math.ceil((response?.total || itemsList.length) / prev.perPage) || 1
             }));
         } catch (err) {
             setError(err.response?.data?.title || `Falha ao carregar ${title}.`);
@@ -133,6 +135,27 @@ const GenericCrud = ({ entityType, client, columns, formFields, title }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleCepChange = async (e) => {
+        const { name, value } = e.target;
+        const cleanCep = value.replace(/\D/g, '');
+        setFormData(prev => ({ ...prev, [name]: value }));
+
+        if (cleanCep.length === 8) {
+            const address = await fetchAddressByCep(cleanCep);
+            if (address) {
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: address.cep,
+                    state: address.state,
+                    city: address.city,
+                    neighborhood: address.neighborhood,
+                    street: address.street,
+                    complement: address.complement || prev.complement || ''
+                }));
+            }
+        }
+    };
+
     return (
         <CContainer className="py-4">
             {error && <CAlert color="danger" dismissible onClose={() => setError(null)}>{error}</CAlert>}
@@ -200,6 +223,40 @@ const GenericCrud = ({ entityType, client, columns, formFields, title }) => {
                                         {field.options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                                     </CFormSelect>
                                 </div>
+                            ) : field.type === 'cep' ? (
+                                <div className="mb-3" key={idx}>
+                                    <CFormLabel htmlFor={field.name}>{field.label}{field.required ? ' *' : ''}</CFormLabel>
+                                    <CInputGroup>
+                                        <CFormInput 
+                                            type="text" 
+                                            id={field.name} 
+                                            name={field.name} 
+                                            value={formData[field.name] || ''} 
+                                            onChange={handleCepChange}
+                                            placeholder="00000-000"
+                                            required={field.required}
+                                            maxLength={9}
+                                        />
+                                        <CInputGroupText style={{ cursor: 'pointer' }} onClick={async () => {
+                                            const cleanCep = (formData[field.name] || '').replace(/\D/g, '');
+                                            if (cleanCep.length === 8) {
+                                                const address = await fetchAddressByCep(cleanCep);
+                                                if (address) {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        state: address.state,
+                                                        city: address.city,
+                                                        neighborhood: address.neighborhood,
+                                                        street: address.street,
+                                                        complement: address.complement || prev.complement || ''
+                                                    }));
+                                                }
+                                            }
+                                        }}>
+                                            <CIcon icon={cilSearch} />
+                                        </CInputGroupText>
+                                    </CInputGroup>
+                                </div>
                             ) : field.type === 'textarea' ? (
                                 <div className="mb-3" key={idx}>
                                     <CFormLabel htmlFor={field.name}>{field.label}{field.required ? ' *' : ''}</CFormLabel>
@@ -252,6 +309,13 @@ const CustomerCrud = () => (
             { name: 'email', label: 'E-mail', type: 'email', required: true },
             { name: 'phone', label: 'Telefone' },
             { name: 'document', label: 'Documento' },
+            { name: 'zipCode', label: 'CEP', type: 'cep' },
+            { name: 'state', label: 'Estado' },
+            { name: 'city', label: 'Cidade' },
+            { name: 'neighborhood', label: 'Bairro' },
+            { name: 'street', label: 'Rua' },
+            { name: 'number', label: 'Número' },
+            { name: 'complement', label: 'Complemento' },
             { name: 'address', label: 'Endereço', type: 'textarea' }
         ]}
     />
@@ -274,6 +338,13 @@ const SupplierCrud = () => (
             { name: 'email', label: 'E-mail', type: 'email', required: true },
             { name: 'phone', label: 'Telefone' },
             { name: 'document', label: 'Documento' },
+            { name: 'zipCode', label: 'CEP', type: 'cep' },
+            { name: 'state', label: 'Estado' },
+            { name: 'city', label: 'Cidade' },
+            { name: 'neighborhood', label: 'Bairro' },
+            { name: 'street', label: 'Rua' },
+            { name: 'number', label: 'Número' },
+            { name: 'complement', label: 'Complemento' },
             { name: 'address', label: 'Endereço', type: 'textarea' }
         ]}
     />
