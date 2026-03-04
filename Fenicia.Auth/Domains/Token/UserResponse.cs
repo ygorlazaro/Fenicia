@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Fenicia.Common.Data.Models;
 
 namespace Fenicia.Auth.Domains.Token;
@@ -19,9 +20,12 @@ public class UserResponse
 
     }
 
+    [JsonPropertyName("id")]
+    public Guid Id { get; set; }
+
+    [JsonPropertyName("name")]
     public string Name { get; set; }
 
+    [JsonPropertyName("email")]
     public string Email { get; set; }
-
-    public Guid Id { get; set; }
 }

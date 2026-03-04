@@ -107,6 +107,7 @@ public class DefaultContext : DbContext
                     break;
                 case EntityState.Deleted:
                     model.Deleted = DateTime.UtcNow;
+                    item.State = EntityState.Modified;
                     break;
             }
         }
@@ -136,22 +137,40 @@ public class DefaultContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
-        SoftDeleteQueryExtension.AddSoftDeleteSupport(modelBuilder);
-        ApplyCompanyFilter(modelBuilder);
+        ApplyFilters(modelBuilder);
+
+        modelBuilder.Entity<BasicCustomerModel>()
+            .HasOne(c => c.PersonModel)
+            .WithOne(p => p.Customer)
+            .HasForeignKey<BasicCustomerModel>(c => c.PersonId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<BasicEmployeeModel>()
+            .HasOne(e => e.PersonModel)
+            .WithOne(p => p.Employee)
+            .HasForeignKey<BasicEmployeeModel>(e => e.PersonId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);
     }
 
-
-    private void ApplyCompanyFilter(ModelBuilder modelBuilder)
+    private void ApplyFilters(ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             if (typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
             {
                 var method = typeof(DefaultContext)
-                    .GetMethod(nameof(SetCompanyFilter),
-                        BindingFlags.NonPublic | BindingFlags.Instance)!
+                    .GetMethod(nameof(SetFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
+                    .MakeGenericMethod(entityType.ClrType);
+
+                method.Invoke(this, new object[] { modelBuilder });
+            }
+            else if (typeof(BaseModel).IsAssignableFrom(entityType.ClrType) && 
+                     !typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
+            {
+                var method = typeof(DefaultContext)
+                    .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
                     .MakeGenericMethod(entityType.ClrType);
 
                 method.Invoke(this, new object[] { modelBuilder });
@@ -159,12 +178,18 @@ public class DefaultContext : DbContext
         }
     }
 
-    private void SetCompanyFilter<TEntity>(ModelBuilder modelBuilder)
+    private void SetFilter<TEntity>(ModelBuilder modelBuilder)
         where TEntity : BaseCompanyModel
     {
         modelBuilder.Entity<TEntity>()
-            .HasQueryFilter(e =>
-                this.CurrentCompanyId == null ||
-                e.CompanyId == this.CurrentCompanyId);
+            .HasQueryFilter(e => (this.CurrentCompanyId == null || e.CompanyId == this.CurrentCompanyId) 
+                              && e.Deleted == null);
+    }
+
+    private void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder)
+        where TEntity : BaseModel
+    {
+        modelBuilder.Entity<TEntity>()
+            .HasQueryFilter(e => e.Deleted == null);
     }
 }

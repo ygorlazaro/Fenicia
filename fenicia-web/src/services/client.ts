@@ -77,7 +77,7 @@ export class ApiClient {
   /**
    * Setup request and response interceptors
    */
-  private setupInterceptors(): void {
+  protected setupInterceptors(): void {
     // Request interceptor: Add Authorization header and x-company header
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
