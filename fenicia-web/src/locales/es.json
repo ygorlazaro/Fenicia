@@ -235,12 +235,14 @@
     "new": "Nueva Categoría",
     "edit": "Editar Categoría",
     "name": "Nombre",
-    "description": "Descripción",
     "deleteConfirm": "¿Está seguro de que desea eliminar la categoría {{name}}?",
+    "deleteWarning": "Esta acción no se puede deshacer.",
     "createSuccess": "¡Categoría creada exitosamente!",
     "updateSuccess": "¡Categoría actualizada exitosamente!",
     "deleteSuccess": "¡Categoría eliminada exitosamente!",
-    "loadError": "Error al cargar las categorías."
+    "loadError": "Error al cargar las categorías.",
+    "saveError": "Error al guardar la categoría.",
+    "requiredFields": "Nombre es requerido."
   },
   "projects": {
     "title": "Proyectos",

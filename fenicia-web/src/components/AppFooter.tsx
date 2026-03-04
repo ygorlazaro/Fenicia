@@ -8,7 +8,7 @@ const AppFooter = () => {
         <a href="https://fenicia.gatoninja.com.br" target="_blank" rel="noopener noreferrer">
           Fenicia @ Gato Ninja Site
         </a>
-        <span className="ms-1">&copy; 2025 Gato Ninja.</span>
+        <span className="ms-1">&copy; 2026 Gato Ninja.</span>
       </div>
       <div className="ms-auto">
         <span className="me-1">Powered By</span>

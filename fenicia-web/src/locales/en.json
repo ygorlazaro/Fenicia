@@ -235,12 +235,14 @@
     "new": "New Category",
     "edit": "Edit Category",
     "name": "Name",
-    "description": "Description",
     "deleteConfirm": "Are you sure you want to delete the category {{name}}?",
+    "deleteWarning": "This action cannot be undone.",
     "createSuccess": "Category created successfully!",
     "updateSuccess": "Category updated successfully!",
     "deleteSuccess": "Category deleted successfully!",
-    "loadError": "Failed to load categories."
+    "loadError": "Failed to load categories.",
+    "saveError": "Failed to save category.",
+    "requiredFields": "Name is required."
   },
   "projects": {
     "title": "Projects",

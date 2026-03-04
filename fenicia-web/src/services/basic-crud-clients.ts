@@ -121,27 +121,27 @@ export class BasicProductCategoryClient extends ApiClient {
   }
 
   async getAll(page: number = 1, perPage: number = 10): Promise<any> {
-    const response = await this.getClient().get('/product-category', { params: { page, perPage } });
+    const response = await this.getClient().get('/productcategory', { params: { page, perPage } });
     return (response as AxiosResponse).data;
   }
 
   async getById(id: string): Promise<any> {
-    const response = await this.getClient().get(`/product-category/${id}`);
+    const response = await this.getClient().get(`/productcategory/${id}`);
     return (response as AxiosResponse).data;
   }
 
   async create(category: any): Promise<any> {
-    const response = await this.getClient().post('/product-category', category);
+    const response = await this.getClient().post('/productcategory', category);
     return (response as AxiosResponse).data;
   }
 
   async update(id: string, category: any): Promise<any> {
-    const response = await this.getClient().patch(`/product-category/${id}`, category);
+    const response = await this.getClient().patch(`/productcategory/${id}`, category);
     return (response as AxiosResponse).data;
   }
 
   async delete(id: string): Promise<void> {
-    await this.getClient().delete(`/product-category/${id}`);
+    await this.getClient().delete(`/productcategory/${id}`);
   }
 }
 
