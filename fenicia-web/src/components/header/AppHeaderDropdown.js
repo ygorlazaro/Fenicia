@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   CAvatar,
   CDropdown,
@@ -9,11 +10,12 @@ import {
   CDropdownToggle,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilUser, cilAccountLogout } from '@coreui/icons';
+import { cilUser, cilAccountLogout, cilBuilding } from '@coreui/icons';
 import { clearAuth, getCompanyId, getToken } from '../../services/client';
 
-const AppHeaderDropdown = () => {
+const AppHeaderDropdown = ({ onCompanySelect }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [userName, setUserName] = useState('');
   const [companyName, setCompanyName] = useState('');
 
@@ -23,10 +25,10 @@ const AppHeaderDropdown = () => {
     if (token) {
       try {
         const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-        setUserName(tokenPayload.name || tokenPayload.email || 'Usuário');
+        setUserName(tokenPayload.name || tokenPayload.email || t('auth.welcome'));
       } catch (err) {
         console.error('Failed to parse token:', err);
-        setUserName('Usuário');
+        setUserName(t('auth.welcome'));
       }
     }
 
@@ -36,9 +38,9 @@ const AppHeaderDropdown = () => {
     if (companyId && companyNameStored) {
       setCompanyName(companyNameStored);
     } else if (companyId) {
-      setCompanyName('Empresa');
+      setCompanyName(t('auth.selectCompany'));
     }
-  }, []);
+  }, [t]);
 
   const handleLogout = () => {
     clearAuth();
@@ -47,6 +49,12 @@ const AppHeaderDropdown = () => {
 
   const handleProfile = () => {
     navigate('/profile');
+  };
+
+  const handleCompanySelect = () => {
+    if (onCompanySelect) {
+      onCompanySelect();
+    }
   };
 
   return (
@@ -59,16 +67,27 @@ const AppHeaderDropdown = () => {
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <div className="p-3">
           <div className="fw-semibold">{userName}</div>
-          <small className="text-muted">{companyName}</small>
+          <small 
+            className="text-muted" 
+            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+            onClick={handleCompanySelect}
+            title={t('auth.selectCompany')}
+          >
+            {companyName}
+          </small>
         </div>
         <CDropdownDivider />
         <CDropdownItem onClick={handleProfile}>
           <CIcon icon={cilUser} className="me-2" />
-          Perfil
+          {t('menu.profile')}
+        </CDropdownItem>
+        <CDropdownItem onClick={handleCompanySelect}>
+          <CIcon icon={cilBuilding} className="me-2" />
+          {t('auth.selectCompany')}
         </CDropdownItem>
         <CDropdownItem onClick={handleLogout}>
           <CIcon icon={cilAccountLogout} className="me-2" />
-          Sair
+          {t('auth.logout')}
         </CDropdownItem>
       </CDropdownMenu>
     </CDropdown>

@@ -21,7 +21,10 @@
     "previous": "Anterior",
     "perPage": "por página",
     "selectPageSize": "Seleccionar tamaño de página",
-    "default": "Predeterminado"
+    "default": "Predeterminado",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "auto": "Automático"
   },
   "auth": {
     "login": {
