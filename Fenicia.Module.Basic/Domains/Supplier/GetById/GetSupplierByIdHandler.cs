@@ -8,8 +8,26 @@ public class GetSupplierByIdHandler(DefaultContext context)
 {
     public async Task<GetSupplierByIdResponse?> Handle(GetSupplierByIdQuery query, CancellationToken ct)
     {
-        return await context.BasicSuppliers
-            .Select(s => new GetSupplierByIdResponse(s.Id, s.Cnpj))
+        var supplier = await context.BasicSuppliers
+            .Include(s => s.PersonModel)
             .FirstOrDefaultAsync(s => s.Id == query.Id, ct);
+
+        if (supplier is null)
+            return null;
+
+        return new GetSupplierByIdResponse(
+            supplier.Id,
+            supplier.PersonId,
+            supplier.PersonModel.Name,
+            supplier.PersonModel.Email,
+            supplier.PersonModel.PhoneNumber,
+            supplier.PersonModel.Document,
+            supplier.PersonModel.Street,
+            supplier.PersonModel.Number,
+            supplier.PersonModel.Complement,
+            supplier.PersonModel.Neighborhood,
+            supplier.PersonModel.ZipCode,
+            supplier.PersonModel.StateId,
+            supplier.PersonModel.City);
     }
 }

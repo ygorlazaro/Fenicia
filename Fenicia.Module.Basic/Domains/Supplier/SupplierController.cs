@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Common;
 using Fenicia.Module.Basic.Domains.Supplier.Add;
 using Fenicia.Module.Basic.Domains.Supplier.Delete;
 using Fenicia.Module.Basic.Domains.Supplier.GetAll;
@@ -24,9 +25,12 @@ public class SupplierController(
     DeleteSupplierHandler deleteSupplierHandler) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllSupplierResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllSupplierResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllSupplierResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<Pagination<List<GetAllSupplierResponse>>>> GetAsync(
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        CancellationToken ct = default)
     {
         var suppliers = await getAllSupplierHandler.Handle(new GetAllSupplierQuery(page, perPage), ct);
 

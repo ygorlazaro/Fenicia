@@ -196,11 +196,21 @@
     "email": "Email",
     "phone": "Phone",
     "address": "Address",
+    "zipCode": "ZIP Code",
+    "state": "State",
+    "city": "City",
+    "neighborhood": "Neighborhood",
+    "street": "Street",
+    "number": "Number",
+    "complement": "Complement",
     "deleteConfirm": "Are you sure you want to delete the supplier {{name}}?",
+    "deleteWarning": "This action cannot be undone.",
     "createSuccess": "Supplier created successfully!",
     "updateSuccess": "Supplier updated successfully!",
     "deleteSuccess": "Supplier deleted successfully!",
-    "loadError": "Failed to load suppliers."
+    "loadError": "Failed to load suppliers.",
+    "saveError": "Failed to save supplier.",
+    "requiredFields": "Name and email are required."
   },
   "products": {
     "title": "Products",

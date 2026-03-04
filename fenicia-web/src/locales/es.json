@@ -196,11 +196,21 @@
     "email": "Correo electrónico",
     "phone": "Teléfono",
     "address": "Dirección",
+    "zipCode": "Código Postal",
+    "state": "Estado",
+    "city": "Ciudad",
+    "neighborhood": "Barrio",
+    "street": "Calle",
+    "number": "Número",
+    "complement": "Complemento",
     "deleteConfirm": "¿Está seguro de que desea eliminar al proveedor {{name}}?",
+    "deleteWarning": "Esta acción no se puede deshacer.",
     "createSuccess": "¡Proveedor creado exitosamente!",
     "updateSuccess": "¡Proveedor actualizado exitosamente!",
     "deleteSuccess": "¡Proveedor eliminado exitosamente!",
-    "loadError": "Error al cargar los proveedores."
+    "loadError": "Error al cargar los proveedores.",
+    "saveError": "Error al guardar el proveedor.",
+    "requiredFields": "Nombre y correo electrónico son requeridos."
   },
   "products": {
     "title": "Productos",
