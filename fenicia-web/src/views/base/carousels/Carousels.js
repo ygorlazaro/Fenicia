@@ -108,7 +108,7 @@ const Carousels = () => {
               You can add captions to slides with the <code>&lt;CCarouselCaption&gt;</code> element
               within any <code>&lt;CCarouselItem&gt;</code>. They can be immediately hidden on
               smaller viewports, as shown below, with optional{' '}
-              <a href="https://coreui.io//utilities/display">display utilities</a>. We hide them
+              <a href="https://fenicia.gatoninja.com.br/docs/utilities/display">display utilities</a>. We hide them
               with <code>.d-none</code> and draw them back on medium-sized devices with{' '}
               <code>.d-md-block</code>.
             </p>

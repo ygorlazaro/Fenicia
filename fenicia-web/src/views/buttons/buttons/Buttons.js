@@ -15,9 +15,9 @@ const Buttons = () => {
           </CCardHeader>
           <CCardBody>
             <p className="text-body-secondary small">
-              CoreUI includes a bunch of predefined buttons components, each serving its own
+              Fenicia includes a bunch of predefined buttons components, each serving its own
               semantic purpose. Buttons show what action will happen when the user clicks or touches
-              it. CoreUI buttons are used to initialize operations, both in the background or
+              it. Fenicia buttons are used to initialize operations, both in the background or
               foreground of an experience.
             </p>
             <DocsExample href="components/buttons">
@@ -61,7 +61,7 @@ const Buttons = () => {
           </CCardHeader>
           <CCardBody>
             <p className="text-body-secondary small">
-              You can combine button with our <a href="https://coreui.io/icons/">CoreUI Icons</a>.
+              You can combine button with our <a href="https://fenicia.gatoninja.com.br/docs/icons/">Fenicia Icons</a>.
             </p>
             <DocsExample href="components/buttons">
               {['normal', 'active', 'disabled'].map((state, index) => (
@@ -324,8 +324,8 @@ const Buttons = () => {
             </p>
             <p className="text-body-secondary small">
               <code>&lt;a&gt;</code>s don&#39;tsupport the <code>disabled</code> attribute, so
-              CoreUI has to add <code>.disabled</code> className to make buttons look inactive.
-              CoreUI also has to add to the disabled button component{' '}
+              Fenicia has to add <code>.disabled</code> className to make buttons look inactive.
+              Fenicia also has to add to the disabled button component{' '}
               <code>aria-disabled=&#34;true&#34;</code> attribute to show the state of the component
               to assistive technologies.
             </p>

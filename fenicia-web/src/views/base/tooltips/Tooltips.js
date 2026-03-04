@@ -40,7 +40,7 @@ const Tooltips = () => {
             </DocsExample>
             <p className="text-body-secondary small">
               Hover over the buttons below to see the four tooltips directions: top, right, bottom,
-              and left. Directions are mirrored when using CoreUI in RTL.
+              and left. Directions are mirrored when using Fenicia in RTL.
             </p>
             <DocsExample href="components/tooltip">
               <CTooltip

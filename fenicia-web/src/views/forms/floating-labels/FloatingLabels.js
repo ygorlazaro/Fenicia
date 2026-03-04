@@ -132,7 +132,7 @@ const FloatingLabels = () => {
           </CCardHeader>
           <CCardBody>
             <p className="text-body-secondary small">
-              When working with the CoreUI for Bootstrap grid system, be sure to place form elements
+              When working with the Fenicia for Bootstrap grid system, be sure to place form elements
               within column classes.
             </p>
             <DocsExample href="forms/floating-labels#layout">

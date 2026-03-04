@@ -1,9 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { CPagination, CPaginationItem, CFormSelect } from '@coreui/react';
 
 const PAGE_SIZE_OPTIONS = [2, 10, 20, 50, 100];
 
 const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = true }) => {
+    const { t } = useTranslation();
     const { page, perPage, total, pages } = pagination;
 
     const totalPages = pages || Math.ceil(total / perPage) || 1;
@@ -50,8 +52,8 @@ const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = 
             <div className="d-flex align-items-center">
                 <span className="text-muted me-2">
                     {total > 0 
-                        ? `Mostrando ${((page - 1) * perPage) + 1}-${Math.min(page * perPage, total)} de ${total}`
-                        : 'Nenhum registro encontrado'
+                        ? t('common.showing', { start: ((page - 1) * perPage) + 1, end: Math.min(page * perPage, total), total })
+                        : t('common.noData')
                     }
                 </span>
                 {showPageSize && (
@@ -60,11 +62,11 @@ const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = 
                         value={perPage}
                         onChange={(e) => onPerPageChange(parseInt(e.target.value, 10))}
                         style={{ width: 'auto' }}
-                        aria-label="Seleccionar tamanho da página"
+                        aria-label={t('common.selectPageSize')}
                     >
                         {PAGE_SIZE_OPTIONS.map(size => (
                             <option key={size} value={size}>
-                                {size} por página
+                                {size} {t('common.perPage')}
                             </option>
                         ))}
                     </CFormSelect>
@@ -74,13 +76,13 @@ const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = 
                 <CPaginationItem
                     onClick={handlePrevious}
                 >
-                    Anterior
+                    {t('common.previous')}
                 </CPaginationItem>
                 {renderPageNumbers()}
                 <CPaginationItem
                     onClick={handleNext}
                 >
-                    Próximo
+                    {t('common.next')}
                 </CPaginationItem>
             </CPagination>
         </div>

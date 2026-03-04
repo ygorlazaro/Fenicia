@@ -1,5 +1,5 @@
 import React from 'react'
-import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
+import { AppContent, AppSidebar, AppFooter, AppHeader, PWAInstallPrompt } from '../components/index'
 
 const DefaultLayout = () => {
   return (
@@ -11,6 +11,7 @@ const DefaultLayout = () => {
           <AppContent />
         </div>
         <AppFooter />
+        <PWAInstallPrompt />
       </div>
     </div>
   )

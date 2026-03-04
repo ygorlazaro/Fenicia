@@ -625,7 +625,7 @@ const Widgets = () => {
                 footer={
                   <CLink
                     className="font-weight-bold font-xs text-body-secondary"
-                    href="https://coreui.io/"
+                    href="https://fenicia.gatoninja.com.br/"
                     rel="noopener norefferer"
                     target="_blank"
                   >
@@ -644,7 +644,7 @@ const Widgets = () => {
                 footer={
                   <CLink
                     className="font-weight-bold font-xs text-body-secondary"
-                    href="https://coreui.io/"
+                    href="https://fenicia.gatoninja.com.br/"
                     rel="noopener norefferer"
                     target="_blank"
                   >
@@ -663,7 +663,7 @@ const Widgets = () => {
                 footer={
                   <CLink
                     className="font-weight-bold font-xs text-body-secondary"
-                    href="https://coreui.io/"
+                    href="https://fenicia.gatoninja.com.br/"
                     rel="noopener norefferer"
                     target="_blank"
                   >
@@ -682,7 +682,7 @@ const Widgets = () => {
                 footer={
                   <CLink
                     className="font-weight-bold font-xs text-body-secondary"
-                    href="https://coreui.io/"
+                    href="https://fenicia.gatoninja.com.br/"
                     rel="noopener norefferer"
                     target="_blank"
                   >

@@ -260,7 +260,7 @@ const Validation = () => {
           </CCardHeader>
           <CCardBody>
             <p className="text-body-secondary small">
-              For custom CoreUI form validation messages, you&#39;ll need to add the{' '}
+              For custom Fenicia form validation messages, you&#39;ll need to add the{' '}
               <code>noValidate</code> boolean property to your <code>&lt;CForm&gt;</code>. This
               disables the browser default feedback tooltips, but still provides access to the form
               validation APIs in JavaScript. Try to submit the form below; our JavaScript will
