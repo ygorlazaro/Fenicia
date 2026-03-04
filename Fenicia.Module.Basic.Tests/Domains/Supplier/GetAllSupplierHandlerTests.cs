@@ -47,13 +47,22 @@ public class GetAllSupplierHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
+        Assert.That(result.Total, Is.EqualTo(0));
     }
 
     [Test]
     public async Task Handle_WithSuppliers_ReturnsAllSuppliers()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         var supplier1 = new BasicSupplierModel
         {
             Id = Guid.NewGuid(),
@@ -62,7 +71,15 @@ public class GetAllSupplierHandlerTests
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
-                Email = this.faker.Internet.Email()
+                Email = this.faker.Internet.Email(),
+                Document = this.faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = this.faker.Phone.PhoneNumber(),
+                Street = this.faker.Address.StreetName(),
+                Number = this.faker.Random.Replace("####"),
+                ZipCode = this.faker.Address.ZipCode(),
+                StateId = state.Id,
+                StateModel = state,
+                City = this.faker.Address.City()
             }
         };
 
@@ -74,7 +91,15 @@ public class GetAllSupplierHandlerTests
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
-                Email = this.faker.Internet.Email()
+                Email = this.faker.Internet.Email(),
+                Document = this.faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = this.faker.Phone.PhoneNumber(),
+                Street = this.faker.Address.StreetName(),
+                Number = this.faker.Random.Replace("####"),
+                ZipCode = this.faker.Address.ZipCode(),
+                StateId = state.Id,
+                StateModel = state,
+                City = this.faker.Address.City()
             }
         };
 
@@ -88,13 +113,32 @@ public class GetAllSupplierHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result.Data, Has.Count.EqualTo(2));
+        Assert.That(result.Total, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data[0].PersonId, Is.EqualTo(supplier1.PersonModel.Id));
+            Assert.That(result.Data[0].Name, Is.EqualTo(supplier1.PersonModel.Name));
+            Assert.That(result.Data[0].Email, Is.EqualTo(supplier1.PersonModel.Email));
+
+            Assert.That(result.Data[1].PersonId, Is.EqualTo(supplier2.PersonModel.Id));
+            Assert.That(result.Data[1].Name, Is.EqualTo(supplier2.PersonModel.Name));
+            Assert.That(result.Data[1].Email, Is.EqualTo(supplier2.PersonModel.Email));
+        }
     }
 
     [Test]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         for (var i = 0; i < 25; i++)
         {
             var supplier = new BasicSupplierModel
@@ -104,7 +148,16 @@ public class GetAllSupplierHandlerTests
                 PersonModel = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
-                    Name = $"{this.faker.Company.CompanyName()} {i}"
+                    Name = $"{this.faker.Company.CompanyName()} {i}",
+                    Email = this.faker.Internet.Email(),
+                    Document = this.faker.Random.Replace("###.###.###-##"),
+                    PhoneNumber = this.faker.Phone.PhoneNumber(),
+                    Street = this.faker.Address.StreetName(),
+                    Number = this.faker.Random.Replace("####"),
+                    ZipCode = this.faker.Address.ZipCode(),
+                    StateId = state.Id,
+                    StateModel = state,
+                    City = this.faker.Address.City()
                 }
             };
             this.context.BasicSuppliers.Add(supplier);
@@ -119,6 +172,105 @@ public class GetAllSupplierHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.That(result.Data, Has.Count.EqualTo(10));
+        Assert.That(result.Total, Is.EqualTo(25));
+    }
+
+    [Test]
+    public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
+    {
+        // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
+        for (var i = 0; i < 5; i++)
+        {
+            var supplier = new BasicSupplierModel
+            {
+                Id = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
+                PersonModel = new BasicPersonModel
+                {
+                    Id = Guid.NewGuid(),
+                    Name = $"{this.faker.Company.CompanyName()} {i}",
+                    Email = this.faker.Internet.Email(),
+                    Document = this.faker.Random.Replace("###.###.###-##"),
+                    PhoneNumber = this.faker.Phone.PhoneNumber(),
+                    Street = this.faker.Address.StreetName(),
+                    Number = this.faker.Random.Replace("####"),
+                    ZipCode = this.faker.Address.ZipCode(),
+                    StateId = state.Id,
+                    StateModel = state,
+                    City = this.faker.Address.City()
+                }
+            };
+            this.context.BasicSuppliers.Add(supplier);
+        }
+
+        await this.context.SaveChangesAsync(CancellationToken.None);
+
+        var query = new GetAllSupplierQuery(10);
+
+        // Act
+        var result = await this.handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Data, Is.Empty);
+        Assert.That(result.Total, Is.EqualTo(5));
+    }
+
+    [Test]
+    public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
+    {
+        // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
+        for (var i = 0; i < 25; i++)
+        {
+            var supplier = new BasicSupplierModel
+            {
+                Id = Guid.NewGuid(),
+                PersonId = Guid.NewGuid(),
+                PersonModel = new BasicPersonModel
+                {
+                    Id = Guid.NewGuid(),
+                    Name = $"{this.faker.Company.CompanyName()} {i}",
+                    Email = this.faker.Internet.Email(),
+                    Document = this.faker.Random.Replace("###.###.###-##"),
+                    PhoneNumber = this.faker.Phone.PhoneNumber(),
+                    Street = this.faker.Address.StreetName(),
+                    Number = this.faker.Random.Replace("####"),
+                    ZipCode = this.faker.Address.ZipCode(),
+                    StateId = state.Id,
+                    StateModel = state,
+                    City = this.faker.Address.City()
+                }
+            };
+            this.context.BasicSuppliers.Add(supplier);
+        }
+
+        await this.context.SaveChangesAsync(CancellationToken.None);
+
+        var query = new GetAllSupplierQuery();
+
+        // Act
+        var result = await this.handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Data, Has.Count.EqualTo(10));
+        Assert.That(result.Total, Is.EqualTo(25));
     }
 }

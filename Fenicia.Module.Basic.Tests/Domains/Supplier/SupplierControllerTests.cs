@@ -109,15 +109,24 @@ public class SupplierControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedSuppliers = okResult.Value as List<GetAllSupplierResponse>;
+        var returnedSuppliers = okResult.Value as Pagination<List<GetAllSupplierResponse>>;
         Assert.That(returnedSuppliers, Is.Not.Null);
-        Assert.That(returnedSuppliers, Is.Empty);
+        Assert.That(returnedSuppliers.Data, Is.Empty);
+        Assert.That(returnedSuppliers.Total, Is.EqualTo(0));
     }
 
     [Test]
     public async Task GetAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         var supplier1 = new BasicSupplierModel
         {
             Id = Guid.NewGuid(),
@@ -135,7 +144,8 @@ public class SupplierControllerTests
                 Complement = "Suite 100",
                 Neighborhood = this.faker.Address.CityPrefix(),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
+                StateId = state.Id,
+                StateModel = state,
                 City = this.faker.Address.City()
             }
         };
@@ -157,7 +167,8 @@ public class SupplierControllerTests
                 Complement = "Suite 200",
                 Neighborhood = this.faker.Address.CityPrefix(),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
+                StateId = state.Id,
+                StateModel = state,
                 City = this.faker.Address.City()
             }
         };
@@ -179,15 +190,31 @@ public class SupplierControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedSuppliers = okResult.Value as List<GetAllSupplierResponse>;
+        var returnedSuppliers = okResult.Value as Pagination<List<GetAllSupplierResponse>>;
         Assert.That(returnedSuppliers, Is.Not.Null);
-        Assert.That(returnedSuppliers, Has.Count.EqualTo(2));
+        Assert.That(returnedSuppliers.Data, Has.Count.EqualTo(2));
+        Assert.That(returnedSuppliers.Total, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedSuppliers.Data[0].Name, Is.EqualTo(supplier1.PersonModel.Name));
+            Assert.That(returnedSuppliers.Data[0].Email, Is.EqualTo(supplier1.PersonModel.Email));
+            Assert.That(returnedSuppliers.Data[1].Name, Is.EqualTo(supplier2.PersonModel.Name));
+            Assert.That(returnedSuppliers.Data[1].Email, Is.EqualTo(supplier2.PersonModel.Email));
+        }
     }
 
     [Test]
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsOkWithSupplier()
     {
         // Arrange
+        var state = new AuthStateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        this.context.AuthStates.Add(state);
+
         var supplier = new BasicSupplierModel
         {
             Id = this.testSupplierId,
@@ -205,7 +232,8 @@ public class SupplierControllerTests
                 Complement = "Suite 100",
                 Neighborhood = this.faker.Address.CityPrefix(),
                 ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
+                StateId = state.Id,
+                StateModel = state,
                 City = this.faker.Address.City()
             }
         };
@@ -230,7 +258,9 @@ public class SupplierControllerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedSupplier.Id, Is.EqualTo(this.testSupplierId));
-            Assert.That(returnedSupplier.Cnpj, Is.EqualTo(supplier.Cnpj));
+            Assert.That(returnedSupplier.PersonId, Is.EqualTo(supplier.PersonModel.Id));
+            Assert.That(returnedSupplier.Name, Is.EqualTo(supplier.PersonModel.Name));
+            Assert.That(returnedSupplier.Email, Is.EqualTo(supplier.PersonModel.Email));
         }
     }
 

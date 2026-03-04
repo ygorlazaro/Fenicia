@@ -197,11 +197,21 @@
     "email": "E-mail",
     "phone": "Telefone",
     "address": "Endereço",
+    "zipCode": "CEP",
+    "state": "Estado",
+    "city": "Cidade",
+    "neighborhood": "Bairro",
+    "street": "Rua",
+    "number": "Número",
+    "complement": "Complemento",
     "deleteConfirm": "Tem certeza que deseja excluir o fornecedor {{name}}?",
+    "deleteWarning": "Esta ação não pode ser desfeita.",
     "createSuccess": "Fornecedor criado com sucesso!",
     "updateSuccess": "Fornecedor atualizado com sucesso!",
     "deleteSuccess": "Fornecedor excluído com sucesso!",
-    "loadError": "Falha ao carregar fornecedores."
+    "loadError": "Falha ao carregar fornecedores.",
+    "saveError": "Falha ao salvar fornecedor.",
+    "requiredFields": "Nome e e-mail são obrigatórios."
   },
   "products": {
     "title": "Produtos",
