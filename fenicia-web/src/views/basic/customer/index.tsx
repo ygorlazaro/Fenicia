@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import {
     CButton,
     CCard,
@@ -30,6 +31,7 @@ const customerClient = new BasicCustomerClient();
 
 const Customers = () => {
     const { t } = useTranslation();
+    const [searchParams] = useSearchParams();
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,8 +53,23 @@ const Customers = () => {
     paginationRef.current = pagination;
 
     useEffect(() => {
+        const customerId = searchParams.get('id');
+        if (customerId) {
+            loadCustomerForEdit(customerId);
+        }
         loadCustomers();
     }, [pagination.page, pagination.perPage]);
+
+    const loadCustomerForEdit = async (customerId) => {
+        try {
+            const customer = await customerClient.getById(customerId);
+            setSelectedCustomer(customer);
+            setModalVisible(true);
+        } catch (err) {
+            console.error('Failed to load customer for edit:', err);
+            setError(t('customers.loadError'));
+        }
+    };
 
     const loadCustomers = async () => {
         try {

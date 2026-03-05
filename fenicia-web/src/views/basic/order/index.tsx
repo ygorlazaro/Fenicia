@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import {
     CButton,
     CCard,
@@ -30,18 +31,31 @@ import {
     CNavLink,
     CTabContent,
     CTabPane,
-    CTableFoot
+    CWidgetStatsA,
+    CProgress,
+    CListGroup,
+    CListGroupItem
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilPlus, cilTrash, cilWarning, cilCalendar, cilUser, cilCart } from '@coreui/icons';
+import { cilPlus, cilTrash, cilWarning, cilCalendar, cilUser, cilCart, cilChart, cilPeople, cilDollar, cilBan } from '@coreui/icons';
+import { CChartPie, CChartLine, CChartBar } from '@coreui/react-chartjs';
 import { BasicOrderClient, BasicDataSourceClient } from '../../../services/basic-crud-clients';
+import OrderAnalyticsClient from '../../../services/order-analytics-client';
 import Pagination from '../../../components/Pagination';
+import { getStyle } from '@coreui/utils';
 
 const orderClient = new BasicOrderClient();
 const dataSourceClient = new BasicDataSourceClient();
+const analyticsClient = new OrderAnalyticsClient();
 
 const Orders = () => {
     const { t } = useTranslation();
+    
+    // Tab state
+    const [activeTab, setActiveTab] = useState(0);
+    const [analyticsDays, setAnalyticsDays] = useState(90);
+
+    // Order list state
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,13 +65,14 @@ const Orders = () => {
         total: 0,
         pages: 0
     });
+
+    // Modal state
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [orderToDelete, setOrderToDelete] = useState(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
-    const [activeTab, setActiveTab] = useState(0);
 
     // Form state - Step 1 (Header)
     const [customerId, setCustomerId] = useState('');
@@ -77,6 +92,10 @@ const Orders = () => {
     const [employees, setEmployees] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
 
+    // Analytics state
+    const [analyticsLoading, setAnalyticsLoading] = useState(false);
+    const [analytics, setAnalytics] = useState(null);
+
     const paginationRef = useRef(pagination);
     paginationRef.current = pagination;
 
@@ -90,6 +109,12 @@ const Orders = () => {
     useEffect(() => {
         loadOrders();
     }, [pagination.page, pagination.perPage]);
+
+    useEffect(() => {
+        if (activeTab === 1) {
+            loadAnalytics();
+        }
+    }, [activeTab, analyticsDays]);
 
     const checkAdminRole = () => {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -147,6 +172,19 @@ const Orders = () => {
             setError(t('orders.loadError'));
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadAnalytics = async () => {
+        try {
+            setAnalyticsLoading(true);
+            const data = await analyticsClient.getAnalytics(analyticsDays);
+            setAnalytics(data);
+        } catch (err) {
+            console.error('Failed to load analytics:', err);
+            setError(t('orders.analyticsLoadError'));
+        } finally {
+            setAnalyticsLoading(false);
         }
     };
 
@@ -289,10 +327,6 @@ const Orders = () => {
         setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
-    const calculateTotal = () => {
-        return orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    };
-
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -317,6 +351,313 @@ const Orders = () => {
         }
     };
 
+    const getOrdersByStatusChartData = () => {
+        if (!analytics || analytics.ordersByStatus.length === 0) return null;
+
+        return {
+            labels: analytics.ordersByStatus.map(s => t(`orders.statusValues.${s.status.toLowerCase()}`)),
+            datasets: [
+                {
+                    label: t('orders.orders'),
+                    backgroundColor: [
+                        getStyle('--cui-warning'),
+                        getStyle('--cui-success'),
+                        getStyle('--cui-danger')
+                    ],
+                    data: analytics.ordersByStatus.map(s => s.count),
+                },
+            ],
+        };
+    };
+
+    const getSalesTrendChartData = () => {
+        if (!analytics || analytics.salesTrend.length === 0) return null;
+
+        return {
+            labels: analytics.salesTrend.map(s => s.period),
+            datasets: [
+                {
+                    label: t('orders.revenue'),
+                    backgroundColor: getStyle('--cui-primary'),
+                    borderColor: getStyle('--cui-primary'),
+                    data: analytics.salesTrend.map(s => s.totalValue),
+                    tension: 0.4,
+                },
+            ],
+        };
+    };
+
+    // Render Analytics Tab Content
+    const renderAnalyticsTab = () => {
+        if (analyticsLoading) {
+            return (
+                <div className="text-center py-5">
+                    <CSpinner color="primary" />
+                    <p className="mt-3">{t('common.loading')}</p>
+                </div>
+            );
+        }
+
+        if (!analytics) {
+            return (
+                <div className="text-center py-5">
+                    <p className="text-muted">{t('common.noData')}</p>
+                </div>
+            );
+        }
+
+        return (
+            <>
+                {/* Time Range Selector */}
+                <CRow className="mb-4">
+                    <CCol xs={12}>
+                        <div className="d-flex justify-content-end gap-2">
+                            <CButton
+                                size="sm"
+                                color={analyticsDays === 30 ? 'primary' : 'outline-primary'}
+                                onClick={() => setAnalyticsDays(30)}
+                            >
+                                {t('orders.last30Days')}
+                            </CButton>
+                            <CButton
+                                size="sm"
+                                color={analyticsDays === 90 ? 'primary' : 'outline-primary'}
+                                onClick={() => setAnalyticsDays(90)}
+                            >
+                                {t('orders.last90Days')}
+                            </CButton>
+                            <CButton
+                                size="sm"
+                                color={analyticsDays === 180 ? 'primary' : 'outline-primary'}
+                                onClick={() => setAnalyticsDays(180)}
+                            >
+                                {t('orders.last180Days')}
+                            </CButton>
+                        </div>
+                    </CCol>
+                </CRow>
+
+                {/* Summary Cards */}
+                <CRow className="mb-4" xs={{ gutter: 4 }}>
+                    <CCol sm={6} xl={3}>
+                        <CWidgetStatsA
+                            color="primary"
+                            value={
+                                <>
+                                    {formatCurrency(analytics.averageOrderValue.averageValue)}
+                                    <span className="fs-6 fw-normal d-block mt-1">
+                                        {t('orders.avgOrderValue')}
+                                    </span>
+                                </>
+                            }
+                            title={t('orders.averageOrderValue')}
+                        />
+                    </CCol>
+
+                    <CCol sm={6} xl={3}>
+                        <CWidgetStatsA
+                            color="success"
+                            value={
+                                <>
+                                    {analytics.averageOrderValue.totalOrders}
+                                    <span className="fs-6 fw-normal d-block mt-1">
+                                        {t('orders.totalOrders')}
+                                    </span>
+                                </>
+                            }
+                            title={t('orders.totalOrders')}
+                        />
+                    </CCol>
+
+                    <CCol sm={6} xl={3}>
+                        <CWidgetStatsA
+                            color="info"
+                            value={
+                                <>
+                                    {formatCurrency(analytics.averageOrderValue.medianValue)}
+                                    <span className="fs-6 fw-normal d-block mt-1">
+                                        {t('orders.medianValue')}
+                                    </span>
+                                </>
+                            }
+                            title={t('orders.medianValue')}
+                        />
+                    </CCol>
+
+                    <CCol sm={6} xl={3}>
+                        <CWidgetStatsA
+                            color="warning"
+                            value={
+                                <>
+                                    {analytics.cancelledOrders.length}
+                                    <span className="fs-6 fw-normal d-block mt-1">
+                                        {t('orders.cancelled')}
+                                    </span>
+                                </>
+                            }
+                            title={t('orders.cancelledOrders')}
+                        />
+                    </CCol>
+                </CRow>
+
+                {/* Charts Row */}
+                <CRow className="mb-4" xs={{ gutter: 4 }}>
+                    <CCol md={6}>
+                        <CCard className="mb-4">
+                            <CCardHeader className="d-flex align-items-center">
+                                <CIcon icon={cilChart} className="me-2" />
+                                <strong>{t('orders.ordersByStatus')}</strong>
+                            </CCardHeader>
+                            <CCardBody>
+                                {analytics.ordersByStatus.length === 0 ? (
+                                    <p className="text-muted text-center">{t('common.noData')}</p>
+                                ) : (
+                                    <CChartPie
+                                        data={getOrdersByStatusChartData()}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: true,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                )}
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+
+                    <CCol md={6}>
+                        <CCard className="mb-4">
+                            <CCardHeader className="d-flex align-items-center">
+                                <CIcon icon={cilChart} className="me-2" />
+                                <strong>{t('orders.salesTrend')}</strong>
+                            </CCardHeader>
+                            <CCardBody>
+                                {analytics.salesTrend.length === 0 ? (
+                                    <p className="text-muted text-center">{t('common.noData')}</p>
+                                ) : (
+                                    <CChartLine
+                                        data={getSalesTrendChartData()}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: true,
+                                            plugins: {
+                                                legend: {
+                                                    display: false,
+                                                },
+                                            },
+                                            scales: {
+                                                x: {
+                                                    grid: {
+                                                        display: false,
+                                                    },
+                                                },
+                                                y: {
+                                                    beginAtZero: true,
+                                                },
+                                            },
+                                        }}
+                                    />
+                                )}
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                </CRow>
+
+                {/* Top Customers */}
+                <CRow className="mb-4">
+                    <CCol xs={12}>
+                        <CCard>
+                            <CCardHeader className="d-flex align-items-center">
+                                <CIcon icon={cilPeople} className="me-2" />
+                                <strong>{t('orders.topCustomers')}</strong>
+                            </CCardHeader>
+                            <CCardBody>
+                                {analytics.topCustomers.length === 0 ? (
+                                    <p className="text-muted text-center">{t('common.noData')}</p>
+                                ) : (
+                                    <CTable hover responsive>
+                                        <CTableHead>
+                                            <CTableRow>
+                                                <CTableHeaderCell>{t('orders.customer')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-center">{t('orders.orders')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-end">{t('orders.totalSpent')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-end">{t('orders.items')}</CTableHeaderCell>
+                                            </CTableRow>
+                                        </CTableHead>
+                                        <CTableBody>
+                                            {analytics.topCustomers.map((customer) => (
+                                                <CTableRow key={customer.customerId}>
+                                                    <CTableDataCell>
+                                                        <Link to={`/basic/customers?id=${customer.customerId}`} className="text-decoration-none">
+                                                            <strong>{customer.customerName}</strong>
+                                                        </Link>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell className="text-center">{customer.orderCount}</CTableDataCell>
+                                                    <CTableDataCell className="text-end">
+                                                        <strong>{formatCurrency(customer.totalSpent)}</strong>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell className="text-end">{customer.totalItems}</CTableDataCell>
+                                                </CTableRow>
+                                            ))}
+                                        </CTableBody>
+                                    </CTable>
+                                )}
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                </CRow>
+
+                {/* Cancelled Orders */}
+                <CRow>
+                    <CCol xs={12}>
+                        <CCard>
+                            <CCardHeader className="d-flex align-items-center">
+                                <CIcon icon={cilBan} className="me-2 text-danger" />
+                                <strong>{t('orders.cancelledOrdersReport')}</strong>
+                            </CCardHeader>
+                            <CCardBody>
+                                {analytics.cancelledOrders.length === 0 ? (
+                                    <p className="text-muted text-center">{t('common.noData')}</p>
+                                ) : (
+                                    <CTable hover responsive>
+                                        <CTableHead>
+                                            <CTableRow>
+                                                <CTableHeaderCell>{t('orders.date')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t('orders.customer')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-end">{t('orders.totalAmount')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-center">{t('orders.items')}</CTableHeaderCell>
+                                            </CTableRow>
+                                        </CTableHead>
+                                        <CTableBody>
+                                            {analytics.cancelledOrders.map((order) => (
+                                                <CTableRow key={order.orderId}>
+                                                    <CTableDataCell>{formatDate(order.saleDate)}</CTableDataCell>
+                                                    <CTableDataCell>
+                                                        <Link to={`/basic/order/${order.orderId}`} className="text-decoration-none">
+                                                            {order.customerName}
+                                                        </Link>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell className="text-end">
+                                                        <span className="text-danger">{formatCurrency(order.totalAmount)}</span>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell className="text-center">{order.totalItems}</CTableDataCell>
+                                                </CTableRow>
+                                            ))}
+                                        </CTableBody>
+                                    </CTable>
+                                )}
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                </CRow>
+            </>
+        );
+    };
+
     return (
         <CContainer className="py-4">
             {error && (
@@ -334,73 +675,119 @@ const Orders = () => {
             <CCard>
                 <CCardHeader className="d-flex justify-content-between align-items-center">
                     <strong>{t('orders.title')}</strong>
-                    <CButton color="primary" size="sm" onClick={handleOpenAdd}>
-                        <CIcon icon={cilPlus} className="me-2" />
-                        {t('orders.new')}
-                    </CButton>
+                    <div className="d-flex gap-2">
+                        <CButton color="primary" size="sm" onClick={handleOpenAdd}>
+                            <CIcon icon={cilPlus} className="me-2" />
+                            {t('orders.new')}
+                        </CButton>
+                    </div>
                 </CCardHeader>
                 <CCardBody>
-                    {loading && (
-                        <div className="text-center py-4">
-                            <CSpinner color="primary" />
-                            <p className="mt-2">{t('common.loading')}</p>
-                        </div>
-                    )}
+                    {/* Main Navigation Tabs */}
+                    <CNav variant="tabs">
+                        <CNavItem>
+                            <CNavLink
+                                active={activeTab === 0}
+                                onClick={() => setActiveTab(0)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <CIcon icon={cilCart} className="me-2" />
+                                {t('orders.ordersList')}
+                            </CNavLink>
+                        </CNavItem>
+                        <CNavItem>
+                            <CNavLink
+                                active={activeTab === 1}
+                                onClick={() => setActiveTab(1)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <CIcon icon={cilChart} className="me-2" />
+                                {t('orders.analytics')}
+                            </CNavLink>
+                        </CNavItem>
+                    </CNav>
 
-                    {!loading && orders.length === 0 && (
-                        <div className="text-center py-4">
-                            <p className="text-muted">{t('common.noData')}</p>
-                        </div>
-                    )}
+                    <CTabContent className="mt-3">
+                        {/* Orders List Tab */}
+                        <CTabPane visible={activeTab === 0}>
+                            {loading && (
+                                <div className="text-center py-4">
+                                    <CSpinner color="primary" />
+                                    <p className="mt-2">{t('common.loading')}</p>
+                                </div>
+                            )}
 
-                    {!loading && orders.length > 0 && (
-                        <>
-                            <CTable hover responsive>
-                                <CTableHead>
-                                    <CTableRow>
-                                        <CTableHeaderCell>{t('orders.customer')}</CTableHeaderCell>
-                                        <CTableHeaderCell>{t('orders.total')}</CTableHeaderCell>
-                                        <CTableHeaderCell>{t('orders.date')}</CTableHeaderCell>
-                                        <CTableHeaderCell>{t('orders.status')}</CTableHeaderCell>
-                                        <CTableHeaderCell>{t('orders.items')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
-                                    </CTableRow>
-                                </CTableHead>
-                                <CTableBody>
-                                    {orders.map((order) => (
-                                        <CTableRow key={order.id}>
-                                            <CTableDataCell>{order.customerName}</CTableDataCell>
-                                            <CTableDataCell>{formatCurrency(order.totalAmount)}</CTableDataCell>
-                                            <CTableDataCell>{formatDate(order.saleDate)}</CTableDataCell>
-                                            <CTableDataCell>
-                                                <span className={`badge bg-${getStatusBadgeColor(order.status)}`}>
-                                                    {t(`orders.status.${order.status?.toLowerCase()}`) || order.status}
-                                                </span>
-                                            </CTableDataCell>
-                                            <CTableDataCell>{order.totalItems}</CTableDataCell>
-                                            <CTableDataCell className="text-end">
-                                                {isAdmin && (
-                                                    <CButton
-                                                        color="danger"
-                                                        size="sm"
-                                                        onClick={() => handleOpenDelete(order)}
-                                                    >
-                                                        <CIcon icon={cilTrash} />
-                                                    </CButton>
-                                                )}
-                                            </CTableDataCell>
-                                        </CTableRow>
-                                    ))}
-                                </CTableBody>
-                            </CTable>
+                            {!loading && orders.length === 0 && (
+                                <div className="text-center py-4">
+                                    <p className="text-muted">{t('common.noData')}</p>
+                                </div>
+                            )}
 
-                            <Pagination
-                                pagination={pagination}
-                                onPageChange={handlePageChange}
-                                onPerPageChange={handlePerPageChange}
-                            />
-                        </>
-                    )}
+                            {!loading && orders.length > 0 && (
+                                <>
+                                    <CTable hover responsive>
+                                        <CTableHead>
+                                            <CTableRow>
+                                                <CTableHeaderCell>{t('orders.id')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t('orders.customer')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t('orders.total')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t('orders.date')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t('orders.status')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t('orders.items')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
+                                            </CTableRow>
+                                        </CTableHead>
+                                        <CTableBody>
+                                            {orders.map((order) => (
+                                                <CTableRow key={order.id}>
+                                                    <CTableDataCell>
+                                                        <Link to={`/basic/order/${order.id}`} className="text-decoration-none font-monospace">
+                                                            {order.id.substring(0, 8)}...
+                                                        </Link>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell>
+                                                        <Link to={`/basic/order/${order.id}`} className="text-decoration-none">
+                                                            {order.customerName}
+                                                        </Link>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell>{formatCurrency(order.totalAmount)}</CTableDataCell>
+                                                    <CTableDataCell>{formatDate(order.saleDate)}</CTableDataCell>
+                                                    <CTableDataCell>
+                                                        <span className={`badge bg-${getStatusBadgeColor(order.status)}`}>
+                                                            {t(`orders.statusValues.${order.status?.toLowerCase()}`) || order.status}
+                                                        </span>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell>{order.totalItems}</CTableDataCell>
+                                                    <CTableDataCell className="text-end">
+                                                        {isAdmin && (
+                                                            <CButton
+                                                                color="danger"
+                                                                size="sm"
+                                                                onClick={() => handleOpenDelete(order)}
+                                                            >
+                                                                <CIcon icon={cilTrash} />
+                                                            </CButton>
+                                                        )}
+                                                    </CTableDataCell>
+                                                </CTableRow>
+                                            ))}
+                                        </CTableBody>
+                                    </CTable>
+
+                                    <Pagination
+                                        pagination={pagination}
+                                        onPageChange={handlePageChange}
+                                        onPerPageChange={handlePerPageChange}
+                                    />
+                                </>
+                            )}
+                        </CTabPane>
+
+                        {/* Analytics Tab */}
+                        <CTabPane visible={activeTab === 1}>
+                            {renderAnalyticsTab()}
+                        </CTabPane>
+                    </CTabContent>
                 </CCardBody>
             </CCard>
 
@@ -471,9 +858,9 @@ const Orders = () => {
                                             onChange={(e) => setStatus(e.target.value)}
                                             required
                                         >
-                                            <option value="Pending">{t('orders.status.pending')}</option>
-                                            <option value="Approved">{t('orders.status.approved')}</option>
-                                            <option value="Cancelled">{t('orders.status.cancelled')}</option>
+                                            <option value="Pending">{t('orders.statusValues.pending')}</option>
+                                            <option value="Approved">{t('orders.statusValues.approved')}</option>
+                                            <option value="Cancelled">{t('orders.statusValues.cancelled')}</option>
                                         </CFormSelect>
                                     </CCol>
                                     <CCol md={12}>
@@ -593,7 +980,7 @@ const Orders = () => {
                                                     {t('orders.total')}:
                                                 </CTableHeaderCell>
                                                 <CTableHeaderCell className="text-end">
-                                                    <strong>{formatCurrency(calculateTotal())}</strong>
+                                                    <strong>{formatCurrency(orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0))}</strong>
                                                 </CTableHeaderCell>
                                                 <CTableHeaderCell></CTableHeaderCell>
                                             </CTableRow>

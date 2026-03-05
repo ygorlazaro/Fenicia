@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import {
     CButton,
     CCard,
@@ -30,6 +31,7 @@ const supplierClient = new BasicSupplierClient();
 
 const Suppliers = () => {
     const { t } = useTranslation();
+    const [searchParams] = useSearchParams();
     const [suppliers, setSuppliers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,8 +53,23 @@ const Suppliers = () => {
     paginationRef.current = pagination;
 
     useEffect(() => {
+        const supplierId = searchParams.get('id');
+        if (supplierId) {
+            loadSupplierForEdit(supplierId);
+        }
         loadSuppliers();
     }, [pagination.page, pagination.perPage]);
+
+    const loadSupplierForEdit = async (supplierId) => {
+        try {
+            const supplier = await supplierClient.getById(supplierId);
+            setSelectedSupplier(supplier);
+            setModalVisible(true);
+        } catch (err) {
+            console.error('Failed to load supplier for edit:', err);
+            setError(t('suppliers.loadError'));
+        }
+    };
 
     const loadSuppliers = async () => {
         try {

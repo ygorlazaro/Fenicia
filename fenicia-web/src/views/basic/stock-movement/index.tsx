@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import {
     CCard,
     CCardBody,
@@ -326,7 +327,9 @@ const StockMovementDashboardView = () => {
                                             <CTableRow key={movement.id}>
                                                 <CTableDataCell>{formatDate(movement.date)}</CTableDataCell>
                                                 <CTableDataCell>
-                                                    <div className="fw-semibold">{movement.productName}</div>
+                                                    <Link to={`/basic/products?id=${movement.productId}`} className="text-decoration-none">
+                                                        <div className="fw-semibold">{movement.productName}</div>
+                                                    </Link>
                                                 </CTableDataCell>
                                                 <CTableDataCell className="text-center">
                                                     <span className={`badge bg-${getTypeBadgeColor(movement.type)}`}>
@@ -341,15 +344,21 @@ const StockMovementDashboardView = () => {
                                                 </CTableDataCell>
                                                 <CTableDataCell>
                                                     {movement.orderId ? (
-                                                        <a href={`/basic/orders/${movement.orderId}`} className="text-primary">
+                                                        <Link to={`/basic/order/${movement.orderId}`} className="text-primary">
                                                             {movement.orderId.substring(0, 8)}...
-                                                        </a>
+                                                        </Link>
                                                     ) : (
                                                         '-'
                                                     )}
                                                 </CTableDataCell>
                                                 <CTableDataCell>
-                                                    {movement.reason || '-'}
+                                                    {movement.orderId ? (
+                                                        <Link to={`/basic/order/${movement.orderId}`} className="text-decoration-none">
+                                                            {movement.reason || '-'}
+                                                        </Link>
+                                                    ) : (
+                                                        movement.reason || '-'
+                                                    )}
                                                 </CTableDataCell>
                                             </CTableRow>
                                         ))}
@@ -385,7 +394,9 @@ const StockMovementDashboardView = () => {
                                         {dashboard.topMovedProducts.map((product) => (
                                             <CTableRow key={product.productId}>
                                                 <CTableDataCell>
-                                                    <div className="fw-semibold">{product.productName}</div>
+                                                    <Link to={`/basic/products?id=${product.productId}`} className="text-decoration-none">
+                                                        <div className="fw-semibold">{product.productName}</div>
+                                                    </Link>
                                                     <small className="text-body-secondary">{product.categoryName}</small>
                                                 </CTableDataCell>
                                                 <CTableDataCell className="text-end">
@@ -425,7 +436,9 @@ const StockMovementDashboardView = () => {
                                         {dashboard.turnoverRates.map((item) => (
                                             <CTableRow key={item.productId}>
                                                 <CTableDataCell>
-                                                    <div className="fw-semibold">{item.productName}</div>
+                                                    <Link to={`/basic/products?id=${item.productId}`} className="text-decoration-none">
+                                                        <div className="fw-semibold">{item.productName}</div>
+                                                    </Link>
                                                     <small className="text-body-secondary">{item.categoryName}</small>
                                                 </CTableDataCell>
                                                 <CTableDataCell className="text-end">
@@ -433,7 +446,7 @@ const StockMovementDashboardView = () => {
                                                 </CTableDataCell>
                                                 <CTableDataCell className="text-center">
                                                     <span className={`badge bg-${getTurnoverBadgeColor(item.turnoverClassification)}`}>
-                                                        {t(`stockMovement.${item.turnoverClassification.toLowerCase()}`)}
+                                                        {t(`stockMovement.${item.turnoverClassification.toLowerCase().replace(/\s+/g, '')}`)}
                                                     </span>
                                                 </CTableDataCell>
                                             </CTableRow>

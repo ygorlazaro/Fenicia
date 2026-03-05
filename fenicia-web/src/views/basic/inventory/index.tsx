@@ -33,6 +33,7 @@ import { CChartBar, CChartDoughnut, CChartLine } from '@coreui/react-chartjs'
 import { getStyle } from '@coreui/utils'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import InventoryClient from '../../../services/inventory-client'
 
 const inventoryClient = new InventoryClient()
@@ -374,7 +375,9 @@ const InventoryDashboard = () => {
                                             className="d-flex justify-content-between align-items-center"
                                         >
                                             <div>
-                                                <div className="fw-semibold">{category.categoryName}</div>
+                                                <Link to={`/basic/product-categories?id=${category.categoryId}`} className="text-decoration-none">
+                                                    <div className="fw-semibold">{category.categoryName}</div>
+                                                </Link>
                                                 <small className="text-body-secondary">
                                                     {formatNumber(category.totalQuantity)} {t('inventory.items')}
                                                 </small>
@@ -412,7 +415,9 @@ const InventoryDashboard = () => {
                                             className="d-flex justify-content-between align-items-center"
                                         >
                                             <div>
-                                                <div className="fw-semibold">{supplier.supplierName}</div>
+                                                <Link to={`/basic/suppliers?id=${supplier.supplierId}`} className="text-decoration-none">
+                                                    <div className="fw-semibold">{supplier.supplierName}</div>
+                                                </Link>
                                                 <small className="text-body-secondary">
                                                     {formatNumber(supplier.totalQuantity)} {t('inventory.items')}
                                                 </small>
@@ -515,9 +520,15 @@ const InventoryDashboard = () => {
                                     return (
                                         <CTableRow key={item.id}>
                                             <CTableDataCell>
-                                                <div className="fw-semibold">{item.name}</div>
+                                                <Link to={`/basic/products?id=${item.id}`} className="text-decoration-none">
+                                                    <div className="fw-semibold">{item.name}</div>
+                                                </Link>
                                             </CTableDataCell>
-                                            <CTableDataCell className="text-center">{item.categoryName}</CTableDataCell>
+                                            <CTableDataCell className="text-center">
+                                                <Link to={`/basic/product-categories?id=${item.categoryId}`} className="text-decoration-none">
+                                                    {item.categoryName}
+                                                </Link>
+                                            </CTableDataCell>
                                             <CTableDataCell className="text-center">
                                                 <div className="d-flex align-items-center justify-content-center">
                                                     <CIcon icon={cilPeople} className="me-2" size="sm" />

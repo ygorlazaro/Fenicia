@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams, Link } from 'react-router-dom';
 import {
     CButton,
     CCard,
@@ -30,6 +31,7 @@ const employeeClient = new BasicEmployeeClient("http://localhost:5083");
 
 const EmployeeList = () => {
     const { t } = useTranslation();
+    const [searchParams] = useSearchParams();
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,8 +53,23 @@ const EmployeeList = () => {
     paginationRef.current = pagination;
 
     useEffect(() => {
+        const employeeId = searchParams.get('id');
+        if (employeeId) {
+            loadEmployeeForEdit(employeeId);
+        }
         loadEmployees();
     }, [pagination.page, pagination.perPage]);
+
+    const loadEmployeeForEdit = async (employeeId) => {
+        try {
+            const employee = await employeeClient.getById(employeeId);
+            setSelectedEmployee(employee);
+            setModalVisible(true);
+        } catch (err) {
+            console.error('Failed to load employee for edit:', err);
+            setError(t('employees.loadError'));
+        }
+    };
 
     const loadEmployees = async () => {
         try {
@@ -224,7 +241,15 @@ const EmployeeList = () => {
                                             <CTableDataCell>{employee.name}</CTableDataCell>
                                             <CTableDataCell>{employee.email}</CTableDataCell>
                                             <CTableDataCell>{formatPhone(employee.phoneNumber)}</CTableDataCell>
-                                            <CTableDataCell>{employee.positionName || '-'}</CTableDataCell>
+                                            <CTableDataCell>
+                                                {employee.positionId ? (
+                                                    <Link to={`/basic/positions?id=${employee.positionId}`} className="text-decoration-none">
+                                                        {employee.positionName || '-'}
+                                                    </Link>
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </CTableDataCell>
                                             <CTableDataCell>{employee.city || '-'}</CTableDataCell>
                                             <CTableDataCell>{employee.stateName || '-'}</CTableDataCell>
                                             <CTableDataCell className="text-end">

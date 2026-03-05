@@ -5,6 +5,7 @@ using Fenicia.Module.Basic.Domains.Product.Add;
 using Fenicia.Module.Basic.Domains.Product.Delete;
 using Fenicia.Module.Basic.Domains.Product.GetAll;
 using Fenicia.Module.Basic.Domains.Product.GetById;
+using Fenicia.Module.Basic.Domains.Product.GetProductPerformance;
 using Fenicia.Module.Basic.Domains.Product.Update;
 
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +23,8 @@ public class ProductController(
     GetProductByIdHandler getProductByIdHandler,
     AddProductHandler addProductHandler,
     UpdateProductHandler updateProductHandler,
-    DeleteProductHandler deleteProductHandler) : ControllerBase
+    DeleteProductHandler deleteProductHandler,
+    GetProductPerformanceHandler getProductPerformanceHandler) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductResponse>>))]
@@ -84,5 +86,18 @@ public class ProductController(
         await deleteProductHandler.Handle(new DeleteProductCommand(id), ct);
 
         return NoContent();
+    }
+
+    [HttpGet("performance")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductPerformanceResponse))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ProductPerformanceResponse>> GetPerformanceAsync(
+        [FromQuery] int days = 90,
+        [FromQuery] int topLimit = 10,
+        CancellationToken ct = default)
+    {
+        var performance = await getProductPerformanceHandler.Handle(new GetProductPerformanceQuery(days, topLimit), ct);
+
+        return Ok(performance);
     }
 }

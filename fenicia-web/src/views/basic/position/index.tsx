@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import {
     CButton,
     CCard,
@@ -30,6 +31,7 @@ const positionClient = new BasicPositionClient("http://localhost:5083");
 
 const PositionList = () => {
     const { t } = useTranslation();
+    const [searchParams] = useSearchParams();
     const [positions, setPositions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,8 +53,23 @@ const PositionList = () => {
     paginationRef.current = pagination;
 
     useEffect(() => {
+        const positionId = searchParams.get('id');
+        if (positionId) {
+            loadPositionForEdit(positionId);
+        }
         loadPositions();
     }, [pagination.page, pagination.perPage]);
+
+    const loadPositionForEdit = async (positionId) => {
+        try {
+            const position = await positionClient.getById(positionId);
+            setSelectedPosition(position);
+            setModalVisible(true);
+        } catch (err) {
+            console.error('Failed to load position for edit:', err);
+            setError(t('positions.loadError'));
+        }
+    };
 
     const loadPositions = async () => {
         try {
