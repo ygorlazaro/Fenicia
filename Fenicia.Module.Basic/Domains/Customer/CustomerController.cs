@@ -5,6 +5,7 @@ using Fenicia.Module.Basic.Domains.Customer.Add;
 using Fenicia.Module.Basic.Domains.Customer.Delete;
 using Fenicia.Module.Basic.Domains.Customer.GetAll;
 using Fenicia.Module.Basic.Domains.Customer.GetById;
+using Fenicia.Module.Basic.Domains.Customer.GetCustomerInsights;
 using Fenicia.Module.Basic.Domains.Customer.Update;
 
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +23,8 @@ public class CustomerController(
     GetCustomerByIdHandler getCustomerByIdHandler,
     AddCustomerHandler addCustomerHandler,
     UpdateCustomerHandler updateCustomerHandler,
-    DeleteCustomerHandler deleteCustomerHandler) : ControllerBase
+    DeleteCustomerHandler deleteCustomerHandler,
+    GetCustomerInsightsHandler getCustomerInsightsHandler) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllCustomerResponse>>))]
@@ -84,5 +86,19 @@ public class CustomerController(
         await deleteCustomerHandler.Handle(new DeleteCustomerCommand(id), ct);
 
         return NoContent();
+    }
+
+    [HttpGet("insights")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerInsightsResponse))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<CustomerInsightsResponse>> GetInsightsAsync(
+        [FromQuery] int days = 90,
+        [FromQuery] int topLimit = 10,
+        [FromQuery] int riskThresholdDays = 60,
+        CancellationToken ct = default)
+    {
+        var insights = await getCustomerInsightsHandler.Handle(new GetCustomerInsightsQuery(days, topLimit, riskThresholdDays), ct);
+
+        return Ok(insights);
     }
 }

@@ -10,7 +10,7 @@ public class GetStockMovementHandler(DefaultContext context)
     public async Task<List<GetStockMovementResponse>> Handle(GetStockMovementQuery query, CancellationToken ct)
     {
         var movementsQuery = context.BasicStockMovements
-            .Include(m => m.ProductModel)
+            .Include(m => m.Product)
             .Include(m => m.Customer)
             .ThenInclude(c => c != null ? c.PersonModel : null)
             .Include(m => m.Supplier)
@@ -24,7 +24,7 @@ public class GetStockMovementHandler(DefaultContext context)
             .Select(m => new GetStockMovementResponse(
                 m.Id,
                 m.ProductId,
-                m.ProductModel.Name,
+                m.Product.Name,
                 m.Quantity,
                 m.Date,
                 m.Price,

@@ -5,6 +5,7 @@ using Fenicia.Module.Basic.Domains.Supplier.Add;
 using Fenicia.Module.Basic.Domains.Supplier.Delete;
 using Fenicia.Module.Basic.Domains.Supplier.GetAll;
 using Fenicia.Module.Basic.Domains.Supplier.GetById;
+using Fenicia.Module.Basic.Domains.Supplier.GetSupplierPerformance;
 using Fenicia.Module.Basic.Domains.Supplier.Update;
 
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +23,8 @@ public class SupplierController(
     GetSupplierByIdHandler getSupplierByIdHandler,
     AddSupplierHandler addSupplierHandler,
     UpdateSupplierHandler updateSupplierHandler,
-    DeleteSupplierHandler deleteSupplierHandler) : ControllerBase
+    DeleteSupplierHandler deleteSupplierHandler,
+    GetSupplierPerformanceHandler getSupplierPerformanceHandler) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllSupplierResponse>>))]
@@ -84,5 +86,18 @@ public class SupplierController(
         await deleteSupplierHandler.Handle(new DeleteSupplierCommand(id), ct);
 
         return NoContent();
+    }
+
+    [HttpGet("performance")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SupplierPerformanceResponse))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<SupplierPerformanceResponse>> GetPerformanceAsync(
+        [FromQuery] int days = 90,
+        [FromQuery] int topLimit = 10,
+        CancellationToken ct = default)
+    {
+        var performance = await getSupplierPerformanceHandler.Handle(new GetSupplierPerformanceQuery(days, topLimit), ct);
+
+        return Ok(performance);
     }
 }

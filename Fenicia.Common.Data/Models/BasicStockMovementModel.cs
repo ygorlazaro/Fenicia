@@ -26,7 +26,7 @@ public class BasicStockMovementModel : BaseCompanyModel
     public string? Reason { get; set; }
 
     [ForeignKey(nameof(ProductId))]
-    public BasicProductModel ProductModel { get; set; } = null!;
+    public BasicProductModel Product { get; set; } = null!;
 
     public Guid? CustomerId { get; set; }
 
