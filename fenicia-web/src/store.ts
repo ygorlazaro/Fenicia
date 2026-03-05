@@ -3,7 +3,6 @@ import { TypedUseSelectorHook, useSelector } from 'react-redux'
 
 interface AppState {
   sidebarShow: boolean
-  theme: string
   sidebarUnfoldable?: boolean
 }
 
@@ -14,7 +13,6 @@ interface Action {
 
 const initialState: AppState = {
   sidebarShow: true,
-  theme: 'light',
 }
 
 const changeState = (state: AppState = initialState, { type, ...rest }: Action): AppState => {

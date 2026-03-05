@@ -25,9 +25,7 @@
     "perPage": "por página",
     "selectPageSize": "Selecionar tamanho da página",
     "default": "Padrão",
-    "light": "Claro",
     "dark": "Escuro",
-    "auto": "Automático",
     "requiredField": "Campo obrigatório",
     "select": "Selecione"
   },
