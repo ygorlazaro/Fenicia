@@ -1,5 +1,4 @@
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +13,7 @@ public class ChangeUserPasswordHandler(
     {
         // Find user
         var user = await context.AuthUsers
-            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct);
-
-        if (user == null)
-        {
-            throw new ArgumentException("User not found");
-        }
+            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new ArgumentException("User not found");
 
         // Hash new password
         var hashedPassword = hashPasswordHandler.Handle(request.NewPassword);

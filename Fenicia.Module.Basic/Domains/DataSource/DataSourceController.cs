@@ -13,7 +13,9 @@ namespace Fenicia.Module.Basic.Domains.DataSource;
 public class DataSourceController(
     GetAllPositionForDataSourceHandler getAllPositionForDataSourceHandler,
     GetAllProductCategoryForDataSourceHandler getAllProductCategoryForDataSourceHandler,
-    GetAllSupplierForDataSourceHandler getAllSupplierForDataSourceHandler) : ControllerBase
+    GetAllSupplierForDataSourceHandler getAllSupplierForDataSourceHandler,
+    GetAllCustomerForDataSourceHandler getAllCustomerForDataSourceHandler,
+    GetAllProductForDataSourceHandler getAllProductForDataSourceHandler) : ControllerBase
 {
     [HttpGet("position")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllPositionForDataSourceResponse>))]
@@ -43,5 +45,25 @@ public class DataSourceController(
         var suppliers = await getAllSupplierForDataSourceHandler.Handle(ct);
 
         return Ok(suppliers);
+    }
+
+    [HttpGet("customer")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllCustomerForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<GetAllCustomerForDataSourceResponse>>> GetCustomersAsync(CancellationToken ct)
+    {
+        var customers = await getAllCustomerForDataSourceHandler.Handle(ct);
+
+        return Ok(customers);
+    }
+
+    [HttpGet("product")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<GetAllProductForDataSourceResponse>>> GetProductsAsync(CancellationToken ct)
+    {
+        var products = await getAllProductForDataSourceHandler.Handle(ct);
+
+        return Ok(products);
     }
 }

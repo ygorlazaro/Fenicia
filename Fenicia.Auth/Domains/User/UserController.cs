@@ -8,7 +8,6 @@ using Fenicia.Auth.Domains.User.ListUsers;
 using Fenicia.Auth.Domains.User.UpdateUser;
 using Fenicia.Auth.Domains.UserRole.GetUserCompanies;
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.AspNetCore.Authorization;

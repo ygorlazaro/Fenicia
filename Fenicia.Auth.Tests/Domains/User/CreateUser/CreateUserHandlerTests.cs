@@ -1,10 +1,11 @@
 using Bogus;
+
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.User.CheckUserExists;
 using Fenicia.Auth.Domains.User.CreateUser;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User.CreateUser;

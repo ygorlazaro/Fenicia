@@ -1,8 +1,7 @@
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.User.CreateUser;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.CreateUser;
@@ -40,19 +39,10 @@ public class CreateUserHandler(
             foreach (var companyRole in request.CompaniesRoles)
             {
                 // Verify company exists
-                var company = await context.Companies.FindAsync(companyRole.CompanyId, ct);
-                if (company == null)
-                {
-                    throw new ArgumentException($"Company with ID {companyRole.CompanyId} not found");
-                }
+                var company = await context.Companies.FindAsync(companyRole.CompanyId, ct) ?? throw new ArgumentException($"Company with ID {companyRole.CompanyId} not found");
 
                 // Verify role exists
-                var role = await context.Companies.FindAsync(companyRole.RoleId, ct);
-                if (role == null)
-                {
-                    throw new ArgumentException($"Role with ID {companyRole.RoleId} not found");
-                }
-
+                var role = await context.Companies.FindAsync(companyRole.RoleId, ct) ?? throw new ArgumentException($"Role with ID {companyRole.RoleId} not found");
                 var userRole = new AuthUserRoleModel
                 {
                     UserId = user.Id,

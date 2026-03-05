@@ -1,5 +1,3 @@
-using Fenicia.Auth.Domains.User.DeleteUser;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +11,7 @@ public class DeleteUserHandler(DefaultContext context)
         // Find user
         var user = await context.AuthUsers
             .Include(u => u.UsersRoles)
-            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct);
-
-        if (user == null)
-        {
-            throw new ArgumentException("User not found");
-        }
+            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new ArgumentException("User not found");
 
         // Soft delete - set Deleted timestamp
         user.Deleted = DateTime.UtcNow;

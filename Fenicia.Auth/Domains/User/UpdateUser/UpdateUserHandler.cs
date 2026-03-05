@@ -1,7 +1,6 @@
-using Fenicia.Auth.Domains.User.UpdateUser;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.UpdateUser;
@@ -16,12 +15,7 @@ public class UpdateUserHandler(DefaultContext context)
                 .ThenInclude(ur => ur.RoleModel)
             .Include(u => u.UsersRoles)
                 .ThenInclude(ur => ur.CompanyModel)
-            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct);
-
-        if (user == null)
-        {
-            throw new ArgumentException("User not found");
-        }
+            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new ArgumentException("User not found");
 
         // Update fields if provided
         if (!string.IsNullOrWhiteSpace(request.Name))
@@ -56,19 +50,10 @@ public class UpdateUserHandler(DefaultContext context)
             foreach (var companyRole in request.CompaniesRoles)
             {
                 // Verify company exists
-                var company = await context.UserRoles.FindAsync(companyRole.CompanyId, ct);
-                if (company == null)
-                {
-                    throw new ArgumentException($"Company with ID {companyRole.CompanyId} not found");
-                }
+                var company = await context.UserRoles.FindAsync(companyRole.CompanyId, ct) ?? throw new ArgumentException($"Company with ID {companyRole.CompanyId} not found");
 
                 // Verify role exists
-                var role = await context.Roles.FindAsync(companyRole.RoleId, ct);
-                if (role == null)
-                {
-                    throw new ArgumentException($"Role with ID {companyRole.RoleId} not found");
-                }
-
+                var role = await context.Roles.FindAsync(companyRole.RoleId, ct) ?? throw new ArgumentException($"Role with ID {companyRole.RoleId} not found");
                 var userRole = new AuthUserRoleModel
                 {
                     UserId = user.Id,
