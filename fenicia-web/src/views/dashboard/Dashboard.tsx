@@ -1,387 +1,584 @@
-import React from 'react'
-import classNames from 'classnames'
-
 import {
-  CAvatar,
-  CButton,
-  CButtonGroup,
-  CCard,
-  CCardBody,
-  CCardFooter,
-  CCardHeader,
-  CCol,
-  CProgress,
-  CRow,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+    cilArrowBottom,
+    cilArrowTop,
+    cilCalendar,
+    cilCart,
+    cilCheck,
+    cilClock,
+    cilDollar,
+    cilGraph,
+    cilTruck,
+    cilWarning
+} from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
-  cibCcAmex,
-  cibCcApplePay,
-  cibCcMastercard,
-  cibCcPaypal,
-  cibCcStripe,
-  cibCcVisa,
-  cibGoogle,
-  cibFacebook,
-  cibLinkedin,
-  cifBr,
-  cifEs,
-  cifFr,
-  cifIn,
-  cifPl,
-  cifUs,
-  cibTwitter,
-  cilCloudDownload,
-  cilPeople,
-  cilUser,
-  cilUserFemale,
-} from '@coreui/icons'
+    CAlert,
+    CBadge,
+    CButton,
+    CButtonGroup,
+    CCard,
+    CCardBody,
+    CCardHeader,
+    CCol,
+    CContainer,
+    CProgress,
+    CRow,
+    CSpinner,
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow,
+    CWidgetStatsA,
+    CWidgetStatsB
+} from '@coreui/react';
+import { CChartBar, CChartDoughnut, CChartLine } from '@coreui/react-chartjs';
+import { getStyle } from '@coreui/utils';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import FinancialDashboardClient from '../../services/financial-dashboard-client';
 
-import avatar1 from 'src/assets/images/avatars/1.jpg'
-import avatar2 from 'src/assets/images/avatars/2.jpg'
-import avatar3 from 'src/assets/images/avatars/3.jpg'
-import avatar4 from 'src/assets/images/avatars/4.jpg'
-import avatar5 from 'src/assets/images/avatars/5.jpg'
-import avatar6 from 'src/assets/images/avatars/6.jpg'
-
-import WidgetsBrand from '../widgets/WidgetsBrand'
-import WidgetsDropdown from '../widgets/WidgetsDropdown'
-import MainChart from './MainChart'
+const dashboardClient = new FinancialDashboardClient();
 
 const Dashboard = () => {
-  const progressExample = [
-    { title: 'Visits', value: '29.703 Users', percent: 40, color: 'success' },
-    { title: 'Unique', value: '24.093 Users', percent: 20, color: 'info' },
-    { title: 'Pageviews', value: '78.706 Views', percent: 60, color: 'warning' },
-    { title: 'New Users', value: '22.123 Users', percent: 80, color: 'danger' },
-    { title: 'Bounce Rate', value: 'Average Rate', percent: 40.15, color: 'primary' },
-  ]
+    const { t } = useTranslation();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [dashboard, setDashboard] = useState(null);
+    const [days, setDays] = useState(90);
 
-  const progressGroupExample1 = [
-    { title: 'Monday', value1: 34, value2: 78 },
-    { title: 'Tuesday', value1: 56, value2: 94 },
-    { title: 'Wednesday', value1: 12, value2: 67 },
-    { title: 'Thursday', value1: 43, value2: 91 },
-    { title: 'Friday', value1: 22, value2: 73 },
-    { title: 'Saturday', value1: 53, value2: 82 },
-    { title: 'Sunday', value1: 9, value2: 69 },
-  ]
+    useEffect(() => {
+        loadDashboard();
+    }, [days]);
 
-  const progressGroupExample2 = [
-    { title: 'Male', icon: cilUser, value: 53 },
-    { title: 'Female', icon: cilUserFemale, value: 43 },
-  ]
+    const loadDashboard = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await dashboardClient.getFinancialDashboard(days);
+            setDashboard(data);
+        } catch (err) {
+            setError(t('dashboard.loadError'));
+            console.error('Failed to load financial dashboard:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const progressGroupExample3 = [
-    { title: 'Organic Search', icon: cibGoogle, percent: 56, value: '191,235' },
-    { title: 'Facebook', icon: cibFacebook, percent: 15, value: '51,223' },
-    { title: 'Twitter', icon: cibTwitter, percent: 11, value: '37,564' },
-    { title: 'LinkedIn', icon: cibLinkedin, percent: 8, value: '27,319' },
-  ]
+    const formatCurrency = (value: number) => {
+        if (value === null || value === undefined) return '-';
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+        }).format(value);
+    };
 
-  const tableExample = [
-    {
-      avatar: { src: avatar1, status: 'success' },
-      user: {
-        name: 'Yiorgos Avraamu',
-        new: true,
-        registered: 'Jan 1, 2023',
-      },
-      country: { name: 'USA', flag: cifUs },
-      usage: {
-        value: 50,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'success',
-      },
-      payment: { name: 'Mastercard', icon: cibCcMastercard },
-      activity: '10 sec ago',
-    },
-    {
-      avatar: { src: avatar2, status: 'danger' },
-      user: {
-        name: 'Avram Tarasios',
-        new: false,
-        registered: 'Jan 1, 2023',
-      },
-      country: { name: 'Brazil', flag: cifBr },
-      usage: {
-        value: 22,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'info',
-      },
-      payment: { name: 'Visa', icon: cibCcVisa },
-      activity: '5 minutes ago',
-    },
-    {
-      avatar: { src: avatar3, status: 'warning' },
-      user: { name: 'Quintin Ed', new: true, registered: 'Jan 1, 2023' },
-      country: { name: 'India', flag: cifIn },
-      usage: {
-        value: 74,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'warning',
-      },
-      payment: { name: 'Stripe', icon: cibCcStripe },
-      activity: '1 hour ago',
-    },
-    {
-      avatar: { src: avatar4, status: 'secondary' },
-      user: { name: 'Enéas Kwadwo', new: true, registered: 'Jan 1, 2023' },
-      country: { name: 'France', flag: cifFr },
-      usage: {
-        value: 98,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'danger',
-      },
-      payment: { name: 'PayPal', icon: cibCcPaypal },
-      activity: 'Last month',
-    },
-    {
-      avatar: { src: avatar5, status: 'success' },
-      user: {
-        name: 'Agapetus Tadeáš',
-        new: true,
-        registered: 'Jan 1, 2023',
-      },
-      country: { name: 'Spain', flag: cifEs },
-      usage: {
-        value: 22,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'primary',
-      },
-      payment: { name: 'Google Wallet', icon: cibCcApplePay },
-      activity: 'Last week',
-    },
-    {
-      avatar: { src: avatar6, status: 'danger' },
-      user: {
-        name: 'Friderik Dávid',
-        new: true,
-        registered: 'Jan 1, 2023',
-      },
-      country: { name: 'Poland', flag: cifPl },
-      usage: {
-        value: 43,
-        period: 'Jun 11, 2023 - Jul 10, 2023',
-        color: 'success',
-      },
-      payment: { name: 'Amex', icon: cibCcAmex },
-      activity: 'Last week',
-    },
-  ]
+    const formatNumber = (value: number) => {
+        return new Intl.NumberFormat('pt-BR').format(value);
+    };
 
-  return (
-    <>
-      <WidgetsDropdown className="mb-4" />
-      <CCard className="mb-4">
-        <CCardBody>
-          <CRow>
-            <CCol sm={5}>
-              <h4 id="traffic" className="card-title mb-0">
-                Traffic
-              </h4>
-              <div className="small text-body-secondary">January - July 2023</div>
-            </CCol>
-            <CCol sm={7} className="d-none d-md-block">
-              <CButton color="primary" className="float-end">
-                <CIcon icon={cilCloudDownload} />
-              </CButton>
-              <CButtonGroup className="float-end me-3">
-                {['Day', 'Month', 'Year'].map((value) => (
-                  <CButton
-                    color="outline-secondary"
-                    key={value}
-                    className="mx-0"
-                    active={value === 'Month'}
-                  >
-                    {value}
-                  </CButton>
-                ))}
-              </CButtonGroup>
-            </CCol>
-          </CRow>
-          <MainChart />
-        </CCardBody>
-        <CCardFooter>
-          <CRow
-            xs={{ cols: 1, gutter: 4 }}
-            sm={{ cols: 2 }}
-            lg={{ cols: 4 }}
-            xl={{ cols: 5 }}
-            className="mb-2 text-center"
-          >
-            {progressExample.map((item, index, items) => (
-              <CCol
-                className={classNames({
-                  'd-none d-xl-block': index + 1 === items.length,
-                })}
-                key={index}
-              >
-                <div className="text-body-secondary">{item.title}</div>
-                <div className="fw-semibold text-truncate">
-                  {item.value} ({item.percent}%)
+    const formatPercentage = (value: number) => {
+        return `${value.toFixed(1)}%`;
+    };
+
+    const getRevenueVsCostChartData = () => {
+        if (!dashboard || dashboard.revenueVsCost.length === 0) return null;
+
+        return {
+            labels: dashboard.revenueVsCost.map(d => new Date(d.date).toLocaleDateString()),
+            datasets: [
+                {
+                    label: t('dashboard.revenue'),
+                    backgroundColor: 'transparent',
+                    borderColor: getStyle('--cui-success'),
+                    pointBackgroundColor: getStyle('--cui-success'),
+                    data: dashboard.revenueVsCost.map(d => d.revenue),
+                },
+                {
+                    label: t('dashboard.cost'),
+                    backgroundColor: 'transparent',
+                    borderColor: getStyle('--cui-danger'),
+                    pointBackgroundColor: getStyle('--cui-danger'),
+                    data: dashboard.revenueVsCost.map(d => d.cost),
+                },
+                {
+                    label: t('dashboard.profit'),
+                    backgroundColor: 'transparent',
+                    borderColor: getStyle('--cui-info'),
+                    pointBackgroundColor: getStyle('--cui-info'),
+                    data: dashboard.revenueVsCost.map(d => d.profit),
+                },
+            ],
+        };
+    };
+
+    const getProfitMarginChartData = () => {
+        if (!dashboard || dashboard.profitMarginTrend.length === 0) return null;
+
+        return {
+            labels: dashboard.profitMarginTrend.map(d => d.period),
+            datasets: [
+                {
+                    label: t('dashboard.profitMargin'),
+                    backgroundColor: getStyle('--cui-primary'),
+                    borderColor: getStyle('--cui-primary'),
+                    pointBackgroundColor: getStyle('--cui-primary'),
+                    data: dashboard.profitMarginTrend.map(d => d.marginPercentage),
+                },
+            ],
+        };
+    };
+
+    const getAccountsReceivableChartData = () => {
+        if (!dashboard) return null;
+
+        return {
+            labels: [t('dashboard.pending'), t('dashboard.approved')],
+            datasets: [
+                {
+                    backgroundColor: [getStyle('--cui-warning'), getStyle('--cui-success')],
+                    data: [dashboard.accountsReceivable.totalPending, dashboard.accountsReceivable.totalApproved],
+                },
+            ],
+        };
+    };
+
+    const getGrowthBadgeColor = (growth: number) => {
+        if (growth >= 10) return 'success';
+        if (growth >= 0) return 'info';
+        return 'danger';
+    };
+
+    const getTrendIcon = (trend: string) => {
+        if (trend === 'Improving') return cilArrowTop;
+        if (trend === 'Declining') return cilArrowBottom;
+        return null;
+    };
+
+    const getTrendColor = (trend: string) => {
+        if (trend === 'Improving') return 'success';
+        if (trend === 'Declining') return 'danger';
+        return 'secondary';
+    };
+
+    if (loading) {
+        return (
+            <CContainer className="py-4">
+                <div className="text-center py-5">
+                    <CSpinner color="primary" />
+                    <p className="mt-3">{t('common.loading')}</p>
                 </div>
-                <CProgress thin className="mt-2" color={item.color} value={item.percent} />
-              </CCol>
-            ))}
+            </CContainer>
+        );
+    }
+
+    if (error || !dashboard) {
+        return (
+            <CContainer className="py-4">
+                <CAlert color="danger" dismissible onClose={() => setError(null)}>
+                    {error || t('common.noData')}
+                </CAlert>
+            </CContainer>
+        );
+    }
+
+    return (
+        <CContainer className="py-4">
+            {/* Time Range Selector */}
+            <CRow className="mb-4">
+                <CCol xs={12}>
+                    <div className="d-flex justify-content-between align-items-center">
+                        <h4 className="mb-0">{t('dashboard.financialDashboard')}</h4>
+                        <CButtonGroup>
+                            <CButton
+                                color={days === 30 ? 'primary' : 'outline-primary'}
+                                onClick={() => setDays(30)}
+                            >
+                                {t('dashboard.last30Days')}
+                            </CButton>
+                            <CButton
+                                color={days === 90 ? 'primary' : 'outline-primary'}
+                                onClick={() => setDays(90)}
+                            >
+                                {t('dashboard.last90Days')}
+                            </CButton>
+                            <CButton
+                                color={days === 180 ? 'primary' : 'outline-primary'}
+                                onClick={() => setDays(180)}
+                            >
+                                {t('dashboard.last180Days')}
+                            </CButton>
+                        </CButtonGroup>
+                    </div>
+                </CCol>
           </CRow>
-        </CCardFooter>
-      </CCard>
-      <WidgetsBrand className="mb-4" withCharts />
-      <CRow>
-        <CCol xs>
-          <CCard className="mb-4">
-            <CCardHeader>Traffic {' & '} Sales</CCardHeader>
-            <CCardBody>
-              <CRow>
-                <CCol xs={12} md={6} xl={6}>
-                  <CRow>
-                    <CCol xs={6}>
-                      <div className="border-start border-start-4 border-start-info py-1 px-3">
-                        <div className="text-body-secondary text-truncate small">New Clients</div>
-                        <div className="fs-5 fw-semibold">9,123</div>
-                      </div>
-                    </CCol>
-                    <CCol xs={6}>
-                      <div className="border-start border-start-4 border-start-danger py-1 px-3 mb-3">
-                        <div className="text-body-secondary text-truncate small">
-                          Recurring Clients
-                        </div>
-                        <div className="fs-5 fw-semibold">22,643</div>
-                      </div>
-                    </CCol>
-                  </CRow>
-                  <hr className="mt-0" />
-                  {progressGroupExample1.map((item, index) => (
-                    <div className="progress-group mb-4" key={index}>
-                      <div className="progress-group-prepend">
-                        <span className="text-body-secondary small">{item.title}</span>
-                      </div>
-                      <div className="progress-group-bars">
-                        <CProgress thin color="info" value={item.value1} />
-                        <CProgress thin color="danger" value={item.value2} />
-                      </div>
-                    </div>
-                  ))}
+
+            {/* KPI Summary Cards */}
+            <CRow className="mb-4" xs={{ gutter: 4 }}>
+                <CCol sm={6} xl={3}>
+                    <CWidgetStatsA
+                        color="success"
+                        value={
+                            <>
+                                {formatCurrency(dashboard.kpi.totalRevenue)}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {t('dashboard.totalRevenue')}
+                                </span>
+                            </>
+                        }
+                        title={t('dashboard.revenue')}
+                        action={
+                            <div className="mt-2">
+                                <CIcon icon={cilDollar} size="xl" className="text-white-50" />
+                            </div>
+            }
+                    />
+              </CCol>
+
+                <CCol sm={6} xl={3}>
+                    <CWidgetStatsA
+                        color="danger"
+                        value={
+                            <>
+                                {formatCurrency(dashboard.kpi.totalCost)}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {t('dashboard.totalCost')}
+                                </span>
+                            </>
+                        }
+                        title={t('dashboard.cost')}
+                        action={
+                            <div className="mt-2">
+                                <CIcon icon={cilCart} size="xl" className="text-white-50" />
+                            </div>
+            }
+                    />
                 </CCol>
-                <CCol xs={12} md={6} xl={6}>
-                  <CRow>
-                    <CCol xs={6}>
-                      <div className="border-start border-start-4 border-start-warning py-1 px-3 mb-3">
-                        <div className="text-body-secondary text-truncate small">Pageviews</div>
-                        <div className="fs-5 fw-semibold">78,623</div>
-                      </div>
-                    </CCol>
-                    <CCol xs={6}>
-                      <div className="border-start border-start-4 border-start-success py-1 px-3 mb-3">
-                        <div className="text-body-secondary text-truncate small">Organic</div>
-                        <div className="fs-5 fw-semibold">49,123</div>
-                      </div>
-                    </CCol>
-                  </CRow>
 
-                  <hr className="mt-0" />
-
-                  {progressGroupExample2.map((item, index) => (
-                    <div className="progress-group mb-4" key={index}>
-                      <div className="progress-group-header">
-                        <CIcon className="me-2" icon={item.icon} size="lg" />
-                        <span>{item.title}</span>
-                        <span className="ms-auto fw-semibold">{item.value}%</span>
-                      </div>
-                      <div className="progress-group-bars">
-                        <CProgress thin color="warning" value={item.value} />
-                      </div>
-                    </div>
-                  ))}
-
-                  <div className="mb-5"></div>
-
-                  {progressGroupExample3.map((item, index) => (
-                    <div className="progress-group" key={index}>
-                      <div className="progress-group-header">
-                        <CIcon className="me-2" icon={item.icon} size="lg" />
-                        <span>{item.title}</span>
-                        <span className="ms-auto fw-semibold">
-                          {item.value}{' '}
-                          <span className="text-body-secondary small">({item.percent}%)</span>
-                        </span>
-                      </div>
-                      <div className="progress-group-bars">
-                        <CProgress thin color="success" value={item.percent} />
-                      </div>
-                    </div>
-                  ))}
+                <CCol sm={6} xl={3}>
+                    <CWidgetStatsA
+                        color="info"
+                        value={
+                            <>
+                                {formatCurrency(dashboard.kpi.grossProfit)}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {formatPercentage(dashboard.kpi.profitMargin)} {t('dashboard.margin')}
+                                </span>
+                            </>
+                        }
+                        title={t('dashboard.grossProfit')}
+                        action={
+                            <div className="mt-2">
+                                <CIcon icon={cilGraph} size="xl" className="text-white-50" />
+                            </div>
+            }
+                    />
                 </CCol>
-              </CRow>
 
-              <br />
+                <CCol sm={6} xl={3}>
+                    <CWidgetStatsA
+                        color="primary"
+                        value={
+                            <>
+                                {dashboard.kpi.totalOrders}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {formatCurrency(dashboard.kpi.averageOrderValue)} {t('dashboard.aov')}
+                                </span>
+                            </>
+                        }
+                        title={t('dashboard.orders')}
+                        action={
+                            <div className="mt-2">
+                                <CIcon icon={cilCart} size="xl" className="text-white-50" />
+                            </div>
+            }
+                    />
+                </CCol>
+            </CRow>
 
-              <CTable align="middle" className="mb-0 border" hover responsive>
-                <CTableHead className="text-nowrap">
-                  <CTableRow>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      <CIcon icon={cilPeople} />
-                    </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">User</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Country
-                    </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Usage</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary text-center">
-                      Payment Method
-                    </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Activity</CTableHeaderCell>
-                  </CTableRow>
-                </CTableHead>
-                <CTableBody>
-                  {tableExample.map((item, index) => (
-                    <CTableRow v-for="item in tableItems" key={index}>
-                      <CTableDataCell className="text-center">
-                        <CAvatar size="md" src={item.avatar.src} status={item.avatar.status} />
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div>{item.user.name}</div>
-                        <div className="small text-body-secondary text-nowrap">
-                          <span>{item.user.new ? 'New' : 'Recurring'}</span> | Registered:{' '}
-                          {item.user.registered}
-                        </div>
-                      </CTableDataCell>
-                      <CTableDataCell className="text-center">
-                        <CIcon size="xl" icon={item.country.flag} title={item.country.name} />
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div className="d-flex justify-content-between text-nowrap">
-                          <div className="fw-semibold">{item.usage.value}%</div>
-                          <div className="ms-3">
-                            <small className="text-body-secondary">{item.usage.period}</small>
-                          </div>
-                        </div>
-                        <CProgress thin color={item.usage.color} value={item.usage.value} />
-                      </CTableDataCell>
-                      <CTableDataCell className="text-center">
-                        <CIcon size="xl" icon={item.payment.icon} />
-                      </CTableDataCell>
-                      <CTableDataCell>
-                        <div className="small text-body-secondary text-nowrap">Last login</div>
-                        <div className="fw-semibold text-nowrap">{item.activity}</div>
-                      </CTableDataCell>
-                    </CTableRow>
-                  ))}
-                </CTableBody>
-              </CTable>
+            {/* Daily Sales Summary */}
+            <CRow className="mb-4" xs={{ gutter: 4 }}>
+                <CCol sm={4} xl={4}>
+                    <CWidgetStatsB
+                        color="primary"
+                        title={t('dashboard.today')}
+                        value={
+                            <>
+                                {formatCurrency(dashboard.dailySales.todayRevenue)}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {dashboard.dailySales.todayOrders} {t('dashboard.orders')}
+                                </span>
+                            </>
+                        }
+                    />
+                </CCol>
+
+                <CCol sm={4} xl={4}>
+                    <CWidgetStatsB
+                        color="info"
+                        title={t('dashboard.thisWeek')}
+                        value={
+                            <>
+                                {formatCurrency(dashboard.dailySales.weekRevenue)}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {dashboard.dailySales.weekOrders} {t('dashboard.orders')}
+                                </span>
+                            </>
+                        }
+                    />
+                </CCol>
+
+                <CCol sm={4} xl={4}>
+                    <CWidgetStatsB
+                        color="success"
+                        title={t('dashboard.thisMonth')}
+                        value={
+                            <>
+                                {formatCurrency(dashboard.dailySales.monthRevenue)}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    <CIcon
+                                        icon={dashboard.dailySales.growthPercentage >= 0 ? cilArrowTop : cilArrowBottom}
+                                        className="me-1"
+                                    />
+                                    {formatPercentage(dashboard.dailySales.growthPercentage)} {t('dashboard.vsLastMonth')}
+                                </span>
+                            </>
+                        }
+                    />
+                </CCol>
+            </CRow>
+
+            {/* Charts Row */}
+            <CRow className="mb-4" xs={{ gutter: 4 }}>
+                <CCol md={8}>
+                    <CCard className="mb-4">
+                        <CCardHeader className="d-flex align-items-center">
+                            <CIcon icon={cilTruck} className="me-2" />
+                            <strong>{t('dashboard.revenueVsCost')}</strong>
+                        </CCardHeader>
+                        <CCardBody>
+                            {dashboard.revenueVsCost.length === 0 ? (
+                                <p className="text-muted text-center">{t('common.noData')}</p>
+                            ) : (
+                                <CChartLine
+                                    data={getRevenueVsCostChartData()}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            },
+                                        },
+                                        scales: {
+                                            x: {
+                                                grid: {
+                                                    display: false,
+                                                },
+                                            },
+                                            y: {
+                                                beginAtZero: true,
+                                            },
+                                        },
+                                    }}
+                                />
+                            )}
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+
+                <CCol md={4}>
+                    <CCard className="mb-4">
+                        <CCardHeader className="d-flex align-items-center">
+                            <CIcon icon={cilClock} className="me-2" />
+                            <strong>{t('dashboard.accountsReceivable')}</strong>
+                        </CCardHeader>
+                        <CCardBody>
+                            {dashboard.accountsReceivable.totalPending === 0 && dashboard.accountsReceivable.totalApproved === 0 ? (
+                                <p className="text-muted text-center">{t('common.noData')}</p>
+                            ) : (
+                                <>
+                                    <CChartDoughnut
+                                        data={getAccountsReceivableChartData()}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: true,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    <CRow className="mt-3" xs={{ gutter: 2 }}>
+                                        <CCol xs={6}>
+                                            <div className="text-center">
+                                                <div className="text-warning fw-semibold">
+                                                    {formatCurrency(dashboard.accountsReceivable.totalPending)}
+                                                </div>
+                                                    <small className="text-body-secondary">
+                                                        {dashboard.accountsReceivable.pendingOrdersCount} {t('dashboard.pendingOrders')}
+                                                    </small>
+                      </div>
+                                            </CCol>
+                                            <CCol xs={6}>
+                                                <div className="text-center">
+                                                    <div className="text-success fw-semibold">
+                                                        {formatCurrency(dashboard.accountsReceivable.totalApproved)}
+                                                    </div>
+                                                    <small className="text-body-secondary">
+                                                        {dashboard.accountsReceivable.approvedOrdersCount} {t('dashboard.approvedOrders')}
+                                                    </small>
+                                                </div>
+                                        </CCol>
+                                    </CRow>
+                                </>
+                            )}
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+            </CRow>
+
+            {/* Profit Margin Trend */}
+            <CRow className="mb-4">
+                <CCol xs={12}>
+                    <CCard>
+                        <CCardHeader className="d-flex align-items-center">
+                            <CIcon icon={cilGraph} className="me-2" />
+                            <strong>{t('dashboard.profitMarginTrend')}</strong>
+                        </CCardHeader>
+                        <CCardBody>
+                            {dashboard.profitMarginTrend.length === 0 ? (
+                                <p className="text-muted text-center">{t('common.noData')}</p>
+                            ) : (
+                                <>
+                                    <CChartBar
+                                        data={getProfitMarginChartData()}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: true,
+                                            plugins: {
+                                                legend: {
+                                                    display: false,
+                                                },
+                                            },
+                                            scales: {
+                                                x: {
+                                                    grid: {
+                                                        display: false,
+                                                    },
+                                                },
+                                                y: {
+                                                    beginAtZero: true,
+                                                    max: 100,
+                                                },
+                                            },
+                                        }}
+                                    />
+                                    <CTable hover responsive className="mt-3">
+                                        <CTableHead>
+                                            <CTableRow>
+                                                    <CTableHeaderCell>{t('dashboard.period')}</CTableHeaderCell>
+                                                    <CTableHeaderCell className="text-end">{t('dashboard.margin')}</CTableHeaderCell>
+                                                    <CTableHeaderCell className="text-center">{t('dashboard.trend')}</CTableHeaderCell>
+                                                </CTableRow>
+                                            </CTableHead>
+                                            <CTableBody>
+                                                {dashboard.profitMarginTrend.slice(-7).map((item, index) => (
+                                                    <CTableRow key={index}>
+                                                        <CTableDataCell>{item.period}</CTableDataCell>
+                                                        <CTableDataCell className="text-end">
+                                                            <strong>{formatPercentage(item.marginPercentage)}</strong>
+                                                        </CTableDataCell>
+                                                        <CTableDataCell className="text-center">
+                                                            {getTrendIcon(item.trend) && (
+                                                                <CIcon
+                                                                    icon={getTrendIcon(item.trend)}
+                                                                    className={`text-${getTrendColor(item.trend)}`}
+                                                                    size="lg"
+                                                                />
+                                                            )}
+                                                            <CBadge color={getTrendColor(item.trend)} className="ms-2">
+                                                                {t(`dashboard.${item.trend.toLowerCase()}`)}
+                                                            </CBadge>
+                                                        </CTableDataCell>
+                                                    </CTableRow>
+                                                ))}
+                                            </CTableBody>
+                                        </CTable>
+                                </>
+                            )}
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+            </CRow>
+
+            {/* Additional Info */}
+            <CRow xs={{ gutter: 4 }}>
+                <CCol md={6}>
+                    <CCard>
+                        <CCardHeader className="d-flex align-items-center">
+                            <CIcon icon={cilCalendar} className="me-2" />
+                            <strong>{t('dashboard.stockValue')}</strong>
+                        </CCardHeader>
+                        <CCardBody>
+                            <div className="text-center py-3">
+                                <div className="fs-2 fw-semibold text-primary">
+                                    {formatCurrency(dashboard.kpi.totalStockValue)}
+                                </div>
+                                <p className="text-muted mb-0">{t('dashboard.totalStockValue')}</p>
+                                <div className="mt-3">
+                                    <CProgress
+                                        value={100}
+                                        color="primary"
+                                        className="mb-2"
+                                    />
+                                    <small className="text-body-secondary">
+                                        {dashboard.kpi.totalProducts} {t('dashboard.products')}
+                                    </small>
+                                </div>
+                            </div>
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+
+                <CCol md={6}>
+                    <CCard>
+                        <CCardHeader className="d-flex align-items-center">
+                            <CIcon icon={cilWarning} className="me-2" />
+                            <strong>{t('dashboard.pendingOrdersAlert')}</strong>
+                        </CCardHeader>
+                        <CCardBody>
+                            {dashboard.accountsReceivable.pendingOrdersCount > 0 ? (
+                                <div className="text-center py-3">
+                                    <div className="fs-2 fw-semibold text-warning">
+                                        {dashboard.accountsReceivable.pendingOrdersCount}
+                                    </div>
+                                    <p className="text-muted mb-0">{t('dashboard.pendingOrdersAwaitingApproval')}</p>
+                                    <div className="mt-3">
+                                        <CProgress
+                                            value={(dashboard.accountsReceivable.pendingOrdersCount / (dashboard.accountsReceivable.pendingOrdersCount + dashboard.accountsReceivable.approvedOrdersCount)) * 100}
+                                            color="warning"
+                                            className="mb-2"
+                                        />
+                                        <small className="text-body-secondary">
+                                            {formatCurrency(dashboard.accountsReceivable.totalPending)} {t('dashboard.pendingValue')}
+                                        </small>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-center py-3">
+                                    <CIcon icon={cilCheck} className="text-success" size="4xl" />
+                                    <p className="text-muted mt-2 mb-0">{t('dashboard.noPendingOrders')}</p>
+                                </div>
+                            )}
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
-    </>
-  )
-}
+        </CContainer>
+    );
+};
 
-export default Dashboard
+export default Dashboard;

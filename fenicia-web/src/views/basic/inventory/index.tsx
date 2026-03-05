@@ -6,7 +6,10 @@ import {
     cilPeople,
     cilTags,
     cilTruck,
-    cilWarning
+    cilWarning,
+    cilChart,
+    cilBan,
+    cilPuzzle
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
@@ -27,16 +30,29 @@ import {
     CTableHead,
     CTableHeaderCell,
     CTableRow,
-    CWidgetStatsA
+    CWidgetStatsA,
+    CWidgetStatsB,
+    CBadge,
+    CNav,
+    CNavItem,
+    CNavLink,
+    CTabContent,
+    CTabPane
 } from '@coreui/react'
 import { CChartBar, CChartDoughnut, CChartLine } from '@coreui/react-chartjs'
 import { getStyle } from '@coreui/utils'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import InventoryClient from '../../../services/inventory-client'
+import InventoryHealthClient from '../../../services/inventory-health-client'
+import { BasicProductClient, BasicProductCategoryClient, BasicSupplierClient } from '../../../services/basic-crud-clients'
+import ProductModal from '../../../components/ProductModal'
+import ProductCategoryModal from '../../../components/ProductCategoryModal'
+import SupplierModal from '../../../components/SupplierModal'
 
 const inventoryClient = new InventoryClient()
+const healthClient = new InventoryHealthClient()
 
 interface LowStockItem {
     id: string
@@ -78,13 +94,54 @@ interface DashboardData {
 
 const InventoryDashboard = () => {
     const { t } = useTranslation()
+    const navigate = useNavigate()
+    
+    // Tab state
+    const [activeTab, setActiveTab] = useState(0)
+    
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [dashboard, setDashboard] = useState<DashboardData | null>(null)
+    
+    // Health analytics state
+    const [healthLoading, setHealthLoading] = useState(false)
+    const [health, setHealth] = useState(null)
+    const [zeroMovementDays, setZeroMovementDays] = useState(90)
+    const [overstockMultiplier, setOverstockMultiplier] = useState(3.0)
+
+    // Modal state for quick view without navigation
+    const [productModalVisible, setProductModalVisible] = useState(false)
+    const [categoryModalVisible, setCategoryModalVisible] = useState(false)
+    const [supplierModalVisible, setSupplierModalVisible] = useState(false)
+    const [selectedItem, setSelectedItem] = useState(null)
+    const [modalLoading, setModalLoading] = useState(false)
+
+    const productClient = new BasicProductClient()
+    const categoryClient = new BasicProductCategoryClient()
+    const supplierClient = new BasicSupplierClient()
 
     useEffect(() => {
         loadDashboard()
     }, [])
+
+    useEffect(() => {
+        if (activeTab === 1) {
+            loadHealth()
+        }
+    }, [activeTab, zeroMovementDays, overstockMultiplier])
+
+    const loadHealth = async () => {
+        try {
+            setHealthLoading(true)
+            const data = await healthClient.getInventoryHealth(zeroMovementDays, overstockMultiplier)
+            setHealth(data)
+        } catch (err) {
+            setError(t('inventory.healthLoadError'))
+            console.error('Failed to load inventory health:', err)
+        } finally {
+            setHealthLoading(false)
+        }
+    }
 
     const loadDashboard = async () => {
         try {
@@ -110,6 +167,55 @@ const InventoryDashboard = () => {
 
     const formatNumber = (value: number) => {
         return new Intl.NumberFormat('pt-BR').format(value)
+    }
+
+    // Open modal without navigation
+    const openProductModal = async (productId: string, e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        try {
+            setModalLoading(true)
+            const product = await productClient.getById(productId)
+            setSelectedItem(product)
+            setProductModalVisible(true)
+        } catch (err) {
+            console.error('Failed to load product:', err)
+            navigate(`/basic/products?id=${productId}`)
+        } finally {
+            setModalLoading(false)
+        }
+    }
+
+    const openCategoryModal = async (categoryId: string, e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        try {
+            setModalLoading(true)
+            const category = await categoryClient.getById(categoryId)
+            setSelectedItem(category)
+            setCategoryModalVisible(true)
+        } catch (err) {
+            console.error('Failed to load category:', err)
+            navigate(`/basic/product-categories?id=${categoryId}`)
+        } finally {
+            setModalLoading(false)
+        }
+    }
+
+    const openSupplierModal = async (supplierId: string, e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        try {
+            setModalLoading(true)
+            const supplier = await supplierClient.getById(supplierId)
+            setSelectedItem(supplier)
+            setSupplierModalVisible(true)
+        } catch (err) {
+            console.error('Failed to load supplier:', err)
+            navigate(`/basic/suppliers?id=${supplierId}`)
+        } finally {
+            setModalLoading(false)
+        }
     }
 
     const calculateProfitMargin = () => {
@@ -164,10 +270,306 @@ const InventoryDashboard = () => {
         )
     }
 
+    // Render Health Tab Content
+    const renderHealthTab = () => {
+        if (healthLoading) {
+            return (
+                <div className="text-center py-5">
+                    <CSpinner color="primary" />
+                    <p className="mt-3">{t('common.loading')}</p>
+                </div>
+            )
+        }
+
+        if (!health) {
+            return (
+                <div className="text-center py-5">
+                    <p className="text-muted">{t('common.noData')}</p>
+                </div>
+            )
+        }
+
+        return (
+            <>
+                {/* Summary Cards */}
+                <CRow className="mb-4" xs={{ gutter: 4 }}>
+                    <CCol sm={6} xl={3}>
+                        <CWidgetStatsB
+                            color="success"
+                            title={t('inventory.healthyProducts')}
+                            value={
+                                <>
+                                    {health.summary.healthyProducts}
+                                    <span className="fs-6 fw-normal d-block mt-1">
+                                        {formatPercentage(100 - health.summary.overstockPercentage - health.summary.zeroMovementPercentage)} {t('inventory.ofTotal')}
+                                    </span>
+                                </>
+                            }
+                        />
+                    </CCol>
+                    <CCol sm={6} xl={3}>
+                        <CWidgetStatsB
+                            color="warning"
+                            title={t('inventory.overstockProducts')}
+                            value={
+                                <>
+                                    {health.summary.overstockProducts}
+                                    <span className="fs-6 fw-normal d-block mt-1">
+                                        {formatCurrency(health.overstockAlert.totalOverstockValue)} {t('inventory.tiedUp')}
+                                    </span>
+                                </>
+                            }
+                        />
+                    </CCol>
+                    <CCol sm={6} xl={3}>
+                        <CWidgetStatsB
+                            color="danger"
+                            title={t('inventory.zeroMovementProducts')}
+                            value={
+                                <>
+                                    {health.zeroMovementProducts.length}
+                                    <span className="fs-6 fw-normal d-block mt-1">
+                                        {formatCurrency(health.zeroMovementProducts.reduce((sum, p) => sum + p.stockValue, 0))} {t('inventory.atRisk')}
+                                    </span>
+                                </>
+                            }
+                        />
+                    </CCol>
+                    <CCol sm={6} xl={3}>
+                        <CWidgetStatsB
+                            color="info"
+                            title={t('inventory.totalStockValue')}
+                            value={
+                                <>
+                                    {formatCurrency(health.summary.totalStockValue)}
+                                    <span className="fs-6 fw-normal d-block mt-1">
+                                        {health.summary.totalProducts} {t('inventory.products')}
+                                    </span>
+                                </>
+                            }
+                        />
+                    </CCol>
+                </CRow>
+
+                {/* Overstock Alert */}
+                <CRow className="mb-4">
+                    <CCol xs={12}>
+                        <CCard>
+                            <CCardHeader className="d-flex align-items-center">
+                                <CIcon icon={cilWarning} className="me-2 text-warning" />
+                                <strong>{t('inventory.overstockAlert')}</strong>
+                            </CCardHeader>
+                            <CCardBody>
+                                {health.overstockAlert.products.length === 0 ? (
+                                    <p className="text-muted text-center">{t('inventory.noOverstock')}</p>
+                                ) : (
+                                    <CTable hover responsive>
+                                        <CTableHead>
+                                            <CTableRow>
+                                                <CTableHeaderCell>{t('inventory.product')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t('inventory.category')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-center">{t('inventory.currentQty')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-center">{t('inventory.recommendedQty')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-end">{t('inventory.excessValue')}</CTableHeaderCell>
+                                            </CTableRow>
+                                        </CTableHead>
+                                        <CTableBody>
+                                            {health.overstockAlert.products.map((product) => (
+                                                <CTableRow key={product.productId}>
+                                                    <CTableDataCell>
+                                                        <Link to={`/basic/products?id=${product.productId}`} className="text-decoration-none">
+                                                            <strong>{product.productName}</strong>
+                                                        </Link>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell>{product.categoryName}</CTableDataCell>
+                                                    <CTableDataCell className="text-center">
+                                                        <CBadge color="danger">{product.currentQuantity}</CBadge>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell className="text-center">{product.recommendedQuantity.toFixed(0)}</CTableDataCell>
+                                                    <CTableDataCell className="text-end">
+                                                        <span className="text-danger">{formatCurrency(product.excessValue)}</span>
+                                                    </CTableDataCell>
+                                                </CTableRow>
+                                            ))}
+                                        </CTableBody>
+                                    </CTable>
+                                )}
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                </CRow>
+
+                {/* Zero Movement Products */}
+                <CRow className="mb-4">
+                    <CCol xs={12}>
+                        <CCard>
+                            <CCardHeader className="d-flex align-items-center">
+                                <CIcon icon={cilBan} className="me-2 text-danger" />
+                                <strong>{t('inventory.zeroMovementProducts')}</strong>
+                            </CCardHeader>
+                            <CCardBody>
+                                {health.zeroMovementProducts.length === 0 ? (
+                                    <p className="text-muted text-center">{t('inventory.allProductsMoving')}</p>
+                                ) : (
+                                    <CTable hover responsive>
+                                        <CTableHead>
+                                            <CTableRow>
+                                                <CTableHeaderCell>{t('inventory.product')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t('inventory.category')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-center">{t('inventory.stock')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-end">{t('inventory.stockValue')}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-center">{t('inventory.daysNoMovement')}</CTableHeaderCell>
+                                            </CTableRow>
+                                        </CTableHead>
+                                        <CTableBody>
+                                            {health.zeroMovementProducts.map((product) => (
+                                                <CTableRow key={product.productId}>
+                                                    <CTableDataCell>
+                                                        <Link to={`/basic/products?id=${product.productId}`} className="text-decoration-none">
+                                                            <strong>{product.productName}</strong>
+                                                        </Link>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell>{product.categoryName}</CTableDataCell>
+                                                    <CTableDataCell className="text-center">
+                                                        <CBadge color="warning">{product.currentStock}</CBadge>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell className="text-end">
+                                                        <span className="text-danger">{formatCurrency(product.stockValue)}</span>
+                                                    </CTableDataCell>
+                                                    <CTableDataCell className="text-center">
+                                                        <CBadge color={product.daysWithoutMovement >= 180 ? 'danger' : product.daysWithoutMovement >= 120 ? 'warning' : 'info'}>
+                                                            {product.daysWithoutMovement} {t('inventory.days')}
+                                                        </CBadge>
+                                                    </CTableDataCell>
+                                                </CTableRow>
+                                            ))}
+                                        </CTableBody>
+                                    </CTable>
+                                )}
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                </CRow>
+
+                {/* Stock Value by Category */}
+                <CRow>
+                    <CCol md={6}>
+                        <CCard className="mb-4">
+                            <CCardHeader className="d-flex align-items-center">
+                                <CIcon icon={cilPuzzle} className="me-2" />
+                                <strong>{t('inventory.stockValueByCategory')}</strong>
+                            </CCardHeader>
+                            <CCardBody>
+                                {health.stockValueByCategory.length === 0 ? (
+                                    <p className="text-muted text-center">{t('common.noData')}</p>
+                                ) : (
+                                    <CChartDoughnut
+                                        data={{
+                                            labels: health.stockValueByCategory.map(c => c.categoryName),
+                                            datasets: [{
+                                                data: health.stockValueByCategory.map(c => c.totalStockValue),
+                                                backgroundColor: [
+                                                    getStyle('--cui-primary'),
+                                                    getStyle('--cui-success'),
+                                                    getStyle('--cui-info'),
+                                                    getStyle('--cui-warning'),
+                                                    getStyle('--cui-danger'),
+                                                    getStyle('--cui-secondary'),
+                                                ]
+                                            }]
+                                        }}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: true,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom',
+                                                },
+                                            },
+                                        }}
+                                    />
+                                )}
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                    <CCol md={6}>
+                        <CCard className="mb-4">
+                            <CCardHeader className="d-flex align-items-center">
+                                <CIcon icon={cilLayers} className="me-2" />
+                                <strong>{t('inventory.categoryBreakdown')}</strong>
+                            </CCardHeader>
+                            <CCardBody>
+                                {health.stockValueByCategory.length === 0 ? (
+                                    <p className="text-muted text-center">{t('common.noData')}</p>
+                                ) : (
+                                    <CListGroup flush>
+                                        {health.stockValueByCategory.map((category) => (
+                                            <CListGroupItem
+                                                key={category.categoryId}
+                                                className="d-flex justify-content-between align-items-center"
+                                            >
+                                                <div>
+                                                    <div className="fw-semibold">{category.categoryName}</div>
+                                                    <small className="text-body-secondary">
+                                                        {category.productCount} {t('inventory.products')}
+                                                    </small>
+                                                </div>
+                                                <div className="text-end">
+                                                    <div className="text-success fw-semibold">
+                                                        {formatCurrency(category.totalStockValue)}
+                                                    </div>
+                                                    <small className="text-body-secondary">
+                                                        {formatPercentage(category.percentage)}
+                                                    </small>
+                                                </div>
+                                            </CListGroupItem>
+                                        ))}
+                                    </CListGroup>
+                                )}
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                </CRow>
+            </>
+        )
+    }
+
+    const formatPercentage = (value: number) => {
+        return `${value.toFixed(1)}%`
+    }
+
     return (
         <CContainer className="py-4">
-            {/* Financial Metrics Cards - Using CWidgetStatsA */}
-            <CRow className="mb-4" xs={{ gutter: 4 }}>
+            <CCard>
+                <CCardHeader>
+                    <CNav variant="tabs">
+                        <CNavItem>
+                            <CNavLink
+                                active={activeTab === 0}
+                                onClick={() => setActiveTab(0)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <CIcon icon={cilChart} className="me-2" />
+                                {t('inventory.dashboard')}
+                            </CNavLink>
+                        </CNavItem>
+                        <CNavItem>
+                            <CNavLink
+                                active={activeTab === 1}
+                                onClick={() => setActiveTab(1)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <CIcon icon={cilWarning} className="me-2" />
+                                {t('inventory.health')}
+                            </CNavLink>
+                        </CNavItem>
+                    </CNav>
+                </CCardHeader>
+                <CCardBody>
+                    <CTabContent>
+                        <CTabPane visible={activeTab === 0}>
+                            {/* Financial Metrics Cards - Using CWidgetStatsA */}
+                            <CRow className="mb-4" xs={{ gutter: 4 }}>
                 <CCol sm={6} xl={3}>
                     <CWidgetStatsA
                         color="primary"
@@ -520,14 +922,14 @@ const InventoryDashboard = () => {
                                     return (
                                         <CTableRow key={item.id}>
                                             <CTableDataCell>
-                                                <Link to={`/basic/products?id=${item.id}`} className="text-decoration-none">
+                                                <a href={`/basic/products?id=${item.id}`} onClick={(e) => openProductModal(item.id, e)} className="text-decoration-none">
                                                     <div className="fw-semibold">{item.name}</div>
-                                                </Link>
+                                                </a>
                                             </CTableDataCell>
                                             <CTableDataCell className="text-center">
-                                                <Link to={`/basic/product-categories?id=${item.categoryId}`} className="text-decoration-none">
+                                                <a href={`/basic/product-categories?id=${item.categoryId}`} onClick={(e) => openCategoryModal(item.categoryId, e)} className="text-decoration-none">
                                                     {item.categoryName}
-                                                </Link>
+                                                </a>
                                             </CTableDataCell>
                                             <CTableDataCell className="text-center">
                                                 <div className="d-flex align-items-center justify-content-center">
@@ -558,6 +960,59 @@ const InventoryDashboard = () => {
                     )}
                 </CCardBody>
             </CCard>
+                        </CTabPane>
+                        <CTabPane visible={activeTab === 1}>
+                            {renderHealthTab()}
+                        </CTabPane>
+                    </CTabContent>
+                </CCardBody>
+            </CCard>
+
+            {/* Quick View Modals */}
+            <ProductModal
+                visible={productModalVisible}
+                onClose={() => {
+                    setProductModalVisible(false)
+                    setSelectedItem(null)
+                }}
+                onSave={() => {
+                    setProductModalVisible(false)
+                    setSelectedItem(null)
+                    loadDashboard()
+                }}
+                product={selectedItem}
+                loading={modalLoading}
+            />
+
+            <ProductCategoryModal
+                visible={categoryModalVisible}
+                onClose={() => {
+                    setCategoryModalVisible(false)
+                    setSelectedItem(null)
+                }}
+                onSave={() => {
+                    setCategoryModalVisible(false)
+                    setSelectedItem(null)
+                    loadDashboard()
+                }}
+                category={selectedItem}
+                loading={modalLoading}
+            />
+
+            <SupplierModal
+                visible={supplierModalVisible}
+                onClose={() => {
+                    setSupplierModalVisible(false)
+                    setSelectedItem(null)
+                }}
+                onSave={() => {
+                    setSupplierModalVisible(false)
+                    setSelectedItem(null)
+                    loadDashboard()
+                }}
+                supplier={selectedItem}
+                loading={modalLoading}
+            />
         </CContainer>
     )
 }

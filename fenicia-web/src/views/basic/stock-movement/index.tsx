@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
     CCard,
     CCardBody,
@@ -22,16 +22,30 @@ import { CChartBar, CChartLine } from '@coreui/react-chartjs';
 import CIcon from '@coreui/icons-react';
 import { cilArrowBottom, cilArrowTop, cilLayers, cilSpeedometer, cilHistory } from '@coreui/icons';
 import { StockMovementClient, StockMovementDashboard, StockMovementHistory, MonthlyInOut, TopMovedProduct, StockTurnover } from '../../../services/stock-movement-client';
+import { BasicProductClient, BasicOrderClient, BasicCustomerClient, BasicEmployeeClient } from '../../../services/basic-crud-clients';
 import { getStyle } from '@coreui/utils';
+import ProductModal from '../../../components/ProductModal';
+import CustomerModal from '../../../components/CustomerModal';
+import EmployeeModal from '../../../components/EmployeeModal';
 
 const stockMovementClient = new StockMovementClient();
 
 const StockMovementDashboardView = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [dashboard, setDashboard] = useState<StockMovementDashboard | null>(null);
     const [days, setDays] = useState(30);
+    
+    // Modal state for quick view without navigation
+    const [productModalVisible, setProductModalVisible] = useState(false)
+    const [orderModalVisible, setOrderModalVisible] = useState(false)
+    const [selectedItem, setSelectedItem] = useState(null)
+    const [modalLoading, setModalLoading] = useState(false)
+    
+    const productClient = new BasicProductClient()
+    const orderClient = new BasicOrderClient()
 
     useEffect(() => {
         loadDashboard();
@@ -66,6 +80,39 @@ const StockMovementDashboardView = () => {
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString();
     };
+
+    // Open modal without navigation
+    const openProductModal = async (productId: string, e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        try {
+            setModalLoading(true)
+            const product = await productClient.getById(productId)
+            setSelectedItem(product)
+            setProductModalVisible(true)
+        } catch (err) {
+            console.error('Failed to load product:', err)
+            navigate(`/basic/products?id=${productId}`)
+        } finally {
+            setModalLoading(false)
+        }
+    }
+
+    const openOrderModal = async (orderId: string, e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        try {
+            setModalLoading(true)
+            const order = await orderClient.getById(orderId)
+            setSelectedItem(order)
+            setOrderModalVisible(true)
+        } catch (err) {
+            console.error('Failed to load order:', err)
+            navigate(`/basic/order/${orderId}`)
+        } finally {
+            setModalLoading(false)
+        }
+    }
 
     const getTypeBadgeColor = (type: string) => {
         return type === 'In' ? 'success' : 'danger';
@@ -327,9 +374,9 @@ const StockMovementDashboardView = () => {
                                             <CTableRow key={movement.id}>
                                                 <CTableDataCell>{formatDate(movement.date)}</CTableDataCell>
                                                 <CTableDataCell>
-                                                    <Link to={`/basic/products?id=${movement.productId}`} className="text-decoration-none">
+                                                    <a href={`/basic/products?id=${movement.productId}`} onClick={(e) => openProductModal(movement.productId, e)} className="text-decoration-none">
                                                         <div className="fw-semibold">{movement.productName}</div>
-                                                    </Link>
+                                                    </a>
                                                 </CTableDataCell>
                                                 <CTableDataCell className="text-center">
                                                     <span className={`badge bg-${getTypeBadgeColor(movement.type)}`}>
@@ -344,18 +391,18 @@ const StockMovementDashboardView = () => {
                                                 </CTableDataCell>
                                                 <CTableDataCell>
                                                     {movement.orderId ? (
-                                                        <Link to={`/basic/order/${movement.orderId}`} className="text-primary">
+                                                        <a href={`/basic/order/${movement.orderId}`} onClick={(e) => openOrderModal(movement.orderId, e)} className="text-primary">
                                                             {movement.orderId.substring(0, 8)}...
-                                                        </Link>
+                                                        </a>
                                                     ) : (
                                                         '-'
                                                     )}
                                                 </CTableDataCell>
                                                 <CTableDataCell>
                                                     {movement.orderId ? (
-                                                        <Link to={`/basic/order/${movement.orderId}`} className="text-decoration-none">
+                                                        <a href={`/basic/order/${movement.orderId}`} onClick={(e) => openOrderModal(movement.orderId, e)} className="text-decoration-none">
                                                             {movement.reason || '-'}
-                                                        </Link>
+                                                        </a>
                                                     ) : (
                                                         movement.reason || '-'
                                                     )}
@@ -394,9 +441,9 @@ const StockMovementDashboardView = () => {
                                         {dashboard.topMovedProducts.map((product) => (
                                             <CTableRow key={product.productId}>
                                                 <CTableDataCell>
-                                                    <Link to={`/basic/products?id=${product.productId}`} className="text-decoration-none">
+                                                    <a href={`/basic/products?id=${product.productId}`} onClick={(e) => openProductModal(product.productId, e)} className="text-decoration-none">
                                                         <div className="fw-semibold">{product.productName}</div>
-                                                    </Link>
+                                                    </a>
                                                     <small className="text-body-secondary">{product.categoryName}</small>
                                                 </CTableDataCell>
                                                 <CTableDataCell className="text-end">
@@ -436,9 +483,9 @@ const StockMovementDashboardView = () => {
                                         {dashboard.turnoverRates.map((item) => (
                                             <CTableRow key={item.productId}>
                                                 <CTableDataCell>
-                                                    <Link to={`/basic/products?id=${item.productId}`} className="text-decoration-none">
+                                                    <a href={`/basic/products?id=${item.productId}`} onClick={(e) => openProductModal(item.productId, e)} className="text-decoration-none">
                                                         <div className="fw-semibold">{item.productName}</div>
-                                                    </Link>
+                                                    </a>
                                                     <small className="text-body-secondary">{item.categoryName}</small>
                                                 </CTableDataCell>
                                                 <CTableDataCell className="text-end">
@@ -458,6 +505,22 @@ const StockMovementDashboardView = () => {
                     </CCard>
                 </CCol>
             </CRow>
+
+            {/* Quick View Modals */}
+            <ProductModal
+                visible={productModalVisible}
+                onClose={() => {
+                    setProductModalVisible(false)
+                    setSelectedItem(null)
+                }}
+                onSave={() => {
+                    setProductModalVisible(false)
+                    setSelectedItem(null)
+                    loadDashboard()
+                }}
+                product={selectedItem}
+                loading={modalLoading}
+            />
         </CContainer>
     );
 };

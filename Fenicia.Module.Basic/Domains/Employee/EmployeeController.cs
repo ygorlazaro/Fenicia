@@ -5,6 +5,7 @@ using Fenicia.Module.Basic.Domains.Employee.Add;
 using Fenicia.Module.Basic.Domains.Employee.Delete;
 using Fenicia.Module.Basic.Domains.Employee.GetAll;
 using Fenicia.Module.Basic.Domains.Employee.GetById;
+using Fenicia.Module.Basic.Domains.Employee.GetEmployeePerformance;
 using Fenicia.Module.Basic.Domains.Employee.Update;
 
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +23,8 @@ public class EmployeeController(
     GetEmployeeByIdHandler getEmployeeByIdHandler,
     AddEmployeeHandler addEmployeeHandler,
     UpdateEmployeeHandler updateEmployeeHandler,
-    DeleteEmployeeHandler deleteEmployeeHandler) : ControllerBase
+    DeleteEmployeeHandler deleteEmployeeHandler,
+    GetEmployeePerformanceHandler getEmployeePerformanceHandler) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllEmployeeResponse>>))]
@@ -84,5 +86,18 @@ public class EmployeeController(
         await deleteEmployeeHandler.Handle(new DeleteEmployeeCommand(id), ct);
 
         return NoContent();
+    }
+
+    [HttpGet("performance")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeePerformanceResponse))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<EmployeePerformanceResponse>> GetPerformanceAsync(
+        [FromQuery] int days = 90,
+        [FromQuery] int topLimit = 10,
+        CancellationToken ct = default)
+    {
+        var performance = await getEmployeePerformanceHandler.Handle(new GetEmployeePerformanceQuery(days, topLimit), ct);
+
+        return Ok(performance);
     }
 }

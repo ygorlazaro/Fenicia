@@ -4,6 +4,7 @@ using Fenicia.Module.Basic.Domains.Inventory.GetInventory;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByCategory;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByProduct;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryDashboard;
+using Fenicia.Module.Basic.Domains.Inventory.GetInventoryHealth;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,8 @@ public class InventoryController(
     GetInventoryHandler getInventoryHandler,
     GetInventoryByProductHandler getInventoryByProductHandler,
     GetInventoryByCategoryHandler getInventoryByCategoryHandler,
-    GetInventoryDashboardHandler getInventoryDashboardHandler) : ControllerBase
+    GetInventoryDashboardHandler getInventoryDashboardHandler,
+    GetInventoryHealthHandler getInventoryHealthHandler) : ControllerBase
 {
     [HttpGet("product/{productId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
@@ -59,5 +61,18 @@ public class InventoryController(
         var dashboard = await getInventoryDashboardHandler.Handle(ct);
 
         return Ok(dashboard);
+    }
+
+    [HttpGet("health")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryHealthResponse))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<InventoryHealthResponse>> GetInventoryHealthAsync(
+        [FromQuery] int zeroMovementDays = 90,
+        [FromQuery] double overstockMultiplier = 3.0,
+        CancellationToken ct = default)
+    {
+        var health = await getInventoryHealthHandler.Handle(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), ct);
+
+        return Ok(health);
     }
 }

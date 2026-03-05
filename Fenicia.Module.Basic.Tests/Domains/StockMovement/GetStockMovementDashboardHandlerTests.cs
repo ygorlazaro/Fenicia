@@ -75,7 +75,7 @@ public class GetStockMovementDashboardHandlerTests
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
-            ProductModel = product,
+            Product = product,
             Quantity = 10,
             Date = DateTime.UtcNow.AddDays(-5),
             Price = 15.00m,
@@ -126,7 +126,7 @@ public class GetStockMovementDashboardHandlerTests
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
-            ProductModel = product,
+            Product = product,
             Quantity = 50,
             Date = now,
             Price = 100.00m,
@@ -137,7 +137,7 @@ public class GetStockMovementDashboardHandlerTests
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
-            ProductModel = product,
+            Product = product,
             Quantity = 20,
             Date = now,
             Price = 50.00m,
@@ -208,7 +208,7 @@ public class GetStockMovementDashboardHandlerTests
             {
                 Id = Guid.NewGuid(),
                 ProductId = product1.Id,
-                ProductModel = product1,
+                Product = product1,
                 Quantity = 10,
                 Date = DateTime.UtcNow.AddDays(-i),
                 Price = 20.00m,
@@ -223,7 +223,7 @@ public class GetStockMovementDashboardHandlerTests
             {
                 Id = Guid.NewGuid(),
                 ProductId = product2.Id,
-                ProductModel = product2,
+                Product = product2,
                 Quantity = 5,
                 Date = DateTime.UtcNow.AddDays(-i),
                 Price = 15.00m,
@@ -276,7 +276,7 @@ public class GetStockMovementDashboardHandlerTests
             {
                 Id = Guid.NewGuid(),
                 ProductId = product.Id,
-                ProductModel = product,
+                Product = product,
                 Quantity = 20, // Total sold = 100
                 Date = DateTime.UtcNow.AddDays(-i),
                 Price = 20.00m,
@@ -330,7 +330,7 @@ public class GetStockMovementDashboardHandlerTests
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
-            ProductModel = product,
+            Product = product,
             Quantity = 10, // Low sales
             Date = DateTime.UtcNow.AddDays(-5),
             Price = 15.00m,
@@ -382,7 +382,7 @@ public class GetStockMovementDashboardHandlerTests
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
-            ProductModel = product,
+            Product = product,
             Quantity = 10,
             Date = now.AddDays(-5),
             Price = 15.00m,
@@ -394,7 +394,7 @@ public class GetStockMovementDashboardHandlerTests
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
-            ProductModel = product,
+            Product = product,
             Quantity = 20,
             Date = now.AddDays(-50),
             Price = 25.00m,

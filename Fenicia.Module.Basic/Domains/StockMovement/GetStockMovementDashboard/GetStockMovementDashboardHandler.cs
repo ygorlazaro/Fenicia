@@ -13,7 +13,7 @@ public class GetStockMovementDashboardHandler(DefaultContext context)
         var endDate = DateTime.UtcNow;
 
         var movements = await context.BasicStockMovements
-            .Include(m => m.ProductModel)
+            .Include(m => m.Product)
             .ThenInclude(p => p.Category)
             .Include(m => m.Customer)
             .ThenInclude(c => c != null ? c.PersonModel : null)
@@ -28,7 +28,7 @@ public class GetStockMovementDashboardHandler(DefaultContext context)
             .Select(m => new StockMovementHistoryResponse(
                 m.Id,
                 m.ProductId,
-                m.ProductModel.Name,
+                m.Product.Name,
                 m.Quantity,
                 m.Date!.Value,
                 m.Price ?? 0,
@@ -59,7 +59,7 @@ public class GetStockMovementDashboardHandler(DefaultContext context)
 
         // 3. Top Moved Products
         var topMovedProducts = movements
-            .GroupBy(m => new { m.ProductId, ProductName = m.ProductModel.Name, CategoryName = m.ProductModel.Category.Name })
+            .GroupBy(m => new { m.ProductId, ProductName = m.Product.Name, CategoryName = m.Product.Category.Name })
             .Select(g => new TopMovedProductResponse(
                 g.Key.ProductId,
                 g.Key.ProductName,
