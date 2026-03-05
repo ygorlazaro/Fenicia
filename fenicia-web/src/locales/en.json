@@ -25,9 +25,7 @@
     "perPage": "per page",
     "selectPageSize": "Select page size",
     "default": "Default",
-    "light": "Light",
     "dark": "Dark",
-    "auto": "Auto",
     "requiredField": "Required field",
     "select": "Select"
   },
