@@ -4,6 +4,7 @@ public record AddProductCommand(
     Guid Id,
     string Name,
     decimal? CostPrice,
-    decimal SellingPrice,
+    decimal SalesPrice,
     double Quantity,
-    Guid CategoryId);
+    Guid CategoryId,
+    Guid? SupplierId);

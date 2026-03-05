@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Common;
 using Fenicia.Module.Basic.Domains.Product.Add;
 using Fenicia.Module.Basic.Domains.Product.Delete;
 using Fenicia.Module.Basic.Domains.Product.GetAll;
@@ -24,9 +25,12 @@ public class ProductController(
     DeleteProductHandler deleteProductHandler) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProductResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<Pagination<List<GetAllProductResponse>>>> GetAsync(
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
+        CancellationToken ct = default)
     {
         var products = await getAllProductHandler.Handle(new GetAllProductQuery(page, perPage), ct);
 

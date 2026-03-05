@@ -22,7 +22,12 @@ public class BasicProductModel : BaseCompanyModel
     public Guid CategoryId { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
-    public BasicProductCategoryModel CategoryModel { get; set; } = null!;
+    public BasicProductCategoryModel Category { get; set; } = null!;
+
+    public Guid? SupplierId { get; set; }
+
+    [ForeignKey(nameof(SupplierId))]
+    public BasicSupplierModel? Supplier { get; set; }
 
     public List<BasicStockMovementModel> StockMovements { get; set; } = null!;
 

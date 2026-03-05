@@ -4,6 +4,7 @@ public record UpdateProductCommand(
     Guid Id,
     string Name,
     decimal? CostPrice,
-    decimal SellingPrice,
+    decimal SalesPrice,
     double Quantity,
-    Guid CategoryId);
+    Guid CategoryId,
+    Guid? SupplierId);

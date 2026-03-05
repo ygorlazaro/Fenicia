@@ -67,7 +67,7 @@ public class GetAllSupplierHandlerTests
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -87,7 +87,7 @@ public class GetAllSupplierHandlerTests
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -117,13 +117,13 @@ public class GetAllSupplierHandlerTests
         Assert.That(result.Total, Is.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data[0].PersonId, Is.EqualTo(supplier1.PersonModel.Id));
-            Assert.That(result.Data[0].Name, Is.EqualTo(supplier1.PersonModel.Name));
-            Assert.That(result.Data[0].Email, Is.EqualTo(supplier1.PersonModel.Email));
+            Assert.That(result.Data[0].PersonId, Is.EqualTo(supplier1.Person.Id));
+            Assert.That(result.Data[0].Name, Is.EqualTo(supplier1.Person.Name));
+            Assert.That(result.Data[0].Email, Is.EqualTo(supplier1.Person.Email));
 
-            Assert.That(result.Data[1].PersonId, Is.EqualTo(supplier2.PersonModel.Id));
-            Assert.That(result.Data[1].Name, Is.EqualTo(supplier2.PersonModel.Name));
-            Assert.That(result.Data[1].Email, Is.EqualTo(supplier2.PersonModel.Email));
+            Assert.That(result.Data[1].PersonId, Is.EqualTo(supplier2.Person.Id));
+            Assert.That(result.Data[1].Name, Is.EqualTo(supplier2.Person.Name));
+            Assert.That(result.Data[1].Email, Is.EqualTo(supplier2.Person.Email));
         }
     }
 
@@ -145,7 +145,7 @@ public class GetAllSupplierHandlerTests
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                PersonModel = new BasicPersonModel
+                Person = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Company.CompanyName()} {i}",
@@ -194,7 +194,7 @@ public class GetAllSupplierHandlerTests
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                PersonModel = new BasicPersonModel
+                Person = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Company.CompanyName()} {i}",
@@ -243,7 +243,7 @@ public class GetAllSupplierHandlerTests
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                PersonModel = new BasicPersonModel
+                Person = new BasicPersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Company.CompanyName()} {i}",

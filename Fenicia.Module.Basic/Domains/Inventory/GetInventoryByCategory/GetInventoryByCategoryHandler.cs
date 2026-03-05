@@ -10,7 +10,7 @@ public class GetInventoryByCategoryHandler(DefaultContext context)
     {
         var products = await context.BasicProducts
             .Where(p => p.CategoryId == query.CategoryId)
-            .Include(p => p.CategoryModel)
+            .Include(p => p.Category)
             .OrderBy(p => p.Quantity)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
@@ -22,7 +22,7 @@ public class GetInventoryByCategoryHandler(DefaultContext context)
 
         return new InventoryResponse
         {
-            Items = products.Select(p => new InventoryDetailResponse(p.Id, p.Name, p.Quantity, p.CostPrice, p.SalesPrice, p.CategoryId, p.CategoryModel?.Name ?? "")).ToList(),
+            Items = products.Select(p => new InventoryDetailResponse(p.Id, p.Name, p.Quantity, p.CostPrice, p.SalesPrice, p.CategoryId, p.Category?.Name ?? "")).ToList(),
             TotalCostPrice = totalCostPrice,
             TotalSalesPrice = totalSalesPrice,
             TotalQuantity = totalQuantity

@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,6 @@ public class UpdateProductHandler(DefaultContext context)
     public async Task<UpdateProductResponse?> Handle(UpdateProductCommand command, CancellationToken ct)
     {
         var product = await context.BasicProducts
-            .Include(p => p.CategoryModel)
             .FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
         if (product is null)
@@ -19,13 +19,25 @@ public class UpdateProductHandler(DefaultContext context)
 
         product.Name = command.Name;
         product.CostPrice = command.CostPrice;
-        product.SalesPrice = command.SellingPrice;
+        product.SalesPrice = command.SalesPrice;
         product.Quantity = command.Quantity;
         product.CategoryId = command.CategoryId;
+        product.SupplierId = command.SupplierId;
 
         context.BasicProducts.Update(product);
 
         await context.SaveChangesAsync(ct);
+
+        var category = await context.BasicProductCategories
+            .FirstOrDefaultAsync(c => c.Id == product.CategoryId, ct);
+
+        BasicSupplierModel? supplier = null;
+        if (product.SupplierId.HasValue)
+        {
+            supplier = await context.BasicSuppliers
+                .Include(s => s.Person)
+                .FirstOrDefaultAsync(s => s.Id == product.SupplierId, ct);
+        }
 
         return new UpdateProductResponse(
             product.Id,
@@ -34,6 +46,8 @@ public class UpdateProductHandler(DefaultContext context)
             product.SalesPrice,
             product.Quantity,
             product.CategoryId,
-            product.CategoryModel.Name);
+            category?.Name ?? string.Empty,
+            product.SupplierId,
+            supplier?.Person?.Name);
     }
 }

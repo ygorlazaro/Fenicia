@@ -45,7 +45,7 @@ public class DeleteSupplierHandlerTests
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -101,7 +101,7 @@ public class DeleteSupplierHandlerTests
         {
             Id = supplier1Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName()
@@ -112,7 +112,7 @@ public class DeleteSupplierHandlerTests
         {
             Id = supplier2Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName()

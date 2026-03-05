@@ -220,13 +220,19 @@
     "category": "Category",
     "supplier": "Supplier",
     "price": "Price",
+    "costPrice": "Cost Price",
+    "salesPrice": "Sales Price",
+    "quantity": "Quantity",
     "stock": "Stock",
     "minStock": "Minimum Stock",
     "deleteConfirm": "Are you sure you want to delete the product {{name}}?",
+    "deleteWarning": "This action cannot be undone.",
     "createSuccess": "Product created successfully!",
     "updateSuccess": "Product updated successfully!",
     "deleteSuccess": "Product deleted successfully!",
-    "loadError": "Failed to load products."
+    "loadError": "Failed to load products.",
+    "saveError": "Failed to save product.",
+    "requiredFields": "Name, category and sales price are required."
   },
   "categories": {
     "title": "Categories",

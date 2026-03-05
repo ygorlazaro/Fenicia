@@ -7,4 +7,6 @@ public record AddProductResponse(
     decimal SalesPrice,
     double Quantity,
     Guid CategoryId,
-    string CategoryName);
+    string CategoryName,
+    Guid? SupplierId,
+    string? SupplierName);

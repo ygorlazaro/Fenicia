@@ -8,7 +8,7 @@ public class AddProductValidator : AbstractValidator<AddProductCommand>
     {
         RuleFor(c => c.Id).NotEmpty();
         RuleFor(c => c.Name).NotEmpty();
-        RuleFor(c => c.SellingPrice).GreaterThan(0);
+        RuleFor(c => c.SalesPrice).GreaterThan(0);
         RuleFor(c => c.CategoryId).NotEmpty();
     }
 }

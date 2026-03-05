@@ -42,7 +42,7 @@ public class UpdateSupplierHandlerTests
             Id = supplierId,
             Cnpj = "12.345.678/0001-90",
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -141,7 +141,7 @@ public class UpdateSupplierHandlerTests
             Id = supplierId,
             Cnpj = "12.345.678/0001-90",
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -172,13 +172,13 @@ public class UpdateSupplierHandlerTests
 
         // Assert
         var updatedSupplier = await this.context.BasicSuppliers
-            .Include(s => s.PersonModel)
+            .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == supplierId);
 
         Assert.That(updatedSupplier, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(updatedSupplier.PersonModel.Name, Is.EqualTo("New Name"));
+            Assert.That(updatedSupplier.Person.Name, Is.EqualTo("New Name"));
             Assert.That(updatedSupplier.Cnpj, Is.EqualTo("98.765.432/0001-10"));
         }
     }

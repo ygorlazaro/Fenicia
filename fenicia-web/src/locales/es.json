@@ -220,13 +220,19 @@
     "category": "Categoría",
     "supplier": "Proveedor",
     "price": "Precio",
+    "costPrice": "Precio de Costo",
+    "salesPrice": "Precio de Venta",
+    "quantity": "Cantidad",
     "stock": "Stock",
     "minStock": "Stock Mínimo",
     "deleteConfirm": "¿Está seguro de que desea eliminar el producto {{name}}?",
+    "deleteWarning": "Esta acción no se puede deshacer.",
     "createSuccess": "¡Producto creado exitosamente!",
     "updateSuccess": "¡Producto actualizado exitosamente!",
     "deleteSuccess": "¡Producto eliminado exitosamente!",
-    "loadError": "Error al cargar los productos."
+    "loadError": "Error al cargar los productos.",
+    "saveError": "Error al guardar el producto.",
+    "requiredFields": "Nombre, categoría y precio de venta son obligatorios."
   },
   "categories": {
     "title": "Categorías",

@@ -12,9 +12,10 @@ public class AddProductHandler(DefaultContext context)
             Id = command.Id,
             Name = command.Name,
             CostPrice = command.CostPrice,
-            SalesPrice = command.SellingPrice,
+            SalesPrice = command.SalesPrice,
             Quantity = command.Quantity,
-            CategoryId = command.CategoryId
+            CategoryId = command.CategoryId,
+            SupplierId = command.SupplierId
         };
 
         context.BasicProducts.Add(product);
@@ -28,6 +29,8 @@ public class AddProductHandler(DefaultContext context)
             product.SalesPrice,
             product.Quantity,
             product.CategoryId,
+            string.Empty,
+            product.SupplierId,
             string.Empty);
     }
 }

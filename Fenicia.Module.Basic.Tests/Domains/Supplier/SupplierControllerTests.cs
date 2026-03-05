@@ -132,7 +132,7 @@ public class SupplierControllerTests
             Id = Guid.NewGuid(),
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -155,7 +155,7 @@ public class SupplierControllerTests
             Id = Guid.NewGuid(),
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -196,10 +196,10 @@ public class SupplierControllerTests
         Assert.That(returnedSuppliers.Total, Is.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(returnedSuppliers.Data[0].Name, Is.EqualTo(supplier1.PersonModel.Name));
-            Assert.That(returnedSuppliers.Data[0].Email, Is.EqualTo(supplier1.PersonModel.Email));
-            Assert.That(returnedSuppliers.Data[1].Name, Is.EqualTo(supplier2.PersonModel.Name));
-            Assert.That(returnedSuppliers.Data[1].Email, Is.EqualTo(supplier2.PersonModel.Email));
+            Assert.That(returnedSuppliers.Data[0].Name, Is.EqualTo(supplier1.Person.Name));
+            Assert.That(returnedSuppliers.Data[0].Email, Is.EqualTo(supplier1.Person.Email));
+            Assert.That(returnedSuppliers.Data[1].Name, Is.EqualTo(supplier2.Person.Name));
+            Assert.That(returnedSuppliers.Data[1].Email, Is.EqualTo(supplier2.Person.Email));
         }
     }
 
@@ -220,7 +220,7 @@ public class SupplierControllerTests
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -258,9 +258,9 @@ public class SupplierControllerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedSupplier.Id, Is.EqualTo(this.testSupplierId));
-            Assert.That(returnedSupplier.PersonId, Is.EqualTo(supplier.PersonModel.Id));
-            Assert.That(returnedSupplier.Name, Is.EqualTo(supplier.PersonModel.Name));
-            Assert.That(returnedSupplier.Email, Is.EqualTo(supplier.PersonModel.Email));
+            Assert.That(returnedSupplier.PersonId, Is.EqualTo(supplier.Person.Id));
+            Assert.That(returnedSupplier.Name, Is.EqualTo(supplier.Person.Name));
+            Assert.That(returnedSupplier.Email, Is.EqualTo(supplier.Person.Email));
         }
     }
 
@@ -328,7 +328,7 @@ public class SupplierControllerTests
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -411,7 +411,7 @@ public class SupplierControllerTests
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),

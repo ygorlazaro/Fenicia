@@ -26,7 +26,7 @@ public class AddSupplierHandler(DefaultContext context)
         var supplier = new BasicSupplierModel
         {
             Id = command.Id,
-            PersonModel = person,
+            Person = person,
             PersonId = person.Id,
             Cnpj = command.Cnpj,
         };
