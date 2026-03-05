@@ -8,4 +8,6 @@ public record GetAllOrderResponse(
     decimal TotalAmount,
     DateTime SaleDate,
     string Status,
-    int TotalItems);
+    int TotalItems,
+    Guid? EmployeeId = null,
+    string? EmployeeName = null);

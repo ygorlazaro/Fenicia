@@ -315,7 +315,10 @@
       "pending": "Pendiente",
       "approved": "Aprobado",
       "cancelled": "Cancelado"
-    }
+    },
+    "employee": "Empleado de Ventas",
+    "noEmployee": "Sin empleado asignado",
+    "order": "Pedido"
   },
   "language": {
     "title": "Idioma",
@@ -358,5 +361,40 @@
     "categoryComparison": "Comparativo por Categoría",
     "costValue": "Valor de Costo",
     "salesValue": "Valor de Venta"
+  },
+  "stockMovement": {
+    "title": "Movimiento de Stock",
+    "dashboard": "Panel de Movimientos",
+    "loadError": "Error al cargar el panel de movimientos.",
+    "history": "Historial de Movimientos",
+    "monthlyInOut": "Entradas vs Salidas Mensuales",
+    "topMovedProducts": "Productos Más Movidos",
+    "turnoverRates": "Tasa de Rotación",
+    "totalIn": "Total Entrada",
+    "totalOut": "Total Salida",
+    "totalMovements": "Total de Movimientos",
+    "averageTurnover": "Rotación Promedio",
+    "unitsIn": "unidades entrada",
+    "unitsOut": "unidades salida",
+    "movements": "movimientos",
+    "avgTurnover": "rotación promedio",
+    "in": "Entrada",
+    "out": "Salida",
+    "product": "Producto",
+    "date": "Fecha",
+    "type": "Tipo",
+    "quantity": "Cantidad",
+    "price": "Precio",
+    "reason": "Motivo",
+    "totalMoved": "Total Movido",
+    "rate": "Tasa",
+    "classification": "Clasificación",
+    "last7Days": "Últimos 7 Días",
+    "last30Days": "Últimos 30 Días",
+    "last90Days": "Últimos 90 Días",
+    "high": "Alto",
+    "medium": "Medio",
+    "low": "Bajo",
+    "veryLow": "Muy Bajo"
   }
 }

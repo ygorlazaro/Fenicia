@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Enums.Basic;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -8,9 +9,34 @@ public class GetStockMovementHandler(DefaultContext context)
 {
     public async Task<List<GetStockMovementResponse>> Handle(GetStockMovementQuery query, CancellationToken ct)
     {
-        return await context.BasicStockMovements
-            .Select(m => new GetStockMovementResponse(m.Id, m.ProductId, m.Quantity, m.Date, m.Price, m.Type, m.CustomerId, m.SupplierId))
-            .Where(s => s.Date >= query.StartDate && s.Date <= query.EndDate)
+        var movementsQuery = context.BasicStockMovements
+            .Include(m => m.ProductModel)
+            .Include(m => m.Customer)
+            .ThenInclude(c => c != null ? c.PersonModel : null)
+            .Include(m => m.Supplier)
+            .ThenInclude(s => s != null ? s.Person : null)
+            .Include(m => m.Employee)
+            .ThenInclude(e => e != null ? e.PersonModel : null)
+            .Include(m => m.OrderModel)
+            .Where(m => m.Date >= query.StartDate && m.Date <= query.EndDate);
+
+        return await movementsQuery
+            .Select(m => new GetStockMovementResponse(
+                m.Id,
+                m.ProductId,
+                m.ProductModel.Name,
+                m.Quantity,
+                m.Date,
+                m.Price,
+                m.Type,
+                m.CustomerId,
+                m.CustomerId.HasValue ? m.Customer!.PersonModel.Name : null,
+                m.SupplierId,
+                m.SupplierId.HasValue ? m.Supplier!.Person.Name : null,
+                m.EmployeeId,
+                m.EmployeeId.HasValue ? m.Employee!.PersonModel.Name : null,
+                m.OrderId,
+                m.Reason))
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(ct);

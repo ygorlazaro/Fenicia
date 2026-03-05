@@ -9,6 +9,7 @@ using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.Add;
 using Fenicia.Module.Basic.Domains.StockMovement.GetMovement;
+using Fenicia.Module.Basic.Domains.StockMovement.GetStockMovementDashboard;
 using Fenicia.Module.Basic.Domains.StockMovement.Update;
 
 using Microsoft.AspNetCore.Authorization;
@@ -37,12 +38,14 @@ public class StockMovementControllerTests
         this.getStockMovementHandler = new GetStockMovementHandler(this.context);
         this.addStockMovementHandler = new AddStockMovementHandler(this.context);
         this.updateStockMovementHandler = new UpdateStockMovementHandler(this.context);
+        this.getStockMovementDashboardHandler = new GetStockMovementDashboardHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new StockMovementController(
             this.getStockMovementHandler,
             this.addStockMovementHandler,
-            this.updateStockMovementHandler)
+            this.updateStockMovementHandler,
+            this.getStockMovementDashboardHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -66,6 +69,7 @@ public class StockMovementControllerTests
     private GetStockMovementHandler getStockMovementHandler = null!;
     private AddStockMovementHandler addStockMovementHandler = null!;
     private UpdateStockMovementHandler updateStockMovementHandler = null!;
+    private GetStockMovementDashboardHandler getStockMovementDashboardHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Guid testMovementId;
     private Guid testProductId;
@@ -196,7 +200,8 @@ public class StockMovementControllerTests
             StockMovementType.In,
             this.testProductId,
             null,
-            null);
+            null,
+            "Test reason");
 
         var cancellationToken = CancellationToken.None;
 
@@ -218,6 +223,7 @@ public class StockMovementControllerTests
             Assert.That(returnedMovement.ProductId, Is.EqualTo(this.testProductId));
             Assert.That(returnedMovement.Quantity, Is.EqualTo(10));
             Assert.That(returnedMovement.Type, Is.EqualTo(StockMovementType.In));
+            Assert.That(returnedMovement.Reason, Is.EqualTo("Test reason"));
         }
     }
 
@@ -259,7 +265,8 @@ public class StockMovementControllerTests
             StockMovementType.In,
             this.testProductId,
             null,
-            null);
+            null,
+            "Updated reason");
 
         var cancellationToken = CancellationToken.None;
 
@@ -279,6 +286,7 @@ public class StockMovementControllerTests
         {
             Assert.That(returnedMovement.Quantity, Is.EqualTo(15));
             Assert.That(returnedMovement.Price, Is.EqualTo(25.00m));
+            Assert.That(returnedMovement.Reason, Is.EqualTo("Updated reason"));
         }
     }
 
@@ -296,6 +304,7 @@ public class StockMovementControllerTests
             25.00m,
             StockMovementType.In,
             this.testProductId,
+            null,
             null,
             null);
 
@@ -365,6 +374,85 @@ public class StockMovementControllerTests
         // Assert
         Assert.That(authorizeAttribute, Is.Not.Null, "PatchAsync should have Authorize attribute");
         Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
+    }
+
+    [Test]
+    public async Task GetDashboardAsync_WithNoMovements_ReturnsEmptyDashboard()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        // Act
+        var result = await this.controller.GetDashboardAsync(30, 10, cancellationToken);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+
+        var okResult = result.Result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+
+        var dashboard = okResult.Value as StockMovementDashboardResponse;
+        Assert.That(dashboard, Is.Not.Null);
+        Assert.That(dashboard.History, Is.Empty);
+        Assert.That(dashboard.MonthlyInOut, Is.Empty);
+        Assert.That(dashboard.TopMovedProducts, Is.Empty);
+        Assert.That(dashboard.TurnoverRates, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetDashboardAsync_WithMovements_ReturnsDashboardData()
+    {
+        // Arrange
+        var product = new BasicProductModel
+        {
+            Id = this.testProductId,
+            Name = this.faker.Commerce.ProductName(),
+            CostPrice = 10.00m,
+            SalesPrice = 20.00m,
+            Quantity = 100,
+            CategoryId = Guid.NewGuid()
+        };
+
+        var category = new BasicProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
+
+        var movement = new BasicStockMovementModel
+        {
+            Id = Guid.NewGuid(),
+            ProductId = this.testProductId,
+            Quantity = 10,
+            Date = DateTime.Now.AddDays(-5),
+            Price = 20.00m,
+            Type = StockMovementType.In,
+            Reason = "Test reason"
+        };
+
+        this.context.BasicProductCategories.Add(category);
+        this.context.BasicProducts.Add(product);
+        this.context.BasicStockMovements.Add(movement);
+        await this.context.SaveChangesAsync(CancellationToken.None);
+
+        var cancellationToken = CancellationToken.None;
+
+        // Act
+        var result = await this.controller.GetDashboardAsync(30, 10, cancellationToken);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+
+        var okResult = result.Result as OkObjectResult;
+        Assert.That(okResult, Is.Not.Null);
+
+        var dashboard = okResult.Value as StockMovementDashboardResponse;
+        Assert.That(dashboard, Is.Not.Null);
+        Assert.That(dashboard.History, Is.Not.Empty);
+        Assert.That(dashboard.History[0].ProductName, Is.EqualTo(product.Name));
+        Assert.That(dashboard.History[0].Reason, Is.EqualTo("Test reason"));
     }
 
     private void SetupAdminUserClaims()

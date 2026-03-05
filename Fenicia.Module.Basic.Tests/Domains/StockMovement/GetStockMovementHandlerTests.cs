@@ -71,7 +71,8 @@ public class GetStockMovementHandlerTests
             Date = DateTime.Now.AddDays(-5),
             Price = 15.00m,
             Type = StockMovementType.In,
-            ProductId = product.Id
+            ProductId = product.Id,
+            Reason = "Test reason 1"
         };
 
         var movement2 = new BasicStockMovementModel
@@ -81,7 +82,8 @@ public class GetStockMovementHandlerTests
             Date = DateTime.Now.AddDays(-2),
             Price = 25.00m,
             Type = StockMovementType.Out,
-            ProductId = product.Id
+            ProductId = product.Id,
+            Reason = "Test reason 2"
         };
 
         var movement3 = new BasicStockMovementModel
@@ -91,7 +93,8 @@ public class GetStockMovementHandlerTests
             Date = DateTime.Now.AddDays(5),
             Price = 35.00m,
             Type = StockMovementType.In,
-            ProductId = product.Id
+            ProductId = product.Id,
+            Reason = null
         };
 
         this.context.BasicStockMovements.AddRange(movement1, movement2, movement3);

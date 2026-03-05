@@ -315,7 +315,10 @@
       "pending": "Pending",
       "approved": "Approved",
       "cancelled": "Cancelled"
-    }
+    },
+    "employee": "Sales Employee",
+    "noEmployee": "No employee assigned",
+    "order": "Order"
   },
   "language": {
     "title": "Language",
@@ -358,5 +361,40 @@
     "categoryComparison": "Category Comparison",
     "costValue": "Cost Value",
     "salesValue": "Sales Value"
+  },
+  "stockMovement": {
+    "title": "Stock Movement",
+    "dashboard": "Stock Movement Dashboard",
+    "loadError": "Failed to load stock movement dashboard.",
+    "history": "Movement History",
+    "monthlyInOut": "Monthly In vs Out",
+    "topMovedProducts": "Top Moved Products",
+    "turnoverRates": "Turnover Rates",
+    "totalIn": "Total In",
+    "totalOut": "Total Out",
+    "totalMovements": "Total Movements",
+    "averageTurnover": "Average Turnover",
+    "unitsIn": "units in",
+    "unitsOut": "units out",
+    "movements": "movements",
+    "avgTurnover": "avg turnover",
+    "in": "In",
+    "out": "Out",
+    "product": "Product",
+    "date": "Date",
+    "type": "Type",
+    "quantity": "Quantity",
+    "price": "Price",
+    "reason": "Reason",
+    "totalMoved": "Total Moved",
+    "rate": "Rate",
+    "classification": "Classification",
+    "last7Days": "Last 7 Days",
+    "last30Days": "Last 30 Days",
+    "last90Days": "Last 90 Days",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "veryLow": "Very Low"
   }
 }

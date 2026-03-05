@@ -8,4 +8,5 @@ public record CreateOrderResponse(
     Guid CustomerId,
     decimal TotalAmount,
     DateTime SaleDate,
-    OrderStatus Status);
+    OrderStatus Status,
+    Guid? EmployeeId = null);

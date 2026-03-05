@@ -19,7 +19,10 @@ public class AddStockMovementHandler(DefaultContext context)
             Type = command.Type,
             ProductId = command.ProductId,
             CustomerId = command.CustomerId,
-            SupplierId = command.SupplierId
+            SupplierId = command.SupplierId,
+            EmployeeId = command.EmployeeId,
+            OrderId = command.OrderId,
+            Reason = command.Reason
         };
 
         context.BasicStockMovements.Add(stockMovement);
@@ -40,6 +43,6 @@ public class AddStockMovementHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new AddStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId);
+        return new AddStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId, stockMovement.EmployeeId, stockMovement.OrderId, stockMovement.Reason);
     }
 }

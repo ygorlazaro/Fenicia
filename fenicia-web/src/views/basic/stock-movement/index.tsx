@@ -1,302 +1,452 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-    CButton, CCard, CCardBody, CCardHeader, CContainer, CTable, CTableBody, CTableDataCell,
-    CTableHead, CTableHeaderCell, CTableRow, CModal, CModalBody, CModalFooter, CModalHeader,
-    CModalTitle, CSpinner, CAlert, CForm, CFormInput, CFormLabel, CFormSelect, CRow, CCol,
-    CFormTextarea
+    CCard,
+    CCardBody,
+    CCardHeader,
+    CContainer,
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow,
+    CSpinner,
+    CAlert,
+    CRow,
+    CCol,
+    CWidgetStatsA
 } from '@coreui/react';
+import { CChartBar, CChartLine } from '@coreui/react-chartjs';
 import CIcon from '@coreui/icons-react';
-import { cilPencil, cilPlus, cilWarning } from '@coreui/icons';
-import { BasicStockMovementClient, BasicProductClient } from '../../../services/basic-crud-clients';
+import { cilArrowBottom, cilArrowTop, cilLayers, cilSpeedometer, cilHistory } from '@coreui/icons';
+import { StockMovementClient, StockMovementDashboard, StockMovementHistory, MonthlyInOut, TopMovedProduct, StockTurnover } from '../../../services/stock-movement-client';
+import { getStyle } from '@coreui/utils';
 
-const stockMovementClient = new BasicStockMovementClient();
-const productClient = new BasicProductClient();
+const stockMovementClient = new StockMovementClient();
 
-const StockMovement = () => {
-    const [movements, setMovements] = useState([]);
+const StockMovementDashboardView = () => {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [products, setProducts] = useState([]);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedMovement, setSelectedMovement] = useState(null);
-    const [saving, setSaving] = useState(false);
-    const [successMessage, setSuccessMessage] = useState(null);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [formData, setFormData] = useState({
-        productId: '',
-        quantity: '',
-        type: 'IN',
-        notes: ''
-    });
+    const [error, setError] = useState<string | null>(null);
+    const [dashboard, setDashboard] = useState<StockMovementDashboard | null>(null);
+    const [days, setDays] = useState(30);
 
     useEffect(() => {
-        loadMovements();
-        loadProducts();
-    }, []);
+        loadDashboard();
+    }, [days]);
 
-    const loadMovements = async () => {
+    const loadDashboard = async () => {
         try {
             setLoading(true);
-            const response = await stockMovementClient.getAll(startDate, endDate);
-            const data = response?.data || Array.isArray(response) ? response : [];
-            setMovements(Array.isArray(data) ? data : []);
+            setError(null);
+            const data = await stockMovementClient.getDashboard(days);
+            setDashboard(data);
         } catch (err) {
-            setError(err.response?.data?.title || 'Falha ao carregar movimentações.');
+            setError(t('stockMovement.loadError'));
+            console.error('Failed to load stock movement dashboard:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    const loadProducts = async () => {
-        try {
-            const response = await productClient.getAll(1, 100);
-            const data = response?.data || Array.isArray(response) ? response : [];
-            setProducts(Array.isArray(data) ? data : []);
-        } catch (err) {
-            console.error('Failed to load products:', err);
+    const formatCurrency = (value: number) => {
+        if (value === null || value === undefined) return '-';
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+        }).format(value);
+    };
+
+    const formatNumber = (value: number) => {
+        return new Intl.NumberFormat('pt-BR').format(value);
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString();
+    };
+
+    const getTypeBadgeColor = (type: string) => {
+        return type === 'In' ? 'success' : 'danger';
+    };
+
+    const getTurnoverBadgeColor = (classification: string) => {
+        switch (classification.toLowerCase()) {
+            case 'high':
+                return 'success';
+            case 'medium':
+                return 'warning';
+            case 'low':
+                return 'orange';
+            default:
+                return 'danger';
         }
     };
 
-    const handleOpenAdd = () => {
-        setSelectedMovement(null);
-        setFormData({ productId: '', quantity: '', type: 'IN', notes: '' });
-        setModalVisible(true);
-    };
+    const getMonthlyInOutChartData = () => {
+        if (!dashboard || !dashboard.monthlyInOut || dashboard.monthlyInOut.length === 0) return null;
 
-    const handleOpenEdit = (movement) => {
-        setSelectedMovement(movement);
-        setFormData({
-            productId: movement.productId || '',
-            quantity: movement.quantity || '',
-            type: movement.type || 'IN',
-            notes: movement.notes || ''
-        });
-        setModalVisible(true);
-    };
-
-    const handleSave = async (e) => {
-        e.preventDefault();
-        setSaving(true);
-        try {
-            const payload = {
-                ...formData,
-                quantity: parseFloat(formData.quantity)
-            };
-
-            if (selectedMovement) {
-                await stockMovementClient.update(selectedMovement.id, payload);
-                setSuccessMessage('Movimentação atualizada com sucesso!');
-            } else {
-                await stockMovementClient.create(payload);
-                setSuccessMessage('Movimentação criada com sucesso!');
-            }
-            setModalVisible(false);
-            loadMovements();
-            setTimeout(() => setSuccessMessage(null), 5000);
-        } catch (err) {
-            setError(err.response?.data?.title || 'Falha ao salvar movimentação.');
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleFilter = () => {
-        loadMovements();
-    };
-
-    const formatQuantity = (qty) => qty?.toFixed(2) || '0.00';
-
-    const formatDate = (date) => {
-        if (!date) return '-';
-        return new Date(date).toLocaleDateString('pt-BR');
-    };
-
-    const getMovementTypeLabel = (type) => {
-        const types = {
-            'IN': { label: 'Entrada', class: 'success' },
-            'OUT': { label: 'Saída', class: 'danger' },
-            'TRANSFER': { label: 'Transferência', class: 'info' },
-            'ADJUSTMENT': { label: 'Ajuste', class: 'warning' }
+        return {
+            labels: dashboard.monthlyInOut.map(m => m.month),
+            datasets: [
+                {
+                    label: t('stockMovement.in'),
+                    backgroundColor: getStyle('--cui-success'),
+                    data: dashboard.monthlyInOut.map(m => m.totalIn),
+                },
+                {
+                    label: t('stockMovement.out'),
+                    backgroundColor: getStyle('--cui-danger'),
+                    data: dashboard.monthlyInOut.map(m => m.totalOut),
+                },
+            ],
         };
-        return types[type] || { label: type, class: 'secondary' };
     };
+
+    const getTotalInQuantity = () => {
+        if (!dashboard || !dashboard.monthlyInOut) return 0;
+        return dashboard.monthlyInOut.reduce((sum, m) => sum + m.totalIn, 0);
+    };
+
+    const getTotalOutQuantity = () => {
+        if (!dashboard || !dashboard.monthlyInOut) return 0;
+        return dashboard.monthlyInOut.reduce((sum, m) => sum + m.totalOut, 0);
+    };
+
+    const getTotalMovements = () => {
+        if (!dashboard || !dashboard.history) return 0;
+        return dashboard.history.length;
+    };
+
+    const getAverageTurnover = () => {
+        if (!dashboard || !dashboard.turnoverRates || dashboard.turnoverRates.length === 0) return 0;
+        const sum = dashboard.turnoverRates.reduce((acc, t) => acc + t.turnoverRate, 0);
+        return (sum / dashboard.turnoverRates.length).toFixed(2);
+    };
+
+    if (loading) {
+        return (
+            <CContainer className="py-4">
+                <div className="text-center py-5">
+                    <CSpinner color="primary" />
+                    <p className="mt-3">{t('common.loading')}</p>
+                </div>
+            </CContainer>
+        );
+    }
+
+    if (error) {
+        return (
+            <CContainer className="py-4">
+                <CAlert color="danger" dismissible onClose={() => setError(null)}>
+                    {error}
+                </CAlert>
+            </CContainer>
+        );
+    }
 
     return (
         <CContainer className="py-4">
-            {error && <CAlert color="danger" dismissible onClose={() => setError(null)}>{error}</CAlert>}
-            {successMessage && <CAlert color="success" dismissible onClose={() => setSuccessMessage(null)}>{successMessage}</CAlert>}
-            
-            <CCard>
-                <CCardHeader className="d-flex justify-content-between align-items-center">
-                    <strong>Movimentações de Estoque</strong>
-                    <CButton color="primary" size="sm" onClick={handleOpenAdd}>
-                        <CIcon icon={cilPlus} className="me-2" /> Nova Movimentação
-                    </CButton>
-                </CCardHeader>
-                <CCardBody>
-                    {/* Filters */}
-                    <CRow className="mb-4">
-                        <CCol md={3}>
-                            <CFormLabel>Data Inicial</CFormLabel>
-                            <CFormInput 
-                                type="date" 
-                                value={startDate} 
-                                onChange={(e) => setStartDate(e.target.value)} 
-                            />
-                        </CCol>
-                        <CCol md={3}>
-                            <CFormLabel>Data Final</CFormLabel>
-                            <CFormInput 
-                                type="date" 
-                                value={endDate} 
-                                onChange={(e) => setEndDate(e.target.value)} 
-                            />
-                        </CCol>
-                        <CCol md={3} className="d-flex align-items-end">
-                            <CButton color="primary" onClick={handleFilter}>
-                                Filtrar
-                            </CButton>
-                        </CCol>
-                    </CRow>
+            {/* Time Range Selector */}
+            <CRow className="mb-4">
+                <CCol xs={12}>
+                    <div className="d-flex justify-content-between align-items-center">
+                        <h4 className="mb-0">{t('stockMovement.dashboard')}</h4>
+                        <div className="d-flex gap-2">
+                            <button
+                                className={`btn btn-sm ${days === 7 ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setDays(7)}
+                            >
+                                {t('stockMovement.last7Days')}
+                            </button>
+                            <button
+                                className={`btn btn-sm ${days === 30 ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setDays(30)}
+                            >
+                                {t('stockMovement.last30Days')}
+                            </button>
+                            <button
+                                className={`btn btn-sm ${days === 90 ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setDays(90)}
+                            >
+                                {t('stockMovement.last90Days')}
+                            </button>
+                        </div>
+                    </div>
+                </CCol>
+            </CRow>
 
-                    {loading ? (
-                        <div className="text-center py-4">
-                            <CSpinner color="primary" />
-                            <p className="mt-2">Carregando...</p>
-                        </div>
-                    ) : movements.length === 0 ? (
-                        <div className="text-center py-4">
-                            <p className="text-muted">Nenhuma movimentação encontrada.</p>
-                        </div>
-                    ) : (
-                        <CTable hover responsive>
-                            <CTableHead>
-                                <CTableRow>
-                                    <CTableHeaderCell>Data</CTableHeaderCell>
-                                    <CTableHeaderCell>Produto</CTableHeaderCell>
-                                    <CTableHeaderCell>Tipo</CTableHeaderCell>
-                                    <CTableHeaderCell className="text-end">Quantidade</CTableHeaderCell>
-                                    <CTableHeaderCell>Observações</CTableHeaderCell>
-                                    <CTableHeaderCell className="text-end">Ações</CTableHeaderCell>
-                                </CTableRow>
-                            </CTableHead>
-                            <CTableBody>
-                                {movements.map((movement) => {
-                                    const typeInfo = getMovementTypeLabel(movement.type);
-                                    return (
-                                        <CTableRow key={movement.id}>
-                                            <CTableDataCell>{formatDate(movement.date)}</CTableDataCell>
-                                            <CTableDataCell>{movement.productName || movement.product?.name || '-'}</CTableDataCell>
-                                            <CTableDataCell>
-                                                <span className={`badge bg-${typeInfo.class}`}>{typeInfo.label}</span>
-                                            </CTableDataCell>
-                                            <CTableDataCell className="text-end">{formatQuantity(movement.quantity)}</CTableDataCell>
-                                            <CTableDataCell>{movement.notes || '-'}</CTableDataCell>
-                                            <CTableDataCell className="text-end">
-                                                <CButton 
-                                                    color="info" 
-                                                    size="sm"
-                                                    onClick={() => handleOpenEdit(movement)}
-                                                >
-                                                    <CIcon icon={cilPencil} />
-                                                </CButton>
-                                            </CTableDataCell>
+            {/* Summary Cards */}
+            <CRow className="mb-4" xs={{ gutter: 4 }}>
+                <CCol sm={6} xl={3}>
+                    <CWidgetStatsA
+                        color="success"
+                        value={
+                            <>
+                                {formatNumber(getTotalInQuantity())}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {t('stockMovement.unitsIn')}
+                                </span>
+                            </>
+                        }
+                        title={t('stockMovement.totalIn')}
+                        action={
+                            <div className="mt-2">
+                                <CIcon icon={cilArrowTop} size="xl" className="text-white-50" />
+                            </div>
+                        }
+                    />
+                </CCol>
+
+                <CCol sm={6} xl={3}>
+                    <CWidgetStatsA
+                        color="danger"
+                        value={
+                            <>
+                                {formatNumber(getTotalOutQuantity())}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {t('stockMovement.unitsOut')}
+                                </span>
+                            </>
+                        }
+                        title={t('stockMovement.totalOut')}
+                        action={
+                            <div className="mt-2">
+                                <CIcon icon={cilArrowBottom} size="xl" className="text-white-50" />
+                            </div>
+                        }
+                    />
+                </CCol>
+
+                <CCol sm={6} xl={3}>
+                    <CWidgetStatsA
+                        color="primary"
+                        value={
+                            <>
+                                {getTotalMovements()}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {t('stockMovement.movements')}
+                                </span>
+                            </>
+                        }
+                        title={t('stockMovement.totalMovements')}
+                        action={
+                            <div className="mt-2">
+                                <CIcon icon={cilHistory} size="xl" className="text-white-50" />
+                            </div>
+                        }
+                    />
+                </CCol>
+
+                <CCol sm={6} xl={3}>
+                    <CWidgetStatsA
+                        color="info"
+                        value={
+                            <>
+                                {getAverageTurnover()}
+                                <span className="fs-6 fw-normal d-block mt-1">
+                                    {t('stockMovement.avgTurnover')}
+                                </span>
+                            </>
+                        }
+                        title={t('stockMovement.averageTurnover')}
+                        action={
+                            <div className="mt-2">
+                                <CIcon icon={cilSpeedometer} size="xl" className="text-white-50" />
+                            </div>
+                        }
+                    />
+                </CCol>
+            </CRow>
+
+            {/* Monthly In vs Out Chart */}
+            {dashboard && dashboard.monthlyInOut && dashboard.monthlyInOut.length > 0 && (
+                <CRow className="mb-4">
+                    <CCol xs={12}>
+                        <CCard>
+                            <CCardHeader className="d-flex align-items-center">
+                                <CIcon icon={cilLayers} className="me-2" size="lg" />
+                                <strong>{t('stockMovement.monthlyInOut')}</strong>
+                            </CCardHeader>
+                            <CCardBody>
+                                <CChartBar
+                                    data={getMonthlyInOutChartData()}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            },
+                                        },
+                                        scales: {
+                                            x: {
+                                                grid: {
+                                                    display: false,
+                                                },
+                                            },
+                                            y: {
+                                                beginAtZero: true,
+                                            },
+                                        },
+                                    }}
+                                />
+                            </CCardBody>
+                        </CCard>
+                    </CCol>
+                </CRow>
+            )}
+
+            {/* Stock Movement History Table */}
+            <CRow className="mb-4">
+                <CCol xs={12}>
+                    <CCard>
+                        <CCardHeader className="d-flex align-items-center">
+                            <CIcon icon={cilHistory} className="me-2 text-primary" size="lg" />
+                            <strong>{t('stockMovement.history')}</strong>
+                        </CCardHeader>
+                        <CCardBody>
+                            {!dashboard?.history || dashboard.history.length === 0 ? (
+                                <p className="text-muted text-center">{t('common.noData')}</p>
+                            ) : (
+                                <CTable hover responsive>
+                                    <CTableHead>
+                                        <CTableRow>
+                                            <CTableHeaderCell>{t('stockMovement.date')}</CTableHeaderCell>
+                                            <CTableHeaderCell>{t('stockMovement.product')}</CTableHeaderCell>
+                                            <CTableHeaderCell className="text-center">{t('stockMovement.type')}</CTableHeaderCell>
+                                            <CTableHeaderCell className="text-end">{t('stockMovement.quantity')}</CTableHeaderCell>
+                                            <CTableHeaderCell className="text-end">{t('stockMovement.price')}</CTableHeaderCell>
+                                            <CTableHeaderCell>{t('stockMovement.order')}</CTableHeaderCell>
+                                            <CTableHeaderCell>{t('stockMovement.reason')}</CTableHeaderCell>
                                         </CTableRow>
-                                    );
-                                })}
-                            </CTableBody>
-                        </CTable>
-                    )}
-                </CCardBody>
-            </CCard>
-
-            {/* Add/Edit Modal */}
-            <CModal visible={modalVisible} onClose={() => setModalVisible(false)} size="lg">
-                <CModalHeader>
-                    <CModalTitle>
-                        {selectedMovement ? 'Editar Movimentação' : 'Nova Movimentação'}
-                    </CModalTitle>
-                </CModalHeader>
-                <CForm onSubmit={handleSave}>
-                    <CModalBody>
-                        <CRow>
-                            <CCol md={8}>
-                                <div className="mb-3">
-                                    <CFormLabel htmlFor="productId">Produto *</CFormLabel>
-                                    <CFormSelect
-                                        id="productId"
-                                        name="productId"
-                                        value={formData.productId}
-                                        onChange={handleInputChange}
-                                        required
-                                    >
-                                        <option value="">Selecione...</option>
-                                        {products.map(p => (
-                                            <option key={p.id} value={p.id}>{p.name}</option>
+                                    </CTableHead>
+                                    <CTableBody>
+                                        {dashboard.history.slice(0, 20).map((movement) => (
+                                            <CTableRow key={movement.id}>
+                                                <CTableDataCell>{formatDate(movement.date)}</CTableDataCell>
+                                                <CTableDataCell>
+                                                    <div className="fw-semibold">{movement.productName}</div>
+                                                </CTableDataCell>
+                                                <CTableDataCell className="text-center">
+                                                    <span className={`badge bg-${getTypeBadgeColor(movement.type)}`}>
+                                                        {t(`stockMovement.${movement.type.toLowerCase()}`)}
+                                                    </span>
+                                                </CTableDataCell>
+                                                <CTableDataCell className="text-end">
+                                                    {formatNumber(movement.quantity)}
+                                                </CTableDataCell>
+                                                <CTableDataCell className="text-end">
+                                                    {formatCurrency(movement.price)}
+                                                </CTableDataCell>
+                                                <CTableDataCell>
+                                                    {movement.orderId ? (
+                                                        <a href={`/basic/orders/${movement.orderId}`} className="text-primary">
+                                                            {movement.orderId.substring(0, 8)}...
+                                                        </a>
+                                                    ) : (
+                                                        '-'
+                                                    )}
+                                                </CTableDataCell>
+                                                <CTableDataCell>
+                                                    {movement.reason || '-'}
+                                                </CTableDataCell>
+                                            </CTableRow>
                                         ))}
-                                    </CFormSelect>
-                                </div>
-                            </CCol>
-                            <CCol md={4}>
-                                <div className="mb-3">
-                                    <CFormLabel htmlFor="type">Tipo *</CFormLabel>
-                                    <CFormSelect
-                                        id="type"
-                                        name="type"
-                                        value={formData.type}
-                                        onChange={handleInputChange}
-                                        required
-                                    >
-                                        <option value="IN">Entrada</option>
-                                        <option value="OUT">Saída</option>
-                                        <option value="TRANSFER">Transferência</option>
-                                        <option value="ADJUSTMENT">Ajuste</option>
-                                    </CFormSelect>
-                                </div>
-                            </CCol>
-                        </CRow>
-                        <div className="mb-3">
-                            <CFormLabel htmlFor="quantity">Quantidade *</CFormLabel>
-                            <CFormInput
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                id="quantity"
-                                name="quantity"
-                                value={formData.quantity}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <CFormLabel htmlFor="notes">Observações</CFormLabel>
-                            <CFormTextarea
-                                id="notes"
-                                name="notes"
-                                value={formData.notes}
-                                onChange={handleInputChange}
-                                rows={3}
-                            />
-                        </div>
-                    </CModalBody>
-                    <CModalFooter>
-                        <CButton color="secondary" onClick={() => setModalVisible(false)} disabled={saving}>
-                            Cancelar
-                        </CButton>
-                        <CButton color="primary" type="submit" disabled={saving}>
-                            {saving ? 'Salvando...' : 'Salvar'}
-                        </CButton>
-                    </CModalFooter>
-                </CForm>
-            </CModal>
+                                    </CTableBody>
+                                </CTable>
+                            )}
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+            </CRow>
+
+            {/* Top Moved Products and Turnover Rates */}
+            <CRow xs={{ gutter: 4 }}>
+                <CCol md={6}>
+                    <CCard className="mb-4">
+                        <CCardHeader className="d-flex align-items-center">
+                            <CIcon icon={cilLayers} className="me-2" size="lg" />
+                            <strong>{t('stockMovement.topMovedProducts')}</strong>
+                        </CCardHeader>
+                        <CCardBody>
+                            {!dashboard?.topMovedProducts || dashboard.topMovedProducts.length === 0 ? (
+                                <p className="text-muted text-center">{t('common.noData')}</p>
+                            ) : (
+                                <CTable hover responsive>
+                                    <CTableHead>
+                                        <CTableRow>
+                                            <CTableHeaderCell>{t('stockMovement.product')}</CTableHeaderCell>
+                                            <CTableHeaderCell className="text-end">{t('stockMovement.totalMoved')}</CTableHeaderCell>
+                                            <CTableHeaderCell className="text-end">{t('stockMovement.movements')}</CTableHeaderCell>
+                                        </CTableRow>
+                                    </CTableHead>
+                                    <CTableBody>
+                                        {dashboard.topMovedProducts.map((product) => (
+                                            <CTableRow key={product.productId}>
+                                                <CTableDataCell>
+                                                    <div className="fw-semibold">{product.productName}</div>
+                                                    <small className="text-body-secondary">{product.categoryName}</small>
+                                                </CTableDataCell>
+                                                <CTableDataCell className="text-end">
+                                                    <strong>{formatNumber(product.totalMoved)}</strong>
+                                                </CTableDataCell>
+                                                <CTableDataCell className="text-end">
+                                                    <span className="badge bg-secondary">{product.movementCount}</span>
+                                                </CTableDataCell>
+                                            </CTableRow>
+                                        ))}
+                                    </CTableBody>
+                                </CTable>
+                            )}
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+
+                <CCol md={6}>
+                    <CCard className="mb-4">
+                        <CCardHeader className="d-flex align-items-center">
+                            <CIcon icon={cilSpeedometer} className="me-2" size="lg" />
+                            <strong>{t('stockMovement.turnoverRates')}</strong>
+                        </CCardHeader>
+                        <CCardBody>
+                            {!dashboard?.turnoverRates || dashboard.turnoverRates.length === 0 ? (
+                                <p className="text-muted text-center">{t('common.noData')}</p>
+                            ) : (
+                                <CTable hover responsive>
+                                    <CTableHead>
+                                        <CTableRow>
+                                            <CTableHeaderCell>{t('stockMovement.product')}</CTableHeaderCell>
+                                            <CTableHeaderCell className="text-end">{t('stockMovement.rate')}</CTableHeaderCell>
+                                            <CTableHeaderCell className="text-center">{t('stockMovement.classification')}</CTableHeaderCell>
+                                        </CTableRow>
+                                    </CTableHead>
+                                    <CTableBody>
+                                        {dashboard.turnoverRates.map((item) => (
+                                            <CTableRow key={item.productId}>
+                                                <CTableDataCell>
+                                                    <div className="fw-semibold">{item.productName}</div>
+                                                    <small className="text-body-secondary">{item.categoryName}</small>
+                                                </CTableDataCell>
+                                                <CTableDataCell className="text-end">
+                                                    <strong>{item.turnoverRate.toFixed(2)}x</strong>
+                                                </CTableDataCell>
+                                                <CTableDataCell className="text-center">
+                                                    <span className={`badge bg-${getTurnoverBadgeColor(item.turnoverClassification)}`}>
+                                                        {t(`stockMovement.${item.turnoverClassification.toLowerCase()}`)}
+                                                    </span>
+                                                </CTableDataCell>
+                                            </CTableRow>
+                                        ))}
+                                    </CTableBody>
+                                </CTable>
+                            )}
+                        </CCardBody>
+                    </CCard>
+                </CCol>
+            </CRow>
         </CContainer>
     );
 };
 
-export default StockMovement;
+export default StockMovementDashboardView;

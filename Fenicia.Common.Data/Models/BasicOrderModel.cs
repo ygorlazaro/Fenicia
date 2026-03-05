@@ -34,4 +34,9 @@ public class BasicOrderModel : BaseCompanyModel
     [ForeignKey(nameof(CustomerId))]
     [JsonIgnore]
     public BasicCustomerModel CustomerModel { get; set; } = null!;
+
+    public Guid? EmployeeId { get; set; }
+
+    [ForeignKey(nameof(EmployeeId))]
+    public BasicEmployeeModel? EmployeeModel { get; set; }
 }
