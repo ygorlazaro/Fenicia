@@ -155,4 +155,71 @@ export class BasicProductCategoryClient extends ApiClient {
   }
 }
 
+/**
+ * Basic Order Client - Handles order CRUD operations
+ */
+export class BasicOrderClient extends ApiClient {
+  constructor(baseURL: string = BASIC_API_BASE_URL) {
+    super(baseURL);
+  }
+
+  async getAll(page: number = 1, perPage: number = 10): Promise<any> {
+    const response = await this.getClient().get('/order', { params: { page, perPage } });
+    return (response as AxiosResponse).data;
+  }
+
+  async getById(id: string): Promise<any> {
+    const response = await this.getClient().get(`/order/${id}`);
+    return (response as AxiosResponse).data;
+  }
+
+  async create(order: any): Promise<any> {
+    const response = await this.getClient().post('/order', order);
+    return (response as AxiosResponse).data;
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.getClient().delete(`/order/${id}`);
+  }
+
+  async getDetails(id: string): Promise<any> {
+    const response = await this.getClient().get(`/order/${id}/detail`);
+    return (response as AxiosResponse).data;
+  }
+}
+
+/**
+ * Basic DataSource Client - Handles datasource lookups
+ */
+export class BasicDataSourceClient extends ApiClient {
+  constructor(baseURL: string = BASIC_API_BASE_URL) {
+    super(baseURL);
+  }
+
+  async getCustomers(): Promise<any> {
+    const response = await this.getClient().get('/datasource/customer');
+    return (response as AxiosResponse).data;
+  }
+
+  async getProducts(): Promise<any> {
+    const response = await this.getClient().get('/datasource/product');
+    return (response as AxiosResponse).data;
+  }
+
+  async getSuppliers(): Promise<any> {
+    const response = await this.getClient().get('/datasource/supplier');
+    return (response as AxiosResponse).data;
+  }
+
+  async getProductCategories(): Promise<any> {
+    const response = await this.getClient().get('/datasource/productcategory');
+    return (response as AxiosResponse).data;
+  }
+
+  async getPositions(): Promise<any> {
+    const response = await this.getClient().get('/datasource/position');
+    return (response as AxiosResponse).data;
+  }
+}
+
 export default BasicCustomerClient;

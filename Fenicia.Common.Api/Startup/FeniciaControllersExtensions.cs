@@ -50,6 +50,7 @@ public static class FeniciaControllersExtensions
                 o.JsonSerializerOptions.AllowTrailingCommas = false;
                 o.JsonSerializerOptions.MaxDepth = 0;
                 o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
         builder.Services.AddOpenApi();

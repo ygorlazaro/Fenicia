@@ -1,5 +1,3 @@
-using Fenicia.Auth.Domains.User.ListUsers;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.EntityFrameworkCore;
