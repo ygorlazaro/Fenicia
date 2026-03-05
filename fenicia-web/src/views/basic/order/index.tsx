@@ -63,6 +63,7 @@ const Orders = () => {
     const [customerId, setCustomerId] = useState('');
     const [saleDate, setSaleDate] = useState(new Date().toISOString().split('T')[0]);
     const [status, setStatus] = useState('Pending');
+    const [employeeId, setEmployeeId] = useState('');
 
     // Form state - Step 2 (Details)
     const [orderItems, setOrderItems] = useState([]);
@@ -73,6 +74,7 @@ const Orders = () => {
     // Data lists
     const [products, setProducts] = useState([]);
     const [customers, setCustomers] = useState([]);
+    const [employees, setEmployees] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
 
     const paginationRef = useRef(pagination);
@@ -81,6 +83,7 @@ const Orders = () => {
     useEffect(() => {
         loadProducts();
         loadCustomers();
+        loadEmployees();
         checkAdminRole();
     }, []);
 
@@ -114,6 +117,16 @@ const Orders = () => {
         }
     };
 
+    const loadEmployees = async () => {
+        try {
+            const response = await dataSourceClient.getEmployees();
+            const data = Array.isArray(response) ? response : [];
+            setEmployees(data);
+        } catch (err) {
+            console.error('Failed to load employees:', err);
+        }
+    };
+
     const loadOrders = async () => {
         try {
             setLoading(true);
@@ -141,6 +154,7 @@ const Orders = () => {
         setCustomerId('');
         setSaleDate(new Date().toISOString().split('T')[0]);
         setStatus('Pending');
+        setEmployeeId('');
         setOrderItems([]);
         setSelectedProduct('');
         setQuantity(1);
@@ -227,6 +241,7 @@ const Orders = () => {
                 customerId: customerId,
                 saleDate: new Date(saleDate).toISOString(),
                 status: status,
+                employeeId: employeeId || null,
                 details: orderItems.map(item => ({
                     productId: item.productId,
                     quantity: item.quantity,
@@ -459,6 +474,21 @@ const Orders = () => {
                                             <option value="Pending">{t('orders.status.pending')}</option>
                                             <option value="Approved">{t('orders.status.approved')}</option>
                                             <option value="Cancelled">{t('orders.status.cancelled')}</option>
+                                        </CFormSelect>
+                                    </CCol>
+                                    <CCol md={12}>
+                                        <CFormLabel htmlFor="employee">{t('orders.employee')}</CFormLabel>
+                                        <CFormSelect
+                                            id="employee"
+                                            value={employeeId}
+                                            onChange={(e) => setEmployeeId(e.target.value)}
+                                        >
+                                            <option value="">{t('orders.noEmployee')}</option>
+                                            {employees.map(e => (
+                                                <option key={e.id} value={e.id}>
+                                                    {e.name}
+                                                </option>
+                                            ))}
                                         </CFormSelect>
                                     </CCol>
                                 </CRow>

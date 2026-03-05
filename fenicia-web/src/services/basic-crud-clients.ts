@@ -220,6 +220,11 @@ export class BasicDataSourceClient extends ApiClient {
     const response = await this.getClient().get('/datasource/position');
     return (response as AxiosResponse).data;
   }
+
+  async getEmployees(): Promise<any> {
+    const response = await this.getClient().get('/datasource/employee');
+    return (response as AxiosResponse).data;
+  }
 }
 
 export default BasicCustomerClient;

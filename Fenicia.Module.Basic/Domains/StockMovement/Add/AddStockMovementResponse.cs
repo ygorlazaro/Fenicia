@@ -10,4 +10,7 @@ public record AddStockMovementResponse(
     decimal? Price,
     StockMovementType Type,
     Guid? CustomerId,
-    Guid? SupplierId);
+    Guid? SupplierId,
+    Guid? EmployeeId,
+    Guid? OrderId,
+    string? Reason);

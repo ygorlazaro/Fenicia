@@ -24,11 +24,14 @@ public class UpdateStockMovementHandler(DefaultContext context)
         stockMovement.Quantity = command.Quantity;
         stockMovement.Price = command.Price;
         stockMovement.SupplierId = command.SupplierId;
+        stockMovement.EmployeeId = command.EmployeeId;
+        stockMovement.OrderId = command.OrderId;
+        stockMovement.Reason = command.Reason;
 
         context.BasicStockMovements.Update(stockMovement);
 
         await context.SaveChangesAsync(ct);
 
-        return new UpdateStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId);
+        return new UpdateStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId, stockMovement.EmployeeId, stockMovement.OrderId, stockMovement.Reason);
     }
 }

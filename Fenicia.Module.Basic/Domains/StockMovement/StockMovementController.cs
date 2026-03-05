@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Module.Basic.Domains.StockMovement.Add;
 using Fenicia.Module.Basic.Domains.StockMovement.GetMovement;
+using Fenicia.Module.Basic.Domains.StockMovement.GetStockMovementDashboard;
 using Fenicia.Module.Basic.Domains.StockMovement.Update;
 
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +18,8 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 public class StockMovementController(
     GetStockMovementHandler getStockMovementHandler,
     AddStockMovementHandler addStockMovementHandler,
-    UpdateStockMovementHandler updateStockMovementHandler) : ControllerBase
+    UpdateStockMovementHandler updateStockMovementHandler,
+    GetStockMovementDashboardHandler getStockMovementDashboardHandler) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetStockMovementResponse>))]
@@ -58,6 +60,19 @@ public class StockMovementController(
         var stockMovement = await updateStockMovementHandler.Handle(command with { Id = id }, cancellationToken);
 
         return stockMovement is null ? NotFound() : new CreatedResult(string.Empty, stockMovement);
+    }
+
+    [HttpGet("dashboard")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StockMovementDashboardResponse))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<StockMovementDashboardResponse>> GetDashboardAsync(
+        [FromQuery] int days = 30,
+        [FromQuery] int topLimit = 10,
+        CancellationToken ct = default)
+    {
+        var dashboard = await getStockMovementDashboardHandler.Handle(new GetStockMovementDashboardQuery(days, topLimit), ct);
+
+        return Ok(dashboard);
     }
 
     public record StockMovementQuery(int Page, int PerPage)

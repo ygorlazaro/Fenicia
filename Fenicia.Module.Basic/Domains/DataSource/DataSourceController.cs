@@ -15,7 +15,8 @@ public class DataSourceController(
     GetAllProductCategoryForDataSourceHandler getAllProductCategoryForDataSourceHandler,
     GetAllSupplierForDataSourceHandler getAllSupplierForDataSourceHandler,
     GetAllCustomerForDataSourceHandler getAllCustomerForDataSourceHandler,
-    GetAllProductForDataSourceHandler getAllProductForDataSourceHandler) : ControllerBase
+    GetAllProductForDataSourceHandler getAllProductForDataSourceHandler,
+    GetAllEmployeeForDataSourceHandler getAllEmployeeForDataSourceHandler) : ControllerBase
 {
     [HttpGet("position")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllPositionForDataSourceResponse>))]
@@ -65,5 +66,15 @@ public class DataSourceController(
         var products = await getAllProductForDataSourceHandler.Handle(ct);
 
         return Ok(products);
+    }
+
+    [HttpGet("employee")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllEmployeeForDataSourceResponse>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<GetAllEmployeeForDataSourceResponse>>> GetEmployeesAsync(CancellationToken ct)
+    {
+        var employees = await getAllEmployeeForDataSourceHandler.Handle(ct);
+
+        return Ok(employees);
     }
 }

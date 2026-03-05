@@ -7,4 +7,5 @@ public record CreateOrderCommand(
     Guid CustomerId,
     DateTime SaleDate,
     OrderStatus Status,
-    List<OrderDetailCommand> Details);
+    List<OrderDetailCommand> Details,
+    Guid? EmployeeId = null);

@@ -22,6 +22,9 @@ public class BasicStockMovementModel : BaseCompanyModel
     [Required]
     public StockMovementType Type { get; set; }
 
+    [MaxLength(255)]
+    public string? Reason { get; set; }
+
     [ForeignKey(nameof(ProductId))]
     public BasicProductModel ProductModel { get; set; } = null!;
 
@@ -34,4 +37,14 @@ public class BasicStockMovementModel : BaseCompanyModel
 
     [ForeignKey(nameof(SupplierId))]
     public BasicSupplierModel? Supplier { get; set; }
+
+    public Guid? EmployeeId { get; set; }
+
+    [ForeignKey(nameof(EmployeeId))]
+    public BasicEmployeeModel? Employee { get; set; }
+
+    public Guid? OrderId { get; set; }
+
+    [ForeignKey(nameof(OrderId))]
+    public BasicOrderModel? OrderModel { get; set; }
 }
