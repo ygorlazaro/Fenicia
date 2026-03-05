@@ -17,6 +17,7 @@ const Products = React.lazy(() => import("./views/basic/product"));
 const Inventory = React.lazy(() => import("./views/basic/inventory"));
 const StockMovement = React.lazy(() => import("./views/basic/stock-movement"));
 const Orders = React.lazy(() => import("./views/basic/order"));
+const OrderDetail = React.lazy(() => import("./views/basic/order-detail"));
 const ProjectList = React.lazy(() => import("./views/project"));
 const ProjectStatusList = React.lazy(() => import("./views/project/status"));
 const ProjectTaskList = React.lazy(() => import("./views/project/task"));
@@ -138,6 +139,7 @@ const routes = [
   { path: '/basic/inventory', name: 'Inventory', element: Inventory },
   { path: '/basic/stock-movements', name: 'Stock Movements', element: StockMovement },
   { path: '/basic/orders', name: 'Orders', element: Orders },
+  { path: '/basic/order/:id', name: 'Order Details', element: OrderDetail },
   { path: '/project/projects', name: 'Projects', element: ProjectList },
   { path: '/project/status', name: 'Project Status', element: ProjectStatusList },
   { path: '/project/tasks', name: 'Project Tasks', element: ProjectTaskList },

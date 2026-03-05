@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import {
     CButton,
     CCard,
@@ -30,6 +31,7 @@ const categoryClient = new BasicProductCategoryClient();
 
 const ProductCategories = () => {
     const { t } = useTranslation();
+    const [searchParams] = useSearchParams();
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,8 +53,23 @@ const ProductCategories = () => {
     paginationRef.current = pagination;
 
     useEffect(() => {
+        const categoryId = searchParams.get('id');
+        if (categoryId) {
+            loadCategoryForEdit(categoryId);
+        }
         loadCategories();
     }, [pagination.page, pagination.perPage]);
+
+    const loadCategoryForEdit = async (categoryId) => {
+        try {
+            const category = await categoryClient.getById(categoryId);
+            setSelectedCategory(category);
+            setModalVisible(true);
+        } catch (err) {
+            console.error('Failed to load category for edit:', err);
+            setError(t('categories.loadError'));
+        }
+    };
 
     const loadCategories = async () => {
         try {

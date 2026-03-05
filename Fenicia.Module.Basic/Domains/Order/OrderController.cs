@@ -6,6 +6,7 @@ using Fenicia.Module.Basic.Domains.Order.CreateOrder;
 using Fenicia.Module.Basic.Domains.Order.Delete;
 using Fenicia.Module.Basic.Domains.Order.GetAll;
 using Fenicia.Module.Basic.Domains.Order.GetById;
+using Fenicia.Module.Basic.Domains.Order.GetOrderAnalytics;
 using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
 
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +24,8 @@ public class OrderController(
     GetOrderByIdHandler getOrderByIdHandler,
     CreateOrderHandler createOrderHandler,
     DeleteOrderHandler deleteOrderHandler,
-    GetOrderDetailsByOrderIdHandler getOrderDetailsByOrderIdHandler) : ControllerBase
+    GetOrderDetailsByOrderIdHandler getOrderDetailsByOrderIdHandler,
+    GetOrderAnalyticsHandler getOrderAnalyticsHandler) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllOrderResponse>>))]
@@ -82,5 +84,18 @@ public class OrderController(
         var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);
 
         return Ok(details);
+    }
+
+    [HttpGet("analytics")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderAnalyticsResponse))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<OrderAnalyticsResponse>> GetAnalyticsAsync(
+        [FromQuery] int days = 90,
+        [FromQuery] int topCustomersLimit = 10,
+        CancellationToken ct = default)
+    {
+        var analytics = await getOrderAnalyticsHandler.Handle(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
+
+        return Ok(analytics);
     }
 }
