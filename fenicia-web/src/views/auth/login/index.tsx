@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CForm,
     CFormInput,
-    CFormLabel,
-    CAlert
+    CFormLabel
 } from "@coreui/react";
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from 'src/components/AuthLayout';
 import AuthTokenClient from '../../../services/auth-token-client';
 
@@ -21,8 +21,7 @@ const AuthLogin = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
-        password: '',
-        cnpj: ''
+        password: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -43,8 +42,7 @@ const AuthLogin = () => {
         try {
             await authClient.generateToken({
                 email: formData.email,
-                password: formData.password,
-                cnpj: formData.cnpj
+                password: formData.password
             });
 
             navigate('/auth/company');
@@ -91,17 +89,6 @@ const AuthLogin = () => {
                                 value={formData.password}
                                 onChange={handleInputChange}
                                 required
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <CFormLabel htmlFor="inputCnpj">{t('auth.login.labels.cnpj', 'CNPJ')}</CFormLabel>
-                            <CFormInput
-                                type="text"
-                                id="inputCnpj"
-                                name="cnpj"
-                                placeholder={t('auth.login.placeholders.cnpj', '00000000000100')}
-                                value={formData.cnpj}
-                                onChange={handleInputChange}
                             />
                         </div>
                         <div className="d-grid gap-2">

@@ -3,6 +3,7 @@ using System.Net.Mime;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventory;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByCategory;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByProduct;
+using Fenicia.Module.Basic.Domains.Inventory.GetInventoryDashboard;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,8 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 public class InventoryController(
     GetInventoryHandler getInventoryHandler,
     GetInventoryByProductHandler getInventoryByProductHandler,
-    GetInventoryByCategoryHandler getInventoryByCategoryHandler) : ControllerBase
+    GetInventoryByCategoryHandler getInventoryByCategoryHandler,
+    GetInventoryDashboardHandler getInventoryDashboardHandler) : ControllerBase
 {
     [HttpGet("product/{productId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
@@ -47,5 +49,15 @@ public class InventoryController(
         var inventory = await getInventoryHandler.Handle(new GetInventoryQuery(page, perPage), ct);
 
         return Ok(inventory);
+    }
+
+    [HttpGet("dashboard")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryDashboardResponse))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<InventoryDashboardResponse>> GetInventoryDashboardAsync(CancellationToken ct)
+    {
+        var dashboard = await getInventoryDashboardHandler.Handle(ct);
+
+        return Ok(dashboard);
     }
 }
