@@ -9,7 +9,7 @@ public class UpdateSupplierHandler(DefaultContext context)
     public async Task<UpdateSupplierResponse?> Handle(UpdateSupplierCommand command, CancellationToken ct)
     {
         var supplier = await context.BasicSuppliers
-            .Include(s => s.PersonModel)
+            .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
         if (supplier is null)
@@ -18,17 +18,17 @@ public class UpdateSupplierHandler(DefaultContext context)
         }
 
         supplier.Cnpj = command.Cnpj;
-        supplier.PersonModel.Name = command.Name;
-        supplier.PersonModel.Email = command.Email;
-        supplier.PersonModel.Document = command.Document;
-        supplier.PersonModel.PhoneNumber = command.PhoneNumber ?? string.Empty;
-        supplier.PersonModel.Street = command.Street ?? string.Empty;
-        supplier.PersonModel.Number = command.Number ?? string.Empty;
-        supplier.PersonModel.Complement = command.Complement;
-        supplier.PersonModel.Neighborhood = command.Neighborhood;
-        supplier.PersonModel.ZipCode = command.ZipCode ?? string.Empty;
-        supplier.PersonModel.StateId = command.StateId;
-        supplier.PersonModel.City = command.City ?? string.Empty;
+        supplier.Person.Name = command.Name;
+        supplier.Person.Email = command.Email;
+        supplier.Person.Document = command.Document;
+        supplier.Person.PhoneNumber = command.PhoneNumber ?? string.Empty;
+        supplier.Person.Street = command.Street ?? string.Empty;
+        supplier.Person.Number = command.Number ?? string.Empty;
+        supplier.Person.Complement = command.Complement;
+        supplier.Person.Neighborhood = command.Neighborhood;
+        supplier.Person.ZipCode = command.ZipCode ?? string.Empty;
+        supplier.Person.StateId = command.StateId;
+        supplier.Person.City = command.City ?? string.Empty;
 
         context.BasicSuppliers.Update(supplier);
 

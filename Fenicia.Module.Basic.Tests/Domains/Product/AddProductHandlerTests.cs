@@ -54,7 +54,7 @@ public class AddProductHandlerTests
             Assert.That(result.Id, Is.EqualTo(command.Id));
             Assert.That(result.Name, Is.EqualTo(command.Name));
             Assert.That(result.CostPrice, Is.EqualTo(command.CostPrice));
-            Assert.That(result.SalesPrice, Is.EqualTo(command.SellingPrice));
+            Assert.That(result.SalesPrice, Is.EqualTo(command.SalesPrice));
             Assert.That(result.Quantity, Is.EqualTo(command.Quantity));
             Assert.That(result.CategoryId, Is.EqualTo(command.CategoryId));
         }

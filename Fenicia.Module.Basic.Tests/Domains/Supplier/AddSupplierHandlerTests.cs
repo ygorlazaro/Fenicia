@@ -90,11 +90,11 @@ public class AddSupplierHandlerTests
 
         // Assert
         var supplier = await this.context.BasicSuppliers
-            .Include(s => s.PersonModel)
+            .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 
         Assert.That(supplier, Is.Not.Null);
-        Assert.That(supplier.PersonModel.Name, Is.EqualTo(command.Name));
+        Assert.That(supplier.Person.Name, Is.EqualTo(command.Name));
     }
 
     [Test]

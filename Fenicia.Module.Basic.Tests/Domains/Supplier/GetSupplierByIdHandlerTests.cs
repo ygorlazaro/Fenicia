@@ -53,7 +53,7 @@ public class GetSupplierByIdHandlerTests
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -82,18 +82,18 @@ public class GetSupplierByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(supplierId));
-            Assert.That(result.PersonId, Is.EqualTo(supplier.PersonModel.Id));
-            Assert.That(result.Name, Is.EqualTo(supplier.PersonModel.Name));
-            Assert.That(result.Email, Is.EqualTo(supplier.PersonModel.Email));
-            Assert.That(result.PhoneNumber, Is.EqualTo(supplier.PersonModel.PhoneNumber));
-            Assert.That(result.Document, Is.EqualTo(supplier.PersonModel.Document));
-            Assert.That(result.Street, Is.EqualTo(supplier.PersonModel.Street));
-            Assert.That(result.Number, Is.EqualTo(supplier.PersonModel.Number));
-            Assert.That(result.Complement, Is.EqualTo(supplier.PersonModel.Complement));
-            Assert.That(result.Neighborhood, Is.EqualTo(supplier.PersonModel.Neighborhood));
-            Assert.That(result.ZipCode, Is.EqualTo(supplier.PersonModel.ZipCode));
-            Assert.That(result.StateId, Is.EqualTo(supplier.PersonModel.StateId));
-            Assert.That(result.City, Is.EqualTo(supplier.PersonModel.City));
+            Assert.That(result.PersonId, Is.EqualTo(supplier.Person.Id));
+            Assert.That(result.Name, Is.EqualTo(supplier.Person.Name));
+            Assert.That(result.Email, Is.EqualTo(supplier.Person.Email));
+            Assert.That(result.PhoneNumber, Is.EqualTo(supplier.Person.PhoneNumber));
+            Assert.That(result.Document, Is.EqualTo(supplier.Person.Document));
+            Assert.That(result.Street, Is.EqualTo(supplier.Person.Street));
+            Assert.That(result.Number, Is.EqualTo(supplier.Person.Number));
+            Assert.That(result.Complement, Is.EqualTo(supplier.Person.Complement));
+            Assert.That(result.Neighborhood, Is.EqualTo(supplier.Person.Neighborhood));
+            Assert.That(result.ZipCode, Is.EqualTo(supplier.Person.ZipCode));
+            Assert.That(result.StateId, Is.EqualTo(supplier.Person.StateId));
+            Assert.That(result.City, Is.EqualTo(supplier.Person.City));
         }
     }
 
@@ -141,7 +141,7 @@ public class GetSupplierByIdHandlerTests
         {
             Id = supplier1Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -161,7 +161,7 @@ public class GetSupplierByIdHandlerTests
         {
             Id = supplier2Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -190,7 +190,7 @@ public class GetSupplierByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(supplier1Id));
-            Assert.That(result.Name, Is.EqualTo(supplier1.PersonModel.Name));
+            Assert.That(result.Name, Is.EqualTo(supplier1.Person.Name));
         }
     }
 
@@ -211,7 +211,7 @@ public class GetSupplierByIdHandlerTests
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new BasicPersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -239,7 +239,7 @@ public class GetSupplierByIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Name, Is.EqualTo(supplier.PersonModel.Name));
-        Assert.That(result.Email, Is.EqualTo(supplier.PersonModel.Email));
+        Assert.That(result.Name, Is.EqualTo(supplier.Person.Name));
+        Assert.That(result.Email, Is.EqualTo(supplier.Person.Email));
     }
 }

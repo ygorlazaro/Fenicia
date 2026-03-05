@@ -266,7 +266,7 @@ public class ProductControllerTests
         {
             Assert.That(returnedProduct.Name, Is.EqualTo(command.Name));
             Assert.That(returnedProduct.CostPrice, Is.EqualTo(command.CostPrice));
-            Assert.That(returnedProduct.SalesPrice, Is.EqualTo(command.SellingPrice));
+            Assert.That(returnedProduct.SalesPrice, Is.EqualTo(command.SalesPrice));
         }
     }
 

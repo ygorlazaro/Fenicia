@@ -11,7 +11,9 @@ public class BasicSupplierModel : BaseCompanyModel
 
     public Guid PersonId { get; set; } = Guid.Empty;
 
-    public BasicPersonModel PersonModel { get; set; } = null!;
+    public BasicPersonModel Person { get; set; } = null!;
+
+    public virtual List<BasicProductModel> Products { get; set; } = null!;
 
     public List<BasicStockMovementModel> StockMovements { get; set; } = [];
 }

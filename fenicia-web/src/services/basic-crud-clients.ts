@@ -1,5 +1,5 @@
-import { ApiClient } from './client';
 import { AxiosResponse } from 'axios';
+import { ApiClient } from './client';
 
 const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5002/api';
 
@@ -110,6 +110,16 @@ export class BasicProductClient extends ApiClient {
   async delete(id: string): Promise<void> {
     await this.getClient().delete(`/product/${id}`);
   }
+
+    async getProductCategories(): Promise<any> {
+        const response = await this.getClient().get('/datasource/productcategory');
+        return (response as AxiosResponse).data;
+    }
+
+    async getSuppliers(): Promise<any> {
+        const response = await this.getClient().get('/datasource/supplier');
+        return (response as AxiosResponse).data;
+    }
 }
 
 /**
