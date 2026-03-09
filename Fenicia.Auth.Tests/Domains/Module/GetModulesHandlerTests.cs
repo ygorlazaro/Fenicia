@@ -55,7 +55,7 @@ public class GetModulesHandlerTests
             Price = 20.0m
         };
 
-        this.context.Modules.AddRange(module1, module2);
+        this.context.AuthModules.AddRange(module1, module2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesRequest(1, 10);
@@ -94,7 +94,7 @@ public class GetModulesHandlerTests
             Price = 10.0m
         };
 
-        this.context.Modules.AddRange(authModule, basicModule);
+        this.context.AuthModules.AddRange(authModule, basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesRequest(1, 10);
@@ -128,7 +128,7 @@ public class GetModulesHandlerTests
             });
         }
 
-        this.context.Modules.AddRange(modules);
+        this.context.AuthModules.AddRange(modules);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesRequest(2, 10);
@@ -178,7 +178,7 @@ public class GetModulesHandlerTests
             Price = 10.0m
         };
 
-        this.context.Modules.Add(module);
+        this.context.AuthModules.Add(module);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesRequest(10, 10);
@@ -223,7 +223,7 @@ public class GetModulesHandlerTests
             Price = 30.0m
         };
 
-        this.context.Modules.AddRange(module1, module2, module3);
+        this.context.AuthModules.AddRange(module1, module2, module3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesRequest(1, 10);
@@ -254,7 +254,7 @@ public class GetModulesHandlerTests
             Price = 10.0m
         };
 
-        this.context.Modules.Add(module);
+        this.context.AuthModules.Add(module);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesRequest();
@@ -284,7 +284,7 @@ public class GetModulesHandlerTests
             Price = 10.0m
         };
 
-        this.context.Modules.Add(module);
+        this.context.AuthModules.Add(module);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesRequest(1, 10);

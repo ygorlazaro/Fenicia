@@ -67,7 +67,7 @@ public class ResetPasswordHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.ForgottenPasswords.Add(forgotPassword);
+        this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
@@ -80,7 +80,7 @@ public class ResetPasswordHandlerTests
         Assert.That(updatedUser, Is.Not.Null);
         Assert.That(updatedUser!.Password, Is.Not.EqualTo("old_hashed_password"), "Password should be changed");
 
-        var updatedCode = await this.context.ForgottenPasswords.FindAsync(forgotPassword.Id);
+        var updatedCode = await this.context.AuthForgottenPasswords.FindAsync(forgotPassword.Id);
         Assert.That(updatedCode, Is.Not.Null);
         Assert.That(updatedCode!.IsActive, Is.False, "Code should be invalidated after use");
     }
@@ -130,7 +130,7 @@ public class ResetPasswordHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.ForgottenPasswords.Add(forgotPassword);
+        this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, invalidCode);
@@ -169,7 +169,7 @@ public class ResetPasswordHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.ForgottenPasswords.Add(forgotPassword);
+        this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
@@ -208,7 +208,7 @@ public class ResetPasswordHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.ForgottenPasswords.Add(forgotPassword);
+        this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
@@ -257,7 +257,7 @@ public class ResetPasswordHandlerTests
         };
 
         this.context.AuthUsers.AddRange(user1, user2);
-        this.context.ForgottenPasswords.Add(forgotPassword);
+        this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email2, newPassword, code);
@@ -296,7 +296,7 @@ public class ResetPasswordHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.ForgottenPasswords.Add(forgotPassword);
+        this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
@@ -338,7 +338,7 @@ public class ResetPasswordHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.ForgottenPasswords.Add(forgotPassword);
+        this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);

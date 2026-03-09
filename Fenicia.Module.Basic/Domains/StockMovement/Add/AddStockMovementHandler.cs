@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -35,7 +36,7 @@ public class AddStockMovementHandler(DefaultContext context)
             {
                 StockMovementType.In => product.Quantity += command.Quantity,
                 StockMovementType.Out => product.Quantity -= command.Quantity,
-                _ => throw new ArgumentOutOfRangeException()
+                _ => throw new ArgumentOutOfRangeException(nameof(command.Type), ExceptionMessages.InvalidRequest)
             };
 
             context.BasicProducts.Update(product);

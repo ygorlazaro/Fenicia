@@ -1,5 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +10,9 @@ public sealed class UpdateCompanyHandler(DefaultContext context)
 {
     public async Task Handle(UpdateCompanyCommand command, CancellationToken ct)
     {
-        var company = await context.Companies
+        var company = await context.AuthCompanies
                           .FirstOrDefaultAsync(c => c.Id == command.CompanyId && c.IsActive, ct)
-                      ?? throw new ItemNotExistsException("Company not found.");
+                      ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
 
         var isAdmin = await HasRoleAsync(
             command.UserId,
@@ -22,7 +23,7 @@ public sealed class UpdateCompanyHandler(DefaultContext context)
 
         if (!isAdmin)
         {
-            throw new PermissionDeniedException("You are not authorized to update this company.");
+            throw new PermissionDeniedException(ExceptionMessages.PermissionDeniedUpdateCompany);
         }
 
         company.Name = command.Name;
@@ -33,7 +34,7 @@ public sealed class UpdateCompanyHandler(DefaultContext context)
 
     private async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken ct)
     {
-        var query = context.UserRoles.Where(ur => ur.UserId == userId
+        var query = context.AuthUserRoles.Where(ur => ur.UserId == userId
                                                   && ur.CompanyId == companyId && ur.Role.Name == role)
             .Select(ur => 1);
 

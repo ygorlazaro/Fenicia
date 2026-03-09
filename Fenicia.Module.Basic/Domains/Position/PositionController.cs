@@ -1,4 +1,7 @@
+using System.Net.Mime;
+
 using Fenicia.Common;
+using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Employee.GetByPositionId;
 using Fenicia.Module.Basic.Domains.Position.Add;
 using Fenicia.Module.Basic.Domains.Position.Delete;
@@ -26,56 +29,96 @@ public class PositionController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllPositionResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllPositionResponse>>>> GetAsync(
-        [FromQuery] int page = 1, 
-        [FromQuery] int perPage = 10, 
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page, perPage), ct);
 
         return Ok(positions);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<GetPositionByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetPositionByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<GetPositionByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var position = await getPositionByIdHandler.Handle(new GetPositionByIdQuery(id), ct);
 
         return position is null ? NotFound() : Ok(position);
     }
 
     [HttpGet("{id:guid}/employee")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetEmployeesByPositionIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetEmployeesByPositionIdResponse>>> GetEmployeesByPositionIdAsync(
         [FromRoute] Guid id,
         [FromQuery] PaginationQuery query,
+        WideEventContext wide,
         CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var employees = await getEmployeesByPositionIdHandler.Handle(new GetEmployeesByPositionIdQuery(id, query.Page, query.PerPage), ct);
 
         return Ok(employees);
     }
 
     [HttpPost]
-    public async Task<ActionResult<AddPositionResponse>> PostAsync([FromBody] AddPositionCommand command, CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddPositionResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    public async Task<ActionResult<AddPositionResponse>> PostAsync(
+        [FromBody] AddPositionCommand command,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var position = await addPositionHandler.Handle(command, ct);
 
         return new CreatedResult(string.Empty, position);
     }
 
     [HttpPatch("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdatePositionResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdatePositionResponse>> PatchAsync(
         [FromBody] UpdatePositionCommand command,
         [FromRoute] Guid id,
+        WideEventContext wide,
         CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var position = await updatePositionHandler.Handle(command with { Id = id }, ct);
 
         return position is null ? NotFound() : Ok(position);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         await deletePositionHandler.Handle(new DeletePositionCommand(id), ct);
 
         return NoContent();

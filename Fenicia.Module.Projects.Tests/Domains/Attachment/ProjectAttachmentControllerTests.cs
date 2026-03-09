@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
@@ -99,7 +100,8 @@ public class ProjectAttachmentControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -147,7 +149,8 @@ public class ProjectAttachmentControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -182,7 +185,8 @@ public class ProjectAttachmentControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testProjectAttachmentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetByIdAsync(this.testProjectAttachmentId,wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -208,7 +212,8 @@ public class ProjectAttachmentControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -231,7 +236,8 @@ public class ProjectAttachmentControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PostAsync(command,wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -279,7 +285,8 @@ public class ProjectAttachmentControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testProjectAttachmentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PatchAsync(command, this.testProjectAttachmentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -309,7 +316,8 @@ public class ProjectAttachmentControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -337,7 +345,8 @@ public class ProjectAttachmentControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testProjectAttachmentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.DeleteAsync(this.testProjectAttachmentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -355,7 +364,8 @@ public class ProjectAttachmentControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

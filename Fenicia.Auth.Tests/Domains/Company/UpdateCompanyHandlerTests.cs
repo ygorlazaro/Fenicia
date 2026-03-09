@@ -76,10 +76,10 @@ public class UpdateCompanyHandlerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -93,7 +93,7 @@ public class UpdateCompanyHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.context.Companies.FindAsync(companyId);
+        var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
         Assert.That(updatedCompany, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -121,7 +121,7 @@ public class UpdateCompanyHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.Add(company);
+        this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -178,10 +178,10 @@ public class UpdateCompanyHandlerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -238,10 +238,10 @@ public class UpdateCompanyHandlerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -299,10 +299,10 @@ public class UpdateCompanyHandlerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(otherUser);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -370,10 +370,10 @@ public class UpdateCompanyHandlerTests
             CompanyId = companyId1
         };
 
-        this.context.Companies.AddRange(company1, company2);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.AddRange(company1, company2);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -447,10 +447,10 @@ public class UpdateCompanyHandlerTests
             }
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.AddRange(adminRole, memberRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.AddRange(adminRole, memberRole);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.AddRange(userRoles);
+        this.context.AuthUserRoles.AddRange(userRoles);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -464,7 +464,7 @@ public class UpdateCompanyHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.context.Companies.FindAsync(companyId);
+        var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
         Assert.That(updatedCompany, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -532,10 +532,10 @@ public class UpdateCompanyHandlerTests
             }
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.AddRange(admin1, admin2);
-        this.context.UserRoles.AddRange(userRoles);
+        this.context.AuthUserRoles.AddRange(userRoles);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -549,7 +549,7 @@ public class UpdateCompanyHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.context.Companies.FindAsync(companyId);
+        var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
         Assert.That(updatedCompany, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -584,7 +584,7 @@ public class UpdateCompanyHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.Companies.Add(company);
+        this.context.AuthCompanies.Add(company);
         this.context.AuthUsers.Add(user);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -642,10 +642,10 @@ public class UpdateCompanyHandlerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -702,10 +702,10 @@ public class UpdateCompanyHandlerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -762,10 +762,10 @@ public class UpdateCompanyHandlerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
@@ -779,7 +779,7 @@ public class UpdateCompanyHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.context.Companies.FindAsync(companyId);
+        var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
         Assert.That(updatedCompany, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {

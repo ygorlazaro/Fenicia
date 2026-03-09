@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -143,7 +144,8 @@ public class OrderControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -202,7 +204,8 @@ public class OrderControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetDetailsAsync(this.testOrderId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetDetailsAsync(this.testOrderId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -224,7 +227,8 @@ public class OrderControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetDetailsAsync(nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetDetailsAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -279,7 +283,8 @@ public class OrderControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

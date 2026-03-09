@@ -59,7 +59,7 @@ public class AddForgotPasswordHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var forgotPassword = await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
+        var forgotPassword = await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
         Assert.That(forgotPassword, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -147,7 +147,7 @@ public class AddForgotPasswordHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var forgotPassword = await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId1);
+        var forgotPassword = await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId1);
         Assert.That(forgotPassword, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -156,7 +156,7 @@ public class AddForgotPasswordHandlerTests
         }
 
         var forgotPasswordForUser2 =
-            await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId2);
+            await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId2);
         Assert.That(forgotPasswordForUser2, Is.Null, "Should not create code for user2");
     }
 
@@ -185,7 +185,7 @@ public class AddForgotPasswordHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var codes = await this.context.ForgottenPasswords.Where(fp => fp.UserId == userId).ToListAsync();
+        var codes = await this.context.AuthForgottenPasswords.Where(fp => fp.UserId == userId).ToListAsync();
         Assert.That(codes, Has.Count.EqualTo(2), "Should create two codes");
         using (Assert.EnterMultipleScope())
         {
@@ -244,7 +244,7 @@ public class AddForgotPasswordHandlerTests
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var codes = await this.context.ForgottenPasswords.ToListAsync();
+        var codes = await this.context.AuthForgottenPasswords.ToListAsync();
         var distinctCodes = codes.Select(c => c.Code).Distinct().ToList();
         Assert.That(distinctCodes, Has.Count.EqualTo(2), "Codes should be unique");
     }

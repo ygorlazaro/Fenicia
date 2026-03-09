@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
@@ -35,16 +34,14 @@ public class CompanyModel : BaseModel
     [Column("address_id")]
     public Guid? AddressId { get; set; }
 
-    [JsonIgnore]
     public List<UserRoleModel> UsersRoles { get; set; } = [];
 
-    [JsonIgnore]
     public List<SubscriptionModel> Subscriptions { get; set; } = null!;
 
     [ForeignKey(nameof(AddressId))]
-    [JsonIgnore]
     public AddressModel? Address { get; set; }
 
-    [JsonIgnore]
     public List<OrderModel> Orders { get; set; } = [];
+    
+    public List<ConfigurationModel> Configurations { get; set; } = [];
 }

@@ -174,11 +174,11 @@ public class UserControllerTests
             CompanyId = companyId
         };
 
-        this.context.Modules.Add(module);
-        this.context.Subscriptions.Add(subscription);
-        this.context.SubscriptionCredits.Add(subscriptionCredit);
+        this.context.AuthModules.Add(module);
+        this.context.AuthSubscriptions.Add(subscription);
+        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var headers = new Headers { CompanyId = companyId };
@@ -295,10 +295,10 @@ public class UserControllerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();

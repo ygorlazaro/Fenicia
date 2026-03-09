@@ -150,10 +150,10 @@ public class CompanyControllerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
@@ -243,10 +243,10 @@ public class CompanyControllerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(adminRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(adminRole);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "America/Sao_Paulo");
@@ -270,7 +270,7 @@ public class CompanyControllerTests
         }
 
         // Verify company was updated
-        var updatedCompany = await this.context.Companies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
+        var updatedCompany = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
         Assert.That(updatedCompany, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -338,10 +338,10 @@ public class CompanyControllerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(userRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(userRole);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRoleMapping);
+        this.context.AuthUserRoles.Add(userRoleMapping);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
@@ -395,10 +395,10 @@ public class CompanyControllerTests
             CompanyId = companyId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(adminRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(adminRole);
         this.context.AuthUsers.Add(user);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");

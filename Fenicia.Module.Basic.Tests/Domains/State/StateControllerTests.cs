@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -78,7 +79,8 @@ public class StateControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAllAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -110,13 +112,14 @@ public class StateControllerTests
             Uf = this.faker.Address.StateAbbr()
         };
 
-        this.context.States.AddRange(state1, state2);
+        this.context.AuthStates.AddRange(state1, state2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAllAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -155,13 +158,14 @@ public class StateControllerTests
             Uf = "RJ"
         };
 
-        this.context.States.AddRange(state1, state2, state3);
+        this.context.AuthStates.AddRange(state1, state2, state3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAllAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

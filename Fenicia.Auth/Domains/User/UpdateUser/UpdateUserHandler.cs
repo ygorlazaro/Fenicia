@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ public class UpdateUserHandler(DefaultContext context)
     public virtual async Task<UpdateUserResponse> Handle(UpdateUserQuery request, CancellationToken ct)
     {
         var user = await context.AuthUsers
-            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new InvalidRequestException("User not found");
+            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new InvalidRequestException(ExceptionMessages.UserNotFound);
 
         if (!string.IsNullOrWhiteSpace(request.Name))
         {
@@ -25,7 +26,7 @@ public class UpdateUserHandler(DefaultContext context)
 
             if (emailExists)
             {
-                throw new InvalidRequestException("This email already exists");
+                throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
             }
 
             user.Email = request.Email;
@@ -35,7 +36,7 @@ public class UpdateUserHandler(DefaultContext context)
 
         if (request.CompaniesRoles != null && request.CompaniesRoles.Any())
         {
-            var existingRoles = await context.UserRoles
+            var existingRoles = await context.AuthUserRoles
                 .Where(ur => ur.UserId == request.UserId)
                 .ToListAsync(ct);
 
@@ -46,7 +47,7 @@ public class UpdateUserHandler(DefaultContext context)
             var rolesToRemove = existingRoles
                 .Where(er => !requestedPairs.Contains((er.CompanyId, er.RoleId)))
                 .ToList();
-            context.UserRoles.RemoveRange(rolesToRemove);
+            context.AuthUserRoles.RemoveRange(rolesToRemove);
 
             var existingPairs = existingRoles
                 .Select(er => (er.CompanyId, er.RoleId))
@@ -54,8 +55,8 @@ public class UpdateUserHandler(DefaultContext context)
 
             foreach (var companyRole in request.CompaniesRoles.Where(companyRole => !existingPairs.Contains((companyRole.CompanyId, companyRole.RoleId))))
             {
-                var company = await context.Companies.FindAsync([companyRole.CompanyId, ct], cancellationToken: ct) ?? throw new InvalidRequestException($"Company with ID {companyRole.CompanyId} not found");
-                var role = await context.Roles.FindAsync([companyRole.RoleId, ct], cancellationToken: ct) ?? throw new InvalidRequestException($"Role with ID {companyRole.RoleId} not found");
+                var company = await context.AuthCompanies.FindAsync([companyRole.CompanyId, ct], cancellationToken: ct) ?? throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundById(companyRole.CompanyId.ToString()));
+                var role = await context.AuthRoles.FindAsync([companyRole.RoleId, ct], cancellationToken: ct) ?? throw new InvalidRequestException(ExceptionMessages.RoleNotFoundById(companyRole.RoleId.ToString()));
 
                 var userRole = new UserRoleModel
                 {
@@ -64,7 +65,7 @@ public class UpdateUserHandler(DefaultContext context)
                     RoleId = companyRole.RoleId
                 };
 
-                context.UserRoles.Add(userRole);
+                context.AuthUserRoles.Add(userRole);
             }
         }
 

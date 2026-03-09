@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.Project.Add;
 using Fenicia.Module.Projects.Domains.Project.Delete;
 using Fenicia.Module.Projects.Domains.Project.GetAll;
@@ -26,8 +27,14 @@ public class ProjectController(
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllProjectResponse>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1, 
+        [FromQuery] int perPage = 10,
+        CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var projects = await getAllProjectHandler.Handle(new GetAllProjectQuery(page, perPage), ct);
 
         return Ok(projects);
@@ -37,8 +44,13 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProjectByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetProjectByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var project = await getProductByIdHandler.Handle(new GetProjectByIdQuery(id), ct);
 
         return project is null ? NotFound() : Ok(project);
@@ -51,8 +63,13 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectResponse>> PostAsync([FromBody] AddProjectCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddProjectResponse>> PostAsync(
+        [FromBody] AddProjectCommand command,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var project = await addProjectHandler.Handle(command, ct);
 
         return new CreatedResult(string.Empty, project);
@@ -69,8 +86,11 @@ public class ProjectController(
     public async Task<ActionResult<UpdateProjectResponse>> PatchAsync(
         [FromBody] UpdateProjectCommand command,
         [FromRoute] Guid id,
+        WideEventContext wide,
         CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var project = await updateProjectHandler.Handle(command with { Id = id }, ct);
 
         return project is null ? NotFound() : Ok(project);
@@ -81,8 +101,13 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         await deleteProjectHandler.Handle(new DeleteProjectCommand(id), ct);
 
         return NoContent();

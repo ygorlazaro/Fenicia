@@ -481,8 +481,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result.TurnoverRates, Is.Not.Empty);
         var turnover = result.TurnoverRates[0];
-        Assert.That(turnover.TurnoverRate, Is.EqualTo(2.0));
-        Assert.That(turnover.TurnoverClassification, Is.EqualTo("High"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(turnover.TurnoverRate, Is.EqualTo(2.0));
+            Assert.That(turnover.TurnoverClassification, Is.EqualTo("High"));
+        }
     }
 
     [Test]
@@ -529,8 +532,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result.TurnoverRates, Is.Not.Empty);
         var turnover = result.TurnoverRates[0];
-        Assert.That(turnover.TurnoverRate, Is.EqualTo(5.0));
-        Assert.That(turnover.TurnoverClassification, Is.EqualTo("High"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(turnover.TurnoverRate, Is.EqualTo(5.0));
+            Assert.That(turnover.TurnoverClassification, Is.EqualTo("High"));
+        }
     }
 
     [Test]
@@ -577,8 +583,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result.TurnoverRates, Is.Not.Empty);
         var turnover = result.TurnoverRates[0];
-        Assert.That(turnover.TurnoverRate, Is.EqualTo(1.0));
-        Assert.That(turnover.TurnoverClassification, Is.EqualTo("Medium"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(turnover.TurnoverRate, Is.EqualTo(1.0));
+            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Medium"));
+        }
     }
 
     [Test]
@@ -625,8 +634,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result.TurnoverRates, Is.Not.Empty);
         var turnover = result.TurnoverRates[0];
-        Assert.That(turnover.TurnoverRate, Is.EqualTo(1.5));
-        Assert.That(turnover.TurnoverClassification, Is.EqualTo("Medium"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(turnover.TurnoverRate, Is.EqualTo(1.5));
+            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Medium"));
+        }
     }
 
     [Test]
@@ -673,8 +685,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result.TurnoverRates, Is.Not.Empty);
         var turnover = result.TurnoverRates[0];
-        Assert.That(turnover.TurnoverRate, Is.EqualTo(0.5));
-        Assert.That(turnover.TurnoverClassification, Is.EqualTo("Low"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(turnover.TurnoverRate, Is.EqualTo(0.5));
+            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Low"));
+        }
     }
 
     [Test]
@@ -721,8 +736,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result.TurnoverRates, Is.Not.Empty);
         var turnover = result.TurnoverRates[0];
-        Assert.That(turnover.TurnoverRate, Is.EqualTo(0.75));
-        Assert.That(turnover.TurnoverClassification, Is.EqualTo("Low"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(turnover.TurnoverRate, Is.EqualTo(0.75));
+            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Low"));
+        }
     }
 
     [Test]
@@ -769,8 +787,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result.TurnoverRates, Is.Not.Empty);
         var turnover = result.TurnoverRates[0];
-        Assert.That(turnover.TurnoverRate, Is.EqualTo(0.25));
-        Assert.That(turnover.TurnoverClassification, Is.EqualTo("Very Low"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(turnover.TurnoverRate, Is.EqualTo(0.25));
+            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Very Low"));
+        }
     }
 
     [Test]
@@ -817,8 +838,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result.TurnoverRates, Is.Not.Empty);
         var turnover = result.TurnoverRates[0];
-        Assert.That(turnover.TurnoverRate, Is.EqualTo(0));
-        Assert.That(turnover.TurnoverClassification, Is.EqualTo("Very Low"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(turnover.TurnoverRate, Is.EqualTo(0));
+            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Very Low"));
+        }
     }
 
     [Test]
@@ -920,8 +944,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.History, Has.Count.EqualTo(1));
-        Assert.That(result.History[0].CustomerName, Is.EqualTo("John Doe"));
-        Assert.That(result.History[0].SupplierName, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.History[0].CustomerName, Is.EqualTo("John Doe"));
+            Assert.That(result.History[0].SupplierName, Is.Null);
+        }
     }
 
     [Test]
@@ -986,8 +1013,11 @@ public class GetStockMovementDashboardHandlerTests
         // Assert
         Assert.That(result, Is.Not.Null);
         Assert.That(result.History, Has.Count.EqualTo(1));
-        Assert.That(result.History[0].SupplierName, Is.EqualTo("ABC Supplier Ltd"));
-        Assert.That(result.History[0].CustomerName, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.History[0].SupplierName, Is.EqualTo("ABC Supplier Ltd"));
+            Assert.That(result.History[0].CustomerName, Is.Null);
+        }
     }
 
     #endregion
@@ -1046,8 +1076,11 @@ public class GetStockMovementDashboardHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.TopMovedProducts, Has.Count.EqualTo(3));
-        Assert.That(result.TurnoverRates, Has.Count.EqualTo(3));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.TopMovedProducts, Has.Count.EqualTo(3));
+            Assert.That(result.TurnoverRates, Has.Count.EqualTo(3));
+        }
 
         // Verify top 3 products by movement
         using (Assert.EnterMultipleScope())

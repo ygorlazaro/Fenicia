@@ -136,7 +136,7 @@ public class UserController(
         }
 
         var currentUserId = ClaimReader.UserId(this.User);
-        var adminCompanies = await context.UserRoles
+        var adminCompanies = await context.AuthUserRoles
             .Where(ur => ur.UserId == currentUserId)
             .Select(ur => ur.CompanyId)
             .ToListAsync(ct);
@@ -190,7 +190,7 @@ public class UserController(
             {
                 var adminCompanies = await this.HttpContext.RequestServices
                     .GetRequiredService<DefaultContext>()
-                    .UserRoles
+                    .AuthUserRoles
                     .Where(ur => ur.UserId == currentUserId)
                     .Select(ur => ur.CompanyId)
                     .ToListAsync(ct);
@@ -251,7 +251,7 @@ public class UserController(
         if (userRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase) && 
             !userRoles.Contains("God", StringComparer.OrdinalIgnoreCase))
         {
-            var adminCompanies = await context.UserRoles
+            var adminCompanies = await context.AuthUserRoles
                 .Where(ur => ur.UserId == currentUserId)
                 .Select(ur => ur.CompanyId)
                 .ToListAsync(ct);
@@ -369,7 +369,7 @@ public class UserController(
         if (userRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase) && 
             !userRoles.Contains("God", StringComparer.OrdinalIgnoreCase))
         {
-            var adminCompanies = await context.UserRoles
+            var adminCompanies = await context.AuthUserRoles
                 .Where(ur => ur.UserId == currentUserId)
                 .Select(ur => ur.CompanyId)
                 .ToListAsync(ct);

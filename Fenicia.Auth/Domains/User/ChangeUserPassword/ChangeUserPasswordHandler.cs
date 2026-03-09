@@ -1,6 +1,7 @@
 using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ public class ChangeUserPasswordHandler(
     public virtual async Task<ChangeUserPasswordResponse> Handle(ChangeUserPasswordQuery request, CancellationToken ct)
     {
         var user = await context.AuthUsers
-            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new InvalidRequestException("User not found");
+            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new InvalidRequestException(ExceptionMessages.UserNotFound);
 
         var hashedPassword = hashPasswordHandler.Handle(request.NewPassword);
 

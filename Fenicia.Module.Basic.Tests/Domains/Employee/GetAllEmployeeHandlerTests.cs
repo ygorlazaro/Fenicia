@@ -68,7 +68,7 @@ public class GetAllEmployeeHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var employee1 = new EmployeeModel
         {
@@ -156,7 +156,7 @@ public class GetAllEmployeeHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -212,7 +212,7 @@ public class GetAllEmployeeHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         for (var i = 0; i < 5; i++)
         {
@@ -268,7 +268,7 @@ public class GetAllEmployeeHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -324,7 +324,7 @@ public class GetAllEmployeeHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var employee = new EmployeeModel
         {

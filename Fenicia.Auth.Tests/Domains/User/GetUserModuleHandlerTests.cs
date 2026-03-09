@@ -41,7 +41,6 @@ public class GetUserModuleHandlerTests
         var subscriptionId = Guid.NewGuid();
         var subscriptionCreditId = Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
-        var submoduleId = Guid.NewGuid();
 
         var now = DateTime.UtcNow;
 
@@ -82,20 +81,10 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var submodule = new SubmoduleModel
-        {
-            Id = submoduleId,
-            ModuleId = moduleId,
-            Name = "Test Submodule",
-            Description = "Test Description",
-            Route = "/test"
-        };
-
-        this.context.Modules.Add(module);
-        this.context.Subscriptions.Add(subscription);
-        this.context.SubscriptionCredits.Add(subscriptionCredit);
-        this.context.UserRoles.Add(userRole);
-        this.context.Submodules.Add(submodule);
+        this.context.AuthModules.Add(module);
+        this.context.AuthSubscriptions.Add(subscription);
+        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
@@ -141,7 +130,6 @@ public class GetUserModuleHandlerTests
         var subscriptionId = Guid.NewGuid();
         var subscriptionCreditId = Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
-        var submoduleId = Guid.NewGuid();
 
         var now = DateTime.UtcNow;
 
@@ -182,20 +170,10 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var submodule = new SubmoduleModel
-        {
-            Id = submoduleId,
-            ModuleId = moduleId,
-            Name = "Test Submodule",
-            Description = "Test Description",
-            Route = "/test"
-        };
-
-        this.context.Modules.Add(module);
-        this.context.Subscriptions.Add(subscription);
-        this.context.SubscriptionCredits.Add(subscriptionCredit);
-        this.context.UserRoles.Add(userRole);
-        this.context.Submodules.Add(submodule);
+        this.context.AuthModules.Add(module);
+        this.context.AuthSubscriptions.Add(subscription);
+        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
@@ -218,7 +196,6 @@ public class GetUserModuleHandlerTests
         var subscriptionId = Guid.NewGuid();
         var subscriptionCreditId = Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
-        var submoduleId = Guid.NewGuid();
 
         var now = DateTime.UtcNow;
 
@@ -259,20 +236,10 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var submodule = new SubmoduleModel
-        {
-            Id = submoduleId,
-            ModuleId = moduleId,
-            Name = "Test Submodule",
-            Description = "Test Description",
-            Route = "/test"
-        };
-
-        this.context.Modules.Add(module);
-        this.context.Subscriptions.Add(subscription);
-        this.context.SubscriptionCredits.Add(subscriptionCredit);
-        this.context.UserRoles.Add(userRole);
-        this.context.Submodules.Add(submodule);
+        this.context.AuthModules.Add(module);
+        this.context.AuthSubscriptions.Add(subscription);
+        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
@@ -295,7 +262,6 @@ public class GetUserModuleHandlerTests
         var subscriptionId = Guid.NewGuid();
         var subscriptionCreditId = Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
-        var submoduleId = Guid.NewGuid();
 
         var now = DateTime.UtcNow;
 
@@ -336,20 +302,10 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        var submodule = new SubmoduleModel
-        {
-            Id = submoduleId,
-            ModuleId = moduleId,
-            Name = "Test Submodule",
-            Description = "Test Description",
-            Route = "/test"
-        };
-
-        this.context.Modules.Add(module);
-        this.context.Subscriptions.Add(subscription);
-        this.context.SubscriptionCredits.Add(subscriptionCredit);
-        this.context.UserRoles.Add(userRole);
-        this.context.Submodules.Add(submodule);
+        this.context.AuthModules.Add(module);
+        this.context.AuthSubscriptions.Add(subscription);
+        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
@@ -429,10 +385,10 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        this.context.Modules.AddRange(module1, module2);
-        this.context.Subscriptions.Add(subscription);
-        this.context.SubscriptionCredits.AddRange(credit1, credit2);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthModules.AddRange(module1, module2);
+        this.context.AuthSubscriptions.Add(subscription);
+        this.context.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
@@ -494,10 +450,10 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        this.context.Modules.Add(module);
-        this.context.Subscriptions.Add(subscription);
-        this.context.SubscriptionCredits.Add(subscriptionCredit);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthModules.Add(module);
+        this.context.AuthSubscriptions.Add(subscription);
+        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
@@ -568,10 +524,10 @@ public class GetUserModuleHandlerTests
             RoleId = Guid.NewGuid()
         };
 
-        this.context.Modules.Add(module);
-        this.context.Subscriptions.Add(subscription);
-        this.context.SubscriptionCredits.AddRange(credit1, credit2);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthModules.Add(module);
+        this.context.AuthSubscriptions.Add(subscription);
+        this.context.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);

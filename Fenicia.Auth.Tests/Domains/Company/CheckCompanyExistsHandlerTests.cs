@@ -50,7 +50,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.Add(company);
+        this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, false);
@@ -91,7 +91,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.Add(company);
+        this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, true);
@@ -118,7 +118,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.Add(company);
+        this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, true);
@@ -145,7 +145,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.Add(company);
+        this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, false);
@@ -184,7 +184,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.AddRange(company1, company2);
+        this.context.AuthCompanies.AddRange(company1, company2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj1, false);
@@ -222,7 +222,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.AddRange(activeCompany, inactiveCompany);
+        this.context.AuthCompanies.AddRange(activeCompany, inactiveCompany);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var activeQuery = new CheckCompanyExistsQuery(cnpj, true);
@@ -268,7 +268,7 @@ public class CheckCompanyExistsHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.Add(company);
+        this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, false);

@@ -135,8 +135,8 @@ public class OrderControllerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { Guid.NewGuid() };
@@ -194,10 +194,10 @@ public class OrderControllerTests
             CompanyId = this.testCompanyId
         };
 
-        this.context.Modules.Add(module);
+        this.context.AuthModules.Add(module);
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { moduleId };
@@ -229,7 +229,7 @@ public class OrderControllerTests
 
         // Verify order was created
         var createdOrder =
-            await this.context.Orders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
+            await this.context.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
         Assert.That(createdOrder, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -280,10 +280,10 @@ public class OrderControllerTests
             CompanyId = this.testCompanyId
         };
 
-        this.context.Modules.Add(module);
+        this.context.AuthModules.Add(module);
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { moduleId };

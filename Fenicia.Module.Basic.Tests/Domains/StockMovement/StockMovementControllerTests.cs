@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -101,7 +102,8 @@ public class StockMovementControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(query, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAsync(query, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -161,7 +163,8 @@ public class StockMovementControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(query, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAsync(query, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -208,7 +211,8 @@ public class StockMovementControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -275,7 +279,8 @@ public class StockMovementControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(this.testMovementId, command, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PatchAsync(this.testMovementId, command, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -317,7 +322,8 @@ public class StockMovementControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(nonExistentId, command, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PatchAsync(nonExistentId, command, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -389,7 +395,8 @@ public class StockMovementControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetDashboardAsync(30, 10, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetDashboardAsync(wide,30, 10, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -448,7 +455,8 @@ public class StockMovementControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetDashboardAsync(30, 10, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetDashboardAsync(wide, 30, 10, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

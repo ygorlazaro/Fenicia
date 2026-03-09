@@ -143,7 +143,7 @@ public class UpdateUserHandlerTests
     {
         // Arrange
         var role = new RoleModel { Name = "Admin" };
-        this.context.Roles.Add(role);
+        this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UserCompanyRoleCommand>
@@ -170,7 +170,7 @@ public class UpdateUserHandlerTests
             TimeZone = string.Empty,
             Cnpj = string.Empty
         };
-        this.context.Companies.Add(company);
+        this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UserCompanyRoleCommand>

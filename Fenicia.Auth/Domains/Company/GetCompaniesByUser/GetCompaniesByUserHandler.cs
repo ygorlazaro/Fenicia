@@ -1,6 +1,7 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +15,10 @@ public sealed class GetCompaniesByUserHandler(DefaultContext db)
     {
         if (query.PerPage <= 0)
         {
-            throw new InvalidRequestException("The user is not associated with any active companies.");
+            throw new InvalidRequestException(ExceptionMessages.UserNotAssociatedWithActiveCompanies);
         }
 
-        var request = db.UserRoles.Where(ur => ur.UserId == query.UserId && ur.Company.IsActive);
+        var request = db.AuthUserRoles.Where(ur => ur.UserId == query.UserId && ur.Company.IsActive);
         var total = await request.CountAsync(ct);
         var items = await request
             .OrderBy(ur => ur.Company.Name)

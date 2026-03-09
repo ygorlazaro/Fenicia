@@ -10,7 +10,7 @@ public class GetModulesHandler(DefaultContext db)
 {
     public async Task<Pagination<List<GetModuleResponse>>> Handle(GetModulesRequest query, CancellationToken ct)
     {
-        var request = db.Modules
+        var request = db.AuthModules
             .Where(m => m.Type != ModuleType.Auth)
             .OrderBy(m => m.Type)
             .Select(m => new GetModuleResponse(m.Id, m.Name, m.Type));

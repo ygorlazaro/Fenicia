@@ -4,6 +4,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -19,14 +20,14 @@ public class CreateNewOrderHandler(
 
         if (!existingUser)
         {
-            throw new PermissionDeniedException("User does not exists at the company");
+            throw new PermissionDeniedException(ExceptionMessages.UserDoesNotExistsAtCompany);
         }
 
         var modules = await PopulateModules(command.Modules, ct);
 
         if (modules.Count == 0)
         {
-            throw new ItemNotExistsException("Modules not found");
+            throw new ItemNotExistsException(ExceptionMessages.ModulesNotFound);
         }
 
         var totalAmount = modules.Sum(m => m.Price);
@@ -45,7 +46,7 @@ public class CreateNewOrderHandler(
             CompanyId = command.CompanyId
         };
 
-        db.Orders.Add(order);
+        db.AuthOrders.Add(order);
 
         await db.SaveChangesAsync(ct);
 
@@ -87,13 +88,13 @@ public class CreateNewOrderHandler(
 
     private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
-        return await db.Modules.Where(module => request.Any(r => r == module.Id))
+        return await db.AuthModules.Where(module => request.Any(r => r == module.Id))
             .OrderBy(module => module.Type)
             .ToListAsync(ct);
     }
 
     private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
     {
-        return await db.Modules.FirstOrDefaultAsync(m => m.Type == moduleType, ct);
+        return await db.AuthModules.FirstOrDefaultAsync(m => m.Type == moduleType, ct);
     }
 }

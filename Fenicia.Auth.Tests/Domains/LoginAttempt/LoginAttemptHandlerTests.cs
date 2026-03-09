@@ -59,8 +59,8 @@ public class LoginAttemptHandlerTests
     public void Handle_WhenEmailHasDifferentCase_ReturnsCorrectCount()
     {
         // Arrange
-        var email = "test@example.com";
-        var upperCaseEmail = "TEST@EXAMPLE.COM";
+        var email = this.faker.Internet.Email();
+        var upperCaseEmail = email.ToUpper();
         var key = $"login-attempt:{email.ToLower()}";
         this.cache.Set(key, 5);
 

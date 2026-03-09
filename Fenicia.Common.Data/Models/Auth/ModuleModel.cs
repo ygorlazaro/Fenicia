@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 using Fenicia.Common.Enums.Auth;
 
@@ -28,11 +27,7 @@ public class ModuleModel : BaseModel
     [EnumDataType(typeof(ModuleType))]
     public ModuleType Type { get; set; }
 
-    [JsonIgnore]
     public List<SubscriptionCreditModel> SubscriptionCredits { get; set; } = [];
 
-    [JsonIgnore]
     public List<OrderDetailModel> OrderDetails { get; set; } = [];
-
-    public List<SubmoduleModel> Submodules { get; set; } = [];
 }

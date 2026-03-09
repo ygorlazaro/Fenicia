@@ -1,5 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ public class DeleteUserHandler(DefaultContext context)
     {
         var user = await context.AuthUsers
             .Include(u => u.UsersRoles)
-            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new InvalidRequestException("User not found");
+            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new InvalidRequestException(ExceptionMessages.UserNotFound);
 
         user.Deleted = DateTime.UtcNow;
 

@@ -105,7 +105,7 @@ public class ModuleControllerTests
             Price = 20.0m
         };
 
-        this.context.Modules.AddRange(module1, module2);
+        this.context.AuthModules.AddRange(module1, module2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
@@ -155,7 +155,7 @@ public class ModuleControllerTests
             Price = 10.0m
         };
 
-        this.context.Modules.AddRange(authModule, basicModule);
+        this.context.AuthModules.AddRange(authModule, basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
@@ -218,7 +218,7 @@ public class ModuleControllerTests
             });
         }
 
-        this.context.Modules.AddRange(modules);
+        this.context.AuthModules.AddRange(modules);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(2, 10);

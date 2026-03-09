@@ -48,7 +48,7 @@ public class GetCustomerByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var customer = new CustomerModel
         {
@@ -136,7 +136,7 @@ public class GetCustomerByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var customer1 = new CustomerModel
         {
@@ -207,7 +207,7 @@ public class GetCustomerByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var customer = new CustomerModel
         {

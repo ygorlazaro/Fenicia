@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 using Fenicia.Common.Enums.Auth;
 
@@ -28,17 +27,13 @@ public class OrderModel : BaseModel
     [EnumDataType(typeof(OrderStatus))]
     public OrderStatus Status { get; set; }
 
-    [JsonIgnore]
     public virtual SubscriptionModel? Subscription { get; set; }
 
-    [JsonIgnore]
     public virtual List<OrderDetailModel> Details { get; set; } = null!;
 
     [ForeignKey(nameof(UserId))]
-    [JsonIgnore]
     public virtual UserModel User { get; set; } = null!;
 
     [ForeignKey(nameof(CompanyId))]
-    [JsonIgnore]
     public virtual CompanyModel Company { get; set; } = null!;
 }

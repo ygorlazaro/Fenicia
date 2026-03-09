@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Data.Models.SocialNetworkModels;
@@ -18,7 +17,6 @@ public class UserModel : BaseModel
 
     [Required]
     [StringLength(200)]
-    [JsonIgnore]
     [Column("password")]
     public string Password { get; set; } = null!;
 
@@ -27,13 +25,10 @@ public class UserModel : BaseModel
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [JsonIgnore]
     public List<UserRoleModel> UsersRoles { get; set; } = [];
 
-    [JsonIgnore]
     public List<OrderModel> Orders { get; set; } = [];
 
-    [JsonIgnore]
     public List<ProjectTaskModel> Tasks { get; set; } = [];
 
     [MaxLength(48)]
@@ -46,4 +41,6 @@ public class UserModel : BaseModel
     public List<FollowerModel> Following { get; set; } = [];
 
     public List<TaskAssigneeModel> TaskAssignees { get; set; } = [];
+
+    public List<ConfigurationModel> Configurations { get; set; } = [];
 }

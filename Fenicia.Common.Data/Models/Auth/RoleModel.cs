@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
@@ -12,6 +11,5 @@ public class RoleModel : BaseModel
     [Column("name")]
     public string Name { get; set; } = null!;
 
-    [JsonIgnore]
     public virtual List<UserRoleModel> UsersRoles { get; set; } = [];
 }
