@@ -9,7 +9,7 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
     private const string RedisPrefix = "refresh_token:";
     private readonly IDatabase redisDb = redis.GetDatabase();
 
-    public async Task Handler(string refreshToken, CancellationToken ct)
+    public async Task Handler(string refreshToken)
     {
         ArgumentNullException.ThrowIfNull(refreshToken);
 

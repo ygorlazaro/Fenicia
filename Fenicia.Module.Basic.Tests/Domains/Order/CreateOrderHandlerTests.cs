@@ -1,11 +1,11 @@
 using Fenicia.Common.Data;
-using Fenicia.Common.Data.Models;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order.CreateOrder;
 
 using Microsoft.EntityFrameworkCore;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 
@@ -102,9 +102,9 @@ public class CreateOrderHandlerTests
         var productId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
         var employeeId = Guid.NewGuid();
-        
+
         // Create product with initial quantity
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = productId,
             Name = "Test Product",
@@ -114,7 +114,8 @@ public class CreateOrderHandlerTests
             CategoryId = Guid.NewGuid()
         };
         this.context.BasicProducts.Add(product);
-        
+        await this.context.SaveChangesAsync(CancellationToken.None);
+    
         var details = new List<OrderDetailCommand>
         {
             new(productId, 10.00m, 5)
@@ -143,7 +144,7 @@ public class CreateOrderHandlerTests
             Assert.That(stockMovements[0].Quantity, Is.EqualTo(5));
             Assert.That(stockMovements[0].Reason, Does.Contain("Sale order"));
         }
-        
+    
         // Verify product quantity was reduced
         var updatedProduct = await this.context.BasicProducts.FindAsync(productId);
         Assert.That(updatedProduct, Is.Not.Null);
@@ -154,7 +155,7 @@ public class CreateOrderHandlerTests
     public async Task Handle_WithMultipleDetails_SubtractsProductQuantity()
     {
         // Arrange
-        var product1 = new BasicProductModel
+        var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 1",
@@ -163,8 +164,8 @@ public class CreateOrderHandlerTests
             SalesPrice = 10.00m,
             CategoryId = Guid.NewGuid()
         };
-        
-        var product2 = new BasicProductModel
+
+        var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 2",
@@ -173,7 +174,7 @@ public class CreateOrderHandlerTests
             SalesPrice = 15.00m,
             CategoryId = Guid.NewGuid()
         };
-        
+    
         this.context.BasicProducts.AddRange(product1, product2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -196,9 +197,11 @@ public class CreateOrderHandlerTests
         // Assert
         var updatedProduct1 = await this.context.BasicProducts.FindAsync(product1.Id);
         var updatedProduct2 = await this.context.BasicProducts.FindAsync(product2.Id);
-        
-        Assert.That(updatedProduct1.Quantity, Is.EqualTo(45)); // 50 - 5
-        Assert.That(updatedProduct2.Quantity, Is.EqualTo(27)); // 30 - 3
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(updatedProduct1?.Quantity, Is.EqualTo(45)); // 50 - 5
+            Assert.That(updatedProduct2?.Quantity, Is.EqualTo(27)); // 30 - 3
+        }
     }
 
     [Test]
@@ -269,15 +272,14 @@ public class CreateOrderHandlerTests
             Guid.NewGuid(),
             DateTime.Now,
             OrderStatus.Pending,
-            details,
-            null);
+            details);
 
         // Act
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.That(result.EmployeeId, Is.Null);
-        
+    
         var orders = await this.context.BasicOrders.ToListAsync();
         Assert.That(orders[0].EmployeeId, Is.Null);
     }

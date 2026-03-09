@@ -4,6 +4,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Add;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Delete;
@@ -95,10 +96,10 @@ public class ProjectSubtaskControllerTests
         // Arrange
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -116,7 +117,7 @@ public class ProjectSubtaskControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectSubtask1 = new Common.Data.Models.ProjectSubtaskModel
+        var projectSubtask1 = new ProjectSubtaskModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -126,7 +127,7 @@ public class ProjectSubtaskControllerTests
             CompletedAt = null
         };
 
-        var projectSubtask2 = new Common.Data.Models.ProjectSubtaskModel
+        var projectSubtask2 = new ProjectSubtaskModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -141,10 +142,10 @@ public class ProjectSubtaskControllerTests
 
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -162,7 +163,7 @@ public class ProjectSubtaskControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectSubtask = new Common.Data.Models.ProjectSubtaskModel
+        var projectSubtask = new ProjectSubtaskModel
         {
             Id = this.testProjectSubtaskId,
             TaskId = Guid.NewGuid(),
@@ -175,10 +176,10 @@ public class ProjectSubtaskControllerTests
         this.context.ProjectSubtasks.Add(projectSubtask);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testProjectSubtaskId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testProjectSubtaskId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -201,10 +202,10 @@ public class ProjectSubtaskControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -223,10 +224,10 @@ public class ProjectSubtaskControllerTests
             this.faker.Random.Int(1, 10),
             this.faker.PickRandom<DateTime?>(null, DateTime.UtcNow));
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -249,7 +250,7 @@ public class ProjectSubtaskControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectSubtask = new Common.Data.Models.ProjectSubtaskModel
+        var projectSubtask = new ProjectSubtaskModel
         {
             Id = this.testProjectSubtaskId,
             TaskId = Guid.NewGuid(),
@@ -270,10 +271,10 @@ public class ProjectSubtaskControllerTests
             projectSubtask.Order,
             DateTime.UtcNow);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testProjectSubtaskId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testProjectSubtaskId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -300,10 +301,10 @@ public class ProjectSubtaskControllerTests
             this.faker.Random.Int(1, 10),
             this.faker.PickRandom<DateTime?>(null, DateTime.UtcNow));
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -314,7 +315,7 @@ public class ProjectSubtaskControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectSubtask = new Common.Data.Models.ProjectSubtaskModel
+        var projectSubtask = new ProjectSubtaskModel
         {
             Id = this.testProjectSubtaskId,
             TaskId = Guid.NewGuid(),
@@ -327,16 +328,16 @@ public class ProjectSubtaskControllerTests
         this.context.ProjectSubtasks.Add(projectSubtask);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testProjectSubtaskId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testProjectSubtaskId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify project subtask was deleted
-        var deletedSubtask = await this.context.ProjectSubtasks.FirstOrDefaultAsync(x => x.Id == this.testProjectSubtaskId && x.Deleted == null, cancellationToken);
+        var deletedSubtask = await this.context.ProjectSubtasks.FirstOrDefaultAsync(x => x.Id == this.testProjectSubtaskId && x.Deleted == null, ct);
         Assert.That(deletedSubtask, Is.Null);
     }
 
@@ -345,10 +346,10 @@ public class ProjectSubtaskControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

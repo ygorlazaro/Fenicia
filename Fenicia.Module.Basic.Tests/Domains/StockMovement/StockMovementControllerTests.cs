@@ -4,7 +4,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.Add;
@@ -98,10 +98,10 @@ public class StockMovementControllerTests
             StartDate = DateTime.Now.AddDays(-30),
             EndDate = DateTime.Now
         };
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(query, cancellationToken);
+        var result = await this.controller.GetAsync(query, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -119,7 +119,7 @@ public class StockMovementControllerTests
     public async Task GetAsync_WhenMovementsExist_ReturnsOkWithMovements()
     {
         // Arrange
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -129,7 +129,7 @@ public class StockMovementControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var movement1 = new BasicStockMovementModel
+        var movement1 = new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = this.testProductId,
@@ -139,7 +139,7 @@ public class StockMovementControllerTests
             Type = StockMovementType.In
         };
 
-        var movement2 = new BasicStockMovementModel
+        var movement2 = new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = this.testProductId,
@@ -158,10 +158,10 @@ public class StockMovementControllerTests
             StartDate = DateTime.Now.AddDays(-30),
             EndDate = DateTime.Now
         };
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(query, cancellationToken);
+        var result = await this.controller.GetAsync(query, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -179,7 +179,7 @@ public class StockMovementControllerTests
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithMovement()
     {
         // Arrange
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -201,12 +201,14 @@ public class StockMovementControllerTests
             this.testProductId,
             null,
             null,
+            null,
+            null,
             "Test reason");
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -231,7 +233,7 @@ public class StockMovementControllerTests
     public async Task PatchAsync_WhenMovementExists_ReturnsCreatedWithUpdatedMovement()
     {
         // Arrange
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -241,7 +243,7 @@ public class StockMovementControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var movement = new BasicStockMovementModel
+        var movement = new StockMovementModel
         {
             Id = this.testMovementId,
             ProductId = this.testProductId,
@@ -266,12 +268,14 @@ public class StockMovementControllerTests
             this.testProductId,
             null,
             null,
+            null,
+            null,
             "Updated reason");
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(this.testMovementId, command, cancellationToken);
+        var result = await this.controller.PatchAsync(this.testMovementId, command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -306,12 +310,14 @@ public class StockMovementControllerTests
             this.testProductId,
             null,
             null,
+            null,
+            null,
             null);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(nonExistentId, command, cancellationToken);
+        var result = await this.controller.PatchAsync(nonExistentId, command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -380,10 +386,10 @@ public class StockMovementControllerTests
     public async Task GetDashboardAsync_WithNoMovements_ReturnsEmptyDashboard()
     {
         // Arrange
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetDashboardAsync(30, 10, cancellationToken);
+        var result = await this.controller.GetDashboardAsync(30, 10, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -394,17 +400,20 @@ public class StockMovementControllerTests
 
         var dashboard = okResult.Value as StockMovementDashboardResponse;
         Assert.That(dashboard, Is.Not.Null);
-        Assert.That(dashboard.History, Is.Empty);
-        Assert.That(dashboard.MonthlyInOut, Is.Empty);
-        Assert.That(dashboard.TopMovedProducts, Is.Empty);
-        Assert.That(dashboard.TurnoverRates, Is.Empty);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dashboard.History, Is.Empty);
+            Assert.That(dashboard.MonthlyInOut, Is.Empty);
+            Assert.That(dashboard.TopMovedProducts, Is.Empty);
+            Assert.That(dashboard.TurnoverRates, Is.Empty);
+        }
     }
 
     [Test]
     public async Task GetDashboardAsync_WithMovements_ReturnsDashboardData()
     {
         // Arrange
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -414,13 +423,13 @@ public class StockMovementControllerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = product.CategoryId,
             Name = "Test Category"
         };
 
-        var movement = new BasicStockMovementModel
+        var movement = new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = this.testProductId,
@@ -436,10 +445,10 @@ public class StockMovementControllerTests
         this.context.BasicStockMovements.Add(movement);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetDashboardAsync(30, 10, cancellationToken);
+        var result = await this.controller.GetDashboardAsync(30, 10, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -451,8 +460,11 @@ public class StockMovementControllerTests
         var dashboard = okResult.Value as StockMovementDashboardResponse;
         Assert.That(dashboard, Is.Not.Null);
         Assert.That(dashboard.History, Is.Not.Empty);
-        Assert.That(dashboard.History[0].ProductName, Is.EqualTo(product.Name));
-        Assert.That(dashboard.History[0].Reason, Is.EqualTo("Test reason"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dashboard.History[0].ProductName, Is.EqualTo(product.Name));
+            Assert.That(dashboard.History[0].Reason, Is.EqualTo("Test reason"));
+        }
     }
 
     private void SetupAdminUserClaims()

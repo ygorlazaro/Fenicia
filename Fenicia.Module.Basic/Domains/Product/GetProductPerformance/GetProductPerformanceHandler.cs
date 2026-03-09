@@ -1,5 +1,4 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Enums.Basic;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +18,8 @@ public class GetProductPerformanceHandler(DefaultContext context)
             .ToListAsync(ct);
 
         var orderDetails = await context.BasicOrderDetails
-            .Include(d => d.OrderModel)
-            .Where(d => d.OrderModel.SaleDate >= startDate && d.OrderModel.SaleDate <= endDate)
+            .Include(d => d.Order)
+            .Where(d => d.Order.SaleDate >= startDate && d.Order.SaleDate <= endDate)
             .ToListAsync(ct);
 
         var stockMovements = await context.BasicStockMovements

@@ -12,20 +12,21 @@ namespace Fenicia.Auth.Domains.Register;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class RegisterController : ControllerBase
+public class RegisterController(
+    CreateNewUserHandler createNewUserHandler
+    ) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CreateNewUserResponse>> CreateNewUserAsync(
         CreateNewUserQuery request,
-        [FromServices] CreateNewUserHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = request.Email;
 
-        var userResponse = await handler.Handle(request, ct);
+        var userResponse = await createNewUserHandler.Handle(request, ct);
 
         return Ok(userResponse);
     }

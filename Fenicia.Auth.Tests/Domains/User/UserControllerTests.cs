@@ -3,13 +3,17 @@ using System.Security.Claims;
 using Bogus;
 using Bogus.Extensions.Brazil;
 
+using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User;
+using Fenicia.Auth.Domains.User.CreateUser;
 using Fenicia.Auth.Domains.User.GetUserModules;
+using Fenicia.Auth.Domains.User.ListUsers;
+using Fenicia.Auth.Domains.User.UpdateUser;
 using Fenicia.Auth.Domains.UserRole.GetUserCompanies;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 
 using Microsoft.AspNetCore.Authorization;
@@ -32,12 +36,19 @@ public class UserControllerTests
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
+
+        var checkUserExistsHandler = new CheckUserExistsHandler(this.context);
+        var hashPasswordHandler = new HashPasswordHandler();
+
         this.testUserId = Guid.NewGuid();
-        this.getUserModuleHandler = new GetUserModuleHandler(this.context);
+        this.getUserModuleModel = new GetUserModuleHandler(this.context);
         this.getUserCompaniesHandler = new GetUserCompaniesHandler(this.context);
+        this.listUserHandler = new ListUsersHandler(this.context);
+        this.createUserHandler = new CreateUserHandler(this.context, checkUserExistsHandler, hashPasswordHandler);
+        this.updateUserHandler = new UpdateUserHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new UserController
+        this.controller = new UserController(this.getUserModuleModel, this.getUserCompaniesHandler, this.listUserHandler, this.createUserHandler, this.updateUserHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -57,8 +68,11 @@ public class UserControllerTests
 
     private UserController controller = null!;
     private DefaultContext context = null!;
-    private GetUserModuleHandler getUserModuleHandler = null!;
+    private GetUserModuleHandler getUserModuleModel = null!;
     private GetUserCompaniesHandler getUserCompaniesHandler = null!;
+    private ListUsersHandler listUserHandler = null!;
+    private CreateUserHandler createUserHandler = null!;
+    private UpdateUserHandler updateUserHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Guid testUserId;
     private Faker faker = null!;
@@ -84,14 +98,13 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetUserModulesAsync(
             headers,
-            this.getUserModuleHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -118,7 +131,7 @@ public class UserControllerTests
         var subscriptionId = Guid.NewGuid();
         var subscriptionCreditId = Guid.NewGuid();
 
-        var module = new AuthModuleModel
+        var module = new ModuleModel
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
@@ -126,7 +139,7 @@ public class UserControllerTests
             Price = this.faker.Finance.Amount(10, 100)
         };
 
-        var subscription = new AuthSubscriptionModel
+        var subscription = new SubscriptionModel
         {
             Id = subscriptionId,
             CompanyId = companyId,
@@ -135,7 +148,7 @@ public class UserControllerTests
             EndDate = DateTime.Now.AddDays(30)
         };
 
-        var subscriptionCredit = new AuthSubscriptionCreditModel
+        var subscriptionCredit = new SubscriptionCreditModel
         {
             Id = subscriptionCreditId,
             SubscriptionId = subscriptionId,
@@ -145,7 +158,7 @@ public class UserControllerTests
             EndDate = DateTime.Now.AddDays(30)
         };
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -153,7 +166,7 @@ public class UserControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRoleModel
+        var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -170,14 +183,13 @@ public class UserControllerTests
 
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetUserModulesAsync(
             headers,
-            this.getUserModuleHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -204,14 +216,13 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         await this.controller.GetUserModulesAsync(
             headers,
-            this.getUserModuleHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
@@ -222,13 +233,12 @@ public class UserControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetUserCompanyAsync(
-            this.getUserCompaniesHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -253,7 +263,7 @@ public class UserControllerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new AuthCompanyModel
+        var company = new CompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -263,13 +273,13 @@ public class UserControllerTests
             Language = "pt-BR"
         };
 
-        var role = new AuthRoleModel
+        var role = new RoleModel
         {
             Id = roleId,
             Name = "Admin"
         };
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -277,7 +287,7 @@ public class UserControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRoleModel
+        var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -292,13 +302,12 @@ public class UserControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetUserCompanyAsync(
-            this.getUserCompaniesHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -324,13 +333,12 @@ public class UserControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         await this.controller.GetUserCompanyAsync(
-            this.getUserCompaniesHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));

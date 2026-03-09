@@ -13,7 +13,9 @@ namespace Fenicia.Auth.Domains.Order;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController : ControllerBase
+public class OrderController(
+    CreateNewOrderHandler createNewOrderHandler
+    ) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -21,7 +23,6 @@ public class OrderController : ControllerBase
     public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(
         CreateNewOrderCommand request,
         [FromHeader] Headers headers,
-        [FromServices] CreateNewOrderHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
@@ -29,8 +30,8 @@ public class OrderController : ControllerBase
 
         var userId = ClaimReader.UserId(this.User);
         var companyId = headers.CompanyId;
-        var order = await handler.Handle(new CreateNewOrderCommand(userId, companyId, request.Modules), ct);
+        var order = await createNewOrderHandler.Handle(new CreateNewOrderCommand(userId, companyId, request.Modules), ct);
 
-        return order is null ? (ActionResult<CreateNewOrderResponse>)BadRequest() : (ActionResult<CreateNewOrderResponse>)Ok(order);
+        return order is null ? BadRequest() : Ok(order);
     }
 }

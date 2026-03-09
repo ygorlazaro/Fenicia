@@ -7,6 +7,7 @@ using Fenicia.Auth.Domains.User.CreateNewUser;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -41,7 +42,7 @@ public class RegisterControllerTests
 
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new RegisterController()
+        this.controller = new RegisterController(this.createNewUserHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -56,36 +57,35 @@ public class RegisterControllerTests
         this.context.Dispose();
     }
 
-    private RegisterController controller = null!;
-    private DefaultContext context = null!;
-    private CreateNewUserHandler createNewUserHandler = null!;
-    private Mock<CheckUserExistsHandler> mockCheckUserExistsHandler = null!;
-    private Mock<CheckCompanyExistsHandler> mockCheckCompanyExistsHandler = null!;
-    private Mock<HashPasswordHandler> mockHashPasswordHandler = null!;
-    private Mock<GetAdminRoleHandler> mockGetAdminRoleHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
+    private RegisterController controller;
+    private DefaultContext context;
+    private CreateNewUserHandler createNewUserHandler;
+    private Mock<CheckUserExistsHandler> mockCheckUserExistsHandler;
+    private Mock<CheckCompanyExistsHandler> mockCheckCompanyExistsHandler;
+    private Mock<HashPasswordHandler> mockHashPasswordHandler;
+    private Mock<GetAdminRoleHandler> mockGetAdminRoleHandler;
+    private Mock<HttpContext> mockHttpContext;
 
     [Test]
     public void CreateNewUserAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var xrt = CancellationToken.None;
 
         var companyQuery = new CreateNewUserCompanyQuery("Company Name", "12.345.678/0001-90", "UTC");
         var query = new CreateNewUserQuery("existing@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler
-            .Setup(h => h.Handle(query.Email, cancellationToken))
+            .Setup(h => h.Handle(query.Email, xrt))
             .ReturnsAsync(true);
 
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentException>(async () =>
+        Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.controller.CreateNewUserAsync(
                 query,
-                this.createNewUserHandler,
                 wide,
-                cancellationToken));
+                xrt));
     }
 
     [Test]
@@ -93,27 +93,26 @@ public class RegisterControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var companyQuery = new CreateNewUserCompanyQuery("Existing Company", "12.345.678/0001-90", "UTC");
         var query = new CreateNewUserQuery("test@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler
-            .Setup(h => h.Handle(query.Email, cancellationToken))
+            .Setup(h => h.Handle(query.Email, ct))
             .ReturnsAsync(false);
 
         var checkCompanyExistsQuery = new CheckCompanyExistsQuery(companyQuery.Cnpj, true);
         this.mockCheckCompanyExistsHandler
-            .Setup(h => h.Handle(checkCompanyExistsQuery, cancellationToken))
+            .Setup(h => h.Handle(checkCompanyExistsQuery, ct))
             .ReturnsAsync(true);
 
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentException>(async () =>
+        Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.controller.CreateNewUserAsync(
                 query,
-                this.createNewUserHandler,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -121,18 +120,18 @@ public class RegisterControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var companyQuery = new CreateNewUserCompanyQuery("Company Name", "12.345.678/0001-90", "UTC");
         var query = new CreateNewUserQuery("test@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler
-            .Setup(h => h.Handle(query.Email, cancellationToken))
+            .Setup(h => h.Handle(query.Email, ct))
             .ReturnsAsync(false);
 
         var checkCompanyExistsQuery = new CheckCompanyExistsQuery(companyQuery.Cnpj, true);
         this.mockCheckCompanyExistsHandler
-            .Setup(h => h.Handle(checkCompanyExistsQuery, cancellationToken))
+            .Setup(h => h.Handle(checkCompanyExistsQuery, ct))
             .ReturnsAsync(false);
 
         this.mockHashPasswordHandler
@@ -140,16 +139,15 @@ public class RegisterControllerTests
             .Returns("hashedPassword");
 
         this.mockGetAdminRoleHandler
-            .Setup(h => h.Handle(cancellationToken))
+            .Setup(h => h.Handle(ct))
             .ReturnsAsync((GetAdminRoleResponse?)null);
 
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentException>(async () =>
+        Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.controller.CreateNewUserAsync(
                 query,
-                this.createNewUserHandler,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -157,7 +155,7 @@ public class RegisterControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var adminRoleId = Guid.NewGuid();
         var adminRole = new GetAdminRoleResponse(adminRoleId, "Admin");
@@ -166,12 +164,12 @@ public class RegisterControllerTests
         var query = new CreateNewUserQuery("test@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler
-            .Setup(h => h.Handle(query.Email, cancellationToken))
+            .Setup(h => h.Handle(query.Email, ct))
             .ReturnsAsync(false);
 
         var checkCompanyExistsQuery = new CheckCompanyExistsQuery(companyQuery.Cnpj, true);
         this.mockCheckCompanyExistsHandler
-            .Setup(h => h.Handle(checkCompanyExistsQuery, cancellationToken))
+            .Setup(h => h.Handle(checkCompanyExistsQuery, ct))
             .ReturnsAsync(false);
 
         this.mockHashPasswordHandler
@@ -179,15 +177,14 @@ public class RegisterControllerTests
             .Returns("hashedPassword");
 
         this.mockGetAdminRoleHandler
-            .Setup(h => h.Handle(cancellationToken))
+            .Setup(h => h.Handle(ct))
             .ReturnsAsync(adminRole);
 
         // Act
         var result = await this.controller.CreateNewUserAsync(
             query,
-            this.createNewUserHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -208,17 +205,17 @@ public class RegisterControllerTests
         }
 
         // Verify user was created
-        var createdUser = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, cancellationToken: cancellationToken);
+        var createdUser = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
         Assert.That(createdUser, Is.Not.Null);
         Assert.That(createdUser!.Password, Is.EqualTo("hashedPassword"));
 
         // Verify company was created
-        var createdCompany = await this.context.Companies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, cancellationToken: cancellationToken);
+        var createdCompany = await this.context.Companies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
         Assert.That(createdCompany, Is.Not.Null);
         Assert.That(createdCompany!.Name, Is.EqualTo(companyQuery.Name));
 
         // Verify user role was created
-        var userRole = await this.context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, cancellationToken: cancellationToken);
+        var userRole = await this.context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
         Assert.That(userRole, Is.Not.Null);
         Assert.That(userRole!.RoleId, Is.EqualTo(adminRoleId));
     }
@@ -228,7 +225,7 @@ public class RegisterControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var adminRoleId = Guid.NewGuid();
         var adminRole = new GetAdminRoleResponse(adminRoleId, "Admin");
@@ -237,12 +234,12 @@ public class RegisterControllerTests
         var query = new CreateNewUserQuery("test@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler
-            .Setup(h => h.Handle(query.Email, cancellationToken))
+            .Setup(h => h.Handle(query.Email, ct))
             .ReturnsAsync(false);
 
         var checkCompanyExistsQuery = new CheckCompanyExistsQuery(companyQuery.Cnpj, true);
         this.mockCheckCompanyExistsHandler
-            .Setup(h => h.Handle(checkCompanyExistsQuery, cancellationToken))
+            .Setup(h => h.Handle(checkCompanyExistsQuery, ct))
             .ReturnsAsync(false);
 
         this.mockHashPasswordHandler
@@ -250,15 +247,14 @@ public class RegisterControllerTests
             .Returns("hashedPassword");
 
         this.mockGetAdminRoleHandler
-            .Setup(h => h.Handle(cancellationToken))
+            .Setup(h => h.Handle(ct))
             .ReturnsAsync(adminRole);
 
         // Act
         await this.controller.CreateNewUserAsync(
             query,
-            this.createNewUserHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(query.Email));

@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ public class GetProjectSubtaskByIdHandlerTests
         // Arrange
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var subtask = new Common.Data.Models.ProjectSubtaskModel
+        var subtask = new ProjectSubtaskModel
         {
             Id = subtaskId,
             TaskId = taskId,
@@ -102,7 +103,7 @@ public class GetProjectSubtaskByIdHandlerTests
         var subtask2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
-        var subtask1 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask1 = new ProjectSubtaskModel
         {
             Id = subtask1Id,
             TaskId = taskId,
@@ -112,7 +113,7 @@ public class GetProjectSubtaskByIdHandlerTests
             CompletedAt = null
         };
 
-        var subtask2 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask2 = new ProjectSubtaskModel
         {
             Id = subtask2Id,
             TaskId = taskId,
@@ -146,7 +147,7 @@ public class GetProjectSubtaskByIdHandlerTests
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var completedAt = DateTime.UtcNow.AddDays(-5);
-        var subtask = new Common.Data.Models.ProjectSubtaskModel
+        var subtask = new ProjectSubtaskModel
         {
             Id = subtaskId,
             TaskId = taskId,

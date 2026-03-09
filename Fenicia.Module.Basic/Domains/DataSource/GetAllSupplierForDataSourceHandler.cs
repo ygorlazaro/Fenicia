@@ -15,5 +15,3 @@ public class GetAllSupplierForDataSourceHandler(DefaultContext context)
             .ToListAsync(ct);
     }
 }
-
-public record GetAllSupplierForDataSourceResponse(Guid Id, string Name);

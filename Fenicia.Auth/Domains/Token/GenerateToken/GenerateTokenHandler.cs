@@ -2,7 +2,6 @@ using Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts;
 using Fenicia.Auth.Domains.LoginAttempt.LoginAttempt;
 using Fenicia.Auth.Domains.Security.VerifyPassword;
 using Fenicia.Auth.Domains.User.GetByEmail;
-using Fenicia.Common;
 using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Domains.Token.GenerateToken;
@@ -17,19 +16,19 @@ public class GenerateTokenHandler(
     {
         if (string.IsNullOrWhiteSpace(query.Password))
         {
-            throw new ArgumentException(nameof(query.Password));
+            throw new InvalidRequestException(nameof(query.Password));
         }
 
         if (string.IsNullOrWhiteSpace(query.Email))
         {
-            throw new ArgumentException(nameof(query.Email));
+            throw new InvalidRequestException(nameof(query.Email));
         }
 
         var attempts = loginAttemptHandler.Handle(query.Email);
 
         if (attempts >= 5)
         {
-            throw new PermissionDeniedException(TextConstants.TooManyAttempts);
+            throw new PermissionDeniedException("Too many login attempts. Please try again later.");
         }
 
         var user = await getByEmailHandler.Handle(query.Email, ct);
@@ -39,7 +38,7 @@ public class GenerateTokenHandler(
             await incrementAttemptsHandler.Handle(query.Email);
             await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
 
-            throw new PermissionDeniedException(TextConstants.InvalidUsernameOrPasswordMessage);
+            throw new PermissionDeniedException("Invalid username or password.");
         }
 
         var isValidPassword = verifyPasswordHandler.Handle(query.Password, user.Password);
@@ -54,6 +53,6 @@ public class GenerateTokenHandler(
         await incrementAttemptsHandler.Handle(query.Email);
         await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
 
-        throw new PermissionDeniedException(TextConstants.InvalidUsernameOrPasswordMessage);
+        throw new PermissionDeniedException("Invalid username or password.");
     }
 }

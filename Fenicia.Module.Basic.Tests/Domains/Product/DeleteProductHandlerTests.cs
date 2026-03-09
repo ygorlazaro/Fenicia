@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +37,7 @@ public class DeleteProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = productId,
             Name = "Product",
@@ -85,7 +85,7 @@ public class DeleteProductHandlerTests
         var product1Id = Guid.NewGuid();
         var product2Id = Guid.NewGuid();
 
-        var product1 = new BasicProductModel
+        var product1 = new ProductModel
         {
             Id = product1Id,
             Name = "Product 1",
@@ -95,7 +95,7 @@ public class DeleteProductHandlerTests
             CategoryId = Guid.NewGuid()
         };
 
-        var product2 = new BasicProductModel
+        var product2 = new ProductModel
         {
             Id = product2Id,
             Name = "Product 2",

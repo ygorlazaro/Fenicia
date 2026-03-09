@@ -12,7 +12,7 @@ public class GetAllCustomerHandler(DefaultContext context)
         var total = await context.BasicCustomers.CountAsync(ct);
 
         var customers = await context.BasicCustomers
-            .Include(c => c.PersonModel)
+            .Include(c => c.Person)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(ct);
@@ -20,17 +20,17 @@ public class GetAllCustomerHandler(DefaultContext context)
         var response = customers.Select(c => new GetAllCustomerResponse(
             c.Id,
             c.PersonId,
-            c.PersonModel.Name,
-            c.PersonModel.Email,
-            c.PersonModel.PhoneNumber,
-            c.PersonModel.Document,
-            c.PersonModel.Street,
-            c.PersonModel.Number,
-            c.PersonModel.Complement,
-            c.PersonModel.Neighborhood,
-            c.PersonModel.ZipCode,
-            c.PersonModel.StateId,
-            c.PersonModel.City)).ToList();
+            c.Person.Name,
+            c.Person.Email,
+            c.Person.PhoneNumber,
+            c.Person.Document,
+            c.Person.Street,
+            c.Person.Number,
+            c.Person.Complement,
+            c.Person.Neighborhood,
+            c.Person.ZipCode,
+            c.Person.StateId,
+            c.Person.City)).ToList();
 
         return new Pagination<List<GetAllCustomerResponse>>(response, total, query.Page, query.PerPage);
     }

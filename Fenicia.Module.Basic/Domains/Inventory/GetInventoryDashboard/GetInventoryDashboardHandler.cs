@@ -72,39 +72,3 @@ public class GetInventoryDashboardHandler(DefaultContext context)
         };
     }
 }
-
-public record InventoryDashboardItemResponse(
-    Guid Id,
-    string Name,
-    double Quantity,
-    decimal? CostPrice,
-    decimal SalesPrice,
-    Guid CategoryId,
-    string CategoryName);
-
-public record CategoryBreakdownResponse(
-    Guid CategoryId,
-    string CategoryName,
-    decimal TotalCostValue,
-    decimal TotalSalesValue,
-    double TotalQuantity);
-
-public record SupplierBreakdownResponse(
-    Guid SupplierId,
-    string SupplierName,
-    decimal TotalCostValue,
-    decimal TotalSalesValue,
-    double TotalQuantity);
-
-public record InventoryDashboardResponse
-{
-    public List<InventoryDashboardItemResponse> LowStockItems { get; set; } = [];
-    public int TotalCustomers { get; set; }
-    public int TotalEmployees { get; set; }
-    public decimal TotalCostValue { get; set; }
-    public decimal TotalSalesValue { get; set; }
-    public double TotalQuantity { get; set; }
-    public decimal ProfitPotential { get; set; }
-    public List<CategoryBreakdownResponse> CategoryBreakdown { get; set; } = [];
-    public List<SupplierBreakdownResponse> SupplierBreakdown { get; set; } = [];
-}

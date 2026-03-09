@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.ProductCategory.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -43,16 +43,19 @@ public class GetAllProductCategoryHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Is.Empty);
-        Assert.That(result.Total, Is.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Total, Is.EqualTo(0));
+        }
     }
 
     [Test]
     public async Task Handle_WithCategories_ReturnsAllCategories()
     {
         // Arrange
-        var category1 = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        var category2 = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
+        var category1 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category2 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
 
         this.context.BasicProductCategories.AddRange(category1, category2);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -64,8 +67,11 @@ public class GetAllProductCategoryHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(2));
-        Assert.That(result.Total, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Has.Count.EqualTo(2));
+            Assert.That(result.Total, Is.EqualTo(2));
+        }
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Data.Any(c => c.Id == category1.Id));
@@ -79,7 +85,7 @@ public class GetAllProductCategoryHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var category = new BasicProductCategoryModel
+            var category = new ProductCategoryModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Category {i}"
@@ -96,8 +102,11 @@ public class GetAllProductCategoryHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(10));
-        Assert.That(result.Total, Is.EqualTo(25));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Has.Count.EqualTo(10));
+            Assert.That(result.Total, Is.EqualTo(25));
+        }
     }
 
     [Test]
@@ -106,7 +115,7 @@ public class GetAllProductCategoryHandlerTests
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var category = new BasicProductCategoryModel
+            var category = new ProductCategoryModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Category {i}"
@@ -123,8 +132,11 @@ public class GetAllProductCategoryHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Is.Empty);
-        Assert.That(result.Total, Is.EqualTo(5));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Total, Is.EqualTo(5));
+        }
     }
 
     [Test]
@@ -133,7 +145,7 @@ public class GetAllProductCategoryHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var category = new BasicProductCategoryModel
+            var category = new ProductCategoryModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Category {i}"
@@ -150,7 +162,10 @@ public class GetAllProductCategoryHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(10));
-        Assert.That(result.Total, Is.EqualTo(25));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Has.Count.EqualTo(10));
+            Assert.That(result.Total, Is.EqualTo(25));
+        }
     }
 }

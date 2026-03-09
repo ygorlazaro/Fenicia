@@ -1,8 +1,7 @@
 using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 using Fenicia.Auth.Domains.User;
-using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
 
@@ -20,19 +19,23 @@ public class CreateNewOrderHandler(
 
         if (!existingUser)
         {
-            throw new PermissionDeniedException(TextConstants.UserDoestNotExistsAtTheCompany);
+            throw new PermissionDeniedException("User does not exists at the company");
         }
 
         var modules = await PopulateModules(command.Modules, ct);
 
         if (modules.Count == 0)
         {
-            throw new ItemNotExistsException(TextConstants.ModulesNotFound);
+            throw new ItemNotExistsException("Modules not found");
         }
 
         var totalAmount = modules.Sum(m => m.Price);
-        var details = modules.Select(m => new AuthOrderDetailModel { ModuleId = m.Id, Price = m.Price }).ToList();
-        var order = new AuthOrderModel
+        var details = modules.Select(m => new OrderDetailModel
+        {
+            ModuleId = m.Id,
+            Price = m.Price
+        }).ToList();
+        var order = new OrderModel
         {
             SaleDate = DateTime.UtcNow,
             Status = OrderStatus.Approved,
@@ -53,7 +56,7 @@ public class CreateNewOrderHandler(
         return new CreateNewOrderResponse(order.Id);
     }
 
-    private async Task<List<AuthModuleModel>> PopulateModules(List<Guid> request, CancellationToken ct)
+    private async Task<List<ModuleModel>> PopulateModules(List<Guid> request, CancellationToken ct)
     {
         try
         {
@@ -82,14 +85,14 @@ public class CreateNewOrderHandler(
         }
     }
 
-    private async Task<List<AuthModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
+    private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
         return await db.Modules.Where(module => request.Any(r => r == module.Id))
             .OrderBy(module => module.Type)
             .ToListAsync(ct);
     }
 
-    private async Task<AuthModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
+    private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
     {
         return await db.Modules.FirstOrDefaultAsync(m => m.Type == moduleType, ct);
     }

@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.Project.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -40,12 +41,12 @@ public class GetProjectByIdHandlerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var project = new Common.Data.Models.ProjectModel
+        var project = new ProjectModel
         {
             Id = projectId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
@@ -101,23 +102,23 @@ public class GetProjectByIdHandlerTests
         var project1Id = Guid.NewGuid();
         var project2Id = Guid.NewGuid();
 
-        var project1 = new Common.Data.Models.ProjectModel
+        var project1 = new ProjectModel
         {
             Id = project1Id,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
         };
 
-        var project2 = new Common.Data.Models.ProjectModel
+        var project2 = new ProjectModel
         {
             Id = project2Id,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Completed,
+            Status = Common.Enums.Project.EnumProjectStatus.Completed,
             StartDate = DateTime.UtcNow.AddDays(-10),
             EndDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
@@ -145,12 +146,12 @@ public class GetProjectByIdHandlerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var project = new Common.Data.Models.ProjectModel
+        var project = new ProjectModel
         {
             Id = projectId,
             Title = this.faker.Lorem.Sentence(5),
             Description = null,
-            Status = Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()

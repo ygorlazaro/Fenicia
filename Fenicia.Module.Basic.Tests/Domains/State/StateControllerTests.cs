@@ -4,7 +4,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Module.Basic.Domains.State;
 using Fenicia.Module.Basic.Domains.State.GetAll;
 
@@ -75,10 +75,10 @@ public class StateControllerTests
     public async Task GetAllAsync_WhenNoStatesExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllAsync(cancellationToken);
+        var result = await this.controller.GetAllAsync(ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -96,14 +96,14 @@ public class StateControllerTests
     public async Task GetAllAsync_WhenStatesExist_ReturnsOkWithStates()
     {
         // Arrange
-        var state1 = new AuthStateModel
+        var state1 = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Address.State(),
             Uf = this.faker.Address.StateAbbr()
         };
 
-        var state2 = new AuthStateModel
+        var state2 = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Address.State(),
@@ -113,10 +113,10 @@ public class StateControllerTests
         this.context.States.AddRange(state1, state2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllAsync(cancellationToken);
+        var result = await this.controller.GetAllAsync(ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -134,21 +134,21 @@ public class StateControllerTests
     public async Task GetAllAsync_WhenStatesExist_ReturnsStatesOrderedByUf()
     {
         // Arrange
-        var state1 = new AuthStateModel
+        var state1 = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
 
-        var state2 = new AuthStateModel
+        var state2 = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "Acre",
             Uf = "AC"
         };
 
-        var state3 = new AuthStateModel
+        var state3 = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "Rio de Janeiro",
@@ -158,10 +158,10 @@ public class StateControllerTests
         this.context.States.AddRange(state1, state2, state3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllAsync(cancellationToken);
+        var result = await this.controller.GetAllAsync(ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -173,9 +173,12 @@ public class StateControllerTests
         var returnedStates = okResult.Value as List<GetAllStateResponse>;
         Assert.That(returnedStates, Is.Not.Null);
         Assert.That(returnedStates, Has.Count.EqualTo(3));
-        Assert.That(returnedStates[0].Uf, Is.EqualTo("AC"));
-        Assert.That(returnedStates[1].Uf, Is.EqualTo("RJ"));
-        Assert.That(returnedStates[2].Uf, Is.EqualTo("SP"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedStates[0].Uf, Is.EqualTo("AC"));
+            Assert.That(returnedStates[1].Uf, Is.EqualTo("RJ"));
+            Assert.That(returnedStates[2].Uf, Is.EqualTo("SP"));
+        }
     }
 
     [Test]

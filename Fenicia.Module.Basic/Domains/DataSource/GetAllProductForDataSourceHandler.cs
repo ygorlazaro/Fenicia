@@ -14,5 +14,3 @@ public class GetAllProductForDataSourceHandler(DefaultContext context)
             .ToListAsync(ct);
     }
 }
-
-public record GetAllProductForDataSourceResponse(Guid Id, string Name, decimal SalesPrice);

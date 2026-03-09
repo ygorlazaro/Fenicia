@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Supplier.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -37,12 +37,12 @@ public class UpdateSupplierHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var supplier = new BasicSupplierModel
+        var supplier = new SupplierModel
         {
             Id = supplierId,
             Cnpj = "12.345.678/0001-90",
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
@@ -136,12 +136,12 @@ public class UpdateSupplierHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var supplier = new BasicSupplierModel
+        var supplier = new SupplierModel
         {
             Id = supplierId,
             Cnpj = "12.345.678/0001-90",
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = "Old Name",

@@ -14,20 +14,22 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ForgotPasswordController : ControllerBase
+public class ForgotPasswordController(
+    AddForgotPasswordHandler addForgotPasswordHandler,
+    ResetPasswordHandler resetPasswordHandler
+    ) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task ForgotPassword(
         [FromBody] AddForgotPasswordCommand reset,
-        [FromServices] AddForgotPasswordHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = reset.Email;
 
-        await handler.Handle(reset, ct);
+        await addForgotPasswordHandler.Handle(reset, ct);
     }
 
     [HttpPost("reset")]
@@ -35,13 +37,12 @@ public class ForgotPasswordController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ResetPassword(
         [FromBody] ResetPasswordCommand request,
-        [FromServices] ResetPasswordHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = request.Email;
 
-        await handler.Handle(request, ct);
+        await resetPasswordHandler.Handle(request, ct);
 
         return Ok();
     }

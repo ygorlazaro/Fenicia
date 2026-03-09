@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.Project.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -40,12 +41,12 @@ public class DeleteProjectHandlerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var project = new Common.Data.Models.ProjectModel
+        var project = new ProjectModel
         {
             Id = projectId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
@@ -103,23 +104,23 @@ public class DeleteProjectHandlerTests
         var project1Id = Guid.NewGuid();
         var project2Id = Guid.NewGuid();
 
-        var project1 = new Common.Data.Models.ProjectModel
+        var project1 = new ProjectModel
         {
             Id = project1Id,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status =Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
         };
 
-        var project2 = new Common.Data.Models.ProjectModel
+        var project2 = new ProjectModel
         {
             Id = project2Id,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Draft,
+            Status = Common.Enums.Project.EnumProjectStatus.Draft,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
@@ -154,34 +155,34 @@ public class DeleteProjectHandlerTests
         var project2Id = Guid.NewGuid();
         var project3Id = Guid.NewGuid();
 
-        var project1 = new Common.Data.Models.ProjectModel
+        var project1 = new ProjectModel
         {
             Id = project1Id,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status =Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
         };
 
-        var project2 = new Common.Data.Models.ProjectModel
+        var project2 = new ProjectModel
         {
             Id = project2Id,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Draft,
+            Status = Common.Enums.Project.EnumProjectStatus.Draft,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
         };
 
-        var project3 = new Common.Data.Models.ProjectModel
+        var project3 = new ProjectModel
         {
             Id = project3Id,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Completed,
+            Status = Common.Enums.Project.EnumProjectStatus.Completed,
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
@@ -200,14 +201,17 @@ public class DeleteProjectHandlerTests
         var deletedProject = await this.context.Projects.FindAsync([project2Id], CancellationToken.None);
         var project3InDb = await this.context.Projects.FindAsync([project3Id], CancellationToken.None);
 
-        Assert.That(project1InDb, Is.Not.Null);
-        Assert.That(deletedProject, Is.Not.Null);
-        Assert.That(project3InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(project1InDb.Deleted, Is.Null);
-            Assert.That(deletedProject.Deleted, Is.Not.Null);
-            Assert.That(project3InDb.Deleted, Is.Null);
+            Assert.That(project1InDb, Is.Not.Null);
+            Assert.That(deletedProject, Is.Not.Null);
+            Assert.That(project3InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(project1InDb?.Deleted, Is.Null);
+            Assert.That(deletedProject?.Deleted, Is.Not.Null);
+            Assert.That(project3InDb?.Deleted, Is.Null);
         }
     }
 }

@@ -16,7 +16,7 @@ public class GetStockMovementDashboardHandler(DefaultContext context)
             .Include(m => m.Product)
             .ThenInclude(p => p.Category)
             .Include(m => m.Customer)
-            .ThenInclude(c => c != null ? c.PersonModel : null)
+            .ThenInclude(c => c != null ? c.Person : null)
             .Include(m => m.Supplier)
             .ThenInclude(s => s != null ? s.Person : null)
             .Where(m => m.Date >= startDate && m.Date <= endDate)
@@ -34,7 +34,7 @@ public class GetStockMovementDashboardHandler(DefaultContext context)
                 m.Price ?? 0,
                 m.Type.ToString(),
                 m.Reason,
-                m.CustomerId.HasValue ? m.Customer!.PersonModel.Name : null,
+                m.CustomerId.HasValue ? m.Customer!.Person.Name : null,
                 m.SupplierId.HasValue ? m.Supplier!.Person.Name : null))
             .ToList();
 
@@ -115,9 +115,12 @@ public class GetStockMovementDashboardHandler(DefaultContext context)
 
     private static string ClassifyTurnover(double rate)
     {
-        if (rate >= 2) return "High";
-        if (rate >= 1) return "Medium";
-        if (rate >= 0.5) return "Low";
-        return "Very Low";
+        return rate switch
+        {
+            >= 2 => "High",
+            >= 1 => "Medium",
+            >= 0.5 => "Low",
+            _ => "Very Low"
+        };
     }
 }

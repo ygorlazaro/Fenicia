@@ -10,7 +10,7 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
@@ -38,7 +38,9 @@ public class CompanyControllerTests
         this.updateCompanyHandler = new UpdateCompanyHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new CompanyController
+        this.controller = new CompanyController(
+            this.getCompaniesByUserHandler,
+            this.updateCompanyHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -84,14 +86,13 @@ public class CompanyControllerTests
         // Arrange
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetByLoggedUser(
             query,
-            this.getCompaniesByUserHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -117,7 +118,7 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new AuthCompanyModel
+        var company = new CompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -127,13 +128,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var role = new AuthRoleModel
+        var role = new RoleModel
         {
             Id = roleId,
             Name = "Admin"
         };
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -141,7 +142,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRoleModel
+        var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -157,14 +158,13 @@ public class CompanyControllerTests
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetByLoggedUser(
             query,
-            this.getCompaniesByUserHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -190,14 +190,13 @@ public class CompanyControllerTests
         // Arrange
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         await this.controller.GetByLoggedUser(
             query,
-            this.getCompaniesByUserHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
@@ -210,9 +209,9 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
-        var company = new AuthCompanyModel
+        var company = new CompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -222,13 +221,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var adminRole = new AuthRoleModel
+        var adminRole = new RoleModel
         {
             Id = adminRoleId,
             Name = "Admin"
         };
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -236,7 +235,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRoleModel
+        var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -254,11 +253,9 @@ public class CompanyControllerTests
 
         // Act
         var result = await this.controller.PatchAsync(
-            companyId,
             request,
-            this.updateCompanyHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -273,7 +270,7 @@ public class CompanyControllerTests
         }
 
         // Verify company was updated
-        var updatedCompany = await this.context.Companies.FirstOrDefaultAsync(c => c.Id == companyId, cancellationToken);
+        var updatedCompany = await this.context.Companies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
         Assert.That(updatedCompany, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -288,18 +285,16 @@ public class CompanyControllerTests
         // Arrange
         var companyId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
 
         // Act & Assert
         Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.controller.PatchAsync(
-                companyId,
                 request,
-                this.updateCompanyHandler,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -309,9 +304,9 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
-        var company = new AuthCompanyModel
+        var company = new CompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -321,13 +316,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthRoleModel
+        var userRole = new RoleModel
         {
             Id = userRoleId,
             Name = "Contributor"
         };
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -335,7 +330,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRoleMapping = new AuthUserRoleModel
+        var userRoleMapping = new UserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -354,11 +349,9 @@ public class CompanyControllerTests
         // Act & Assert
         Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.controller.PatchAsync(
-                companyId,
                 request,
-                this.updateCompanyHandler,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -368,9 +361,9 @@ public class CompanyControllerTests
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
-        var company = new AuthCompanyModel
+        var company = new CompanyModel
         {
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
@@ -380,13 +373,13 @@ public class CompanyControllerTests
             Language = "pt-BR"
         };
 
-        var adminRole = new AuthRoleModel
+        var adminRole = new RoleModel
         {
             Id = adminRoleId,
             Name = "Admin"
         };
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -394,7 +387,7 @@ public class CompanyControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var userRole = new AuthUserRoleModel
+        var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -412,11 +405,9 @@ public class CompanyControllerTests
 
         // Act
         await this.controller.PatchAsync(
-            companyId,
             request,
-            this.updateCompanyHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));

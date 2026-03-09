@@ -1,8 +1,7 @@
 using Fenicia.Auth.Domains.User;
 using Fenicia.Auth.Domains.User.ChangePassword;
-using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +13,15 @@ public class ResetPasswordHandler(DefaultContext db, ChangePasswordHandler chang
     public virtual async Task Handle(ResetPasswordCommand command, CancellationToken ct)
     {
         var userId = await db.UserIdByEmailAsync(command.Email, ct)
-                     ?? throw new ItemNotExistsException(TextConstants.ItemNotFoundMessage);
+                     ?? throw new ItemNotExistsException("User with given email does not exist.");
         var currentCode = await GetFromUserIdAndCodeAsync(userId, command.Code, ct)
-                          ?? throw new InvalidDataException(TextConstants.InvalidForgetCode);
+                          ?? throw new InvalidDataException("Invalid forgot password code.");
 
         await changePasswordHandler.Handle(new ChangePasswordQuery(currentCode.UserId, command.Password), ct);
         await InvalidateCodeAsync(currentCode.Id, ct);
     }
 
-    private async Task<AuthForgotPassowrdModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
+    private async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
         var query = db.ForgottenPasswords

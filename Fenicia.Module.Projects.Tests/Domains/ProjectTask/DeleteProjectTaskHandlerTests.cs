@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectTask.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -42,15 +43,15 @@ public class DeleteProjectTaskHandlerTests
         var taskId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
-        var task = new Common.Data.Models.ProjectTaskModel
+        var task = new ProjectTaskModel
         {
             Id = taskId,
             ProjectId = projectId,
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
@@ -111,30 +112,30 @@ public class DeleteProjectTaskHandlerTests
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
 
-        var task1 = new Common.Data.Models.ProjectTaskModel
+        var task1 = new ProjectTaskModel
         {
             Id = task1Id,
             ProjectId = projectId,
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
             CreatedBy = Guid.NewGuid()
         };
 
-        var task2 = new Common.Data.Models.ProjectTaskModel
+        var task2 = new ProjectTaskModel
         {
             Id = task2Id,
             ProjectId = projectId,
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Low,
-            Type = Common.Enums.Project.TaskType.Bug,
+            Priority = Common.Enums.Project.EnumTaskPriority.Low,
+            Type = Common.Enums.Project.EnumTaskType.Bug,
             Order = 2,
             EstimatePoints = 3,
             DueDate = null,
@@ -172,45 +173,45 @@ public class DeleteProjectTaskHandlerTests
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
 
-        var task1 = new Common.Data.Models.ProjectTaskModel
+        var task1 = new ProjectTaskModel
         {
             Id = task1Id,
             ProjectId = projectId,
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
             CreatedBy = Guid.NewGuid()
         };
 
-        var task2 = new Common.Data.Models.ProjectTaskModel
+        var task2 = new ProjectTaskModel
         {
             Id = task2Id,
             ProjectId = projectId,
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Low,
-            Type = Common.Enums.Project.TaskType.Bug,
+            Priority = Common.Enums.Project.EnumTaskPriority.Low,
+            Type = Common.Enums.Project.EnumTaskType.Bug,
             Order = 2,
             EstimatePoints = 3,
             DueDate = null,
             CreatedBy = Guid.NewGuid()
         };
 
-        var task3 = new Common.Data.Models.ProjectTaskModel
+        var task3 = new ProjectTaskModel
         {
             Id = task3Id,
             ProjectId = projectId,
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.High,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.High,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 3,
             EstimatePoints = 8,
             DueDate = DateTime.UtcNow.AddDays(14),
@@ -230,14 +231,17 @@ public class DeleteProjectTaskHandlerTests
         var deletedTask = await this.context.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
         var task3InDb = await this.context.ProjectTasks.FindAsync([task3Id], CancellationToken.None);
 
-        Assert.That(task1InDb, Is.Not.Null);
-        Assert.That(deletedTask, Is.Not.Null);
-        Assert.That(task3InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(task1InDb.Deleted, Is.Null);
-            Assert.That(deletedTask.Deleted, Is.Not.Null);
-            Assert.That(task3InDb.Deleted, Is.Null);
+            Assert.That(task1InDb, Is.Not.Null);
+            Assert.That(deletedTask, Is.Not.Null);
+            Assert.That(task3InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(task1InDb?.Deleted, Is.Null);
+            Assert.That(deletedTask?.Deleted, Is.Not.Null);
+            Assert.That(task3InDb?.Deleted, Is.Null);
         }
     }
 }

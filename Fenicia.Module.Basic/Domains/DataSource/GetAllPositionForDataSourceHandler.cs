@@ -14,5 +14,3 @@ public class GetAllPositionForDataSourceHandler(DefaultContext context)
             .ToListAsync(ct);
     }
 }
-
-public record GetAllPositionForDataSourceResponse(Guid Id, string Name);

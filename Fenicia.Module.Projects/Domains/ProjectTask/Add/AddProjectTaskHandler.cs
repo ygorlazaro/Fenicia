@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Enums.Project;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTask.Add;
@@ -7,15 +8,15 @@ public class AddProjectTaskHandler(DefaultContext context)
 {
     public async Task<AddProjectTaskResponse> Handle(AddProjectTaskCommand command, CancellationToken ct)
     {
-        var projectTask = new Common.Data.Models.ProjectTaskModel
+        var projectTask = new ProjectTaskModel
         {
             Id = command.Id,
             ProjectId = command.ProjectId,
             StatusId = command.StatusId,
             Title = command.Title,
             Description = command.Description,
-            Priority = Enum.Parse<TaskPriority>(command.Priority, true),
-            Type = Enum.Parse<TaskType>(command.Type, true),
+            Priority = Enum.Parse<EnumTaskPriority>(command.Priority, true),
+            Type = Enum.Parse<EnumTaskType>(command.Type, true),
             Order = command.Order,
             EstimatePoints = command.EstimatePoints,
             DueDate = command.DueDate,

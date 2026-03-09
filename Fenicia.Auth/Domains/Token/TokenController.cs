@@ -19,8 +19,13 @@ namespace Fenicia.Auth.Domains.Token;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 public class TokenController(
+    GenerateTokenHandler generateTokenHandler,
     GenerateRefreshTokenHandler generateRefreshTokenHandler,
-    GenerateTokenStringHandler generateTokenStringHandler) : ControllerBase
+    GenerateTokenStringHandler generateTokenStringHandler,
+    ValidateTokenHandler validateTokenHandler,
+    InvalidateRefreshTokenHandler invalidateRefreshTokenHandler,
+    GetUserForRefreshHandler getUserForRefreshHandler
+    ) : ControllerBase
 {
     [HttpPost]
     [AllowAnonymous]
@@ -28,7 +33,6 @@ public class TokenController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<TokenResponse>> PostAsync(
-        [FromServices] GenerateTokenHandler handler,
         GenerateTokenQuery request,
         WideEventContext wide,
         CancellationToken ct)
@@ -37,7 +41,7 @@ public class TokenController(
         {
             wide.UserId = request.Email;
 
-            var userResponse = await handler.Handle(request, ct);
+            var userResponse = await generateTokenHandler.Handle(request, ct);
 
             return PopulateToken(userResponse);
         }
@@ -58,9 +62,6 @@ public class TokenController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<TokenResponse>> Refresh(
         ValidateTokenQuery request,
-        [FromServices] ValidateTokenHandler validateTokenHandler,
-        [FromServices] InvalidateRefreshTokenHandler invalidateRefreshTokenHandler,
-        [FromServices] GetUserForRefreshHandler getUserForRefreshHandler,
         WideEventContext wide,
         CancellationToken ct)
     {
@@ -73,7 +74,7 @@ public class TokenController(
             return BadRequest("Invalid client request");
         }
 
-        await invalidateRefreshTokenHandler.Handler(request.RefreshToken, ct);
+        await invalidateRefreshTokenHandler.Handler(request.RefreshToken);
 
         var userResponse = await getUserForRefreshHandler.Handle(request.UserId, ct);
 

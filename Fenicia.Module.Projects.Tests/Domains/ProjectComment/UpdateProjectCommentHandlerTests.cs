@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectComment.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,7 @@ public class UpdateProjectCommentHandlerTests
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment = new Common.Data.Models.ProjectCommentModel
+        var comment = new ProjectCommentModel
         {
             Id = commentId,
             TaskId = taskId,
@@ -108,7 +109,7 @@ public class UpdateProjectCommentHandlerTests
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var comment1 = new Common.Data.Models.ProjectCommentModel
+        var comment1 = new ProjectCommentModel
         {
             Id = comment1Id,
             TaskId = taskId,
@@ -116,7 +117,7 @@ public class UpdateProjectCommentHandlerTests
             Content = "Comment 1 content"
         };
 
-        var comment2 = new Common.Data.Models.ProjectCommentModel
+        var comment2 = new ProjectCommentModel
         {
             Id = comment2Id,
             TaskId = taskId,
@@ -145,12 +146,15 @@ public class UpdateProjectCommentHandlerTests
         var updatedComment1 = await this.context.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
         var comment2InDb = await this.context.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
 
-        Assert.That(updatedComment1, Is.Not.Null);
-        Assert.That(comment2InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(updatedComment1.Content, Is.EqualTo("Updated Comment 1 content"));
-            Assert.That(comment2InDb.Content, Is.EqualTo("Comment 2 content"));
+            Assert.That(updatedComment1, Is.Not.Null);
+            Assert.That(comment2InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(updatedComment1?.Content, Is.EqualTo("Updated Comment 1 content"));
+            Assert.That(comment2InDb?.Content, Is.EqualTo("Comment 2 content"));
         }
     }
 
@@ -161,7 +165,7 @@ public class UpdateProjectCommentHandlerTests
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment = new Common.Data.Models.ProjectCommentModel
+        var comment = new ProjectCommentModel
         {
             Id = commentId,
             TaskId = taskId,

@@ -2,7 +2,6 @@ namespace Fenicia.Common.Enums.Auth;
 
 public enum ModuleType
 {
-    Erp = -1,
     Auth = 0,
     Basic = 1,
     SocialNetwork = 2,

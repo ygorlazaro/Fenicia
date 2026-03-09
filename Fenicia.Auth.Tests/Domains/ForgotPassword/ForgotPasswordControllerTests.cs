@@ -8,7 +8,7 @@ using Fenicia.Auth.Domains.User.ChangePassword;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
@@ -37,7 +37,9 @@ public class ForgotPasswordControllerTests
         this.resetPasswordHandler = new ResetPasswordHandler(this.context, this.changePasswordHandler);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ForgotPasswordController
+        this.controller = new ForgotPasswordController(
+            this.addForgotPasswordHandler,
+            this.resetPasswordHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -54,24 +56,24 @@ public class ForgotPasswordControllerTests
         this.context.Dispose();
     }
 
-    private ForgotPasswordController controller = null!;
-    private DefaultContext context = null!;
-    private AddForgotPasswordHandler addForgotPasswordHandler = null!;
-    private ResetPasswordHandler resetPasswordHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Mock<HashPasswordHandler> mockHashPasswordHandler = null!;
-    private ChangePasswordHandler changePasswordHandler = null!;
-    private Faker faker = null!;
+    private ForgotPasswordController controller;
+    private DefaultContext context;
+    private AddForgotPasswordHandler addForgotPasswordHandler;
+    private ResetPasswordHandler resetPasswordHandler;
+    private Mock<HttpContext> mockHttpContext;
+    private Mock<HashPasswordHandler> mockHashPasswordHandler;
+    private ChangePasswordHandler changePasswordHandler;
+    private Faker faker;
 
     [Test]
     public async Task ForgotPassword_WhenUserExists_CompletesSuccessfully()
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -87,16 +89,15 @@ public class ForgotPasswordControllerTests
         // Act
         await this.controller.ForgotPassword(
             command,
-            this.addForgotPasswordHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(command.Email));
 
         // Verify forgot password record was created
         var forgotPasswordRecord =
-            await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, cancellationToken);
+            await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, ct);
         Assert.That(forgotPasswordRecord, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -110,7 +111,7 @@ public class ForgotPasswordControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var command = new AddForgotPasswordCommand(this.faker.Internet.Email());
 
@@ -118,9 +119,8 @@ public class ForgotPasswordControllerTests
         Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.controller.ForgotPassword(
                 command,
-                this.addForgotPasswordHandler,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -128,10 +128,10 @@ public class ForgotPasswordControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -147,9 +147,8 @@ public class ForgotPasswordControllerTests
         // Act
         await this.controller.ForgotPassword(
             command,
-            this.addForgotPasswordHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(command.Email));
@@ -160,11 +159,11 @@ public class ForgotPasswordControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -174,7 +173,7 @@ public class ForgotPasswordControllerTests
 
         var code = this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
-        var forgotPassword = new AuthForgotPassowrdModel
+        var forgotPassword = new ForgotPasswordModel
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
@@ -196,9 +195,8 @@ public class ForgotPasswordControllerTests
         // Act
         var result = await this.controller.ResetPassword(
             command,
-            this.resetPasswordHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -213,12 +211,12 @@ public class ForgotPasswordControllerTests
         }
 
         // Verify password was changed
-        var updatedUser = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Id == user.Id, cancellationToken);
+        var updatedUser = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Id == user.Id, ct);
         Assert.That(updatedUser, Is.Not.Null);
 
         // Verify forgot password record was deactivated
         var updatedForgotPassword =
-            await this.context.ForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id, cancellationToken);
+            await this.context.ForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id, ct);
         Assert.That(updatedForgotPassword, Is.Not.Null);
         Assert.That(updatedForgotPassword!.IsActive, Is.False);
     }
@@ -228,10 +226,10 @@ public class ForgotPasswordControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -248,9 +246,8 @@ public class ForgotPasswordControllerTests
         Assert.ThrowsAsync<InvalidDataException>(async () =>
             await this.controller.ResetPassword(
                 command,
-                this.resetPasswordHandler,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -258,7 +255,7 @@ public class ForgotPasswordControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var command = new ResetPasswordCommand(
             this.faker.Internet.Email(),
@@ -269,9 +266,8 @@ public class ForgotPasswordControllerTests
         Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.controller.ResetPassword(
                 command,
-                this.resetPasswordHandler,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -279,11 +275,11 @@ public class ForgotPasswordControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -293,7 +289,7 @@ public class ForgotPasswordControllerTests
 
         var code = this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
-        var forgotPassword = new AuthForgotPassowrdModel
+        var forgotPassword = new ForgotPasswordModel
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
@@ -315,9 +311,8 @@ public class ForgotPasswordControllerTests
         // Act
         await this.controller.ResetPassword(
             command,
-            this.resetPasswordHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(command.Email));

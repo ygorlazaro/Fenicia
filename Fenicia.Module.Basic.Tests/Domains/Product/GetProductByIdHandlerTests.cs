@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -37,10 +37,10 @@ public class GetProductByIdHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = productId,
             Name = "Product",
@@ -100,10 +100,10 @@ public class GetProductByIdHandlerTests
         // Arrange
         var product1Id = Guid.NewGuid();
         var product2Id = Guid.NewGuid();
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product1 = new BasicProductModel
+        var product1 = new ProductModel
         {
             Id = product1Id,
             Name = "Product 1",
@@ -113,7 +113,7 @@ public class GetProductByIdHandlerTests
             CategoryId = category.Id
         };
 
-        var product2 = new BasicProductModel
+        var product2 = new ProductModel
         {
             Id = product2Id,
             Name = "Product 2",

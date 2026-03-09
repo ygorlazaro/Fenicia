@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Position.Add;
 
@@ -7,7 +7,7 @@ public class AddPositionHandler(DefaultContext context)
 {
     public async Task<AddPositionResponse> Handle(AddPositionCommand command, CancellationToken ct)
     {
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = command.Id,
             Name = command.Name

@@ -10,17 +10,17 @@ public class GetModulesHandler(DefaultContext db)
 {
     public async Task<Pagination<List<GetModuleResponse>>> Handle(GetModulesRequest query, CancellationToken ct)
     {
-        var baseQuery = db.Modules
-            .Where(m => m.Type != ModuleType.Erp && m.Type != ModuleType.Auth)
+        var request = db.Modules
+            .Where(m => m.Type != ModuleType.Auth)
             .OrderBy(m => m.Type)
             .Select(m => new GetModuleResponse(m.Id, m.Name, m.Type));
 
-        var modules = await baseQuery
+        var modules = await request
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(ct);
 
-        var total = await baseQuery.CountAsync(ct);
+        var total = await request.CountAsync(ct);
 
         return new Pagination<List<GetModuleResponse>>(modules, total, query.Page, query.PerPage);
     }

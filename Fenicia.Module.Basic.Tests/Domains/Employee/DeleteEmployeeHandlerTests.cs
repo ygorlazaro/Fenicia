@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,12 +41,12 @@ public class DeleteEmployeeHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var employee = new BasicEmployeeModel
+        var employee = new EmployeeModel
         {
             Id = employeeId,
             PositionId = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -98,12 +98,12 @@ public class DeleteEmployeeHandlerTests
         var employee1Id = Guid.NewGuid();
         var employee2Id = Guid.NewGuid();
 
-        var employee1 = new BasicEmployeeModel
+        var employee1 = new EmployeeModel
         {
             Id = employee1Id,
             PositionId = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -117,12 +117,12 @@ public class DeleteEmployeeHandlerTests
             }
         };
 
-        var employee2 = new BasicEmployeeModel
+        var employee2 = new EmployeeModel
         {
             Id = employee2Id,
             PositionId = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,

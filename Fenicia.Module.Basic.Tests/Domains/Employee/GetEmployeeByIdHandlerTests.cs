@@ -1,8 +1,9 @@
-using Bogus;
+    using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,27 +42,27 @@ public class GetEmployeeByIdHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var employee = new BasicEmployeeModel
+        var employee = new EmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -71,7 +72,7 @@ public class GetEmployeeByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -90,19 +91,19 @@ public class GetEmployeeByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(employeeId));
-            Assert.That(result.PersonId, Is.EqualTo(employee.PersonModel.Id));
+            Assert.That(result.PersonId, Is.EqualTo(employee.Person.Id));
             Assert.That(result.PositionId, Is.EqualTo(position.Id));
-            Assert.That(result.Name, Is.EqualTo(employee.PersonModel.Name));
-            Assert.That(result.Email, Is.EqualTo(employee.PersonModel.Email));
-            Assert.That(result.PhoneNumber, Is.EqualTo(employee.PersonModel.PhoneNumber));
-            Assert.That(result.Document, Is.EqualTo(employee.PersonModel.Document));
-            Assert.That(result.Street, Is.EqualTo(employee.PersonModel.Street));
-            Assert.That(result.Number, Is.EqualTo(employee.PersonModel.Number));
-            Assert.That(result.Complement, Is.EqualTo(employee.PersonModel.Complement));
-            Assert.That(result.Neighborhood, Is.EqualTo(employee.PersonModel.Neighborhood));
-            Assert.That(result.ZipCode, Is.EqualTo(employee.PersonModel.ZipCode));
-            Assert.That(result.StateId, Is.EqualTo(employee.PersonModel.StateId));
-            Assert.That(result.City, Is.EqualTo(employee.PersonModel.City));
+            Assert.That(result.Name, Is.EqualTo(employee.Person.Name));
+            Assert.That(result.Email, Is.EqualTo(employee.Person.Email));
+            Assert.That(result.PhoneNumber, Is.EqualTo(employee.Person.PhoneNumber));
+            Assert.That(result.Document, Is.EqualTo(employee.Person.Document));
+            Assert.That(result.Street, Is.EqualTo(employee.Person.Street));
+            Assert.That(result.Number, Is.EqualTo(employee.Person.Number));
+            Assert.That(result.Complement, Is.EqualTo(employee.Person.Complement));
+            Assert.That(result.Neighborhood, Is.EqualTo(employee.Person.Neighborhood));
+            Assert.That(result.ZipCode, Is.EqualTo(employee.Person.ZipCode));
+            Assert.That(result.StateId, Is.EqualTo(employee.Person.StateId));
+            Assert.That(result.City, Is.EqualTo(employee.Person.City));
         }
     }
 
@@ -137,27 +138,27 @@ public class GetEmployeeByIdHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var employee = new BasicEmployeeModel
+        var employee = new EmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -167,7 +168,7 @@ public class GetEmployeeByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -183,8 +184,11 @@ public class GetEmployeeByIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.PositionId, Is.EqualTo(position.Id));
-        Assert.That(result.Name, Is.EqualTo(employee.PersonModel.Name));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.PositionId, Is.EqualTo(position.Id));
+            Assert.That(result.Name, Is.EqualTo(employee.Person.Name));
+        }
     }
 
     [Test]
@@ -193,27 +197,27 @@ public class GetEmployeeByIdHandlerTests
         // Arrange
         var employee1Id = Guid.NewGuid();
         var employee2Id = Guid.NewGuid();
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var employee1 = new BasicEmployeeModel
+        var employee1 = new EmployeeModel
         {
             Id = employee1Id,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -223,18 +227,18 @@ public class GetEmployeeByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
         };
 
-        var employee2 = new BasicEmployeeModel
+        var employee2 = new EmployeeModel
         {
             Id = employee2Id,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FirstName,
@@ -244,7 +248,7 @@ public class GetEmployeeByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -263,7 +267,7 @@ public class GetEmployeeByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(employee1Id));
-            Assert.That(result.Name, Is.EqualTo(employee1.PersonModel.Name));
+            Assert.That(result.Name, Is.EqualTo(employee1.Person.Name));
         }
     }
 
@@ -272,27 +276,27 @@ public class GetEmployeeByIdHandlerTests
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var employee = new BasicEmployeeModel
+        var employee = new EmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -304,7 +308,7 @@ public class GetEmployeeByIdHandlerTests
                 Neighborhood = null,
                 ZipCode = string.Empty,
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = null,
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -320,7 +324,10 @@ public class GetEmployeeByIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Name, Is.EqualTo(employee.PersonModel.Name));
-        Assert.That(result.Email, Is.EqualTo(employee.PersonModel.Email));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Name, Is.EqualTo(employee.Person.Name));
+            Assert.That(result.Email, Is.EqualTo(employee.Person.Email));
+        }
     }
 }

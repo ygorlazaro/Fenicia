@@ -15,21 +15,20 @@ namespace Fenicia.Auth.Domains.Company;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CompanyController : ControllerBase
+public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandler, UpdateCompanyHandler updateCompanyCommand) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetCompaniesByUserResponse>> GetByLoggedUser(
         [FromQuery] PaginationQuery query,
-        [FromServices] GetCompaniesByUserHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
-        var result = await handler.Handle(new GetCompaniesByUserQuery(userId, query.Page, query.PerPage), ct);
+        var result = await getCompaniesByUserHandler.Handle(new GetCompaniesByUserQuery(userId, query.Page, query.PerPage), ct);
 
         return Ok(result);
     }
@@ -42,16 +41,14 @@ public class CompanyController : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> PatchAsync(
-        [FromRoute] Guid id,
         [FromBody] UpdateCompanyCommand request,
-        [FromServices] UpdateCompanyHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
-        await handler.Handle(
+        await updateCompanyCommand.Handle(
             request,
             ct
         );

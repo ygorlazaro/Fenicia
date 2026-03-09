@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Position.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +37,7 @@ public class UpdatePositionHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = positionId,
             Name = "Old Position"
@@ -91,7 +91,7 @@ public class UpdatePositionHandlerTests
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = positionId,
             Name = "Old Position"
@@ -118,8 +118,8 @@ public class UpdatePositionHandlerTests
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new BasicPositionModel { Id = position1Id, Name = "Developer" };
-        var position2 = new BasicPositionModel { Id = position2Id, Name = "Designer" };
+        var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
+        var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
 
         this.context.BasicPositions.AddRange(position1, position2);
         await this.context.SaveChangesAsync(CancellationToken.None);

@@ -12,8 +12,8 @@ public class GetEmployeePerformanceHandler(DefaultContext context)
         var startDate = endDate.AddDays(-query.Days);
 
         var employees = await context.BasicEmployees
-            .Include(e => e.PositionModel)
-            .Include(e => e.PersonModel)
+            .Include(e => e.Position)
+            .Include(e => e.Person)
             .ToListAsync(ct);
 
         var orders = await context.BasicOrders
@@ -46,7 +46,7 @@ public class GetEmployeePerformanceHandler(DefaultContext context)
         // 2. Sales by Employee
         var salesByEmployee = orders
             .Where(o => o.EmployeeId.HasValue)
-            .GroupBy(o => new { o.EmployeeId, EmployeeName = employees.FirstOrDefault(e => e.Id == o.EmployeeId)?.PersonModel.Name ?? "Unknown", PositionName = employees.FirstOrDefault(e => e.Id == o.EmployeeId)?.PositionModel?.Name ?? "Unknown" })
+            .GroupBy(o => new { o.EmployeeId, EmployeeName = employees.FirstOrDefault(e => e.Id == o.EmployeeId)?.Person.Name ?? "Unknown", PositionName = employees.FirstOrDefault(e => e.Id == o.EmployeeId)?.Position?.Name ?? "Unknown" })
             .Select((g, index) => new EmployeeSalesResponse(
                 g.Key.EmployeeId!.Value,
                 g.Key.EmployeeName,
@@ -67,7 +67,7 @@ public class GetEmployeePerformanceHandler(DefaultContext context)
         // 3. Orders by Employee
         var ordersByEmployee = orders
             .Where(o => o.EmployeeId.HasValue)
-            .GroupBy(o => new { o.EmployeeId, EmployeeName = employees.FirstOrDefault(e => e.Id == o.EmployeeId)?.PersonModel.Name ?? "Unknown", PositionName = employees.FirstOrDefault(e => e.Id == o.EmployeeId)?.PositionModel?.Name ?? "Unknown" })
+            .GroupBy(o => new { o.EmployeeId, EmployeeName = employees.FirstOrDefault(e => e.Id == o.EmployeeId)?.Person.Name ?? "Unknown", PositionName = employees.FirstOrDefault(e => e.Id == o.EmployeeId)?.Position?.Name ?? "Unknown" })
             .Select(g => new EmployeeOrderCountResponse(
                 g.Key.EmployeeId!.Value,
                 g.Key.EmployeeName,
@@ -84,7 +84,7 @@ public class GetEmployeePerformanceHandler(DefaultContext context)
             .Take(query.TopLimit)
             .Select(e =>
             {
-                string performanceLevel = "Standard";
+                var performanceLevel = "Standard";
                 if (e.TotalSales >= summary.AverageSalesPerEmployee * 2)
                     performanceLevel = "Excellent";
                 else if (e.TotalSales >= summary.AverageSalesPerEmployee * (decimal)1.5)

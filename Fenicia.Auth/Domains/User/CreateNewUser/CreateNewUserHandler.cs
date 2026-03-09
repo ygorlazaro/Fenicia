@@ -1,9 +1,9 @@
 using Fenicia.Auth.Domains.Company.CheckCompanyExists;
 using Fenicia.Auth.Domains.Role.GetAdminRole;
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Domains.User.CreateNewUser;
 
@@ -22,16 +22,16 @@ public class CreateNewUserHandler(
 
         if (isExistingUser)
         {
-            throw new ArgumentException(TextConstants.EmailExistsMessage);
+            throw new InvalidRequestException("User with this email already exists.");
         }
 
         if (isExistingCompany)
         {
-            throw new ArgumentException(TextConstants.CompanyExistsMessage);
+            throw new InvalidRequestException("Company with this CNPJ already exists.");
         }
 
         var hashedPassword = hashPasswordHandler.Handle(request.Password);
-        var userRequest = new AuthUserModel
+        var userRequest = new UserModel
         {
             Email = request.Email,
             Password = hashedPassword,
@@ -39,7 +39,7 @@ public class CreateNewUserHandler(
         };
         context.AuthUsers.Add(userRequest);
 
-        var companyRequest = new AuthCompanyModel
+        var companyRequest = new CompanyModel
         {
             Name = request.Company.Name,
             Cnpj = request.Company.Cnpj,
@@ -49,11 +49,11 @@ public class CreateNewUserHandler(
         context.Companies.Add(companyRequest);
 
         var adminRole = await getAdminRoleHandler.Handle(ct)
-                        ?? throw new ArgumentException(TextConstants.MissingAdminRoleMessage);
-        var userRole = new AuthUserRoleModel
+                        ?? throw new InvalidRequestException("Admin role not found. Please ensure that the admin role exists in the database.");
+        var userRole = new UserRoleModel
         {
             UserId = userRequest.Id,
-            CompanyModel = companyRequest,
+            Company = companyRequest,
             RoleId = adminRole.Id
         };
 

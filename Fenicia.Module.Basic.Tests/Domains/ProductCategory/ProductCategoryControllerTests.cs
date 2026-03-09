@@ -5,7 +5,7 @@ using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.GetByCategoryId;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.Add;
@@ -99,10 +99,10 @@ public class ProductCategoryControllerTests
     public async Task GetAsync_WhenNoCategoriesExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page: 1, perPage: 10, cancellationToken: cancellationToken);
+        var result = await this.controller.GetAsync(page: 1, perPage: 10, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -113,21 +113,24 @@ public class ProductCategoryControllerTests
 
         var returnedCategories = okResult.Value as Pagination<List<GetAllProductCategoryResponse>>;
         Assert.That(returnedCategories, Is.Not.Null);
-        Assert.That(returnedCategories.Data, Is.Empty);
-        Assert.That(returnedCategories.Total, Is.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedCategories.Data, Is.Empty);
+            Assert.That(returnedCategories.Total, Is.EqualTo(0));
+        }
     }
 
     [Test]
     public async Task GetAsync_WhenCategoriesExist_ReturnsOkWithCategories()
     {
         // Arrange
-        var category1 = new BasicProductCategoryModel
+        var category1 = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var category2 = new BasicProductCategoryModel
+        var category2 = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
@@ -136,10 +139,10 @@ public class ProductCategoryControllerTests
         this.context.BasicProductCategories.AddRange(category1, category2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page: 1, perPage: 10, cancellationToken: cancellationToken);
+        var result = await this.controller.GetAsync(page: 1, perPage: 10, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -150,15 +153,18 @@ public class ProductCategoryControllerTests
 
         var returnedCategories = okResult.Value as Pagination<List<GetAllProductCategoryResponse>>;
         Assert.That(returnedCategories, Is.Not.Null);
-        Assert.That(returnedCategories.Data, Has.Count.EqualTo(2));
-        Assert.That(returnedCategories.Total, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedCategories.Data, Has.Count.EqualTo(2));
+            Assert.That(returnedCategories.Total, Is.EqualTo(2));
+        }
     }
 
     [Test]
     public async Task GetByIdAsync_WhenCategoryExists_ReturnsOkWithCategory()
     {
         // Arrange
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
@@ -167,10 +173,10 @@ public class ProductCategoryControllerTests
         this.context.BasicProductCategories.Add(category);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testCategoryId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testCategoryId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -193,10 +199,10 @@ public class ProductCategoryControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -208,10 +214,10 @@ public class ProductCategoryControllerTests
     {
         // Arrange
         var command = new AddProductCategoryCommand(Guid.NewGuid(), this.faker.Commerce.Categories(1)[0]);
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -230,7 +236,7 @@ public class ProductCategoryControllerTests
     public async Task PatchAsync_WhenCategoryExists_ReturnsOkWithUpdatedCategory()
     {
         // Arrange
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
@@ -240,10 +246,10 @@ public class ProductCategoryControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(this.testCategoryId, this.faker.Commerce.Categories(1)[0] + " Updated");
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testCategoryId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testCategoryId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -263,10 +269,10 @@ public class ProductCategoryControllerTests
         // Arrange
         var nonExistentId = Guid.NewGuid();
         var command = new UpdateProductCategoryCommand(nonExistentId, this.faker.Commerce.Categories(1)[0]);
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -277,7 +283,7 @@ public class ProductCategoryControllerTests
     public async Task DeleteAsync_WhenCategoryExists_ReturnsNoContent()
     {
         // Arrange
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
@@ -286,16 +292,16 @@ public class ProductCategoryControllerTests
         this.context.BasicProductCategories.Add(category);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testCategoryId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testCategoryId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify category was deleted
-        var deletedCategory = await this.context.BasicProductCategories.FirstOrDefaultAsync(x => x.Id == this.testCategoryId && x.Deleted == null, cancellationToken);
+        var deletedCategory = await this.context.BasicProductCategories.FirstOrDefaultAsync(x => x.Id == this.testCategoryId && x.Deleted == null, ct);
         Assert.That(deletedCategory, Is.Null);
     }
 
@@ -304,10 +310,10 @@ public class ProductCategoryControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -317,7 +323,7 @@ public class ProductCategoryControllerTests
     public async Task GetProductsByCategoryAsync_WhenCategoryHasNoProducts_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
@@ -327,10 +333,10 @@ public class ProductCategoryControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId, query, cancellationToken);
+        var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId, query, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -348,13 +354,13 @@ public class ProductCategoryControllerTests
     public async Task GetProductsByCategoryAsync_WhenCategoryHasProducts_ReturnsOkWithProducts()
     {
         // Arrange
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = this.testCategoryId,
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product1 = new BasicProductModel
+        var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -364,7 +370,7 @@ public class ProductCategoryControllerTests
             CategoryId = category.Id
         };
 
-        var product2 = new BasicProductModel
+        var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -379,10 +385,10 @@ public class ProductCategoryControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId, query, cancellationToken);
+        var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId, query, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

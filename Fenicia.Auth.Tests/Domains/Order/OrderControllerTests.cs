@@ -9,7 +9,7 @@ using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
 
@@ -40,7 +40,7 @@ public class OrderControllerTests
             this.mockCreateCreditsForOrderHandler.Object);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new OrderController
+        this.controller = new OrderController(this.createNewOrderHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -58,14 +58,14 @@ public class OrderControllerTests
         this.context.Dispose();
     }
 
-    private OrderController controller = null!;
-    private DefaultContext context = null!;
-    private CreateNewOrderHandler createNewOrderHandler = null!;
-    private Mock<CreateCreditsForOrderHandler> mockCreateCreditsForOrderHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
+    private OrderController controller;
+    private DefaultContext context;
+    private CreateNewOrderHandler createNewOrderHandler;
+    private Mock<CreateCreditsForOrderHandler> mockCreateCreditsForOrderHandler;
+    private Mock<HttpContext> mockHttpContext;
     private Guid testUserId;
     private Guid testCompanyId;
-    private Faker faker = null!;
+    private Faker faker;
 
     private void SetupUserClaims(Guid userId)
     {
@@ -86,7 +86,7 @@ public class OrderControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var modules = new List<Guid> { Guid.NewGuid() };
         var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
@@ -97,9 +97,8 @@ public class OrderControllerTests
             await this.controller.CreateNewOrderAsync(
                 command,
                 headers,
-                this.createNewOrderHandler,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -107,9 +106,9 @@ public class OrderControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -117,7 +116,7 @@ public class OrderControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompanyModel
+        var company = new CompanyModel
         {
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
@@ -127,7 +126,7 @@ public class OrderControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRoleModel
+        var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -149,9 +148,8 @@ public class OrderControllerTests
             await this.controller.CreateNewOrderAsync(
                 command,
                 headers,
-                this.createNewOrderHandler,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -159,10 +157,10 @@ public class OrderControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new AuthModuleModel
+        var module = new ModuleModel
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
@@ -170,7 +168,7 @@ public class OrderControllerTests
             Price = this.faker.Finance.Amount(10, 100)
         };
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -178,7 +176,7 @@ public class OrderControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompanyModel
+        var company = new CompanyModel
         {
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
@@ -188,7 +186,7 @@ public class OrderControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRoleModel
+        var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -210,9 +208,8 @@ public class OrderControllerTests
         var result = await this.controller.CreateNewOrderAsync(
             command,
             headers,
-            this.createNewOrderHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -232,7 +229,7 @@ public class OrderControllerTests
 
         // Verify order was created
         var createdOrder =
-            await this.context.Orders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, cancellationToken);
+            await this.context.Orders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
         Assert.That(createdOrder, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -246,10 +243,10 @@ public class OrderControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new AuthModuleModel
+        var module = new ModuleModel
         {
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
@@ -257,7 +254,7 @@ public class OrderControllerTests
             Price = this.faker.Finance.Amount(10, 100)
         };
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -265,7 +262,7 @@ public class OrderControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        var company = new AuthCompanyModel
+        var company = new CompanyModel
         {
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
@@ -275,7 +272,7 @@ public class OrderControllerTests
             Language = "pt-BR"
         };
 
-        var userRole = new AuthUserRoleModel
+        var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
@@ -297,9 +294,8 @@ public class OrderControllerTests
         await this.controller.CreateNewOrderAsync(
             command,
             headers,
-            this.createNewOrderHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));

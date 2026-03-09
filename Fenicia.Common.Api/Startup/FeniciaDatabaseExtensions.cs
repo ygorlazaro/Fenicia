@@ -10,7 +10,7 @@ public static class FeniciaDatabaseExtensions
     public static WebApplicationBuilder AddFeniciaDbContext<TContext>(this WebApplicationBuilder builder, IConfiguration configuration, string migrationAssembly, string connectionStringName, string? tenantId = null) where TContext:DbContext
     {
         var connectionString = configuration.GetConnectionString(connectionStringName);
-        
+    
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             throw new Exception("Connection string inválida");

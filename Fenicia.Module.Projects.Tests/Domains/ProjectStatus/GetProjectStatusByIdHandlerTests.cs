@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectStatus.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ public class GetProjectStatusByIdHandlerTests
         // Arrange
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
-        var status = new Common.Data.Models.ProjectStatusModel
+        var status = new ProjectStatusModel
         {
             Id = statusId,
             ProjectId = projectId,
@@ -102,7 +103,7 @@ public class GetProjectStatusByIdHandlerTests
         var status2Id = Guid.NewGuid();
         var projectId = Guid.NewGuid();
 
-        var status1 = new Common.Data.Models.ProjectStatusModel
+        var status1 = new ProjectStatusModel
         {
             Id = status1Id,
             ProjectId = projectId,
@@ -112,7 +113,7 @@ public class GetProjectStatusByIdHandlerTests
             IsFinal = false
         };
 
-        var status2 = new Common.Data.Models.ProjectStatusModel
+        var status2 = new ProjectStatusModel
         {
             Id = status2Id,
             ProjectId = projectId,
@@ -145,7 +146,7 @@ public class GetProjectStatusByIdHandlerTests
         // Arrange
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
-        var status = new Common.Data.Models.ProjectStatusModel
+        var status = new ProjectStatusModel
         {
             Id = statusId,
             ProjectId = projectId,

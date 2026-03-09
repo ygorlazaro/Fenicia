@@ -13,9 +13,8 @@ public static class FeniciaAuthenticationExtensions
     public static WebApplicationBuilder AddFeniciaAuthentication(this WebApplicationBuilder builder,IConfiguration configuration)
     {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]
-                                          ?? throw new InvalidOperationException(TextConstants
-                                              .InvalidJwtSecretMessage));
-        
+                                          ?? throw new InvalidOperationException("Jwt:Secret configuration is missing."));
+
         builder.Services.AddAuthentication(o =>
         {
             o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

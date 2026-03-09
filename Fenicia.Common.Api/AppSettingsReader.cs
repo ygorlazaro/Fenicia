@@ -4,23 +4,6 @@ namespace Fenicia.Common.API;
 
 public static class AppSettingsReader
 {
-    public static string GetConnectionString(string connectionStringName)
-    {
-        var configuration = GetConfiguration();
-        var value = configuration.GetConnectionString(connectionStringName);
-
-        if (!string.IsNullOrWhiteSpace(value))
-        {
-            return value;
-        }
-
-        var allKeys = configuration.GetSection("ConnectionStrings").GetChildren().Select(x => x.Key);
-        var keysList = string.Join(", ", allKeys);
-
-        throw new InvalidOperationException(
-            $"Connection string '{connectionStringName}' not found in appsettings.json. Available keys: [{keysList}]");
-    }
-
     public static ConfigurationManager GetConfiguration()
     {
         var config = new ConfigurationManager();

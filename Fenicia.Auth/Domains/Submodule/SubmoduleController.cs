@@ -13,20 +13,20 @@ namespace Fenicia.Auth.Domains.Submodule;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SubmoduleController : ControllerBase
+public class SubmoduleController(
+    GetByModuleIdHandler getByModuleIdHandler) : ControllerBase
 {
     [HttpGet("{moduleId:Guid}")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetByModuleResponse>>> GetByModuleIdAsync(
         [FromRoute] Guid moduleId,
-        [FromServices] GetByModuleIdHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = "Guest";
 
-        var submodules = await handler.Handle(moduleId, ct);
+        var submodules = await getByModuleIdHandler.Handle(moduleId, ct);
 
         return Ok(submodules);
     }

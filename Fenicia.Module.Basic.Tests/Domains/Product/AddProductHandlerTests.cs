@@ -42,7 +42,8 @@ public class AddProductHandlerTests
             10.00m,
             20.00m,
             100,
-            categoryId);
+            categoryId, 
+            null);
 
         // Act
         var result = await this.handler.Handle(command, CancellationToken.None);
@@ -70,7 +71,8 @@ public class AddProductHandlerTests
             10.00m,
             20.00m,
             100,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null);
 
         // Act
         await this.handler.Handle(command, CancellationToken.None);
@@ -91,7 +93,8 @@ public class AddProductHandlerTests
             10.00m,
             20.00m,
             100,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null);
 
         var command2 = new AddProductCommand(
             Guid.NewGuid(),
@@ -99,7 +102,8 @@ public class AddProductHandlerTests
             15.00m,
             25.00m,
             50,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null);
 
         // Act
         await this.handler.Handle(command1, CancellationToken.None);
@@ -120,7 +124,8 @@ public class AddProductHandlerTests
             null,
             20.00m,
             100,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null);
 
         // Act
         var result = await this.handler.Handle(command, CancellationToken.None);

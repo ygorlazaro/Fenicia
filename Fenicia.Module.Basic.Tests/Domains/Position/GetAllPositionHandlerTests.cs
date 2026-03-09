@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Position.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -47,15 +47,15 @@ public class GetAllPositionHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
     }
 
     [Test]
     public async Task Handle_WithPositions_ReturnsAllPositions()
     {
         // Arrange
-        var position1 = new BasicPositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        var position2 = new BasicPositionModel { Id = Guid.NewGuid(), Name = "Designer" };
+        var position1 = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
+        var position2 = new PositionModel { Id = Guid.NewGuid(), Name = "Designer" };
 
         this.context.BasicPositions.AddRange(position1, position2);
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -67,11 +67,11 @@ public class GetAllPositionHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result.Data, Has.Count.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Any(p => p.Id == position1.Id));
-            Assert.That(result.Any(p => p.Id == position2.Id));
+            Assert.That(result.Data.Any(p => p.Id == position1.Id));
+            Assert.That(result.Data.Any(p => p.Id == position2.Id));
         }
     }
 
@@ -81,7 +81,7 @@ public class GetAllPositionHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var position = new BasicPositionModel
+            var position = new PositionModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
@@ -98,7 +98,7 @@ public class GetAllPositionHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.That(result.Data, Has.Count.EqualTo(10));
     }
 
     [Test]
@@ -107,7 +107,7 @@ public class GetAllPositionHandlerTests
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var position = new BasicPositionModel
+            var position = new PositionModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
@@ -124,7 +124,7 @@ public class GetAllPositionHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
     }
 
     [Test]
@@ -133,7 +133,7 @@ public class GetAllPositionHandlerTests
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var position = new BasicPositionModel
+            var position = new PositionModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
@@ -150,6 +150,6 @@ public class GetAllPositionHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.That(result.Data, Has.Count.EqualTo(10));
     }
 }

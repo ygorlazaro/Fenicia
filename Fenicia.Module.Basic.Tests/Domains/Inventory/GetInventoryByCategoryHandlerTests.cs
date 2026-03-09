@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByCategory;
 
 using Microsoft.EntityFrameworkCore;
@@ -64,11 +64,11 @@ public class GetInventoryByCategoryHandlerTests
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new BasicProductCategoryModel { Id = category1Id, Name = "Electronics" };
-        var category2 = new BasicProductCategoryModel { Id = category2Id, Name = "Books" };
+        var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
+        var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
         this.context.BasicProductCategories.AddRange(category1, category2);
 
-        var product1 = new BasicProductModel
+        var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -78,7 +78,7 @@ public class GetInventoryByCategoryHandlerTests
             CategoryId = category1Id
         };
 
-        var product2 = new BasicProductModel
+        var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -88,7 +88,7 @@ public class GetInventoryByCategoryHandlerTests
             CategoryId = category1Id
         };
 
-        var product3 = new BasicProductModel
+        var product3 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -117,10 +117,10 @@ public class GetInventoryByCategoryHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new BasicProductCategoryModel { Id = categoryId, Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product1 = new BasicProductModel
+        var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -130,7 +130,7 @@ public class GetInventoryByCategoryHandlerTests
             CategoryId = categoryId
         };
 
-        var product2 = new BasicProductModel
+        var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -163,12 +163,12 @@ public class GetInventoryByCategoryHandlerTests
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new BasicProductCategoryModel { Id = categoryId, Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
-            var product = new BasicProductModel
+            var product = new ProductModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Commerce.ProductName(),

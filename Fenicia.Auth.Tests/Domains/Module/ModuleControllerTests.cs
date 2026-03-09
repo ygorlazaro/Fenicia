@@ -6,7 +6,7 @@ using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +33,7 @@ public class ModuleControllerTests
         this.mockHttpContext = new Mock<HttpContext>();
         this.faker = new Faker();
 
-        this.controller = new ModuleController
+        this.controller = new ModuleController(this.getModulesHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -48,11 +48,11 @@ public class ModuleControllerTests
         this.context.Dispose();
     }
 
-    private ModuleController controller = null!;
-    private DefaultContext context = null!;
-    private GetModulesHandler getModulesHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Faker faker = null!;
+    private ModuleController controller;
+    private DefaultContext context;
+    private GetModulesHandler getModulesHandler;
+    private Mock<HttpContext> mockHttpContext;
+    private Faker faker;
 
     [Test]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsOkWithEmptyPagination()
@@ -60,14 +60,13 @@ public class ModuleControllerTests
         // Arrange
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetAllModulesAsync(
             query,
-            this.getModulesHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -90,7 +89,7 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_WhenModulesExist_ReturnsOkWithPagination()
     {
         // Arrange
-        var module1 = new AuthModuleModel
+        var module1 = new ModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -98,7 +97,7 @@ public class ModuleControllerTests
             Price = 10.0m
         };
 
-        var module2 = new AuthModuleModel
+        var module2 = new ModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -111,14 +110,13 @@ public class ModuleControllerTests
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetAllModulesAsync(
             query,
-            this.getModulesHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -141,15 +139,7 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_ExcludesErpAndAuthModuleTypes()
     {
         // Arrange
-        var erpModule = new AuthModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
-            Type = ModuleType.Erp,
-            Price = 100.0m
-        };
-
-        var authModule = new AuthModuleModel
+        var authModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -157,7 +147,7 @@ public class ModuleControllerTests
             Price = 50.0m
         };
 
-        var basicModule = new AuthModuleModel
+        var basicModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -165,19 +155,18 @@ public class ModuleControllerTests
             Price = 10.0m
         };
 
-        this.context.Modules.AddRange(erpModule, authModule, basicModule);
+        this.context.Modules.AddRange(authModule, basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetAllModulesAsync(
             query,
-            this.getModulesHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -201,14 +190,13 @@ public class ModuleControllerTests
         // Arrange
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         await this.controller.GetAllModulesAsync(
             query,
-            this.getModulesHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo("Guest"));
@@ -218,10 +206,10 @@ public class ModuleControllerTests
     public async Task GetAllModulesAsync_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var modules = new List<AuthModuleModel>();
+        var modules = new List<ModuleModel>();
         for (var i = 0; i < 25; i++)
         {
-            modules.Add(new AuthModuleModel
+            modules.Add(new ModuleModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Module {this.faker.Commerce.ProductName()} {i}",
@@ -235,14 +223,13 @@ public class ModuleControllerTests
 
         var query = new PaginationQuery(2, 10);
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetAllModulesAsync(
             query,
-            this.getModulesHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

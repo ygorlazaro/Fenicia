@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 
 namespace Fenicia.Module.Projects.Domains.ProjectStatus.Add;
 
@@ -6,7 +7,7 @@ public class AddProjectStatusHandler(DefaultContext context)
 {
     public async Task<AddProjectStatusResponse> Handle(AddProjectStatusCommand command, CancellationToken ct)
     {
-        var status = new Common.Data.Models.ProjectStatusModel
+        var status = new ProjectStatusModel
         {
             Id = command.Id,
             ProjectId = command.ProjectId,

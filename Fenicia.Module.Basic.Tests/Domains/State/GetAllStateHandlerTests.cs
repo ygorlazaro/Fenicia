@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Module.Basic.Domains.State.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -54,14 +54,14 @@ public class GetAllStateHandlerTests
     public async Task Handle_WithStates_ReturnsAllStates()
     {
         // Arrange
-        var state1 = new AuthStateModel
+        var state1 = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
 
-        var state2 = new AuthStateModel
+        var state2 = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "Rio de Janeiro",
@@ -92,7 +92,7 @@ public class GetAllStateHandlerTests
         // Arrange
         for (var i = 0; i < 27; i++)
         {
-            var state = new AuthStateModel
+            var state = new StateModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Address.State()} {i}",
@@ -117,7 +117,7 @@ public class GetAllStateHandlerTests
     public async Task Handle_VerifiesStateDataIsCorrect()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "Minas Gerais",

@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +10,7 @@ public class AddStockMovementHandler(DefaultContext context)
 {
     public async Task<AddStockMovementResponse> Handle(AddStockMovementCommand command, CancellationToken ct)
     {
-        var stockMovement = new BasicStockMovementModel
+        var stockMovement = new StockMovementModel
         {
             Id = command.Id,
             Quantity = command.Quantity,

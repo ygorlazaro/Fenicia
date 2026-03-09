@@ -10,7 +10,7 @@ public class GetProductsByCategoryIdHandler(DefaultContext context)
     {
         return await context.BasicProducts
             .Where(p => p.CategoryId == query.CategoryId)
-            .Select(p => new GetProductsByCategoryIdResponse(  p.Id,
+            .Select(p => new GetProductsByCategoryIdResponse(p.Id,
                 p.Name,
                 p.CostPrice,
                 p.SalesPrice,

@@ -1,5 +1,4 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Enums.Basic;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -20,8 +19,8 @@ public class GetInventoryHealthHandler(DefaultContext context)
             .ToListAsync(ct);
 
         var orderDetails = await context.BasicOrderDetails
-            .Include(d => d.OrderModel)
-            .Where(d => d.OrderModel.SaleDate >= DateTime.UtcNow.AddDays(-query.ZeroMovementDays))
+            .Include(d => d.Order)
+            .Where(d => d.Order.SaleDate >= DateTime.UtcNow.AddDays(-query.ZeroMovementDays))
             .ToListAsync(ct);
 
         // Calculate average sales per product

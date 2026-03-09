@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectComment.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,7 @@ public class GetProjectCommentByIdHandlerTests
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment = new Common.Data.Models.ProjectCommentModel
+        var comment = new ProjectCommentModel
         {
             Id = commentId,
             TaskId = taskId,
@@ -102,7 +103,7 @@ public class GetProjectCommentByIdHandlerTests
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var comment1 = new Common.Data.Models.ProjectCommentModel
+        var comment1 = new ProjectCommentModel
         {
             Id = comment1Id,
             TaskId = taskId,
@@ -110,7 +111,7 @@ public class GetProjectCommentByIdHandlerTests
             Content = this.faker.Lorem.Paragraph()
         };
 
-        var comment2 = new Common.Data.Models.ProjectCommentModel
+        var comment2 = new ProjectCommentModel
         {
             Id = comment2Id,
             TaskId = taskId,
@@ -143,7 +144,7 @@ public class GetProjectCommentByIdHandlerTests
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var longContent = this.faker.Lorem.Paragraphs(5);
-        var comment = new Common.Data.Models.ProjectCommentModel
+        var comment = new ProjectCommentModel
         {
             Id = commentId,
             TaskId = taskId,

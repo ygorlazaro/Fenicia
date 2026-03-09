@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -54,7 +55,7 @@ public class GetAllProjectSubtaskHandlerTests
     {
         // Arrange
         var taskId = Guid.NewGuid();
-        var subtask1 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask1 = new ProjectSubtaskModel
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
@@ -64,7 +65,7 @@ public class GetAllProjectSubtaskHandlerTests
             CompletedAt = null
         };
 
-        var subtask2 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask2 = new ProjectSubtaskModel
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
@@ -99,7 +100,7 @@ public class GetAllProjectSubtaskHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var subtask = new Common.Data.Models.ProjectSubtaskModel
+            var subtask = new ProjectSubtaskModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
@@ -130,7 +131,7 @@ public class GetAllProjectSubtaskHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
         {
-            var subtask = new Common.Data.Models.ProjectSubtaskModel
+            var subtask = new ProjectSubtaskModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
@@ -161,7 +162,7 @@ public class GetAllProjectSubtaskHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var subtask = new Common.Data.Models.ProjectSubtaskModel
+            var subtask = new ProjectSubtaskModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,

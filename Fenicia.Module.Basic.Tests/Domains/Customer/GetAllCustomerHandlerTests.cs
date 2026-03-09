@@ -2,7 +2,8 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -47,27 +48,30 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Is.Empty);
-        Assert.That(result.Total, Is.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Total, Is.EqualTo(0));
+        }
     }
 
     [Test]
     public async Task Handle_WithCustomers_ReturnsAllCustomers()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var customer1 = new BasicCustomerModel
+        var customer1 = new CustomerModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -77,17 +81,17 @@ public class GetAllCustomerHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
         };
 
-        var customer2 = new BasicCustomerModel
+        var customer2 = new CustomerModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -97,7 +101,7 @@ public class GetAllCustomerHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -113,17 +117,20 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(2));
-        Assert.That(result.Total, Is.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Data[0].PersonId, Is.EqualTo(customer1.PersonModel.Id));
-            Assert.That(result.Data[0].Name, Is.EqualTo(customer1.PersonModel.Name));
-            Assert.That(result.Data[0].Email, Is.EqualTo(customer1.PersonModel.Email));
+            Assert.That(result.Data, Has.Count.EqualTo(2));
+            Assert.That(result.Total, Is.EqualTo(2));
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data[0].PersonId, Is.EqualTo(customer1.Person.Id));
+            Assert.That(result.Data[0].Name, Is.EqualTo(customer1.Person.Name));
+            Assert.That(result.Data[0].Email, Is.EqualTo(customer1.Person.Email));
 
-            Assert.That(result.Data[1].PersonId, Is.EqualTo(customer2.PersonModel.Id));
-            Assert.That(result.Data[1].Name, Is.EqualTo(customer2.PersonModel.Name));
-            Assert.That(result.Data[1].Email, Is.EqualTo(customer2.PersonModel.Email));
+            Assert.That(result.Data[1].PersonId, Is.EqualTo(customer2.Person.Id));
+            Assert.That(result.Data[1].Name, Is.EqualTo(customer2.Person.Name));
+            Assert.That(result.Data[1].Email, Is.EqualTo(customer2.Person.Email));
         }
     }
 
@@ -131,21 +138,21 @@ public class GetAllCustomerHandlerTests
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
-            var customer = new BasicCustomerModel
+            var customer = new CustomerModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                PersonModel = new BasicPersonModel
+                Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -155,7 +162,7 @@ public class GetAllCustomerHandlerTests
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
                     StateId = state.Id,
-                    StateModel = state,
+                    State = state,
                     City = this.faker.Address.City(),
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
@@ -172,29 +179,32 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(10));
-        Assert.That(result.Total, Is.EqualTo(25));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Has.Count.EqualTo(10));
+            Assert.That(result.Total, Is.EqualTo(25));
+        }
     }
 
     [Test]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
         for (var i = 0; i < 5; i++)
         {
-            var customer = new BasicCustomerModel
+            var customer = new CustomerModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                PersonModel = new BasicPersonModel
+                Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -204,7 +214,7 @@ public class GetAllCustomerHandlerTests
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
                     StateId = state.Id,
-                    StateModel = state,
+                    State = state,
                     City = this.faker.Address.City(),
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
@@ -221,29 +231,32 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Is.Empty);
-        Assert.That(result.Total, Is.EqualTo(5));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Total, Is.EqualTo(5));
+        }
     }
 
     [Test]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
-            var customer = new BasicCustomerModel
+            var customer = new CustomerModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                PersonModel = new BasicPersonModel
+                Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -253,7 +266,7 @@ public class GetAllCustomerHandlerTests
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
                     StateId = state.Id,
-                    StateModel = state,
+                    State = state,
                     City = this.faker.Address.City(),
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
@@ -270,7 +283,10 @@ public class GetAllCustomerHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(10));
-        Assert.That(result.Total, Is.EqualTo(25));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Has.Count.EqualTo(10));
+            Assert.That(result.Total, Is.EqualTo(25));
+        }
     }
 }

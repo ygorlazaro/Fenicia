@@ -3,7 +3,7 @@ using Fenicia.Auth.Domains.Submodule.GetByModuleId;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +29,7 @@ public class SubmoduleControllerTests
         this.getByModuleIdHandler = new GetByModuleIdHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new SubmoduleController
+        this.controller = new SubmoduleController(this.getByModuleIdHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -55,14 +55,13 @@ public class SubmoduleControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetByModuleIdAsync(
             this.testModuleId,
-            this.getByModuleIdHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -84,7 +83,7 @@ public class SubmoduleControllerTests
     public async Task GetByModuleIdAsync_WhenSubmodulesExist_ReturnsOkWithSubmodules()
     {
         // Arrange
-        var submodule1 = new AuthSubmoduleModel
+        var submodule1 = new SubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Submodule 1",
@@ -93,7 +92,7 @@ public class SubmoduleControllerTests
             Route = "/api/submodule1"
         };
 
-        var submodule2 = new AuthSubmoduleModel
+        var submodule2 = new SubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Submodule 2",
@@ -106,14 +105,13 @@ public class SubmoduleControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetByModuleIdAsync(
             this.testModuleId,
-            this.getByModuleIdHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -138,7 +136,7 @@ public class SubmoduleControllerTests
         // Arrange
         var differentModuleId = Guid.NewGuid();
 
-        var submodule = new AuthSubmoduleModel
+        var submodule = new SubmoduleModel
         {
             Id = Guid.NewGuid(),
             Name = "Submodule for different module",
@@ -151,14 +149,13 @@ public class SubmoduleControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         var result = await this.controller.GetByModuleIdAsync(
             this.testModuleId,
-            this.getByModuleIdHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -177,14 +174,13 @@ public class SubmoduleControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
         await this.controller.GetByModuleIdAsync(
             this.testModuleId,
-            this.getByModuleIdHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo("Guest"));

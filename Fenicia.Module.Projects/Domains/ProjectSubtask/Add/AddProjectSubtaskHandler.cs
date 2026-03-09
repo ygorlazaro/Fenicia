@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 
 namespace Fenicia.Module.Projects.Domains.ProjectSubtask.Add;
 
@@ -6,7 +7,7 @@ public class AddProjectSubtaskHandler(DefaultContext context)
 {
     public async Task<AddProjectSubtaskResponse> Handle(AddProjectSubtaskCommand command, CancellationToken ct)
     {
-        var projectSubtask = new Common.Data.Models.ProjectSubtaskModel
+        var projectSubtask = new ProjectSubtaskModel
         {
             Id = command.Id,
             TaskId = command.TaskId,

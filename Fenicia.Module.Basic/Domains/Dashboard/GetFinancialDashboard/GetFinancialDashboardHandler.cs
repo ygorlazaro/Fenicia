@@ -72,8 +72,8 @@ public class GetFinancialDashboardHandler(DefaultContext context)
         {
             var current = weeklyData[i];
             var margin = current.Revenue > 0 ? ((current.Revenue - current.Cost) / current.Revenue) * 100 : 0;
-            
-            string trend = "Stable";
+        
+            var trend = "Stable";
             if (i > 0)
             {
                 var previous = weeklyData[i - 1];

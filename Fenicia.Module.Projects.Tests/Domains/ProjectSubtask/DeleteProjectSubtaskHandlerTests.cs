@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ public class DeleteProjectSubtaskHandlerTests
         // Arrange
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var subtask = new Common.Data.Models.ProjectSubtaskModel
+        var subtask = new ProjectSubtaskModel
         {
             Id = subtaskId,
             TaskId = taskId,
@@ -104,7 +105,7 @@ public class DeleteProjectSubtaskHandlerTests
         var subtask2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
-        var subtask1 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask1 = new ProjectSubtaskModel
         {
             Id = subtask1Id,
             TaskId = taskId,
@@ -114,7 +115,7 @@ public class DeleteProjectSubtaskHandlerTests
             CompletedAt = null
         };
 
-        var subtask2 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask2 = new ProjectSubtaskModel
         {
             Id = subtask2Id,
             TaskId = taskId,
@@ -154,7 +155,7 @@ public class DeleteProjectSubtaskHandlerTests
         var subtask3Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
-        var subtask1 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask1 = new ProjectSubtaskModel
         {
             Id = subtask1Id,
             TaskId = taskId,
@@ -164,7 +165,7 @@ public class DeleteProjectSubtaskHandlerTests
             CompletedAt = null
         };
 
-        var subtask2 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask2 = new ProjectSubtaskModel
         {
             Id = subtask2Id,
             TaskId = taskId,
@@ -174,7 +175,7 @@ public class DeleteProjectSubtaskHandlerTests
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        var subtask3 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask3 = new ProjectSubtaskModel
         {
             Id = subtask3Id,
             TaskId = taskId,
@@ -197,14 +198,17 @@ public class DeleteProjectSubtaskHandlerTests
         var deletedSubtask = await this.context.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
         var subtask3InDb = await this.context.ProjectSubtasks.FindAsync([subtask3Id], CancellationToken.None);
 
-        Assert.That(subtask1InDb, Is.Not.Null);
-        Assert.That(deletedSubtask, Is.Not.Null);
-        Assert.That(subtask3InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(subtask1InDb.Deleted, Is.Null);
-            Assert.That(deletedSubtask.Deleted, Is.Not.Null);
-            Assert.That(subtask3InDb.Deleted, Is.Null);
+            Assert.That(subtask1InDb, Is.Not.Null);
+            Assert.That(deletedSubtask, Is.Not.Null);
+            Assert.That(subtask3InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(subtask1InDb?.Deleted, Is.Null);
+            Assert.That(deletedSubtask?.Deleted, Is.Not.Null);
+            Assert.That(subtask3InDb?.Deleted, Is.Null);
         }
     }
 }

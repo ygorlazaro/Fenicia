@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ public class DeleteProjectStatusHandlerTests
         // Arrange
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
-        var status = new Common.Data.Models.ProjectStatusModel
+        var status = new ProjectStatusModel
         {
             Id = statusId,
             ProjectId = projectId,
@@ -104,7 +105,7 @@ public class DeleteProjectStatusHandlerTests
         var status2Id = Guid.NewGuid();
         var projectId = Guid.NewGuid();
 
-        var status1 = new Common.Data.Models.ProjectStatusModel
+        var status1 = new ProjectStatusModel
         {
             Id = status1Id,
             ProjectId = projectId,
@@ -114,7 +115,7 @@ public class DeleteProjectStatusHandlerTests
             IsFinal = false
         };
 
-        var status2 = new Common.Data.Models.ProjectStatusModel
+        var status2 = new ProjectStatusModel
         {
             Id = status2Id,
             ProjectId = projectId,
@@ -154,7 +155,7 @@ public class DeleteProjectStatusHandlerTests
         var status3Id = Guid.NewGuid();
         var projectId = Guid.NewGuid();
 
-        var status1 = new Common.Data.Models.ProjectStatusModel
+        var status1 = new ProjectStatusModel
         {
             Id = status1Id,
             ProjectId = projectId,
@@ -164,7 +165,7 @@ public class DeleteProjectStatusHandlerTests
             IsFinal = false
         };
 
-        var status2 = new Common.Data.Models.ProjectStatusModel
+        var status2 = new ProjectStatusModel
         {
             Id = status2Id,
             ProjectId = projectId,
@@ -174,7 +175,7 @@ public class DeleteProjectStatusHandlerTests
             IsFinal = true
         };
 
-        var status3 = new Common.Data.Models.ProjectStatusModel
+        var status3 = new ProjectStatusModel
         {
             Id = status3Id,
             ProjectId = projectId,
@@ -197,14 +198,17 @@ public class DeleteProjectStatusHandlerTests
         var deletedStatus = await this.context.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
         var status3InDb = await this.context.ProjectStatuses.FindAsync([status3Id], CancellationToken.None);
 
-        Assert.That(status1InDb, Is.Not.Null);
-        Assert.That(deletedStatus, Is.Not.Null);
-        Assert.That(status3InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(status1InDb.Deleted, Is.Null);
-            Assert.That(deletedStatus.Deleted, Is.Not.Null);
-            Assert.That(status3InDb.Deleted, Is.Null);
+            Assert.That(status1InDb, Is.Not.Null);
+            Assert.That(deletedStatus, Is.Not.Null);
+            Assert.That(status3InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(status1InDb?.Deleted, Is.Null);
+            Assert.That(deletedStatus?.Deleted, Is.Not.Null);
+            Assert.That(status3InDb?.Deleted, Is.Null);
         }
     }
 }

@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,11 +41,11 @@ public class DeleteCustomerHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var customer = new BasicCustomerModel
+        var customer = new CustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -97,11 +97,11 @@ public class DeleteCustomerHandlerTests
         var customer1Id = Guid.NewGuid();
         var customer2Id = Guid.NewGuid();
 
-        var customer1 = new BasicCustomerModel
+        var customer1 = new CustomerModel
         {
             Id = customer1Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -115,11 +115,11 @@ public class DeleteCustomerHandlerTests
             }
         };
 
-        var customer2 = new BasicCustomerModel
+        var customer2 = new CustomerModel
         {
             Id = customer2Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,

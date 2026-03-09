@@ -1,5 +1,6 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,15 +10,9 @@ public class UpdateUserHandler(DefaultContext context)
 {
     public virtual async Task<UpdateUserResponse> Handle(UpdateUserQuery request, CancellationToken ct)
     {
-        // Find user
         var user = await context.AuthUsers
-            .Include(u => u.UsersRoles)
-                .ThenInclude(ur => ur.RoleModel)
-            .Include(u => u.UsersRoles)
-                .ThenInclude(ur => ur.CompanyModel)
-            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new ArgumentException("User not found");
+            .FirstOrDefaultAsync(u => u.Id == request.UserId, ct) ?? throw new InvalidRequestException("User not found");
 
-        // Update fields if provided
         if (!string.IsNullOrWhiteSpace(request.Name))
         {
             user.Name = request.Name;
@@ -25,36 +20,44 @@ public class UpdateUserHandler(DefaultContext context)
 
         if (!string.IsNullOrWhiteSpace(request.Email))
         {
-            // Check if new email is already taken by another user
             var emailExists = await context.AuthUsers
                 .AnyAsync(u => u.Email == request.Email && u.Id != request.UserId, ct);
-            
+
             if (emailExists)
             {
-                throw new ArgumentException("This email already exists");
+                throw new InvalidRequestException("This email already exists");
             }
-            
+
             user.Email = request.Email;
         }
 
         user.Updated = DateTime.UtcNow;
 
-        // Update company roles if provided
-        if (request.CompaniesRoles != null)
+        if (request.CompaniesRoles != null && request.CompaniesRoles.Any())
         {
-            // Remove existing roles
-            var existingRoles = user.UsersRoles.ToList();
-            context.UserRoles.RemoveRange(existingRoles);
+            var existingRoles = await context.UserRoles
+                .Where(ur => ur.UserId == request.UserId)
+                .ToListAsync(ct);
 
-            // Add new roles
-            foreach (var companyRole in request.CompaniesRoles)
+            var requestedPairs = request.CompaniesRoles
+                .Select(cr => (cr.CompanyId, cr.RoleId))
+                .ToHashSet();
+
+            var rolesToRemove = existingRoles
+                .Where(er => !requestedPairs.Contains((er.CompanyId, er.RoleId)))
+                .ToList();
+            context.UserRoles.RemoveRange(rolesToRemove);
+
+            var existingPairs = existingRoles
+                .Select(er => (er.CompanyId, er.RoleId))
+                .ToHashSet();
+
+            foreach (var companyRole in request.CompaniesRoles.Where(companyRole => !existingPairs.Contains((companyRole.CompanyId, companyRole.RoleId))))
             {
-                // Verify company exists
-                var company = await context.UserRoles.FindAsync(companyRole.CompanyId, ct) ?? throw new ArgumentException($"Company with ID {companyRole.CompanyId} not found");
+                var company = await context.Companies.FindAsync([companyRole.CompanyId, ct], cancellationToken: ct) ?? throw new InvalidRequestException($"Company with ID {companyRole.CompanyId} not found");
+                var role = await context.Roles.FindAsync([companyRole.RoleId, ct], cancellationToken: ct) ?? throw new InvalidRequestException($"Role with ID {companyRole.RoleId} not found");
 
-                // Verify role exists
-                var role = await context.Roles.FindAsync(companyRole.RoleId, ct) ?? throw new ArgumentException($"Role with ID {companyRole.RoleId} not found");
-                var userRole = new AuthUserRoleModel
+                var userRole = new UserRoleModel
                 {
                     UserId = user.Id,
                     CompanyId = companyRole.CompanyId,
@@ -67,20 +70,19 @@ public class UpdateUserHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        // Reload to get updated data
         var updatedUser = await context.AuthUsers
             .Include(u => u.UsersRoles)
-                .ThenInclude(ur => ur.RoleModel)
+                .ThenInclude(ur => ur.Role)
             .Include(u => u.UsersRoles)
-                .ThenInclude(ur => ur.CompanyModel)
+                .ThenInclude(ur => ur.Company)
             .FirstOrDefaultAsync(u => u.Id == user.Id, ct);
 
         var companiesRolesResponse = updatedUser!.UsersRoles.Select(ur =>
             new UserCompanyRoleResponse(
                 ur.CompanyId,
-                ur.CompanyModel.Name,
+                ur.Company.Name,
                 ur.RoleId,
-                ur.RoleModel.Name
+                ur.Role.Name
             )
         ).ToList();
 
