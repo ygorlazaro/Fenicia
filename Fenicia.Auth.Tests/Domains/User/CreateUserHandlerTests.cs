@@ -118,8 +118,8 @@ public class CreateUserHandlerTests
         };
         var role = new RoleModel { Name = "Admin" };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UserCompanyRoleCommand>
@@ -143,7 +143,7 @@ public class CreateUserHandlerTests
         }
 
         // Verify user role was saved to database
-        var userRole = await this.context.UserRoles
+        var userRole = await this.context.AuthUserRoles
             .FirstOrDefaultAsync(ur => ur.UserId == result.Id);
 
         Assert.That(userRole, Is.Not.Null);
@@ -163,7 +163,7 @@ public class CreateUserHandlerTests
         var name = this.faker.Person.FullName;
 
         var role = new RoleModel { Name = "Admin" };
-        this.context.Roles.Add(role);
+        this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UserCompanyRoleCommand>
@@ -194,7 +194,7 @@ public class CreateUserHandlerTests
             TimeZone = string.Empty,
             Cnpj =string.Empty
         };
-        this.context.Companies.Add(company);
+        this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UserCompanyRoleCommand>

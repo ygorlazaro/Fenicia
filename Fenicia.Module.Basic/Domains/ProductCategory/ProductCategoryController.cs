@@ -1,6 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Common;
+using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Product.GetByCategoryId;
 using Fenicia.Module.Basic.Domains.ProductCategory.Add;
 using Fenicia.Module.Basic.Domains.ProductCategory.Delete;
@@ -30,10 +31,13 @@ public class ProductCategoryController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductCategoryResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllProductCategoryResponse>>>> GetAsync(
-        [FromQuery] int page = 1, 
-        [FromQuery] int perPage = 10, 
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(page, perPage), ct);
 
         return Ok(productCategory);
@@ -43,8 +47,13 @@ public class ProductCategoryController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductCategoryByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProductCategoryByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetProductCategoryByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id), ct);
 
         return productCategory is null ? NotFound() : Ok(productCategory);
@@ -55,8 +64,13 @@ public class ProductCategoryController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProductCategoryResponse>> PostAsync([FromBody] AddProductCategoryCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddProductCategoryResponse>> PostAsync(
+        [FromBody] AddProductCategoryCommand command,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var productCategory = await addProductCategoryHandler.Handle(command, ct);
 
         return new CreatedResult(string.Empty, productCategory);
@@ -71,8 +85,11 @@ public class ProductCategoryController(
     public async Task<ActionResult<UpdateProductCategoryRecord>> PatchAsync(
         [FromBody] UpdateProductCategoryCommand command,
         [FromRoute] Guid id,
+        WideEventContext wide,
         CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var productCategory = await updateProductCategoryHandler.Handle(command with { Id = id }, ct);
 
         return productCategory is null ? NotFound() : Ok(productCategory);
@@ -81,8 +98,13 @@ public class ProductCategoryController(
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id), ct);
 
         return NoContent();
@@ -94,8 +116,11 @@ public class ProductCategoryController(
     public async Task<ActionResult<List<GetProductsByCategoryIdResponse>>> GetProductsByCategoryAsync(
         [FromRoute] Guid categoryId,
         [FromQuery] PaginationQuery query,
+        WideEventContext wide,
         CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var products = await getProductsByCategoryIdHandler.Handle(new GetProductsByCategoryIdQuery(categoryId, query.Page, query.PerPage), ct);
 
         return Ok(products);

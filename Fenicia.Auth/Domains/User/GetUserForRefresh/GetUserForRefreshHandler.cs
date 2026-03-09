@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,7 @@ public class GetUserForRefreshHandler(DefaultContext context)
 
         var user = await query.FirstOrDefaultAsync(ct);
 
-        return user ?? throw new UnauthorizedAccessException("User not found");
+        return user ?? throw new UnauthorizedAccessException(ExceptionMessages.UserNotFound);
 
     }
 }

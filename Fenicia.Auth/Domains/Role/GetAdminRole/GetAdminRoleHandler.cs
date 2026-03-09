@@ -8,7 +8,7 @@ public class GetAdminRoleHandler(DefaultContext context)
 {
     public virtual async Task<GetAdminRoleResponse?> Handle(CancellationToken ct)
     {
-        return await context.Roles.Where(role => role.Name == "Admin")
+        return await context.AuthRoles.Where(role => role.Name == "Admin")
             .Select(r => new GetAdminRoleResponse(r.Id, r.Name))
             .FirstOrDefaultAsync(ct);
     }

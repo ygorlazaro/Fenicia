@@ -2,6 +2,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
 
@@ -13,7 +14,7 @@ public class CreateCreditsForOrderHandler(DefaultContext context)
     {
         if (!query.Details.Any())
         {
-            throw new InvalidRequestException("Order details cannot be empty");
+            throw new InvalidRequestException(ExceptionMessages.OrderDetailsCannotBeEmpty);
         }
 
         var credits = query.Details.Select(d => new SubscriptionCreditModel
@@ -35,7 +36,7 @@ public class CreateCreditsForOrderHandler(DefaultContext context)
             Credits = credits
         };
 
-        context.Subscriptions.Add(subscription);
+        context.AuthSubscriptions.Add(subscription);
 
         await context.SaveChangesAsync(ct);
 

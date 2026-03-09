@@ -20,7 +20,7 @@ public static class UserQueries
             Guid companyId,
             CancellationToken ct)
         {
-            return await db.UserRoles.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId, ct);
+            return await db.AuthUserRoles.AnyAsync(ur => ur.UserId == userId && ur.CompanyId == companyId, ct);
         }
     }
 }

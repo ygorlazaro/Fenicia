@@ -4,6 +4,7 @@ using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.User.CreateNewUser;
 
@@ -22,12 +23,12 @@ public class CreateNewUserHandler(
 
         if (isExistingUser)
         {
-            throw new InvalidRequestException("User with this email already exists.");
+            throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
         if (isExistingCompany)
         {
-            throw new InvalidRequestException("Company with this CNPJ already exists.");
+            throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundWithCNPJ);
         }
 
         var hashedPassword = hashPasswordHandler.Handle(request.Password);
@@ -46,10 +47,10 @@ public class CreateNewUserHandler(
             TimeZone = request.Company.TimeZone
         };
 
-        context.Companies.Add(companyRequest);
+        context.AuthCompanies.Add(companyRequest);
 
         var adminRole = await getAdminRoleHandler.Handle(ct)
-                        ?? throw new InvalidRequestException("Admin role not found. Please ensure that the admin role exists in the database.");
+                        ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
         var userRole = new UserRoleModel
         {
             UserId = userRequest.Id,
@@ -57,7 +58,7 @@ public class CreateNewUserHandler(
             RoleId = adminRole.Id
         };
 
-        context.UserRoles.Add(userRole);
+        context.AuthUserRoles.Add(userRole);
 
         await context.SaveChangesAsync(ct);
 

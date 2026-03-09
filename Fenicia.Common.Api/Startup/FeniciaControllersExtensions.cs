@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 
 using Fenicia.Common.Data;
+using Fenicia.Common.Localization;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -25,7 +26,7 @@ public static class FeniciaControllersExtensions
                 var problemDetails = new ValidationProblemDetails(c.ModelState)
                 {
                     Type = "https://tools.ietf.org/html/rfc7807",
-                    Title = "Um ou mais erros de validação ocorreram.",
+                    Title = ExceptionMessages.InvalidRequest,
                     Status = StatusCodes.Status400BadRequest,
                     Instance = c.HttpContext.Request.Path
                 };

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Bogus;
 
 using Fenicia.Common;
+using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -106,7 +107,8 @@ public class CustomerControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -134,7 +136,7 @@ public class CustomerControllerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var customer1 = new CustomerModel
         {
@@ -188,7 +190,8 @@ public class CustomerControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -223,7 +226,7 @@ public class CustomerControllerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var customer = new CustomerModel
         {
@@ -253,7 +256,8 @@ public class CustomerControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testCustomerId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetByIdAsync(this.testCustomerId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -281,7 +285,8 @@ public class CustomerControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -309,7 +314,8 @@ public class CustomerControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -373,7 +379,8 @@ public class CustomerControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testCustomerId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PatchAsync(command, this.testCustomerId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -409,7 +416,8 @@ public class CustomerControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -439,7 +447,8 @@ public class CustomerControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testCustomerId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.DeleteAsync(this.testCustomerId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -458,7 +467,8 @@ public class CustomerControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

@@ -16,7 +16,7 @@ public class GetUserProfileHandler(DefaultContext context)
             return null;
         }
 
-        var userCompanies = await context.Companies
+        var userCompanies = await context.AuthCompanies
             .Where(c => c.UsersRoles.Any(u => u.Id == query.UserId))
             .Select(c => new UserCompanyResponse
             {
@@ -26,7 +26,7 @@ public class GetUserProfileHandler(DefaultContext context)
             })
             .ToListAsync(ct);
 
-        var subscriptions = await context.Subscriptions
+        var subscriptions = await context.AuthSubscriptions
             .Include(s => s.Credits)
                 .ThenInclude(c => c.Module)
             .Include(s => s.Company)

@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Fenicia.Common.Data.Models.Basic;
 
@@ -20,11 +19,9 @@ public class OrderDetailModel : BaseCompanyModel
     [Range(0.01, double.MaxValue)]
     public decimal Price { get; set; }
 
-    [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
     public OrderModel Order { get; set; } = null!;
 
-    [JsonIgnore]
     [ForeignKey(nameof(ProductId))]
     public ProductModel Product { get; set; } = null!;
 

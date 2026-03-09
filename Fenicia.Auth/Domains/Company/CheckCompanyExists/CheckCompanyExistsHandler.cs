@@ -8,7 +8,7 @@ public class CheckCompanyExistsHandler(DefaultContext context)
 {
     public virtual async Task<bool> Handle(CheckCompanyExistsQuery query, CancellationToken ct)
     {
-        var companies = context.Companies.Where(c => c.Cnpj == query.Cnpj);
+        var companies = context.AuthCompanies.Where(c => c.Cnpj == query.Cnpj);
 
         if (query.OnlyActive)
         {

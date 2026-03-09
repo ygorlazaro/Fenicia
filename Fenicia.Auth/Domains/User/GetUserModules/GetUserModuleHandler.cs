@@ -18,10 +18,10 @@ public class GetUserModuleHandler(DefaultContext context)
     {
         var now = DateTime.Now;
 
-        var query = from m in context.Modules
-                    join sc in context.SubscriptionCredits on m.Id equals sc.ModuleId
-                    join s in context.Subscriptions on sc.SubscriptionId equals s.Id
-                    join ur in context.UserRoles on s.CompanyId equals ur.CompanyId
+        var query = from m in context.AuthModules
+                    join sc in context.AuthSubscriptionCredits on m.Id equals sc.ModuleId
+                    join s in context.AuthSubscriptions on sc.SubscriptionId equals s.Id
+                    join ur in context.AuthUserRoles on s.CompanyId equals ur.CompanyId
                     where ur.UserId == userId
                           && s.CompanyId == companyId
                           && s.Status == SubscriptionStatus.Active

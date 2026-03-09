@@ -10,8 +10,8 @@ public class GetCompaniesByUserHandler(DefaultContext context)
         GetCompaniesByUserQuery request,
         CancellationToken ct)
     {
-        var query = from ur in context.UserRoles
-                    join c in context.Companies on ur.CompanyId equals c.Id
+        var query = from ur in context.AuthUserRoles
+                    join c in context.AuthCompanies on ur.CompanyId equals c.Id
                     where ur.UserId == request.UserId
                     let company = new CompanyResponse(c.Id, c.Name, c.Cnpj)
                     select new UserRoleResponse(c.Id, ur.Role.Name, company);

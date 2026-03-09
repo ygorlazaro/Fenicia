@@ -75,8 +75,8 @@ public class CheckUserExistsHandlerTests
     public async Task Handle_WhenEmailHasDifferentCase_ReturnsFalse()
     {
         // Arrange
-        const string email = "test@example.com";
-        const string upperCaseEmail = "TEST@EXAMPLE.COM";
+        var email = this.faker.Internet.Email();
+        var upperCaseEmail = email.ToUpper();
 
         var user = new UserModel
         {

@@ -2,6 +2,7 @@ using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,7 @@ public class CreateUserHandler(
         var userExists = await checkUserExistsHandler.Handle(request.Email, ct);
         if (userExists)
         {
-            throw new InvalidRequestException("This email already exists");
+            throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
         var hashedPassword = hashPasswordHandler.Handle(request.Password);
@@ -35,8 +36,8 @@ public class CreateUserHandler(
         {
             foreach (var companyRole in request.CompaniesRoles)
             {
-                var company = await context.Companies.FindAsync([companyRole.CompanyId, ct], ct) ?? throw new InvalidRequestException($"Company with ID {companyRole.CompanyId} not found");
-                var role = await context.Roles.FindAsync([companyRole.RoleId, ct], ct) ?? throw new InvalidRequestException($"Role with ID {companyRole.RoleId} not found");
+                var company = await context.AuthCompanies.FindAsync([companyRole.CompanyId, ct], ct) ?? throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundById(companyRole.CompanyId.ToString()));
+                var role = await context.AuthRoles.FindAsync([companyRole.RoleId, ct], ct) ?? throw new InvalidRequestException(ExceptionMessages.RoleNotFoundById(companyRole.RoleId.ToString()));
 
                 var userRole = new UserRoleModel
                 {
@@ -45,7 +46,7 @@ public class CreateUserHandler(
                     RoleId = companyRole.RoleId
                 };
 
-                context.UserRoles.Add(userRole);
+                context.AuthUserRoles.Add(userRole);
             }
         }
 

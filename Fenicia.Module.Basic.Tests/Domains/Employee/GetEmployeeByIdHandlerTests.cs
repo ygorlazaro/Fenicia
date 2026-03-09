@@ -55,7 +55,7 @@ public class GetEmployeeByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var employee = new EmployeeModel
         {
@@ -151,7 +151,7 @@ public class GetEmployeeByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var employee = new EmployeeModel
         {
@@ -210,7 +210,7 @@ public class GetEmployeeByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var employee1 = new EmployeeModel
         {
@@ -289,7 +289,7 @@ public class GetEmployeeByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var employee = new EmployeeModel
         {

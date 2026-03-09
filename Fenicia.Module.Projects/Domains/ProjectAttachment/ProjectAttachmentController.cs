@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Common.API;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.Add;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.Delete;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.GetAll;
@@ -26,8 +27,14 @@ public class ProjectAttachmentController(
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectAttachmentResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectAttachmentResponse>>> GetAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllProjectAttachmentResponse>>> GetAsync(
+        WideEventContext wide,
+        [FromQuery] int page = 1, 
+        [FromQuery] int perPage = 10,
+        CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var projectAttachments = await getAllProjectAttachmentHandler.Handle(new GetAllProjectAttachmentQuery(page, perPage), ct);
 
         return Ok(projectAttachments);
@@ -37,8 +44,13 @@ public class ProjectAttachmentController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProjectAttachmentByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectAttachmentByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetProjectAttachmentByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var projectAttachment = await getProjectAttachmentByIdHandler.Handle(new GetProjectAttachmentByIdQuery(id), ct);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
@@ -51,8 +63,13 @@ public class ProjectAttachmentController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectAttachmentResponse>> PostAsync([FromBody] AddProjectAttachmentCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddProjectAttachmentResponse>> PostAsync(
+        [FromBody] AddProjectAttachmentCommand command,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var projectAttachment = await addProjectAttachmentHandler.Handle(command, ct);
 
         return new CreatedResult(string.Empty, projectAttachment);
@@ -69,8 +86,11 @@ public class ProjectAttachmentController(
     public async Task<ActionResult<UpdateProjectAttachmentResponse>> PatchAsync(
         [FromBody] UpdateProjectAttachmentCommand command,
         [FromRoute] Guid id,
+        WideEventContext wide,
         CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var projectAttachment = await updateProjectAttachmentHandler.Handle(command with { Id = id }, ct);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
@@ -81,8 +101,13 @@ public class ProjectAttachmentController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         await deleteProjectAttachmentHandler.Handle(new DeleteProjectAttachmentCommand(id), ct);
 
         return NoContent();

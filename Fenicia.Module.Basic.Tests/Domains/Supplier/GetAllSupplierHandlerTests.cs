@@ -65,7 +65,7 @@ public class GetAllSupplierHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var supplier1 = new SupplierModel
         {
@@ -144,7 +144,7 @@ public class GetAllSupplierHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -196,7 +196,7 @@ public class GetAllSupplierHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         for (var i = 0; i < 5; i++)
         {
@@ -248,7 +248,7 @@ public class GetAllSupplierHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {

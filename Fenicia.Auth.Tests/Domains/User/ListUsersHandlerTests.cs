@@ -193,8 +193,8 @@ public class ListUsersHandlerTests
         };
         var role = new RoleModel { Name = "Admin" };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var userWithRole = new UserModel

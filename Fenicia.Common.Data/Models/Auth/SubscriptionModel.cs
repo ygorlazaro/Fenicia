@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 using Fenicia.Common.Enums.Auth;
 
@@ -23,14 +22,11 @@ public class SubscriptionModel : BaseModel
 
     public Guid? OrderId { get; set; }
 
-    [JsonIgnore]
     [ForeignKey(nameof(CompanyId))]
     public CompanyModel Company { get; set; } = null!;
 
-    [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
     public virtual OrderModel? Order { get; set; }
 
-    [JsonIgnore]
     public virtual List<SubscriptionCreditModel> Credits { get; set; } = null!;
 }

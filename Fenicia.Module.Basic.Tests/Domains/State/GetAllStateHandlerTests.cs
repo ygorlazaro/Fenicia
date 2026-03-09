@@ -68,7 +68,7 @@ public class GetAllStateHandlerTests
             Uf = "RJ"
         };
 
-        this.context.States.AddRange(state1, state2);
+        this.context.AuthStates.AddRange(state1, state2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllStateQuery();
@@ -98,7 +98,7 @@ public class GetAllStateHandlerTests
                 Name = $"{this.faker.Address.State()} {i}",
                 Uf = this.faker.Random.String2(2).ToUpper()
             };
-            this.context.States.Add(state);
+            this.context.AuthStates.Add(state);
         }
 
         await this.context.SaveChangesAsync(CancellationToken.None);
@@ -124,7 +124,7 @@ public class GetAllStateHandlerTests
             Uf = "MG"
         };
 
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllStateQuery();

@@ -16,6 +16,7 @@ public abstract class Program
             .AddFeniciaCors()
             .AddFeniciaAuthentication(configuration)
             .AddFeniciaControllers()
+            .AddFeniciaLocalization()
             .AddFeniciaDependencyInjection(() =>
             {
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
@@ -24,5 +25,8 @@ public abstract class Program
             .AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth", tenantId);
 
         builder.Start("/basic", "basic");
+
+        var app = builder.Build();
+        app.UseFeniciaLocalization();
     }
 }

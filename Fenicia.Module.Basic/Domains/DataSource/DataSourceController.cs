@@ -1,5 +1,7 @@
 using System.Net.Mime;
 
+using Fenicia.Common.API;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,8 +23,12 @@ public class DataSourceController(
     [HttpGet("position")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllPositionForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllPositionForDataSourceResponse>>> GetPositionsAsync(CancellationToken ct)
+    public async Task<ActionResult<List<GetAllPositionForDataSourceResponse>>> GetPositionsAsync(
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var positions = await getAllPositionForDataSourceHandler.Handle(ct);
 
         return Ok(positions);
@@ -31,8 +37,12 @@ public class DataSourceController(
     [HttpGet("productcategory")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductCategoryForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProductCategoryForDataSourceResponse>>> GetProductCategoriesAsync(CancellationToken ct)
+    public async Task<ActionResult<List<GetAllProductCategoryForDataSourceResponse>>> GetProductCategoriesAsync(
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var categories = await getAllProductCategoryForDataSourceHandler.Handle(ct);
 
         return Ok(categories);
@@ -41,8 +51,12 @@ public class DataSourceController(
     [HttpGet("supplier")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllSupplierForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllSupplierForDataSourceResponse>>> GetSuppliersAsync(CancellationToken ct)
+    public async Task<ActionResult<List<GetAllSupplierForDataSourceResponse>>> GetSuppliersAsync(
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var suppliers = await getAllSupplierForDataSourceHandler.Handle(ct);
 
         return Ok(suppliers);
@@ -51,8 +65,12 @@ public class DataSourceController(
     [HttpGet("customer")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllCustomerForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllCustomerForDataSourceResponse>>> GetCustomersAsync(CancellationToken ct)
+    public async Task<ActionResult<List<GetAllCustomerForDataSourceResponse>>> GetCustomersAsync(
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var customers = await getAllCustomerForDataSourceHandler.Handle(ct);
 
         return Ok(customers);
@@ -61,8 +79,12 @@ public class DataSourceController(
     [HttpGet("product")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProductForDataSourceResponse>>> GetProductsAsync(CancellationToken ct)
+    public async Task<ActionResult<List<GetAllProductForDataSourceResponse>>> GetProductsAsync(
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var products = await getAllProductForDataSourceHandler.Handle(ct);
 
         return Ok(products);
@@ -71,8 +93,12 @@ public class DataSourceController(
     [HttpGet("employee")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllEmployeeForDataSourceResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllEmployeeForDataSourceResponse>>> GetEmployeesAsync(CancellationToken ct)
+    public async Task<ActionResult<List<GetAllEmployeeForDataSourceResponse>>> GetEmployeesAsync(
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var employees = await getAllEmployeeForDataSourceHandler.Handle(ct);
 
         return Ok(employees);

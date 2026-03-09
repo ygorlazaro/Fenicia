@@ -1,6 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Common;
+using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Employee.Add;
 using Fenicia.Module.Basic.Domains.Employee.Delete;
 using Fenicia.Module.Basic.Domains.Employee.GetAll;
@@ -30,10 +31,13 @@ public class EmployeeController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllEmployeeResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllEmployeeResponse>>>> GetAsync(
-        [FromQuery] int page = 1, 
-        [FromQuery] int perPage = 10, 
+        WideEventContext wide,
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 10,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var employees = await getAllEmployeeHandler.Handle(new GetAllEmployeeQuery(page, perPage), ct);
 
         return Ok(employees);
@@ -43,8 +47,13 @@ public class EmployeeController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetEmployeeByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetEmployeeByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetEmployeeByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var employee = await getEmployeeByIdHandler.Handle(new GetEmployeeByIdQuery(id), ct);
 
         return employee is null ? NotFound() : Ok(employee);
@@ -55,8 +64,13 @@ public class EmployeeController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddEmployeeResponse>> PostAsync([FromBody] AddEmployeeCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddEmployeeResponse>> PostAsync(
+        [FromBody] AddEmployeeCommand command,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var employee = await addEmployeeHandler.Handle(command, ct);
 
         return new CreatedResult(string.Empty, employee);
@@ -71,8 +85,11 @@ public class EmployeeController(
     public async Task<ActionResult<UpdateEmployeeResponse>> PatchAsync(
         [FromBody] UpdateEmployeeCommand command,
         [FromRoute] Guid id,
+        WideEventContext wide,
         CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var employee = await updateEmployeeHandler.Handle(command with { Id = id }, ct);
 
         return employee is null ? NotFound() : Ok(employee);
@@ -81,8 +98,13 @@ public class EmployeeController(
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         await deleteEmployeeHandler.Handle(new DeleteEmployeeCommand(id), ct);
 
         return NoContent();
@@ -92,10 +114,13 @@ public class EmployeeController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EmployeePerformanceResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<EmployeePerformanceResponse>> GetPerformanceAsync(
+        WideEventContext wide,
         [FromQuery] int days = 90,
         [FromQuery] int topLimit = 10,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var performance = await getEmployeePerformanceHandler.Handle(new GetEmployeePerformanceQuery(days, topLimit), ct);
 
         return Ok(performance);

@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
@@ -30,6 +29,5 @@ public class AddressModel : BaseModel
     public string City { get; set; } = null!;
 
     [ForeignKey(nameof(StateId))]
-    [JsonIgnore]
     public virtual StateModel State { get; set; } = null!;
 }

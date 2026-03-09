@@ -8,7 +8,7 @@ public class GetAllStateHandler(DefaultContext context)
 {
     public async Task<List<GetAllStateResponse>> Handle(GetAllStateQuery query, CancellationToken ct)
     {
-        return await context.States
+        return await context.AuthStates
             .OrderBy(s => s.Uf)
             .Select(s => new GetAllStateResponse(s.Id, s.Name, s.Uf))
             .ToListAsync(ct);

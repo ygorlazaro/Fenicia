@@ -48,7 +48,7 @@ public class GetSupplierByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var supplier = new SupplierModel
         {
@@ -136,7 +136,7 @@ public class GetSupplierByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var supplier1 = new SupplierModel
         {
@@ -206,7 +206,7 @@ public class GetSupplierByIdHandlerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var supplier = new SupplierModel
         {

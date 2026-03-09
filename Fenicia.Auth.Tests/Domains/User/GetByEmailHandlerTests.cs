@@ -86,8 +86,8 @@ public class GetByEmailHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var email = "test@example.com";
-        var upperCaseEmail = "TEST@EXAMPLE.COM";
+        var email = this.faker.Internet.Email();
+        var upperCaseEmail = email.ToUpper();
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 

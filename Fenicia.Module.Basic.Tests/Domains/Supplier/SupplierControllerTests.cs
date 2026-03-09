@@ -4,6 +4,7 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Common;
+using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -106,7 +107,8 @@ public class SupplierControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -117,8 +119,11 @@ public class SupplierControllerTests
 
         var returnedSuppliers = okResult.Value as Pagination<List<GetAllSupplierResponse>>;
         Assert.That(returnedSuppliers, Is.Not.Null);
-        Assert.That(returnedSuppliers.Data, Is.Empty);
-        Assert.That(returnedSuppliers.Total, Is.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedSuppliers.Data, Is.Empty);
+            Assert.That(returnedSuppliers.Total, Is.EqualTo(0));
+        }
     }
 
     [Test]
@@ -131,7 +136,7 @@ public class SupplierControllerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var supplier1 = new SupplierModel
         {
@@ -187,7 +192,8 @@ public class SupplierControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -198,8 +204,11 @@ public class SupplierControllerTests
 
         var returnedSuppliers = okResult.Value as Pagination<List<GetAllSupplierResponse>>;
         Assert.That(returnedSuppliers, Is.Not.Null);
-        Assert.That(returnedSuppliers.Data, Has.Count.EqualTo(2));
-        Assert.That(returnedSuppliers.Total, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedSuppliers.Data, Has.Count.EqualTo(2));
+            Assert.That(returnedSuppliers.Total, Is.EqualTo(2));
+        }
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedSuppliers.Data[0].Name, Is.EqualTo(supplier1.Person.Name));
@@ -219,7 +228,7 @@ public class SupplierControllerTests
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.States.Add(state);
+        this.context.AuthStates.Add(state);
 
         var supplier = new SupplierModel
         {
@@ -250,7 +259,8 @@ public class SupplierControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testSupplierId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetByIdAsync(this.testSupplierId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -278,7 +288,8 @@ public class SupplierControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -307,7 +318,8 @@ public class SupplierControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -365,7 +377,8 @@ public class SupplierControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testSupplierId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PatchAsync(command, this.testSupplierId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -401,7 +414,8 @@ public class SupplierControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -432,7 +446,8 @@ public class SupplierControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testSupplierId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.DeleteAsync(this.testSupplierId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -450,7 +465,8 @@ public class SupplierControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

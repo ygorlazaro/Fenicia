@@ -30,6 +30,7 @@ public static class Program
             .AddFeniciaCors()
             .AddFeniciaAuthentication(configuration)
             .AddFeniciaControllers()
+            .AddFeniciaLocalization()
             .AddFeniciaDependencyInjection(() =>
             {
                 builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
@@ -43,5 +44,8 @@ public static class Program
 
 
         builder.Start();
+
+        var app = builder.Build();
+        app.UseFeniciaLocalization();
     }
 }

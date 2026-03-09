@@ -96,7 +96,7 @@ public class CreateNewUserHandlerTests
             Assert.That(user.Password, Is.Not.EqualTo(password), "Password should be hashed");
         }
 
-        var company = await this.context.Companies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
+        var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.That(company, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -224,7 +224,7 @@ public class CreateNewUserHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var userRole = await this.context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
+        var userRole = await this.context.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
         Assert.That(userRole, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -339,7 +339,7 @@ public class CreateNewUserHandlerTests
         await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var company = await this.context.Companies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
+        var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.That(company, Is.Not.Null);
         Assert.That(company!.IsActive, Is.True, "Company should be active by default");
     }
@@ -374,7 +374,7 @@ public class CreateNewUserHandlerTests
         await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var company = await this.context.Companies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
+        var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.That(company, Is.Not.Null);
         Assert.That(company!.Language, Is.EqualTo("pt-BR"), "Language should be pt-BR by default");
     }

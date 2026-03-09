@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
@@ -20,14 +19,11 @@ public class OrderDetailModel : BaseModel
     [Range(0.01, double.MaxValue)]
     public decimal Price { get; set; }
 
-    [JsonIgnore]
     [ForeignKey(nameof(OrderId))]
     public OrderModel Order { get; set; } = null!;
 
-    [JsonIgnore]
     [ForeignKey(nameof(ModuleId))]
     public ModuleModel Module { get; set; } = null!;
 
-    [JsonIgnore]
     public SubscriptionCreditModel? SubscriptionCredit { get; set; }
 }

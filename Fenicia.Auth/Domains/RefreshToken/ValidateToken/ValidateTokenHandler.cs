@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using StackExchange.Redis;
 
@@ -15,7 +16,7 @@ public class ValidateTokenHandler(IConnectionMultiplexer redis)
     {
         if (string.IsNullOrWhiteSpace(query.RefreshToken))
         {
-            throw new InvalidRequestException("Invalid refresh token");
+            throw new InvalidRequestException(ExceptionMessages.InvalidRefreshToken);
         }
 
         try

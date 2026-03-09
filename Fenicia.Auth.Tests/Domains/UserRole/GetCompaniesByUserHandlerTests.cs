@@ -62,9 +62,9 @@ public class GetCompaniesByUserHandlerTests
             RoleId = roleId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetCompaniesByUserQuery(userId);
@@ -127,9 +127,9 @@ public class GetCompaniesByUserHandlerTests
             RoleId = roleId
         };
 
-        this.context.Companies.Add(company);
-        this.context.Roles.Add(role);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthRoles.Add(role);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetCompaniesByUserQuery(userId);
@@ -163,7 +163,7 @@ public class GetCompaniesByUserHandlerTests
             Id = roleId,
             Name = "Admin"
         };
-        this.context.Roles.Add(role);
+        this.context.AuthRoles.Add(role);
 
         var companies = new List<CompanyModel>();
         var userRoles = new List<UserRoleModel>();
@@ -191,8 +191,8 @@ public class GetCompaniesByUserHandlerTests
             userRoles.Add(userRole);
         }
 
-        this.context.Companies.AddRange(companies);
-        this.context.UserRoles.AddRange(userRoles);
+        this.context.AuthCompanies.AddRange(companies);
+        this.context.AuthUserRoles.AddRange(userRoles);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetCompaniesByUserQuery(userId);
@@ -218,7 +218,7 @@ public class GetCompaniesByUserHandlerTests
             Id = roleId,
             Name = "Admin"
         };
-        this.context.Roles.Add(role);
+        this.context.AuthRoles.Add(role);
 
         var company1 = new CompanyModel
         {
@@ -240,7 +240,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.AddRange(company1, company2);
+        this.context.AuthCompanies.AddRange(company1, company2);
 
         var userRole1 = new UserRoleModel
         {
@@ -258,7 +258,7 @@ public class GetCompaniesByUserHandlerTests
             RoleId = roleId
         };
 
-        this.context.UserRoles.AddRange(userRole1, userRole2);
+        this.context.AuthUserRoles.AddRange(userRole1, userRole2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetCompaniesByUserQuery(userId1);
@@ -308,7 +308,7 @@ public class GetCompaniesByUserHandlerTests
             Name = "User"
         };
 
-        this.context.Roles.AddRange(adminRole, userRole);
+        this.context.AuthRoles.AddRange(adminRole, userRole);
 
         var company1 = new CompanyModel
         {
@@ -330,7 +330,7 @@ public class GetCompaniesByUserHandlerTests
             Language = "pt-BR"
         };
 
-        this.context.Companies.AddRange(company1, company2);
+        this.context.AuthCompanies.AddRange(company1, company2);
 
         var userRole1 = new UserRoleModel
         {
@@ -348,7 +348,7 @@ public class GetCompaniesByUserHandlerTests
             RoleId = userRole.Id
         };
 
-        this.context.UserRoles.AddRange(userRole1, userRole2);
+        this.context.AuthUserRoles.AddRange(userRole1, userRole2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetCompaniesByUserQuery(userId);

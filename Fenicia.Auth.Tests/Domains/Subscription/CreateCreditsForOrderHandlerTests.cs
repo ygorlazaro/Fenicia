@@ -56,7 +56,7 @@ public class CreateCreditsForOrderHandlerTests
         // Assert
         Assert.That(result, Is.Not.Null);
 
-        var subscription = await this.context.Subscriptions.Include(subscriptionModel => subscriptionModel.Credits).FirstOrDefaultAsync(s => s.Id == result.Id);
+        var subscription = await this.context.AuthSubscriptions.Include(subscriptionModel => subscriptionModel.Credits).FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -88,7 +88,7 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+        var subscription = await this.context.AuthSubscriptions.Include(s => s.Credits)
             .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
 
@@ -124,7 +124,7 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.FirstOrDefaultAsync(s => s.Id == result.Id);
+        var subscription = await this.context.AuthSubscriptions.FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -167,7 +167,7 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+        var subscription = await this.context.AuthSubscriptions.Include(s => s.Credits)
             .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
         Assert.That(subscription!.Credits, Has.Count.EqualTo(5), "Should create 5 credits");
@@ -222,7 +222,7 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+        var subscription = await this.context.AuthSubscriptions.Include(s => s.Credits)
             .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -248,7 +248,7 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+        var subscription = await this.context.AuthSubscriptions.Include(s => s.Credits)
             .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
         Assert.That(subscription!.Credits.All(c => c.IsActive), Is.True, "All credits should be active");
@@ -277,7 +277,7 @@ public class CreateCreditsForOrderHandlerTests
         // Assert
         Assert.That(result1.Id, Is.Not.EqualTo(result2.Id), "Should create separate subscriptions");
 
-        var subscriptions = await this.context.Subscriptions.ToListAsync();
+        var subscriptions = await this.context.AuthSubscriptions.ToListAsync();
         Assert.That(subscriptions, Has.Count.EqualTo(2), "Should have 2 subscriptions");
     }
 
@@ -303,7 +303,7 @@ public class CreateCreditsForOrderHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var subscription = await this.context.Subscriptions.Include(s => s.Credits)
+        var subscription = await this.context.AuthSubscriptions.Include(s => s.Credits)
             .FirstOrDefaultAsync(s => s.Id == result.Id);
         Assert.That(subscription, Is.Not.Null);
         Assert.That(subscription!.Credits, Has.Count.EqualTo(2), "Should create 2 credits even for same module");

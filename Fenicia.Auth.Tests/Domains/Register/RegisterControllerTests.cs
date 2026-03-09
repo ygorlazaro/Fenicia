@@ -210,12 +210,12 @@ public class RegisterControllerTests
         Assert.That(createdUser!.Password, Is.EqualTo("hashedPassword"));
 
         // Verify company was created
-        var createdCompany = await this.context.Companies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
+        var createdCompany = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
         Assert.That(createdCompany, Is.Not.Null);
         Assert.That(createdCompany!.Name, Is.EqualTo(companyQuery.Name));
 
         // Verify user role was created
-        var userRole = await this.context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
+        var userRole = await this.context.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
         Assert.That(userRole, Is.Not.Null);
         Assert.That(userRole!.RoleId, Is.EqualTo(adminRoleId));
     }

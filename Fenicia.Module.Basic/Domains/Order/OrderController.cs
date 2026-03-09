@@ -31,10 +31,13 @@ public class OrderController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllOrderResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllOrderResponse>>>> GetAsync(
+        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var orders = await getAllOrderHandler.Handle(new GetAllOrderQuery(page, perPage), ct);
 
         return Ok(orders);
@@ -44,8 +47,13 @@ public class OrderController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetOrderByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetOrderByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetOrderByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var order = await getOrderByIdHandler.Handle(new GetOrderByIdQuery(id), ct);
 
         return order is null ? NotFound() : Ok(order);
@@ -56,8 +64,13 @@ public class OrderController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<CreateOrderResponse>> PostAsync([FromBody] CreateOrderCommand command, CancellationToken ct)
+    public async Task<ActionResult<CreateOrderResponse>> PostAsync(
+        [FromBody] CreateOrderCommand command,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var userId = ClaimReader.UserId(this.User);
         var order = await createOrderHandler.Handle(command with { UserId = userId }, ct);
 
@@ -69,8 +82,13 @@ public class OrderController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         await deleteOrderHandler.Handle(new DeleteOrderCommand(id), ct);
 
         return NoContent();
@@ -79,8 +97,13 @@ public class OrderController(
     [HttpGet("{id:guid}/detail")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetOrderDetailsByOrderIdResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetOrderDetailsByOrderIdResponse>>> GetDetailsAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<List<GetOrderDetailsByOrderIdResponse>>> GetDetailsAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);
 
         return Ok(details);
@@ -90,10 +113,13 @@ public class OrderController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderAnalyticsResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<OrderAnalyticsResponse>> GetAnalyticsAsync(
+        WideEventContext wide,
         [FromQuery] int days = 90,
         [FromQuery] int topCustomersLimit = 10,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var analytics = await getOrderAnalyticsHandler.Handle(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
 
         return Ok(analytics);

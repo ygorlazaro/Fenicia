@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
@@ -93,7 +94,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetPositionsAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetPositionsAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -129,7 +131,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetPositionsAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetPositionsAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -171,7 +174,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetPositionsAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetPositionsAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -200,7 +204,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetProductCategoriesAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetProductCategoriesAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -236,7 +241,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetProductCategoriesAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetProductCategoriesAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -261,7 +267,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetSuppliersAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetSuppliersAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -312,7 +319,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetSuppliersAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetSuppliersAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -337,7 +345,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetCustomersAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetCustomersAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -388,7 +397,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetCustomersAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetCustomersAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -413,7 +423,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetProductsAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetProductsAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -460,7 +471,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetProductsAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetProductsAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -485,7 +497,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetEmployeesAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetEmployeesAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -545,7 +558,8 @@ public class DataSourceControllerTests
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetEmployeesAsync(ct);
+        var wide = new WideEventContext();
+        var result = await this.controller.GetEmployeesAsync(wide, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

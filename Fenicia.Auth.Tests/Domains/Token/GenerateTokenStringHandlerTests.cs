@@ -1,5 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 
+using Bogus;
+
 using Fenicia.Auth.Domains.Token.GenerateToken;
 using Fenicia.Auth.Domains.Token.GenerateTokenString;
 
@@ -23,10 +25,12 @@ public class GenerateTokenStringHandlerTests
             .Build();
 
         this.handler = new GenerateTokenStringHandler(this.configuration);
+        this.faker = new Faker();
     }
 
     private IConfiguration configuration = null!;
     private GenerateTokenStringHandler handler = null!;
+    private Faker faker = null!;
 
     [Test]
     public void Handle_WhenValidUser_ReturnsValidToken()
@@ -34,8 +38,8 @@ public class GenerateTokenStringHandlerTests
         // Arrange
         var user = new GenerateTokenResponse(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com");
+            this.faker.Person.FullName,
+            this.faker.Internet.Email());
 
         // Act
         var token = this.handler.Handle(user);
@@ -52,8 +56,8 @@ public class GenerateTokenStringHandlerTests
         var userId = Guid.NewGuid();
         var user = new GenerateTokenResponse(
             userId,
-            "Test User",
-            "test@example.com");
+            this.faker.Person.FullName,
+            this.faker.Internet.Email());
 
         // Act
         var token = this.handler.Handle(user);
@@ -69,8 +73,8 @@ public class GenerateTokenStringHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        const string email = "test@example.com";
-        const string name = "Test User";
+        var email = this.faker.Internet.Email();
+        var name = this.faker.Person.FullName;
         var user = new GenerateTokenResponse(userId, name, email);
 
         // Act
@@ -96,8 +100,8 @@ public class GenerateTokenStringHandlerTests
         // Arrange
         var userWithCompany = new GenerateTokenResponseWithCompany(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com",
+            this.faker.Person.FullName,
+            this.faker.Internet.Email(),
             Guid.NewGuid());
 
         // Act
@@ -117,8 +121,8 @@ public class GenerateTokenStringHandlerTests
         // Arrange
         var userWithRoles = new GenerateTokenResponseWithRoles(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com",
+            this.faker.Person.FullName,
+            this.faker.Internet.Email(),
             ["Admin", "User", "Manager"]);
 
         // Act
@@ -144,8 +148,8 @@ public class GenerateTokenStringHandlerTests
         // Arrange
         var userWithModules = new GenerateTokenResponseWithModules(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com",
+            this.faker.Person.FullName,
+            this.faker.Internet.Email(),
             ["erp", "basic", "social"]);
 
         // Act
@@ -171,8 +175,8 @@ public class GenerateTokenStringHandlerTests
         // Arrange
         var userWithGodRole = new GenerateTokenResponseWithRolesAndModules(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com",
+            this.faker.Person.FullName,
+            this.faker.Internet.Email(),
             ["God", "Admin"],
             ["basic", "social"]);
 
@@ -193,8 +197,8 @@ public class GenerateTokenStringHandlerTests
         // Arrange
         var userWithGodRole = new GenerateTokenResponseWithRolesAndModules(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com",
+            this.faker.Person.FullName,
+            this.faker.Internet.Email(),
             ["God"],
             ["erp", "basic"]);
 
@@ -216,8 +220,8 @@ public class GenerateTokenStringHandlerTests
         // Arrange
         var user = new GenerateTokenResponse(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com");
+            this.faker.Person.FullName,
+            this.faker.Internet.Email());
 
         // Act
         var token = this.handler.Handle(user);
@@ -240,8 +244,8 @@ public class GenerateTokenStringHandlerTests
         var badHandler = new GenerateTokenStringHandler(badConfig);
         var user = new GenerateTokenResponse(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com");
+            this.faker.Person.FullName,
+            this.faker.Internet.Email());
 
         // Act & Assert
         Assert.Throws<InvalidOperationException>(() => badHandler.Handle(user));
@@ -253,8 +257,8 @@ public class GenerateTokenStringHandlerTests
         // Arrange
         var userWithEmptyRoles = new GenerateTokenResponseWithRoles(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com",
+            this.faker.Person.FullName,
+            this.faker.Internet.Email(),
             ["Admin", "", null!, "User"]);
 
         // Act
@@ -274,8 +278,8 @@ public class GenerateTokenStringHandlerTests
         // Arrange
         var userWithEmptyModules = new GenerateTokenResponseWithModules(
             Guid.NewGuid(),
-            "Test User",
-            "test@example.com",
+            this.faker.Person.FullName,
+            this.faker.Internet.Email(),
             ["erp", "", null!, "basic"]);
 
         // Act

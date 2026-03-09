@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Fenicia.Common.Data.Models.Auth;
 
@@ -20,14 +19,11 @@ public class UserRoleModel : BaseModel
     public Guid CompanyId { get; set; }
 
     [ForeignKey(nameof(RoleId))]
-    [JsonIgnore]
     public RoleModel Role { get; set; } = null!;
 
     [ForeignKey(nameof(UserId))]
-    [JsonIgnore]
     public UserModel User { get; set; } = null!;
 
     [ForeignKey(nameof(CompanyId))]
-    [JsonIgnore]
     public CompanyModel Company { get; set; } = null!;
 }

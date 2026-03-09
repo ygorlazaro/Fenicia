@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Dashboard.GetFinancialDashboard;
 
 using Microsoft.AspNetCore.Authorization;
@@ -19,9 +20,12 @@ public class DashboardController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FinancialDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<FinancialDashboardResponse>> GetFinancialDashboardAsync(
+        WideEventContext wide,
         [FromQuery] int days = 90,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var dashboard = await getFinancialDashboardHandler.Handle(new GetFinancialDashboardQuery(days), ct);
 
         return Ok(dashboard);

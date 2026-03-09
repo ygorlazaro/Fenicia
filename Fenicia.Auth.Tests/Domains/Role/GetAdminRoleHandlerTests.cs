@@ -42,7 +42,7 @@ public class GetAdminRoleHandlerTests
             Name = "Admin"
         };
 
-        this.context.Roles.Add(adminRole);
+        this.context.AuthRoles.Add(adminRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -67,7 +67,7 @@ public class GetAdminRoleHandlerTests
             Name = "User"
         };
 
-        this.context.Roles.Add(role);
+        this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -101,7 +101,7 @@ public class GetAdminRoleHandlerTests
             Name = "Manager"
         };
 
-        this.context.Roles.AddRange(adminRole, userRole, managerRole);
+        this.context.AuthRoles.AddRange(adminRole, userRole, managerRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -126,7 +126,7 @@ public class GetAdminRoleHandlerTests
             Name = "admin"
         };
 
-        this.context.Roles.Add(role);
+        this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -156,7 +156,7 @@ public class GetAdminRoleHandlerTests
             Name = " Admin "
         };
 
-        this.context.Roles.Add(role);
+        this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -185,7 +185,7 @@ public class GetAdminRoleHandlerTests
             Name = "Admin"
         };
 
-        this.context.Roles.AddRange(adminRole1, adminRole2);
+        this.context.AuthRoles.AddRange(adminRole1, adminRole2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act

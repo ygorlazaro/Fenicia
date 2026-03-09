@@ -1,21 +1,12 @@
 using System.Reflection;
 
-using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Common.Data.Models.ProjectModels;
-using Fenicia.Common.Data.Models.SocialNetworkModels;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-using OrderDetailModel = Fenicia.Common.Data.Models.Basic.OrderDetailModel;
-using OrderModel = Fenicia.Common.Data.Models.Basic.OrderModel;
-
 namespace Fenicia.Common.Data.Contexts;
 
-public class DefaultContext : DbContext
+public partial class DefaultContext: DbContext
 {
-
     private readonly ICompanyContext companyContext;
 
     public Guid? CurrentCompanyId => this.companyContext.CompanyId;
@@ -29,70 +20,6 @@ public class DefaultContext : DbContext
     {
         this.companyContext = new CompanyContext(new HttpContextAccessor());
     }
-
-    public DbSet<RoleModel> Roles { get; set; } = null!;
-
-    public DbSet<UserModel> AuthUsers { get; set; } = null!;
-
-    public DbSet<UserRoleModel> UserRoles { get; set; } = null!;
-
-    public DbSet<CompanyModel> Companies { get; set; } = null!;
-
-    public DbSet<ModuleModel> Modules { get; set; } = null!;
-
-    public DbSet<Models.Auth.OrderModel> Orders { get; set; } = null!;
-
-    public DbSet<Models.Auth.OrderDetailModel> OrderDetails { get; set; } = null!;
-
-    public DbSet<SubscriptionModel> Subscriptions { get; set; } = null!;
-
-    public DbSet<SubscriptionCreditModel> SubscriptionCredits { get; set; } = null!;
-
-    public DbSet<AddressModel> Addresses { get; set; } = null!;
-
-    public DbSet<StateModel> States { get; set; } = null!;
-
-    public DbSet<ForgotPasswordModel> ForgottenPasswords { get; set; } = null!;
-
-    public DbSet<SubmoduleModel> Submodules { get; set; } = null!;
-
-    public DbSet<CustomerModel> BasicCustomers { get; set; }
-
-    public DbSet<EmployeeModel> BasicEmployees { get; set; }
-
-    public DbSet<PositionModel> BasicPositions { get; set; }
-
-    public DbSet<ProductCategoryModel> BasicProductCategories { get; set; }
-
-    public DbSet<ProductModel> BasicProducts { get; set; }
-
-    public DbSet<StockMovementModel> BasicStockMovements { get; set; }
-
-    public DbSet<SupplierModel> BasicSuppliers { get; set; }
-
-    public DbSet<OrderModel> BasicOrders { get; set; }
-
-    public DbSet<OrderDetailModel> BasicOrderDetails { get; set; }
-
-    public DbSet<PersonModel> BasicPeople { get; set; }
-
-    public DbSet<FeedModel> SNFeeds { get; set; }
-
-    public DbSet<FollowerModel> SNFollowers { get; set; }
-
-    public DbSet<ProjectModel> Projects { get; set; }
-
-    public DbSet<ProjectStatusModel> ProjectStatuses { get; set; }
-
-    public DbSet<ProjectTaskModel> ProjectTasks { get; set; }
-
-    public DbSet<ProjectSubtaskModel> ProjectSubtasks { get; set; }
-
-    public DbSet<ProjectCommentModel> ProjectComments { get; set; }
-
-    public DbSet<AttachmentModel> ProjectAttachments { get; set; }
-
-    public DbSet<TaskAssigneeModel> ProjectTaskAssignees { get; set; }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -145,16 +72,16 @@ public class DefaultContext : DbContext
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
         ApplyFilters(modelBuilder);
 
-        modelBuilder.Entity<CustomerModel>()
+        modelBuilder.Entity<Models.Basic.CustomerModel>()
             .HasOne(c => c.Person)
             .WithOne(p => p.Customer)
-            .HasForeignKey<CustomerModel>(c => c.PersonId)
+            .HasForeignKey<Models.Basic.CustomerModel>(c => c.PersonId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<EmployeeModel>()
+        modelBuilder.Entity<Models.Basic.EmployeeModel>()
             .HasOne(e => e.Person)
             .WithOne(p => p.Employee)
-            .HasForeignKey<EmployeeModel>(e => e.PersonId)
+            .HasForeignKey<Models.Basic.EmployeeModel>(e => e.PersonId)
             .OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);

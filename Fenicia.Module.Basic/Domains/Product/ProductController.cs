@@ -1,6 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Common;
+using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Product.Add;
 using Fenicia.Module.Basic.Domains.Product.Delete;
 using Fenicia.Module.Basic.Domains.Product.GetAll;
@@ -30,10 +31,13 @@ public class ProductController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Pagination<List<GetAllProductResponse>>>> GetAsync(
+        WideEventContext wide,
         [FromQuery] int page = 1,
         [FromQuery] int perPage = 10,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var products = await getAllProductHandler.Handle(new GetAllProductQuery(page, perPage), ct);
 
         return Ok(products);
@@ -43,8 +47,13 @@ public class ProductController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProductByIdResponse>> GetByIdAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult<GetProductByIdResponse>> GetByIdAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var product = await getProductByIdHandler.Handle(new GetProductByIdQuery(id), ct);
 
         return product is null ? NotFound() : Ok(product);
@@ -55,8 +64,13 @@ public class ProductController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProductResponse>> PostAsync([FromBody] AddProductCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddProductResponse>> PostAsync(
+        [FromBody] AddProductCommand command,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var product = await addProductHandler.Handle(command, ct);
 
         return new CreatedResult(string.Empty, product);
@@ -71,8 +85,11 @@ public class ProductController(
     public async Task<ActionResult<UpdateProductResponse>> PatchAsync(
         [FromBody] UpdateProductCommand command,
         [FromRoute] Guid id,
+        WideEventContext wide,
         CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var product = await updateProductHandler.Handle(command with { Id = id }, ct);
 
         return product is null ? NotFound() : Ok(product);
@@ -81,8 +98,13 @@ public class ProductController(
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync(
+        [FromRoute] Guid id,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         await deleteProductHandler.Handle(new DeleteProductCommand(id), ct);
 
         return NoContent();
@@ -92,10 +114,13 @@ public class ProductController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductPerformanceResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<ProductPerformanceResponse>> GetPerformanceAsync(
+        WideEventContext wide,
         [FromQuery] int days = 90,
         [FromQuery] int topLimit = 10,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var performance = await getProductPerformanceHandler.Handle(new GetProductPerformanceQuery(days, topLimit), ct);
 
         return Ok(performance);

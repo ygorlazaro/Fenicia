@@ -1,5 +1,6 @@
 using System.Net.Mime;
 
+using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.StockMovement.Add;
 using Fenicia.Module.Basic.Domains.StockMovement.GetMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.GetStockMovementDashboard;
@@ -24,8 +25,13 @@ public class StockMovementController(
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetStockMovementResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetStockMovementResponse>>> GetAsync([FromQuery] StockMovementQuery query, CancellationToken ct)
+    public async Task<ActionResult<List<GetStockMovementResponse>>> GetAsync(
+        [FromQuery] StockMovementQuery query,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var stockMovement =
             await getStockMovementHandler.Handle(new GetStockMovementQuery(query.StartDate, query.EndDate, query.Page, query.PerPage), ct);
 
@@ -37,8 +43,13 @@ public class StockMovementController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddStockMovementResponse>> PostAsync([FromBody] AddStockMovementCommand command, CancellationToken ct)
+    public async Task<ActionResult<AddStockMovementResponse>> PostAsync(
+        [FromBody] AddStockMovementCommand command,
+        WideEventContext wide,
+        CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var stockMovement = await addStockMovementHandler.Handle(command, ct);
 
         return new CreatedResult(string.Empty, stockMovement);
@@ -55,8 +66,11 @@ public class StockMovementController(
     public async Task<ActionResult<UpdateStockMovementResponse>> PatchAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateStockMovementCommand command,
+        WideEventContext wide,
         CancellationToken ct)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var stockMovement = await updateStockMovementHandler.Handle(command with { Id = id }, ct);
 
         return stockMovement is null ? NotFound() : new CreatedResult(string.Empty, stockMovement);
@@ -66,10 +80,13 @@ public class StockMovementController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StockMovementDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<StockMovementDashboardResponse>> GetDashboardAsync(
+        WideEventContext wide,
         [FromQuery] int days = 30,
         [FromQuery] int topLimit = 10,
         CancellationToken ct = default)
     {
+        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        
         var dashboard = await getStockMovementDashboardHandler.Handle(new GetStockMovementDashboardQuery(days, topLimit), ct);
 
         return Ok(dashboard);

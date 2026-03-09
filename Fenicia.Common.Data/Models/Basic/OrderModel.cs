@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 using Fenicia.Common.Enums.Auth;
 
@@ -28,11 +27,9 @@ public class OrderModel : BaseCompanyModel
     [EnumDataType(typeof(OrderStatus))]
     public OrderStatus Status { get; set; }
 
-    [JsonIgnore]
     public List<OrderDetailModel> Details { get; set; } = null!;
 
     [ForeignKey(nameof(CustomerId))]
-    [JsonIgnore]
     public CustomerModel Customer { get; set; } = null!;
 
     public Guid? EmployeeId { get; set; }

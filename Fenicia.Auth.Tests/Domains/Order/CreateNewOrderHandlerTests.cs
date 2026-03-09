@@ -106,9 +106,9 @@ public class CreateNewOrderHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
-        this.context.Modules.AddRange(module1, module2, moduleBasic);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
+        this.context.AuthModules.AddRange(module1, module2, moduleBasic);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
@@ -126,7 +126,7 @@ public class CreateNewOrderHandlerTests
         // Assert
         Assert.That(result, Is.Not.Null);
 
-        var order = await this.context.Orders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await this.context.AuthOrders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.That(order, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -191,8 +191,8 @@ public class CreateNewOrderHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -239,8 +239,8 @@ public class CreateNewOrderHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -298,9 +298,9 @@ public class CreateNewOrderHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
-        this.context.Modules.Add(basicModule);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
+        this.context.AuthModules.Add(basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
@@ -316,7 +316,7 @@ public class CreateNewOrderHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var order = await this.context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await this.context.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.That(order, Is.Not.Null);
         Assert.That(order!.Details, Has.Count.EqualTo(1), "Should only have 1 detail (Basic module)");
     }
@@ -374,9 +374,9 @@ public class CreateNewOrderHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
-        this.context.Modules.AddRange(accountingModule, basicModule);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
+        this.context.AuthModules.AddRange(accountingModule, basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
@@ -392,7 +392,7 @@ public class CreateNewOrderHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var order = await this.context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await this.context.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.That(order, Is.Not.Null);
         Assert.That(order!.Details, Has.Count.EqualTo(2), "Should have 2 details (Accounting + Basic)");
     }
@@ -441,9 +441,9 @@ public class CreateNewOrderHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
-        this.context.Modules.Add(accountingModule);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
+        this.context.AuthModules.Add(accountingModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
@@ -509,10 +509,10 @@ public class CreateNewOrderHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
-        this.context.Modules.Add(module1);
-        this.context.Modules.Add(moduleBasic);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
+        this.context.AuthModules.Add(module1);
+        this.context.AuthModules.Add(moduleBasic);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
@@ -586,9 +586,9 @@ public class CreateNewOrderHandlerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.Companies.Add(company);
-        this.context.UserRoles.Add(userRole);
-        this.context.Modules.AddRange(module1, basicModule);
+        this.context.AuthCompanies.Add(company);
+        this.context.AuthUserRoles.Add(userRole);
+        this.context.AuthModules.AddRange(module1, basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
@@ -604,7 +604,7 @@ public class CreateNewOrderHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var order = await this.context.Orders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await this.context.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.That(order, Is.Not.Null);
         Assert.That(order!.Details, Has.Count.EqualTo(2), "Should have 2 details (deduplicated module + Basic)");
     }

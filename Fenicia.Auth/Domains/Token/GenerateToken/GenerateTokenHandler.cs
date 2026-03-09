@@ -3,6 +3,7 @@ using Fenicia.Auth.Domains.LoginAttempt.LoginAttempt;
 using Fenicia.Auth.Domains.Security.VerifyPassword;
 using Fenicia.Auth.Domains.User.GetByEmail;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.Token.GenerateToken;
 
@@ -16,19 +17,19 @@ public class GenerateTokenHandler(
     {
         if (string.IsNullOrWhiteSpace(query.Password))
         {
-            throw new InvalidRequestException(nameof(query.Password));
+            throw new InvalidRequestException(ExceptionMessages.PasswordCannotBeNullOrEmpty);
         }
 
         if (string.IsNullOrWhiteSpace(query.Email))
         {
-            throw new InvalidRequestException(nameof(query.Email));
+            throw new InvalidRequestException(ExceptionMessages.InvalidRequest);
         }
 
         var attempts = loginAttemptHandler.Handle(query.Email);
 
         if (attempts >= 5)
         {
-            throw new PermissionDeniedException("Too many login attempts. Please try again later.");
+            throw new PermissionDeniedException(ExceptionMessages.TooManyLoginAttempts);
         }
 
         var user = await getByEmailHandler.Handle(query.Email, ct);
@@ -38,7 +39,7 @@ public class GenerateTokenHandler(
             await incrementAttemptsHandler.Handle(query.Email);
             await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
 
-            throw new PermissionDeniedException("Invalid username or password.");
+            throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
         }
 
         var isValidPassword = verifyPasswordHandler.Handle(query.Password, user.Password);
@@ -53,6 +54,6 @@ public class GenerateTokenHandler(
         await incrementAttemptsHandler.Handle(query.Email);
         await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
 
-        throw new PermissionDeniedException("Invalid username or password.");
+        throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
     }
 }

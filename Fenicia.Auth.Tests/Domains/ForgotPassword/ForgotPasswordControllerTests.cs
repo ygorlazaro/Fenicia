@@ -97,7 +97,7 @@ public class ForgotPasswordControllerTests
 
         // Verify forgot password record was created
         var forgotPasswordRecord =
-            await this.context.ForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, ct);
+            await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, ct);
         Assert.That(forgotPasswordRecord, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -183,7 +183,7 @@ public class ForgotPasswordControllerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.ForgottenPasswords.Add(forgotPassword);
+        this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.mockHashPasswordHandler
@@ -216,7 +216,7 @@ public class ForgotPasswordControllerTests
 
         // Verify forgot password record was deactivated
         var updatedForgotPassword =
-            await this.context.ForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id, ct);
+            await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id, ct);
         Assert.That(updatedForgotPassword, Is.Not.Null);
         Assert.That(updatedForgotPassword!.IsActive, Is.False);
     }
@@ -299,7 +299,7 @@ public class ForgotPasswordControllerTests
         };
 
         this.context.AuthUsers.Add(user);
-        this.context.ForgottenPasswords.Add(forgotPassword);
+        this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.mockHashPasswordHandler
