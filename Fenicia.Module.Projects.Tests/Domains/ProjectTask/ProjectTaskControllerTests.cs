@@ -4,6 +4,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectTask;
 using Fenicia.Module.Projects.Domains.ProjectTask.Add;
 using Fenicia.Module.Projects.Domains.ProjectTask.Delete;
@@ -95,10 +96,10 @@ public class ProjectTaskControllerTests
         // Arrange
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -116,30 +117,30 @@ public class ProjectTaskControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectTask1 = new Common.Data.Models.ProjectTaskModel
+        var projectTask1 = new ProjectTaskModel
         {
             Id = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
             CreatedBy = Guid.NewGuid()
         };
 
-        var projectTask2 = new Common.Data.Models.ProjectTaskModel
+        var projectTask2 = new ProjectTaskModel
         {
             Id = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.High,
-            Type = Common.Enums.Project.TaskType.Bug,
+            Priority = Common.Enums.Project.EnumTaskPriority.High,
+            Type = Common.Enums.Project.EnumTaskType.Bug,
             Order = 2,
             EstimatePoints = 8,
             DueDate = DateTime.UtcNow.AddDays(14),
@@ -151,10 +152,10 @@ public class ProjectTaskControllerTests
 
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -172,15 +173,15 @@ public class ProjectTaskControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectTask = new Common.Data.Models.ProjectTaskModel
+        var projectTask = new ProjectTaskModel
         {
             Id = this.testProjectTaskId,
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
@@ -190,10 +191,10 @@ public class ProjectTaskControllerTests
         this.context.ProjectTasks.Add(projectTask);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testProjectTaskId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testProjectTaskId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -216,10 +217,10 @@ public class ProjectTaskControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -243,10 +244,10 @@ public class ProjectTaskControllerTests
             DateTime.UtcNow.AddDays(7),
             Guid.NewGuid());
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -269,15 +270,15 @@ public class ProjectTaskControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectTask = new Common.Data.Models.ProjectTaskModel
+        var projectTask = new ProjectTaskModel
         {
             Id = this.testProjectTaskId,
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
@@ -300,10 +301,10 @@ public class ProjectTaskControllerTests
             projectTask.DueDate,
             projectTask.CreatedBy);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testProjectTaskId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testProjectTaskId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -335,10 +336,10 @@ public class ProjectTaskControllerTests
             DateTime.UtcNow.AddDays(7),
             Guid.NewGuid());
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -349,15 +350,15 @@ public class ProjectTaskControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectTask = new Common.Data.Models.ProjectTaskModel
+        var projectTask = new ProjectTaskModel
         {
             Id = this.testProjectTaskId,
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
@@ -367,16 +368,16 @@ public class ProjectTaskControllerTests
         this.context.ProjectTasks.Add(projectTask);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testProjectTaskId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testProjectTaskId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify project task was deleted
-        var deletedTask = await this.context.ProjectTasks.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskId && x.Deleted == null, cancellationToken);
+        var deletedTask = await this.context.ProjectTasks.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskId && x.Deleted == null, ct);
         Assert.That(deletedTask, Is.Null);
     }
 
@@ -385,10 +386,10 @@ public class ProjectTaskControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

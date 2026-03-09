@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -37,11 +37,11 @@ public class UpdateProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category1 = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        var category2 = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
+        var category1 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category2 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
         this.context.BasicProductCategories.AddRange(category1, category2);
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = productId,
             Name = "Old Product",
@@ -60,7 +60,8 @@ public class UpdateProductHandlerTests
             15.00m,
             25.00m,
             50,
-            category2.Id);
+            category2.Id,
+            null);
 
         // Act
         var result = await this.handler.Handle(command, CancellationToken.None);
@@ -87,7 +88,8 @@ public class UpdateProductHandlerTests
             15.00m,
             25.00m,
             50,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null);
 
         // Act
         var result = await this.handler.Handle(command, CancellationToken.None);
@@ -106,7 +108,8 @@ public class UpdateProductHandlerTests
             15.00m,
             25.00m,
             50,
-            Guid.NewGuid());
+            Guid.NewGuid(),
+            null);
 
         // Act
         var result = await this.handler.Handle(command, CancellationToken.None);
@@ -120,10 +123,10 @@ public class UpdateProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = productId,
             Name = "Old Product",
@@ -142,7 +145,8 @@ public class UpdateProductHandlerTests
             15.00m,
             25.00m,
             50,
-            category.Id);
+            category.Id,
+            null);
 
         // Act
         await this.handler.Handle(command, CancellationToken.None);

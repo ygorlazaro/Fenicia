@@ -13,8 +13,8 @@ public class GetOrderAnalyticsHandler(DefaultContext context)
         var endDate = DateTime.UtcNow;
 
         var orders = await context.BasicOrders
-            .Include(o => o.CustomerModel)
-            .ThenInclude(c => c.PersonModel)
+            .Include(o => o.Customer)
+            .ThenInclude(c => c.Person)
             .Include(o => o.Details)
             .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate)
             .ToListAsync(ct);
@@ -43,7 +43,7 @@ public class GetOrderAnalyticsHandler(DefaultContext context)
 
         // 3. Top Customers
         var topCustomers = orders
-            .GroupBy(o => new { o.CustomerId, CustomerName = o.CustomerModel.PersonModel.Name })
+            .GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name })
             .Select(g => new TopCustomerResponse(
                 g.Key.CustomerId,
                 g.Key.CustomerName,
@@ -70,7 +70,7 @@ public class GetOrderAnalyticsHandler(DefaultContext context)
             .Where(o => o.Status == OrderStatus.Cancelled)
             .Select(o => new CancelledOrderResponse(
                 o.Id,
-                o.CustomerModel.PersonModel.Name,
+                o.Customer.Person.Name,
                 o.TotalAmount,
                 o.SaleDate,
                 o.Details.Sum(d => (int)d.Quantity),

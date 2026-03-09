@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectTask.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -55,30 +56,30 @@ public class GetAllProjectTaskHandlerTests
         // Arrange
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
-        var task1 = new Common.Data.Models.ProjectTaskModel
+        var task1 = new ProjectTaskModel
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.High,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.High,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
             CreatedBy = Guid.NewGuid()
         };
 
-        var task2 = new Common.Data.Models.ProjectTaskModel
+        var task2 = new ProjectTaskModel
         {
             Id = Guid.NewGuid(),
             ProjectId = projectId,
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Bug,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Bug,
             Order = 2,
             EstimatePoints = 3,
             DueDate = null,
@@ -111,15 +112,15 @@ public class GetAllProjectTaskHandlerTests
         var statusId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var task = new Common.Data.Models.ProjectTaskModel
+            var task = new ProjectTaskModel
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
                 StatusId = statusId,
                 Title = $"{this.faker.Lorem.Sentence(5)} {i}",
                 Description = this.faker.Lorem.Paragraph(),
-                Priority = Common.Enums.Project.TaskPriority.Medium,
-                Type = Common.Enums.Project.TaskType.Task,
+                Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+                Type = Common.Enums.Project.EnumTaskType.Task,
                 Order = i,
                 EstimatePoints = this.faker.Random.Number(1, 10),
                 DueDate = DateTime.UtcNow.AddDays(i),
@@ -148,15 +149,15 @@ public class GetAllProjectTaskHandlerTests
         var statusId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
         {
-            var task = new Common.Data.Models.ProjectTaskModel
+            var task = new ProjectTaskModel
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
                 StatusId = statusId,
                 Title = $"{this.faker.Lorem.Sentence(5)} {i}",
                 Description = this.faker.Lorem.Paragraph(),
-                Priority = Common.Enums.Project.TaskPriority.Medium,
-                Type = Common.Enums.Project.TaskType.Task,
+                Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+                Type = Common.Enums.Project.EnumTaskType.Task,
                 Order = i,
                 EstimatePoints = 5,
                 DueDate = null,
@@ -185,15 +186,15 @@ public class GetAllProjectTaskHandlerTests
         var statusId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var task = new Common.Data.Models.ProjectTaskModel
+            var task = new ProjectTaskModel
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
                 StatusId = statusId,
                 Title = $"{this.faker.Lorem.Sentence(5)} {i}",
                 Description = this.faker.Lorem.Paragraph(),
-                Priority = Common.Enums.Project.TaskPriority.Medium,
-                Type = Common.Enums.Project.TaskType.Task,
+                Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+                Type = Common.Enums.Project.EnumTaskType.Task,
                 Order = i,
                 EstimatePoints = 5,
                 DueDate = null,

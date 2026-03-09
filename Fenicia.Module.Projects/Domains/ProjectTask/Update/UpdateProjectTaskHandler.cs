@@ -20,8 +20,8 @@ public class UpdateProjectTaskHandler(DefaultContext context)
         projectTask.StatusId = command.StatusId;
         projectTask.Title = command.Title;
         projectTask.Description = command.Description;
-        projectTask.Priority = Enum.Parse<TaskPriority>(command.Priority, true);
-        projectTask.Type = Enum.Parse<TaskType>(command.Type, true);
+        projectTask.Priority = Enum.Parse<EnumTaskPriority>(command.Priority, true);
+        projectTask.Type = Enum.Parse<EnumTaskType>(command.Type, true);
         projectTask.Order = command.Order;
         projectTask.EstimatePoints = command.EstimatePoints;
         projectTask.DueDate = command.DueDate;

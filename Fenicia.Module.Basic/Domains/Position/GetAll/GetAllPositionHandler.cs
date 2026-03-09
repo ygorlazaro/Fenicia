@@ -10,7 +10,7 @@ public class GetAllPositionHandler(DefaultContext context)
     public async Task<Pagination<List<GetAllPositionResponse>>> Handle(GetAllPositionQuery query, CancellationToken ct)
     {
         var total = await context.BasicPositions.CountAsync(ct);
-        
+    
         var positions = await context.BasicPositions
             .Select(p => new GetAllPositionResponse(p.Id, p.Name))
             .Skip((query.Page - 1) * query.PerPage)

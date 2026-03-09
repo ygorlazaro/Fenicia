@@ -2,7 +2,8 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -47,34 +48,34 @@ public class GetAllEmployeeHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
     }
 
     [Test]
     public async Task Handle_WithEmployees_ReturnsAllEmployees()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var employee1 = new BasicEmployeeModel
+        var employee1 = new EmployeeModel
         {
             Id = Guid.NewGuid(),
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -84,18 +85,18 @@ public class GetAllEmployeeHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
         };
 
-        var employee2 = new BasicEmployeeModel
+        var employee2 = new EmployeeModel
         {
             Id = Guid.NewGuid(),
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -105,7 +106,7 @@ public class GetAllEmployeeHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -121,20 +122,20 @@ public class GetAllEmployeeHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result.Data, Has.Count.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result[0].PersonId, Is.EqualTo(employee1.PersonModel.Id));
-            Assert.That(result[0].Name, Is.EqualTo(employee1.PersonModel.Name));
-            Assert.That(result[0].Email, Is.EqualTo(employee1.PersonModel.Email));
-            Assert.That(result[0].PositionName, Is.EqualTo(position.Name));
-            Assert.That(result[0].StateName, Is.EqualTo(state.Name));
+            Assert.That(result.Data[0].PersonId, Is.EqualTo(employee1.Person.Id));
+            Assert.That(result.Data[0].Name, Is.EqualTo(employee1.Person.Name));
+            Assert.That(result.Data[0].Email, Is.EqualTo(employee1.Person.Email));
+            Assert.That(result.Data[0].PositionName, Is.EqualTo(position.Name));
+            Assert.That(result.Data[0].StateName, Is.EqualTo(state.Name));
 
-            Assert.That(result[1].PersonId, Is.EqualTo(employee2.PersonModel.Id));
-            Assert.That(result[1].Name, Is.EqualTo(employee2.PersonModel.Name));
-            Assert.That(result[1].Email, Is.EqualTo(employee2.PersonModel.Email));
-            Assert.That(result[1].PositionName, Is.EqualTo(position.Name));
-            Assert.That(result[1].StateName, Is.EqualTo(state.Name));
+            Assert.That(result.Data[1].PersonId, Is.EqualTo(employee2.Person.Id));
+            Assert.That(result.Data[1].Name, Is.EqualTo(employee2.Person.Name));
+            Assert.That(result.Data[1].Email, Is.EqualTo(employee2.Person.Email));
+            Assert.That(result.Data[1].PositionName, Is.EqualTo(position.Name));
+            Assert.That(result.Data[1].StateName, Is.EqualTo(state.Name));
         }
     }
 
@@ -142,29 +143,29 @@ public class GetAllEmployeeHandlerTests
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
-            var employee = new BasicEmployeeModel
+            var employee = new EmployeeModel
             {
                 Id = Guid.NewGuid(),
                 PositionId = position.Id,
                 PersonId = Guid.NewGuid(),
-                PersonModel = new BasicPersonModel
+                Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -174,7 +175,7 @@ public class GetAllEmployeeHandlerTests
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
                     StateId = state.Id,
-                    StateModel = state,
+                    State = state,
                     City = this.faker.Address.City(),
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
@@ -191,36 +192,36 @@ public class GetAllEmployeeHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.That(result.Data, Has.Count.EqualTo(10));
     }
 
     [Test]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
         for (var i = 0; i < 5; i++)
         {
-            var employee = new BasicEmployeeModel
+            var employee = new EmployeeModel
             {
                 Id = Guid.NewGuid(),
                 PositionId = position.Id,
                 PersonId = Guid.NewGuid(),
-                PersonModel = new BasicPersonModel
+                Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -230,7 +231,7 @@ public class GetAllEmployeeHandlerTests
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
                     StateId = state.Id,
-                    StateModel = state,
+                    State = state,
                     City = this.faker.Address.City(),
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
@@ -247,36 +248,36 @@ public class GetAllEmployeeHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
     }
 
     [Test]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
-            var employee = new BasicEmployeeModel
+            var employee = new EmployeeModel
             {
                 Id = Guid.NewGuid(),
                 PositionId = position.Id,
                 PersonId = Guid.NewGuid(),
-                PersonModel = new BasicPersonModel
+                Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Person.FullName} {i}",
@@ -286,7 +287,7 @@ public class GetAllEmployeeHandlerTests
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
                     StateId = state.Id,
-                    StateModel = state,
+                    State = state,
                     City = this.faker.Address.City(),
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
@@ -303,34 +304,34 @@ public class GetAllEmployeeHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.That(result.Data, Has.Count.EqualTo(10));
     }
 
     [Test]
     public async Task Handle_VerifiesPersonAndPositionDataIsIncluded()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
         this.context.BasicPositions.Add(position);
 
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var employee = new BasicEmployeeModel
+        var employee = new EmployeeModel
         {
             Id = Guid.NewGuid(),
             PositionId = position.Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -340,7 +341,7 @@ public class GetAllEmployeeHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -356,14 +357,14 @@ public class GetAllEmployeeHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result.Data, Has.Count.EqualTo(1));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result[0].PersonId, Is.EqualTo(employee.PersonModel.Id));
-            Assert.That(result[0].PositionId, Is.EqualTo(position.Id));
-            Assert.That(result[0].Name, Is.EqualTo(employee.PersonModel.Name));
-            Assert.That(result[0].PositionName, Is.EqualTo(position.Name));
-            Assert.That(result[0].StateName, Is.EqualTo(state.Name));
+            Assert.That(result.Data[0].PersonId, Is.EqualTo(employee.Person.Id));
+            Assert.That(result.Data[0].PositionId, Is.EqualTo(position.Id));
+            Assert.That(result.Data[0].Name, Is.EqualTo(employee.Person.Name));
+            Assert.That(result.Data[0].PositionName, Is.EqualTo(position.Name));
+            Assert.That(result.Data[0].StateName, Is.EqualTo(state.Name));
         }
     }
 }

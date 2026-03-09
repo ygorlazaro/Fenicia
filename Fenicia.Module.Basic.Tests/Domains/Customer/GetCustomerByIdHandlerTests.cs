@@ -2,7 +2,8 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,19 +42,19 @@ public class GetCustomerByIdHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var customer = new BasicCustomerModel
+        var customer = new CustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -63,7 +64,7 @@ public class GetCustomerByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -82,18 +83,18 @@ public class GetCustomerByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(customerId));
-            Assert.That(result.PersonId, Is.EqualTo(customer.PersonModel.Id));
-            Assert.That(result.Name, Is.EqualTo(customer.PersonModel.Name));
-            Assert.That(result.Email, Is.EqualTo(customer.PersonModel.Email));
-            Assert.That(result.PhoneNumber, Is.EqualTo(customer.PersonModel.PhoneNumber));
-            Assert.That(result.Document, Is.EqualTo(customer.PersonModel.Document));
-            Assert.That(result.Street, Is.EqualTo(customer.PersonModel.Street));
-            Assert.That(result.Number, Is.EqualTo(customer.PersonModel.Number));
-            Assert.That(result.Complement, Is.EqualTo(customer.PersonModel.Complement));
-            Assert.That(result.Neighborhood, Is.EqualTo(customer.PersonModel.Neighborhood));
-            Assert.That(result.ZipCode, Is.EqualTo(customer.PersonModel.ZipCode));
-            Assert.That(result.StateId, Is.EqualTo(customer.PersonModel.StateId));
-            Assert.That(result.City, Is.EqualTo(customer.PersonModel.City));
+            Assert.That(result.PersonId, Is.EqualTo(customer.Person.Id));
+            Assert.That(result.Name, Is.EqualTo(customer.Person.Name));
+            Assert.That(result.Email, Is.EqualTo(customer.Person.Email));
+            Assert.That(result.PhoneNumber, Is.EqualTo(customer.Person.PhoneNumber));
+            Assert.That(result.Document, Is.EqualTo(customer.Person.Document));
+            Assert.That(result.Street, Is.EqualTo(customer.Person.Street));
+            Assert.That(result.Number, Is.EqualTo(customer.Person.Number));
+            Assert.That(result.Complement, Is.EqualTo(customer.Person.Complement));
+            Assert.That(result.Neighborhood, Is.EqualTo(customer.Person.Neighborhood));
+            Assert.That(result.ZipCode, Is.EqualTo(customer.Person.ZipCode));
+            Assert.That(result.StateId, Is.EqualTo(customer.Person.StateId));
+            Assert.That(result.City, Is.EqualTo(customer.Person.City));
         }
     }
 
@@ -129,19 +130,19 @@ public class GetCustomerByIdHandlerTests
         // Arrange
         var customer1Id = Guid.NewGuid();
         var customer2Id = Guid.NewGuid();
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var customer1 = new BasicCustomerModel
+        var customer1 = new CustomerModel
         {
             Id = customer1Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -151,17 +152,17 @@ public class GetCustomerByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
         };
 
-        var customer2 = new BasicCustomerModel
+        var customer2 = new CustomerModel
         {
             Id = customer2Id,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FirstName,
@@ -171,7 +172,7 @@ public class GetCustomerByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City(),
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -190,8 +191,8 @@ public class GetCustomerByIdHandlerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Id, Is.EqualTo(customer1Id));
-            Assert.That(result.PersonId, Is.EqualTo(customer1.PersonModel.Id));
-            Assert.That(result.Name, Is.EqualTo(customer1.PersonModel.Name));
+            Assert.That(result.PersonId, Is.EqualTo(customer1.Person.Id));
+            Assert.That(result.Name, Is.EqualTo(customer1.Person.Name));
         }
     }
 
@@ -200,19 +201,19 @@ public class GetCustomerByIdHandlerTests
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var customer = new BasicCustomerModel
+        var customer = new CustomerModel
         {
             Id = customerId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -224,7 +225,7 @@ public class GetCustomerByIdHandlerTests
                 Neighborhood = null,
                 ZipCode = string.Empty,
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = null,
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -240,7 +241,10 @@ public class GetCustomerByIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Name, Is.EqualTo(customer.PersonModel.Name));
-        Assert.That(result.Email, Is.EqualTo(customer.PersonModel.Email));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Name, Is.EqualTo(customer.Person.Name));
+            Assert.That(result.Email, Is.EqualTo(customer.Person.Email));
+        }
     }
 }

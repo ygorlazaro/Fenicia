@@ -14,7 +14,9 @@ namespace Fenicia.Auth.Domains.Module;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ModuleController : ControllerBase
+public class ModuleController(
+    GetModulesHandler getModulesHandler
+    ) : ControllerBase
 {
     [HttpGet]
     [AllowAnonymous]
@@ -22,13 +24,12 @@ public class ModuleController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetModuleResponse>>> GetAllModulesAsync(
         [FromQuery] PaginationQuery query,
-        [FromServices] GetModulesHandler handler,
         WideEventContext wide,
-        CancellationToken cancellationToken)
+        CancellationToken ct)
     {
         wide.UserId = "Guest";
 
-        var modules = await handler.Handle(new GetModulesRequest(query.Page, query.PerPage), cancellationToken);
+        var modules = await getModulesHandler.Handle(new GetModulesRequest(query.Page, query.PerPage), ct);
 
         return Ok(modules);
     }

@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectComment.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,7 @@ public class DeleteProjectCommentHandlerTests
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment = new Common.Data.Models.ProjectCommentModel
+        var comment = new ProjectCommentModel
         {
             Id = commentId,
             TaskId = taskId,
@@ -104,7 +105,7 @@ public class DeleteProjectCommentHandlerTests
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var comment1 = new Common.Data.Models.ProjectCommentModel
+        var comment1 = new ProjectCommentModel
         {
             Id = comment1Id,
             TaskId = taskId,
@@ -112,7 +113,7 @@ public class DeleteProjectCommentHandlerTests
             Content = this.faker.Lorem.Paragraph()
         };
 
-        var comment2 = new Common.Data.Models.ProjectCommentModel
+        var comment2 = new ProjectCommentModel
         {
             Id = comment2Id,
             TaskId = taskId,
@@ -151,7 +152,7 @@ public class DeleteProjectCommentHandlerTests
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var comment1 = new Common.Data.Models.ProjectCommentModel
+        var comment1 = new ProjectCommentModel
         {
             Id = comment1Id,
             TaskId = taskId,
@@ -159,7 +160,7 @@ public class DeleteProjectCommentHandlerTests
             Content = this.faker.Lorem.Paragraph()
         };
 
-        var comment2 = new Common.Data.Models.ProjectCommentModel
+        var comment2 = new ProjectCommentModel
         {
             Id = comment2Id,
             TaskId = taskId,
@@ -167,7 +168,7 @@ public class DeleteProjectCommentHandlerTests
             Content = this.faker.Lorem.Paragraph()
         };
 
-        var comment3 = new Common.Data.Models.ProjectCommentModel
+        var comment3 = new ProjectCommentModel
         {
             Id = comment3Id,
             TaskId = taskId,
@@ -188,14 +189,17 @@ public class DeleteProjectCommentHandlerTests
         var deletedComment = await this.context.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
         var comment3InDb = await this.context.ProjectComments.FindAsync([comment3Id], CancellationToken.None);
 
-        Assert.That(comment1InDb, Is.Not.Null);
-        Assert.That(deletedComment, Is.Not.Null);
-        Assert.That(comment3InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(comment1InDb.Deleted, Is.Null);
-            Assert.That(deletedComment.Deleted, Is.Not.Null);
-            Assert.That(comment3InDb.Deleted, Is.Null);
+            Assert.That(comment1InDb, Is.Not.Null);
+            Assert.That(deletedComment, Is.Not.Null);
+            Assert.That(comment3InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(comment1InDb?.Deleted, Is.Null);
+            Assert.That(deletedComment?.Deleted, Is.Not.Null);
+            Assert.That(comment3InDb?.Deleted, Is.Null);
         }
     }
 }

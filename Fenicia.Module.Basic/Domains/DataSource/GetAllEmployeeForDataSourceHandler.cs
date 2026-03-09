@@ -10,11 +10,9 @@ public class GetAllEmployeeForDataSourceHandler(DefaultContext context)
     {
         return await context.BasicEmployees
             .AsNoTracking()
-            .Include(e => e.PersonModel)
-            .OrderBy(e => e.PersonModel.Name)
-            .Select(e => new GetAllEmployeeForDataSourceResponse(e.Id, e.PersonModel.Name))
+            .Include(e => e.Person)
+            .OrderBy(e => e.Person.Name)
+            .Select(e => new GetAllEmployeeForDataSourceResponse(e.Id, e.Person.Name))
             .ToListAsync(ct);
     }
 }
-
-public record GetAllEmployeeForDataSourceResponse(Guid Id, string Name);

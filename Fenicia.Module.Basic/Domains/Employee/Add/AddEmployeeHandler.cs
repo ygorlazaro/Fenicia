@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Add;
 
@@ -7,7 +7,7 @@ public class AddEmployeeHandler(DefaultContext context)
 {
     public async Task<AddEmployeeResponse> Handle(AddEmployeeCommand command, CancellationToken ct)
     {
-        var person = new BasicPersonModel
+        var person = new PersonModel
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
@@ -23,11 +23,11 @@ public class AddEmployeeHandler(DefaultContext context)
             City = command.City
         };
 
-        var employee = new BasicEmployeeModel
+        var employee = new EmployeeModel
         {
             Id = command.Id,
             PositionId = command.PositionId,
-            PersonModel = person,
+            Person = person,
             PersonId = person.Id
         };
 

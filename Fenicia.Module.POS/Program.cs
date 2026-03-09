@@ -1,8 +1,6 @@
 using System.Text;
 
-using Fenicia.Common;
 using Fenicia.Common.API.Middlewares;
-using Fenicia.Common.API.Providers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
@@ -40,20 +38,14 @@ public class Program
         builder.Configuration.AddConfiguration(configBuilder);
 
         var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"]
-                                          ?? throw new InvalidOperationException(TextConstants
-                                              .InvalidJwtSecretMessage));
+                                          ?? throw new InvalidOperationException("JWT secret key not found in configuration"));
 
-        builder.Services.AddScoped<TenantProvider>();
         builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddDbContext<DefaultContext>((sp, o) =>
         {
             var config = sp.GetRequiredService<IConfiguration>();
-            var tenantProvider = sp.GetRequiredService<TenantProvider>();
-
-            var tenantId = Environment.GetEnvironmentVariable("TENANT_ID") ?? tenantProvider.TenantId;
-
             var connString = config.GetConnectionString("Auth");
 
             if (string.IsNullOrWhiteSpace(connString))
@@ -101,7 +93,6 @@ public class Program
         }
 
         app.UseAuthentication();
-        app.UseMiddleware<TenantMiddleware>();
         app.UseAuthorization();
 
         app.UseWhen(o => o.Request.Path.StartsWithSegments("/pos"),

@@ -9,11 +9,3 @@ public record GetOrderByIdResponse(
     DateTime SaleDate,
     string Status,
     List<OrderDetailResponse> Details);
-
-public record OrderDetailResponse(
-    Guid Id,
-    Guid ProductId,
-    string ProductName,
-    decimal Price,
-    double Quantity,
-    decimal Subtotal);

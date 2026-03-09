@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Supplier.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,11 +41,11 @@ public class DeleteSupplierHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var supplier = new BasicSupplierModel
+        var supplier = new SupplierModel
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -97,22 +97,22 @@ public class DeleteSupplierHandlerTests
         var supplier1Id = Guid.NewGuid();
         var supplier2Id = Guid.NewGuid();
 
-        var supplier1 = new BasicSupplierModel
+        var supplier1 = new SupplierModel
         {
             Id = supplier1Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName()
             }
         };
 
-        var supplier2 = new BasicSupplierModel
+        var supplier2 = new SupplierModel
         {
             Id = supplier2Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName()

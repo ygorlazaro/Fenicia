@@ -4,10 +4,14 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.CreateOrder;
+using Fenicia.Module.Basic.Domains.Order.Delete;
+using Fenicia.Module.Basic.Domains.Order.GetAll;
+using Fenicia.Module.Basic.Domains.Order.GetById;
+using Fenicia.Module.Basic.Domains.Order.GetOrderAnalytics;
 using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
 
 using Microsoft.AspNetCore.Authorization;
@@ -36,11 +40,19 @@ public class OrderControllerTests
         this.testCustomerId = Guid.NewGuid();
         this.createOrderHandler = new CreateOrderHandler(this.context);
         this.getOrderDetailsByOrderIdHandler = new GetOrderDetailsByOrderIdHandler(this.context);
+        this.getAllOrderHandler = new GetAllOrderHandler(this.context);
+        this.getOrderByIdHandler = new GetOrderByIdHandler(this.context);
+        this.deleteOrderHandler = new DeleteOrderHandler(this.context);
+        this.getOrderAnalyticsHandler = new GetOrderAnalyticsHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new OrderController(
+            this.getAllOrderHandler,
+            this.getOrderByIdHandler,
             this.createOrderHandler,
-            this.getOrderDetailsByOrderIdHandler)
+            this.deleteOrderHandler,
+            this.getOrderDetailsByOrderIdHandler,
+            this.getOrderAnalyticsHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -63,6 +75,10 @@ public class OrderControllerTests
     private DefaultContext context = null!;
     private CreateOrderHandler createOrderHandler = null!;
     private GetOrderDetailsByOrderIdHandler getOrderDetailsByOrderIdHandler = null!;
+    private GetAllOrderHandler getAllOrderHandler = null!;
+    private GetOrderByIdHandler getOrderByIdHandler = null!;
+    private DeleteOrderHandler deleteOrderHandler = null!;
+    private GetOrderAnalyticsHandler getOrderAnalyticsHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Guid testOrderId;
     private Guid testUserId;
@@ -87,11 +103,11 @@ public class OrderControllerTests
     public async Task CreateOrderAsync_WithValidCommand_ReturnsCreatedWithOrder()
     {
         // Arrange
-        var customer = new BasicCustomerModel
+        var customer = new CustomerModel
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -100,7 +116,7 @@ public class OrderControllerTests
             }
         };
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -124,10 +140,10 @@ public class OrderControllerTests
                 new OrderDetailCommand(product.Id, 20.00m, 3)
             ]);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.CreateOrderAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -151,7 +167,7 @@ public class OrderControllerTests
     public async Task GetDetailsAsync_WhenOrderExists_ReturnsOkWithOrderDetails()
     {
         // Arrange
-        var order = new BasicOrderModel
+        var order = new OrderModel
         {
             Id = this.testOrderId,
             UserId = this.testUserId,
@@ -161,7 +177,7 @@ public class OrderControllerTests
             TotalAmount = 100.00m
         };
 
-        var orderDetail1 = new BasicOrderDetailModel
+        var orderDetail1 = new OrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = this.testOrderId,
@@ -170,7 +186,7 @@ public class OrderControllerTests
             Quantity = 2
         };
 
-        var orderDetail2 = new BasicOrderDetailModel
+        var orderDetail2 = new OrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = this.testOrderId,
@@ -183,10 +199,10 @@ public class OrderControllerTests
         this.context.BasicOrderDetails.AddRange(orderDetail1, orderDetail2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetDetailsAsync(this.testOrderId, cancellationToken);
+        var result = await this.controller.GetDetailsAsync(this.testOrderId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -205,10 +221,10 @@ public class OrderControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetDetailsAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetDetailsAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -226,11 +242,11 @@ public class OrderControllerTests
     public async Task CreateOrderAsync_SetsUserIdFromClaims()
     {
         // Arrange
-        var customer = new BasicCustomerModel
+        var customer = new CustomerModel
         {
             Id = this.testCustomerId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -239,7 +255,7 @@ public class OrderControllerTests
             }
         };
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -260,10 +276,10 @@ public class OrderControllerTests
             OrderStatus.Pending,
             [new OrderDetailCommand(product.Id, 20.00m, 2)]);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.CreateOrderAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

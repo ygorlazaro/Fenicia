@@ -4,6 +4,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectComment;
 using Fenicia.Module.Projects.Domains.ProjectComment.Add;
 using Fenicia.Module.Projects.Domains.ProjectComment.Delete;
@@ -95,10 +96,10 @@ public class ProjectCommentControllerTests
         // Arrange
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -116,7 +117,7 @@ public class ProjectCommentControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectComment1 = new Common.Data.Models.ProjectCommentModel
+        var projectComment1 = new ProjectCommentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -124,7 +125,7 @@ public class ProjectCommentControllerTests
             Content = this.faker.Lorem.Paragraph()
         };
 
-        var projectComment2 = new Common.Data.Models.ProjectCommentModel
+        var projectComment2 = new ProjectCommentModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
@@ -137,10 +138,10 @@ public class ProjectCommentControllerTests
 
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -158,7 +159,7 @@ public class ProjectCommentControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectComment = new Common.Data.Models.ProjectCommentModel
+        var projectComment = new ProjectCommentModel
         {
             Id = this.testProjectCommentId,
             TaskId = Guid.NewGuid(),
@@ -169,10 +170,10 @@ public class ProjectCommentControllerTests
         this.context.ProjectComments.Add(projectComment);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testProjectCommentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testProjectCommentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -195,10 +196,10 @@ public class ProjectCommentControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -215,10 +216,10 @@ public class ProjectCommentControllerTests
             Guid.NewGuid(),
             this.faker.Lorem.Paragraph());
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -241,7 +242,7 @@ public class ProjectCommentControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectComment = new Common.Data.Models.ProjectCommentModel
+        var projectComment = new ProjectCommentModel
         {
             Id = this.testProjectCommentId,
             TaskId = Guid.NewGuid(),
@@ -256,10 +257,10 @@ public class ProjectCommentControllerTests
             projectComment.Id,
             this.faker.Lorem.Paragraph() + " Updated");
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testProjectCommentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testProjectCommentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -282,10 +283,10 @@ public class ProjectCommentControllerTests
             nonExistentId,
             this.faker.Lorem.Paragraph());
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -296,7 +297,7 @@ public class ProjectCommentControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectComment = new Common.Data.Models.ProjectCommentModel
+        var projectComment = new ProjectCommentModel
         {
             Id = this.testProjectCommentId,
             TaskId = Guid.NewGuid(),
@@ -307,16 +308,16 @@ public class ProjectCommentControllerTests
         this.context.ProjectComments.Add(projectComment);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testProjectCommentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testProjectCommentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify project comment was deleted
-        var deletedComment = await this.context.ProjectComments.FirstOrDefaultAsync(x => x.Id == this.testProjectCommentId && x.Deleted == null, cancellationToken);
+        var deletedComment = await this.context.ProjectComments.FirstOrDefaultAsync(x => x.Id == this.testProjectCommentId && x.Deleted == null, ct);
         Assert.That(deletedComment, Is.Null);
     }
 
@@ -325,10 +326,10 @@ public class ProjectCommentControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

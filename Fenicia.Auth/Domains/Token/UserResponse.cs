@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
-using Fenicia.Common.Data.Models;
+
+using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Auth.Domains.Token;
 
@@ -12,7 +13,7 @@ public class UserResponse
         this.Email = string.Empty;
     }
 
-    public UserResponse(AuthUserModel model)
+    public UserResponse(UserModel model)
     {
         this.Id = model.Id;
         this.Name = model.Name;

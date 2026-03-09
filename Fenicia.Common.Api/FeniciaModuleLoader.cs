@@ -1,8 +1,5 @@
-using Fenicia.Common.API.Providers;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Fenicia.Common.API;
 
@@ -34,7 +31,6 @@ public static class FeniciaModuleLoader
 
         builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);
-        builder.Services.AddScoped<TenantProvider>();
 
         return tenantId;
     }

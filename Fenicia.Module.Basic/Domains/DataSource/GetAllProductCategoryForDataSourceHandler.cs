@@ -14,5 +14,3 @@ public class GetAllProductCategoryForDataSourceHandler(DefaultContext context)
             .ToListAsync(ct);
     }
 }
-
-public record GetAllProductCategoryForDataSourceResponse(Guid Id, string Name);

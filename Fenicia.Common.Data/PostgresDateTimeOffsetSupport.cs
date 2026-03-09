@@ -16,15 +16,15 @@ public static class PostgresDateTimeOffsetSupport
             v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null);
 
         foreach (var property in from et in modelBuilder.Model.GetEntityTypes()
-                                  from p in et.GetProperties().Where(p => p.ClrType == typeof(DateTime))
-                                  select p)
+                                 from p in et.GetProperties().Where(p => p.ClrType == typeof(DateTime))
+                                 select p)
         {
             property.SetValueConverter(dateTimeConverter);
         }
 
         foreach (var property in from et in modelBuilder.Model.GetEntityTypes()
-                                  from p in et.GetProperties().Where(p => p.ClrType == typeof(DateTime?))
-                                  select p)
+                                 from p in et.GetProperties().Where(p => p.ClrType == typeof(DateTime?))
+                                 select p)
         {
             property.SetValueConverter(nullableDateTimeConverter);
         }

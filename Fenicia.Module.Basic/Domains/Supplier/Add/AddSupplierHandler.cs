@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Add;
 
@@ -7,7 +7,7 @@ public class AddSupplierHandler(DefaultContext context)
 {
     public async Task<AddSupplierResponse> Handle(AddSupplierCommand command, CancellationToken ct)
     {
-        var person = new BasicPersonModel
+        var person = new PersonModel
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
@@ -23,7 +23,7 @@ public class AddSupplierHandler(DefaultContext context)
             City = command.City
         };
 
-        var supplier = new BasicSupplierModel
+        var supplier = new SupplierModel
         {
             Id = command.Id,
             Person = person,

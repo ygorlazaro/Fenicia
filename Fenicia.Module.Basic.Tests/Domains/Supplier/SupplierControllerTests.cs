@@ -3,14 +3,17 @@ using System.Security.Claims;
 using Bogus;
 using Bogus.Extensions.Brazil;
 
+using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.Add;
 using Fenicia.Module.Basic.Domains.Supplier.Delete;
 using Fenicia.Module.Basic.Domains.Supplier.GetAll;
 using Fenicia.Module.Basic.Domains.Supplier.GetById;
+using Fenicia.Module.Basic.Domains.Supplier.GetSupplierPerformance;
 using Fenicia.Module.Basic.Domains.Supplier.Update;
 
 using Microsoft.AspNetCore.Authorization;
@@ -40,6 +43,7 @@ public class SupplierControllerTests
         this.addSupplierHandler = new AddSupplierHandler(this.context);
         this.updateSupplierHandler = new UpdateSupplierHandler(this.context);
         this.deleteSupplierHandler = new DeleteSupplierHandler(this.context);
+        this.getSupplierPerformanceHandler = new GetSupplierPerformanceHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new SupplierController(
@@ -47,7 +51,8 @@ public class SupplierControllerTests
             this.getSupplierByIdHandler,
             this.addSupplierHandler,
             this.updateSupplierHandler,
-            this.deleteSupplierHandler)
+            this.deleteSupplierHandler,
+            this.getSupplierPerformanceHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -73,6 +78,7 @@ public class SupplierControllerTests
     private AddSupplierHandler addSupplierHandler = null!;
     private UpdateSupplierHandler updateSupplierHandler = null!;
     private DeleteSupplierHandler deleteSupplierHandler = null!;
+    private GetSupplierPerformanceHandler getSupplierPerformanceHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Guid testSupplierId;
     private Faker faker = null!;
@@ -97,10 +103,10 @@ public class SupplierControllerTests
         // Arrange
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -119,20 +125,20 @@ public class SupplierControllerTests
     public async Task GetAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var supplier1 = new BasicSupplierModel
+        var supplier1 = new SupplierModel
         {
             Id = Guid.NewGuid(),
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -145,17 +151,17 @@ public class SupplierControllerTests
                 Neighborhood = this.faker.Address.CityPrefix(),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City()
             }
         };
 
-        var supplier2 = new BasicSupplierModel
+        var supplier2 = new SupplierModel
         {
             Id = Guid.NewGuid(),
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -168,7 +174,7 @@ public class SupplierControllerTests
                 Neighborhood = this.faker.Address.CityPrefix(),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City()
             }
         };
@@ -178,10 +184,10 @@ public class SupplierControllerTests
 
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -207,20 +213,20 @@ public class SupplierControllerTests
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsOkWithSupplier()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var supplier = new BasicSupplierModel
+        var supplier = new SupplierModel
         {
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -233,7 +239,7 @@ public class SupplierControllerTests
                 Neighborhood = this.faker.Address.CityPrefix(),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City()
             }
         };
@@ -241,10 +247,10 @@ public class SupplierControllerTests
         this.context.BasicSuppliers.Add(supplier);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testSupplierId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testSupplierId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -269,10 +275,10 @@ public class SupplierControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -298,10 +304,10 @@ public class SupplierControllerTests
             this.faker.Random.Replace("(##) #####-####"),
             this.faker.Company.Cnpj());
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -323,12 +329,12 @@ public class SupplierControllerTests
     public async Task PatchAsync_WhenSupplierExists_ReturnsOkWithUpdatedSupplier()
     {
         // Arrange
-        var supplier = new BasicSupplierModel
+        var supplier = new SupplierModel
         {
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -356,10 +362,10 @@ public class SupplierControllerTests
             null,
             this.faker.Company.Cnpj());
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testSupplierId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testSupplierId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -392,10 +398,10 @@ public class SupplierControllerTests
             null,
             this.faker.Company.Cnpj());
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -406,12 +412,12 @@ public class SupplierControllerTests
     public async Task DeleteAsync_WhenSupplierExists_ReturnsNoContent()
     {
         // Arrange
-        var supplier = new BasicSupplierModel
+        var supplier = new SupplierModel
         {
             Id = this.testSupplierId,
             Cnpj = this.faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -423,16 +429,16 @@ public class SupplierControllerTests
         this.context.BasicSuppliers.Add(supplier);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testSupplierId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testSupplierId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify supplier was deleted
-        var deletedSupplier = await this.context.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId && x.Deleted == null, cancellationToken);
+        var deletedSupplier = await this.context.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId && x.Deleted == null, ct);
         Assert.That(deletedSupplier, Is.Null);
     }
 
@@ -441,10 +447,10 @@ public class SupplierControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

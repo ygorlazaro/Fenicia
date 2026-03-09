@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ public class UpdateProjectStatusHandlerTests
         // Arrange
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
-        var status = new Common.Data.Models.ProjectStatusModel
+        var status = new ProjectStatusModel
         {
             Id = statusId,
             ProjectId = projectId,
@@ -120,7 +121,7 @@ public class UpdateProjectStatusHandlerTests
         var status2Id = Guid.NewGuid();
         var projectId = Guid.NewGuid();
 
-        var status1 = new Common.Data.Models.ProjectStatusModel
+        var status1 = new ProjectStatusModel
         {
             Id = status1Id,
             ProjectId = projectId,
@@ -130,7 +131,7 @@ public class UpdateProjectStatusHandlerTests
             IsFinal = false
         };
 
-        var status2 = new Common.Data.Models.ProjectStatusModel
+        var status2 = new ProjectStatusModel
         {
             Id = status2Id,
             ProjectId = projectId,
@@ -165,12 +166,15 @@ public class UpdateProjectStatusHandlerTests
         var updatedStatus1 = await this.context.ProjectStatuses.FindAsync([status1Id], CancellationToken.None);
         var status2InDb = await this.context.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
 
-        Assert.That(updatedStatus1, Is.Not.Null);
-        Assert.That(status2InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(updatedStatus1.Name, Is.EqualTo("Updated Status 1"));
-            Assert.That(status2InDb.Name, Is.EqualTo("Status 2"));
+            Assert.That(updatedStatus1, Is.Not.Null);
+            Assert.That(status2InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(updatedStatus1?.Name, Is.EqualTo("Updated Status 1"));
+            Assert.That(status2InDb?.Name, Is.EqualTo("Status 2"));
         }
     }
 
@@ -180,7 +184,7 @@ public class UpdateProjectStatusHandlerTests
         // Arrange
         var statusId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
-        var status = new Common.Data.Models.ProjectStatusModel
+        var status = new ProjectStatusModel
         {
             Id = statusId,
             ProjectId = projectId,

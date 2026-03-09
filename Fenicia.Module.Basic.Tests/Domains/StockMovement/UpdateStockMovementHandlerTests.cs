@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement.Update;
 
@@ -38,7 +38,7 @@ public class UpdateStockMovementHandlerTests
     {
         // Arrange
         var movementId = Guid.NewGuid();
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -49,7 +49,7 @@ public class UpdateStockMovementHandlerTests
         };
         this.context.BasicProducts.Add(product);
 
-        var movement = new BasicStockMovementModel
+        var movement = new StockMovementModel
         {
             Id = movementId,
             Quantity = 10,
@@ -68,6 +68,9 @@ public class UpdateStockMovementHandlerTests
             25.00m,
             StockMovementType.Out,
             product.Id,
+            null,
+            null,
+            null,
             null,
             null);
 
@@ -96,6 +99,9 @@ public class UpdateStockMovementHandlerTests
             StockMovementType.In,
             Guid.NewGuid(),
             null,
+            null,
+            null,
+            null,
             null);
 
         // Act
@@ -117,6 +123,9 @@ public class UpdateStockMovementHandlerTests
             StockMovementType.In,
             Guid.NewGuid(),
             null,
+            null,
+            null,
+            null,
             null);
 
         // Act
@@ -131,7 +140,7 @@ public class UpdateStockMovementHandlerTests
     {
         // Arrange
         var movementId = Guid.NewGuid();
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -142,7 +151,7 @@ public class UpdateStockMovementHandlerTests
         };
         this.context.BasicProducts.Add(product);
 
-        var movement = new BasicStockMovementModel
+        var movement = new StockMovementModel
         {
             Id = movementId,
             Quantity = 10,
@@ -161,6 +170,9 @@ public class UpdateStockMovementHandlerTests
             25.00m,
             StockMovementType.Out,
             product.Id,
+            null,
+            null,
+            null,
             null,
             null);
 

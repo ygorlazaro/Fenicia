@@ -1,5 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -52,21 +53,21 @@ public class GetAllProjectTaskAssigneeHandlerTests
         var taskId = Guid.NewGuid();
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
-        var assignee1 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee1 = new TaskAssigneeModel
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
             UserId = userId1,
-            Role = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
-        var assignee2 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee2 = new TaskAssigneeModel
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
             UserId = userId2,
-            Role = Common.Enums.Project.AssigneeRole.Contributor,
+            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
@@ -95,12 +96,12 @@ public class GetAllProjectTaskAssigneeHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
+            var assignee = new TaskAssigneeModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
                 UserId = Guid.NewGuid(),
-                Role = i % 2 == 0 ? Common.Enums.Project.AssigneeRole.Owner : Common.Enums.Project.AssigneeRole.Contributor,
+                Role = i % 2 == 0 ? Common.Enums.Project.EnumAssigneeRole.Owner : Common.Enums.Project.EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
             this.context.ProjectTaskAssignees.Add(assignee);
@@ -125,12 +126,12 @@ public class GetAllProjectTaskAssigneeHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
         {
-            var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
+            var assignee = new TaskAssigneeModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
                 UserId = Guid.NewGuid(),
-                Role = Common.Enums.Project.AssigneeRole.Contributor,
+                Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
             this.context.ProjectTaskAssignees.Add(assignee);
@@ -155,12 +156,12 @@ public class GetAllProjectTaskAssigneeHandlerTests
         var taskId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
+            var assignee = new TaskAssigneeModel
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
                 UserId = Guid.NewGuid(),
-                Role = Common.Enums.Project.AssigneeRole.Contributor,
+                Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
             this.context.ProjectTaskAssignees.Add(assignee);

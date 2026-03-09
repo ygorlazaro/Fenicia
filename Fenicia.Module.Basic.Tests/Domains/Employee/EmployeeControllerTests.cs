@@ -5,12 +5,13 @@ using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.Add;
 using Fenicia.Module.Basic.Domains.Employee.Delete;
 using Fenicia.Module.Basic.Domains.Employee.GetAll;
 using Fenicia.Module.Basic.Domains.Employee.GetById;
+using Fenicia.Module.Basic.Domains.Employee.GetEmployeePerformance;
 using Fenicia.Module.Basic.Domains.Employee.Update;
 
 using Microsoft.AspNetCore.Authorization;
@@ -40,6 +41,7 @@ public class EmployeeControllerTests
         this.addEmployeeHandler = new AddEmployeeHandler(this.context);
         this.updateEmployeeHandler = new UpdateEmployeeHandler(this.context);
         this.deleteEmployeeHandler = new DeleteEmployeeHandler(this.context);
+        this.getEmployeePerformanceHandler = new GetEmployeePerformanceHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new EmployeeController(
@@ -47,7 +49,9 @@ public class EmployeeControllerTests
             this.getEmployeeByIdHandler,
             this.addEmployeeHandler,
             this.updateEmployeeHandler,
-            this.deleteEmployeeHandler)
+            this.deleteEmployeeHandler,
+            this.getEmployeePerformanceHandler
+            )
         {
             ControllerContext = new ControllerContext
             {
@@ -73,6 +77,7 @@ public class EmployeeControllerTests
     private AddEmployeeHandler addEmployeeHandler = null!;
     private UpdateEmployeeHandler updateEmployeeHandler = null!;
     private DeleteEmployeeHandler deleteEmployeeHandler = null!;
+    private GetEmployeePerformanceHandler getEmployeePerformanceHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Guid testEmployeeId;
     private Faker faker = null!;
@@ -97,10 +102,10 @@ public class EmployeeControllerTests
         // Arrange
         const int page = 1;
         const int perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -111,26 +116,29 @@ public class EmployeeControllerTests
 
         var returnedEmployees = okResult.Value as Pagination<List<GetAllEmployeeResponse>>;
         Assert.That(returnedEmployees, Is.Not.Null);
-        Assert.That(returnedEmployees.Data, Is.Empty);
-        Assert.That(returnedEmployees.Total, Is.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedEmployees.Data, Is.Empty);
+            Assert.That(returnedEmployees.Total, Is.EqualTo(0));
+        }
     }
 
     [Test]
     public async Task GetAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var employee1 = new BasicEmployeeModel
+        var employee1 = new EmployeeModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -140,12 +148,12 @@ public class EmployeeControllerTests
             }
         };
 
-        var employee2 = new BasicEmployeeModel
+        var employee2 = new EmployeeModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -161,10 +169,10 @@ public class EmployeeControllerTests
 
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -175,26 +183,29 @@ public class EmployeeControllerTests
 
         var returnedEmployees = okResult.Value as Pagination<List<GetAllEmployeeResponse>>;
         Assert.That(returnedEmployees, Is.Not.Null);
-        Assert.That(returnedEmployees.Data, Has.Count.EqualTo(2));
-        Assert.That(returnedEmployees.Total, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedEmployees.Data, Has.Count.EqualTo(2));
+            Assert.That(returnedEmployees.Total, Is.EqualTo(2));
+        }
     }
 
     [Test]
     public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOkWithEmployee()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var employee = new BasicEmployeeModel
+        var employee = new EmployeeModel
         {
             Id = this.testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -208,10 +219,10 @@ public class EmployeeControllerTests
         this.context.BasicEmployees.Add(employee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testEmployeeId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testEmployeeId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -225,7 +236,7 @@ public class EmployeeControllerTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(returnedEmployee.Id, Is.EqualTo(this.testEmployeeId));
-            Assert.That(returnedEmployee.PersonId, Is.EqualTo(employee.PersonModel.Id));
+            Assert.That(returnedEmployee.PersonId, Is.EqualTo(employee.Person.Id));
         }
     }
 
@@ -234,10 +245,10 @@ public class EmployeeControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -248,7 +259,7 @@ public class EmployeeControllerTests
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithEmployee()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
@@ -272,10 +283,10 @@ public class EmployeeControllerTests
             this.faker.Address.ZipCode(),
             this.faker.Random.Replace("(##) #####-####"));
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -293,18 +304,18 @@ public class EmployeeControllerTests
     public async Task PatchAsync_WhenEmployeeExists_ReturnsOkWithUpdatedEmployee()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var employee = new BasicEmployeeModel
+        var employee = new EmployeeModel
         {
             Id = this.testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -333,10 +344,10 @@ public class EmployeeControllerTests
             null,
             null);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testEmployeeId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testEmployeeId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -354,7 +365,7 @@ public class EmployeeControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
@@ -378,10 +389,10 @@ public class EmployeeControllerTests
             null,
             null);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -392,12 +403,12 @@ public class EmployeeControllerTests
     public async Task DeleteAsync_WhenEmployeeExists_ReturnsNoContent()
     {
         // Arrange
-        var employee = new BasicEmployeeModel
+        var employee = new EmployeeModel
         {
             Id = this.testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -409,16 +420,16 @@ public class EmployeeControllerTests
         this.context.BasicEmployees.Add(employee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testEmployeeId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testEmployeeId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify employee was deleted
-        var deletedEmployee = await this.context.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId && x.Deleted == null, cancellationToken);
+        var deletedEmployee = await this.context.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId && x.Deleted == null, ct);
         Assert.That(deletedEmployee, Is.Null);
     }
 
@@ -427,10 +438,10 @@ public class EmployeeControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

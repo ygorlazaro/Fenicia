@@ -19,7 +19,12 @@ namespace Fenicia.Auth.Domains.User;
 [Authorize]
 [Route("[controller]")]
 [ApiController]
-public class UserController : ControllerBase
+public class UserController(
+    GetUserModuleHandler getUserModuleHandler,
+    GetUserCompaniesHandler getUserCompaniesHandler,
+    ListUsersHandler listUsersHandler,
+    CreateUserHandler createUserHandler,
+    UpdateUserHandler updateUserHandler) : ControllerBase
 {
     /// <summary>
     /// Get user modules
@@ -28,7 +33,6 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserModulesResponse))]
     public async Task<ActionResult<List<GetUserModulesResponse>>> GetUserModulesAsync(
         [FromHeader] Headers headers,
-        [FromServices] GetUserModuleHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
@@ -38,7 +42,7 @@ public class UserController : ControllerBase
         wide.UserId = userId.ToString();
         var query = new GetUserModulesQuery(companyId, userId);
 
-        var response = await handler.Handler(query, ct);
+        var response = await getUserModuleHandler.Handle(query, ct);
 
         return Ok(response);
     }
@@ -49,7 +53,6 @@ public class UserController : ControllerBase
     [HttpGet("company")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserCompaniesResponse))]
     public async Task<ActionResult<List<GetUserCompaniesResponse>>> GetUserCompanyAsync(
-        [FromServices] GetUserCompaniesHandler handler,
         WideEventContext wide,
         CancellationToken ct)
     {
@@ -57,7 +60,7 @@ public class UserController : ControllerBase
 
         wide.UserId = userId.ToString();
 
-        var response = await handler.Handle(userId, ct);
+        var response = await getUserCompaniesHandler.Handle(userId, ct);
 
         return Ok(response);
     }
@@ -72,15 +75,14 @@ public class UserController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? searchTerm = null,
-        [FromServices] ListUsersHandler handler = null!,
         CancellationToken ct = default)
     {
         // Validate role - only God and Admin can list users
         ClaimReader.ValidateRole(this.User, "God");
-        
+
         var query = new ListUsersQuery(page, pageSize, searchTerm);
-        var result = await handler.Handle(query, ct);
-        
+        var result = await listUsersHandler.Handle(query, ct);
+
         return Ok(result);
     }
 
@@ -91,6 +93,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Obsolete("We cannot depend on DbContext at the controller. Marked to great refactor")]
     public async Task<IActionResult> GetByIdAsync(
         Guid userId,
         [FromServices] DefaultContext context = null!,
@@ -101,23 +104,20 @@ public class UserController : ControllerBase
 
         var user = await context.AuthUsers
             .Include(u => u.UsersRoles)
-                .ThenInclude(ur => ur.RoleModel)
+                .ThenInclude(ur => ur.Role)
             .Include(u => u.UsersRoles)
-                .ThenInclude(ur => ur.CompanyModel)
+                .ThenInclude(ur => ur.Company)
             .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
-        if (user == null || user.Deleted.HasValue)
+        if (user is not { Deleted: null })
         {
             return NotFound(new { Message = "User not found" });
         }
 
-        // God users can see all users
-        // Admin users can only see users from their companies
         var userRoles = this.User.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();
-        
+
         if (userRoles.Contains("God", StringComparer.OrdinalIgnoreCase))
         {
-            // God users can see all users
             return Ok(new
             {
                 user.Id,
@@ -128,14 +128,13 @@ public class UserController : ControllerBase
                 Companies = user.UsersRoles.Select(ur => new
                 {
                     ur.CompanyId,
-                    CompanyName = ur.CompanyModel.Name,
+                    CompanyName = ur.Company.Name,
                     ur.RoleId,
-                    RoleName = ur.RoleModel.Name
+                    RoleName = ur.Role.Name
                 }).ToList()
             });
         }
 
-        // For Admin users, check if they have access to this user's companies
         var currentUserId = ClaimReader.UserId(this.User);
         var adminCompanies = await context.UserRoles
             .Where(ur => ur.UserId == currentUserId)
@@ -160,9 +159,9 @@ public class UserController : ControllerBase
             Companies = user.UsersRoles.Select(ur => new
             {
                 ur.CompanyId,
-                CompanyName = ur.CompanyModel.Name,
+                CompanyName = ur.Company.Name,
                 ur.RoleId,
-                RoleName = ur.RoleModel.Name
+                RoleName = ur.Role.Name
             }).ToList()
         });
     }
@@ -177,16 +176,13 @@ public class UserController : ControllerBase
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> CreateAsync(
         CreateUserQuery request,
-        [FromServices] CreateUserHandler handler = null!,
         CancellationToken ct = default)
     {
-        // Validate role - only God and Admin can create users
         ClaimReader.ValidateRole(this.User, "God");
 
         var userRoles = this.User.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();
         var currentUserId = ClaimReader.UserId(this.User);
 
-        // Admin users can only create users for their companies
         if (userRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase) && 
             !userRoles.Contains("God", StringComparer.OrdinalIgnoreCase))
         {
@@ -214,7 +210,7 @@ public class UserController : ControllerBase
             }
         }
 
-        var result = await handler.Handle(request, ct);
+        var result = await createUserHandler.Handle(request, ct);
 
         return Created($"/user/{result.Id}", result);
     }
@@ -228,10 +224,10 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
+    [Obsolete("We cannot depend on DbContext at the controller. Marked to great refactor")]
     public async Task<IActionResult> UpdateAsync(
         Guid userId,
         UpdateUserQuery request,
-        [FromServices] UpdateUserHandler handler = null!,
         [FromServices] DefaultContext context = null!,
         CancellationToken ct = default)
     {
@@ -246,7 +242,7 @@ public class UserController : ControllerBase
             .Include(u => u.UsersRoles)
             .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
-        if (user == null || user.Deleted.HasValue)
+        if (user is not { Deleted: null })
         {
             return NotFound(new { Message = "User not found" });
         }
@@ -288,7 +284,7 @@ public class UserController : ControllerBase
 
         // Update user ID in request
         var updateRequest = request with { UserId = userId };
-        var result = await handler.Handle(updateRequest, ct);
+        var result = await updateUserHandler.Handle(updateRequest, ct);
 
         return Ok(result);
     }
@@ -318,9 +314,9 @@ public class UserController : ControllerBase
         }
 
         // Check if user exists
-        var user = await context.AuthUsers.FindAsync(userId, ct);
+        var user = await context.AuthUsers.FindAsync([userId, ct], ct);
 
-        if (user == null || user.Deleted.HasValue)
+        if (user is not { Deleted: null })
         {
             return NotFound(new { Message = "User not found" });
         }
@@ -364,7 +360,7 @@ public class UserController : ControllerBase
             .Include(u => u.UsersRoles)
             .FirstOrDefaultAsync(u => u.Id == userId, ct);
 
-        if (user == null || user.Deleted.HasValue)
+        if (user is not { Deleted: null })
         {
             return NotFound(new { Message = "User not found" });
         }

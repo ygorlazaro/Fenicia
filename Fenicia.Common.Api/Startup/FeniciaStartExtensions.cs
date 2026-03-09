@@ -47,7 +47,7 @@ public static class FeniciaStartExtensions
 
         app.UseAuthentication();
         app.UseAuthorization();
-        
+    
         if (segment != null && moduleRequirement != null)
         {
             app.UseWhen(o => o.Request.Path.StartsWithSegments(segment),

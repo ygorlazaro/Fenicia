@@ -2,14 +2,16 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.Add;
 using Fenicia.Module.Basic.Domains.Product.Delete;
 using Fenicia.Module.Basic.Domains.Product.GetAll;
 using Fenicia.Module.Basic.Domains.Product.GetById;
+using Fenicia.Module.Basic.Domains.Product.GetProductPerformance;
 using Fenicia.Module.Basic.Domains.Product.Update;
 
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +41,7 @@ public class ProductControllerTests
         this.addProductHandler = new AddProductHandler(this.context);
         this.updateProductHandler = new UpdateProductHandler(this.context);
         this.deleteProductHandler = new DeleteProductHandler(this.context);
+        this.getProductPerformanceHandler = new GetProductPerformanceHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProductController(
@@ -46,7 +49,8 @@ public class ProductControllerTests
             this.getProductByIdHandler,
             this.addProductHandler,
             this.updateProductHandler,
-            this.deleteProductHandler)
+            this.deleteProductHandler,
+            this.getProductPerformanceHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -72,6 +76,7 @@ public class ProductControllerTests
     private AddProductHandler addProductHandler = null!;
     private UpdateProductHandler updateProductHandler = null!;
     private DeleteProductHandler deleteProductHandler = null!;
+    private GetProductPerformanceHandler getProductPerformanceHandler = null!;
     private Mock<HttpContext> mockHttpContext = null!;
     private Guid testProductId;
     private Faker faker = null!;
@@ -96,10 +101,10 @@ public class ProductControllerTests
         // Arrange
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -108,22 +113,22 @@ public class ProductControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedProducts = okResult.Value as List<GetAllProductResponse>;
+        var returnedProducts = okResult.Value as Pagination<List<GetAllProductResponse>>;
         Assert.That(returnedProducts, Is.Not.Null);
-        Assert.That(returnedProducts, Is.Empty);
+        Assert.That(returnedProducts.Data, Is.Empty);
     }
 
     [Test]
     public async Task GetAsync_WhenProductsExist_ReturnsOkWithProducts()
     {
         // Arrange
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product1 = new BasicProductModel
+        var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -133,7 +138,7 @@ public class ProductControllerTests
             CategoryId = category.Id
         };
 
-        var product2 = new BasicProductModel
+        var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
@@ -149,10 +154,10 @@ public class ProductControllerTests
 
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -161,22 +166,22 @@ public class ProductControllerTests
         var okResult = result.Result as OkObjectResult;
         Assert.That(okResult, Is.Not.Null);
 
-        var returnedProducts = okResult.Value as List<GetAllProductResponse>;
+        var returnedProducts = okResult.Value as Pagination<List<GetAllProductResponse>>;
         Assert.That(returnedProducts, Is.Not.Null);
-        Assert.That(returnedProducts, Has.Count.EqualTo(2));
+        Assert.That(returnedProducts.Data, Has.Count.EqualTo(2));
     }
 
     [Test]
     public async Task GetByIdAsync_WhenProductExists_ReturnsOkWithProduct()
     {
         // Arrange
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -190,10 +195,10 @@ public class ProductControllerTests
         this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testProductId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testProductId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -216,10 +221,10 @@ public class ProductControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -230,7 +235,7 @@ public class ProductControllerTests
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithProduct()
     {
         // Arrange
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
@@ -245,12 +250,13 @@ public class ProductControllerTests
             10.00m,
             20.00m,
             100,
-            category.Id);
+            category.Id,
+            null);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -274,13 +280,13 @@ public class ProductControllerTests
     public async Task PatchAsync_WhenProductExists_ReturnsOkWithUpdatedProduct()
     {
         // Arrange
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -300,12 +306,13 @@ public class ProductControllerTests
             15.00m,
             25.00m,
             150,
-            category.Id);
+            category.Id,
+            null);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testProductId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testProductId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -324,7 +331,7 @@ public class ProductControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var category = new BasicProductCategoryModel
+        var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Categories(1)[0]
@@ -339,12 +346,13 @@ public class ProductControllerTests
             10.00m,
             20.00m,
             100,
-            category.Id);
+            category.Id,
+            null);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -355,7 +363,7 @@ public class ProductControllerTests
     public async Task DeleteAsync_WhenProductExists_ReturnsNoContent()
     {
         // Arrange
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = this.testProductId,
             Name = this.faker.Commerce.ProductName(),
@@ -368,16 +376,16 @@ public class ProductControllerTests
         this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testProductId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testProductId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify product was deleted
-        var deletedProduct = await this.context.BasicProducts.FirstOrDefaultAsync(x => x.Id == this.testProductId && x.Deleted == null, cancellationToken);
+        var deletedProduct = await this.context.BasicProducts.FirstOrDefaultAsync(x => x.Id == this.testProductId && x.Deleted == null, ct);
         Assert.That(deletedProduct, Is.Null);
     }
 
@@ -386,10 +394,10 @@ public class ProductControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

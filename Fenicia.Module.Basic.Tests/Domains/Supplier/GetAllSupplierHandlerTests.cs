@@ -2,7 +2,8 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Supplier.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -47,27 +48,30 @@ public class GetAllSupplierHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Is.Empty);
-        Assert.That(result.Total, Is.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Total, Is.EqualTo(0));
+        }
     }
 
     [Test]
     public async Task Handle_WithSuppliers_ReturnsAllSuppliers()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var supplier1 = new BasicSupplierModel
+        var supplier1 = new SupplierModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -78,16 +82,16 @@ public class GetAllSupplierHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City()
             }
         };
 
-        var supplier2 = new BasicSupplierModel
+        var supplier2 = new SupplierModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -98,7 +102,7 @@ public class GetAllSupplierHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City()
             }
         };
@@ -113,8 +117,11 @@ public class GetAllSupplierHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(2));
-        Assert.That(result.Total, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Has.Count.EqualTo(2));
+            Assert.That(result.Total, Is.EqualTo(2));
+        }
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Data[0].PersonId, Is.EqualTo(supplier1.Person.Id));
@@ -131,21 +138,21 @@ public class GetAllSupplierHandlerTests
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
-            var supplier = new BasicSupplierModel
+            var supplier = new SupplierModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPersonModel
+                Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Company.CompanyName()} {i}",
@@ -156,7 +163,7 @@ public class GetAllSupplierHandlerTests
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
                     StateId = state.Id,
-                    StateModel = state,
+                    State = state,
                     City = this.faker.Address.City()
                 }
             };
@@ -172,29 +179,32 @@ public class GetAllSupplierHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(10));
-        Assert.That(result.Total, Is.EqualTo(25));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Has.Count.EqualTo(10));
+            Assert.That(result.Total, Is.EqualTo(25));
+        }
     }
 
     [Test]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
         for (var i = 0; i < 5; i++)
         {
-            var supplier = new BasicSupplierModel
+            var supplier = new SupplierModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPersonModel
+                Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Company.CompanyName()} {i}",
@@ -205,7 +215,7 @@ public class GetAllSupplierHandlerTests
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
                     StateId = state.Id,
-                    StateModel = state,
+                    State = state,
                     City = this.faker.Address.City()
                 }
             };
@@ -221,29 +231,32 @@ public class GetAllSupplierHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Is.Empty);
-        Assert.That(result.Total, Is.EqualTo(5));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Is.Empty);
+            Assert.That(result.Total, Is.EqualTo(5));
+        }
     }
 
     [Test]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
-            var supplier = new BasicSupplierModel
+            var supplier = new SupplierModel
             {
                 Id = Guid.NewGuid(),
                 PersonId = Guid.NewGuid(),
-                Person = new BasicPersonModel
+                Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
                     Name = $"{this.faker.Company.CompanyName()} {i}",
@@ -254,7 +267,7 @@ public class GetAllSupplierHandlerTests
                     Number = this.faker.Random.Replace("####"),
                     ZipCode = this.faker.Address.ZipCode(),
                     StateId = state.Id,
-                    StateModel = state,
+                    State = state,
                     City = this.faker.Address.City()
                 }
             };
@@ -270,7 +283,10 @@ public class GetAllSupplierHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(10));
-        Assert.That(result.Total, Is.EqualTo(25));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Data, Has.Count.EqualTo(10));
+            Assert.That(result.Total, Is.EqualTo(25));
+        }
     }
 }

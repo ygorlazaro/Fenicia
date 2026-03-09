@@ -12,10 +12,10 @@ public class GetAllOrderHandler(DefaultContext context)
         var total = await context.BasicOrders.CountAsync(ct);
 
         var orders = await context.BasicOrders
-            .Include(o => o.CustomerModel)
-            .ThenInclude(c => c.PersonModel)
-            .Include(o => o.EmployeeModel)
-            .ThenInclude(e => e != null ? e.PersonModel : null)
+            .Include(o => o.Customer)
+            .ThenInclude(c => c.Person)
+            .Include(o => o.Employee)
+            .ThenInclude(e => e != null ? e.Person : null)
             .Include(o => o.Details)
             .OrderByDescending(o => o.SaleDate)
             .Skip((query.Page - 1) * query.PerPage)
@@ -26,13 +26,13 @@ public class GetAllOrderHandler(DefaultContext context)
             o.Id,
             o.UserId,
             o.CustomerId,
-            o.CustomerModel?.PersonModel?.Name ?? "Unknown",
+            o.Customer?.Person?.Name ?? "Unknown",
             o.TotalAmount,
             o.SaleDate,
             o.Status.ToString(),
             o.Details.Count,
             o.EmployeeId,
-            o.EmployeeModel?.PersonModel?.Name)).ToList();
+            o.Employee?.Person?.Name)).ToList();
 
         return new Pagination<List<GetAllOrderResponse>>(response, total, query.Page, query.PerPage);
     }

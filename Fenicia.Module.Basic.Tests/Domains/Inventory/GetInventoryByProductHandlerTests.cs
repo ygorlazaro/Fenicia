@@ -2,7 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByProduct;
 
 using Microsoft.EntityFrameworkCore;
@@ -62,10 +62,10 @@ public class GetInventoryByProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = productId,
             Name = this.faker.Commerce.ProductName(),
@@ -101,10 +101,10 @@ public class GetInventoryByProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = productId,
             Name = this.faker.Commerce.ProductName(),
@@ -137,10 +137,10 @@ public class GetInventoryByProductHandlerTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = productId,
             Name = this.faker.Commerce.ProductName(),

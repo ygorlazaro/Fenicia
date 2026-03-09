@@ -16,7 +16,8 @@ using Fenicia.Auth.Domains.User.GetUserForRefresh;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -70,8 +71,13 @@ public class TokenControllerTests
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new TokenController(
+            this.generateTokenHandler,
             this.generateRefreshTokenHandler,
-            this.generateTokenStringHandler)
+            this.generateTokenStringHandler,
+            this.validateTokenHandler,
+            this.invalidateRefreshTokenHandler,
+            this.getUserForRefreshHandler
+            )
         {
             ControllerContext = new ControllerContext
             {
@@ -113,7 +119,7 @@ public class TokenControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var query = new GenerateTokenQuery(this.faker.Internet.Email(), this.faker.Internet.Password());
 
@@ -122,15 +128,14 @@ public class TokenControllerTests
             .Returns(0);
 
         this.mockGetByEmailHandler
-            .Setup(h => h.Handle(query.Email, cancellationToken))
+            .Setup(h => h.Handle(query.Email, ct))
             .ReturnsAsync((GetByEmailResponse?)null);
 
         // Act
         var result = await this.controller.PostAsync(
-            this.generateTokenHandler,
             query,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -146,7 +151,7 @@ public class TokenControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var query = new GenerateTokenQuery(this.faker.Internet.Email(), this.faker.Internet.Password());
 
@@ -156,10 +161,9 @@ public class TokenControllerTests
 
         // Act
         var result = await this.controller.PostAsync(
-            this.generateTokenHandler,
             query,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -175,12 +179,12 @@ public class TokenControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = email,
@@ -197,7 +201,7 @@ public class TokenControllerTests
             .Returns(0);
 
         this.mockGetByEmailHandler
-            .Setup(h => h.Handle(query.Email, cancellationToken))
+            .Setup(h => h.Handle(query.Email, ct))
             .ReturnsAsync(getByEmailResponse);
 
         this.mockVerifyPasswordHandler
@@ -206,10 +210,9 @@ public class TokenControllerTests
 
         // Act
         var result = await this.controller.PostAsync(
-            this.generateTokenHandler,
             query,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -237,17 +240,16 @@ public class TokenControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var query = new GenerateTokenQuery("", this.faker.Internet.Password());
 
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentException>(async () =>
+        Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.controller.PostAsync(
-                this.generateTokenHandler,
                 query,
                 wide,
-                cancellationToken));
+                ct));
     }
 
     [Test]
@@ -255,12 +257,12 @@ public class TokenControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = email,
@@ -277,7 +279,7 @@ public class TokenControllerTests
             .Returns(0);
 
         this.mockGetByEmailHandler
-            .Setup(h => h.Handle(query.Email, cancellationToken))
+            .Setup(h => h.Handle(query.Email, ct))
             .ReturnsAsync(getByEmailResponse);
 
         this.mockVerifyPasswordHandler
@@ -286,10 +288,9 @@ public class TokenControllerTests
 
         // Act
         await this.controller.PostAsync(
-            this.generateTokenHandler,
             query,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(query.Email));
@@ -300,19 +301,16 @@ public class TokenControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
-        var refreshToken = "invalid_refresh_token";
+        const string refreshToken = "invalid_refresh_token";
         var query = new ValidateTokenQuery(this.testUserId, refreshToken);
 
         // Act
         var result = await this.controller.Refresh(
             query,
-            this.validateTokenHandler,
-            this.invalidateRefreshTokenHandler,
-            this.getUserForRefreshHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -328,11 +326,11 @@ public class TokenControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var refreshToken = Guid.NewGuid().ToString();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -356,11 +354,8 @@ public class TokenControllerTests
         // Act
         var result = await this.controller.Refresh(
             query,
-            this.validateTokenHandler,
-            this.invalidateRefreshTokenHandler,
-            this.getUserForRefreshHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -386,11 +381,11 @@ public class TokenControllerTests
     {
         // Arrange
         var wide = new WideEventContext();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         var refreshToken = Guid.NewGuid().ToString();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = this.testUserId,
             Email = this.faker.Internet.Email(),
@@ -414,11 +409,8 @@ public class TokenControllerTests
         // Act
         await this.controller.Refresh(
             query,
-            this.validateTokenHandler,
-            this.invalidateRefreshTokenHandler,
-            this.getUserForRefreshHandler,
             wide,
-            cancellationToken);
+            ct);
 
         // Assert
         Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));

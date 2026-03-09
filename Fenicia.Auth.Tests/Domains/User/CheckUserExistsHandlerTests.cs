@@ -3,7 +3,7 @@ using Bogus;
 using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -40,7 +40,7 @@ public class CheckUserExistsHandlerTests
         // Arrange
         var email = this.faker.Internet.Email();
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -75,10 +75,10 @@ public class CheckUserExistsHandlerTests
     public async Task Handle_WhenEmailHasDifferentCase_ReturnsFalse()
     {
         // Arrange
-        var email = "test@example.com";
-        var upperCaseEmail = "TEST@EXAMPLE.COM";
+        const string email = "test@example.com";
+        const string upperCaseEmail = "TEST@EXAMPLE.COM";
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -100,10 +100,10 @@ public class CheckUserExistsHandlerTests
     public async Task Handle_WhenMultipleUsersExist_OnlyMatchesExactEmail()
     {
         // Arrange
-        var email1 = "user1@example.com";
-        var email2 = "user2@example.com";
+        const string email1 = "user1@example.com";
+        const string email2 = "user2@example.com";
 
-        var user1 = new AuthUserModel
+        var user1 = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email1,
@@ -111,7 +111,7 @@ public class CheckUserExistsHandlerTests
             Password = this.faker.Internet.Password()
         };
 
-        var user2 = new AuthUserModel
+        var user2 = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email2,
@@ -153,10 +153,10 @@ public class CheckUserExistsHandlerTests
     public async Task Handle_WhenEmailContainsExtraSpaces_ReturnsFalse()
     {
         // Arrange
-        var email = "test@example.com";
-        var emailWithSpaces = " test@example.com ";
+        const string email = "test@example.com";
+        const string emailWithSpaces = " test@example.com ";
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,
@@ -178,10 +178,10 @@ public class CheckUserExistsHandlerTests
     public async Task Handle_WhenEmailHasExtraCharacters_ReturnsFalse()
     {
         // Arrange
-        var email = "test@example.com";
-        var emailWithExtra = "test@example.com.";
+        const string email = "test@example.com";
+        const string emailWithExtra = "test@example.com.";
 
-        var user = new AuthUserModel
+        var user = new UserModel
         {
             Id = Guid.NewGuid(),
             Email = email,

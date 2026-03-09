@@ -1,16 +1,17 @@
-using Fenicia.Common;
-
 namespace Fenicia.Auth.Domains.Security.VerifyPassword;
 
 public class VerifyPasswordHandler
 {
     public virtual bool Handle(string password, string hashedPassword)
     {
+        if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword))
+        {
+            return false;
+        }
+
         try
         {
-            return string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword)
-                ? throw new ArgumentException(TextConstants.InvalidPasswordMessage)
-                : BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
         catch (Exception)
         {

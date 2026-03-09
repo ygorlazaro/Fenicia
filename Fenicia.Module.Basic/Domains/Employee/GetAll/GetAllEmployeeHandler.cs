@@ -12,9 +12,9 @@ public class GetAllEmployeeHandler(DefaultContext context)
         var total = await context.BasicEmployees.CountAsync(ct);
 
         var employees = await context.BasicEmployees
-            .Include(e => e.PersonModel)
-            .ThenInclude(p => p.StateModel)
-            .Include(e => e.PositionModel)
+            .Include(e => e.Person)
+            .ThenInclude(p => p.State)
+            .Include(e => e.Position)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
             .ToListAsync(ct);
@@ -23,19 +23,19 @@ public class GetAllEmployeeHandler(DefaultContext context)
             e.Id,
             e.PositionId,
             e.PersonId,
-            e.PersonModel.Name,
-            e.PersonModel.Email,
-            e.PersonModel.PhoneNumber,
-            e.PersonModel.Document,
-            e.PersonModel.Street,
-            e.PersonModel.Number,
-            e.PersonModel.Complement,
-            e.PersonModel.Neighborhood,
-            e.PersonModel.ZipCode,
-            e.PersonModel.StateId,
-            e.PersonModel.City,
-            e.PositionModel.Name,
-            e.PersonModel.StateModel != null ? e.PersonModel.StateModel.Name : null)).ToList();
+            e.Person.Name,
+            e.Person.Email,
+            e.Person.PhoneNumber,
+            e.Person.Document,
+            e.Person.Street,
+            e.Person.Number,
+            e.Person.Complement,
+            e.Person.Neighborhood,
+            e.Person.ZipCode,
+            e.Person.StateId,
+            e.Person.City,
+            e.Position.Name,
+            e.Person.State != null ? e.Person.State.Name : null)).ToList();
 
         return new Pagination<List<GetAllEmployeeResponse>>(response, total, query.Page, query.PerPage);
     }

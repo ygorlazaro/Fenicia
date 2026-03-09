@@ -1,5 +1,5 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +20,7 @@ public class GetProductByIdHandler(DefaultContext context)
         var category = await context.BasicProductCategories
             .FirstOrDefaultAsync(c => c.Id == product.CategoryId, ct);
 
-        BasicSupplierModel? supplier = null;
+        SupplierModel? supplier = null;
         if (product.SupplierId.HasValue)
         {
             supplier = await context.BasicSuppliers

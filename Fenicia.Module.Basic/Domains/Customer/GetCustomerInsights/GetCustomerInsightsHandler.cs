@@ -9,14 +9,14 @@ public class GetCustomerInsightsHandler(DefaultContext context)
     public async Task<CustomerInsightsResponse> Handle(GetCustomerInsightsQuery query, CancellationToken ct)
     {
         var customers = await context.BasicCustomers
-            .Include(c => c.PersonModel)
+            .Include(c => c.Person)
             .Include(c => c.Orders)
             .ThenInclude(o => o.Details)
             .ToListAsync(ct);
 
         var orders = await context.BasicOrders
-            .Include(o => o.CustomerModel)
-            .ThenInclude(c => c.PersonModel)
+            .Include(o => o.Customer)
+            .ThenInclude(c => c.Person)
             .Include(o => o.Details)
             .OrderByDescending(o => o.SaleDate)
             .ToListAsync(ct);
@@ -37,7 +37,7 @@ public class GetCustomerInsightsHandler(DefaultContext context)
 
         // 2. Top Customers by Total Spent
         var topCustomers = orders
-            .GroupBy(o => new { o.CustomerId, CustomerName = o.CustomerModel.PersonModel.Name })
+            .GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name })
             .Select(g => new CustomerOrderHistoryResponse(
                 g.Key.CustomerId,
                 g.Key.CustomerName,
@@ -58,7 +58,7 @@ public class GetCustomerInsightsHandler(DefaultContext context)
             .Select(o => new CustomerRecentOrdersResponse(
                 o.Id,
                 o.CustomerId,
-                o.CustomerModel.PersonModel.Name,
+                o.Customer.Person.Name,
                 o.TotalAmount,
                 o.SaleDate,
                 o.Status.ToString(),
@@ -89,7 +89,7 @@ public class GetCustomerInsightsHandler(DefaultContext context)
 
                 return new CustomerRiskAlertResponse(
                     c.Id,
-                    c.PersonModel.Name,
+                    c.Person.Name,
                     history.OrderCount,
                     history.LastOrderDate,
                     daysSinceLastOrder,

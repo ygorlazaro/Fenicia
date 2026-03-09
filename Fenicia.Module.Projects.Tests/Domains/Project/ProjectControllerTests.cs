@@ -4,6 +4,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.Project;
 using Fenicia.Module.Projects.Domains.Project.Add;
 using Fenicia.Module.Projects.Domains.Project.Delete;
@@ -95,10 +96,10 @@ public class ProjectControllerTests
         // Arrange
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -116,22 +117,22 @@ public class ProjectControllerTests
     public async Task GetAsync_WhenProjectsExist_ReturnsOkWithProjects()
     {
         // Arrange
-        var project1 = new Common.Data.Models.ProjectModel
+        var project1 = new ProjectModel
         {
             Id = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
         };
 
-        var project2 = new Common.Data.Models.ProjectModel
+        var project2 = new ProjectModel
         {
             Id = Guid.NewGuid(),
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Completed,
+            Status = Common.Enums.Project.EnumProjectStatus.Completed,
             StartDate = DateTime.UtcNow.AddDays(-10),
             EndDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
@@ -142,10 +143,10 @@ public class ProjectControllerTests
 
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -163,12 +164,12 @@ public class ProjectControllerTests
     public async Task GetByIdAsync_WhenProjectExists_ReturnsOkWithProject()
     {
         // Arrange
-        var project = new Common.Data.Models.ProjectModel
+        var project = new ProjectModel
         {
             Id = this.testProjectId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
         };
@@ -176,10 +177,10 @@ public class ProjectControllerTests
         this.context.Projects.Add(project);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testProjectId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testProjectId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -202,10 +203,10 @@ public class ProjectControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -225,10 +226,10 @@ public class ProjectControllerTests
             null,
             Guid.NewGuid());
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -251,12 +252,12 @@ public class ProjectControllerTests
     public async Task PatchAsync_WhenProjectExists_ReturnsOkWithUpdatedProject()
     {
         // Arrange
-        var project = new Common.Data.Models.ProjectModel
+        var project = new ProjectModel
         {
             Id = this.testProjectId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
         };
@@ -273,10 +274,10 @@ public class ProjectControllerTests
             DateTime.UtcNow,
             project.Owner);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testProjectId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testProjectId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -304,10 +305,10 @@ public class ProjectControllerTests
             null,
             Guid.NewGuid());
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -318,12 +319,12 @@ public class ProjectControllerTests
     public async Task DeleteAsync_WhenProjectExists_ReturnsNoContent()
     {
         // Arrange
-        var project = new Common.Data.Models.ProjectModel
+        var project = new ProjectModel
         {
             Id = this.testProjectId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.ProjectStatus.Active,
+            Status = Common.Enums.Project.EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
         };
@@ -331,16 +332,16 @@ public class ProjectControllerTests
         this.context.Projects.Add(project);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testProjectId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testProjectId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify project was deleted
-        var deletedProject = await this.context.Projects.FirstOrDefaultAsync(x => x.Id == this.testProjectId && x.Deleted == null, cancellationToken);
+        var deletedProject = await this.context.Projects.FirstOrDefaultAsync(x => x.Id == this.testProjectId && x.Deleted == null, ct);
         Assert.That(deletedProject, Is.Null);
     }
 
@@ -349,10 +350,10 @@ public class ProjectControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

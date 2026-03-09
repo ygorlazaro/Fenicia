@@ -1,9 +1,15 @@
 using System.Reflection;
 
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Data.Models.SocialNetworkModels;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+
+using OrderDetailModel = Fenicia.Common.Data.Models.Basic.OrderDetailModel;
+using OrderModel = Fenicia.Common.Data.Models.Basic.OrderModel;
 
 namespace Fenicia.Common.Data.Contexts;
 
@@ -24,55 +30,55 @@ public class DefaultContext : DbContext
         this.companyContext = new CompanyContext(new HttpContextAccessor());
     }
 
-    public DbSet<AuthRoleModel> Roles { get; set; } = null!;
+    public DbSet<RoleModel> Roles { get; set; } = null!;
 
-    public DbSet<AuthUserModel> AuthUsers { get; set; } = null!;
+    public DbSet<UserModel> AuthUsers { get; set; } = null!;
 
-    public DbSet<AuthUserRoleModel> UserRoles { get; set; } = null!;
+    public DbSet<UserRoleModel> UserRoles { get; set; } = null!;
 
-    public DbSet<AuthCompanyModel> Companies { get; set; } = null!;
+    public DbSet<CompanyModel> Companies { get; set; } = null!;
 
-    public DbSet<AuthModuleModel> Modules { get; set; } = null!;
+    public DbSet<ModuleModel> Modules { get; set; } = null!;
 
-    public DbSet<AuthOrderModel> Orders { get; set; } = null!;
+    public DbSet<Models.Auth.OrderModel> Orders { get; set; } = null!;
 
-    public DbSet<AuthOrderDetailModel> OrderDetails { get; set; } = null!;
+    public DbSet<Models.Auth.OrderDetailModel> OrderDetails { get; set; } = null!;
 
-    public DbSet<AuthSubscriptionModel> Subscriptions { get; set; } = null!;
+    public DbSet<SubscriptionModel> Subscriptions { get; set; } = null!;
 
-    public DbSet<AuthSubscriptionCreditModel> SubscriptionCredits { get; set; } = null!;
+    public DbSet<SubscriptionCreditModel> SubscriptionCredits { get; set; } = null!;
 
-    public DbSet<AuthAddressModel> Addresses { get; set; } = null!;
+    public DbSet<AddressModel> Addresses { get; set; } = null!;
 
-    public DbSet<AuthStateModel> States { get; set; } = null!;
+    public DbSet<StateModel> States { get; set; } = null!;
 
-    public DbSet<AuthForgotPassowrdModel> ForgottenPasswords { get; set; } = null!;
+    public DbSet<ForgotPasswordModel> ForgottenPasswords { get; set; } = null!;
 
-    public DbSet<AuthSubmoduleModel> Submodules { get; set; } = null!;
+    public DbSet<SubmoduleModel> Submodules { get; set; } = null!;
 
-    public DbSet<BasicCustomerModel> BasicCustomers { get; set; }
+    public DbSet<CustomerModel> BasicCustomers { get; set; }
 
-    public DbSet<BasicEmployeeModel> BasicEmployees { get; set; }
+    public DbSet<EmployeeModel> BasicEmployees { get; set; }
 
-    public DbSet<BasicPositionModel> BasicPositions { get; set; }
+    public DbSet<PositionModel> BasicPositions { get; set; }
 
-    public DbSet<BasicProductCategoryModel> BasicProductCategories { get; set; }
+    public DbSet<ProductCategoryModel> BasicProductCategories { get; set; }
 
-    public DbSet<BasicProductModel> BasicProducts { get; set; }
+    public DbSet<ProductModel> BasicProducts { get; set; }
 
-    public DbSet<BasicStockMovementModel> BasicStockMovements { get; set; }
+    public DbSet<StockMovementModel> BasicStockMovements { get; set; }
 
-    public DbSet<BasicSupplierModel> BasicSuppliers { get; set; }
+    public DbSet<SupplierModel> BasicSuppliers { get; set; }
 
-    public DbSet<BasicOrderModel> BasicOrders { get; set; }
+    public DbSet<OrderModel> BasicOrders { get; set; }
 
-    public DbSet<BasicOrderDetailModel> BasicOrderDetails { get; set; }
+    public DbSet<OrderDetailModel> BasicOrderDetails { get; set; }
 
-    public DbSet<BasicPersonModel> BasicPeople { get; set; }
+    public DbSet<PersonModel> BasicPeople { get; set; }
 
-    public DbSet<SNFeedModel> SNFeeds { get; set; }
+    public DbSet<FeedModel> SNFeeds { get; set; }
 
-    public DbSet<SNFollowerModel> SNFollowers { get; set; }
+    public DbSet<FollowerModel> SNFollowers { get; set; }
 
     public DbSet<ProjectModel> Projects { get; set; }
 
@@ -84,11 +90,11 @@ public class DefaultContext : DbContext
 
     public DbSet<ProjectCommentModel> ProjectComments { get; set; }
 
-    public DbSet<ProjectAttachmentModel> ProjectAttachments { get; set; }
+    public DbSet<AttachmentModel> ProjectAttachments { get; set; }
 
-    public DbSet<ProjectTaskAssigneeModel> ProjectTaskAssignees { get; set; }
+    public DbSet<TaskAssigneeModel> ProjectTaskAssignees { get; set; }
 
-    public override Task<int> SaveChangesAsync(CancellationToken ct)
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         foreach (var item in this.ChangeTracker.Entries())
         {
@@ -114,7 +120,7 @@ public class DefaultContext : DbContext
 
         ApplyCompanyId();
 
-        return base.SaveChangesAsync(ct);
+        return base.SaveChangesAsync(cancellationToken);
     }
 
     private void ApplyCompanyId()
@@ -139,16 +145,16 @@ public class DefaultContext : DbContext
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
         ApplyFilters(modelBuilder);
 
-        modelBuilder.Entity<BasicCustomerModel>()
-            .HasOne(c => c.PersonModel)
+        modelBuilder.Entity<CustomerModel>()
+            .HasOne(c => c.Person)
             .WithOne(p => p.Customer)
-            .HasForeignKey<BasicCustomerModel>(c => c.PersonId)
+            .HasForeignKey<CustomerModel>(c => c.PersonId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<BasicEmployeeModel>()
-            .HasOne(e => e.PersonModel)
+        modelBuilder.Entity<EmployeeModel>()
+            .HasOne(e => e.Person)
             .WithOne(p => p.Employee)
-            .HasForeignKey<BasicEmployeeModel>(e => e.PersonId)
+            .HasForeignKey<EmployeeModel>(e => e.PersonId)
             .OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);
@@ -164,16 +170,16 @@ public class DefaultContext : DbContext
                     .GetMethod(nameof(SetFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
                     .MakeGenericMethod(entityType.ClrType);
 
-                method.Invoke(this, new object[] { modelBuilder });
+                method.Invoke(this, [modelBuilder]);
             }
-            else if (typeof(BaseModel).IsAssignableFrom(entityType.ClrType) && 
+            else if (typeof(BaseModel).IsAssignableFrom(entityType.ClrType) &&
                      !typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
             {
                 var method = typeof(DefaultContext)
                     .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
                     .MakeGenericMethod(entityType.ClrType);
 
-                method.Invoke(this, new object[] { modelBuilder });
+                method.Invoke(this, [modelBuilder]);
             }
         }
     }
@@ -182,7 +188,7 @@ public class DefaultContext : DbContext
         where TEntity : BaseCompanyModel
     {
         modelBuilder.Entity<TEntity>()
-            .HasQueryFilter(e => (this.CurrentCompanyId == null || e.CompanyId == this.CurrentCompanyId) 
+            .HasQueryFilter(e => (this.CurrentCompanyId == null || e.CompanyId == this.CurrentCompanyId)
                               && e.Deleted == null);
     }
 

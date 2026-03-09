@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
 
 using Microsoft.EntityFrameworkCore;
@@ -54,7 +54,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
         var order1Id = Guid.NewGuid();
         var order2Id = Guid.NewGuid();
 
-        var detail1 = new BasicOrderDetailModel
+        var detail1 = new OrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = order1Id,
@@ -63,7 +63,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
             Quantity = 5
         };
 
-        var detail2 = new BasicOrderDetailModel
+        var detail2 = new OrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = order1Id,
@@ -72,7 +72,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
             Quantity = 3
         };
 
-        var detail3 = new BasicOrderDetailModel
+        var detail3 = new OrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = order2Id,
@@ -100,7 +100,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
     {
         // Arrange
         var orderId = Guid.NewGuid();
-        var detail = new BasicOrderDetailModel
+        var detail = new OrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = orderId,

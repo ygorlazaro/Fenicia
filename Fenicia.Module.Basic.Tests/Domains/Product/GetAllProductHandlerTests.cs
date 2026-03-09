@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -43,17 +43,17 @@ public class GetAllProductHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
     }
 
     [Test]
     public async Task Handle_WithProducts_ReturnsAllProducts()
     {
         // Arrange
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product1 = new BasicProductModel
+        var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 1",
@@ -63,7 +63,7 @@ public class GetAllProductHandlerTests
             CategoryId = category.Id
         };
 
-        var product2 = new BasicProductModel
+        var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 2",
@@ -83,11 +83,11 @@ public class GetAllProductHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
+        Assert.That(result.Data, Has.Count.EqualTo(2));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Any(p => p.Id == product1.Id));
-            Assert.That(result.Any(p => p.Id == product2.Id));
+            Assert.That(result.Data.Any(p => p.Id == product1.Id));
+            Assert.That(result.Data.Any(p => p.Id == product2.Id));
         }
     }
 
@@ -95,12 +95,12 @@ public class GetAllProductHandlerTests
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
-            var product = new BasicProductModel
+            var product = new ProductModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
@@ -121,19 +121,19 @@ public class GetAllProductHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.That(result.Data, Has.Count.EqualTo(10));
     }
 
     [Test]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 5; i++)
         {
-            var product = new BasicProductModel
+            var product = new ProductModel
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
@@ -154,17 +154,17 @@ public class GetAllProductHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.That(result.Data, Is.Empty);
     }
 
     [Test]
     public async Task Handle_VerifiesCategoryDataIsIncluded()
     {
         // Arrange
-        var category = new BasicProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         this.context.BasicProductCategories.Add(category);
 
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -184,7 +184,7 @@ public class GetAllProductHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result[0].CategoryName, Is.EqualTo("Electronics"));
+        Assert.That(result.Data, Has.Count.EqualTo(1));
+        Assert.That(result.Data[0].CategoryName, Is.EqualTo("Electronics"));
     }
 }

@@ -1,5 +1,4 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Enums.Basic;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -12,12 +11,12 @@ public class GetStockMovementHandler(DefaultContext context)
         var movementsQuery = context.BasicStockMovements
             .Include(m => m.Product)
             .Include(m => m.Customer)
-            .ThenInclude(c => c != null ? c.PersonModel : null)
+            .ThenInclude(c => c != null ? c.Person : null)
             .Include(m => m.Supplier)
             .ThenInclude(s => s != null ? s.Person : null)
             .Include(m => m.Employee)
-            .ThenInclude(e => e != null ? e.PersonModel : null)
-            .Include(m => m.OrderModel)
+            .ThenInclude(e => e != null ? e.Person : null)
+            .Include(m => m.Order)
             .Where(m => m.Date >= query.StartDate && m.Date <= query.EndDate);
 
         return await movementsQuery
@@ -30,11 +29,11 @@ public class GetStockMovementHandler(DefaultContext context)
                 m.Price,
                 m.Type,
                 m.CustomerId,
-                m.CustomerId.HasValue ? m.Customer!.PersonModel.Name : null,
+                m.CustomerId.HasValue ? m.Customer!.Person.Name : null,
                 m.SupplierId,
                 m.SupplierId.HasValue ? m.Supplier!.Person.Name : null,
                 m.EmployeeId,
-                m.EmployeeId.HasValue ? m.Employee!.PersonModel.Name : null,
+                m.EmployeeId.HasValue ? m.Employee!.Person.Name : null,
                 m.OrderId,
                 m.Reason))
             .Skip((query.Page - 1) * query.PerPage)

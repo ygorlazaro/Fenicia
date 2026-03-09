@@ -2,7 +2,8 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Supplier.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,19 +42,19 @@ public class GetSupplierByIdHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var supplier = new BasicSupplierModel
+        var supplier = new SupplierModel
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -64,7 +65,7 @@ public class GetSupplierByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City()
             }
         };
@@ -129,19 +130,19 @@ public class GetSupplierByIdHandlerTests
         // Arrange
         var supplier1Id = Guid.NewGuid();
         var supplier2Id = Guid.NewGuid();
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var supplier1 = new BasicSupplierModel
+        var supplier1 = new SupplierModel
         {
             Id = supplier1Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -152,16 +153,16 @@ public class GetSupplierByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City()
             }
         };
 
-        var supplier2 = new BasicSupplierModel
+        var supplier2 = new SupplierModel
         {
             Id = supplier2Id,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -172,7 +173,7 @@ public class GetSupplierByIdHandlerTests
                 Number = this.faker.Random.Replace("####"),
                 ZipCode = this.faker.Address.ZipCode(),
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = this.faker.Address.City()
             }
         };
@@ -199,19 +200,19 @@ public class GetSupplierByIdHandlerTests
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var state = new AuthStateModel
+        var state = new StateModel
         {
             Id = Guid.NewGuid(),
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.context.States.Add(state);
 
-        var supplier = new BasicSupplierModel
+        var supplier = new SupplierModel
         {
             Id = supplierId,
             PersonId = Guid.NewGuid(),
-            Person = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
@@ -223,7 +224,7 @@ public class GetSupplierByIdHandlerTests
                 Neighborhood = null,
                 ZipCode = string.Empty,
                 StateId = state.Id,
-                StateModel = state,
+                State = state,
                 City = null,
                 PhoneNumber = this.faker.Phone.PhoneNumber()
             }
@@ -239,7 +240,10 @@ public class GetSupplierByIdHandlerTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Name, Is.EqualTo(supplier.Person.Name));
-        Assert.That(result.Email, Is.EqualTo(supplier.Person.Email));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Name, Is.EqualTo(supplier.Person.Name));
+            Assert.That(result.Email, Is.EqualTo(supplier.Person.Email));
+        }
     }
 }

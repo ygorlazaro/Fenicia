@@ -1,6 +1,8 @@
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.CreateOrder;
 
@@ -8,7 +10,7 @@ public class CreateOrderHandler(DefaultContext context)
 {
     public async Task<CreateOrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)
     {
-        var details = command.Details.Select(d => new BasicOrderDetailModel
+        var details = command.Details.Select(d => new OrderDetailModel
         {
             Id = Guid.NewGuid(),
             ProductId = d.ProductId,
@@ -16,7 +18,7 @@ public class CreateOrderHandler(DefaultContext context)
             Quantity = d.Quantity
         }).ToList();
 
-        var order = new BasicOrderModel
+        var order = new OrderModel
         {
             Id = Guid.NewGuid(),
             UserId = command.UserId,
@@ -34,7 +36,7 @@ public class CreateOrderHandler(DefaultContext context)
         foreach (var detail in details)
         {
             // Create stock movement (Out = subtracting from stock)
-            var stockMovement = new BasicStockMovementModel
+            var stockMovement = new StockMovementModel
             {
                 Id = Guid.NewGuid(),
                 Date = DateTime.UtcNow,
@@ -51,11 +53,12 @@ public class CreateOrderHandler(DefaultContext context)
             context.BasicStockMovements.Add(stockMovement);
 
             // Update product quantity
-            var product = await context.BasicProducts.FindAsync([detail.ProductId], ct);
+            var product = await context.BasicProducts.FirstOrDefaultAsync(p => p.Id == detail.ProductId, ct);
+
             if (product is not null)
             {
                 product.Quantity -= detail.Quantity;
-                context.BasicProducts.Update(product);
+                context.Entry(product).State = EntityState.Modified;
             }
         }
 

@@ -55,9 +55,9 @@ public class StockMovementController(
     public async Task<ActionResult<UpdateStockMovementResponse>> PatchAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateStockMovementCommand command,
-        CancellationToken cancellationToken)
+        CancellationToken ct)
     {
-        var stockMovement = await updateStockMovementHandler.Handle(command with { Id = id }, cancellationToken);
+        var stockMovement = await updateStockMovementHandler.Handle(command with { Id = id }, ct);
 
         return stockMovement is null ? NotFound() : new CreatedResult(string.Empty, stockMovement);
     }

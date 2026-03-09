@@ -1,6 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement.Add;
 
@@ -37,7 +37,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_WithValidCommand_AddsStockMovementAndReturnsResponse()
     {
         // Arrange
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -56,6 +56,9 @@ public class AddStockMovementHandlerTests
             15.00m,
             StockMovementType.In,
             product.Id,
+            null,
+            null,
+            null,
             null,
             null);
 
@@ -77,7 +80,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_WithStockMovementIn_IncreasesProductQuantity()
     {
         // Arrange
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -97,6 +100,9 @@ public class AddStockMovementHandlerTests
             StockMovementType.In,
             product.Id,
             null,
+            null,
+            null,
+            null,
             null);
 
         // Act
@@ -112,7 +118,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_WithStockMovementOut_DecreasesProductQuantity()
     {
         // Arrange
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -131,6 +137,9 @@ public class AddStockMovementHandlerTests
             15.00m,
             StockMovementType.Out,
             product.Id,
+            null,
+            null,
+            null,
             null,
             null);
 
@@ -155,6 +164,9 @@ public class AddStockMovementHandlerTests
             StockMovementType.In,
             Guid.NewGuid(),
             null,
+            null,
+            null,
+            null,
             null);
 
         // Act
@@ -170,7 +182,7 @@ public class AddStockMovementHandlerTests
     public async Task Handle_VerifiesStockMovementWasSavedToDatabase()
     {
         // Arrange
-        var product = new BasicProductModel
+        var product = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product",
@@ -189,6 +201,9 @@ public class AddStockMovementHandlerTests
             15.00m,
             StockMovementType.In,
             product.Id,
+            null,
+            null,
+            null,
             null,
             null);
 

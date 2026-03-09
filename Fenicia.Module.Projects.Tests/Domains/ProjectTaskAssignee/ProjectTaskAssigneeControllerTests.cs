@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Add;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Delete;
@@ -91,10 +92,10 @@ public class ProjectTaskAssigneeControllerTests
         // Arrange
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -112,21 +113,21 @@ public class ProjectTaskAssigneeControllerTests
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectTaskAssignee1 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var projectTaskAssignee1 = new TaskAssigneeModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
-            Role  = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow
         };
 
-        var projectTaskAssignee2 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var projectTaskAssignee2 = new TaskAssigneeModel
         {
             Id = Guid.NewGuid(),
             TaskId = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
-            Role  = Common.Enums.Project.AssigneeRole.Contributor,
+            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-1)
         };
 
@@ -135,10 +136,10 @@ public class ProjectTaskAssigneeControllerTests
 
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -156,22 +157,22 @@ public class ProjectTaskAssigneeControllerTests
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectTaskAssignee = new Common.Data.Models.ProjectTaskAssigneeModel
+        var projectTaskAssignee = new TaskAssigneeModel
         {
             Id = this.testProjectTaskAssigneeId,
             TaskId = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
-            Role  = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow
         };
 
         this.context.ProjectTaskAssignees.Add(projectTaskAssignee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testProjectTaskAssigneeId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testProjectTaskAssigneeId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -194,10 +195,10 @@ public class ProjectTaskAssigneeControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -215,10 +216,10 @@ public class ProjectTaskAssigneeControllerTests
             "Owner",
             DateTime.UtcNow);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -241,12 +242,12 @@ public class ProjectTaskAssigneeControllerTests
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectTaskAssignee = new Common.Data.Models.ProjectTaskAssigneeModel
+        var projectTaskAssignee = new TaskAssigneeModel
         {
             Id = this.testProjectTaskAssigneeId,
             TaskId = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
-            Role  = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow
         };
 
@@ -260,10 +261,10 @@ public class ProjectTaskAssigneeControllerTests
             "Contributor",
             projectTaskAssignee.AssignedAt);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testProjectTaskAssigneeId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testProjectTaskAssigneeId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -289,10 +290,10 @@ public class ProjectTaskAssigneeControllerTests
             "Owner",
             DateTime.UtcNow);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -303,28 +304,28 @@ public class ProjectTaskAssigneeControllerTests
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectTaskAssignee = new Common.Data.Models.ProjectTaskAssigneeModel
+        var projectTaskAssignee = new TaskAssigneeModel
         {
             Id = this.testProjectTaskAssigneeId,
             TaskId = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
-            Role  = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow
         };
 
         this.context.ProjectTaskAssignees.Add(projectTaskAssignee);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testProjectTaskAssigneeId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testProjectTaskAssigneeId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify project task assignee was deleted
-        var deletedAssignee = await this.context.ProjectTaskAssignees.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskAssigneeId && x.Deleted == null, cancellationToken);
+        var deletedAssignee = await this.context.ProjectTaskAssignees.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskAssigneeId && x.Deleted == null, ct);
         Assert.That(deletedAssignee, Is.Null);
     }
 
@@ -333,10 +334,10 @@ public class ProjectTaskAssigneeControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

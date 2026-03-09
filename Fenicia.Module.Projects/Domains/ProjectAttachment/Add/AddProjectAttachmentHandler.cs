@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 
 namespace Fenicia.Module.Projects.Domains.ProjectAttachment.Add;
 
@@ -6,7 +7,7 @@ public class AddProjectAttachmentHandler(DefaultContext context)
 {
     public async Task<AddProjectAttachmentResponse> Handle(AddProjectAttachmentCommand command, CancellationToken ct)
     {
-        var projectAttachment = new Common.Data.Models.ProjectAttachmentModel
+        var projectAttachment = new AttachmentModel
         {
             Id = command.Id,
             TaskId = command.TaskId,

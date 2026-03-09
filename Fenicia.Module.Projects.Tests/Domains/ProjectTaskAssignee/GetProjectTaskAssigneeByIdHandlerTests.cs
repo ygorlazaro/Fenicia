@@ -1,5 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -39,12 +40,12 @@ public class GetProjectTaskAssigneeByIdHandlerTests
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var assignedAt = DateTime.UtcNow.AddDays(-5);
-        var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee = new TaskAssigneeModel
         {
             Id = assigneeId,
             TaskId = taskId,
             UserId = userId,
-            Role = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = assignedAt
         };
 
@@ -101,21 +102,21 @@ public class GetProjectTaskAssigneeByIdHandlerTests
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
 
-        var assignee1 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee1 = new TaskAssigneeModel
         {
             Id = assignee1Id,
             TaskId = taskId,
             UserId = userId1,
-            Role = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
-        var assignee2 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee2 = new TaskAssigneeModel
         {
             Id = assignee2Id,
             TaskId = taskId,
             UserId = userId2,
-            Role = Common.Enums.Project.AssigneeRole.Contributor,
+            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
@@ -144,12 +145,12 @@ public class GetProjectTaskAssigneeByIdHandlerTests
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var assignedAt = DateTime.UtcNow.AddDays(-10);
-        var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee = new TaskAssigneeModel
         {
             Id = assigneeId,
             TaskId = taskId,
             UserId = userId,
-            Role = Common.Enums.Project.AssigneeRole.Contributor,
+            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
             AssignedAt = assignedAt
         };
 

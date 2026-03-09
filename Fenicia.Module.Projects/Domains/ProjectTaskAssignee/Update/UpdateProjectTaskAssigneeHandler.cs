@@ -18,7 +18,7 @@ public class UpdateProjectTaskAssigneeHandler(DefaultContext context)
 
         assignee.TaskId = command.TaskId;
         assignee.UserId = command.UserId;
-        assignee.Role = Enum.Parse<AssigneeRole>(command.Role, true);
+        assignee.Role = Enum.Parse<EnumAssigneeRole>(command.Role, true);
         assignee.AssignedAt = command.AssignedAt;
 
         context.ProjectTaskAssignees.Update(assignee);

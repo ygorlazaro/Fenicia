@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using Fenicia.Common.Exceptions;
+
 using StackExchange.Redis;
 
 namespace Fenicia.Auth.Domains.RefreshToken.ValidateToken;
@@ -13,7 +15,7 @@ public class ValidateTokenHandler(IConnectionMultiplexer redis)
     {
         if (string.IsNullOrWhiteSpace(query.RefreshToken))
         {
-            throw new ArgumentException("Invalid refresh token");
+            throw new InvalidRequestException("Invalid refresh token");
         }
 
         try

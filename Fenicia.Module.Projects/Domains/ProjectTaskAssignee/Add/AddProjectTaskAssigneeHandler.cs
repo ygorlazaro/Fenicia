@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Common.Enums.Project;
 
 namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Add;
@@ -7,12 +8,12 @@ public class AddProjectTaskAssigneeHandler(DefaultContext context)
 {
     public async Task<AddProjectTaskAssigneeResponse> Handle(AddProjectTaskAssigneeCommand command, CancellationToken ct)
     {
-        var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee = new TaskAssigneeModel
         {
             Id = command.Id,
             TaskId = command.TaskId,
             UserId = command.UserId,
-            Role = Enum.Parse<AssigneeRole>(command.Role, true),
+            Role = Enum.Parse<EnumAssigneeRole>(command.Role, true),
             AssignedAt = command.AssignedAt
         };
 

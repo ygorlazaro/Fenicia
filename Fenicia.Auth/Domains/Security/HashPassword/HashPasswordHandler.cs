@@ -1,4 +1,4 @@
-using Fenicia.Common;
+using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Domains.Security.HashPassword;
 
@@ -8,7 +8,7 @@ public class HashPasswordHandler
     {
         if (string.IsNullOrEmpty(password))
         {
-            throw new ArgumentException(TextConstants.InvalidPasswordMessage);
+            throw new InvalidRequestException("Password cannot be null or empty");
         }
 
         var hashed = BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));

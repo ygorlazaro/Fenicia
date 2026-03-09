@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ public class UpdateProjectSubtaskHandlerTests
         // Arrange
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var subtask = new Common.Data.Models.ProjectSubtaskModel
+        var subtask = new ProjectSubtaskModel
         {
             Id = subtaskId,
             TaskId = taskId,
@@ -120,7 +121,7 @@ public class UpdateProjectSubtaskHandlerTests
         var subtask2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
 
-        var subtask1 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask1 = new ProjectSubtaskModel
         {
             Id = subtask1Id,
             TaskId = taskId,
@@ -130,7 +131,7 @@ public class UpdateProjectSubtaskHandlerTests
             CompletedAt = null
         };
 
-        var subtask2 = new Common.Data.Models.ProjectSubtaskModel
+        var subtask2 = new ProjectSubtaskModel
         {
             Id = subtask2Id,
             TaskId = taskId,
@@ -165,12 +166,15 @@ public class UpdateProjectSubtaskHandlerTests
         var updatedSubtask1 = await this.context.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
         var subtask2InDb = await this.context.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
 
-        Assert.That(updatedSubtask1, Is.Not.Null);
-        Assert.That(subtask2InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(updatedSubtask1.Title, Is.EqualTo("Updated Subtask 1 Title"));
-            Assert.That(subtask2InDb.Title, Is.EqualTo("Subtask 2 Title"));
+            Assert.That(updatedSubtask1, Is.Not.Null);
+            Assert.That(subtask2InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(updatedSubtask1?.Title, Is.EqualTo("Updated Subtask 1 Title"));
+            Assert.That(subtask2InDb?.Title, Is.EqualTo("Subtask 2 Title"));
         }
     }
 
@@ -180,7 +184,7 @@ public class UpdateProjectSubtaskHandlerTests
         // Arrange
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var subtask = new Common.Data.Models.ProjectSubtaskModel
+        var subtask = new ProjectSubtaskModel
         {
             Id = subtaskId,
             TaskId = taskId,

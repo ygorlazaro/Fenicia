@@ -1,5 +1,6 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Delete;
 
 using Microsoft.EntityFrameworkCore;
@@ -38,12 +39,12 @@ public class DeleteProjectTaskAssigneeHandlerTests
         var assigneeId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var assignee = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee = new TaskAssigneeModel
         {
             Id = assigneeId,
             TaskId = taskId,
             UserId = userId,
-            Role = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
@@ -102,21 +103,21 @@ public class DeleteProjectTaskAssigneeHandlerTests
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
 
-        var assignee1 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee1 = new TaskAssigneeModel
         {
             Id = assignee1Id,
             TaskId = taskId,
             UserId = userId1,
-            Role = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
-        var assignee2 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee2 = new TaskAssigneeModel
         {
             Id = assignee2Id,
             TaskId = taskId,
             UserId = userId2,
-            Role = Common.Enums.Project.AssigneeRole.Contributor,
+            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
@@ -153,30 +154,30 @@ public class DeleteProjectTaskAssigneeHandlerTests
         var userId2 = Guid.NewGuid();
         var userId3 = Guid.NewGuid();
 
-        var assignee1 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee1 = new TaskAssigneeModel
         {
             Id = assignee1Id,
             TaskId = taskId,
             UserId = userId1,
-            Role = Common.Enums.Project.AssigneeRole.Owner,
+            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
-        var assignee2 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee2 = new TaskAssigneeModel
         {
             Id = assignee2Id,
             TaskId = taskId,
             UserId = userId2,
-            Role = Common.Enums.Project.AssigneeRole.Contributor,
+            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        var assignee3 = new Common.Data.Models.ProjectTaskAssigneeModel
+        var assignee3 = new TaskAssigneeModel
         {
             Id = assignee3Id,
             TaskId = taskId,
             UserId = userId3,
-            Role = Common.Enums.Project.AssigneeRole.Reviewer,
+            Role = Common.Enums.Project.EnumAssigneeRole.Reviewer,
             AssignedAt = DateTime.UtcNow.AddDays(-1)
         };
 
@@ -193,14 +194,17 @@ public class DeleteProjectTaskAssigneeHandlerTests
         var deletedAssignee = await this.context.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
         var assignee3InDb = await this.context.ProjectTaskAssignees.FindAsync([assignee3Id], CancellationToken.None);
 
-        Assert.That(assignee1InDb, Is.Not.Null);
-        Assert.That(deletedAssignee, Is.Not.Null);
-        Assert.That(assignee3InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(assignee1InDb.Deleted, Is.Null);
-            Assert.That(deletedAssignee.Deleted, Is.Not.Null);
-            Assert.That(assignee3InDb.Deleted, Is.Null);
+            Assert.That(assignee1InDb, Is.Not.Null);
+            Assert.That(deletedAssignee, Is.Not.Null);
+            Assert.That(assignee3InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(assignee1InDb?.Deleted, Is.Null);
+            Assert.That(deletedAssignee?.Deleted, Is.Not.Null);
+            Assert.That(assignee3InDb?.Deleted, Is.Null);
         }
     }
 }

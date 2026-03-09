@@ -14,16 +14,16 @@ public sealed class GetCompaniesByUserHandler(DefaultContext db)
     {
         if (query.PerPage <= 0)
         {
-            throw new ItemNotExistsException(TextConstants.ThereWasAnErrorSearchingModulesMessage);
+            throw new InvalidRequestException("The user is not associated with any active companies.");
         }
 
-        var baseQuery = db.UserRoles.Where(ur => ur.UserId == query.UserId && ur.CompanyModel.IsActive);
-        var total = await baseQuery.CountAsync(ct);
-        var items = await baseQuery
-            .OrderBy(ur => ur.CompanyModel.Name)
+        var request = db.UserRoles.Where(ur => ur.UserId == query.UserId && ur.Company.IsActive);
+        var total = await request.CountAsync(ct);
+        var items = await request
+            .OrderBy(ur => ur.Company.Name)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
-            .Select(ur => new GetCompaniesByUserResponse(ur.CompanyModel.Id, ur.CompanyModel.Name, ur.CompanyModel.Cnpj, ur.RoleModel.Name))
+            .Select(ur => new GetCompaniesByUserResponse(ur.Company.Id, ur.Company.Name, ur.Company.Cnpj, ur.Role.Name))
             .ToListAsync(ct);
 
         return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(items, total, query.Page, query.PerPage);

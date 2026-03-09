@@ -5,7 +5,7 @@ using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models;
+using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee.GetByPositionId;
 using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.Add;
@@ -101,10 +101,10 @@ public class PositionControllerTests
         // Arrange
         var page = 1;
         var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -115,21 +115,24 @@ public class PositionControllerTests
 
         var returnedPositions = okResult.Value as Pagination<List<GetAllPositionResponse>>;
         Assert.That(returnedPositions, Is.Not.Null);
-        Assert.That(returnedPositions.Data, Is.Empty);
-        Assert.That(returnedPositions.Total, Is.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedPositions.Data, Is.Empty);
+            Assert.That(returnedPositions.Total, Is.EqualTo(0));
+        }
     }
 
     [Test]
     public async Task GetAsync_WhenPositionsExist_ReturnsOkWithPositions()
     {
         // Arrange
-        var position1 = new BasicPositionModel
+        var position1 = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
         };
 
-        var position2 = new BasicPositionModel
+        var position2 = new PositionModel
         {
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.Department()
@@ -138,12 +141,12 @@ public class PositionControllerTests
         this.context.BasicPositions.AddRange(position1, position2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var page = 1;
-        var perPage = 10;
-        var cancellationToken = CancellationToken.None;
+        const int page = 1;
+        const int perPage = 10;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(page, perPage, cancellationToken);
+        var result = await this.controller.GetAsync(page, perPage, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -154,15 +157,18 @@ public class PositionControllerTests
 
         var returnedPositions = okResult.Value as Pagination<List<GetAllPositionResponse>>;
         Assert.That(returnedPositions, Is.Not.Null);
-        Assert.That(returnedPositions.Data, Has.Count.EqualTo(2));
-        Assert.That(returnedPositions.Total, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(returnedPositions.Data, Has.Count.EqualTo(2));
+            Assert.That(returnedPositions.Total, Is.EqualTo(2));
+        }
     }
 
     [Test]
     public async Task GetByIdAsync_WhenPositionExists_ReturnsOkWithPosition()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = this.testPositionId,
             Name = this.faker.Commerce.Department()
@@ -171,10 +177,10 @@ public class PositionControllerTests
         this.context.BasicPositions.Add(position);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(this.testPositionId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(this.testPositionId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -197,10 +203,10 @@ public class PositionControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.GetByIdAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -211,7 +217,7 @@ public class PositionControllerTests
     public async Task GetEmployeesByPositionIdAsync_WhenNoEmployeesExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = this.testPositionId,
             Name = this.faker.Commerce.Department()
@@ -221,10 +227,10 @@ public class PositionControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId, query, cancellationToken);
+        var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId, query, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -242,18 +248,18 @@ public class PositionControllerTests
     public async Task GetEmployeesByPositionIdAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = this.testPositionId,
             Name = this.faker.Commerce.Department()
         };
 
-        var employee1 = new BasicEmployeeModel
+        var employee1 = new EmployeeModel
         {
             Id = Guid.NewGuid(),
             PositionId = this.testPositionId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -262,12 +268,12 @@ public class PositionControllerTests
             }
         };
 
-        var employee2 = new BasicEmployeeModel
+        var employee2 = new EmployeeModel
         {
             Id = Guid.NewGuid(),
             PositionId = this.testPositionId,
             PersonId = Guid.NewGuid(),
-            PersonModel = new BasicPersonModel
+            Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = this.faker.Person.FullName,
@@ -281,10 +287,10 @@ public class PositionControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId, query, cancellationToken);
+        var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId, query, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -303,10 +309,10 @@ public class PositionControllerTests
     {
         // Arrange
         var command = new AddPositionCommand(Guid.NewGuid(), this.faker.Commerce.Department());
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PostAsync(command, cancellationToken);
+        var result = await this.controller.PostAsync(command, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -325,7 +331,7 @@ public class PositionControllerTests
     public async Task PatchAsync_WhenPositionExists_ReturnsOkWithUpdatedPosition()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = this.testPositionId,
             Name = this.faker.Commerce.Department()
@@ -335,10 +341,10 @@ public class PositionControllerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdatePositionCommand(this.testPositionId, this.faker.Commerce.Department() + " Updated");
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, this.testPositionId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, this.testPositionId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -358,10 +364,10 @@ public class PositionControllerTests
         // Arrange
         var nonExistentId = Guid.NewGuid();
         var command = new UpdatePositionCommand(nonExistentId, this.faker.Commerce.Department());
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.PatchAsync(command, nonExistentId, cancellationToken);
+        var result = await this.controller.PatchAsync(command, nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -372,7 +378,7 @@ public class PositionControllerTests
     public async Task DeleteAsync_WhenPositionExists_ReturnsNoContent()
     {
         // Arrange
-        var position = new BasicPositionModel
+        var position = new PositionModel
         {
             Id = this.testPositionId,
             Name = this.faker.Commerce.Department()
@@ -381,16 +387,16 @@ public class PositionControllerTests
         this.context.BasicPositions.Add(position);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testPositionId, cancellationToken);
+        var result = await this.controller.DeleteAsync(this.testPositionId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);
 
         // Verify position was deleted
-        var deletedPosition = await this.context.BasicPositions.FirstOrDefaultAsync(x => x.Id == this.testPositionId && x.Deleted == null, cancellationToken);
+        var deletedPosition = await this.context.BasicPositions.FirstOrDefaultAsync(x => x.Id == this.testPositionId && x.Deleted == null, ct);
         Assert.That(deletedPosition, Is.Null);
     }
 
@@ -399,10 +405,10 @@ public class PositionControllerTests
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var cancellationToken = CancellationToken.None;
+        var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentId, cancellationToken);
+        var result = await this.controller.DeleteAsync(nonExistentId, ct);
 
         // Assert
         Assert.That(result, Is.Not.Null);

@@ -10,10 +10,8 @@ public class GetAllCustomerForDataSourceHandler(DefaultContext context)
     {
         return await context.BasicCustomers
             .AsNoTracking()
-            .OrderBy(c => c.PersonModel.Name)
-            .Select(c => new GetAllCustomerForDataSourceResponse(c.Id, c.PersonModel.Name))
+            .OrderBy(c => c.Person.Name)
+            .Select(c => new GetAllCustomerForDataSourceResponse(c.Id, c.Person.Name))
             .ToListAsync(ct);
     }
 }
-
-public record GetAllCustomerForDataSourceResponse(Guid Id, string Name);

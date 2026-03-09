@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.ProjectModels;
 using Fenicia.Module.Projects.Domains.ProjectTask.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -42,15 +43,15 @@ public class UpdateProjectTaskHandlerTests
         var taskId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
-        var task = new Common.Data.Models.ProjectTaskModel
+        var task = new ProjectTaskModel
         {
             Id = taskId,
             ProjectId = projectId,
             StatusId = statusId,
             Title = "Old Task Title",
             Description = "Old Description",
-            Priority = Common.Enums.Project.TaskPriority.Low,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Low,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 3,
             DueDate = DateTime.UtcNow.AddDays(5),
@@ -142,30 +143,30 @@ public class UpdateProjectTaskHandlerTests
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
 
-        var task1 = new Common.Data.Models.ProjectTaskModel
+        var task1 = new ProjectTaskModel
         {
             Id = task1Id,
             ProjectId = projectId,
             StatusId = statusId,
             Title = "Task 1 Title",
             Description = "Task 1 Description",
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
             CreatedBy = Guid.NewGuid()
         };
 
-        var task2 = new Common.Data.Models.ProjectTaskModel
+        var task2 = new ProjectTaskModel
         {
             Id = task2Id,
             ProjectId = projectId,
             StatusId = statusId,
             Title = "Task 2 Title",
             Description = "Task 2 Description",
-            Priority = Common.Enums.Project.TaskPriority.Low,
-            Type = Common.Enums.Project.TaskType.Bug,
+            Priority = Common.Enums.Project.EnumTaskPriority.Low,
+            Type = Common.Enums.Project.EnumTaskType.Bug,
             Order = 2,
             EstimatePoints = 3,
             DueDate = null,
@@ -202,12 +203,15 @@ public class UpdateProjectTaskHandlerTests
         var updatedTask1 = await this.context.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
         var task2InDb = await this.context.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
 
-        Assert.That(updatedTask1, Is.Not.Null);
-        Assert.That(task2InDb, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(updatedTask1.Title, Is.EqualTo("Updated Task 1 Title"));
-            Assert.That(task2InDb.Title, Is.EqualTo("Task 2 Title"));
+            Assert.That(updatedTask1, Is.Not.Null);
+            Assert.That(task2InDb, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(updatedTask1?.Title, Is.EqualTo("Updated Task 1 Title"));
+            Assert.That(task2InDb?.Title, Is.EqualTo("Task 2 Title"));
         }
     }
 
@@ -218,15 +222,15 @@ public class UpdateProjectTaskHandlerTests
         var taskId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
-        var task = new Common.Data.Models.ProjectTaskModel
+        var task = new ProjectTaskModel
         {
             Id = taskId,
             ProjectId = projectId,
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.TaskPriority.Medium,
-            Type = Common.Enums.Project.TaskType.Task,
+            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
+            Type = Common.Enums.Project.EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
