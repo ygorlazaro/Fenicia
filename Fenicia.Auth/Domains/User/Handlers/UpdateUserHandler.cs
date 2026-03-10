@@ -15,7 +15,7 @@ public class UpdateUserHandler(
 {
     public virtual async Task<UpdateUserResponse> Handle(UpdateUserCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.ExisingAsync(command.UserId, ct);
+        var user = await db.AuthUsers.FirstByIdAsync(command.UserId, ct);
 
         await ValidateFields(user, command, ct);
         

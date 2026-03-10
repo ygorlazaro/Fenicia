@@ -2,8 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.Token.GenerateToken;
-using Fenicia.Auth.Domains.Token.GenerateTokenString;
+using Fenicia.Auth.Domains.Token.Handlers;
+using Fenicia.Auth.Domains.Token.Responses;
 
 using Microsoft.Extensions.Configuration;
 

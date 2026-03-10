@@ -1,23 +1,23 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.LoginAttempt.ResetAttempts;
+using Fenicia.Auth.Domains.LoginAttempt.Services;
 
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-public class ResetAttemptsHandlerTests : IDisposable
+public class ResetAttemptsServiceTests : IDisposable
 {
-    public ResetAttemptsHandlerTests()
+    public ResetAttemptsServiceTests()
     {
         this.cache = new MemoryCache(new MemoryCacheOptions());
-        this.handler = new ResetAttemptsHandler(this.cache);
+        this._service = new ResetAttemptsService(this.cache);
         this.faker = new Faker();
     }
 
     private readonly MemoryCache cache;
     private readonly Faker faker;
-    private readonly ResetAttemptsHandler handler;
+    private readonly ResetAttemptsService _service;
 
     [Fact]
     public async Task Handle_WhenAttemptsExist_RemovesAttempts()
@@ -28,7 +28,7 @@ public class ResetAttemptsHandlerTests : IDisposable
         this.cache.Set(key, 5);
 
         // Act
-        await this.handler.Handle(email);
+        await this._service.Handle(email);
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
@@ -42,7 +42,7 @@ public class ResetAttemptsHandlerTests : IDisposable
         var email = this.faker.Internet.Email();
 
         // Act
-        await this.handler.Handle(email);
+        await this._service.Handle(email);
 
         // Assert
         // Should complete successfully even when no attempts exist
@@ -58,7 +58,7 @@ public class ResetAttemptsHandlerTests : IDisposable
         this.cache.Set(key, 3);
 
         // Act
-        await this.handler.Handle(upperCaseEmail);
+        await this._service.Handle(upperCaseEmail);
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
@@ -69,7 +69,7 @@ public class ResetAttemptsHandlerTests : IDisposable
     public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handle(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await this._service.Handle(null!));
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public class ResetAttemptsHandlerTests : IDisposable
         this.cache.Set(key, 2);
 
         // Act
-        await this.handler.Handle(email);
+        await this._service.Handle(email);
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
@@ -100,7 +100,7 @@ public class ResetAttemptsHandlerTests : IDisposable
         this.cache.Set(key2, 4);
 
         // Act
-        await this.handler.Handle(email1);
+        await this._service.Handle(email1);
 
         // Assert
         Assert.False(this.cache.TryGetValue(key1, out _));
@@ -117,7 +117,7 @@ public class ResetAttemptsHandlerTests : IDisposable
         this.cache.Set(key, 100);
 
         // Act
-        await this.handler.Handle(email);
+        await this._service.Handle(email);
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
@@ -131,9 +131,9 @@ public class ResetAttemptsHandlerTests : IDisposable
         var email = this.faker.Internet.Email();
 
         // Act
-        await this.handler.Handle(email);
-        await this.handler.Handle(email);
-        await this.handler.Handle(email);
+        await this._service.Handle(email);
+        await this._service.Handle(email);
+        await this._service.Handle(email);
 
         // Assert - Should handle multiple resets without errors
     }

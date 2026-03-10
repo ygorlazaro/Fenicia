@@ -2,17 +2,15 @@ using System.Globalization;
 
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Fenicia.Auth.Domains.LoginAttempt.ResetAttempts;
+namespace Fenicia.Auth.Domains.LoginAttempt.Services;
 
-public class ResetAttemptsHandler(IMemoryCache cache)
+public class LoginAttemptService(IMemoryCache cache)
 {
     private const string KeyPrefix = "login-attempt:";
 
-    public Task Handle(string email)
+    public virtual int Handle(string email)
     {
-        cache.Remove(GetKey(email));
-
-        return Task.CompletedTask;
+        return cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0;
     }
 
     private static string GetKey(string email)

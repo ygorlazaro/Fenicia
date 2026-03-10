@@ -8,7 +8,7 @@ public class DeleteUserHandler(
 {
     public virtual async Task Handle(DeleteUserCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.ExisingAsync(command.UserId, ct);
+        var user = await db.AuthUsers.FirstByIdAsync(command.UserId, ct);
 
         user.Deleted = DateTime.UtcNow;
 

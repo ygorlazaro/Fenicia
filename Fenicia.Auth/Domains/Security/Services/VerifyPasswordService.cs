@@ -1,6 +1,6 @@
-namespace Fenicia.Auth.Domains.Security.VerifyPassword;
+namespace Fenicia.Auth.Domains.Security.Services;
 
-public class VerifyPasswordHandler
+public class VerifyPasswordService
 {
     public virtual bool Handle(string password, string hashedPassword)
     {
