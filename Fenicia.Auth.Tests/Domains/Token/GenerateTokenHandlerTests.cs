@@ -15,49 +15,44 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.Token;
 
-[TestFixture]
-public class GenerateTokenHandlerTests
+public class GenerateTokenHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GenerateTokenHandlerTests()
     {
         this.cache = new MemoryCache(new MemoryCacheOptions());
-        this.loginAttemptHandler = new LoginAttemptHandler(this.cache);
-        this.incrementAttemptsHandler = new IncrementAttempts(this.cache);
-        this.verifyPasswordHandler = new VerifyPasswordHandler();
+        var loginAttemptHandler = new LoginAttemptHandler(this.cache);
+        var incrementAttemptsHandler = new IncrementAttempts(this.cache);
+        var verifyPasswordHandler = new VerifyPasswordHandler();
 
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        this.getByEmailHandler = new GetByEmailHandler(this.context);
+        var getByEmailHandler = new GetByEmailHandler(this.context);
         this.handler = new GenerateTokenHandler(
-            this.loginAttemptHandler,
-            this.getByEmailHandler,
-            this.incrementAttemptsHandler,
-            this.verifyPasswordHandler);
+            loginAttemptHandler,
+            getByEmailHandler,
+            incrementAttemptsHandler,
+            verifyPasswordHandler);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
         this.cache.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private MemoryCache cache = null!;
-    private LoginAttemptHandler loginAttemptHandler = null!;
-    private GetByEmailHandler getByEmailHandler = null!;
-    private IncrementAttempts incrementAttemptsHandler = null!;
-    private VerifyPasswordHandler verifyPasswordHandler = null!;
-    private GenerateTokenHandler handler = null!;
-    private DefaultContext context = null!;
-    private Faker faker = null!;
+    private readonly MemoryCache cache;
+    private readonly GenerateTokenHandler handler;
+    private readonly DefaultContext context;
+    private readonly Faker faker;
 
-    [Test]
-    public void Handle_WhenTooManyAttempts_ThrowsPermissionDeniedException()
+    [Fact]
+    public async Task Handle_WhenTooManyAttempts_ThrowsPermissionDeniedException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -65,13 +60,13 @@ public class GenerateTokenHandlerTests
         SetupCacheAttempts(email, 5);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.handler.Handle(query, CancellationToken.None));
-        Assert.That(ex?.Message, Is.EqualTo("Too many login attempts. Please try again later."));
+        Assert.Equal("Too many login attempts. Please try again later.", ex.Message);
     }
 
-    [Test]
-    public void Handle_WhenUserDoesNotExist_ThrowsPermissionDeniedException()
+    [Fact]
+    public async Task Handle_WhenUserDoesNotExist_ThrowsPermissionDeniedException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -79,12 +74,12 @@ public class GenerateTokenHandlerTests
         SetupCacheAttempts(email, 2);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.handler.Handle(query, CancellationToken.None));
-        Assert.That(ex?.Message, Is.EqualTo("Invalid username or password."));
+        Assert.Equal("Invalid username or password.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPasswordIsValid_ReturnsGenerateTokenResponse()
     {
         // Arrange
@@ -108,16 +103,13 @@ public class GenerateTokenHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(user.Id), "Id should match");
-            Assert.That(result.Name, Is.EqualTo(user.Name), "Name should match");
-            Assert.That(result.Email, Is.EqualTo(query.Email), "Email should match");
-        }
+        Assert.NotNull(result);
+        Assert.Equal(user.Id, result.Id);
+        Assert.Equal(user.Name, result.Name);
+        Assert.Equal(query.Email, result.Email);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPasswordIsInvalid_ThrowsPermissionDeniedException()
     {
         // Arrange
@@ -138,12 +130,12 @@ public class GenerateTokenHandlerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.handler.Handle(query, CancellationToken.None));
-        Assert.That(ex?.Message, Is.EqualTo("Invalid username or password."));
+        Assert.Equal("Invalid username or password.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenAttemptsAreBelowThreshold_AllowsAuthentication()
     {
         // Arrange
@@ -164,10 +156,10 @@ public class GenerateTokenHandlerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        Assert.DoesNotThrowAsync(async () => await this.handler.Handle(query, CancellationToken.None));
+        await Record.ExceptionAsync(async () => await this.handler.Handle(query, CancellationToken.None));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenAuthenticationFails_IncrementsAttempts()
     {
         // Arrange
@@ -188,20 +180,17 @@ public class GenerateTokenHandlerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
-        _ = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        _ = await Record.ExceptionAsync(async () =>
             await this.handler.Handle(query, CancellationToken.None));
 
         // Verify increment was called by checking cache
         var key = $"login-attempt:{query.Email.ToLower()}";
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
-            Assert.That(count, Is.EqualTo(1), "Should have incremented attempts");
-        }
+        Assert.True(this.cache.TryGetValue(key, out int count));
+        Assert.Equal(1, count);
     }
 
-    [Test]
-    public void Handle_WhenEmailIsEmpty_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WhenEmailIsEmpty_ThrowsArgumentException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -209,10 +198,10 @@ public class GenerateTokenHandlerTests
         SetupCacheAttempts(email, 0);
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query, CancellationToken.None));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPasswordIsEmpty_ThrowsArgumentException()
     {
         // Arrange
@@ -233,9 +222,9 @@ public class GenerateTokenHandlerTests
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(query, CancellationToken.None));
-        Assert.That(ex?.Message, Does.Contain("Password"), "Should throw InvalidRequestException for empty password");
+        Assert.Contains("Password", ex.Message);
     }
 
     private void SetupCacheAttempts(string email, int attempts)

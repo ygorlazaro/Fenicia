@@ -26,34 +26,32 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
-[TestFixture]
-public class SupplierControllerTests
+public class SupplierControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public SupplierControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.testSupplierId = Guid.NewGuid();
-        this.getAllSupplierHandler = new GetAllSupplierHandler(this.context);
-        this.getSupplierByIdHandler = new GetSupplierByIdHandler(this.context);
-        this.addSupplierHandler = new AddSupplierHandler(this.context);
-        this.updateSupplierHandler = new UpdateSupplierHandler(this.context);
-        this.deleteSupplierHandler = new DeleteSupplierHandler(this.context);
-        this.getSupplierPerformanceHandler = new GetSupplierPerformanceHandler(this.context);
+        var getAllSupplierHandler = new GetAllSupplierHandler(this.context);
+        var getSupplierByIdHandler = new GetSupplierByIdHandler(this.context);
+        var addSupplierHandler = new AddSupplierHandler(this.context);
+        var updateSupplierHandler = new UpdateSupplierHandler(this.context);
+        var deleteSupplierHandler = new DeleteSupplierHandler(this.context);
+        var getSupplierPerformanceHandler = new GetSupplierPerformanceHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new SupplierController(
-            this.getAllSupplierHandler,
-            this.getSupplierByIdHandler,
-            this.addSupplierHandler,
-            this.updateSupplierHandler,
-            this.deleteSupplierHandler,
-            this.getSupplierPerformanceHandler)
+            getAllSupplierHandler,
+            getSupplierByIdHandler,
+            addSupplierHandler,
+            updateSupplierHandler,
+            deleteSupplierHandler,
+            getSupplierPerformanceHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -65,24 +63,11 @@ public class SupplierControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
-
-    private TestCompanyContext companyContext = null!;
-    private SupplierController controller = null!;
-    private DefaultContext context = null!;
-    private GetAllSupplierHandler getAllSupplierHandler = null!;
-    private GetSupplierByIdHandler getSupplierByIdHandler = null!;
-    private AddSupplierHandler addSupplierHandler = null!;
-    private UpdateSupplierHandler updateSupplierHandler = null!;
-    private DeleteSupplierHandler deleteSupplierHandler = null!;
-    private GetSupplierPerformanceHandler getSupplierPerformanceHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testSupplierId;
-    private Faker faker = null!;
+    private readonly SupplierController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testSupplierId;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -98,12 +83,12 @@ public class SupplierControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenNoSuppliersExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -111,22 +96,19 @@ public class SupplierControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedSuppliers = okResult.Value as Pagination<List<GetAllSupplierResponse>>;
-        Assert.That(returnedSuppliers, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedSuppliers.Data, Is.Empty);
-            Assert.That(returnedSuppliers.Total, Is.EqualTo(0));
-        }
+        Assert.NotNull(returnedSuppliers);
+        Assert.Empty(returnedSuppliers.Data);
+        Assert.Equal(0, returnedSuppliers.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
         // Arrange
@@ -187,8 +169,8 @@ public class SupplierControllerTests
         this.context.BasicSuppliers.AddRange(supplier1, supplier2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -196,29 +178,23 @@ public class SupplierControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedSuppliers = okResult.Value as Pagination<List<GetAllSupplierResponse>>;
-        Assert.That(returnedSuppliers, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedSuppliers.Data, Has.Count.EqualTo(2));
-            Assert.That(returnedSuppliers.Total, Is.EqualTo(2));
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedSuppliers.Data[0].Name, Is.EqualTo(supplier1.Person.Name));
-            Assert.That(returnedSuppliers.Data[0].Email, Is.EqualTo(supplier1.Person.Email));
-            Assert.That(returnedSuppliers.Data[1].Name, Is.EqualTo(supplier2.Person.Name));
-            Assert.That(returnedSuppliers.Data[1].Email, Is.EqualTo(supplier2.Person.Email));
-        }
+        Assert.NotNull(returnedSuppliers);
+        Assert.Equal(2, returnedSuppliers.Data.Count);
+        Assert.Equal(2, returnedSuppliers.Total);
+        Assert.Equal(supplier1.Person.Name, returnedSuppliers.Data[0].Name);
+        Assert.Equal(supplier1.Person.Email, returnedSuppliers.Data[0].Email);
+        Assert.Equal(supplier2.Person.Name, returnedSuppliers.Data[1].Name);
+        Assert.Equal(supplier2.Person.Email, returnedSuppliers.Data[1].Email);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsOkWithSupplier()
     {
         // Arrange
@@ -263,24 +239,21 @@ public class SupplierControllerTests
         var result = await this.controller.GetByIdAsync(this.testSupplierId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedSupplier = okResult.Value as GetSupplierByIdResponse;
-        Assert.That(returnedSupplier, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedSupplier.Id, Is.EqualTo(this.testSupplierId));
-            Assert.That(returnedSupplier.PersonId, Is.EqualTo(supplier.Person.Id));
-            Assert.That(returnedSupplier.Name, Is.EqualTo(supplier.Person.Name));
-            Assert.That(returnedSupplier.Email, Is.EqualTo(supplier.Person.Email));
-        }
+        Assert.NotNull(returnedSupplier);
+        Assert.Equal(this.testSupplierId, returnedSupplier.Id);
+        Assert.Equal(supplier.Person.Id, returnedSupplier.PersonId);
+        Assert.Equal(supplier.Person.Name, returnedSupplier.Name);
+        Assert.Equal(supplier.Person.Email, returnedSupplier.Email);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenSupplierDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -292,11 +265,11 @@ public class SupplierControllerTests
         var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithSupplier()
     {
         // Arrange
@@ -322,22 +295,19 @@ public class SupplierControllerTests
         var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201));
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedSupplier = createdResult.Value as AddSupplierResponse;
-        Assert.That(returnedSupplier, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedSupplier.Cnpj, Is.EqualTo(command.Cnpj));
-        }
+        Assert.NotNull(returnedSupplier);
+        Assert.Equal(command.Cnpj, returnedSupplier.Cnpj);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenSupplierExists_ReturnsOkWithUpdatedSupplier()
     {
         // Arrange
@@ -381,17 +351,17 @@ public class SupplierControllerTests
         var result = await this.controller.PatchAsync(command, this.testSupplierId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedSupplier = okResult.Value as UpdateSupplierResponse;
-        Assert.That(returnedSupplier, Is.Not.Null);
+        Assert.NotNull(returnedSupplier);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenSupplierDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -418,11 +388,11 @@ public class SupplierControllerTests
         var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenSupplierExists_ReturnsNoContent()
     {
         // Arrange
@@ -450,14 +420,14 @@ public class SupplierControllerTests
         var result = await this.controller.DeleteAsync(this.testSupplierId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
 
         // Verify supplier was deleted
         var deletedSupplier = await this.context.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId && x.Deleted == null, ct);
-        Assert.That(deletedSupplier, Is.Null);
+        Assert.Null(deletedSupplier);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenSupplierDoesNotExist_ReturnsNoContent()
     {
         // Arrange
@@ -469,10 +439,10 @@ public class SupplierControllerTests
         var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public void SupplierController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -482,10 +452,10 @@ public class SupplierControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "SupplierController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void SupplierController_HasRouteAttribute()
     {
         // Arrange
@@ -496,11 +466,11 @@ public class SupplierControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "SupplierController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void SupplierController_HasApiControllerAttribute()
     {
         // Arrange
@@ -511,6 +481,13 @@ public class SupplierControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "SupplierController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

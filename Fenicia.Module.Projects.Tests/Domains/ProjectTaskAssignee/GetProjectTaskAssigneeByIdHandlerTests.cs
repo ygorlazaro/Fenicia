@@ -7,32 +7,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;
 
-[TestFixture]
-public class GetProjectTaskAssigneeByIdHandlerTests
+public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetProjectTaskAssigneeByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetProjectTaskAssigneeByIdHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetProjectTaskAssigneeByIdHandler handler = null!;
+    private readonly DefaultContext context;
+    private readonly GetProjectTaskAssigneeByIdHandler handler;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskAssigneeExists_ReturnsProjectTaskAssigneeResponse()
     {
         // Arrange
@@ -58,15 +56,12 @@ public class GetProjectTaskAssigneeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(assigneeId));
-            Assert.That(result.UserId, Is.EqualTo(userId));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(assigneeId, result.Id);
+        Assert.Equal(userId, result.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskAssigneeDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -76,10 +71,10 @@ public class GetProjectTaskAssigneeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -89,10 +84,10 @@ public class GetProjectTaskAssigneeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectTaskAssignees_ReturnsOnlyRequestedAssignee()
     {
         // Arrange
@@ -129,15 +124,12 @@ public class GetProjectTaskAssigneeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(assignee1Id));
-            Assert.That(result.UserId, Is.EqualTo(userId1));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(assignee1Id, result.Id);
+        Assert.Equal(userId1, result.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMemberRole_ReturnsCorrectResponse()
     {
         // Arrange
@@ -163,11 +155,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(assigneeId));
-            Assert.That(result.Role, Is.EqualTo("Contributor"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(assigneeId, result.Id);
+        Assert.Equal("Contributor", result.Role);
     }
 }

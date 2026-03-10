@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
 
-[TestFixture]
-public class UpdateProjectCommentHandlerTests
+public class UpdateProjectCommentHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateProjectCommentHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new UpdateProjectCommentHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private UpdateProjectCommentHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly UpdateProjectCommentHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectCommentExists_UpdatesProjectCommentAndReturnsResponse()
     {
         // Arrange
@@ -62,15 +60,12 @@ public class UpdateProjectCommentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(commentId));
-            Assert.That(result.Content, Is.EqualTo("New comment content"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(commentId, result.Id);
+        Assert.Equal("New comment content", result.Content);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectCommentDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -82,10 +77,10 @@ public class UpdateProjectCommentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -97,10 +92,10 @@ public class UpdateProjectCommentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectComment()
     {
         // Arrange
@@ -136,29 +131,20 @@ public class UpdateProjectCommentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(comment1Id));
-            Assert.That(result.Content, Is.EqualTo("Updated Comment 1 content"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(comment1Id, result.Id);
+        Assert.Equal("Updated Comment 1 content", result.Content);
 
         var updatedComment1 = await this.context.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
         var comment2InDb = await this.context.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedComment1, Is.Not.Null);
-            Assert.That(comment2InDb, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedComment1?.Content, Is.EqualTo("Updated Comment 1 content"));
-            Assert.That(comment2InDb?.Content, Is.EqualTo("Comment 2 content"));
-        }
+        Assert.NotNull(updatedComment1);
+        Assert.NotNull(comment2InDb);
+        Assert.Equal("Updated Comment 1 content", updatedComment1.Content);
+        Assert.Equal("Comment 2 content", comment2InDb.Content);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithLongContent_UpdatesProjectCommentSuccessfully()
     {
         // Arrange
@@ -185,11 +171,8 @@ public class UpdateProjectCommentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(commentId));
-            Assert.That(result.Content, Is.EqualTo(longContent));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(commentId, result.Id);
+        Assert.Equal(longContent, result.Content);
     }
 }

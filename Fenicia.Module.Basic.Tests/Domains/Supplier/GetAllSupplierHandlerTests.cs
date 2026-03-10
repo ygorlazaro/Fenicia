@@ -10,34 +10,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
-[TestFixture]
-public class GetAllSupplierHandlerTests
+public class GetAllSupplierHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetAllSupplierHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetAllSupplierHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly GetAllSupplierHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetAllSupplierHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
         // Arrange
@@ -47,15 +38,12 @@ public class GetAllSupplierHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Is.Empty);
-            Assert.That(result.Total, Is.EqualTo(0));
-        }
+        Assert.NotNull(result);
+        Assert.Empty(result.Data);
+        Assert.Equal(0, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithSuppliers_ReturnsAllSuppliers()
     {
         // Arrange
@@ -116,25 +104,19 @@ public class GetAllSupplierHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(2));
-            Assert.That(result.Total, Is.EqualTo(2));
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data[0].PersonId, Is.EqualTo(supplier1.Person.Id));
-            Assert.That(result.Data[0].Name, Is.EqualTo(supplier1.Person.Name));
-            Assert.That(result.Data[0].Email, Is.EqualTo(supplier1.Person.Email));
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(2, result.Total);
+        Assert.Equal(supplier1.Person.Id, result.Data[0].PersonId);
+        Assert.Equal(supplier1.Person.Name, result.Data[0].Name);
+        Assert.Equal(supplier1.Person.Email, result.Data[0].Email);
 
-            Assert.That(result.Data[1].PersonId, Is.EqualTo(supplier2.Person.Id));
-            Assert.That(result.Data[1].Name, Is.EqualTo(supplier2.Person.Name));
-            Assert.That(result.Data[1].Email, Is.EqualTo(supplier2.Person.Email));
-        }
+        Assert.Equal(supplier2.Person.Id, result.Data[1].PersonId);
+        Assert.Equal(supplier2.Person.Name, result.Data[1].Name);
+        Assert.Equal(supplier2.Person.Email, result.Data[1].Email);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
@@ -178,15 +160,12 @@ public class GetAllSupplierHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(10));
-            Assert.That(result.Total, Is.EqualTo(25));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
@@ -230,15 +209,12 @@ public class GetAllSupplierHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Is.Empty);
-            Assert.That(result.Total, Is.EqualTo(5));
-        }
+        Assert.NotNull(result);
+        Assert.Empty(result.Data);
+        Assert.Equal(5, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
@@ -282,11 +258,13 @@ public class GetAllSupplierHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(10));
-            Assert.That(result.Total, Is.EqualTo(25));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

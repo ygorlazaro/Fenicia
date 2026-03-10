@@ -6,65 +6,67 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;
 
-[TestFixture]
-public class AddPositionHandlerTests
+public class AddPositionHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddPositionHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddPositionHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddPositionHandler handler = null!;
+    private readonly DefaultContext context;
+    private readonly AddPositionHandler handler;
 
-    [Test]
-    public async Task Handle_WithValidCommand_AddsPositionAndReturnsResponse()
+    [Theory]
+    [InlineData("Developer")]
+    [InlineData("Designer")]
+    [InlineData("Manager")]
+    [InlineData("Analyst")]
+    [InlineData("Director")]
+    public async Task Handle_WithValidCommand_AddsPositionAndReturnsResponse(string positionName)
     {
         // Arrange
-        var command = new AddPositionCommand(Guid.NewGuid(), "Developer");
+        var command = new AddPositionCommand(Guid.NewGuid(), positionName);
 
         // Act
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Name, Is.EqualTo(command.Name));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(positionName, result.Name);
     }
 
-    [Test]
-    public async Task Handle_VerifiesPositionWasSavedToDatabase()
+    [Theory]
+    [InlineData("Architect")]
+    [InlineData("Consultant")]
+    [InlineData("Coordinator")]
+    public async Task Handle_VerifiesPositionWasSavedToDatabase(string positionName)
     {
         // Arrange
-        var command = new AddPositionCommand(Guid.NewGuid(), "Designer");
+        var command = new AddPositionCommand(Guid.NewGuid(), positionName);
 
         // Act
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         var position = await this.context.BasicPositions.FindAsync([command.Id], CancellationToken.None);
-        Assert.That(position, Is.Not.Null);
-        Assert.That(position.Name, Is.EqualTo(command.Name));
+        Assert.NotNull(position);
+        Assert.Equal(positionName, position.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllPositions()
     {
         // Arrange
@@ -77,6 +79,6 @@ public class AddPositionHandlerTests
 
         // Assert
         var positions = await this.context.BasicPositions.ToListAsync();
-        Assert.That(positions, Has.Count.EqualTo(2));
+        Assert.Equal(2, positions.Count);
     }
 }

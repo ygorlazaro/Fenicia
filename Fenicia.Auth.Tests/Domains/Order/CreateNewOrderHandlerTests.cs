@@ -15,11 +15,14 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Order;
 
-[TestFixture]
-public class CreateNewOrderHandlerTests
+public class CreateNewOrderHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly DefaultContext context;
+    private readonly CreateNewOrderHandler handler;
+    private readonly Mock<CreateCreditsForOrderHandler> createCreditsForOrderHandlerMock;
+    private readonly Faker faker;
+
+    public CreateNewOrderHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -34,18 +37,14 @@ public class CreateNewOrderHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context;
-    private CreateNewOrderHandler handler;
-    private Mock<CreateCreditsForOrderHandler> createCreditsForOrderHandlerMock;
-    private Faker faker;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenValidRequest_CreatesOrderSuccessfully()
     {
         // Arrange
@@ -124,22 +123,20 @@ public class CreateNewOrderHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
 
-        var order = await this.context.AuthOrders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
-        Assert.That(order, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(order!.UserId, Is.EqualTo(userId), "UserId should match");
-            Assert.That(order.CompanyId, Is.EqualTo(companyId), "CompanyId should match");
-            Assert.That(order.Status, Is.EqualTo(OrderStatus.Approved), "Status should be Approved");
-            Assert.That(order.TotalAmount, Is.EqualTo(400.00m), "TotalAmount should be sum of modules");
-            Assert.That(order.Details, Has.Count.EqualTo(3), "Should have 2 details");
-        }
+        var order = await this.context.AuthOrders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result.OrderId);
+        Assert.NotNull(order);
+        
+        Assert.Equal(userId, order.UserId);
+        Assert.Equal(companyId, order.CompanyId);
+        Assert.Equal(OrderStatus.Approved, order.Status);
+        Assert.Equal(400.00m, order.TotalAmount);
+        Assert.Equal(3, order.Details.Count);
     }
 
-    [Test]
-    public void Handle_WhenUserDoesNotExistInCompany_ThrowsPermissionDeniedException()
+    [Fact]
+    public async Task Handle_WhenUserDoesNotExistInCompany_ThrowsPermissionDeniedException()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -149,13 +146,12 @@ public class CreateNewOrderHandlerTests
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
-        );
-        Assert.That(ex?.Message, Is.EqualTo("User does not exists at the company"));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None));
+        Assert.Equal("User does not exists at the company", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenModulesNotFound_ThrowsItemNotExistsException()
     {
         // Arrange
@@ -198,13 +194,12 @@ public class CreateNewOrderHandlerTests
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
-        );
-        Assert.That(ex?.Message, Is.EqualTo("Modules not found"));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None));
+        Assert.Equal("Modules not found", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenNoModulesRequested_ReturnsNull()
     {
         // Arrange
@@ -246,15 +241,14 @@ public class CreateNewOrderHandlerTests
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
-        );
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None));
 
         // Assert
-        Assert.That(ex?.Message, Is.EqualTo("Modules not found"));
+        Assert.Equal("Modules not found", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenModuleIsBasicType_DoesNotAddAnotherBasic()
     {
         // Arrange
@@ -317,11 +311,11 @@ public class CreateNewOrderHandlerTests
 
         // Assert
         var order = await this.context.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
-        Assert.That(order, Is.Not.Null);
-        Assert.That(order!.Details, Has.Count.EqualTo(1), "Should only have 1 detail (Basic module)");
+        Assert.NotNull(order);
+        Assert.Single(order.Details);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenModuleIsNotBasic_AddsBasicModuleAutomatically()
     {
         // Arrange
@@ -393,11 +387,11 @@ public class CreateNewOrderHandlerTests
 
         // Assert
         var order = await this.context.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
-        Assert.That(order, Is.Not.Null);
-        Assert.That(order!.Details, Has.Count.EqualTo(2), "Should have 2 details (Accounting + Basic)");
+        Assert.NotNull(order);
+        Assert.Equal(2, order.Details.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenBasicModuleNotFound_ReturnsNull()
     {
         // Arrange
@@ -449,15 +443,14 @@ public class CreateNewOrderHandlerTests
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
-        );
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+            await this.handler.Handle(command, CancellationToken.None));
 
         // Assert
-        Assert.That(ex?.Message, Is.EqualTo("Modules not found"));
+        Assert.Equal("Modules not found", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_CallsCreateCreditsForOrderHandler()
     {
         // Arrange
@@ -534,7 +527,7 @@ public class CreateNewOrderHandlerTests
         );
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenDuplicateModuleIds_RemovesDuplicates()
     {
         // Arrange
@@ -605,7 +598,7 @@ public class CreateNewOrderHandlerTests
 
         // Assert
         var order = await this.context.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
-        Assert.That(order, Is.Not.Null);
-        Assert.That(order!.Details, Has.Count.EqualTo(2), "Should have 2 details (deduplicated module + Basic)");
+        Assert.NotNull(order);
+        Assert.Equal(2, order.Details.Count);
     }
 }

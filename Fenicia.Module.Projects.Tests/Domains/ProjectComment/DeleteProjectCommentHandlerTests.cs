@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
 
-[TestFixture]
-public class DeleteProjectCommentHandlerTests
+public class DeleteProjectCommentHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteProjectCommentHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteProjectCommentHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteProjectCommentHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly DeleteProjectCommentHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectCommentExists_SetsDeletedDate()
     {
         // Arrange
@@ -62,13 +60,12 @@ public class DeleteProjectCommentHandlerTests
 
         // Assert
         var deletedComment = await this.context.ProjectComments.FindAsync([commentId], CancellationToken.None);
-        Assert.That(deletedComment, Is.Not.Null);
-        Assert.That(deletedComment.Deleted, Is.Not.Null);
-        Assert.That(deletedComment.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedComment.Deleted, Is.LessThanOrEqualTo(DateTime.UtcNow.AddSeconds(1)));
+        Assert.NotNull(deletedComment);
+        Assert.NotNull(deletedComment.Deleted);
+        Assert.InRange(deletedComment.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectCommentDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -79,10 +76,10 @@ public class DeleteProjectCommentHandlerTests
 
         // Assert
         var comments = await this.context.ProjectComments.ToListAsync();
-        Assert.That(comments, Is.Empty);
+        Assert.Empty(comments);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -93,10 +90,10 @@ public class DeleteProjectCommentHandlerTests
 
         // Assert
         var comments = await this.context.ProjectComments.ToListAsync();
-        Assert.That(comments, Is.Empty);
+        Assert.Empty(comments);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectComments_OnlyDeletesSpecified()
     {
         // Arrange
@@ -133,16 +130,13 @@ public class DeleteProjectCommentHandlerTests
         var deletedComment = await this.context.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
         var notDeletedComment = await this.context.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
 
-        Assert.That(deletedComment, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedComment.Deleted, Is.Not.Null);
-            Assert.That(notDeletedComment, Is.Not.Null);
-        }
-        Assert.That(notDeletedComment?.Deleted, Is.Null);
+        Assert.NotNull(deletedComment);
+        Assert.NotNull(deletedComment.Deleted);
+        Assert.NotNull(notDeletedComment);
+        Assert.Null(notDeletedComment.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectComments_DeletesCorrectProjectComment()
     {
         // Arrange
@@ -189,17 +183,11 @@ public class DeleteProjectCommentHandlerTests
         var deletedComment = await this.context.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
         var comment3InDb = await this.context.ProjectComments.FindAsync([comment3Id], CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(comment1InDb, Is.Not.Null);
-            Assert.That(deletedComment, Is.Not.Null);
-            Assert.That(comment3InDb, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(comment1InDb?.Deleted, Is.Null);
-            Assert.That(deletedComment?.Deleted, Is.Not.Null);
-            Assert.That(comment3InDb?.Deleted, Is.Null);
-        }
+        Assert.NotNull(comment1InDb);
+        Assert.NotNull(deletedComment);
+        Assert.NotNull(comment3InDb);
+        Assert.Null(comment1InDb.Deleted);
+        Assert.NotNull(deletedComment.Deleted);
+        Assert.Null(comment3InDb.Deleted);
     }
 }

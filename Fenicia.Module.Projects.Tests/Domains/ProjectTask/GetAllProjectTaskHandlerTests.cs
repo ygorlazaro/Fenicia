@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTask;
 
-[TestFixture]
-public class GetAllProjectTaskHandlerTests
+public class GetAllProjectTaskHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetAllProjectTaskHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetAllProjectTaskHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetAllProjectTaskHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly GetAllProjectTaskHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
         // Arrange
@@ -46,11 +44,11 @@ public class GetAllProjectTaskHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithProjectTasks_ReturnsAllProjectTasks()
     {
         // Arrange
@@ -95,16 +93,13 @@ public class GetAllProjectTaskHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result[0].Id, Is.EqualTo(task1.Id));
-            Assert.That(result[1].Id, Is.EqualTo(task2.Id));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(task1.Id, result[0].Id);
+        Assert.Equal(task2.Id, result[1].Id);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
@@ -137,11 +132,11 @@ public class GetAllProjectTaskHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
@@ -174,11 +169,11 @@ public class GetAllProjectTaskHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
@@ -211,7 +206,7 @@ public class GetAllProjectTaskHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Count);
     }
 }

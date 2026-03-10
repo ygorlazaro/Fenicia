@@ -17,33 +17,31 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.DataSource;
 
-[TestFixture]
-public class DataSourceControllerTests
+public class DataSourceControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DataSourceControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
-        this.getAllPositionForDataSourceHandler = new GetAllPositionForDataSourceHandler(this.context);
-        this.getAllProductCategoryForDataSourceHandler = new GetAllProductCategoryForDataSourceHandler(this.context);
-        this.getAllSupplierForDataSourceHandler = new GetAllSupplierForDataSourceHandler(this.context);
-        this.getAllCustomerForDataSourceHandler = new GetAllCustomerForDataSourceHandler(this.context);
-        this.getAllProductForDataSourceHandler = new GetAllProductForDataSourceHandler(this.context);
-        this.getAllEmployeeForDataSourceHandler = new GetAllEmployeeForDataSourceHandler(this.context);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
+        var getAllPositionForDataSourceHandler = new GetAllPositionForDataSourceHandler(this.context);
+        var getAllProductCategoryForDataSourceHandler = new GetAllProductCategoryForDataSourceHandler(this.context);
+        var getAllSupplierForDataSourceHandler = new GetAllSupplierForDataSourceHandler(this.context);
+        var getAllCustomerForDataSourceHandler = new GetAllCustomerForDataSourceHandler(this.context);
+        var getAllProductForDataSourceHandler = new GetAllProductForDataSourceHandler(this.context);
+        var getAllEmployeeForDataSourceHandler = new GetAllEmployeeForDataSourceHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new DataSourceController(
-            this.getAllPositionForDataSourceHandler,
-            this.getAllProductCategoryForDataSourceHandler,
-            this.getAllSupplierForDataSourceHandler,
-            this.getAllCustomerForDataSourceHandler,
-            this.getAllProductForDataSourceHandler,
-            this.getAllEmployeeForDataSourceHandler)
+            getAllPositionForDataSourceHandler,
+            getAllProductCategoryForDataSourceHandler,
+            getAllSupplierForDataSourceHandler,
+            getAllCustomerForDataSourceHandler,
+            getAllProductForDataSourceHandler,
+            getAllEmployeeForDataSourceHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -55,23 +53,16 @@ public class DataSourceControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DataSourceController controller = null!;
-    private DefaultContext context = null!;
-    private GetAllPositionForDataSourceHandler getAllPositionForDataSourceHandler = null!;
-    private GetAllProductCategoryForDataSourceHandler getAllProductCategoryForDataSourceHandler = null!;
-    private GetAllSupplierForDataSourceHandler getAllSupplierForDataSourceHandler = null!;
-    private GetAllCustomerForDataSourceHandler getAllCustomerForDataSourceHandler = null!;
-    private GetAllProductForDataSourceHandler getAllProductForDataSourceHandler = null!;
-    private GetAllEmployeeForDataSourceHandler getAllEmployeeForDataSourceHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Faker faker = null!;
+    private readonly DataSourceController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -87,7 +78,7 @@ public class DataSourceControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetPositionsAsync_WhenNoPositionsExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -98,18 +89,18 @@ public class DataSourceControllerTests
         var result = await this.controller.GetPositionsAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedPositions = okResult.Value as List<GetAllPositionForDataSourceResponse>;
-        Assert.That(returnedPositions, Is.Not.Null);
-        Assert.That(returnedPositions, Is.Empty);
+        Assert.NotNull(returnedPositions);
+        Assert.Empty(returnedPositions);
     }
 
-    [Test]
+    [Fact]
     public async Task GetPositionsAsync_WhenPositionsExist_ReturnsOkWithPositions()
     {
         // Arrange
@@ -135,18 +126,18 @@ public class DataSourceControllerTests
         var result = await this.controller.GetPositionsAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedPositions = okResult.Value as List<GetAllPositionForDataSourceResponse>;
-        Assert.That(returnedPositions, Is.Not.Null);
-        Assert.That(returnedPositions, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedPositions);
+        Assert.Equal(2, returnedPositions.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task GetPositionsAsync_WhenPositionsExist_ReturnsPositionsOrderedByName()
     {
         // Arrange
@@ -178,26 +169,23 @@ public class DataSourceControllerTests
         var result = await this.controller.GetPositionsAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedPositions = okResult.Value as List<GetAllPositionForDataSourceResponse>;
-        Assert.That(returnedPositions, Is.Not.Null);
-        Assert.That(returnedPositions, Has.Count.EqualTo(3));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedPositions[0].Name, Is.EqualTo("Alpha"));
-            Assert.That(returnedPositions[1].Name, Is.EqualTo("Manager"));
-            Assert.That(returnedPositions[2].Name, Is.EqualTo("Zebra"));
-        }
+        Assert.NotNull(returnedPositions);
+        Assert.Equal(3, returnedPositions.Count);
+        Assert.Equal("Alpha", returnedPositions[0].Name);
+        Assert.Equal("Manager", returnedPositions[1].Name);
+        Assert.Equal("Zebra", returnedPositions[2].Name);
     }
 
     #region Product Categories Tests
 
-    [Test]
+    [Fact]
     public async Task GetProductCategoriesAsync_WhenNoCategoriesExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -208,18 +196,18 @@ public class DataSourceControllerTests
         var result = await this.controller.GetProductCategoriesAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCategories = okResult.Value as List<GetAllProductCategoryForDataSourceResponse>;
-        Assert.That(returnedCategories, Is.Not.Null);
-        Assert.That(returnedCategories, Is.Empty);
+        Assert.NotNull(returnedCategories);
+        Assert.Empty(returnedCategories);
     }
 
-    [Test]
+    [Fact]
     public async Task GetProductCategoriesAsync_WhenCategoriesExist_ReturnsOkWithCategories()
     {
         // Arrange
@@ -245,22 +233,22 @@ public class DataSourceControllerTests
         var result = await this.controller.GetProductCategoriesAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCategories = okResult.Value as List<GetAllProductCategoryForDataSourceResponse>;
-        Assert.That(returnedCategories, Is.Not.Null);
-        Assert.That(returnedCategories, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedCategories);
+        Assert.Equal(2, returnedCategories.Count);
     }
 
     #endregion
 
     #region Suppliers Tests
 
-    [Test]
+    [Fact]
     public async Task GetSuppliersAsync_WhenNoSuppliersExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -271,18 +259,18 @@ public class DataSourceControllerTests
         var result = await this.controller.GetSuppliersAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedSuppliers = okResult.Value as List<GetAllSupplierForDataSourceResponse>;
-        Assert.That(returnedSuppliers, Is.Not.Null);
-        Assert.That(returnedSuppliers, Is.Empty);
+        Assert.NotNull(returnedSuppliers);
+        Assert.Empty(returnedSuppliers);
     }
 
-    [Test]
+    [Fact]
     public async Task GetSuppliersAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
         // Arrange
@@ -323,22 +311,22 @@ public class DataSourceControllerTests
         var result = await this.controller.GetSuppliersAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedSuppliers = okResult.Value as List<GetAllSupplierForDataSourceResponse>;
-        Assert.That(returnedSuppliers, Is.Not.Null);
-        Assert.That(returnedSuppliers, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedSuppliers);
+        Assert.Equal(2, returnedSuppliers.Count);
     }
 
     #endregion
 
     #region Customers Tests
 
-    [Test]
+    [Fact]
     public async Task GetCustomersAsync_WhenNoCustomersExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -349,18 +337,18 @@ public class DataSourceControllerTests
         var result = await this.controller.GetCustomersAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCustomers = okResult.Value as List<GetAllCustomerForDataSourceResponse>;
-        Assert.That(returnedCustomers, Is.Not.Null);
-        Assert.That(returnedCustomers, Is.Empty);
+        Assert.NotNull(returnedCustomers);
+        Assert.Empty(returnedCustomers);
     }
 
-    [Test]
+    [Fact]
     public async Task GetCustomersAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
         // Arrange
@@ -401,22 +389,22 @@ public class DataSourceControllerTests
         var result = await this.controller.GetCustomersAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCustomers = okResult.Value as List<GetAllCustomerForDataSourceResponse>;
-        Assert.That(returnedCustomers, Is.Not.Null);
-        Assert.That(returnedCustomers, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedCustomers);
+        Assert.Equal(2, returnedCustomers.Count);
     }
 
     #endregion
 
     #region Products Tests
 
-    [Test]
+    [Fact]
     public async Task GetProductsAsync_WhenNoProductsExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -427,18 +415,18 @@ public class DataSourceControllerTests
         var result = await this.controller.GetProductsAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedProducts = okResult.Value as List<GetAllProductForDataSourceResponse>;
-        Assert.That(returnedProducts, Is.Not.Null);
-        Assert.That(returnedProducts, Is.Empty);
+        Assert.NotNull(returnedProducts);
+        Assert.Empty(returnedProducts);
     }
 
-    [Test]
+    [Fact]
     public async Task GetProductsAsync_WhenProductsExist_ReturnsOkWithProducts()
     {
         // Arrange
@@ -475,22 +463,22 @@ public class DataSourceControllerTests
         var result = await this.controller.GetProductsAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedProducts = okResult.Value as List<GetAllProductForDataSourceResponse>;
-        Assert.That(returnedProducts, Is.Not.Null);
-        Assert.That(returnedProducts, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedProducts);
+        Assert.Equal(2, returnedProducts.Count);
     }
 
     #endregion
 
     #region Employees Tests
 
-    [Test]
+    [Fact]
     public async Task GetEmployeesAsync_WhenNoEmployeesExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -501,18 +489,18 @@ public class DataSourceControllerTests
         var result = await this.controller.GetEmployeesAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedEmployees = okResult.Value as List<GetAllEmployeeForDataSourceResponse>;
-        Assert.That(returnedEmployees, Is.Not.Null);
-        Assert.That(returnedEmployees, Is.Empty);
+        Assert.NotNull(returnedEmployees);
+        Assert.Empty(returnedEmployees);
     }
 
-    [Test]
+    [Fact]
     public async Task GetEmployeesAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
@@ -562,20 +550,20 @@ public class DataSourceControllerTests
         var result = await this.controller.GetEmployeesAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedEmployees = okResult.Value as List<GetAllEmployeeForDataSourceResponse>;
-        Assert.That(returnedEmployees, Is.Not.Null);
-        Assert.That(returnedEmployees, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedEmployees);
+        Assert.Equal(2, returnedEmployees.Count);
     }
 
     #endregion
 
-    [Test]
+    [Fact]
     public void DataSourceController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -585,10 +573,10 @@ public class DataSourceControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "DataSourceController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void DataSourceController_HasRouteAttribute()
     {
         // Arrange
@@ -599,11 +587,11 @@ public class DataSourceControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "DataSourceController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void DataSourceController_HasApiControllerAttribute()
     {
         // Arrange
@@ -614,6 +602,6 @@ public class DataSourceControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "DataSourceController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
     }
 }

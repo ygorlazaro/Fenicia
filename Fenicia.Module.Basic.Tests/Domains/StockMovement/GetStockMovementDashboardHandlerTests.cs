@@ -8,11 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;
 
-[TestFixture]
-public class GetStockMovementDashboardHandlerTests
+public class GetStockMovementDashboardHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetStockMovementDashboardHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -23,17 +21,17 @@ public class GetStockMovementDashboardHandlerTests
         this.handler = new GetStockMovementDashboardHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetStockMovementDashboardHandler handler = null!;
+    private readonly TestCompanyContext companyContext;
+    private readonly DefaultContext context;
+    private readonly GetStockMovementDashboardHandler handler;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNoMovements_ReturnsEmptyDashboard()
     {
         // Arrange
@@ -44,17 +42,14 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.History, Is.Empty);
-            Assert.That(result.MonthlyInOut, Is.Empty);
-            Assert.That(result.TopMovedProducts, Is.Empty);
-            Assert.That(result.TurnoverRates, Is.Empty);
-        }
+        Assert.NotNull(result);
+        Assert.Empty(result.History);
+        Assert.Empty(result.MonthlyInOut);
+        Assert.Empty(result.TopMovedProducts);
+        Assert.Empty(result.TurnoverRates);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMovements_ReturnsStockMovementHistory()
     {
         // Arrange
@@ -97,17 +92,14 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.History, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.History[0].ProductName, Is.EqualTo("Test Product"));
-            Assert.That(result.History[0].Quantity, Is.EqualTo(10));
-            Assert.That(result.History[0].Reason, Is.EqualTo("Test reason"));
-        }
+        Assert.NotNull(result);
+        Assert.Single(result.History);
+        Assert.Equal("Test Product", result.History[0].ProductName);
+        Assert.Equal(10, result.History[0].Quantity);
+        Assert.Equal("Test reason", result.History[0].Reason);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithInAndOutMovements_ReturnsMonthlyInOut()
     {
         // Arrange
@@ -161,20 +153,17 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.MonthlyInOut, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.MonthlyInOut);
 
         var monthlyInOut = result.MonthlyInOut[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(monthlyInOut.TotalIn, Is.EqualTo(50));
-            Assert.That(monthlyInOut.TotalOut, Is.EqualTo(20));
-            Assert.That(monthlyInOut.TotalInValue, Is.EqualTo(100.00m));
-            Assert.That(monthlyInOut.TotalOutValue, Is.EqualTo(50.00m));
-        }
+        Assert.Equal(50, monthlyInOut.TotalIn);
+        Assert.Equal(20, monthlyInOut.TotalOut);
+        Assert.Equal(100.00m, monthlyInOut.TotalInValue);
+        Assert.Equal(50.00m, monthlyInOut.TotalOutValue);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleMovements_ReturnsTopMovedProducts()
     {
         // Arrange
@@ -250,18 +239,15 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.TopMovedProducts, Has.Count.EqualTo(2));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.TopMovedProducts[0].ProductName, Is.EqualTo("Product 1"));
-            Assert.That(result.TopMovedProducts[0].TotalMoved, Is.EqualTo(50)); // 5 * 10
-            Assert.That(result.TopMovedProducts[1].ProductName, Is.EqualTo("Product 2"));
-            Assert.That(result.TopMovedProducts[1].TotalMoved, Is.EqualTo(10)); // 2 * 5
-        }
+        Assert.NotNull(result);
+        Assert.Equal(2, result.TopMovedProducts.Count);
+        Assert.Equal("Product 1", result.TopMovedProducts[0].ProductName);
+        Assert.Equal(50, result.TopMovedProducts[0].TotalMoved);
+        Assert.Equal("Product 2", result.TopMovedProducts[1].ProductName);
+        Assert.Equal(10, result.TopMovedProducts[1].TotalMoved);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithProducts_ReturnsTurnoverRates()
     {
         // Arrange
@@ -271,7 +257,7 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Product",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
-            Quantity = 50, // Current stock
+            Quantity = 50,
             CategoryId = Guid.NewGuid()
         };
 
@@ -281,7 +267,6 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // Add out movements (sales)
         for (var i = 0; i < 5; i++)
         {
             this.context.BasicStockMovements.Add(new StockMovementModel
@@ -289,7 +274,7 @@ public class GetStockMovementDashboardHandlerTests
                 Id = Guid.NewGuid(),
                 ProductId = product.Id,
                 Product = product,
-                Quantity = 20, // Total sold = 100
+                Quantity = 20,
                 Date = DateTime.UtcNow.AddDays(-i),
                 Price = 20.00m,
                 Type = StockMovementType.Out
@@ -306,21 +291,18 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.TurnoverRates);
 
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.ProductName, Is.EqualTo("Test Product"));
-            Assert.That(turnover.CurrentStock, Is.EqualTo(50));
-            Assert.That(turnover.TotalSold, Is.EqualTo(100)); // 5 * 20
-            Assert.That(turnover.TurnoverRate, Is.EqualTo(2.0)); // 100 / 50
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("High"));
-        }
+        Assert.Equal("Test Product", turnover.ProductName);
+        Assert.Equal(50, turnover.CurrentStock);
+        Assert.Equal(100, turnover.TotalSold);
+        Assert.Equal(2.0, turnover.TurnoverRate);
+        Assert.Equal("High", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithLowTurnover_ReturnsLowClassification()
     {
         // Arrange
@@ -330,7 +312,7 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Slow Product",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
-            Quantity = 100, // High current stock
+            Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
 
@@ -340,13 +322,12 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // Small out movement
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
             Product = product,
-            Quantity = 10, // Low sales
+            Quantity = 10,
             Date = DateTime.UtcNow.AddDays(-5),
             Price = 15.00m,
             Type = StockMovementType.Out
@@ -362,18 +343,15 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.TurnoverRates);
 
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.TurnoverRate, Is.LessThan(0.5));
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Very Low"));
-        }
+        Assert.True(turnover.TurnoverRate < 0.5);
+        Assert.Equal("Very Low", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithDateRangeFilter_OnlyIncludesMovementsInRange()
     {
         // Arrange
@@ -395,7 +373,6 @@ public class GetStockMovementDashboardHandlerTests
 
         var now = DateTime.UtcNow;
 
-        // Movement within range (5 days ago)
         var movementInRange = new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -407,7 +384,6 @@ public class GetStockMovementDashboardHandlerTests
             Type = StockMovementType.In
         };
 
-        // Movement outside range (50 days ago)
         var movementOutOfRange = new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -424,20 +400,20 @@ public class GetStockMovementDashboardHandlerTests
         this.context.BasicStockMovements.AddRange(movementInRange, movementOutOfRange);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetStockMovementDashboardQuery(); // Last 30 days
+        var query = new GetStockMovementDashboardQuery();
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.History, Has.Count.EqualTo(1));
-        Assert.That(result.History[0].Id, Is.EqualTo(movementInRange.Id));
+        Assert.NotNull(result);
+        Assert.Single(result.History);
+        Assert.Equal(movementInRange.Id, result.History[0].Id);
     }
 
     #region Turnover Classification Tests - GlassifyTurnover
 
-    [Test]
+    [Fact]
     public async Task Handle_TurnoverRate_Exactly2_ReturnsHighClassification()
     {
         // Arrange
@@ -457,7 +433,6 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // Total sold = 100, Current stock = 50, Turnover = 2.0 (exactly)
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -479,16 +454,13 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.TurnoverRate, Is.EqualTo(2.0));
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("High"));
-        }
+        Assert.Equal(2.0, turnover.TurnoverRate);
+        Assert.Equal("High", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_TurnoverRate_GreaterThan2_ReturnsHighClassification()
     {
         // Arrange
@@ -508,7 +480,6 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // Total sold = 150, Current stock = 30, Turnover = 5.0
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -530,16 +501,13 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.TurnoverRate, Is.EqualTo(5.0));
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("High"));
-        }
+        Assert.Equal(5.0, turnover.TurnoverRate);
+        Assert.Equal("High", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_TurnoverRate_Exactly1_ReturnsMediumClassification()
     {
         // Arrange
@@ -559,7 +527,6 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // Total sold = 100, Current stock = 100, Turnover = 1.0 (exactly)
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -581,16 +548,13 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.TurnoverRate, Is.EqualTo(1.0));
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Medium"));
-        }
+        Assert.Equal(1.0, turnover.TurnoverRate);
+        Assert.Equal("Medium", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_TurnoverRate_Between1And2_ReturnsMediumClassification()
     {
         // Arrange
@@ -610,7 +574,6 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // Total sold = 150, Current stock = 100, Turnover = 1.5
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -632,16 +595,13 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.TurnoverRate, Is.EqualTo(1.5));
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Medium"));
-        }
+        Assert.Equal(1.5, turnover.TurnoverRate);
+        Assert.Equal("Medium", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_TurnoverRate_Exactly05_ReturnsLowClassification()
     {
         // Arrange
@@ -661,7 +621,6 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // Total sold = 50, Current stock = 100, Turnover = 0.5 (exactly)
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -683,16 +642,13 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.TurnoverRate, Is.EqualTo(0.5));
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Low"));
-        }
+        Assert.Equal(0.5, turnover.TurnoverRate);
+        Assert.Equal("Low", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_TurnoverRate_Between05And1_ReturnsLowClassification()
     {
         // Arrange
@@ -712,7 +668,6 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // Total sold = 75, Current stock = 100, Turnover = 0.75
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -734,16 +689,13 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.TurnoverRate, Is.EqualTo(0.75));
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Low"));
-        }
+        Assert.Equal(0.75, turnover.TurnoverRate);
+        Assert.Equal("Low", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_TurnoverRate_LessThan05_ReturnsVeryLowClassification()
     {
         // Arrange
@@ -763,7 +715,6 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // Total sold = 25, Current stock = 100, Turnover = 0.25
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -785,16 +736,13 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.TurnoverRate, Is.EqualTo(0.25));
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Very Low"));
-        }
+        Assert.Equal(0.25, turnover.TurnoverRate);
+        Assert.Equal("Very Low", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_TurnoverRate_Zero_ReturnsVeryLowClassification()
     {
         // Arrange
@@ -814,7 +762,6 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Test Category"
         };
 
-        // No out movements, Turnover = 0
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -836,16 +783,13 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result.TurnoverRates, Is.Not.Empty);
+        Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(turnover.TurnoverRate, Is.EqualTo(0));
-            Assert.That(turnover.TurnoverClassification, Is.EqualTo("Very Low"));
-        }
+        Assert.Equal(0, turnover.TurnoverRate);
+        Assert.Equal("Very Low", turnover.TurnoverClassification);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_ProductWithZeroStock_IsExcludedFromTurnover()
     {
         // Arrange
@@ -855,7 +799,7 @@ public class GetStockMovementDashboardHandlerTests
             Name = "Zero Stock Product",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
-            Quantity = 0, // Zero stock
+            Quantity = 0,
             CategoryId = Guid.NewGuid()
         };
 
@@ -875,14 +819,14 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result.TurnoverRates, Is.Empty);
+        Assert.Empty(result.TurnoverRates);
     }
 
     #endregion
 
     #region Customer and Supplier Tests
 
-    [Test]
+    [Fact]
     public async Task Handle_WithCustomerMovement_ReturnsCustomerNameInHistory()
     {
         // Arrange
@@ -942,16 +886,13 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.History, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.History[0].CustomerName, Is.EqualTo("John Doe"));
-            Assert.That(result.History[0].SupplierName, Is.Null);
-        }
+        Assert.NotNull(result);
+        Assert.Single(result.History);
+        Assert.Equal("John Doe", result.History[0].CustomerName);
+        Assert.Null(result.History[0].SupplierName);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithSupplierMovement_ReturnsSupplierNameInHistory()
     {
         // Arrange
@@ -1011,20 +952,17 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.History, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.History[0].SupplierName, Is.EqualTo("ABC Supplier Ltd"));
-            Assert.That(result.History[0].CustomerName, Is.Null);
-        }
+        Assert.NotNull(result);
+        Assert.Single(result.History);
+        Assert.Equal("ABC Supplier Ltd", result.History[0].SupplierName);
+        Assert.Null(result.History[0].CustomerName);
     }
 
     #endregion
 
     #region TopLimit Tests
 
-    [Test]
+    [Fact]
     public async Task Handle_WithTopLimitLimit_ReturnsLimitedResults()
     {
         // Arrange
@@ -1038,7 +976,6 @@ public class GetStockMovementDashboardHandlerTests
         };
         categories.Add(category);
 
-        // Create 5 products
         for (var i = 0; i < 5; i++)
         {
             var product = new ProductModel
@@ -1052,13 +989,12 @@ public class GetStockMovementDashboardHandlerTests
             };
             products.Add(product);
 
-            // Add out movements with different quantities
             this.context.BasicStockMovements.Add(new StockMovementModel
             {
                 Id = Guid.NewGuid(),
                 ProductId = product.Id,
                 Product = product,
-                Quantity = (i + 1) * 10, // 10, 20, 30, 40, 50
+                Quantity = (i + 1) * 10,
                 Date = DateTime.UtcNow.AddDays(-i),
                 Price = 20.00m,
                 Type = StockMovementType.Out
@@ -1075,27 +1011,19 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.TopMovedProducts, Has.Count.EqualTo(3));
-            Assert.That(result.TurnoverRates, Has.Count.EqualTo(3));
-        }
-
-        // Verify top 3 products by movement
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.TopMovedProducts[0].ProductName, Is.EqualTo("Product 5"));
-            Assert.That(result.TopMovedProducts[1].ProductName, Is.EqualTo("Product 4"));
-            Assert.That(result.TopMovedProducts[2].ProductName, Is.EqualTo("Product 3"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(3, result.TopMovedProducts.Count);
+        Assert.Equal(3, result.TurnoverRates.Count);
+        Assert.Equal("Product 5", result.TopMovedProducts[0].ProductName);
+        Assert.Equal("Product 4", result.TopMovedProducts[1].ProductName);
+        Assert.Equal("Product 3", result.TopMovedProducts[2].ProductName);
     }
 
     #endregion
 
     #region Days Filter Tests
 
-    [Test]
+    [Fact]
     public async Task Handle_WithCustomDaysFilter_OnlyIncludesMovementsInCustomRange()
     {
         // Arrange
@@ -1117,7 +1045,6 @@ public class GetStockMovementDashboardHandlerTests
 
         var now = DateTime.UtcNow;
 
-        // Movement within 7 days (3 days ago)
         var movementWithin7Days = new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -1129,7 +1056,6 @@ public class GetStockMovementDashboardHandlerTests
             Type = StockMovementType.In
         };
 
-        // Movement outside 7 days (10 days ago)
         var movementOutside7Days = new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -1152,16 +1078,16 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.History, Has.Count.EqualTo(1));
-        Assert.That(result.History[0].Id, Is.EqualTo(movementWithin7Days.Id));
+        Assert.NotNull(result);
+        Assert.Single(result.History);
+        Assert.Equal(movementWithin7Days.Id, result.History[0].Id);
     }
 
     #endregion
 
     #region History Ordering Tests
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleMovements_ReturnsHistoryOrderedByDateDescending()
     {
         // Arrange
@@ -1227,21 +1153,18 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.History, Has.Count.EqualTo(3));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.History[0].Id, Is.EqualTo(movement3.Id)); // Most recent
-            Assert.That(result.History[1].Id, Is.EqualTo(movement2.Id));
-            Assert.That(result.History[2].Id, Is.EqualTo(movement1.Id)); // Oldest
-        }
+        Assert.NotNull(result);
+        Assert.Equal(3, result.History.Count);
+        Assert.Equal(movement3.Id, result.History[0].Id);
+        Assert.Equal(movement2.Id, result.History[1].Id);
+        Assert.Equal(movement1.Id, result.History[2].Id);
     }
 
     #endregion
 
     #region Monthly InOut Grouping Tests
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMovementsAcrossMultipleMonths_GroupsMonthlyInOutCorrectly()
     {
         // Arrange
@@ -1264,7 +1187,6 @@ public class GetStockMovementDashboardHandlerTests
         var january = new DateTime(DateTime.UtcNow.Year, 1, 15);
         var february = new DateTime(DateTime.UtcNow.Year, 2, 15);
 
-        // January movements
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -1287,7 +1209,6 @@ public class GetStockMovementDashboardHandlerTests
             Type = StockMovementType.Out
         });
 
-        // February movements
         this.context.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
@@ -1320,19 +1241,16 @@ public class GetStockMovementDashboardHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.MonthlyInOut, Has.Count.EqualTo(2));
+        Assert.NotNull(result);
+        Assert.Equal(2, result.MonthlyInOut.Count);
 
         var januaryData = result.MonthlyInOut.First(m => m.Month.StartsWith("01/"));
         var februaryData = result.MonthlyInOut.First(m => m.Month.StartsWith("02/"));
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(januaryData.TotalIn, Is.EqualTo(50));
-            Assert.That(januaryData.TotalOut, Is.EqualTo(20));
-            Assert.That(februaryData.TotalIn, Is.EqualTo(60));
-            Assert.That(februaryData.TotalOut, Is.EqualTo(30));
-        }
+        Assert.Equal(50, januaryData.TotalIn);
+        Assert.Equal(20, januaryData.TotalOut);
+        Assert.Equal(60, februaryData.TotalIn);
+        Assert.Equal(30, februaryData.TotalOut);
     }
 
     #endregion

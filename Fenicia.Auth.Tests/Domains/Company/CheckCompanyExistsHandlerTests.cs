@@ -10,11 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
 
-[TestFixture]
-public class CheckCompanyExistsHandlerTests
+public class CheckCompanyExistsHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public CheckCompanyExistsHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -25,17 +23,18 @@ public class CheckCompanyExistsHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context;
-    private CheckCompanyExistsHandler handler;
-    private Faker faker;
+    private readonly DefaultContext context;
+    private readonly CheckCompanyExistsHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCompanyExistsWithMatchingCnpj_ReturnsTrue()
     {
         // Arrange
@@ -59,10 +58,10 @@ public class CheckCompanyExistsHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.True, "Should return true when company with matching CNPJ exists");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCompanyDoesNotExist_ReturnsFalse()
     {
         // Arrange
@@ -73,10 +72,10 @@ public class CheckCompanyExistsHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when no company with matching CNPJ exists");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenOnlyActiveIsTrueAndCompanyIsActive_ReturnsTrue()
     {
         // Arrange
@@ -100,10 +99,10 @@ public class CheckCompanyExistsHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.True, "Should return true when active company exists and OnlyActive is true");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenOnlyActiveIsTrueAndCompanyIsInactive_ReturnsFalse()
     {
         // Arrange
@@ -127,10 +126,10 @@ public class CheckCompanyExistsHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when only inactive company exists and OnlyActive is true");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenOnlyActiveIsFalseAndCompanyIsInactive_ReturnsTrue()
     {
         // Arrange
@@ -154,10 +153,10 @@ public class CheckCompanyExistsHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.True, "Should return true when inactive company exists and OnlyActive is false");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleCompaniesExist_OnlyMatchesExactCnpj()
     {
         // Arrange
@@ -193,10 +192,10 @@ public class CheckCompanyExistsHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.True, "Should return true for exact CNPJ match");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMixedActiveAndInactiveCompanies_OnlyActiveFilterWorksCorrectly()
     {
         // Arrange
@@ -233,14 +232,11 @@ public class CheckCompanyExistsHandlerTests
         var inactiveResult = await this.handler.Handle(inactiveQuery, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(activeResult, Is.True, "Should find active company when OnlyActive is true");
-            Assert.That(inactiveResult, Is.True, "Should find companies regardless of status when OnlyActive is false");
-        }
+        Assert.True(activeResult);
+        Assert.True(inactiveResult);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsFalse()
     {
         // Arrange
@@ -250,10 +246,10 @@ public class CheckCompanyExistsHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false with empty database");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCnpjContainsSpecialCharacters_NoMatch()
     {
         // Arrange
@@ -277,6 +273,6 @@ public class CheckCompanyExistsHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False, "Should not match CNPJ with special characters against plain CNPJ");
+        Assert.False(result);
     }
 }

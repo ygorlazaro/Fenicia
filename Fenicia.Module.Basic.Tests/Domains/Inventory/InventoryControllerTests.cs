@@ -21,33 +21,31 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
-[TestFixture]
-public class InventoryControllerTests
+public class InventoryControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public InventoryControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.testProductId = Guid.NewGuid();
         this.testCategoryId = Guid.NewGuid();
-        this.getInventoryHandler = new GetInventoryHandler(this.context);
-        this.getInventoryByProductHandler = new GetInventoryByProductHandler(this.context);
-        this.getInventoryByCategoryHandler = new GetInventoryByCategoryHandler(this.context);
-        this.getInventoryDashboardHandler = new GetInventoryDashboardHandler(this.context);
-        this.getInventoryHealthHandler = new GetInventoryHealthHandler(this.context);
+        var getInventoryHandler = new GetInventoryHandler(this.context);
+        var getInventoryByProductHandler = new GetInventoryByProductHandler(this.context);
+        var getInventoryByCategoryHandler = new GetInventoryByCategoryHandler(this.context);
+        var getInventoryDashboardHandler = new GetInventoryDashboardHandler(this.context);
+        var getInventoryHealthHandler = new GetInventoryHealthHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new InventoryController(
-            this.getInventoryHandler,
-            this.getInventoryByProductHandler,
-            this.getInventoryByCategoryHandler,
-            this.getInventoryDashboardHandler,
-            this.getInventoryHealthHandler)
+            getInventoryHandler,
+            getInventoryByProductHandler,
+            getInventoryByCategoryHandler,
+            getInventoryDashboardHandler,
+            getInventoryHealthHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -59,24 +57,12 @@ public class InventoryControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
-
-    private TestCompanyContext companyContext = null!;
-    private InventoryController controller = null!;
-    private DefaultContext context = null!;
-    private GetInventoryHandler getInventoryHandler = null!;
-    private GetInventoryByProductHandler getInventoryByProductHandler = null!;
-    private GetInventoryByCategoryHandler getInventoryByCategoryHandler = null!;
-    private GetInventoryDashboardHandler getInventoryDashboardHandler = null!;
-    private GetInventoryHealthHandler getInventoryHealthHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testProductId;
-    private Guid testCategoryId;
-    private Faker faker = null!;
+    private readonly InventoryController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testProductId;
+    private readonly Guid testCategoryId;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -92,7 +78,7 @@ public class InventoryControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetInventoryAsync_WhenNoProductsExist_ReturnsOkWithEmptyInventory()
     {
         // Arrange
@@ -104,24 +90,21 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryAsync(page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedInventory = okResult.Value as InventoryResponse;
-        Assert.That(returnedInventory, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedInventory.Items, Is.Empty);
-            Assert.That(returnedInventory.TotalCostPrice, Is.EqualTo(0));
-            Assert.That(returnedInventory.TotalSalesPrice, Is.EqualTo(0));
-            Assert.That(returnedInventory.TotalQuantity, Is.EqualTo(0));
-        }
+        Assert.NotNull(returnedInventory);
+        Assert.Empty(returnedInventory.Items);
+        Assert.Equal(0, returnedInventory.TotalCostPrice);
+        Assert.Equal(0, returnedInventory.TotalSalesPrice);
+        Assert.Equal(0, returnedInventory.TotalQuantity);
     }
 
-    [Test]
+    [Fact]
     public async Task GetInventoryAsync_WhenProductsExist_ReturnsOkWithInventory()
     {
         // Arrange
@@ -163,24 +146,21 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryAsync(page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedInventory = okResult.Value as InventoryResponse;
-        Assert.That(returnedInventory, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedInventory.Items, Has.Count.EqualTo(2));
-            Assert.That(returnedInventory.TotalCostPrice, Is.EqualTo(25.00m));
-            Assert.That(returnedInventory.TotalSalesPrice, Is.EqualTo(50.00m));
-            Assert.That(returnedInventory.TotalQuantity, Is.EqualTo(150));
-        }
+        Assert.NotNull(returnedInventory);
+        Assert.Equal(2, returnedInventory.Items.Count);
+        Assert.Equal(25.00m, returnedInventory.TotalCostPrice);
+        Assert.Equal(50.00m, returnedInventory.TotalSalesPrice);
+        Assert.Equal(150, returnedInventory.TotalQuantity);
     }
 
-    [Test]
+    [Fact]
     public async Task GetInventoryByProductIdAsync_WhenProductExists_ReturnsOkWithInventory()
     {
         // Arrange
@@ -210,23 +190,20 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryByProductIdAsync(this.testProductId, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedInventory = okResult.Value as InventoryResponse;
-        Assert.That(returnedInventory, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedInventory.Items, Has.Count.EqualTo(1));
-            Assert.That(returnedInventory.Items[0].Id, Is.EqualTo(this.testProductId));
-            Assert.That(returnedInventory.Items[0].Name, Is.EqualTo(product.Name));
-        }
+        Assert.NotNull(returnedInventory);
+        Assert.Single(returnedInventory.Items);
+        Assert.Equal(this.testProductId, returnedInventory.Items[0].Id);
+        Assert.Equal(product.Name, returnedInventory.Items[0].Name);
     }
 
-    [Test]
+    [Fact]
     public async Task GetInventoryByProductIdAsync_WhenProductDoesNotExist_ReturnsOkWithEmptyInventory()
     {
         // Arrange
@@ -237,18 +214,18 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryByProductIdAsync(nonExistentId, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedInventory = okResult.Value as InventoryResponse;
-        Assert.That(returnedInventory, Is.Not.Null);
-        Assert.That(returnedInventory.Items, Is.Empty);
+        Assert.NotNull(returnedInventory);
+        Assert.Empty(returnedInventory.Items);
     }
 
-    [Test]
+    [Fact]
     public async Task GetInventoryByCategoryIdAsync_WhenCategoryExists_ReturnsOkWithInventory()
     {
         // Arrange
@@ -288,23 +265,20 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryByCategoryIdAsync(this.testCategoryId, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedInventory = okResult.Value as InventoryResponse;
-        Assert.That(returnedInventory, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedInventory.Items, Has.Count.EqualTo(2));
-            Assert.That(returnedInventory.Items[0].CategoryId, Is.EqualTo(category.Id));
-            Assert.That(returnedInventory.Items[1].CategoryId, Is.EqualTo(category.Id));
-        }
+        Assert.NotNull(returnedInventory);
+        Assert.Equal(2, returnedInventory.Items.Count);
+        Assert.Equal(category.Id, returnedInventory.Items[0].CategoryId);
+        Assert.Equal(category.Id, returnedInventory.Items[1].CategoryId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetInventoryByCategoryIdAsync_WhenCategoryDoesNotExist_ReturnsOkWithEmptyInventory()
     {
         // Arrange
@@ -315,20 +289,20 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryByCategoryIdAsync(nonExistentId, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedInventory = okResult.Value as InventoryResponse;
-        Assert.That(returnedInventory, Is.Not.Null);
-        Assert.That(returnedInventory.Items, Is.Empty);
+        Assert.NotNull(returnedInventory);
+        Assert.Empty(returnedInventory.Items);
     }
 
     #region GetInventoryDashboardAsync Tests
 
-    [Test]
+    [Fact]
     public async Task GetInventoryDashboardAsync_WhenNoDataExists_ReturnsOkWithEmptyDashboard()
     {
         // Arrange
@@ -338,27 +312,24 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryDashboardAsync(ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedDashboard = okResult.Value as InventoryDashboardResponse;
-        Assert.That(returnedDashboard, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedDashboard.LowStockItems, Is.Empty);
-            Assert.That(returnedDashboard.TotalCustomers, Is.EqualTo(0));
-            Assert.That(returnedDashboard.TotalEmployees, Is.EqualTo(0));
-            Assert.That(returnedDashboard.TotalCostValue, Is.EqualTo(0));
-            Assert.That(returnedDashboard.TotalSalesValue, Is.EqualTo(0));
-            Assert.That(returnedDashboard.TotalQuantity, Is.EqualTo(0));
-            Assert.That(returnedDashboard.ProfitPotential, Is.EqualTo(0));
-        }
+        Assert.NotNull(returnedDashboard);
+        Assert.Empty(returnedDashboard.LowStockItems);
+        Assert.Equal(0, returnedDashboard.TotalCustomers);
+        Assert.Equal(0, returnedDashboard.TotalEmployees);
+        Assert.Equal(0, returnedDashboard.TotalCostValue);
+        Assert.Equal(0, returnedDashboard.TotalSalesValue);
+        Assert.Equal(0, returnedDashboard.TotalQuantity);
+        Assert.Equal(0, returnedDashboard.ProfitPotential);
     }
 
-    [Test]
+    [Fact]
     public async Task GetInventoryDashboardAsync_WhenProductsExist_ReturnsOkWithDashboardData()
     {
         // Arrange
@@ -423,25 +394,22 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryDashboardAsync(ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedDashboard = okResult.Value as InventoryDashboardResponse;
-        Assert.That(returnedDashboard, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedDashboard.LowStockItems, Is.Not.Empty);
-            Assert.That(returnedDashboard.TotalCustomers, Is.EqualTo(1));
-            Assert.That(returnedDashboard.TotalEmployees, Is.EqualTo(1));
-            Assert.That(returnedDashboard.TotalQuantity, Is.EqualTo(105));
-            Assert.That(returnedDashboard.CategoryBreakdown, Has.Count.EqualTo(1));
-        }
+        Assert.NotNull(returnedDashboard);
+        Assert.NotEmpty(returnedDashboard.LowStockItems);
+        Assert.Equal(1, returnedDashboard.TotalCustomers);
+        Assert.Equal(1, returnedDashboard.TotalEmployees);
+        Assert.Equal(105, returnedDashboard.TotalQuantity);
+        Assert.Single(returnedDashboard.CategoryBreakdown);
     }
 
-    [Test]
+    [Fact]
     public async Task GetInventoryDashboardAsync_ReturnsLowStockItemsOrderedByQuantity()
     {
         // Arrange
@@ -481,21 +449,21 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryDashboardAsync(ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedDashboard = okResult.Value as InventoryDashboardResponse;
-        Assert.That(returnedDashboard, Is.Not.Null);
-        Assert.That(returnedDashboard.LowStockItems, Is.Not.Empty);
+        Assert.NotNull(returnedDashboard);
+        Assert.NotEmpty(returnedDashboard.LowStockItems);
 
         // First item should be the one with the lowest quantity
-        Assert.That(returnedDashboard.LowStockItems[0].Name, Is.EqualTo("Low Stock Product"));
+        Assert.Equal("Low Stock Product", returnedDashboard.LowStockItems[0].Name);
     }
 
-    [Test]
+    [Fact]
     public async Task GetInventoryDashboardAsync_CalculatesProfitPotentialCorrectly()
     {
         // Arrange
@@ -525,29 +493,26 @@ public class InventoryControllerTests
         var result = await this.controller.GetInventoryDashboardAsync(ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedDashboard = okResult.Value as InventoryDashboardResponse;
-        Assert.That(returnedDashboard, Is.Not.Null);
+        Assert.NotNull(returnedDashboard);
 
         // Total Cost Value = 10.00 * 10 = 100.00
         // Total Sales Value = 20.00 * 10 = 200.00
         // Profit Potential = 200.00 - 100.00 = 100.00
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedDashboard.TotalCostValue, Is.EqualTo(100.00m));
-            Assert.That(returnedDashboard.TotalSalesValue, Is.EqualTo(200.00m));
-            Assert.That(returnedDashboard.ProfitPotential, Is.EqualTo(100.00m));
-        }
+        Assert.Equal(100.00m, returnedDashboard.TotalCostValue);
+        Assert.Equal(200.00m, returnedDashboard.TotalSalesValue);
+        Assert.Equal(100.00m, returnedDashboard.ProfitPotential);
     }
 
     #endregion
 
-    [Test]
+    [Fact]
     public void InventoryController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -557,10 +522,10 @@ public class InventoryControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "InventoryController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void InventoryController_HasRouteAttribute()
     {
         // Arrange
@@ -571,11 +536,11 @@ public class InventoryControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "InventoryController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void InventoryController_HasApiControllerAttribute()
     {
         // Arrange
@@ -586,6 +551,13 @@ public class InventoryControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "InventoryController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

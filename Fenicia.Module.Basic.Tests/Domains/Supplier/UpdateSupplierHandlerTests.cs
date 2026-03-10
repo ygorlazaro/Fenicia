@@ -7,32 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
-[TestFixture]
-public class UpdateSupplierHandlerTests
+public class UpdateSupplierHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateSupplierHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new UpdateSupplierHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly UpdateSupplierHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private UpdateSupplierHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenSupplierExists_UpdatesSupplierAndReturnsResponse()
     {
         // Arrange
@@ -72,14 +63,11 @@ public class UpdateSupplierHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Cnpj, Is.EqualTo("98.765.432/0001-10"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal("98.765.432/0001-10", result.Cnpj);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenSupplierDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -102,10 +90,10 @@ public class UpdateSupplierHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -128,10 +116,10 @@ public class UpdateSupplierHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesSupplierWasUpdatedInDatabase()
     {
         // Arrange
@@ -175,11 +163,13 @@ public class UpdateSupplierHandlerTests
             .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == supplierId);
 
-        Assert.That(updatedSupplier, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedSupplier.Person.Name, Is.EqualTo("New Name"));
-            Assert.That(updatedSupplier.Cnpj, Is.EqualTo("98.765.432/0001-10"));
-        }
+        Assert.NotNull(updatedSupplier);
+        Assert.Equal("New Name", updatedSupplier.Person.Name);
+        Assert.Equal("98.765.432/0001-10", updatedSupplier.Cnpj);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

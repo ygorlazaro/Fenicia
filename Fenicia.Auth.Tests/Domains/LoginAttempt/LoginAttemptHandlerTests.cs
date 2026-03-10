@@ -6,28 +6,20 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-[TestFixture]
-public class LoginAttemptHandlerTests
+public class LoginAttemptHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public LoginAttemptHandlerTests()
     {
         this.cache = new MemoryCache(new MemoryCacheOptions());
         this.faker = new Faker();
         this.handler = new LoginAttemptHandler(this.cache);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.cache.Dispose();
-    }
+    private readonly MemoryCache cache;
+    private readonly LoginAttemptHandler handler;
+    private readonly Faker faker;
 
-    private MemoryCache cache;
-    private LoginAttemptHandler handler;
-    private Faker faker;
-
-    [Test]
+    [Fact]
     public void Handle_WhenNoAttemptsExist_ReturnsZero()
     {
         // Arrange
@@ -37,10 +29,10 @@ public class LoginAttemptHandlerTests
         var result = this.handler.Handle(email);
 
         // Assert
-        Assert.That(result, Is.Zero, "Should return 0 when no attempts exist");
+        Assert.Equal(0, result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenAttemptsExist_ReturnsAttemptCount()
     {
         // Arrange
@@ -52,10 +44,10 @@ public class LoginAttemptHandlerTests
         var result = this.handler.Handle(email);
 
         // Assert
-        Assert.That(result, Is.EqualTo(3), "Should return the correct attempt count");
+        Assert.Equal(3, result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenEmailHasDifferentCase_ReturnsCorrectCount()
     {
         // Arrange
@@ -68,17 +60,17 @@ public class LoginAttemptHandlerTests
         var result = this.handler.Handle(upperCaseEmail);
 
         // Assert
-        Assert.That(result, Is.EqualTo(5), "Should return correct count regardless of case");
+        Assert.Equal(5, result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => this.handler.Handle(null!));
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenEmailIsEmpty_ReturnsZero()
     {
         // Arrange
@@ -88,10 +80,10 @@ public class LoginAttemptHandlerTests
         var result = this.handler.Handle(email);
 
         // Assert
-        Assert.That(result, Is.Zero, "Should return 0 for empty email");
+        Assert.Equal(0, result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenEmailContainsSpaces_ReturnsZero()
     {
         // Arrange
@@ -101,10 +93,10 @@ public class LoginAttemptHandlerTests
         var result = this.handler.Handle(email);
 
         // Assert
-        Assert.That(result, Is.Zero, "Should return 0 for email with spaces (not normalized)");
+        Assert.Equal(0, result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WithMultipleDifferentEmails_ReturnsCorrectCounts()
     {
         // Arrange
@@ -120,14 +112,11 @@ public class LoginAttemptHandlerTests
         var result2 = this.handler.Handle(email2);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result1, Is.EqualTo(2), "Should return correct count for user1");
-            Assert.That(result2, Is.EqualTo(4), "Should return correct count for user2");
-        }
+        Assert.Equal(2, result1);
+        Assert.Equal(4, result2);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenAttemptCountIsHigh_ReturnsCorrectCount()
     {
         // Arrange
@@ -139,6 +128,11 @@ public class LoginAttemptHandlerTests
         var result = this.handler.Handle(email);
 
         // Assert
-        Assert.That(result, Is.EqualTo(100), "Should return high attempt count correctly");
+        Assert.Equal(100, result);
+    }
+
+    public void Dispose()
+    {
+        this.cache.Dispose();
     }
 }

@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Attachment;
 
-[TestFixture]
-public class DeleteProjectAttachmentHandlerTests
+public class DeleteProjectAttachmentHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteProjectAttachmentHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteProjectAttachmentHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteProjectAttachmentHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly DeleteProjectAttachmentHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectAttachmentExists_SetsDeletedDate()
     {
         // Arrange
@@ -64,13 +62,12 @@ public class DeleteProjectAttachmentHandlerTests
 
         // Assert
         var deletedAttachment = await this.context.ProjectAttachments.FindAsync([attachmentId], CancellationToken.None);
-        Assert.That(deletedAttachment, Is.Not.Null);
-        Assert.That(deletedAttachment.Deleted, Is.Not.Null);
-        Assert.That(deletedAttachment.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedAttachment.Deleted, Is.LessThanOrEqualTo(DateTime.UtcNow.AddSeconds(1)));
+        Assert.NotNull(deletedAttachment);
+        Assert.NotNull(deletedAttachment.Deleted);
+        Assert.InRange(deletedAttachment.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectAttachmentDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -81,10 +78,10 @@ public class DeleteProjectAttachmentHandlerTests
 
         // Assert
         var attachments = await this.context.ProjectAttachments.ToListAsync();
-        Assert.That(attachments, Is.Empty);
+        Assert.Empty(attachments);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -95,10 +92,10 @@ public class DeleteProjectAttachmentHandlerTests
 
         // Assert
         var attachments = await this.context.ProjectAttachments.ToListAsync();
-        Assert.That(attachments, Is.Empty);
+        Assert.Empty(attachments);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectAttachments_OnlyDeletesSpecified()
     {
         // Arrange
@@ -140,16 +137,13 @@ public class DeleteProjectAttachmentHandlerTests
         var deletedAttachment = await this.context.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
         var notDeletedAttachment = await this.context.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
 
-        Assert.That(deletedAttachment, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedAttachment.Deleted, Is.Not.Null);
-            Assert.That(notDeletedAttachment, Is.Not.Null);
-        }
-        Assert.That(notDeletedAttachment?.Deleted, Is.Null);
+        Assert.NotNull(deletedAttachment);
+        Assert.NotNull(deletedAttachment.Deleted);
+        Assert.NotNull(notDeletedAttachment);
+        Assert.Null(notDeletedAttachment.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectAttachments_DeletesCorrectProjectAttachment()
     {
         // Arrange
@@ -204,17 +198,11 @@ public class DeleteProjectAttachmentHandlerTests
         var deletedAttachment = await this.context.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
         var attachment3InDb = await this.context.ProjectAttachments.FindAsync([attachment3Id], CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(attachment1InDb, Is.Not.Null);
-            Assert.That(deletedAttachment, Is.Not.Null);
-            Assert.That(attachment3InDb, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(attachment1InDb.Deleted, Is.Null);
-            Assert.That(deletedAttachment.Deleted, Is.Not.Null);
-            Assert.That(attachment3InDb.Deleted, Is.Null);
-        }
+        Assert.NotNull(attachment1InDb);
+        Assert.NotNull(deletedAttachment);
+        Assert.NotNull(attachment3InDb);
+        Assert.Null(attachment1InDb.Deleted);
+        Assert.NotNull(deletedAttachment.Deleted);
+        Assert.Null(attachment3InDb.Deleted);
     }
 }

@@ -6,20 +6,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Auth.Tests;
 
-[TestFixture]
 public class CorrelationIdMiddlewareTests
 {
     private const string HeaderName = "X-Correlation-ID";
 
-    [SetUp]
-    public void SetUp()
-    {
-        this.faker = new Faker();
-    }
+    private readonly Faker faker = new();
 
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task InvokeAsync_WhenHeaderPresent_PassesThroughAndSetsResponseHeader()
     {
         var context = new DefaultHttpContext();
@@ -32,25 +25,22 @@ public class CorrelationIdMiddlewareTests
 
         await middleware.InvokeAsync(context);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(called, Is.True, "Next delegate should be invoked");
-            Assert.That(context.Response.Headers.ContainsKey(HeaderName), Is.True,
-                "Response should contain correlation header");
-            Assert.That(context.Response.Headers[HeaderName].ToString(), Is.EqualTo(existing));
-        }
+        Assert.True(called, "Next delegate should be invoked");
+        Assert.True(context.Response.Headers.ContainsKey(HeaderName),
+            "Response should contain correlation header");
+        Assert.Equal(existing, context.Response.Headers[HeaderName].ToString());
 
         return;
 
         Task Next(HttpContext ctx)
         {
             called = true;
-            Assert.That(ctx.Request.Headers[HeaderName].ToString(), Is.EqualTo(existing));
+            Assert.Equal(existing, ctx.Request.Headers[HeaderName].ToString());
             return Task.CompletedTask;
         }
     }
 
-    [Test]
+    [Fact]
     public async Task InvokeAsync_WhenHeaderMissing_GeneratesCorrelationIdAndSetsRequestAndResponse()
     {
         var context = new DefaultHttpContext();
@@ -61,23 +51,15 @@ public class CorrelationIdMiddlewareTests
 
         await middleware.InvokeAsync(context);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(called, Is.True, "Next delegate should be invoked");
-            Assert.That(context.Request.Headers.ContainsKey(HeaderName), Is.True,
-                "Request should contain generated correlation header");
-            Assert.That(context.Response.Headers.ContainsKey(HeaderName), Is.True,
-                "Response should contain correlation header");
-        }
+        Assert.True(called, "Next delegate should be invoked");
+        Assert.True(context.Request.Headers.ContainsKey(HeaderName),
+            "Request should contain generated correlation header");
+        Assert.True(context.Response.Headers.ContainsKey(HeaderName),
+            "Response should contain correlation header");
 
         var value = context.Request.Headers[HeaderName].ToString();
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(string.IsNullOrWhiteSpace(value), Is.False, "Generated correlation id should not be empty");
-            Assert.That(value, Is.EqualTo(context.Response.Headers[HeaderName].ToString()),
-                "Request and Response correlation ids should match");
-            Assert.That(Guid.TryParse(value, out _), Is.True, "Generated correlation id should be a valid GUID");
-        }
+        Assert.False(string.IsNullOrWhiteSpace(value), "Generated correlation id should not be empty");
+        Assert.True(Guid.TryParse(value, out _), "Generated correlation id should be a valid GUID");
 
         return;
 
@@ -88,21 +70,17 @@ public class CorrelationIdMiddlewareTests
         }
     }
 
-    [Test]
-    public void InvokeAsync_WhenNextThrows_ExceptionIsRethrownAndHeaderIsSet()
+    [Fact]
+    public async Task InvokeAsync_WhenNextThrows_ExceptionIsRethrownAndHeaderIsSet()
     {
         var context = new DefaultHttpContext();
 
         var middleware = new CorrelationIdMiddleware(Next);
 
-        var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await middleware.InvokeAsync(context));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(ex?.Message, Is.EqualTo("boom"));
-
-            Assert.That(context.Response.Headers.ContainsKey(HeaderName), Is.True,
-                "Response should contain correlation header even when an exception is thrown");
-        }
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await middleware.InvokeAsync(context));
+        Assert.Equal("boom", ex.Message);
+        Assert.True(context.Response.Headers.ContainsKey(HeaderName),
+            "Response should contain correlation header even when an exception is thrown");
 
         return;
 

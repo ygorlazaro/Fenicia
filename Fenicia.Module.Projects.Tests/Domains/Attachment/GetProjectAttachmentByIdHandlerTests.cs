@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Attachment;
 
-[TestFixture]
-public class GetProjectAttachmentByIdHandlerTests
+public class GetProjectAttachmentByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetProjectAttachmentByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetProjectAttachmentByIdHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetProjectAttachmentByIdHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly GetProjectAttachmentByIdHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectAttachmentExists_ReturnsProjectAttachmentResponse()
     {
         // Arrange
@@ -66,15 +64,12 @@ public class GetProjectAttachmentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(attachmentId));
-            Assert.That(result.FileName, Is.EqualTo(fileName));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(attachmentId, result.Id);
+        Assert.Equal(fileName, result.FileName);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectAttachmentDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -84,10 +79,10 @@ public class GetProjectAttachmentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -97,10 +92,10 @@ public class GetProjectAttachmentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectAttachments_ReturnsOnlyRequestedAttachment()
     {
         // Arrange
@@ -139,15 +134,12 @@ public class GetProjectAttachmentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(attachment1Id));
-            Assert.That(result.FileName, Is.EqualTo(attachment1.FileName));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(attachment1Id, result.Id);
+        Assert.Equal(attachment1.FileName, result.FileName);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithLargeFileSize_ReturnsCorrectResponse()
     {
         // Arrange
@@ -174,11 +166,8 @@ public class GetProjectAttachmentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(attachmentId));
-            Assert.That(result.FileSize, Is.EqualTo(largeFileSize));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(attachmentId, result.Id);
+        Assert.Equal(largeFileSize, result.FileSize);
     }
 }

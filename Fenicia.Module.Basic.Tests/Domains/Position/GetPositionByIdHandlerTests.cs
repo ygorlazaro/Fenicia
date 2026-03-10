@@ -7,40 +7,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;
 
-[TestFixture]
-public class GetPositionByIdHandlerTests
+public class GetPositionByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetPositionByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetPositionByIdHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetPositionByIdHandler handler = null!;
+    private readonly DefaultContext context;
+    private readonly GetPositionByIdHandler handler;
 
-    [Test]
-    public async Task Handle_WhenPositionExists_ReturnsPositionResponse()
+    [Theory]
+    [InlineData("Developer")]
+    [InlineData("Designer")]
+    [InlineData("Manager")]
+    [InlineData("Analyst")]
+    public async Task Handle_WhenPositionExists_ReturnsPositionResponse(string positionName)
     {
         // Arrange
         var positionId = Guid.NewGuid();
         var position = new PositionModel
         {
             Id = positionId,
-            Name = "Developer"
+            Name = positionName
         };
 
         this.context.BasicPositions.Add(position);
@@ -52,15 +53,12 @@ public class GetPositionByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(positionId));
-            Assert.That(result.Name, Is.EqualTo("Developer"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(positionId, result.Id);
+        Assert.Equal(positionName, result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPositionDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -70,10 +68,10 @@ public class GetPositionByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -83,10 +81,10 @@ public class GetPositionByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultiplePositions_ReturnsOnlyRequestedPosition()
     {
         // Arrange
@@ -105,12 +103,9 @@ public class GetPositionByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(position1Id));
-            Assert.That(result.Name, Is.EqualTo("Developer"));
-        }
-        Assert.That(result.Name, Is.Not.EqualTo("Designer"));
+        Assert.NotNull(result);
+        Assert.Equal(position1Id, result.Id);
+        Assert.Equal("Developer", result.Name);
+        Assert.NotEqual("Designer", result.Name);
     }
 }

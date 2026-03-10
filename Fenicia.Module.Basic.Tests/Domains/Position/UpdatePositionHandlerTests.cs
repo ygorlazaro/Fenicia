@@ -7,60 +7,58 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;
 
-[TestFixture]
-public class UpdatePositionHandlerTests
+public class UpdatePositionHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdatePositionHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new UpdatePositionHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private UpdatePositionHandler handler = null!;
+    private readonly DefaultContext context;
+    private readonly UpdatePositionHandler handler;
 
-    [Test]
-    public async Task Handle_WhenPositionExists_UpdatesPositionAndReturnsResponse()
+    [Theory]
+    [InlineData("Old Position", "New Position")]
+    [InlineData("Developer", "Senior Developer")]
+    [InlineData("Junior", "Pleno")]
+    [InlineData("Analyst", "Coordinator")]
+    public async Task Handle_WhenPositionExists_UpdatesPositionAndReturnsResponse(string oldName, string newName)
     {
         // Arrange
         var positionId = Guid.NewGuid();
         var position = new PositionModel
         {
             Id = positionId,
-            Name = "Old Position"
+            Name = oldName
         };
 
         this.context.BasicPositions.Add(position);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdatePositionCommand(positionId, "New Position");
+        var command = new UpdatePositionCommand(positionId, newName);
 
         // Act
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(positionId));
-            Assert.That(result.Name, Is.EqualTo("New Position"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(positionId, result.Id);
+        Assert.Equal(newName, result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPositionDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -70,10 +68,10 @@ public class UpdatePositionHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -83,10 +81,10 @@ public class UpdatePositionHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesPositionWasUpdatedInDatabase()
     {
         // Arrange
@@ -107,11 +105,11 @@ public class UpdatePositionHandlerTests
 
         // Assert
         var updatedPosition = await this.context.BasicPositions.FindAsync([positionId], CancellationToken.None);
-        Assert.That(updatedPosition, Is.Not.Null);
-        Assert.That(updatedPosition.Name, Is.EqualTo("New Position"));
+        Assert.NotNull(updatedPosition);
+        Assert.Equal("New Position", updatedPosition.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultiplePositions_OnlyUpdatesSpecified()
     {
         // Arrange
@@ -133,12 +131,9 @@ public class UpdatePositionHandlerTests
         var updatedPosition1 = await this.context.BasicPositions.FindAsync([position1Id], CancellationToken.None);
         var notUpdatedPosition2 = await this.context.BasicPositions.FindAsync([position2Id], CancellationToken.None);
 
-        Assert.That(updatedPosition1, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedPosition1.Name, Is.EqualTo("Senior Developer"));
-            Assert.That(notUpdatedPosition2, Is.Not.Null);
-        }
-        Assert.That(notUpdatedPosition2!.Name, Is.EqualTo("Designer"));
+        Assert.NotNull(updatedPosition1);
+        Assert.Equal("Senior Developer", updatedPosition1.Name);
+        Assert.NotNull(notUpdatedPosition2);
+        Assert.Equal("Designer", notUpdatedPosition2.Name);
     }
 }

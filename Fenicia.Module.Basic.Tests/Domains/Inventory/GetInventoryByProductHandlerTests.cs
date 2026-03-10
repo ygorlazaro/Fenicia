@@ -9,34 +9,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
-[TestFixture]
-public class GetInventoryByProductHandlerTests
+public class GetInventoryByProductHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetInventoryByProductHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetInventoryByProductHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly GetInventoryByProductHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetInventoryByProductHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithNonExistentProduct_ReturnsEmptyInventory()
     {
         // Arrange
@@ -47,17 +38,14 @@ public class GetInventoryByProductHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Items, Is.Empty);
-            Assert.That(result.TotalCostPrice, Is.EqualTo(0));
-            Assert.That(result.TotalSalesPrice, Is.EqualTo(0));
-            Assert.That(result.TotalQuantity, Is.EqualTo(0));
-        }
+        Assert.NotNull(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalCostPrice);
+        Assert.Equal(0, result.TotalSalesPrice);
+        Assert.Equal(0, result.TotalQuantity);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithExistingProduct_ReturnsProductInventory()
     {
         // Arrange
@@ -84,19 +72,16 @@ public class GetInventoryByProductHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Items, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Items[0].Id, Is.EqualTo(productId));
-            Assert.That(result.Items[0].Name, Is.EqualTo(product.Name));
-            Assert.That(result.TotalCostPrice, Is.EqualTo(10.00m));
-            Assert.That(result.TotalSalesPrice, Is.EqualTo(20.00m));
-            Assert.That(result.TotalQuantity, Is.EqualTo(100));
-        }
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal(productId, result.Items[0].Id);
+        Assert.Equal(product.Name, result.Items[0].Name);
+        Assert.Equal(10.00m, result.TotalCostPrice);
+        Assert.Equal(20.00m, result.TotalSalesPrice);
+        Assert.Equal(100, result.TotalQuantity);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithProductHavingNullCostPrice_HandlesCorrectly()
     {
         // Arrange
@@ -123,16 +108,13 @@ public class GetInventoryByProductHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Items, Has.Count.EqualTo(1));
-            Assert.That(result.TotalCostPrice, Is.EqualTo(0));
-            Assert.That(result.TotalSalesPrice, Is.EqualTo(20.00m));
-        }
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal(0, result.TotalCostPrice);
+        Assert.Equal(20.00m, result.TotalSalesPrice);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesCategoryNameIsIncluded()
     {
         // Arrange
@@ -159,8 +141,13 @@ public class GetInventoryByProductHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Items, Has.Count.EqualTo(1));
-        Assert.That(result.Items[0].CategoryName, Is.EqualTo("Electronics"));
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+        Assert.Equal("Electronics", result.Items[0].CategoryName);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

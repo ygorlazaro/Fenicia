@@ -8,34 +8,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
 
-[TestFixture]
-public class AddProjectCommentHandlerTests
+public class AddProjectCommentHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddProjectCommentHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddProjectCommentHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddProjectCommentHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly AddProjectCommentHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsProjectCommentAndReturnsResponse()
     {
         // Arrange
@@ -49,15 +47,12 @@ public class AddProjectCommentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Content, Is.EqualTo(command.Content));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Content, result.Content);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesProjectCommentWasSaved()
     {
         // Arrange
@@ -74,15 +69,12 @@ public class AddProjectCommentHandlerTests
         var comment = await this.context.ProjectComments
             .FirstOrDefaultAsync(c => c.Id == command.Id);
 
-        Assert.That(comment, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(comment.Content, Is.EqualTo(command.Content));
-            Assert.That(comment.TaskId, Is.EqualTo(command.TaskId));
-        }
+        Assert.NotNull(comment);
+        Assert.Equal(command.Content, comment.Content);
+        Assert.Equal(command.TaskId, comment.TaskId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProjectComments()
     {
         // Arrange
@@ -106,10 +98,10 @@ public class AddProjectCommentHandlerTests
 
         // Assert
         var comments = await this.context.ProjectComments.ToListAsync();
-        Assert.That(comments, Has.Count.EqualTo(2));
+        Assert.Equal(2, comments.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithLongContent_AddsProjectCommentSuccessfully()
     {
         // Arrange
@@ -124,15 +116,12 @@ public class AddProjectCommentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Content, Is.EqualTo(longContent));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(longContent, result.Content);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithShortContent_AddsProjectCommentSuccessfully()
     {
         // Arrange
@@ -146,11 +135,8 @@ public class AddProjectCommentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Content, Is.EqualTo("Short comment"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal("Short comment", result.Content);
     }
 }

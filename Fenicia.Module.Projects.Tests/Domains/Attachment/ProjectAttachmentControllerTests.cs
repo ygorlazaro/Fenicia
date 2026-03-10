@@ -22,32 +22,30 @@ using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Attachment;
 
-[TestFixture]
-public class ProjectAttachmentControllerTests
+public class ProjectAttachmentControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public ProjectAttachmentControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.testProjectAttachmentId = Guid.NewGuid();
-        this.getAllProjectAttachmentHandler = new GetAllProjectAttachmentHandler(this.context);
-        this.getProjectAttachmentByIdHandler = new GetProjectAttachmentByIdHandler(this.context);
-        this.addProjectAttachmentHandler = new AddProjectAttachmentHandler(this.context);
-        this.updateProjectAttachmentHandler = new UpdateProjectAttachmentHandler(this.context);
-        this.deleteProjectAttachmentHandler = new DeleteProjectAttachmentHandler(this.context);
+        var getAllProjectAttachmentHandler = new GetAllProjectAttachmentHandler(this.context);
+        var getProjectAttachmentByIdHandler = new GetProjectAttachmentByIdHandler(this.context);
+        var addProjectAttachmentHandler = new AddProjectAttachmentHandler(this.context);
+        var updateProjectAttachmentHandler = new UpdateProjectAttachmentHandler(this.context);
+        var deleteProjectAttachmentHandler = new DeleteProjectAttachmentHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProjectAttachmentController(
-            this.getAllProjectAttachmentHandler,
-            this.getProjectAttachmentByIdHandler,
-            this.addProjectAttachmentHandler,
-            this.updateProjectAttachmentHandler,
-            this.deleteProjectAttachmentHandler)
+            getAllProjectAttachmentHandler,
+            getProjectAttachmentByIdHandler,
+            addProjectAttachmentHandler,
+            updateProjectAttachmentHandler,
+            deleteProjectAttachmentHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -59,23 +57,18 @@ public class ProjectAttachmentControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private ProjectAttachmentController controller = null!;
-    private DefaultContext context = null!;
-    private GetAllProjectAttachmentHandler getAllProjectAttachmentHandler = null!;
-    private GetProjectAttachmentByIdHandler getProjectAttachmentByIdHandler = null!;
-    private AddProjectAttachmentHandler addProjectAttachmentHandler = null!;
-    private UpdateProjectAttachmentHandler updateProjectAttachmentHandler = null!;
-    private DeleteProjectAttachmentHandler deleteProjectAttachmentHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testProjectAttachmentId;
-    private Faker faker = null!;
+    private readonly ProjectAttachmentController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testProjectAttachmentId;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -91,12 +84,12 @@ public class ProjectAttachmentControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenNoItemsExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -104,18 +97,18 @@ public class ProjectAttachmentControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedAttachments = okResult.Value as List<GetAllProjectAttachmentResponse>;
-        Assert.That(returnedAttachments, Is.Not.Null);
-        Assert.That(returnedAttachments, Is.Empty);
+        Assert.NotNull(returnedAttachments);
+        Assert.Empty(returnedAttachments);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
@@ -144,8 +137,8 @@ public class ProjectAttachmentControllerTests
         this.context.ProjectAttachments.AddRange(projectAttachment1, projectAttachment2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -153,18 +146,18 @@ public class ProjectAttachmentControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedAttachments = okResult.Value as List<GetAllProjectAttachmentResponse>;
-        Assert.That(returnedAttachments, Is.Not.Null);
-        Assert.That(returnedAttachments, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedAttachments);
+        Assert.Equal(2, returnedAttachments.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
@@ -186,25 +179,22 @@ public class ProjectAttachmentControllerTests
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testProjectAttachmentId,wide, ct);
+        var result = await this.controller.GetByIdAsync(this.testProjectAttachmentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedAttachment = okResult.Value as GetProjectAttachmentByIdResponse;
-        Assert.That(returnedAttachment, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedAttachment.Id, Is.EqualTo(this.testProjectAttachmentId));
-            Assert.That(returnedAttachment.FileName, Is.EqualTo(projectAttachment.FileName));
-        }
+        Assert.NotNull(returnedAttachment);
+        Assert.Equal(this.testProjectAttachmentId, returnedAttachment.Id);
+        Assert.Equal(projectAttachment.FileName, returnedAttachment.FileName);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenItemDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -216,11 +206,11 @@ public class ProjectAttachmentControllerTests
         var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithItem()
     {
         // Arrange
@@ -237,26 +227,23 @@ public class ProjectAttachmentControllerTests
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command,wide, ct);
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201));
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedAttachment = createdResult.Value as AddProjectAttachmentResponse;
-        Assert.That(returnedAttachment, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedAttachment.Id, Is.EqualTo(command.Id));
-            Assert.That(returnedAttachment.FileName, Is.EqualTo(command.FileName));
-        }
+        Assert.NotNull(returnedAttachment);
+        Assert.Equal(command.Id, returnedAttachment.Id);
+        Assert.Equal(command.FileName, returnedAttachment.FileName);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
@@ -289,18 +276,18 @@ public class ProjectAttachmentControllerTests
         var result = await this.controller.PatchAsync(command, this.testProjectAttachmentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedAttachment = okResult.Value as UpdateProjectAttachmentResponse;
-        Assert.That(returnedAttachment, Is.Not.Null);
-        Assert.That(returnedAttachment.FileName, Contains.Substring("_updated"));
+        Assert.NotNull(returnedAttachment);
+        Assert.Contains("_updated", returnedAttachment.FileName);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenItemDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -320,11 +307,11 @@ public class ProjectAttachmentControllerTests
         var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
@@ -349,14 +336,14 @@ public class ProjectAttachmentControllerTests
         var result = await this.controller.DeleteAsync(this.testProjectAttachmentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
 
         // Verify project attachment was deleted
         var deletedAttachment = await this.context.ProjectAttachments.FirstOrDefaultAsync(x => x.Id == this.testProjectAttachmentId && x.Deleted == null, ct);
-        Assert.That(deletedAttachment, Is.Null);
+        Assert.Null(deletedAttachment);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenItemDoesNotExist_ReturnsNoContent()
     {
         // Arrange
@@ -368,10 +355,10 @@ public class ProjectAttachmentControllerTests
         var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public void Controller_HasAuthorizeAttribute()
     {
         // Arrange
@@ -381,10 +368,10 @@ public class ProjectAttachmentControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "ProjectAttachmentController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void Controller_HasRouteAttribute()
     {
         // Arrange
@@ -395,11 +382,11 @@ public class ProjectAttachmentControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "ProjectAttachmentController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void Controller_HasApiControllerAttribute()
     {
         // Arrange
@@ -410,10 +397,10 @@ public class ProjectAttachmentControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "ProjectAttachmentController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
     }
 
-    [Test]
+    [Fact]
     public void DeleteAction_HasAuthorizeAdminAttribute()
     {
         // Arrange
@@ -424,11 +411,11 @@ public class ProjectAttachmentControllerTests
         var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "DeleteAsync should have Authorize attribute");
-        Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
+        Assert.NotNull(authorizeAttribute);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
-    [Test]
+    [Fact]
     public void PostAction_HasAuthorizeAdminAttribute()
     {
         // Arrange
@@ -439,11 +426,11 @@ public class ProjectAttachmentControllerTests
         var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "PostAsync should have Authorize attribute");
-        Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
+        Assert.NotNull(authorizeAttribute);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
-    [Test]
+    [Fact]
     public void PatchAction_HasAuthorizeAdminAttribute()
     {
         // Arrange
@@ -454,7 +441,7 @@ public class ProjectAttachmentControllerTests
         var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "PatchAsync should have Authorize attribute");
-        Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
+        Assert.NotNull(authorizeAttribute);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 }

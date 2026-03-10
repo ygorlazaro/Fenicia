@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Project;
 
-[TestFixture]
-public class DeleteProjectHandlerTests
+public class DeleteProjectHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteProjectHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteProjectHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteProjectHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly DeleteProjectHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectExists_SetsDeletedDate()
     {
         // Arrange
@@ -63,13 +61,12 @@ public class DeleteProjectHandlerTests
 
         // Assert
         var deletedProject = await this.context.Projects.FindAsync([projectId], CancellationToken.None);
-        Assert.That(deletedProject, Is.Not.Null);
-        Assert.That(deletedProject.Deleted, Is.Not.Null);
-        Assert.That(deletedProject.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedProject.Deleted, Is.LessThanOrEqualTo(DateTime.UtcNow.AddSeconds(1)));
+        Assert.NotNull(deletedProject);
+        Assert.NotNull(deletedProject.Deleted);
+        Assert.InRange(deletedProject.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -80,10 +77,10 @@ public class DeleteProjectHandlerTests
 
         // Assert
         var projects = await this.context.Projects.ToListAsync();
-        Assert.That(projects, Is.Empty);
+        Assert.Empty(projects);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -94,10 +91,10 @@ public class DeleteProjectHandlerTests
 
         // Assert
         var projects = await this.context.Projects.ToListAsync();
-        Assert.That(projects, Is.Empty);
+        Assert.Empty(projects);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjects_OnlyDeletesSpecified()
     {
         // Arrange
@@ -138,16 +135,13 @@ public class DeleteProjectHandlerTests
         var deletedProject = await this.context.Projects.FindAsync([project1Id], CancellationToken.None);
         var notDeletedProject = await this.context.Projects.FindAsync([project2Id], CancellationToken.None);
 
-        Assert.That(deletedProject, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedProject.Deleted, Is.Not.Null);
-            Assert.That(notDeletedProject, Is.Not.Null);
-        }
-        Assert.That(notDeletedProject?.Deleted, Is.Null);
+        Assert.NotNull(deletedProject);
+        Assert.NotNull(deletedProject.Deleted);
+        Assert.NotNull(notDeletedProject);
+        Assert.Null(notDeletedProject.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjects_DeletesCorrectProject()
     {
         // Arrange
@@ -201,17 +195,11 @@ public class DeleteProjectHandlerTests
         var deletedProject = await this.context.Projects.FindAsync([project2Id], CancellationToken.None);
         var project3InDb = await this.context.Projects.FindAsync([project3Id], CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(project1InDb, Is.Not.Null);
-            Assert.That(deletedProject, Is.Not.Null);
-            Assert.That(project3InDb, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(project1InDb?.Deleted, Is.Null);
-            Assert.That(deletedProject?.Deleted, Is.Not.Null);
-            Assert.That(project3InDb?.Deleted, Is.Null);
-        }
+        Assert.NotNull(project1InDb);
+        Assert.NotNull(deletedProject);
+        Assert.NotNull(project3InDb);
+        Assert.Null(project1InDb.Deleted);
+        Assert.NotNull(deletedProject.Deleted);
+        Assert.Null(project3InDb.Deleted);
     }
 }

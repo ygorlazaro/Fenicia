@@ -3,18 +3,11 @@ using FluentValidation.TestHelper;
 
 namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
-[TestFixture]
 public class UpdateProductCategoryValidatorTests
 {
-    [SetUp]
-    public void SetUp()
-    {
-        this.validator = new UpdateProductCategoryValidator();
-    }
+    private readonly UpdateProductCategoryValidator validator = new();
 
-    private UpdateProductCategoryValidator validator = null!;
-
-    [Test]
+    [Fact]
     public void Validate_WhenIdAndNameAreValid_ShouldNotHaveErrors()
     {
         // Arrange
@@ -27,7 +20,7 @@ public class UpdateProductCategoryValidatorTests
         result.ShouldNotHaveAnyValidationErrors();
     }
 
-    [Test]
+    [Fact]
     public void Validate_WhenIdIsEmpty_ShouldHaveError()
     {
         // Arrange
@@ -40,7 +33,7 @@ public class UpdateProductCategoryValidatorTests
         result.ShouldHaveValidationErrorFor(c => c.Id);
     }
 
-    [Test]
+    [Fact]
     public void Validate_WhenNameIsEmpty_ShouldHaveError()
     {
         // Arrange
@@ -53,7 +46,7 @@ public class UpdateProductCategoryValidatorTests
         result.ShouldHaveValidationErrorFor(c => c.Name);
     }
 
-    [Test]
+    [Fact]
     public void Validate_WhenNameIsNull_ShouldHaveError()
     {
         // Arrange
@@ -66,7 +59,7 @@ public class UpdateProductCategoryValidatorTests
         result.ShouldHaveValidationErrorFor(c => c.Name);
     }
 
-    [Test]
+    [Fact]
     public void Validate_WhenBothIdAndNameAreInvalid_ShouldHaveBothErrors()
     {
         // Arrange
@@ -80,7 +73,7 @@ public class UpdateProductCategoryValidatorTests
         result.ShouldHaveValidationErrorFor(c => c.Name);
     }
 
-    [Test]
+    [Fact]
     public void Validate_WhenNameHasValidContent_ShouldNotHaveError()
     {
         // Arrange
@@ -93,7 +86,7 @@ public class UpdateProductCategoryValidatorTests
         result.ShouldNotHaveValidationErrorFor(c => c.Name);
     }
 
-    [Test]
+    [Fact]
     public void Validate_WhenIdIsNewGuid_ShouldNotHaveError()
     {
         // Arrange
@@ -106,7 +99,7 @@ public class UpdateProductCategoryValidatorTests
         result.ShouldNotHaveValidationErrorFor(c => c.Id);
     }
 
-    [Test]
+    [Fact]
     public void Validate_WhenNameContainsSpecialCharacters_ShouldNotHaveError()
     {
         // Arrange
@@ -119,7 +112,7 @@ public class UpdateProductCategoryValidatorTests
         result.ShouldNotHaveValidationErrorFor(c => c.Name);
     }
 
-    [Test]
+    [Fact]
     public void Validate_WhenNameContainsNumbers_ShouldNotHaveError()
     {
         // Arrange
@@ -132,7 +125,7 @@ public class UpdateProductCategoryValidatorTests
         result.ShouldNotHaveValidationErrorFor(c => c.Name);
     }
 
-    [Test]
+    [Fact]
     public void Validate_WhenNameHasOnlyWhitespace_ShouldHaveError()
     {
         // Arrange

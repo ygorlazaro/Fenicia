@@ -25,34 +25,32 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
-[TestFixture]
-public class CustomerControllerTests
+public class CustomerControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public CustomerControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.testCustomerId = Guid.NewGuid();
-        this.getAllCustomerHandler = new GetAllCustomerHandler(this.context);
-        this.getCustomerByIdHandler = new GetCustomerByIdHandler(this.context);
-        this.addCustomerHandler = new AddCustomerHandler(this.context);
-        this.updateCustomerHandler = new UpdateCustomerHandler(this.context);
-        this.deleteCustomerHandler = new DeleteCustomerHandler(this.context);
-        this.getCustomerInsightsHandler = new GetCustomerInsightsHandler(this.context);
+        var getAllCustomerHandler = new GetAllCustomerHandler(this.context);
+        var getCustomerByIdHandler = new GetCustomerByIdHandler(this.context);
+        var addCustomerHandler = new AddCustomerHandler(this.context);
+        var updateCustomerHandler = new UpdateCustomerHandler(this.context);
+        var deleteCustomerHandler = new DeleteCustomerHandler(this.context);
+        var getCustomerInsightsHandler = new GetCustomerInsightsHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new CustomerController(
-            this.getAllCustomerHandler,
-            this.getCustomerByIdHandler,
-            this.addCustomerHandler,
-            this.updateCustomerHandler,
-            this.deleteCustomerHandler,
-            this.getCustomerInsightsHandler
+            getAllCustomerHandler,
+            getCustomerByIdHandler,
+            addCustomerHandler,
+            updateCustomerHandler,
+            deleteCustomerHandler,
+            getCustomerInsightsHandler
             )
         {
             ControllerContext = new ControllerContext
@@ -65,24 +63,17 @@ public class CustomerControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private CustomerController controller = null!;
-    private DefaultContext context = null!;
-    private GetAllCustomerHandler getAllCustomerHandler = null!;
-    private GetCustomerByIdHandler getCustomerByIdHandler = null!;
-    private AddCustomerHandler addCustomerHandler = null!;
-    private UpdateCustomerHandler updateCustomerHandler = null!;
-    private DeleteCustomerHandler deleteCustomerHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private GetCustomerInsightsHandler getCustomerInsightsHandler = null!;
-    private Guid testCustomerId;
-    private Faker faker = null!;
+    private readonly CustomerController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testCustomerId;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -98,12 +89,12 @@ public class CustomerControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenNoCustomersExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -111,22 +102,19 @@ public class CustomerControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCustomers = okResult.Value as Pagination<List<GetAllCustomerResponse>>;
-        Assert.That(returnedCustomers, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCustomers.Data, Is.Empty);
-            Assert.That(returnedCustomers.Total, Is.EqualTo(0));
-        }
+        Assert.NotNull(returnedCustomers);
+        Assert.Empty(returnedCustomers.Data);
+        Assert.Equal(0, returnedCustomers.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
         // Arrange
@@ -185,8 +173,8 @@ public class CustomerControllerTests
         this.context.BasicCustomers.AddRange(customer1, customer2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -194,29 +182,23 @@ public class CustomerControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCustomers = okResult.Value as Pagination<List<GetAllCustomerResponse>>;
-        Assert.That(returnedCustomers, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCustomers.Data, Has.Count.EqualTo(2));
-            Assert.That(returnedCustomers.Total, Is.EqualTo(2));
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCustomers.Data[0].Name, Is.EqualTo(customer1.Person.Name));
-            Assert.That(returnedCustomers.Data[0].Email, Is.EqualTo(customer1.Person.Email));
-            Assert.That(returnedCustomers.Data[1].Name, Is.EqualTo(customer2.Person.Name));
-            Assert.That(returnedCustomers.Data[1].Email, Is.EqualTo(customer2.Person.Email));
-        }
+        Assert.NotNull(returnedCustomers);
+        Assert.Equal(2, returnedCustomers.Data.Count);
+        Assert.Equal(2, returnedCustomers.Total);
+        Assert.Equal(customer1.Person.Name, returnedCustomers.Data[0].Name);
+        Assert.Equal(customer1.Person.Email, returnedCustomers.Data[0].Email);
+        Assert.Equal(customer2.Person.Name, returnedCustomers.Data[1].Name);
+        Assert.Equal(customer2.Person.Email, returnedCustomers.Data[1].Email);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsOkWithCustomer()
     {
         // Arrange
@@ -260,24 +242,21 @@ public class CustomerControllerTests
         var result = await this.controller.GetByIdAsync(this.testCustomerId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCustomer = okResult.Value as GetCustomerByIdResponse;
-        Assert.That(returnedCustomer, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCustomer.Id, Is.EqualTo(this.testCustomerId));
-            Assert.That(returnedCustomer.PersonId, Is.Not.Empty);
-            Assert.That(returnedCustomer.Name, Is.EqualTo(customer.Person.Name));
-            Assert.That(returnedCustomer.Email, Is.EqualTo(customer.Person.Email));
-        }
+        Assert.NotNull(returnedCustomer);
+        Assert.Equal(this.testCustomerId, returnedCustomer.Id);
+        Assert.NotEmpty(new[] { returnedCustomer.PersonId });
+        Assert.Equal(customer.Person.Name, returnedCustomer.Name);
+        Assert.Equal(customer.Person.Email, returnedCustomer.Email);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenCustomerDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -289,11 +268,11 @@ public class CustomerControllerTests
         var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithCustomer()
     {
         // Arrange
@@ -318,23 +297,20 @@ public class CustomerControllerTests
         var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201));
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedCustomer = createdResult.Value as AddCustomerResponse;
-        Assert.That(returnedCustomer, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCustomer.Id, Is.EqualTo(command.Id));
-            Assert.That(returnedCustomer.PersonId, Is.Not.Empty);
-        }
+        Assert.NotNull(returnedCustomer);
+        Assert.Equal(command.Id, returnedCustomer.Id);
+        Assert.NotEmpty(new[] { returnedCustomer.PersonId });
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenCustomerExists_ReturnsOkWithUpdatedCustomer()
     {
         // Arrange
@@ -383,18 +359,18 @@ public class CustomerControllerTests
         var result = await this.controller.PatchAsync(command, this.testCustomerId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCustomer = okResult.Value as UpdateCustomerResponse;
-        Assert.That(returnedCustomer, Is.Not.Null);
-        Assert.That(returnedCustomer.Id, Is.EqualTo(command.Id));
+        Assert.NotNull(returnedCustomer);
+        Assert.Equal(command.Id, returnedCustomer.Id);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenCustomerDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -420,11 +396,11 @@ public class CustomerControllerTests
         var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenCustomerExists_ReturnsNoContent()
     {
         // Arrange
@@ -451,15 +427,15 @@ public class CustomerControllerTests
         var result = await this.controller.DeleteAsync(this.testCustomerId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
 
         // Verify customer was deleted
         var deletedCustomer =
             await this.context.BasicCustomers.FirstOrDefaultAsync(x => this.testCustomerId == x.Id && x.Deleted == null, CancellationToken.None);
-        Assert.That(deletedCustomer, Is.Null);
+        Assert.Null(deletedCustomer);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenCustomerDoesNotExist_ReturnsNoContent()
     {
         // Arrange
@@ -471,10 +447,10 @@ public class CustomerControllerTests
         var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public void CustomerController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -484,10 +460,10 @@ public class CustomerControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "CustomerController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void CustomerController_HasRouteAttribute()
     {
         // Arrange
@@ -498,11 +474,11 @@ public class CustomerControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "CustomerController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void CustomerController_HasApiControllerAttribute()
     {
         // Arrange
@@ -513,6 +489,6 @@ public class CustomerControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "CustomerController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
     }
 }

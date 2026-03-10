@@ -7,32 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
-[TestFixture]
-public class UpdateProductHandlerTests
+public class UpdateProductHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateProductHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new UpdateProductHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly UpdateProductHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private UpdateProductHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenProductExists_UpdatesProductAndReturnsResponse()
     {
         // Arrange
@@ -67,18 +58,15 @@ public class UpdateProductHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Name, Is.EqualTo("New Product"));
-            Assert.That(result.CostPrice, Is.EqualTo(15.00m));
-            Assert.That(result.SalesPrice, Is.EqualTo(25.00m));
-            Assert.That(result.Quantity, Is.EqualTo(50));
-            Assert.That(result.CategoryId, Is.EqualTo(category2.Id));
-        }
+        Assert.NotNull(result);
+        Assert.Equal("New Product", result.Name);
+        Assert.Equal(15.00m, result.CostPrice);
+        Assert.Equal(25.00m, result.SalesPrice);
+        Assert.Equal(50, result.Quantity);
+        Assert.Equal(category2.Id, result.CategoryId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProductDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -95,10 +83,10 @@ public class UpdateProductHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -115,10 +103,10 @@ public class UpdateProductHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesProductWasUpdatedInDatabase()
     {
         // Arrange
@@ -153,11 +141,13 @@ public class UpdateProductHandlerTests
 
         // Assert
         var updatedProduct = await this.context.BasicProducts.FindAsync([productId], CancellationToken.None);
-        Assert.That(updatedProduct, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedProduct.Name, Is.EqualTo("New Product"));
-            Assert.That(updatedProduct.CostPrice, Is.EqualTo(15.00m));
-        }
+        Assert.NotNull(updatedProduct);
+        Assert.Equal("New Product", updatedProduct.Name);
+        Assert.Equal(15.00m, updatedProduct.CostPrice);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

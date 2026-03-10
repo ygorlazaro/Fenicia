@@ -4,28 +4,25 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-[TestFixture]
-public class IncrementAttemptsTests
+public class IncrementAttemptsTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly MemoryCache cache;
+    private readonly Auth.Domains.LoginAttempt.IncrementAttempts.IncrementAttempts handler;
+    private readonly Faker faker;
+
+    public IncrementAttemptsTests()
     {
         this.cache = new MemoryCache(new MemoryCacheOptions());
         this.handler = new Auth.Domains.LoginAttempt.IncrementAttempts.IncrementAttempts(this.cache);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.cache.Dispose();
     }
 
-    private MemoryCache cache;
-    private Auth.Domains.LoginAttempt.IncrementAttempts.IncrementAttempts handler;
-    private Faker faker;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenNoPreviousAttempts_SetsCountToOne()
     {
         // Arrange
@@ -35,15 +32,13 @@ public class IncrementAttemptsTests
         // Act
         await this.handler.Handle(email);
 
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
-            Assert.That(count, Is.EqualTo(1), "Should set count to 1 on first attempt");
-        }
+        
+        // Assert
+        Assert.True(this.cache.TryGetValue(key, out int count));
+        Assert.Equal(1, count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPreviousAttemptsExist_IncrementsCount()
     {
         // Arrange
@@ -54,15 +49,13 @@ public class IncrementAttemptsTests
         // Act
         await this.handler.Handle(email);
 
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
-            Assert.That(count, Is.EqualTo(4), "Should increment existing count");
-        }
+        
+        // Assert
+        Assert.True(this.cache.TryGetValue(key, out int count));
+        Assert.Equal(4, count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_NormalizesToLowerCase()
     {
         // Arrange
@@ -74,22 +67,20 @@ public class IncrementAttemptsTests
         // Act
         await this.handler.Handle(upperCaseEmail);
 
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
-            Assert.That(count, Is.EqualTo(3), "Should increment regardless of email case");
-        }
+        
+        // Assert
+        Assert.True(this.cache.TryGetValue(key, out int count));
+        Assert.Equal(3, count);
     }
 
-    [Test]
-    public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
+    [Fact]
+    public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handle(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handle(null!));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailIsEmpty_SetsCountForEmptyKey()
     {
         // Arrange
@@ -99,15 +90,13 @@ public class IncrementAttemptsTests
         // Act
         await this.handler.Handle(email);
 
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
-            Assert.That(count, Is.EqualTo(1), "Should handle empty email");
-        }
+        
+        // Assert
+        Assert.True(this.cache.TryGetValue(key, out int count));
+        Assert.Equal(1, count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_MultipleIncrementsForSameEmail_IncrementsCorrectly()
     {
         // Arrange
@@ -120,14 +109,12 @@ public class IncrementAttemptsTests
 
         // Assert
         var key = $"login-attempt:{email.ToLower()}";
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
-            Assert.That(count, Is.EqualTo(3), "Should increment correctly multiple times");
-        }
+        
+        Assert.True(this.cache.TryGetValue(key, out int count));
+        Assert.Equal(3, count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_MultipleDifferentEmails_TracksSeparately()
     {
         // Arrange
@@ -142,16 +129,14 @@ public class IncrementAttemptsTests
         // Assert
         var key1 = $"login-attempt:{email1.ToLower()}";
         var key2 = $"login-attempt:{email2.ToLower()}";
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(this.cache.TryGetValue(key1, out int count1), Is.True);
-            Assert.That(count1, Is.EqualTo(2), "User1 should have 2 attempts");
-            Assert.That(this.cache.TryGetValue(key2, out int count2), Is.True);
-            Assert.That(count2, Is.EqualTo(1), "User2 should have 1 attempt");
-        }
+        
+        Assert.True(this.cache.TryGetValue(key1, out int count1));
+        Assert.Equal(2, count1);
+        Assert.True(this.cache.TryGetValue(key2, out int count2));
+        Assert.Equal(1, count2);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenExpirationIsSet_ExpiresAfterTimeSpan()
     {
         // Arrange
@@ -162,10 +147,10 @@ public class IncrementAttemptsTests
         await this.handler.Handle(email);
 
         // Assert - verify entry exists
-        Assert.That(this.cache.TryGetValue(key, out _), Is.True, "Entry should exist after increment");
+        Assert.True(this.cache.TryGetValue(key, out _));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithHighAttemptCount_IncrementsCorrectly()
     {
         // Arrange
@@ -176,15 +161,13 @@ public class IncrementAttemptsTests
         // Act
         await this.handler.Handle(email);
 
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
-            Assert.That(count, Is.EqualTo(100), "Should handle high counts correctly");
-        }
+        
+        // Assert
+        Assert.True(this.cache.TryGetValue(key, out int count));
+        Assert.Equal(100, count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailContainsSpecialCharacters_HandlesCorrectly()
     {
         // Arrange
@@ -194,11 +177,9 @@ public class IncrementAttemptsTests
         // Act
         await this.handler.Handle(email);
 
-        using (Assert.EnterMultipleScope())
-        {
-            // Assert
-            Assert.That(this.cache.TryGetValue(key, out int count), Is.True);
-            Assert.That(count, Is.EqualTo(1), "Should handle special characters in email");
-        }
+        
+        // Assert
+        Assert.True(this.cache.TryGetValue(key, out int count));
+        Assert.Equal(1, count);
     }
 }

@@ -24,34 +24,32 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;
 
-[TestFixture]
-public class PositionControllerTests
+public class PositionControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public PositionControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.testPositionId = Guid.NewGuid();
-        this.getAllPositionHandler = new GetAllPositionHandler(this.context);
-        this.getPositionByIdHandler = new GetPositionByIdHandler(this.context);
-        this.addPositionHandler = new AddPositionHandler(this.context);
-        this.updatePositionHandler = new UpdatePositionHandler(this.context);
-        this.deletePositionHandler = new DeletePositionHandler(this.context);
-        this.getEmployeesByPositionIdHandler = new GetEmployeesByPositionIdHandler(this.context);
+        var getAllPositionHandler = new GetAllPositionHandler(this.context);
+        var getPositionByIdHandler = new GetPositionByIdHandler(this.context);
+        var addPositionHandler = new AddPositionHandler(this.context);
+        var updatePositionHandler = new UpdatePositionHandler(this.context);
+        var deletePositionHandler = new DeletePositionHandler(this.context);
+        var getEmployeesByPositionIdHandler = new GetEmployeesByPositionIdHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new PositionController(
-            this.getAllPositionHandler,
-            this.getPositionByIdHandler,
-            this.addPositionHandler,
-            this.updatePositionHandler,
-            this.deletePositionHandler,
-            this.getEmployeesByPositionIdHandler)
+            getAllPositionHandler,
+            getPositionByIdHandler,
+            addPositionHandler,
+            updatePositionHandler,
+            deletePositionHandler,
+            getEmployeesByPositionIdHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -63,24 +61,17 @@ public class PositionControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private PositionController controller = null!;
-    private DefaultContext context = null!;
-    private GetAllPositionHandler getAllPositionHandler = null!;
-    private GetPositionByIdHandler getPositionByIdHandler = null!;
-    private AddPositionHandler addPositionHandler = null!;
-    private UpdatePositionHandler updatePositionHandler = null!;
-    private DeletePositionHandler deletePositionHandler = null!;
-    private GetEmployeesByPositionIdHandler getEmployeesByPositionIdHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testPositionId;
-    private Faker faker = null!;
+    private readonly PositionController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testPositionId;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -96,12 +87,12 @@ public class PositionControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenNoPositionsExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -109,22 +100,19 @@ public class PositionControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedPositions = okResult.Value as Pagination<List<GetAllPositionResponse>>;
-        Assert.That(returnedPositions, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedPositions.Data, Is.Empty);
-            Assert.That(returnedPositions.Total, Is.EqualTo(0));
-        }
+        Assert.NotNull(returnedPositions);
+        Assert.Empty(returnedPositions.Data);
+        Assert.Equal(0, returnedPositions.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenPositionsExist_ReturnsOkWithPositions()
     {
         // Arrange
@@ -152,22 +140,19 @@ public class PositionControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedPositions = okResult.Value as Pagination<List<GetAllPositionResponse>>;
-        Assert.That(returnedPositions, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedPositions.Data, Has.Count.EqualTo(2));
-            Assert.That(returnedPositions.Total, Is.EqualTo(2));
-        }
+        Assert.NotNull(returnedPositions);
+        Assert.Equal(2, returnedPositions.Data.Count);
+        Assert.Equal(2, returnedPositions.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenPositionExists_ReturnsOkWithPosition()
     {
         // Arrange
@@ -187,22 +172,19 @@ public class PositionControllerTests
         var result = await this.controller.GetByIdAsync(this.testPositionId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedPosition = okResult.Value as GetPositionByIdResponse;
-        Assert.That(returnedPosition, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedPosition.Id, Is.EqualTo(this.testPositionId));
-            Assert.That(returnedPosition.Name, Is.EqualTo(position.Name));
-        }
+        Assert.NotNull(returnedPosition);
+        Assert.Equal(this.testPositionId, returnedPosition.Id);
+        Assert.Equal(position.Name, returnedPosition.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenPositionDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -214,11 +196,11 @@ public class PositionControllerTests
         var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task GetEmployeesByPositionIdAsync_WhenNoEmployeesExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -239,18 +221,18 @@ public class PositionControllerTests
         var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId, query, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedEmployees = okResult.Value as List<GetEmployeesByPositionIdResponse>;
-        Assert.That(returnedEmployees, Is.Not.Null);
-        Assert.That(returnedEmployees, Is.Empty);
+        Assert.NotNull(returnedEmployees);
+        Assert.Empty(returnedEmployees);
     }
 
-    [Test]
+    [Fact]
     public async Task GetEmployeesByPositionIdAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
@@ -300,18 +282,18 @@ public class PositionControllerTests
         var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId, query, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedEmployees = okResult.Value as List<GetEmployeesByPositionIdResponse>;
-        Assert.That(returnedEmployees, Is.Not.Null);
-        Assert.That(returnedEmployees, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedEmployees);
+        Assert.Equal(2, returnedEmployees.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithPosition()
     {
         // Arrange
@@ -323,19 +305,19 @@ public class PositionControllerTests
         var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201));
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedPosition = createdResult.Value as AddPositionResponse;
-        Assert.That(returnedPosition, Is.Not.Null);
-        Assert.That(returnedPosition.Name, Is.EqualTo(command.Name));
+        Assert.NotNull(returnedPosition);
+        Assert.Equal(command.Name, returnedPosition.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenPositionExists_ReturnsOkWithUpdatedPosition()
     {
         // Arrange
@@ -356,18 +338,18 @@ public class PositionControllerTests
         var result = await this.controller.PatchAsync(command, this.testPositionId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedPosition = okResult.Value as UpdatePositionResponse;
-        Assert.That(returnedPosition, Is.Not.Null);
-        Assert.That(returnedPosition.Name, Contains.Substring("Updated"));
+        Assert.NotNull(returnedPosition);
+        Assert.Contains("Updated", returnedPosition.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenPositionDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -380,11 +362,11 @@ public class PositionControllerTests
         var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenPositionExists_ReturnsNoContent()
     {
         // Arrange
@@ -404,14 +386,14 @@ public class PositionControllerTests
         var result = await this.controller.DeleteAsync(this.testPositionId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
 
         // Verify position was deleted
         var deletedPosition = await this.context.BasicPositions.FirstOrDefaultAsync(x => x.Id == this.testPositionId && x.Deleted == null, ct);
-        Assert.That(deletedPosition, Is.Null);
+        Assert.Null(deletedPosition);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenPositionDoesNotExist_ReturnsNoContent()
     {
         // Arrange
@@ -423,10 +405,10 @@ public class PositionControllerTests
         var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public void PositionController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -436,10 +418,10 @@ public class PositionControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "PositionController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void PositionController_HasRouteAttribute()
     {
         // Arrange
@@ -450,11 +432,11 @@ public class PositionControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "PositionController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void PositionController_HasApiControllerAttribute()
     {
         // Arrange
@@ -465,6 +447,6 @@ public class PositionControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "PositionController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
     }
 }

@@ -16,11 +16,9 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class CreateNewUserHandlerTests
+public class CreateNewUserHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public CreateNewUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -29,33 +27,33 @@ public class CreateNewUserHandlerTests
         this.context = new DefaultContext(options, new TestCompanyContext());
         this.checkUserExistsHandlerMock = new Mock<CheckUserExistsHandler>(this.context);
         this.checkCompanyExistsHandlerMock = new Mock<CheckCompanyExistsHandler>(this.context);
-        this.hashPasswordHandler = new HashPasswordHandler();
+        var hashPasswordHandler = new HashPasswordHandler();
         this.getAdminRoleHandlerMock = new Mock<GetAdminRoleHandler>(this.context);
         this.handler = new CreateNewUserHandler(
             this.context,
             this.checkUserExistsHandlerMock.Object,
             this.checkCompanyExistsHandlerMock.Object,
-            this.hashPasswordHandler,
+            hashPasswordHandler,
             this.getAdminRoleHandlerMock.Object
         );
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context = null!;
-    private CreateNewUserHandler handler = null!;
-    private Mock<CheckUserExistsHandler> checkUserExistsHandlerMock = null!;
-    private Mock<CheckCompanyExistsHandler> checkCompanyExistsHandlerMock = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-    private Mock<GetAdminRoleHandler> getAdminRoleHandlerMock = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly CreateNewUserHandler handler;
+    private readonly Mock<CheckUserExistsHandler> checkUserExistsHandlerMock;
+    private readonly Mock<CheckCompanyExistsHandler> checkCompanyExistsHandlerMock;
+    private readonly Mock<GetAdminRoleHandler> getAdminRoleHandlerMock;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenValidRequest_CreatesUserAndCompanySuccessfully()
     {
         // Arrange
@@ -85,29 +83,23 @@ public class CreateNewUserHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
 
         var user = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
-        Assert.That(user, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(user!.Email, Is.EqualTo(email), "Email should match");
-            Assert.That(user.Name, Is.EqualTo(name), "Name should match");
-            Assert.That(user.Password, Is.Not.EqualTo(password), "Password should be hashed");
-        }
+        Assert.NotNull(user);
+        Assert.Equal(email, user.Email);
+        Assert.Equal(name, user.Name);
+        Assert.NotEqual(password, user.Password);
 
         var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
-        Assert.That(company, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(company!.Name, Is.EqualTo(companyName), "Company name should match");
-            Assert.That(company.Cnpj, Is.EqualTo(cnpj), "CNPJ should match");
-            Assert.That(company.TimeZone, Is.EqualTo(timeZone), "TimeZone should match");
-        }
+        Assert.NotNull(company);
+        Assert.Equal(companyName, company.Name);
+        Assert.Equal(cnpj, company.Cnpj);
+        Assert.Equal(timeZone, company.TimeZone);
     }
 
-    [Test]
-    public void Handle_WhenEmailAlreadyExists_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -125,14 +117,14 @@ public class CreateNewUserHandlerTests
             new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("User with this email already exists."));
+        Assert.Equal("This email already exists", ex.Message);
     }
 
-    [Test]
-    public void Handle_WhenCompanyAlreadyExists_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -154,14 +146,14 @@ public class CreateNewUserHandlerTests
             new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Company with this CNPJ already exists."));
+        Assert.Equal("Company with this CNPJ already exists.", ex.Message);
     }
 
-    [Test]
-    public void Handle_WhenAdminRoleNotFound_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WhenAdminRoleNotFound_ThrowsArgumentException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -187,13 +179,13 @@ public class CreateNewUserHandlerTests
             new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Admin role not found. Please ensure that the admin role exists in the database."));
+        Assert.Equal("Admin role not found. Please ensure that the admin role exists in the database.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_CreatesUserRoleLinkingUserCompanyAndRole()
     {
         // Arrange
@@ -225,15 +217,12 @@ public class CreateNewUserHandlerTests
 
         // Assert
         var userRole = await this.context.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
-        Assert.That(userRole, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(userRole!.RoleId, Is.EqualTo(adminRoleId), "RoleId should be Admin");
-            Assert.That(userRole.CompanyId, Is.Not.EqualTo(Guid.Empty), "CompanyId should be set");
-        }
+        Assert.NotNull(userRole);
+        Assert.Equal(adminRoleId, userRole.RoleId);
+        Assert.NotEqual(Guid.Empty, userRole.CompanyId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_ReturnsCorrectResponseData()
     {
         // Arrange
@@ -263,18 +252,15 @@ public class CreateNewUserHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty), "UserId should be set");
-            Assert.That(result.Name, Is.EqualTo(name), "Name should match");
-            Assert.That(result.Email, Is.EqualTo(email), "Email should match");
-            Assert.That(result.Company.Id, Is.Not.EqualTo(Guid.Empty), "CompanyId should be set");
-            Assert.That(result.Company.Name, Is.EqualTo(companyName), "CompanyName should match");
-            Assert.That(result.Company.Cnpj, Is.EqualTo(cnpj), "CNPJ should match");
-        }
+        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.Equal(name, result.Name);
+        Assert.Equal(email, result.Email);
+        Assert.NotEqual(Guid.Empty, result.Company.Id);
+        Assert.Equal(companyName, result.Company.Name);
+        Assert.Equal(cnpj, result.Company.Cnpj);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_PasswordIsHashedBeforeSaving()
     {
         // Arrange
@@ -305,11 +291,11 @@ public class CreateNewUserHandlerTests
 
         // Assert
         var user = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
-        Assert.That(user, Is.Not.Null);
-        Assert.That(user!.Password, Is.Not.EqualTo(password), "Password should be hashed");
+        Assert.NotNull(user);
+        Assert.NotEqual(password, user.Password);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_CompanyIsActiveByDefault()
     {
         // Arrange
@@ -340,11 +326,11 @@ public class CreateNewUserHandlerTests
 
         // Assert
         var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
-        Assert.That(company, Is.Not.Null);
-        Assert.That(company!.IsActive, Is.True, "Company should be active by default");
+        Assert.NotNull(company);
+        Assert.True(company.IsActive);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_CompanyLanguageIsSetToDefault()
     {
         // Arrange
@@ -375,7 +361,7 @@ public class CreateNewUserHandlerTests
 
         // Assert
         var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
-        Assert.That(company, Is.Not.Null);
-        Assert.That(company!.Language, Is.EqualTo("pt-BR"), "Language should be pt-BR by default");
+        Assert.NotNull(company);
+        Assert.Equal("pt-BR", company.Language);
     }
 }

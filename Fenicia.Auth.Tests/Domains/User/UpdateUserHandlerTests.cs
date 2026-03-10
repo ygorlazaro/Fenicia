@@ -11,11 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class UpdateUserHandlerTests
+public class UpdateUserHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -38,19 +36,20 @@ public class UpdateUserHandlerTests
         this.context.SaveChanges();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private UpdateUserHandler handler = null!;
-    private DefaultContext context = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-    private Faker faker = null!;
-    private UserModel testUser = null!;
+    private readonly UpdateUserHandler handler;
+    private readonly DefaultContext context;
+    private readonly HashPasswordHandler hashPasswordHandler;
+    private readonly Faker faker;
+    private readonly UserModel testUser;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenValidRequest_UpdatesUserNameSuccessfully()
     {
         // Arrange
@@ -61,24 +60,18 @@ public class UpdateUserHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Name, Is.EqualTo(newName));
-            Assert.That(result.Updated, Is.Not.Null);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(newName, result.Name);
+        Assert.NotNull(result.Updated);
 
         // Verify user was updated in database
         var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
-        Assert.That(updatedUser, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedUser.Name, Is.EqualTo(newName));
-            Assert.That(updatedUser.Updated, Is.Not.Null);
-        }
+        Assert.NotNull(updatedUser);
+        Assert.Equal(newName, updatedUser.Name);
+        Assert.NotNull(updatedUser.Updated);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenValidRequest_UpdatesUserEmailSuccessfully()
     {
         // Arrange
@@ -89,30 +82,30 @@ public class UpdateUserHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Email, Is.EqualTo(newEmail));
+        Assert.NotNull(result);
+        Assert.Equal(newEmail, result.Email);
 
         // Verify user was updated in database
         var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
-        Assert.That(updatedUser, Is.Not.Null);
-        Assert.That(updatedUser.Email, Is.EqualTo(newEmail));
+        Assert.NotNull(updatedUser);
+        Assert.Equal(newEmail, updatedUser.Email);
     }
 
-    [Test]
-    public void Handle_WhenUserNotFound_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
     {
         // Arrange
         var nonExistentUserId = Guid.NewGuid();
         var request = new UpdateUserQuery(nonExistentUserId, Name: "Test");
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Is.EqualTo("User not found"));
+        Assert.Equal("User not found", exception.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
         // Arrange
@@ -132,13 +125,13 @@ public class UpdateUserHandlerTests
         var request = new UpdateUserQuery(this.testUser.Id, Email: existingEmail);
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Is.EqualTo("This email already exists"));
+        Assert.Equal("This email already exists", exception.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCompanyNotFound_ThrowsArgumentException()
     {
         // Arrange
@@ -154,19 +147,19 @@ public class UpdateUserHandlerTests
         var request = new UpdateUserQuery(this.testUser.Id, CompaniesRoles: companiesRoles);
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Does.Contain("not found"));
+        Assert.Contains("not found", exception.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenRoleNotFound_ThrowsArgumentException()
     {
         // Arrange
         var company = new CompanyModel
         {
-            Name = this.faker.Company.CompanyName() ,
+            Name = this.faker.Company.CompanyName(),
             TimeZone = string.Empty,
             Cnpj = string.Empty
         };
@@ -181,9 +174,9 @@ public class UpdateUserHandlerTests
         var request = new UpdateUserQuery(this.testUser.Id, CompaniesRoles: companiesRoles);
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Does.Contain("not found"));
+        Assert.Contains("not found", exception.Message);
     }
 }

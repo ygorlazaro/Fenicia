@@ -10,11 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
-[TestFixture]
-public class AddForgotPasswordHandlerTests
+public class AddForgotPasswordHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddForgotPasswordHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -25,17 +23,17 @@ public class AddForgotPasswordHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context;
-    private AddForgotPasswordHandler handler;
-    private Faker faker;
+    private readonly DefaultContext context;
+    private readonly AddForgotPasswordHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailExists_CreatesForgotPasswordCodeSuccessfully()
     {
         // Arrange
@@ -60,32 +58,28 @@ public class AddForgotPasswordHandlerTests
 
         // Assert
         var forgotPassword = await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
-        Assert.That(forgotPassword, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(forgotPassword!.Code, Has.Length.EqualTo(6), "Code should be 6 characters");
-            Assert.That(forgotPassword.IsActive, Is.True, "Code should be active");
-            Assert.That(forgotPassword.UserId, Is.EqualTo(userId), "UserId should match");
-            Assert.That(forgotPassword.ExpirationDate, Is.GreaterThan(DateTime.UtcNow),
-                "Should have future expiration");
-        }
+        Assert.NotNull(forgotPassword);
+        Assert.Equal(6, forgotPassword.Code.Length);
+        Assert.True(forgotPassword.IsActive);
+        Assert.Equal(userId, forgotPassword.UserId);
+        Assert.True(forgotPassword.ExpirationDate > DateTime.UtcNow);
     }
 
-    [Test]
-    public void Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
+    [Fact]
+    public async Task Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
         var command = new AddForgotPasswordCommand(email);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("User with given email does not exist."));
+        Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_ThrowsItemNotExistsException()
     {
         // Arrange
@@ -107,13 +101,13 @@ public class AddForgotPasswordHandlerTests
         var command = new AddForgotPasswordCommand(upperCaseEmail);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("User with given email does not exist."));
+        Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleUsersExist_CreatesCodeForCorrectUser()
     {
         // Arrange
@@ -148,19 +142,16 @@ public class AddForgotPasswordHandlerTests
 
         // Assert
         var forgotPassword = await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId1);
-        Assert.That(forgotPassword, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(forgotPassword!.UserId, Is.EqualTo(userId1), "Should create code for user1");
-            Assert.That(forgotPassword.Code, Has.Length.EqualTo(6), "Code should be 6 characters");
-        }
+        Assert.NotNull(forgotPassword);
+        Assert.Equal(userId1, forgotPassword.UserId);
+        Assert.Equal(6, forgotPassword.Code.Length);
 
         var forgotPasswordForUser2 =
             await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId2);
-        Assert.That(forgotPasswordForUser2, Is.Null, "Should not create code for user2");
+        Assert.Null(forgotPasswordForUser2);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCalledMultipleTimesForSameUser_CreatesMultipleCodes()
     {
         // Arrange
@@ -186,29 +177,26 @@ public class AddForgotPasswordHandlerTests
 
         // Assert
         var codes = await this.context.AuthForgottenPasswords.Where(fp => fp.UserId == userId).ToListAsync();
-        Assert.That(codes, Has.Count.EqualTo(2), "Should create two codes");
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(codes.All(c => c.IsActive), Is.True, "Both codes should be active");
-            Assert.That(codes.All(c => c.Code.Length == 6), Is.True, "Both codes should be 6 characters");
-        }
+        Assert.Equal(2, codes.Count);
+        Assert.True(codes.All(c => c.IsActive));
+        Assert.True(codes.All(c => c.Code.Length == 6));
     }
 
-    [Test]
-    public void Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
+    [Fact]
+    public async Task Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
         var command = new AddForgotPasswordCommand(email);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("User with given email does not exist."));
+        Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesCodeIsUnique()
     {
         // Arrange
@@ -246,6 +234,6 @@ public class AddForgotPasswordHandlerTests
         // Assert
         var codes = await this.context.AuthForgottenPasswords.ToListAsync();
         var distinctCodes = codes.Select(c => c.Code).Distinct().ToList();
-        Assert.That(distinctCodes, Has.Count.EqualTo(2), "Codes should be unique");
+        Assert.Equal(2, distinctCodes.Count);
     }
 }

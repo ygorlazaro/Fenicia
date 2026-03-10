@@ -8,11 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;
 
-[TestFixture]
-public class GetStockMovementHandlerTests
+public class GetStockMovementHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetStockMovementHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -23,17 +21,11 @@ public class GetStockMovementHandlerTests
         this.handler = new GetStockMovementHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly TestCompanyContext companyContext;
+    private readonly DefaultContext context;
+    private readonly GetStockMovementHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetStockMovementHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithNoMovementsInDateRange_ReturnsEmptyList()
     {
         // Arrange
@@ -45,11 +37,11 @@ public class GetStockMovementHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMovementsInDateRange_ReturnsFilteredList()
     {
         // Arrange
@@ -108,12 +100,12 @@ public class GetStockMovementHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result.All(m => m.Date >= startDate && m.Date <= endDate), Is.True);
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.True(result.All(m => m.Date >= startDate && m.Date <= endDate));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
@@ -152,11 +144,11 @@ public class GetStockMovementHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
@@ -195,7 +187,12 @@ public class GetStockMovementHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

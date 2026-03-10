@@ -8,34 +8,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
 
-[TestFixture]
-public class AddProjectSubtaskHandlerTests
+public class AddProjectSubtaskHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddProjectSubtaskHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddProjectSubtaskHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddProjectSubtaskHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly AddProjectSubtaskHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsProjectSubtaskAndReturnsResponse()
     {
         // Arrange
@@ -51,15 +49,12 @@ public class AddProjectSubtaskHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Title, Is.EqualTo(command.Title));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Title, result.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesProjectSubtaskWasSaved()
     {
         // Arrange
@@ -78,15 +73,12 @@ public class AddProjectSubtaskHandlerTests
         var subtask = await this.context.ProjectSubtasks
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 
-        Assert.That(subtask, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(subtask.Title, Is.EqualTo(command.Title));
-            Assert.That(subtask.IsCompleted, Is.EqualTo(command.IsCompleted));
-        }
+        Assert.NotNull(subtask);
+        Assert.Equal(command.Title, subtask.Title);
+        Assert.Equal(command.IsCompleted, subtask.IsCompleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProjectSubtasks()
     {
         // Arrange
@@ -113,10 +105,10 @@ public class AddProjectSubtaskHandlerTests
 
         // Assert
         var subtasks = await this.context.ProjectSubtasks.ToListAsync();
-        Assert.That(subtasks, Has.Count.EqualTo(2));
+        Assert.Equal(2, subtasks.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithIsCompletedTrue_AddsProjectSubtaskSuccessfully()
     {
         // Arrange
@@ -133,16 +125,13 @@ public class AddProjectSubtaskHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.IsCompleted, Is.True);
-            Assert.That(result.CompletedAt, Is.EqualTo(completedAt));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.True(result.IsCompleted);
+        Assert.Equal(completedAt, result.CompletedAt);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullCompletedAt_AddsProjectSubtaskSuccessfully()
     {
         // Arrange
@@ -158,11 +147,8 @@ public class AddProjectSubtaskHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.CompletedAt, Is.Null);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Null(result.CompletedAt);
     }
 }

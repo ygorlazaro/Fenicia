@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Attachment;
 
-[TestFixture]
-public class UpdateProjectAttachmentHandlerTests
+public class UpdateProjectAttachmentHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateProjectAttachmentHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new UpdateProjectAttachmentHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private UpdateProjectAttachmentHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly UpdateProjectAttachmentHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectAttachmentExists_UpdatesProjectAttachmentAndReturnsResponse()
     {
         // Arrange
@@ -71,15 +69,12 @@ public class UpdateProjectAttachmentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(attachmentId));
-            Assert.That(result.FileName, Is.EqualTo(newFileName));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(attachmentId, result.Id);
+        Assert.Equal(newFileName, result.FileName);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectAttachmentDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -95,10 +90,10 @@ public class UpdateProjectAttachmentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -114,10 +109,10 @@ public class UpdateProjectAttachmentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectAttachment()
     {
         // Arrange
@@ -163,29 +158,20 @@ public class UpdateProjectAttachmentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(attachment1Id));
-            Assert.That(result.FileName, Is.EqualTo(newFileName));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(attachment1Id, result.Id);
+        Assert.Equal(newFileName, result.FileName);
 
         var updatedAttachment1 = await this.context.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
         var attachment2InDb = await this.context.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedAttachment1, Is.Not.Null);
-            Assert.That(attachment2InDb, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedAttachment1?.FileName, Is.EqualTo(newFileName));
-            Assert.That(attachment2InDb?.FileName, Is.EqualTo("file2.docx"));
-        }
+        Assert.NotNull(updatedAttachment1);
+        Assert.NotNull(attachment2InDb);
+        Assert.Equal(newFileName, updatedAttachment1.FileName);
+        Assert.Equal("file2.docx", attachment2InDb.FileName);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithDifferentFileSize_UpdatesProjectAttachmentSuccessfully()
     {
         // Arrange
@@ -218,11 +204,8 @@ public class UpdateProjectAttachmentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(attachmentId));
-            Assert.That(result.FileSize, Is.EqualTo(newFileSize));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(attachmentId, result.Id);
+        Assert.Equal(newFileSize, result.FileSize);
     }
 }

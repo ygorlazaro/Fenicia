@@ -24,34 +24,32 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
-[TestFixture]
-public class ProductCategoryControllerTests
+public class ProductCategoryControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public ProductCategoryControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.testCategoryId = Guid.NewGuid();
-        this.getAllProductCategoryHandler = new GetAllProductCategoryHandler(this.context);
-        this.getProductCategoryByIdHandler = new GetProductCategoryByIdHandler(this.context);
-        this.addProductCategoryHandler = new AddProductCategoryHandler(this.context);
-        this.updateProductCategoryHandler = new UpdateProductCategoryHandler(this.context);
-        this.deleteProductCategoryHandler = new DeleteProductCategoryHandler(this.context);
-        this.getProductsByCategoryIdHandler = new GetProductsByCategoryIdHandler(this.context);
+        var getAllProductCategoryHandler = new GetAllProductCategoryHandler(this.context);
+        var getProductCategoryByIdHandler = new GetProductCategoryByIdHandler(this.context);
+        var addProductCategoryHandler = new AddProductCategoryHandler(this.context);
+        var updateProductCategoryHandler = new UpdateProductCategoryHandler(this.context);
+        var deleteProductCategoryHandler = new DeleteProductCategoryHandler(this.context);
+        var getProductsByCategoryIdHandler = new GetProductsByCategoryIdHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProductCategoryController(
-            this.getAllProductCategoryHandler,
-            this.getProductCategoryByIdHandler,
-            this.addProductCategoryHandler,
-            this.updateProductCategoryHandler,
-            this.deleteProductCategoryHandler,
-            this.getProductsByCategoryIdHandler)
+            getAllProductCategoryHandler,
+            getProductCategoryByIdHandler,
+            addProductCategoryHandler,
+            updateProductCategoryHandler,
+            deleteProductCategoryHandler,
+            getProductsByCategoryIdHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -63,24 +61,11 @@ public class ProductCategoryControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
-
-    private TestCompanyContext companyContext = null!;
-    private ProductCategoryController controller = null!;
-    private DefaultContext context = null!;
-    private GetAllProductCategoryHandler getAllProductCategoryHandler = null!;
-    private GetProductCategoryByIdHandler getProductCategoryByIdHandler = null!;
-    private AddProductCategoryHandler addProductCategoryHandler = null!;
-    private UpdateProductCategoryHandler updateProductCategoryHandler = null!;
-    private DeleteProductCategoryHandler deleteProductCategoryHandler = null!;
-    private GetProductsByCategoryIdHandler getProductsByCategoryIdHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testCategoryId;
-    private Faker faker = null!;
+    private readonly ProductCategoryController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testCategoryId;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -96,7 +81,7 @@ public class ProductCategoryControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenNoCategoriesExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -107,22 +92,19 @@ public class ProductCategoryControllerTests
         var result = await this.controller.GetAsync(wide, page: 1, perPage: 10, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCategories = okResult.Value as Pagination<List<GetAllProductCategoryResponse>>;
-        Assert.That(returnedCategories, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCategories.Data, Is.Empty);
-            Assert.That(returnedCategories.Total, Is.EqualTo(0));
-        }
+        Assert.NotNull(returnedCategories);
+        Assert.Empty(returnedCategories.Data);
+        Assert.Equal(0, returnedCategories.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenCategoriesExist_ReturnsOkWithCategories()
     {
         // Arrange
@@ -148,22 +130,19 @@ public class ProductCategoryControllerTests
         var result = await this.controller.GetAsync(wide, page: 1, perPage: 10, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCategories = okResult.Value as Pagination<List<GetAllProductCategoryResponse>>;
-        Assert.That(returnedCategories, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCategories.Data, Has.Count.EqualTo(2));
-            Assert.That(returnedCategories.Total, Is.EqualTo(2));
-        }
+        Assert.NotNull(returnedCategories);
+        Assert.Equal(2, returnedCategories.Data.Count);
+        Assert.Equal(2, returnedCategories.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenCategoryExists_ReturnsOkWithCategory()
     {
         // Arrange
@@ -183,22 +162,19 @@ public class ProductCategoryControllerTests
         var result = await this.controller.GetByIdAsync(this.testCategoryId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCategory = okResult.Value as GetProductCategoryByIdResponse;
-        Assert.That(returnedCategory, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCategory.Id, Is.EqualTo(this.testCategoryId));
-            Assert.That(returnedCategory.Name, Is.EqualTo(category.Name));
-        }
+        Assert.NotNull(returnedCategory);
+        Assert.Equal(this.testCategoryId, returnedCategory.Id);
+        Assert.Equal(category.Name, returnedCategory.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenCategoryDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -210,11 +186,11 @@ public class ProductCategoryControllerTests
         var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithCategory()
     {
         // Arrange
@@ -226,19 +202,19 @@ public class ProductCategoryControllerTests
         var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201));
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedCategory = createdResult.Value as AddProductCategoryResponse;
-        Assert.That(returnedCategory, Is.Not.Null);
-        Assert.That(returnedCategory.Name, Is.EqualTo(command.Name));
+        Assert.NotNull(returnedCategory);
+        Assert.Equal(command.Name, returnedCategory.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenCategoryExists_ReturnsOkWithUpdatedCategory()
     {
         // Arrange
@@ -259,18 +235,18 @@ public class ProductCategoryControllerTests
         var result = await this.controller.PatchAsync(command, this.testCategoryId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedCategory = okResult.Value as UpdateProductCategoryRecord;
-        Assert.That(returnedCategory, Is.Not.Null);
-        Assert.That(returnedCategory.Name, Contains.Substring("Updated"));
+        Assert.NotNull(returnedCategory);
+        Assert.Contains("Updated", returnedCategory.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenCategoryDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -283,11 +259,11 @@ public class ProductCategoryControllerTests
         var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenCategoryExists_ReturnsNoContent()
     {
         // Arrange
@@ -307,14 +283,14 @@ public class ProductCategoryControllerTests
         var result = await this.controller.DeleteAsync(this.testCategoryId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
 
         // Verify category was deleted
         var deletedCategory = await this.context.BasicProductCategories.FirstOrDefaultAsync(x => x.Id == this.testCategoryId && x.Deleted == null, ct);
-        Assert.That(deletedCategory, Is.Null);
+        Assert.Null(deletedCategory);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenCategoryDoesNotExist_ReturnsNoContent()
     {
         // Arrange
@@ -326,10 +302,10 @@ public class ProductCategoryControllerTests
         var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public async Task GetProductsByCategoryAsync_WhenCategoryHasNoProducts_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -350,18 +326,18 @@ public class ProductCategoryControllerTests
         var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId, query, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedProducts = okResult.Value as List<GetProductsByCategoryIdResponse>;
-        Assert.That(returnedProducts, Is.Not.Null);
-        Assert.That(returnedProducts, Is.Empty);
+        Assert.NotNull(returnedProducts);
+        Assert.Empty(returnedProducts);
     }
 
-    [Test]
+    [Fact]
     public async Task GetProductsByCategoryAsync_WhenCategoryHasProducts_ReturnsOkWithProducts()
     {
         // Arrange
@@ -403,18 +379,18 @@ public class ProductCategoryControllerTests
         var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId, query, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedProducts = okResult.Value as List<GetProductsByCategoryIdResponse>;
-        Assert.That(returnedProducts, Is.Not.Null);
-        Assert.That(returnedProducts, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedProducts);
+        Assert.Equal(2, returnedProducts.Count);
     }
 
-    [Test]
+    [Fact]
     public void ProductCategoryController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -424,10 +400,10 @@ public class ProductCategoryControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "ProductCategoryController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void ProductCategoryController_HasRouteAttribute()
     {
         // Arrange
@@ -438,11 +414,11 @@ public class ProductCategoryControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "ProductCategoryController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void ProductCategoryController_HasApiControllerAttribute()
     {
         // Arrange
@@ -453,6 +429,11 @@ public class ProductCategoryControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "ProductCategoryController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

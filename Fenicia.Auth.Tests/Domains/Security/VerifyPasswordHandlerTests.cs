@@ -5,51 +5,46 @@ using Fenicia.Auth.Domains.Security.VerifyPassword;
 
 namespace Fenicia.Auth.Tests.Domains.Security;
 
-[TestFixture]
 public class VerifyPasswordHandlerTests
 {
-    [SetUp]
-    public void SetUp()
-    {
-        this.faker = new Faker();
-        this.handler = new VerifyPasswordHandler();
-        this.hashPasswordHandler = new HashPasswordHandler();
-    }
+    private readonly Faker faker = new();
+    private readonly VerifyPasswordHandler handler = new();
+    private readonly HashPasswordHandler hashPasswordHandler = new();
 
-    private Faker faker = null!;
-    private VerifyPasswordHandler handler = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-
-    [Test]
-    public void Handle_WhenPasswordMatchesHash_ReturnsTrue()
+    [Theory]
+    [InlineData("SimplePass123")]
+    [InlineData("MyPassword!")]
+    [InlineData("Test123")]
+    [InlineData("SecurePass")]
+    public void Handle_WhenPasswordMatchesHash_ReturnsTrue(string password)
     {
         // Arrange
-        var password = this.faker.Internet.Password();
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
         var result = this.handler.Handle(password, hashedPassword);
 
         // Assert
-        Assert.That(result, Is.True, "Should return true when password matches hash");
+        Assert.True(result);
     }
 
-    [Test]
-    public void Handle_WhenPasswordDoesNotMatchHash_ReturnsFalse()
+    [Theory]
+    [InlineData("password1", "wrongPassword2")]
+    [InlineData("test123", "other456")]
+    [InlineData("abc", "xyz")]
+    public void Handle_WhenPasswordDoesNotMatchHash_ReturnsFalse(string password, string wrongPassword)
     {
         // Arrange
-        var password = this.faker.Internet.Password();
-        var wrongPassword = this.faker.Internet.Password();
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
         var result = this.handler.Handle(wrongPassword, hashedPassword);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when password doesn't match");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordIsNull_ReturnsFalse()
     {
         // Arrange
@@ -59,10 +54,10 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(null!, hashedPassword);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when password is null");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenHashedPasswordIsNull_ReturnsFalse()
     {
         // Arrange
@@ -72,20 +67,20 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(password, null!);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when hashed password is null");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenBothPasswordAndHashAreNull_ReturnsFalse()
     {
         // Act
         var result = this.handler.Handle(null!, null!);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when both are null");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordIsEmpty_ReturnsFalse()
     {
         // Arrange
@@ -95,10 +90,10 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(string.Empty, hashedPassword);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when password is empty");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenHashedPasswordIsEmpty_ReturnsFalse()
     {
         // Arrange
@@ -108,10 +103,10 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(password, string.Empty);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when hashed password is empty");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordHasDifferentCase_ReturnsFalse()
     {
         // Arrange
@@ -123,10 +118,10 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(wrongCasePassword, hashedPassword);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when case doesn't match");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenHashIsInvalidFormat_ReturnsFalse()
     {
         // Arrange
@@ -137,10 +132,10 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(password, invalidHash);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false for invalid hash format");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordContainsSpecialCharacters_VerifiesCorrectly()
     {
         // Arrange
@@ -151,10 +146,10 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(password, hashedPassword);
 
         // Assert
-        Assert.That(result, Is.True, "Should verify password with special characters");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordIsVeryLong_VerifiesCorrectly()
     {
         // Arrange
@@ -165,10 +160,10 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(password, hashedPassword);
 
         // Assert
-        Assert.That(result, Is.True, "Should verify very long password");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordIsShort_VerifiesCorrectly()
     {
         // Arrange
@@ -180,10 +175,10 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(password, hashedPassword);
 
         // Assert
-        Assert.That(result, Is.True, "Should verify short password");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordContainsUnicode_VerifiesCorrectly()
     {
         // Arrange
@@ -194,10 +189,10 @@ public class VerifyPasswordHandlerTests
         var result = this.handler.Handle(password, hashedPassword);
 
         // Assert
-        Assert.That(result, Is.True, "Should verify password with unicode characters");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenDifferentPasswordsProduceDifferentHashes()
     {
         // Arrange
@@ -213,12 +208,9 @@ public class VerifyPasswordHandlerTests
         var result4 = this.handler.Handle(password2, hash2);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result1, Is.True, "password1 should match hash1");
-            Assert.That(result2, Is.False, "password1 should not match hash2");
-            Assert.That(result3, Is.False, "password2 should not match hash1");
-            Assert.That(result4, Is.True, "password2 should match hash2");
-        }
+        Assert.True(result1);
+        Assert.False(result2);
+        Assert.False(result3);
+        Assert.True(result4);
     }
 }

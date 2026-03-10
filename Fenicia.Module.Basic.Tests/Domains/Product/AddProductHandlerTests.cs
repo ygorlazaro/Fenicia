@@ -6,32 +6,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
-[TestFixture]
-public class AddProductHandlerTests
+public class AddProductHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddProductHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddProductHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly AddProductHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddProductHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsProductAndReturnsResponse()
     {
         // Arrange
@@ -42,26 +33,23 @@ public class AddProductHandlerTests
             10.00m,
             20.00m,
             100,
-            categoryId, 
+            categoryId,
             null);
 
         // Act
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Name, Is.EqualTo(command.Name));
-            Assert.That(result.CostPrice, Is.EqualTo(command.CostPrice));
-            Assert.That(result.SalesPrice, Is.EqualTo(command.SalesPrice));
-            Assert.That(result.Quantity, Is.EqualTo(command.Quantity));
-            Assert.That(result.CategoryId, Is.EqualTo(command.CategoryId));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Name, result.Name);
+        Assert.Equal(command.CostPrice, result.CostPrice);
+        Assert.Equal(command.SalesPrice, result.SalesPrice);
+        Assert.Equal(command.Quantity, result.Quantity);
+        Assert.Equal(command.CategoryId, result.CategoryId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesProductWasSavedToDatabase()
     {
         // Arrange
@@ -79,11 +67,11 @@ public class AddProductHandlerTests
 
         // Assert
         var product = await this.context.BasicProducts.FindAsync([command.Id], CancellationToken.None);
-        Assert.That(product, Is.Not.Null);
-        Assert.That(product.Name, Is.EqualTo(command.Name));
+        Assert.NotNull(product);
+        Assert.Equal(command.Name, product.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProducts()
     {
         // Arrange
@@ -111,10 +99,10 @@ public class AddProductHandlerTests
 
         // Assert
         var products = await this.context.BasicProducts.ToListAsync();
-        Assert.That(products, Has.Count.EqualTo(2));
+        Assert.Equal(2, products.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullCostPrice_HandlesCorrectly()
     {
         // Arrange
@@ -131,7 +119,14 @@ public class AddProductHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.CostPrice, Is.Null);
+        Assert.NotNull(result);
+        Assert.Null(result.CostPrice);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

@@ -8,26 +8,23 @@ using StackExchange.Redis;
 
 namespace Fenicia.Auth.Tests.Domains.RefreshToken;
 
-[TestFixture]
 public class InvalidateRefreshTokenHandlerTests
 {
-    [SetUp]
-    public void SetUp()
+    private readonly Mock<IDatabase> redisDbMock;
+    private readonly InvalidateRefreshTokenHandler handler;
+
+    public InvalidateRefreshTokenHandlerTests()
     {
-        this.redisMock = new Mock<IConnectionMultiplexer>();
+        var redisMock = new Mock<IConnectionMultiplexer>();
         this.redisDbMock = new Mock<IDatabase>();
 
-        this.redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>()))
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>()))
             .Returns(this.redisDbMock.Object);
 
-        this.handler = new InvalidateRefreshTokenHandler(this.redisMock.Object);
+        this.handler = new InvalidateRefreshTokenHandler(redisMock.Object);
     }
 
-    private Mock<IConnectionMultiplexer> redisMock = null!;
-    private Mock<IDatabase> redisDbMock = null!;
-    private InvalidateRefreshTokenHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handler_WhenTokenExists_SetsIsActiveToFalse()
     {
         // Arrange
@@ -68,7 +65,7 @@ public class InvalidateRefreshTokenHandlerTests
         );
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenTokenDoesNotExist_ReturnsSilently()
     {
         // Arrange
@@ -95,19 +92,18 @@ public class InvalidateRefreshTokenHandlerTests
         );
     }
 
-    [Test]
-    public void Handler_WhenTokenIsNull_ThrowsArgumentNullException()
+    [Fact]
+    public async Task Handler_WhenTokenIsNull_ThrowsArgumentNullException()
     {
         // Arrange
         string? refreshToken = null;
 
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentNullException>(async () =>
-            await this.handler.Handler(refreshToken!)
-        );
+        await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await this.handler.Handler(refreshToken!));
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenTokenIsEmptyString_ReturnsSilently()
     {
         // Arrange
@@ -132,7 +128,7 @@ public class InvalidateRefreshTokenHandlerTests
         );
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenTokenIsAlreadyInactive_StillUpdates()
     {
         // Arrange
@@ -173,7 +169,7 @@ public class InvalidateRefreshTokenHandlerTests
         );
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenTokenIsExpired_StillInvalidates()
     {
         // Arrange
@@ -214,7 +210,7 @@ public class InvalidateRefreshTokenHandlerTests
         );
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_PreservesOtherTokenProperties()
     {
         // Arrange
@@ -263,7 +259,7 @@ public class InvalidateRefreshTokenHandlerTests
                && updatedToken.ExpirationDate == expirationDate;
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenMalformedJsonInRedis_ReturnsSilently()
     {
         // Arrange
@@ -290,7 +286,7 @@ public class InvalidateRefreshTokenHandlerTests
         );
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_MultipleInvalidationsForSameToken_WorksCorrectly()
     {
         // Arrange
@@ -332,7 +328,7 @@ public class InvalidateRefreshTokenHandlerTests
         );
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_VerifiesCorrectTTLIsSet()
     {
         // Arrange

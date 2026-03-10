@@ -7,32 +7,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.OrderDetail;
 
-[TestFixture]
-public class GetOrderDetailsByOrderIdHandlerTests
+public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetOrderDetailsByOrderIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetOrderDetailsByOrderIdHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetOrderDetailsByOrderIdHandler handler = null!;
+    private readonly DefaultContext context;
+    private readonly GetOrderDetailsByOrderIdHandler handler;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNoDetailsForOrder_ReturnsEmptyList()
     {
         // Arrange
@@ -43,11 +40,11 @@ public class GetOrderDetailsByOrderIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithDetailsForOrder_ReturnsFilteredList()
     {
         // Arrange
@@ -90,12 +87,12 @@ public class GetOrderDetailsByOrderIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result.All(d => d.OrderId == order1Id), Is.True);
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.All(result, d => Assert.Equal(order1Id, d.OrderId));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesDetailDataIsCorrect()
     {
         // Arrange
@@ -118,16 +115,13 @@ public class GetOrderDetailsByOrderIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result[0].Price, Is.EqualTo(15.00m));
-            Assert.That(result[0].Quantity, Is.EqualTo(10));
-        }
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(15.00m, result[0].Price);
+        Assert.Equal(10, result[0].Quantity);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
         // Arrange
@@ -137,7 +131,7 @@ public class GetOrderDetailsByOrderIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 }

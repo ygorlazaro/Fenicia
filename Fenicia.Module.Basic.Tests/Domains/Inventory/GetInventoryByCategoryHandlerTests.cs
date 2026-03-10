@@ -9,34 +9,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
-[TestFixture]
-public class GetInventoryByCategoryHandlerTests
+public class GetInventoryByCategoryHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetInventoryByCategoryHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetInventoryByCategoryHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly GetInventoryByCategoryHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetInventoryByCategoryHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithNoProductsForCategory_ReturnsEmptyInventory()
     {
         // Arrange
@@ -47,17 +38,14 @@ public class GetInventoryByCategoryHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Items, Is.Empty);
-            Assert.That(result.TotalCostPrice, Is.EqualTo(0));
-            Assert.That(result.TotalSalesPrice, Is.EqualTo(0));
-            Assert.That(result.TotalQuantity, Is.EqualTo(0));
-        }
+        Assert.NotNull(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalCostPrice);
+        Assert.Equal(0, result.TotalSalesPrice);
+        Assert.Equal(0, result.TotalQuantity);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithProductsForCategory_ReturnsFilteredInventory()
     {
         // Arrange
@@ -107,12 +95,12 @@ public class GetInventoryByCategoryHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Items, Has.Count.EqualTo(2));
-        Assert.That(result.Items.All(i => i.CategoryName == "Electronics"), Is.True);
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Items.Count);
+        Assert.True(result.Items.All(i => i.CategoryName == "Electronics"));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithProductsForCategory_CalculatesCorrectTotals()
     {
         // Arrange
@@ -149,16 +137,13 @@ public class GetInventoryByCategoryHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.TotalCostPrice, Is.EqualTo(25.00m));
-            Assert.That(result.TotalSalesPrice, Is.EqualTo(45.00m));
-            Assert.That(result.TotalQuantity, Is.EqualTo(150));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(25.00m, result.TotalCostPrice);
+        Assert.Equal(45.00m, result.TotalSalesPrice);
+        Assert.Equal(150, result.TotalQuantity);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
@@ -188,7 +173,12 @@ public class GetInventoryByCategoryHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Items, Has.Count.EqualTo(10));
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Items.Count);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

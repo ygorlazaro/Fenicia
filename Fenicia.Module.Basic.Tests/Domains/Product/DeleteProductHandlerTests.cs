@@ -7,32 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
-[TestFixture]
-public class DeleteProductHandlerTests
+public class DeleteProductHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteProductHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteProductHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly DeleteProductHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteProductHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenProductExists_SetsDeletedDate()
     {
         // Arrange
@@ -58,13 +49,13 @@ public class DeleteProductHandlerTests
 
         // Assert
         var deletedProduct = await this.context.BasicProducts.FindAsync([productId], CancellationToken.None);
-        Assert.That(deletedProduct, Is.Not.Null);
-        Assert.That(deletedProduct.Deleted, Is.Not.Null);
-        Assert.That(deletedProduct.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedProduct.Deleted, Is.LessThanOrEqualTo(DateTime.Now.AddSeconds(1)));
+        Assert.NotNull(deletedProduct);
+        Assert.NotNull(deletedProduct.Deleted);
+        Assert.True(deletedProduct.Deleted >= beforeDelete.AddSeconds(-1));
+        Assert.True(deletedProduct.Deleted <= DateTime.Now.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProductDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -75,10 +66,10 @@ public class DeleteProductHandlerTests
 
         // Assert
         var products = await this.context.BasicProducts.ToListAsync();
-        Assert.That(products, Is.Empty);
+        Assert.Empty(products);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProducts_OnlyDeletesSpecified()
     {
         // Arrange
@@ -117,16 +108,13 @@ public class DeleteProductHandlerTests
         var deletedProduct = await this.context.BasicProducts.FindAsync([product1Id], CancellationToken.None);
         var notDeletedProduct = await this.context.BasicProducts.FindAsync([product2Id], CancellationToken.None);
 
-        Assert.That(deletedProduct, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedProduct.Deleted, Is.Not.Null);
-            Assert.That(notDeletedProduct, Is.Not.Null);
-        }
-        Assert.That(notDeletedProduct?.Deleted, Is.Null);
+        Assert.NotNull(deletedProduct);
+        Assert.NotNull(deletedProduct.Deleted);
+        Assert.NotNull(notDeletedProduct);
+        Assert.Null(notDeletedProduct.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -137,6 +125,11 @@ public class DeleteProductHandlerTests
 
         // Assert
         var products = await this.context.BasicProducts.ToListAsync();
-        Assert.That(products, Is.Empty);
+        Assert.Empty(products);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

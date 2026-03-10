@@ -7,32 +7,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;
 
-[TestFixture]
-public class UpdateProjectTaskAssigneeHandlerTests
+public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateProjectTaskAssigneeHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new UpdateProjectTaskAssigneeHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private UpdateProjectTaskAssigneeHandler handler = null!;
+    private readonly DefaultContext context;
+    private readonly UpdateProjectTaskAssigneeHandler handler;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskAssigneeExists_UpdatesProjectTaskAssigneeAndReturnsResponse()
     {
         // Arrange
@@ -63,15 +61,12 @@ public class UpdateProjectTaskAssigneeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(assigneeId));
-            Assert.That(result.Role, Is.EqualTo("Owner"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(assigneeId, result.Id);
+        Assert.Equal("Owner", result.Role);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskAssigneeDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -86,10 +81,10 @@ public class UpdateProjectTaskAssigneeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -104,10 +99,10 @@ public class UpdateProjectTaskAssigneeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectTaskAssignee()
     {
         // Arrange
@@ -150,29 +145,20 @@ public class UpdateProjectTaskAssigneeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(assignee1Id));
-            Assert.That(result.Role, Is.EqualTo("Contributor"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(assignee1Id, result.Id);
+        Assert.Equal("Contributor", result.Role);
 
         var updatedAssignee1 = await this.context.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
         var assignee2InDb = await this.context.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedAssignee1, Is.Not.Null);
-            Assert.That(assignee2InDb, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedAssignee1?.Role, Is.EqualTo(Common.Enums.Project.EnumAssigneeRole.Contributor));
-            Assert.That(assignee2InDb?.Role, Is.EqualTo(Common.Enums.Project.EnumAssigneeRole.Contributor));
-        }
+        Assert.NotNull(updatedAssignee1);
+        Assert.NotNull(assignee2InDb);
+        Assert.Equal(Common.Enums.Project.EnumAssigneeRole.Contributor, updatedAssignee1.Role);
+        Assert.Equal(Common.Enums.Project.EnumAssigneeRole.Contributor, assignee2InDb.Role);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithRoleChange_UpdatesProjectTaskAssigneeSuccessfully()
     {
         // Arrange
@@ -202,11 +188,8 @@ public class UpdateProjectTaskAssigneeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(assigneeId));
-            Assert.That(result.Role, Is.EqualTo("Owner"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(assigneeId, result.Id);
+        Assert.Equal("Owner", result.Role);
     }
 }

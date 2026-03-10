@@ -7,32 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
-[TestFixture]
-public class GetProductCategoryByIdHandlerTests
+public class GetProductCategoryByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetProductCategoryByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetProductCategoryByIdHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly GetProductCategoryByIdHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetProductCategoryByIdHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenCategoryExists_ReturnsCategoryResponse()
     {
         // Arrange
@@ -52,15 +43,12 @@ public class GetProductCategoryByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(categoryId));
-            Assert.That(result.Name, Is.EqualTo("Electronics"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(categoryId, result.Id);
+        Assert.Equal("Electronics", result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCategoryDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -70,10 +58,10 @@ public class GetProductCategoryByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -83,10 +71,10 @@ public class GetProductCategoryByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCategories_ReturnsOnlyRequestedCategory()
     {
         // Arrange
@@ -114,11 +102,13 @@ public class GetProductCategoryByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(category1Id));
-            Assert.That(result.Name, Is.EqualTo("Electronics"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(category1Id, result.Id);
+        Assert.Equal("Electronics", result.Name);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

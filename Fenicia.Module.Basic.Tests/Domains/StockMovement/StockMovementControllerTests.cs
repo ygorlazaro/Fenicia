@@ -22,11 +22,9 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;
 
-[TestFixture]
-public class StockMovementControllerTests
+public class StockMovementControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public StockMovementControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -58,23 +56,17 @@ public class StockMovementControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
-
-    private TestCompanyContext companyContext = null!;
-    private StockMovementController controller = null!;
-    private DefaultContext context = null!;
-    private GetStockMovementHandler getStockMovementHandler = null!;
-    private AddStockMovementHandler addStockMovementHandler = null!;
-    private UpdateStockMovementHandler updateStockMovementHandler = null!;
-    private GetStockMovementDashboardHandler getStockMovementDashboardHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testMovementId;
-    private Guid testProductId;
-    private Faker faker = null!;
+    private readonly TestCompanyContext companyContext;
+    private readonly StockMovementController controller;
+    private readonly DefaultContext context;
+    private readonly GetStockMovementHandler getStockMovementHandler;
+    private readonly AddStockMovementHandler addStockMovementHandler;
+    private readonly UpdateStockMovementHandler updateStockMovementHandler;
+    private readonly GetStockMovementDashboardHandler getStockMovementDashboardHandler;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testMovementId;
+    private readonly Guid testProductId;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -90,7 +82,7 @@ public class StockMovementControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenNoMovementsExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -106,18 +98,18 @@ public class StockMovementControllerTests
         var result = await this.controller.GetAsync(query, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedMovements = okResult.Value as List<GetStockMovementResponse>;
-        Assert.That(returnedMovements, Is.Not.Null);
-        Assert.That(returnedMovements, Is.Empty);
+        Assert.NotNull(returnedMovements);
+        Assert.Empty(returnedMovements);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenMovementsExist_ReturnsOkWithMovements()
     {
         // Arrange
@@ -167,18 +159,18 @@ public class StockMovementControllerTests
         var result = await this.controller.GetAsync(query, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedMovements = okResult.Value as List<GetStockMovementResponse>;
-        Assert.That(returnedMovements, Is.Not.Null);
-        Assert.That(returnedMovements, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedMovements);
+        Assert.Equal(2, returnedMovements.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithMovement()
     {
         // Arrange
@@ -215,25 +207,22 @@ public class StockMovementControllerTests
         var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201));
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedMovement = createdResult.Value as AddStockMovementResponse;
-        Assert.That(returnedMovement, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedMovement.ProductId, Is.EqualTo(this.testProductId));
-            Assert.That(returnedMovement.Quantity, Is.EqualTo(10));
-            Assert.That(returnedMovement.Type, Is.EqualTo(StockMovementType.In));
-            Assert.That(returnedMovement.Reason, Is.EqualTo("Test reason"));
-        }
+        Assert.NotNull(returnedMovement);
+        Assert.Equal(this.testProductId, returnedMovement.ProductId);
+        Assert.Equal(10, returnedMovement.Quantity);
+        Assert.Equal(StockMovementType.In, returnedMovement.Type);
+        Assert.Equal("Test reason", returnedMovement.Reason);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenMovementExists_ReturnsCreatedWithUpdatedMovement()
     {
         // Arrange
@@ -283,23 +272,20 @@ public class StockMovementControllerTests
         var result = await this.controller.PatchAsync(this.testMovementId, command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
+        Assert.NotNull(createdResult);
 
         var returnedMovement = createdResult.Value as UpdateStockMovementResponse;
-        Assert.That(returnedMovement, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedMovement.Quantity, Is.EqualTo(15));
-            Assert.That(returnedMovement.Price, Is.EqualTo(25.00m));
-            Assert.That(returnedMovement.Reason, Is.EqualTo("Updated reason"));
-        }
+        Assert.NotNull(returnedMovement);
+        Assert.Equal(15, returnedMovement.Quantity);
+        Assert.Equal(25.00m, returnedMovement.Price);
+        Assert.Equal("Updated reason", returnedMovement.Reason);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenMovementDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -326,11 +312,11 @@ public class StockMovementControllerTests
         var result = await this.controller.PatchAsync(nonExistentId, command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public void StockMovementController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -340,10 +326,10 @@ public class StockMovementControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "StockMovementController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void StockMovementController_HasRouteAttribute()
     {
         // Arrange
@@ -354,11 +340,11 @@ public class StockMovementControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "StockMovementController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void StockMovementController_HasApiControllerAttribute()
     {
         // Arrange
@@ -369,10 +355,10 @@ public class StockMovementControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "StockMovementController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
     }
 
-    [Test]
+    [Fact]
     public void PatchAsync_HasAuthorizeRolesAttribute()
     {
         // Arrange
@@ -384,11 +370,11 @@ public class StockMovementControllerTests
             methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "PatchAsync should have Authorize attribute");
-        Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
+        Assert.NotNull(authorizeAttribute);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
-    [Test]
+    [Fact]
     public async Task GetDashboardAsync_WithNoMovements_ReturnsEmptyDashboard()
     {
         // Arrange
@@ -399,24 +385,21 @@ public class StockMovementControllerTests
         var result = await this.controller.GetDashboardAsync(wide,30, 10, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var dashboard = okResult.Value as StockMovementDashboardResponse;
-        Assert.That(dashboard, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(dashboard.History, Is.Empty);
-            Assert.That(dashboard.MonthlyInOut, Is.Empty);
-            Assert.That(dashboard.TopMovedProducts, Is.Empty);
-            Assert.That(dashboard.TurnoverRates, Is.Empty);
-        }
+        Assert.NotNull(dashboard);
+        Assert.Empty(dashboard.History);
+        Assert.Empty(dashboard.MonthlyInOut);
+        Assert.Empty(dashboard.TopMovedProducts);
+        Assert.Empty(dashboard.TurnoverRates);
     }
 
-    [Test]
+    [Fact]
     public async Task GetDashboardAsync_WithMovements_ReturnsDashboardData()
     {
         // Arrange
@@ -459,20 +442,17 @@ public class StockMovementControllerTests
         var result = await this.controller.GetDashboardAsync(wide, 30, 10, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var dashboard = okResult.Value as StockMovementDashboardResponse;
-        Assert.That(dashboard, Is.Not.Null);
-        Assert.That(dashboard.History, Is.Not.Empty);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(dashboard.History[0].ProductName, Is.EqualTo(product.Name));
-            Assert.That(dashboard.History[0].Reason, Is.EqualTo("Test reason"));
-        }
+        Assert.NotNull(dashboard);
+        Assert.NotEmpty(dashboard.History);
+        Assert.Equal(product.Name, dashboard.History[0].ProductName);
+        Assert.Equal("Test reason", dashboard.History[0].Reason);
     }
 
     private void SetupAdminUserClaims()
@@ -488,5 +468,10 @@ public class StockMovementControllerTests
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

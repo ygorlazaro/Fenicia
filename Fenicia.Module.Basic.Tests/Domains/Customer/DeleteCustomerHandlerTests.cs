@@ -9,34 +9,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
-[TestFixture]
-public class DeleteCustomerHandlerTests
+public class DeleteCustomerHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteCustomerHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteCustomerHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteCustomerHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly DeleteCustomerHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCustomerExists_SetsDeletedDate()
     {
         // Arrange
@@ -70,13 +67,12 @@ public class DeleteCustomerHandlerTests
 
         // Assert
         var deletedCustomer = await this.context.BasicCustomers.FindAsync([customerId], CancellationToken.None);
-        Assert.That(deletedCustomer, Is.Not.Null);
-        Assert.That(deletedCustomer.Deleted, Is.Not.Null);
-        Assert.That(deletedCustomer.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedCustomer.Deleted, Is.LessThanOrEqualTo(DateTime.Now.AddSeconds(1)));
+        Assert.NotNull(deletedCustomer);
+        Assert.NotNull(deletedCustomer.Deleted);
+        Assert.InRange(deletedCustomer.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.Now.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCustomerDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -87,10 +83,10 @@ public class DeleteCustomerHandlerTests
 
         // Assert
         var customers = await this.context.BasicCustomers.ToListAsync();
-        Assert.That(customers, Is.Empty);
+        Assert.Empty(customers);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCustomers_OnlyDeletesSpecified()
     {
         // Arrange
@@ -145,16 +141,13 @@ public class DeleteCustomerHandlerTests
         var deletedCustomer = await this.context.BasicCustomers.FindAsync([customer1Id], CancellationToken.None);
         var notDeletedCustomer = await this.context.BasicCustomers.FindAsync([customer2Id], CancellationToken.None);
 
-        Assert.That(deletedCustomer, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedCustomer.Deleted, Is.Not.Null);
-            Assert.That(notDeletedCustomer, Is.Not.Null);
-        }
-        Assert.That(notDeletedCustomer?.Deleted, Is.Null);
+        Assert.NotNull(deletedCustomer);
+        Assert.NotNull(deletedCustomer.Deleted);
+        Assert.NotNull(notDeletedCustomer);
+        Assert.Null(notDeletedCustomer.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -165,6 +158,6 @@ public class DeleteCustomerHandlerTests
 
         // Assert
         var customers = await this.context.BasicCustomers.ToListAsync();
-        Assert.That(customers, Is.Empty);
+        Assert.Empty(customers);
     }
 }

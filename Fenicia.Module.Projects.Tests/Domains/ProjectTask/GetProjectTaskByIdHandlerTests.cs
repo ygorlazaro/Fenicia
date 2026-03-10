@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTask;
 
-[TestFixture]
-public class GetProjectTaskByIdHandlerTests
+public class GetProjectTaskByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetProjectTaskByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetProjectTaskByIdHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetProjectTaskByIdHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly GetProjectTaskByIdHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskExists_ReturnsProjectTaskResponse()
     {
         // Arrange
@@ -67,15 +65,12 @@ public class GetProjectTaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(taskId));
-            Assert.That(result.Title, Is.EqualTo(task.Title));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(taskId, result.Id);
+        Assert.Equal(task.Title, result.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -85,10 +80,10 @@ public class GetProjectTaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -98,10 +93,10 @@ public class GetProjectTaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectTasks_ReturnsOnlyRequestedTask()
     {
         // Arrange
@@ -149,15 +144,12 @@ public class GetProjectTaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(task1Id));
-            Assert.That(result.Title, Is.EqualTo(task1.Title));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(task1Id, result.Id);
+        Assert.Equal(task1.Title, result.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullDescription_ReturnsCorrectResponse()
     {
         // Arrange
@@ -188,11 +180,8 @@ public class GetProjectTaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(taskId));
-            Assert.That(result.Description, Is.Null);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(taskId, result.Id);
+        Assert.Null(result.Description);
     }
 }

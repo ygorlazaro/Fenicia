@@ -22,32 +22,30 @@ using Moq;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Project;
 
-[TestFixture]
-public class ProjectControllerTests
+public class ProjectControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public ProjectControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.testProjectId = Guid.NewGuid();
-        this.getAllProjectHandler = new GetAllProjectHandler(this.context);
-        this.getProjectByIdHandler = new GetProjectByIdHandler(this.context);
-        this.addProjectHandler = new AddProjectHandler(this.context);
-        this.updateProjectHandler = new UpdateProjectHandler(this.context);
-        this.deleteProjectHandler = new DeleteProjectHandler(this.context);
+        var getAllProjectHandler = new GetAllProjectHandler(this.context);
+        var getProjectByIdHandler = new GetProjectByIdHandler(this.context);
+        var addProjectHandler = new AddProjectHandler(this.context);
+        var updateProjectHandler = new UpdateProjectHandler(this.context);
+        var deleteProjectHandler = new DeleteProjectHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProjectController(
-            this.getAllProjectHandler,
-            this.getProjectByIdHandler,
-            this.addProjectHandler,
-            this.updateProjectHandler,
-            this.deleteProjectHandler)
+            getAllProjectHandler,
+            getProjectByIdHandler,
+            addProjectHandler,
+            updateProjectHandler,
+            deleteProjectHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -59,23 +57,11 @@ public class ProjectControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
-
-    private TestCompanyContext companyContext = null!;
-    private ProjectController controller = null!;
-    private DefaultContext context = null!;
-    private GetAllProjectHandler getAllProjectHandler = null!;
-    private GetProjectByIdHandler getProjectByIdHandler = null!;
-    private AddProjectHandler addProjectHandler = null!;
-    private UpdateProjectHandler updateProjectHandler = null!;
-    private DeleteProjectHandler deleteProjectHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testProjectId;
-    private Faker faker = null!;
+    private readonly ProjectController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testProjectId;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -91,12 +77,12 @@ public class ProjectControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenNoProjectsExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -104,18 +90,18 @@ public class ProjectControllerTests
         var result = await this.controller.GetAsync(wide,page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedProjects = okResult.Value as List<GetAllProjectResponse>;
-        Assert.That(returnedProjects, Is.Not.Null);
-        Assert.That(returnedProjects, Is.Empty);
+        Assert.NotNull(returnedProjects);
+        Assert.Empty(returnedProjects);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenProjectsExist_ReturnsOkWithProjects()
     {
         // Arrange
@@ -143,8 +129,8 @@ public class ProjectControllerTests
         this.context.Projects.AddRange(project1, project2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -152,18 +138,18 @@ public class ProjectControllerTests
         var result = await this.controller.GetAsync(wide,page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedProjects = okResult.Value as List<GetAllProjectResponse>;
-        Assert.That(returnedProjects, Is.Not.Null);
-        Assert.That(returnedProjects, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedProjects);
+        Assert.Equal(2, returnedProjects.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenProjectExists_ReturnsOkWithProject()
     {
         // Arrange
@@ -187,22 +173,19 @@ public class ProjectControllerTests
         var result = await this.controller.GetByIdAsync(this.testProjectId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedProject = okResult.Value as GetProjectByIdResponse;
-        Assert.That(returnedProject, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedProject.Id, Is.EqualTo(this.testProjectId));
-            Assert.That(returnedProject.Title, Is.EqualTo(project.Title));
-        }
+        Assert.NotNull(returnedProject);
+        Assert.Equal(this.testProjectId, returnedProject.Id);
+        Assert.Equal(project.Title, returnedProject.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenProjectDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -214,11 +197,11 @@ public class ProjectControllerTests
         var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithProject()
     {
         // Arrange
@@ -238,23 +221,20 @@ public class ProjectControllerTests
         var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201));
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedProject = createdResult.Value as AddProjectResponse;
-        Assert.That(returnedProject, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedProject.Id, Is.EqualTo(command.Id));
-            Assert.That(returnedProject.Title, Is.EqualTo(command.Title));
-        }
+        Assert.NotNull(returnedProject);
+        Assert.Equal(command.Id, returnedProject.Id);
+        Assert.Equal(command.Title, returnedProject.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenProjectExists_ReturnsOkWithUpdatedProject()
     {
         // Arrange
@@ -287,18 +267,18 @@ public class ProjectControllerTests
         var result = await this.controller.PatchAsync(command, this.testProjectId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedProject = okResult.Value as UpdateProjectResponse;
-        Assert.That(returnedProject, Is.Not.Null);
-        Assert.That(returnedProject.Title, Contains.Substring("Updated"));
+        Assert.NotNull(returnedProject);
+        Assert.Contains("Updated", returnedProject.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenProjectDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -319,11 +299,11 @@ public class ProjectControllerTests
         var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenProjectExists_ReturnsNoContent()
     {
         // Arrange
@@ -347,14 +327,14 @@ public class ProjectControllerTests
         var result = await this.controller.DeleteAsync(this.testProjectId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
 
         // Verify project was deleted
         var deletedProject = await this.context.Projects.FirstOrDefaultAsync(x => x.Id == this.testProjectId && x.Deleted == null, ct);
-        Assert.That(deletedProject, Is.Null);
+        Assert.Null(deletedProject);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenProjectDoesNotExist_ReturnsNoContent()
     {
         // Arrange
@@ -366,10 +346,10 @@ public class ProjectControllerTests
         var result = await this.controller.DeleteAsync(nonExistentId,wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public void ProjectController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -379,10 +359,10 @@ public class ProjectControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "ProjectController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void ProjectController_HasRouteAttribute()
     {
         // Arrange
@@ -393,11 +373,11 @@ public class ProjectControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "ProjectController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void ProjectController_HasApiControllerAttribute()
     {
         // Arrange
@@ -408,10 +388,10 @@ public class ProjectControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "ProjectController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
     }
 
-    [Test]
+    [Fact]
     public void ProjectController_DeleteAction_HasAuthorizeAdminAttribute()
     {
         // Arrange
@@ -422,11 +402,11 @@ public class ProjectControllerTests
         var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "DeleteAsync should have Authorize attribute");
-        Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
+        Assert.NotNull(authorizeAttribute);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
-    [Test]
+    [Fact]
     public void ProjectController_PostAction_HasAuthorizeAdminAttribute()
     {
         // Arrange
@@ -437,11 +417,11 @@ public class ProjectControllerTests
         var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "PostAsync should have Authorize attribute");
-        Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
+        Assert.NotNull(authorizeAttribute);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
-    [Test]
+    [Fact]
     public void ProjectController_PatchAction_HasAuthorizeAdminAttribute()
     {
         // Arrange
@@ -452,7 +432,14 @@ public class ProjectControllerTests
         var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "PatchAsync should have Authorize attribute");
-        Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
+        Assert.NotNull(authorizeAttribute);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

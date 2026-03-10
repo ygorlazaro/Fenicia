@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTask;
 
-[TestFixture]
-public class UpdateProjectTaskHandlerTests
+public class UpdateProjectTaskHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateProjectTaskHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new UpdateProjectTaskHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private UpdateProjectTaskHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly UpdateProjectTaskHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskExists_UpdatesProjectTaskAndReturnsResponse()
     {
         // Arrange
@@ -78,15 +76,12 @@ public class UpdateProjectTaskHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(taskId));
-            Assert.That(result.Title, Is.EqualTo("New Task Title"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(taskId, result.Id);
+        Assert.Equal("New Task Title", result.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -107,10 +102,10 @@ public class UpdateProjectTaskHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -131,10 +126,10 @@ public class UpdateProjectTaskHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectTask()
     {
         // Arrange
@@ -193,29 +188,20 @@ public class UpdateProjectTaskHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(task1Id));
-            Assert.That(result.Title, Is.EqualTo("Updated Task 1 Title"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(task1Id, result.Id);
+        Assert.Equal("Updated Task 1 Title", result.Title);
 
         var updatedTask1 = await this.context.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
         var task2InDb = await this.context.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedTask1, Is.Not.Null);
-            Assert.That(task2InDb, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedTask1?.Title, Is.EqualTo("Updated Task 1 Title"));
-            Assert.That(task2InDb?.Title, Is.EqualTo("Task 2 Title"));
-        }
+        Assert.NotNull(updatedTask1);
+        Assert.NotNull(task2InDb);
+        Assert.Equal("Updated Task 1 Title", updatedTask1.Title);
+        Assert.Equal("Task 2 Title", task2InDb.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullDescription_UpdatesProjectTaskSuccessfully()
     {
         // Arrange
@@ -257,11 +243,8 @@ public class UpdateProjectTaskHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(taskId));
-            Assert.That(result.Description, Is.Null);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(taskId, result.Id);
+        Assert.Null(result.Description);
     }
 }

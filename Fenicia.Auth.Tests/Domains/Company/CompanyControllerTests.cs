@@ -22,11 +22,9 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
 
-[TestFixture]
-public class CompanyControllerTests
+public class CompanyControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public CompanyControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -34,13 +32,13 @@ public class CompanyControllerTests
 
         this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
-        this.getCompaniesByUserHandler = new GetCompaniesByUserHandler(this.context);
-        this.updateCompanyHandler = new UpdateCompanyHandler(this.context);
+        var getCompaniesByUserHandler = new GetCompaniesByUserHandler(this.context);
+        var updateCompanyHandler = new UpdateCompanyHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new CompanyController(
-            this.getCompaniesByUserHandler,
-            this.updateCompanyHandler)
+            getCompaniesByUserHandler,
+            updateCompanyHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -52,19 +50,17 @@ public class CompanyControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private CompanyController controller = null!;
-    private DefaultContext context = null!;
-    private GetCompaniesByUserHandler getCompaniesByUserHandler = null!;
-    private UpdateCompanyHandler updateCompanyHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testUserId;
-    private Faker faker = null!;
+    private readonly CompanyController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testUserId;
+    private readonly Faker faker;
 
     private void SetupUserClaims(Guid userId)
     {
@@ -80,7 +76,7 @@ public class CompanyControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetByLoggedUser_WhenUserHasNoCompanies_ReturnsOkWithEmptyPagination()
     {
         // Arrange
@@ -95,23 +91,20 @@ public class CompanyControllerTests
             ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedPagination = okResult.Value as Pagination<IEnumerable<GetCompaniesByUserResponse>>;
-        Assert.That(returnedPagination, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedPagination!.Data.Count(), Is.Zero);
-            Assert.That(returnedPagination.Total, Is.Zero);
-            Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
-        }
+        Assert.NotNull(returnedPagination);
+        Assert.Empty(returnedPagination.Data);
+        Assert.Equal(0, returnedPagination.Total);
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByLoggedUser_WhenUserHasCompanies_ReturnsOkWithPagination()
     {
         // Arrange
@@ -167,24 +160,21 @@ public class CompanyControllerTests
             ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedPagination = okResult.Value as Pagination<IEnumerable<GetCompaniesByUserResponse>>;
-        Assert.That(returnedPagination, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedPagination!.Data.Count(), Is.EqualTo(1));
-            Assert.That(returnedPagination.Total, Is.EqualTo(1));
-            Assert.That(returnedPagination.Data.First().Name, Is.EqualTo(company.Name));
-            Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
-        }
+        Assert.NotNull(returnedPagination);
+        Assert.Single(returnedPagination.Data);
+        Assert.Equal(1, returnedPagination.Total);
+        Assert.Equal(company.Name, returnedPagination.Data.First().Name);
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByLoggedUser_SetsWideEventContextUserId()
     {
         // Arrange
@@ -199,10 +189,10 @@ public class CompanyControllerTests
             ct);
 
         // Assert
-        Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenUserIsAdminAndCompanyExists_ReturnsNoContent()
     {
         // Arrange
@@ -258,29 +248,23 @@ public class CompanyControllerTests
             ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.InstanceOf<NoContentResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NoContentResult>(result);
 
         var noContentResult = result as NoContentResult;
-        Assert.That(noContentResult, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(noContentResult.StatusCode, Is.EqualTo(204));
-            Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
-        }
+        Assert.NotNull(noContentResult);
+        Assert.Equal(204, noContentResult.StatusCode);
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
 
         // Verify company was updated
         var updatedCompany = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
-        Assert.That(updatedCompany, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedCompany!.Name, Is.EqualTo(request.Name));
-            Assert.That(updatedCompany.TimeZone, Is.EqualTo("America/Sao_Paulo"));
-        }
+        Assert.NotNull(updatedCompany);
+        Assert.Equal(request.Name, updatedCompany.Name);
+        Assert.Equal("America/Sao_Paulo", updatedCompany.TimeZone);
     }
 
-    [Test]
-    public void PatchAsync_WhenCompanyDoesNotExist_ThrowsItemNotExistsException()
+    [Fact]
+    public async Task PatchAsync_WhenCompanyDoesNotExist_ThrowsItemNotExistsException()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -290,14 +274,14 @@ public class CompanyControllerTests
         var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
 
         // Act & Assert
-        Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.controller.PatchAsync(
                 request,
                 wide,
                 ct));
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenUserIsNotAdmin_ThrowsPermissionDeniedException()
     {
         // Arrange
@@ -347,14 +331,14 @@ public class CompanyControllerTests
         var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
 
         // Act & Assert
-        Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.controller.PatchAsync(
                 request,
                 wide,
                 ct));
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_SetsWideEventContextUserId()
     {
         // Arrange
@@ -410,10 +394,10 @@ public class CompanyControllerTests
             ct);
 
         // Assert
-        Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public void CompanyController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -423,10 +407,10 @@ public class CompanyControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "CompanyController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void CompanyController_HasRouteAttribute()
     {
         // Arrange
@@ -437,11 +421,11 @@ public class CompanyControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "CompanyController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void CompanyController_HasProducesAttribute()
     {
         // Arrange
@@ -452,11 +436,11 @@ public class CompanyControllerTests
             controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
-        Assert.That(producesAttribute, Is.Not.Null, "CompanyController should have Produces attribute");
-        Assert.That(producesAttribute!.ContentTypes.FirstOrDefault(), Is.EqualTo("application/json"));
+        Assert.NotNull(producesAttribute);
+        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
     }
 
-    [Test]
+    [Fact]
     public void PatchAsync_HasAuthorizeRolesAttribute()
     {
         // Arrange
@@ -468,7 +452,7 @@ public class CompanyControllerTests
             methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "PatchAsync should have Authorize attribute");
-        Assert.That(authorizeAttribute!.Roles, Is.EqualTo("Admin"));
+        Assert.NotNull(authorizeAttribute);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 }

@@ -12,36 +12,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class CreateUserHandlerTests
+public class CreateUserHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public CreateUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        this.checkUserExistsHandler = new CheckUserExistsHandler(this.context);
+        var checkUserExistsHandler = new CheckUserExistsHandler(this.context);
         this.hashPasswordHandler = new HashPasswordHandler();
-        this.handler = new CreateUserHandler(this.context, this.checkUserExistsHandler, this.hashPasswordHandler);
+        this.handler = new CreateUserHandler(this.context, checkUserExistsHandler, this.hashPasswordHandler);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly CreateUserHandler handler;
+    private readonly DefaultContext context;
+    private readonly HashPasswordHandler hashPasswordHandler;
+    private readonly Faker faker;
 
-    private CreateUserHandler handler = null!;
-    private DefaultContext context = null!;
-    private CheckUserExistsHandler checkUserExistsHandler = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenValidRequest_CreatesUserSuccessfully()
     {
         // Arrange
@@ -55,25 +46,19 @@ public class CreateUserHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Email, Is.EqualTo(email));
-            Assert.That(result.Name, Is.EqualTo(name));
-            Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(email, result.Email);
+        Assert.Equal(name, result.Name);
+        Assert.NotEqual(Guid.Empty, result.Id);
 
         // Verify user was saved to database
         var user = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
-        Assert.That(user, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(user.Email, Is.EqualTo(email));
-            Assert.That(user.Name, Is.EqualTo(name));
-        }
+        Assert.NotNull(user);
+        Assert.Equal(email, user.Email);
+        Assert.Equal(name, user.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailExists_ThrowsArgumentException()
     {
         // Arrange
@@ -95,13 +80,13 @@ public class CreateUserHandlerTests
         var request = new CreateUserQuery(email, password, "Another " + name);
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Is.EqualTo("This email already exists"));
+        Assert.Equal("This email already exists", exception.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenValidRequestWithCompanies_CreatesUserWithCompaniesSuccessfully()
     {
         // Arrange
@@ -133,28 +118,22 @@ public class CreateUserHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.CompaniesRoles, Is.Not.Empty);
-        Assert.That(result.CompaniesRoles, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.CompaniesRoles[0].CompanyId, Is.EqualTo(company.Id));
-            Assert.That(result.CompaniesRoles[0].RoleId, Is.EqualTo(role.Id));
-        }
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.CompaniesRoles);
+        Assert.Single(result.CompaniesRoles);
+        Assert.Equal(company.Id, result.CompaniesRoles[0].CompanyId);
+        Assert.Equal(role.Id, result.CompaniesRoles[0].RoleId);
 
         // Verify user role was saved to database
         var userRole = await this.context.AuthUserRoles
             .FirstOrDefaultAsync(ur => ur.UserId == result.Id);
 
-        Assert.That(userRole, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(userRole.CompanyId, Is.EqualTo(company.Id));
-            Assert.That(userRole.RoleId, Is.EqualTo(role.Id));
-        }
+        Assert.NotNull(userRole);
+        Assert.Equal(company.Id, userRole.CompanyId);
+        Assert.Equal(role.Id, userRole.RoleId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCompanyNotFound_ThrowsArgumentException()
     {
         // Arrange
@@ -174,13 +153,13 @@ public class CreateUserHandlerTests
         var request = new CreateUserQuery(email, password, name, companiesRoles);
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Does.Contain("not found"));
+        Assert.Contains("not found", exception.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenRoleNotFound_ThrowsArgumentException()
     {
         // Arrange
@@ -205,13 +184,13 @@ public class CreateUserHandlerTests
         var request = new CreateUserQuery(email, password, name, companiesRoles);
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Does.Contain("not found"));
+        Assert.Contains("not found", exception.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_PasswordIsHashed_BeforeSaving()
     {
         // Arrange
@@ -226,8 +205,15 @@ public class CreateUserHandlerTests
 
         // Assert
         var user = this.context.AuthUsers.Local.FirstOrDefault(u => u.Email == email);
-        Assert.That(user, Is.Not.Null);
-        Assert.That(user.Password, Is.Not.EqualTo(password)); // Password should be hashed
-        Assert.That(user.Password, Does.StartWith("$2")); // BCrypt hashes start with $2
+        Assert.NotNull(user);
+        Assert.NotEqual(password, user.Password); // Password should be hashed
+        Assert.StartsWith("$2", user.Password); // BCrypt hashes start with $2
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

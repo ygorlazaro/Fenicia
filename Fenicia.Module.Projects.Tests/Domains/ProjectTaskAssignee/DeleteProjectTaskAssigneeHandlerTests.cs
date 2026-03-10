@@ -7,32 +7,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;
 
-[TestFixture]
-public class DeleteProjectTaskAssigneeHandlerTests
+public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteProjectTaskAssigneeHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteProjectTaskAssigneeHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteProjectTaskAssigneeHandler handler = null!;
+    private readonly DefaultContext context;
+    private readonly DeleteProjectTaskAssigneeHandler handler;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskAssigneeExists_SetsDeletedDate()
     {
         // Arrange
@@ -59,13 +57,12 @@ public class DeleteProjectTaskAssigneeHandlerTests
 
         // Assert
         var deletedAssignee = await this.context.ProjectTaskAssignees.FindAsync([assigneeId], CancellationToken.None);
-        Assert.That(deletedAssignee, Is.Not.Null);
-        Assert.That(deletedAssignee.Deleted, Is.Not.Null);
-        Assert.That(deletedAssignee.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedAssignee.Deleted, Is.LessThanOrEqualTo(DateTime.UtcNow.AddSeconds(1)));
+        Assert.NotNull(deletedAssignee);
+        Assert.NotNull(deletedAssignee.Deleted);
+        Assert.InRange(deletedAssignee.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectTaskAssigneeDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -76,10 +73,10 @@ public class DeleteProjectTaskAssigneeHandlerTests
 
         // Assert
         var assignees = await this.context.ProjectTaskAssignees.ToListAsync();
-        Assert.That(assignees, Is.Empty);
+        Assert.Empty(assignees);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -90,10 +87,10 @@ public class DeleteProjectTaskAssigneeHandlerTests
 
         // Assert
         var assignees = await this.context.ProjectTaskAssignees.ToListAsync();
-        Assert.That(assignees, Is.Empty);
+        Assert.Empty(assignees);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectTaskAssignees_OnlyDeletesSpecified()
     {
         // Arrange
@@ -133,16 +130,13 @@ public class DeleteProjectTaskAssigneeHandlerTests
         var deletedAssignee = await this.context.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
         var notDeletedAssignee = await this.context.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
 
-        Assert.That(deletedAssignee, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedAssignee.Deleted, Is.Not.Null);
-            Assert.That(notDeletedAssignee, Is.Not.Null);
-        }
-        Assert.That(notDeletedAssignee?.Deleted, Is.Null);
+        Assert.NotNull(deletedAssignee);
+        Assert.NotNull(deletedAssignee.Deleted);
+        Assert.NotNull(notDeletedAssignee);
+        Assert.Null(notDeletedAssignee.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectTaskAssignees_DeletesCorrectProjectTaskAssignee()
     {
         // Arrange
@@ -194,17 +188,11 @@ public class DeleteProjectTaskAssigneeHandlerTests
         var deletedAssignee = await this.context.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
         var assignee3InDb = await this.context.ProjectTaskAssignees.FindAsync([assignee3Id], CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(assignee1InDb, Is.Not.Null);
-            Assert.That(deletedAssignee, Is.Not.Null);
-            Assert.That(assignee3InDb, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(assignee1InDb?.Deleted, Is.Null);
-            Assert.That(deletedAssignee?.Deleted, Is.Not.Null);
-            Assert.That(assignee3InDb?.Deleted, Is.Null);
-        }
+        Assert.NotNull(assignee1InDb);
+        Assert.NotNull(deletedAssignee);
+        Assert.NotNull(assignee3InDb);
+        Assert.Null(assignee1InDb.Deleted);
+        Assert.NotNull(deletedAssignee.Deleted);
+        Assert.Null(assignee3InDb.Deleted);
     }
 }

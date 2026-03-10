@@ -11,46 +11,43 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class DeleteUserHandlerTests
+public class DeleteUserHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly DeleteUserHandler handler;
+    private readonly DefaultContext context;
+    private readonly UserModel testUser;
+
+    public DeleteUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        this.hashPasswordHandler = new HashPasswordHandler();
+        var hashPasswordHandler = new HashPasswordHandler();
         this.handler = new DeleteUserHandler(this.context);
-        this.faker = new Faker();
+        var faker = new Faker();
 
         // Create test user
         this.testUser = new UserModel
         {
-            Email = this.faker.Internet.Email(),
-            Password = this.hashPasswordHandler.Handle(this.faker.Internet.Password()),
-            Name = this.faker.Person.FullName
+            Email = faker.Internet.Email(),
+            Password = hashPasswordHandler.Handle(faker.Internet.Password()),
+            Name = faker.Person.FullName
         };
 
         this.context.AuthUsers.Add(this.testUser);
         this.context.SaveChanges();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DeleteUserHandler handler = null!;
-    private DefaultContext context = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-    private Faker faker = null!;
-    private UserModel testUser = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenValidRequest_SoftDeletesUserSuccessfully()
     {
         // Arrange
@@ -60,35 +57,33 @@ public class DeleteUserHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Success, Is.True);
-            Assert.That(result.Message, Is.EqualTo("User deleted successfully"));
-        }
+        Assert.NotNull(result);
+        
+        Assert.True(result.Success);
+        Assert.Equal("User deleted successfully", result.Message);
 
         // Verify user was soft deleted (not removed)
         var deletedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
-        Assert.That(deletedUser, Is.Not.Null);
-        Assert.That(deletedUser.Deleted, Is.Not.Null);
-        Assert.That(deletedUser.Deleted.Value, Is.LessThanOrEqualTo(DateTime.UtcNow));
+        Assert.NotNull(deletedUser);
+        Assert.NotNull(deletedUser.Deleted);
+        Assert.True(deletedUser.Deleted.Value <= DateTime.UtcNow);
     }
 
-    [Test]
-    public void Handle_WhenUserNotFound_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
     {
         // Arrange
         var nonExistentUserId = Guid.NewGuid();
         var request = new DeleteUserQuery(nonExistentUserId);
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Is.EqualTo("User not found"));
+        Assert.Equal("User not found", exception.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserAlreadyDeleted_ThrowsArgumentException()
     {
         // Arrange
@@ -98,13 +93,13 @@ public class DeleteUserHandlerTests
         var request = new DeleteUserQuery(this.testUser.Id);
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Is.EqualTo("User not found"));
+        Assert.Equal("User not found", exception.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_SoftDelete_UserStillExistsInDatabase()
     {
         // Arrange
@@ -115,12 +110,12 @@ public class DeleteUserHandlerTests
 
         // Assert - User should still exist but be marked as deleted
         var user = await this.context.AuthUsers.FindAsync(this.testUser.Id);
-        Assert.That(user, Is.Not.Null);
-        Assert.That(user.Deleted, Is.Not.Null);
+        Assert.NotNull(user);
+        Assert.NotNull(user.Deleted);
 
         // Verify user count hasn't changed (soft delete, not hard delete)
         // Note: Need IgnoreQueryFilters() to bypass the global soft-delete filter
         var totalCount = await this.context.AuthUsers.IgnoreQueryFilters().CountAsync();
-        Assert.That(totalCount, Is.EqualTo(1));
+        Assert.Equal(1, totalCount);
     }
 }

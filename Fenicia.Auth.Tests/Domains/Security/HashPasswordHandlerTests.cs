@@ -6,35 +6,31 @@ using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Tests.Domains.Security;
 
-[TestFixture]
 public class HashPasswordHandlerTests
 {
-    [SetUp]
-    public void SetUp()
-    {
-        this.faker = new Faker();
-        this.handler = new HashPasswordHandler();
-    }
+    private readonly Faker faker = new();
+    private readonly HashPasswordHandler handler = new();
 
-    private Faker faker = null!;
-    private HashPasswordHandler handler = null!;
-
-    [Test]
-    public void Handle_WhenValidPassword_ReturnsHashedPassword()
+    [Theory]
+    [InlineData("SimplePass123")]
+    [InlineData("P@$$w0rd!")]
+    [InlineData("MySecurePassword")]
+    [InlineData("Test123!")]
+    [InlineData("Complex!Password#2024")]
+    public void Handle_WhenValidPassword_ReturnsHashedPassword(string password)
     {
         // Arrange
-        var password = this.faker.Internet.Password();
 
         // Act
         var result = this.handler.Handle(password);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.EqualTo(password), "Hashed password should not equal plain text");
-        Assert.That(result, Has.Length.GreaterThan(password.Length), "Hashed password should be longer");
+        Assert.NotNull(result);
+        Assert.NotEqual(password, result);
+        Assert.True(result.Length > password.Length);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenSamePasswordIsHashedTwice_ReturnsDifferentHashes()
     {
         // Arrange
@@ -45,10 +41,10 @@ public class HashPasswordHandlerTests
         var hash2 = this.handler.Handle(password);
 
         // Assert
-        Assert.That(hash1, Is.Not.EqualTo(hash2), "Same password should produce different hashes (due to salt)");
+        Assert.NotEqual(hash1, hash2);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordIsEmpty_ThrowsArgumentException()
     {
         // Arrange
@@ -56,10 +52,10 @@ public class HashPasswordHandlerTests
 
         // Act & Assert
         var ex = Assert.Throws<InvalidRequestException>(() => this.handler.Handle(password));
-        Assert.That(ex?.Message, Is.EqualTo("Password cannot be null or empty"));
+        Assert.Equal("Password cannot be null or empty", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordIsNull_ThrowsArgumentException()
     {
         // Arrange
@@ -67,24 +63,26 @@ public class HashPasswordHandlerTests
 
         // Act & Assert
         var ex = Assert.Throws<InvalidRequestException>(() => this.handler.Handle(password!));
-        Assert.That(ex?.Message, Is.EqualTo("Password cannot be null or empty"));
+        Assert.Equal("Password cannot be null or empty", ex.Message);
     }
 
-    [Test]
-    public void Handle_WhenPasswordContainsSpecialCharacters_ReturnsHashedPassword()
+    [Theory]
+    [InlineData("P@$$w0rd!")]
+    [InlineData("Test#123!")]
+    [InlineData("Secure&Pass")]
+    public void Handle_WhenPasswordContainsSpecialCharacters_ReturnsHashedPassword(string password)
     {
         // Arrange
-        var password = $"P@$$w0rd!{this.faker.Random.AlphaNumeric(10)}";
 
         // Act
         var result = this.handler.Handle(password);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.EqualTo(password), "Hashed password should not equal plain text");
+        Assert.NotNull(result);
+        Assert.NotEqual(password, result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenPasswordIsVeryLong_ReturnsHashedPassword()
     {
         // Arrange
@@ -94,39 +92,43 @@ public class HashPasswordHandlerTests
         var result = this.handler.Handle(password);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.EqualTo(password), "Hashed password should not equal plain text");
+        Assert.NotNull(result);
+        Assert.NotEqual(password, result);
     }
 
-    [Test]
-    public void Handle_WhenPasswordIsShort_ReturnsHashedPassword()
+    [Theory]
+    [InlineData("a")]
+    [InlineData("1")]
+    [InlineData("X")]
+    public void Handle_WhenPasswordIsShort_ReturnsHashedPassword(string password)
     {
         // Arrange
-        var password = this.faker.Random.Char().ToString();
 
         // Act
         var result = this.handler.Handle(password);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.EqualTo(password), "Hashed password should not equal plain text");
+        Assert.NotNull(result);
+        Assert.NotEqual(password, result);
     }
 
-    [Test]
-    public void Handle_WhenPasswordContainsUnicode_ReturnsHashedPassword()
+    [Theory]
+    [InlineData("Password 日本語 🔐")]
+    [InlineData("Test ñ 123")]
+    [InlineData("Hello 🌍 World")]
+    public void Handle_WhenPasswordContainsUnicode_ReturnsHashedPassword(string password)
     {
         // Arrange
-        var password = $"{this.faker.Internet.Password()} 日本語 🔐";
 
         // Act
         var result = this.handler.Handle(password);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.EqualTo(password), "Hashed password should not equal plain text");
+        Assert.NotNull(result);
+        Assert.NotEqual(password, result);
     }
 
-    [Test]
+    [Fact]
     public void Handle_VerifiedPasswordCanBeVerified()
     {
         // Arrange
@@ -138,20 +140,22 @@ public class HashPasswordHandlerTests
         // Assert
         var verifyHandler = new VerifyPasswordHandler();
         var isValid = verifyHandler.Handle(password, hashedPassword);
-        Assert.That(isValid, Is.True, "Hashed password should be verifiable");
+        Assert.True(isValid);
     }
 
-    [Test]
-    public void Handle_WhenPasswordHasWhitespace_ReturnsHashedPassword()
+    [Theory]
+    [InlineData("  password123  ")]
+    [InlineData(" test with spaces ")]
+    [InlineData("  multiple  spaces  ")]
+    public void Handle_WhenPasswordHasWhitespace_ReturnsHashedPassword(string password)
     {
         // Arrange
-        var password = $"  {this.faker.Internet.Password()} with spaces  ";
 
         // Act
         var result = this.handler.Handle(password);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.EqualTo(password), "Hashed password should not equal plain text");
+        Assert.NotNull(result);
+        Assert.NotEqual(password, result);
     }
 }

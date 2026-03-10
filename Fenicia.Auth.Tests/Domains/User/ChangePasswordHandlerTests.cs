@@ -12,34 +12,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class ChangePasswordHandlerTests
+public class ChangePasswordHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly DefaultContext context;
+    private readonly ChangePasswordHandler handler;
+    private readonly Faker faker;
+
+    public ChangePasswordHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        this.hashPasswordHandler = new HashPasswordHandler();
-        this.handler = new ChangePasswordHandler(this.context, this.hashPasswordHandler);
+        var hashPasswordHandler = new HashPasswordHandler();
+        this.handler = new ChangePasswordHandler(this.context, hashPasswordHandler);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context = null!;
-    private ChangePasswordHandler handler = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserExists_ChangesPasswordSuccessfully()
     {
         // Arrange
@@ -64,21 +62,19 @@ public class ChangePasswordHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(userId), "UserId should match");
-            Assert.That(result.Name, Is.EqualTo(user.Name), "Name should match");
-            Assert.That(result.Email, Is.EqualTo(user.Email), "Email should match");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(userId, result.Id);
+        Assert.Equal(user.Name, result.Name);
+        Assert.Equal(user.Email, result.Email);
 
         var updatedUser = await this.context.AuthUsers.FindAsync(userId);
-        Assert.That(updatedUser, Is.Not.Null);
-        Assert.That(updatedUser!.Password, Is.Not.EqualTo(oldPassword), "Password should be changed");
+        Assert.NotNull(updatedUser);
+        Assert.NotEqual(oldPassword, updatedUser.Password);
     }
 
-    [Test]
-    public void Handle_WhenUserDoesNotExist_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WhenUserDoesNotExist_ThrowsArgumentException()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -86,13 +82,12 @@ public class ChangePasswordHandlerTests
         var query = new ChangePasswordQuery(userId, newPassword);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(query, CancellationToken.None)
-        );
-        Assert.That(ex?.Message, Is.EqualTo("Item not found"));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await this.handler.Handle(query, CancellationToken.None));
+        Assert.Equal("Item not found", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_PasswordIsHashedBeforeSaving()
     {
         // Arrange
@@ -117,16 +112,13 @@ public class ChangePasswordHandlerTests
 
         // Assert
         var updatedUser = await this.context.AuthUsers.FindAsync(userId);
-        Assert.That(updatedUser, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedUser!.Password, Is.Not.EqualTo(newPassword), "Password should be hashed");
-            Assert.That(updatedUser.Password, Has.Length.GreaterThan(newPassword.Length),
-                "Hashed password should be longer");
-        }
+        Assert.NotNull(updatedUser);
+        
+        Assert.NotEqual(newPassword, updatedUser.Password);
+        Assert.True(updatedUser.Password.Length > newPassword.Length);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesPasswordCanBeVerified()
     {
         // Arrange
@@ -151,14 +143,14 @@ public class ChangePasswordHandlerTests
 
         // Assert
         var updatedUser = await this.context.AuthUsers.FindAsync(userId);
-        Assert.That(updatedUser, Is.Not.Null);
+        Assert.NotNull(updatedUser);
 
         var verifyHandler = new VerifyPasswordHandler();
-        var isValid = verifyHandler.Handle(newPassword, updatedUser!.Password);
-        Assert.That(isValid, Is.True, "New password should be verifiable");
+        var isValid = verifyHandler.Handle(newPassword, updatedUser.Password);
+        Assert.True(isValid);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleUsersExist_OnlyUpdatesRequestedUser()
     {
         // Arrange
@@ -195,14 +187,12 @@ public class ChangePasswordHandlerTests
         // Assert
         var updatedUser1 = await this.context.AuthUsers.FindAsync(userId1);
         var updatedUser2 = await this.context.AuthUsers.FindAsync(userId2);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedUser1!.Password, Is.Not.EqualTo(oldPassword1), "User1 password should change");
-            Assert.That(updatedUser2!.Password, Is.EqualTo(oldPassword2), "User2 password should not change");
-        }
+        
+        Assert.NotEqual(oldPassword1, updatedUser1!.Password);
+        Assert.Equal(oldPassword2, updatedUser2!.Password);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_PreservesOtherUserProperties()
     {
         // Arrange
@@ -229,17 +219,15 @@ public class ChangePasswordHandlerTests
 
         // Assert
         var updatedUser = await this.context.AuthUsers.FindAsync(userId);
-        Assert.That(updatedUser, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedUser!.Email, Is.EqualTo(email), "Email should not change");
-            Assert.That(updatedUser.Name, Is.EqualTo(name), "Name should not change");
-            Assert.That(updatedUser.Id, Is.EqualTo(userId), "Id should not change");
-        }
+        Assert.NotNull(updatedUser);
+        
+        Assert.Equal(email, updatedUser.Email);
+        Assert.Equal(name, updatedUser.Name);
+        Assert.Equal(userId, updatedUser.Id);
     }
 
-    [Test]
-    public void Handle_WithEmptyDatabase_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WithEmptyDatabase_ThrowsArgumentException()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -247,13 +235,12 @@ public class ChangePasswordHandlerTests
         var query = new ChangePasswordQuery(userId, newPassword);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(query, CancellationToken.None)
-        );
-        Assert.That(ex?.Message, Is.EqualTo("Item not found"));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await this.handler.Handle(query, CancellationToken.None));
+        Assert.Equal("Item not found", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPasswordIsEmpty_StillHashesAndSaves()
     {
         // Arrange
@@ -274,13 +261,12 @@ public class ChangePasswordHandlerTests
         var query = new ChangePasswordQuery(userId, newPassword);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(query, CancellationToken.None)
-        );
-        Assert.That(ex?.Message, Is.EqualTo("Password cannot be null or empty"));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await this.handler.Handle(query, CancellationToken.None));
+        Assert.Equal("Password cannot be null or empty", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_ReturnsCorrectResponseData()
     {
         // Arrange
@@ -306,11 +292,9 @@ public class ChangePasswordHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(userId), "Id should match");
-            Assert.That(result.Name, Is.EqualTo(name), "Name should match");
-            Assert.That(result.Email, Is.EqualTo(email), "Email should match");
-        }
+        
+        Assert.Equal(userId, result.Id);
+        Assert.Equal(name, result.Name);
+        Assert.Equal(email, result.Email);
     }
 }

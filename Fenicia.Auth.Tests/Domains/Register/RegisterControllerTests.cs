@@ -18,11 +18,9 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Register;
 
-[TestFixture]
-public class RegisterControllerTests
+public class RegisterControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public RegisterControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -33,41 +31,39 @@ public class RegisterControllerTests
         this.mockCheckCompanyExistsHandler = new Mock<CheckCompanyExistsHandler>(this.context);
         this.mockHashPasswordHandler = new Mock<HashPasswordHandler>();
         this.mockGetAdminRoleHandler = new Mock<GetAdminRoleHandler>(this.context);
-        this.createNewUserHandler = new CreateNewUserHandler(
+        var createNewUserHandler = new CreateNewUserHandler(
             this.context,
             this.mockCheckUserExistsHandler.Object,
             this.mockCheckCompanyExistsHandler.Object,
             this.mockHashPasswordHandler.Object,
             this.mockGetAdminRoleHandler.Object);
 
-        this.mockHttpContext = new Mock<HttpContext>();
+        var mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new RegisterController(this.createNewUserHandler)
+        this.controller = new RegisterController(createNewUserHandler)
         {
             ControllerContext = new ControllerContext
             {
-                HttpContext = this.mockHttpContext.Object
+                HttpContext = mockHttpContext.Object
             }
         };
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private RegisterController controller;
-    private DefaultContext context;
-    private CreateNewUserHandler createNewUserHandler;
-    private Mock<CheckUserExistsHandler> mockCheckUserExistsHandler;
-    private Mock<CheckCompanyExistsHandler> mockCheckCompanyExistsHandler;
-    private Mock<HashPasswordHandler> mockHashPasswordHandler;
-    private Mock<GetAdminRoleHandler> mockGetAdminRoleHandler;
-    private Mock<HttpContext> mockHttpContext;
+    private readonly RegisterController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<CheckUserExistsHandler> mockCheckUserExistsHandler;
+    private readonly Mock<CheckCompanyExistsHandler> mockCheckCompanyExistsHandler;
+    private readonly Mock<HashPasswordHandler> mockHashPasswordHandler;
+    private readonly Mock<GetAdminRoleHandler> mockGetAdminRoleHandler;
 
-    [Test]
-    public void CreateNewUserAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
+    [Fact]
+    public async Task CreateNewUserAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -81,15 +77,15 @@ public class RegisterControllerTests
             .ReturnsAsync(true);
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.controller.CreateNewUserAsync(
                 query,
                 wide,
                 xrt));
     }
 
-    [Test]
-    public void CreateNewUserAsync_WhenCompanyAlreadyExists_ThrowsArgumentException()
+    [Fact]
+    public async Task CreateNewUserAsync_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -108,15 +104,15 @@ public class RegisterControllerTests
             .ReturnsAsync(true);
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.controller.CreateNewUserAsync(
                 query,
                 wide,
                 ct));
     }
 
-    [Test]
-    public void CreateNewUserAsync_WhenAdminRoleDoesNotExist_ThrowsArgumentException()
+    [Fact]
+    public async Task CreateNewUserAsync_WhenAdminRoleDoesNotExist_ThrowsArgumentException()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -143,14 +139,14 @@ public class RegisterControllerTests
             .ReturnsAsync((GetAdminRoleResponse?)null);
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.controller.CreateNewUserAsync(
                 query,
                 wide,
                 ct));
     }
 
-    [Test]
+    [Fact]
     public async Task CreateNewUserAsync_WhenValidRequest_ReturnsOkWithUser()
     {
         // Arrange
@@ -187,40 +183,37 @@ public class RegisterControllerTests
             ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
-        Assert.That(okResult.StatusCode, Is.EqualTo(200));
+        Assert.NotNull(okResult);
+        Assert.Equal(200, okResult.StatusCode);
 
         var returnedResponse = okResult.Value as CreateNewUserResponse;
-        Assert.That(returnedResponse, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedResponse!.Email, Is.EqualTo(query.Email));
-            Assert.That(returnedResponse.Name, Is.EqualTo(query.Name));
-            Assert.That(returnedResponse.Company.Name, Is.EqualTo(companyQuery.Name));
-            Assert.That(wide.UserId, Is.EqualTo(query.Email));
-        }
+        Assert.NotNull(returnedResponse);
+        Assert.Equal(query.Email, returnedResponse.Email);
+        Assert.Equal(query.Name, returnedResponse.Name);
+        Assert.Equal(companyQuery.Name, returnedResponse.Company.Name);
+        Assert.Equal(query.Email, wide.UserId);
 
         // Verify user was created
         var createdUser = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
-        Assert.That(createdUser, Is.Not.Null);
-        Assert.That(createdUser!.Password, Is.EqualTo("hashedPassword"));
+        Assert.NotNull(createdUser);
+        Assert.Equal("hashedPassword", createdUser.Password);
 
         // Verify company was created
         var createdCompany = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
-        Assert.That(createdCompany, Is.Not.Null);
-        Assert.That(createdCompany!.Name, Is.EqualTo(companyQuery.Name));
+        Assert.NotNull(createdCompany);
+        Assert.Equal(companyQuery.Name, createdCompany.Name);
 
         // Verify user role was created
         var userRole = await this.context.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
-        Assert.That(userRole, Is.Not.Null);
-        Assert.That(userRole!.RoleId, Is.EqualTo(adminRoleId));
+        Assert.NotNull(userRole);
+        Assert.Equal(adminRoleId, userRole.RoleId);
     }
 
-    [Test]
+    [Fact]
     public async Task CreateNewUserAsync_SetsWideEventContextUserId()
     {
         // Arrange
@@ -257,10 +250,10 @@ public class RegisterControllerTests
             ct);
 
         // Assert
-        Assert.That(wide.UserId, Is.EqualTo(query.Email));
+        Assert.Equal(query.Email, wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public void RegisterController_HasAllowAnonymousAttribute()
     {
         // Arrange
@@ -271,10 +264,10 @@ public class RegisterControllerTests
             controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(allowAnonymousAttribute, Is.Not.Null, "RegisterController should have AllowAnonymous attribute");
+        Assert.NotNull(allowAnonymousAttribute);
     }
 
-    [Test]
+    [Fact]
     public void RegisterController_HasRouteAttribute()
     {
         // Arrange
@@ -285,11 +278,11 @@ public class RegisterControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "RegisterController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void RegisterController_HasApiControllerAttribute()
     {
         // Arrange
@@ -300,10 +293,10 @@ public class RegisterControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "RegisterController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
     }
 
-    [Test]
+    [Fact]
     public void RegisterController_HasProducesAttribute()
     {
         // Arrange
@@ -314,7 +307,7 @@ public class RegisterControllerTests
             controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
-        Assert.That(producesAttribute, Is.Not.Null, "RegisterController should have Produces attribute");
-        Assert.That(producesAttribute!.ContentTypes.FirstOrDefault(), Is.EqualTo("application/json"));
+        Assert.NotNull(producesAttribute);
+        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
     }
 }
