@@ -1,15 +1,14 @@
 using Fenicia.Common.Data.Contexts;
 
-using Microsoft.EntityFrameworkCore;
-
 namespace Fenicia.Auth.Domains.Role.GetAdminRole;
 
 public class GetAdminRoleHandler(DefaultContext context)
 {
     public virtual async Task<GetAdminRoleResponse?> Handle(CancellationToken ct)
     {
-        return await context.AuthRoles.Where(role => role.Name == "Admin")
-            .Select(r => new GetAdminRoleResponse(r.Id, r.Name))
-            .FirstOrDefaultAsync(ct);
+        var role = await context.AuthRoles.GetRoleAsync("Admin", ct);
+
+        return role == null ? null : new GetAdminRoleResponse(role.Id, role.Name);
+
     }
 }

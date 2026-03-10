@@ -1,20 +1,11 @@
 using Fenicia.Common.Data.Contexts;
 
-using Microsoft.EntityFrameworkCore;
-
 namespace Fenicia.Auth.Domains.Company.CheckCompanyExists;
 
-public class CheckCompanyExistsHandler(DefaultContext context)
+public class CheckCompanyExistsHandler(DefaultContext db)
 {
     public virtual async Task<bool> Handle(CheckCompanyExistsQuery query, CancellationToken ct)
     {
-        var companies = context.AuthCompanies.Where(c => c.Cnpj == query.Cnpj);
-
-        if (query.OnlyActive)
-        {
-            companies = companies.Where(c => c.IsActive);
-        }
-
-        return await companies.AnyAsync(ct);
+        return await db.AuthCompanies.AnyCnpjAsync(query.Cnpj, ct, query.OnlyActive);
     }
 }

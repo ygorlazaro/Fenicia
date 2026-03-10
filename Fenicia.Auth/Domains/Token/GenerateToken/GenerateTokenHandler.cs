@@ -1,7 +1,7 @@
 using Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts;
 using Fenicia.Auth.Domains.LoginAttempt.LoginAttempt;
 using Fenicia.Auth.Domains.Security.VerifyPassword;
-using Fenicia.Auth.Domains.User.GetByEmail;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 

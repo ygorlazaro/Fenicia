@@ -1,5 +1,5 @@
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.ChangePassword;
+using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
@@ -9,17 +9,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
 
-public class ResetPasswordHandler(DefaultContext db, ChangePasswordHandler changePasswordHandler)
+public class ResetPasswordHandler(DefaultContext db, UpdatePasswordHandler updatePasswordHandler)
 {
     public virtual async Task Handle(ResetPasswordCommand command, CancellationToken ct)
     {
-        var userId = await db.UserIdByEmailAsync(command.Email, ct)
+        var user = await UserIdByEmailAsync(command.Email, ct)
                      ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
-        var currentCode = await GetFromUserIdAndCodeAsync(userId, command.Code, ct)
+        var currentCode = await GetFromUserIdAndCodeAsync(user.Id, command.Code, ct)
                           ?? throw new InvalidDataException(ExceptionMessages.InvalidForgotPasswordCode);
 
-        await changePasswordHandler.Handle(new ChangePasswordQuery(currentCode.UserId, command.Password), ct);
+        await updatePasswordHandler.Handle(new UpdatePasswordCommand(currentCode.UserId, command.Password), ct);
         await InvalidateCodeAsync(currentCode.Id, ct);
+    }
+
+    private async Task<UserModel?> UserIdByEmailAsync(string email, CancellationToken ct)
+    {
+        return await db.AuthUsers
+            .Where(u => u.Email == email)
+            .FirstOrDefaultAsync(ct);
     }
 
     private async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)

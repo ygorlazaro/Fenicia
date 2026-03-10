@@ -1,7 +1,8 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.User.UpdateUser;
+using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -39,7 +40,6 @@ public class UpdateUserHandlerTests : IDisposable
     public void Dispose()
     {
         this.context.Dispose();
-        
         GC.SuppressFinalize(this);
     }
 
@@ -54,7 +54,7 @@ public class UpdateUserHandlerTests : IDisposable
     {
         // Arrange
         var newName = this.faker.Person.FullName;
-        var request = new UpdateUserQuery(this.testUser.Id, Name: newName);
+        var request = new UpdateUserCommand(this.testUser.Id, Name: newName);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -62,13 +62,11 @@ public class UpdateUserHandlerTests : IDisposable
         // Assert
         Assert.NotNull(result);
         Assert.Equal(newName, result.Name);
-        Assert.NotNull(result.Updated);
 
         // Verify user was updated in database
         var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(updatedUser);
         Assert.Equal(newName, updatedUser.Name);
-        Assert.NotNull(updatedUser.Updated);
     }
 
     [Fact]
@@ -76,7 +74,7 @@ public class UpdateUserHandlerTests : IDisposable
     {
         // Arrange
         var newEmail = this.faker.Internet.Email();
-        var request = new UpdateUserQuery(this.testUser.Id, Email: newEmail);
+        var request = new UpdateUserCommand(this.testUser.Id, Email: newEmail);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -96,7 +94,7 @@ public class UpdateUserHandlerTests : IDisposable
     {
         // Arrange
         var nonExistentUserId = Guid.NewGuid();
-        var request = new UpdateUserQuery(nonExistentUserId, Name: "Test");
+        var request = new UpdateUserCommand(nonExistentUserId, Name: "Test");
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -122,7 +120,7 @@ public class UpdateUserHandlerTests : IDisposable
         this.context.AuthUsers.Add(anotherUser);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateUserQuery(this.testUser.Id, Email: existingEmail);
+        var request = new UpdateUserCommand(this.testUser.Id, Email: existingEmail);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -139,12 +137,12 @@ public class UpdateUserHandlerTests : IDisposable
         this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var companiesRoles = new List<UserCompanyRoleCommand>
+        var companiesRoles = new List<UpdateUserRoleCommand>
         {
             new(Guid.NewGuid(), role.Id) // Non-existent company
         };
 
-        var request = new UpdateUserQuery(this.testUser.Id, CompaniesRoles: companiesRoles);
+        var request = new UpdateUserCommand(this.testUser.Id, CompaniesRoles: companiesRoles);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -165,12 +163,12 @@ public class UpdateUserHandlerTests : IDisposable
         this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var companiesRoles = new List<UserCompanyRoleCommand>
+        var companiesRoles = new List<UpdateUserRoleCommand>
         {
             new(company.Id, Guid.NewGuid()) // Non-existent role
         };
 
-        var request = new UpdateUserQuery(this.testUser.Id, CompaniesRoles: companiesRoles);
+        var request = new UpdateUserCommand(this.testUser.Id, CompaniesRoles: companiesRoles);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>

@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.User.GetUserModules;
+using Fenicia.Auth.Domains.Module;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;

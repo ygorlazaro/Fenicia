@@ -73,8 +73,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
             UserId = this.testUserId,
             CompanyId = companyId ?? Guid.NewGuid(),
             ConfigType = ConfigType.Language,
-            Value = "pt-BR",
-            Created = DateTime.UtcNow.AddDays(-1)
+            Value = "pt-BR"
         };
 
         this.context.AuthConfiguration.Add(existingConfig);
@@ -97,7 +96,6 @@ public class UpsertConfigurationHandlerTests : IDisposable
         Assert.NotNull(updatedConfig);
 
         Assert.Equal("en", updatedConfig.Value);
-        Assert.Equal(existingConfig.Created, updatedConfig.Created);
     }
 
     [Fact]

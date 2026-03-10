@@ -1,7 +1,8 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.User.DeleteUser;
+using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -51,17 +52,12 @@ public class DeleteUserHandlerTests : IDisposable
     public async Task Handle_WhenValidRequest_SoftDeletesUserSuccessfully()
     {
         // Arrange
-        var request = new DeleteUserQuery(this.testUser.Id);
+        var request = new DeleteUserCommand(this.testUser.Id);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.NotNull(result);
-        
-        Assert.True(result.Success);
-        Assert.Equal("User deleted successfully", result.Message);
-
         // Verify user was soft deleted (not removed)
         var deletedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(deletedUser);
@@ -74,7 +70,7 @@ public class DeleteUserHandlerTests : IDisposable
     {
         // Arrange
         var nonExistentUserId = Guid.NewGuid();
-        var request = new DeleteUserQuery(nonExistentUserId);
+        var request = new DeleteUserCommand(nonExistentUserId);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -90,7 +86,7 @@ public class DeleteUserHandlerTests : IDisposable
         this.testUser.Deleted = DateTime.UtcNow;
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new DeleteUserQuery(this.testUser.Id);
+        var request = new DeleteUserCommand(this.testUser.Id);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -103,7 +99,7 @@ public class DeleteUserHandlerTests : IDisposable
     public async Task Handle_SoftDelete_UserStillExistsInDatabase()
     {
         // Arrange
-        var request = new DeleteUserQuery(this.testUser.Id);
+        var request = new DeleteUserCommand(this.testUser.Id);
 
         // Act
         await this.handler.Handle(request, CancellationToken.None);

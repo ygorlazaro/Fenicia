@@ -1,18 +1,14 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
 
-using Fenicia.Auth.Domains.Company.CheckCompanyExists;
-using Fenicia.Auth.Domains.Role.GetAdminRole;
-using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.CreateNewUser;
+using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
-
-using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
@@ -25,19 +21,23 @@ public class CreateNewUserHandlerTests : IDisposable
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        this.checkUserExistsHandlerMock = new Mock<CheckUserExistsHandler>(this.context);
-        this.checkCompanyExistsHandlerMock = new Mock<CheckCompanyExistsHandler>(this.context);
-        var hashPasswordHandler = new HashPasswordHandler();
-        this.getAdminRoleHandlerMock = new Mock<GetAdminRoleHandler>(this.context);
         this.handler = new CreateNewUserHandler(
-            this.context,
-            this.checkUserExistsHandlerMock.Object,
-            this.checkCompanyExistsHandlerMock.Object,
-            hashPasswordHandler,
-            this.getAdminRoleHandlerMock.Object
+            this.context
         );
         this.faker = new Faker();
+
+        this.adminRoleId = Guid.NewGuid();
+        SeedAdminRole();
     }
+
+    private void SeedAdminRole()
+    {
+        var adminRole = new RoleModel { Id = this.adminRoleId, Name = "Admin" };
+        this.context.AuthRoles.Add(adminRole);
+        this.context.SaveChanges();
+    }
+
+    private readonly Guid adminRoleId;
 
     public void Dispose()
     {
@@ -48,9 +48,6 @@ public class CreateNewUserHandlerTests : IDisposable
 
     private readonly DefaultContext context;
     private readonly CreateNewUserHandler handler;
-    private readonly Mock<CheckUserExistsHandler> checkUserExistsHandlerMock;
-    private readonly Mock<CheckCompanyExistsHandler> checkCompanyExistsHandlerMock;
-    private readonly Mock<GetAdminRoleHandler> getAdminRoleHandlerMock;
     private readonly Faker faker;
 
     [Fact]
@@ -63,20 +60,8 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.checkCompanyExistsHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CheckCompanyExistsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.getAdminRoleHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
-
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName));
+        var request = new CreateNewUserCommand(email, password, name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -106,12 +91,12 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+        var existingUser = new UserModel { Email = email, Name = "Existing User", Password = "password" };
+        this.context.AuthUsers.Add(existingUser);
+        await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName));
+        var request = new CreateNewUserCommand(email, password, name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -130,16 +115,12 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        var existingCompany = new CompanyModel { Cnpj = cnpj, Name = "Existing Company" };
+        this.context.AuthCompanies.Add(existingCompany);
+        await this.context.SaveChangesAsync(CancellationToken.None);
 
-        this.checkCompanyExistsHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CheckCompanyExistsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName));
+        var request = new CreateNewUserCommand(email, password, name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -158,25 +139,18 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        var request = new CreateNewUserCommand(email, password, name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        this.checkCompanyExistsHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CheckCompanyExistsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.getAdminRoleHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CancellationToken>()))
-            .ReturnsAsync((GetAdminRoleResponse?)null);
-
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName));
+        var adminRole = this.context.AuthRoles.First();
+        this.context.AuthRoles.Remove(adminRole);
+        await this.context.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None)
         );
+
         Assert.Equal("Admin role not found. Please ensure that the admin role exists in the database.", ex.Message);
     }
 
@@ -189,22 +163,9 @@ public class CreateNewUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
-        var adminRoleId = Guid.NewGuid();
 
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.checkCompanyExistsHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CheckCompanyExistsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.getAdminRoleHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetAdminRoleResponse(adminRoleId, "Admin"));
-
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName));
+        var request = new CreateNewUserCommand(email, password, name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -212,7 +173,7 @@ public class CreateNewUserHandlerTests : IDisposable
         // Assert
         var userRole = await this.context.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
         Assert.NotNull(userRole);
-        Assert.Equal(adminRoleId, userRole.RoleId);
+        Assert.Equal(this.adminRoleId, userRole.RoleId);
         Assert.NotEqual(Guid.Empty, userRole.CompanyId);
     }
 
@@ -226,20 +187,8 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.checkCompanyExistsHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CheckCompanyExistsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.getAdminRoleHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
-
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName));
+        var request = new CreateNewUserCommand(email, password, name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -263,20 +212,8 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.checkCompanyExistsHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CheckCompanyExistsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.getAdminRoleHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
-
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName));
+        var request = new CreateNewUserCommand(email, password, name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
         await this.handler.Handle(request, CancellationToken.None);
@@ -297,20 +234,8 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.checkCompanyExistsHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CheckCompanyExistsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.getAdminRoleHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
-
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName));
+        var request = new CreateNewUserCommand(email, password, name,
+            new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
         await this.handler.Handle(request, CancellationToken.None);
