@@ -1,7 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.Security.VerifyPassword;
+using Fenicia.Auth.Domains.Security.Services;
 using Fenicia.Common.Exceptions;
 
 namespace Fenicia.Auth.Tests.Domains.Security;
@@ -138,7 +138,7 @@ public class HashPasswordHandlerTests
         var hashedPassword = this.handler.Handle(password);
 
         // Assert
-        var verifyHandler = new VerifyPasswordHandler();
+        var verifyHandler = new VerifyPasswordService();
         var isValid = verifyHandler.Handle(password, hashedPassword);
         Assert.True(isValid);
     }

@@ -3,8 +3,9 @@ using System.Net.Mime;
 using Fenicia.Auth.Domains.RefreshToken.GenerateRefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.InvalidateRefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.ValidateToken;
-using Fenicia.Auth.Domains.Token.GenerateToken;
-using Fenicia.Auth.Domains.Token.GenerateTokenString;
+using Fenicia.Auth.Domains.Token.Handlers;
+using Fenicia.Auth.Domains.Token.Queries;
+using Fenicia.Auth.Domains.Token.Responses;
 using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
@@ -85,17 +86,8 @@ public class TokenController(
     {
         var token = generateTokenStringHandler.Handle(user);
         var refreshToken = generateRefreshTokenHandler.Handle(user.Id);
-
-        return Ok(new TokenResponse
-        {
-            AccessToken = token,
-            RefreshToken = refreshToken,
-            User = new UserResponse
-            {
-                Id = user.Id,
-                Email = user.Email,
-                Name = user.Name
-            }
-        });
+        var userResponse = new UserResponse(user.Id,  user.Name, user.Email);
+        
+        return Ok(new TokenResponse(token, refreshToken, userResponse));
     }
 }

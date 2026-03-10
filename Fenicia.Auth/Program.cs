@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts;
+using Fenicia.Auth.Domains.LoginAttempt.Services;
 using Fenicia.Auth.Domains.Subscription.GetUserProfile;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
@@ -37,7 +37,7 @@ public static class Program
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();
 
-                builder.Services.AddScoped<IncrementAttempts>();
+                builder.Services.AddScoped<IncrementAttemptsService>();
                 builder.Services.AddScoped<GetUserProfileHandler>();
             })
             .AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");

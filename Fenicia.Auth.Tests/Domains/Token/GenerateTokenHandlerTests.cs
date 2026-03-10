@@ -1,10 +1,9 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts;
-using Fenicia.Auth.Domains.LoginAttempt.LoginAttempt;
-using Fenicia.Auth.Domains.Security.VerifyPassword;
-using Fenicia.Auth.Domains.Token.GenerateToken;
-using Fenicia.Auth.Domains.User.Handlers;
+using Fenicia.Auth.Domains.LoginAttempt.Services;
+using Fenicia.Auth.Domains.Security.Services;
+using Fenicia.Auth.Domains.Token.Handlers;
+using Fenicia.Auth.Domains.Token.Queries;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -20,21 +19,20 @@ public class GenerateTokenHandlerTests : IDisposable
     public GenerateTokenHandlerTests()
     {
         this.cache = new MemoryCache(new MemoryCacheOptions());
-        var loginAttemptHandler = new LoginAttemptHandler(this.cache);
-        var incrementAttemptsHandler = new IncrementAttempts(this.cache);
-        var verifyPasswordHandler = new VerifyPasswordHandler();
+        var loginAttemptService = new LoginAttemptService(this.cache);
+        var incrementAttemptsService = new IncrementAttemptsService(this.cache);
+        var verifyPasswordService = new VerifyPasswordService();
 
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        var getByEmailHandler = new GetByEmailHandler(this.context);
         this.handler = new GenerateTokenHandler(
-            loginAttemptHandler,
-            getByEmailHandler,
-            incrementAttemptsHandler,
-            verifyPasswordHandler);
+            this.context,
+            loginAttemptService,
+            incrementAttemptsService,
+            verifyPasswordService);
         this.faker = new Faker();
     }
 

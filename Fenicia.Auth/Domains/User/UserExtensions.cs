@@ -10,7 +10,7 @@ public static class UserExtensions
 {
     extension(DbSet<UserModel> dbUser)
     {
-        public async Task<UserModel> ExisingAsync(Guid userId, CancellationToken ct)
+        public async Task<UserModel> FirstByIdAsync(Guid userId, CancellationToken ct)
         {
             return await dbUser.FirstOrDefaultAsync(u => u.Id == userId, ct)
                    ?? throw new InvalidRequestException(ExceptionMessages.UserNotFound);

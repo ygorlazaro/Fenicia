@@ -10,7 +10,7 @@ public class UpdateUserPasswordHandler(
 {
     public virtual async Task<UpdateUserPasswordResponse> Handle(UpdateUserPasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.ExisingAsync(command.UserId, ct);
+        var user = await db.AuthUsers.FirstByIdAsync(command.UserId, ct);
         var hashedPassword = command.Password.Hash();
 
         user.Password = hashedPassword;

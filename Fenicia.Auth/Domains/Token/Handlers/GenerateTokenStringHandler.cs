@@ -2,11 +2,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-using Fenicia.Auth.Domains.Token.GenerateToken;
+using Fenicia.Auth.Domains.Token.Responses;
 
 using Microsoft.IdentityModel.Tokens;
 
-namespace Fenicia.Auth.Domains.Token.GenerateTokenString;
+namespace Fenicia.Auth.Domains.Token.Handlers;
 
 public class GenerateTokenStringHandler(IConfiguration configuration)
 {

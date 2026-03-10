@@ -2,17 +2,16 @@ using System.Text.Json;
 
 using Bogus;
 
-using Fenicia.Auth.Domains.LoginAttempt.IncrementAttempts;
-using Fenicia.Auth.Domains.LoginAttempt.LoginAttempt;
+using Fenicia.Auth.Domains.LoginAttempt.Services;
 using Fenicia.Auth.Domains.RefreshToken.GenerateRefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.InvalidateRefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.ValidateToken;
-using Fenicia.Auth.Domains.Security.VerifyPassword;
+using Fenicia.Auth.Domains.Security.Services;
 using Fenicia.Auth.Domains.Token;
-using Fenicia.Auth.Domains.Token.GenerateToken;
-using Fenicia.Auth.Domains.Token.GenerateTokenString;
+using Fenicia.Auth.Domains.Token.Handlers;
+using Fenicia.Auth.Domains.Token.Queries;
+using Fenicia.Auth.Domains.Token.Responses;
 using Fenicia.Auth.Domains.User.Handlers;
-using Fenicia.Auth.Domains.User.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
@@ -44,26 +43,25 @@ public class TokenControllerTests : IDisposable
         this.testUserId = Guid.NewGuid();
         var cache = new MemoryCache(new MemoryCacheOptions());
 
-        this.mockLoginAttemptHandler = new Mock<LoginAttemptHandler>(cache);
-        this.mockGetByEmailHandler = new Mock<GetByEmailHandler>(this.context);
-        var mockIncrementAttempts1 = new Mock<IncrementAttempts>(cache);
-        this.mockVerifyPasswordHandler = new Mock<VerifyPasswordHandler>();
-        var mockConfiguration1 = new Mock<IConfiguration>();
-        mockConfiguration1.Setup(c => c["Jwt:Secret"]).Returns("ThisIsASecretKeyForJwtSigning123456");
-        var mockRedis1 = new Mock<IConnectionMultiplexer>();
+        this.mockLoginAttemptHandler = new Mock<LoginAttemptService>(cache);
+        var mockIncrementAttempts = new Mock<IncrementAttemptsService>(cache);
+        this.mockVerifyPasswordHandler = new Mock<VerifyPasswordService>();
+        var mockConfiguration = new Mock<IConfiguration>();
+        mockConfiguration.Setup(c => c["Jwt:Secret"]).Returns("ThisIsASecretKeyForJwtSigning123456");
+        var mockRedis = new Mock<IConnectionMultiplexer>();
         this.mockDatabase = new Mock<IDatabase>();
-        mockRedis1.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(this.mockDatabase.Object);
+        mockRedis.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(this.mockDatabase.Object);
 
         var generateTokenHandler1 = new GenerateTokenHandler(
+            this.context,
             this.mockLoginAttemptHandler.Object,
-            this.mockGetByEmailHandler.Object,
-            mockIncrementAttempts1.Object,
+            mockIncrementAttempts.Object,
             this.mockVerifyPasswordHandler.Object);
 
-        var generateTokenStringHandler1 = new GenerateTokenStringHandler(mockConfiguration1.Object);
-        var generateRefreshTokenHandler1 = new GenerateRefreshTokenHandler(mockRedis1.Object);
-        var validateTokenHandler1 = new ValidateTokenHandler(mockRedis1.Object);
-        var invalidateRefreshTokenHandler1 = new InvalidateRefreshTokenHandler(mockRedis1.Object);
+        var generateTokenStringHandler1 = new GenerateTokenStringHandler(mockConfiguration.Object);
+        var generateRefreshTokenHandler1 = new GenerateRefreshTokenHandler(mockRedis.Object);
+        var validateTokenHandler1 = new ValidateTokenHandler(mockRedis.Object);
+        var invalidateRefreshTokenHandler1 = new InvalidateRefreshTokenHandler(mockRedis.Object);
         var getUserForRefreshHandler1 = new GetUserForRefreshHandler(this.context);
 
         var mockHttpContext1 = new Mock<HttpContext>();
@@ -95,9 +93,8 @@ public class TokenControllerTests : IDisposable
 
     private readonly TokenController controller;
     private readonly DefaultContext context;
-    private readonly Mock<LoginAttemptHandler> mockLoginAttemptHandler;
-    private readonly Mock<GetByEmailHandler> mockGetByEmailHandler;
-    private readonly Mock<VerifyPasswordHandler> mockVerifyPasswordHandler;
+    private readonly Mock<LoginAttemptService> mockLoginAttemptHandler;
+    private readonly Mock<VerifyPasswordService> mockVerifyPasswordHandler;
     private readonly Mock<IDatabase> mockDatabase;
     private readonly Guid testUserId;
     private readonly Faker faker;
@@ -114,10 +111,6 @@ public class TokenControllerTests : IDisposable
         this.mockLoginAttemptHandler
             .Setup(h => h.Handle(query.Email))
             .Returns(0);
-
-        this.mockGetByEmailHandler
-            .Setup(h => h.Handle(query.Email, ct))
-            .ReturnsAsync((GetByEmailResponse?)null);
 
         // Act
         var result = await this.controller.PostAsync(
@@ -171,16 +164,18 @@ public class TokenControllerTests : IDisposable
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
+        var hashedPassword = "$2a$12$" + this.faker.Random.String2(53);
 
         var user = new UserModel
         {
             Id = this.testUserId,
             Email = email,
             Name = name,
-            Password = this.faker.Internet.Password()
+            Password = hashedPassword
         };
 
-        var getByEmailResponse = new GetByEmailResponse(user.Id, user.Email, user.Name, user.Password);
+        this.context.AuthUsers.Add(user);
+        await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GenerateTokenQuery(email, password);
 
@@ -188,12 +183,8 @@ public class TokenControllerTests : IDisposable
             .Setup(h => h.Handle(query.Email))
             .Returns(0);
 
-        this.mockGetByEmailHandler
-            .Setup(h => h.Handle(query.Email, ct))
-            .ReturnsAsync(getByEmailResponse);
-
         this.mockVerifyPasswordHandler
-            .Setup(h => h.Handle(query.Password, user.Password))
+            .Setup(h => h.Handle(query.Password, hashedPassword))
             .Returns(true);
 
         // Act
@@ -248,16 +239,18 @@ public class TokenControllerTests : IDisposable
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
         var password = this.faker.Internet.Password();
+        var hashedPassword = "$2a$12$" + this.faker.Random.String2(53);
 
         var user = new UserModel
         {
             Id = this.testUserId,
             Email = email,
             Name = name,
-            Password = this.faker.Internet.Password()
+            Password = hashedPassword
         };
 
-        var getByEmailResponse = new GetByEmailResponse(user.Id, user.Email, user.Name, user.Password);
+        this.context.AuthUsers.Add(user);
+        await this.context.SaveChangesAsync(CancellationToken.None);
 
         var query = new GenerateTokenQuery(email, password);
 
@@ -265,12 +258,8 @@ public class TokenControllerTests : IDisposable
             .Setup(h => h.Handle(query.Email))
             .Returns(0);
 
-        this.mockGetByEmailHandler
-            .Setup(h => h.Handle(query.Email, ct))
-            .ReturnsAsync(getByEmailResponse);
-
         this.mockVerifyPasswordHandler
-            .Setup(h => h.Handle(query.Password, user.Password))
+            .Setup(h => h.Handle(query.Password, hashedPassword))
             .Returns(true);
 
         // Act

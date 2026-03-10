@@ -1,22 +1,22 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.LoginAttempt.LoginAttempt;
+using Fenicia.Auth.Domains.LoginAttempt.Services;
 
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-public class LoginAttemptHandlerTests : IDisposable
+public class LoginAttemptServiceTests : IDisposable
 {
-    public LoginAttemptHandlerTests()
+    public LoginAttemptServiceTests()
     {
         this.cache = new MemoryCache(new MemoryCacheOptions());
         this.faker = new Faker();
-        this.handler = new LoginAttemptHandler(this.cache);
+        this._service = new LoginAttemptService(this.cache);
     }
 
     private readonly MemoryCache cache;
-    private readonly LoginAttemptHandler handler;
+    private readonly LoginAttemptService _service;
     private readonly Faker faker;
 
     [Fact]
@@ -26,7 +26,7 @@ public class LoginAttemptHandlerTests : IDisposable
         var email = this.faker.Internet.Email();
 
         // Act
-        var result = this.handler.Handle(email);
+        var result = this._service.Handle(email);
 
         // Assert
         Assert.Equal(0, result);
@@ -41,7 +41,7 @@ public class LoginAttemptHandlerTests : IDisposable
         this.cache.Set(key, 3);
 
         // Act
-        var result = this.handler.Handle(email);
+        var result = this._service.Handle(email);
 
         // Assert
         Assert.Equal(3, result);
@@ -57,7 +57,7 @@ public class LoginAttemptHandlerTests : IDisposable
         this.cache.Set(key, 5);
 
         // Act
-        var result = this.handler.Handle(upperCaseEmail);
+        var result = this._service.Handle(upperCaseEmail);
 
         // Assert
         Assert.Equal(5, result);
@@ -67,7 +67,7 @@ public class LoginAttemptHandlerTests : IDisposable
     public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => this.handler.Handle(null!));
+        Assert.Throws<ArgumentNullException>(() => this._service.Handle(null!));
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class LoginAttemptHandlerTests : IDisposable
         var email = string.Empty;
 
         // Act
-        var result = this.handler.Handle(email);
+        var result = this._service.Handle(email);
 
         // Assert
         Assert.Equal(0, result);
@@ -90,7 +90,7 @@ public class LoginAttemptHandlerTests : IDisposable
         var email = " test@example.com ";
 
         // Act
-        var result = this.handler.Handle(email);
+        var result = this._service.Handle(email);
 
         // Assert
         Assert.Equal(0, result);
@@ -108,8 +108,8 @@ public class LoginAttemptHandlerTests : IDisposable
         this.cache.Set(key2, 4);
 
         // Act
-        var result1 = this.handler.Handle(email1);
-        var result2 = this.handler.Handle(email2);
+        var result1 = this._service.Handle(email1);
+        var result2 = this._service.Handle(email2);
 
         // Assert
         Assert.Equal(2, result1);
@@ -125,7 +125,7 @@ public class LoginAttemptHandlerTests : IDisposable
         this.cache.Set(key, 100);
 
         // Act
-        var result = this.handler.Handle(email);
+        var result = this._service.Handle(email);
 
         // Assert
         Assert.Equal(100, result);

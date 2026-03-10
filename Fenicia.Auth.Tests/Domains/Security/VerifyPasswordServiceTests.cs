@@ -1,14 +1,14 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.Security.VerifyPassword;
+using Fenicia.Auth.Domains.Security.Services;
 
 namespace Fenicia.Auth.Tests.Domains.Security;
 
-public class VerifyPasswordHandlerTests
+public class VerifyPasswordServiceTests
 {
     private readonly Faker faker = new();
-    private readonly VerifyPasswordHandler handler = new();
+    private readonly VerifyPasswordService _service = new();
     private readonly HashPasswordHandler hashPasswordHandler = new();
 
     [Theory]
@@ -22,7 +22,7 @@ public class VerifyPasswordHandlerTests
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
-        var result = this.handler.Handle(password, hashedPassword);
+        var result = this._service.Handle(password, hashedPassword);
 
         // Assert
         Assert.True(result);
@@ -38,7 +38,7 @@ public class VerifyPasswordHandlerTests
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
-        var result = this.handler.Handle(wrongPassword, hashedPassword);
+        var result = this._service.Handle(wrongPassword, hashedPassword);
 
         // Assert
         Assert.False(result);
@@ -51,7 +51,7 @@ public class VerifyPasswordHandlerTests
         var hashedPassword = this.hashPasswordHandler.Handle(this.faker.Internet.Password());
 
         // Act
-        var result = this.handler.Handle(null!, hashedPassword);
+        var result = this._service.Handle(null!, hashedPassword);
 
         // Assert
         Assert.False(result);
@@ -64,7 +64,7 @@ public class VerifyPasswordHandlerTests
         var password = this.faker.Internet.Password();
 
         // Act
-        var result = this.handler.Handle(password, null!);
+        var result = this._service.Handle(password, null!);
 
         // Assert
         Assert.False(result);
@@ -74,7 +74,7 @@ public class VerifyPasswordHandlerTests
     public void Handle_WhenBothPasswordAndHashAreNull_ReturnsFalse()
     {
         // Act
-        var result = this.handler.Handle(null!, null!);
+        var result = this._service.Handle(null!, null!);
 
         // Assert
         Assert.False(result);
@@ -87,7 +87,7 @@ public class VerifyPasswordHandlerTests
         var hashedPassword = this.hashPasswordHandler.Handle(this.faker.Internet.Password());
 
         // Act
-        var result = this.handler.Handle(string.Empty, hashedPassword);
+        var result = this._service.Handle(string.Empty, hashedPassword);
 
         // Assert
         Assert.False(result);
@@ -100,7 +100,7 @@ public class VerifyPasswordHandlerTests
         var password = this.faker.Internet.Password();
 
         // Act
-        var result = this.handler.Handle(password, string.Empty);
+        var result = this._service.Handle(password, string.Empty);
 
         // Assert
         Assert.False(result);
@@ -115,7 +115,7 @@ public class VerifyPasswordHandlerTests
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
-        var result = this.handler.Handle(wrongCasePassword, hashedPassword);
+        var result = this._service.Handle(wrongCasePassword, hashedPassword);
 
         // Assert
         Assert.False(result);
@@ -129,7 +129,7 @@ public class VerifyPasswordHandlerTests
         var invalidHash = this.faker.Lorem.Word();
 
         // Act
-        var result = this.handler.Handle(password, invalidHash);
+        var result = this._service.Handle(password, invalidHash);
 
         // Assert
         Assert.False(result);
@@ -143,7 +143,7 @@ public class VerifyPasswordHandlerTests
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
-        var result = this.handler.Handle(password, hashedPassword);
+        var result = this._service.Handle(password, hashedPassword);
 
         // Assert
         Assert.True(result);
@@ -157,7 +157,7 @@ public class VerifyPasswordHandlerTests
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
-        var result = this.handler.Handle(password, hashedPassword);
+        var result = this._service.Handle(password, hashedPassword);
 
         // Assert
         Assert.True(result);
@@ -172,7 +172,7 @@ public class VerifyPasswordHandlerTests
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
-        var result = this.handler.Handle(password, hashedPassword);
+        var result = this._service.Handle(password, hashedPassword);
 
         // Assert
         Assert.True(result);
@@ -186,7 +186,7 @@ public class VerifyPasswordHandlerTests
         var hashedPassword = this.hashPasswordHandler.Handle(password);
 
         // Act
-        var result = this.handler.Handle(password, hashedPassword);
+        var result = this._service.Handle(password, hashedPassword);
 
         // Assert
         Assert.True(result);
@@ -202,10 +202,10 @@ public class VerifyPasswordHandlerTests
         var hash2 = this.hashPasswordHandler.Handle(password2);
 
         // Act
-        var result1 = this.handler.Handle(password1, hash1);
-        var result2 = this.handler.Handle(password1, hash2);
-        var result3 = this.handler.Handle(password2, hash1);
-        var result4 = this.handler.Handle(password2, hash2);
+        var result1 = this._service.Handle(password1, hash1);
+        var result2 = this._service.Handle(password1, hash2);
+        var result3 = this._service.Handle(password2, hash1);
+        var result4 = this._service.Handle(password2, hash2);
 
         // Assert
         Assert.True(result1);

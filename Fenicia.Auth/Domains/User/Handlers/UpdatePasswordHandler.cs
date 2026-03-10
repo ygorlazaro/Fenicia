@@ -11,7 +11,7 @@ public class UpdatePasswordHandler(DefaultContext db)
 {
     public async Task<UpdatePasswordResponse> Handle(UpdatePasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.ExisingAsync(command.UserId , ct);
+        var user = await db.AuthUsers.FirstByIdAsync(command.UserId , ct);
         var hashedPassword = command.Password.Hash();
 
         user.Password = hashedPassword;
