@@ -69,7 +69,7 @@ public class RegisterControllerTests : IDisposable
         var wide = new WideEventContext();
         var xrt = CancellationToken.None;
 
-        var companyQuery = new CreateNewUserCompanyQuery("Company Name", "12.345.678/0001-90", "UTC");
+        var companyQuery = new CreateNewUserCompanyQuery("12.345.678/0001-90", "Company Name");
         var query = new CreateNewUserQuery("existing@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler
@@ -91,7 +91,7 @@ public class RegisterControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var companyQuery = new CreateNewUserCompanyQuery("Existing Company", "12.345.678/0001-90", "UTC");
+        var companyQuery = new CreateNewUserCompanyQuery("12.345.678/0001-90", "Existing Company");
         var query = new CreateNewUserQuery("test@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler
@@ -118,7 +118,7 @@ public class RegisterControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var companyQuery = new CreateNewUserCompanyQuery("Company Name", "12.345.678/0001-90", "UTC");
+        var companyQuery = new CreateNewUserCompanyQuery("12.345.678/0001-90", "Company Name");
         var query = new CreateNewUserQuery("test@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler
@@ -156,7 +156,7 @@ public class RegisterControllerTests : IDisposable
         var adminRoleId = Guid.NewGuid();
         var adminRole = new GetAdminRoleResponse(adminRoleId, "Admin");
 
-        var companyQuery = new CreateNewUserCompanyQuery("Company Name", "12.345.678/0001-90", "UTC");
+        var companyQuery = new CreateNewUserCompanyQuery("12.345.678/0001-90", "Company Name");
         var query = new CreateNewUserQuery("test@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler
@@ -223,7 +223,7 @@ public class RegisterControllerTests : IDisposable
         var adminRoleId = Guid.NewGuid();
         var adminRole = new GetAdminRoleResponse(adminRoleId, "Admin");
 
-        var companyQuery = new CreateNewUserCompanyQuery("Company Name", "12.345.678/0001-90", "UTC");
+        var companyQuery = new CreateNewUserCompanyQuery("12.345.678/0001-90", "Company Name");
         var query = new CreateNewUserQuery("test@example.com", "password123", "Test User", companyQuery);
 
         this.mockCheckUserExistsHandler

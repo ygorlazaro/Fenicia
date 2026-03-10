@@ -7,6 +7,5 @@ public sealed class UpdateCompanyValidator : AbstractValidator<UpdateCompanyComm
     public UpdateCompanyValidator()
     {
         RuleFor(x => x.Name).NotEmpty();
-        RuleFor(x => x.TimeZone).NotEmpty();
     }
 }

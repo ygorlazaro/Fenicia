@@ -62,7 +62,6 @@ public class CreateNewUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
-        const string timeZone = "UTC";
 
         this.checkUserExistsHandlerMock
             .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
@@ -77,7 +76,7 @@ public class CreateNewUserHandlerTests : IDisposable
             .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
 
         var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
+            new CreateNewUserCompanyQuery(cnpj, companyName));
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -95,7 +94,6 @@ public class CreateNewUserHandlerTests : IDisposable
         Assert.NotNull(company);
         Assert.Equal(companyName, company.Name);
         Assert.Equal(cnpj, company.Cnpj);
-        Assert.Equal(timeZone, company.TimeZone);
     }
 
     [Fact]
@@ -107,14 +105,13 @@ public class CreateNewUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
-        const string timeZone = "UTC";
 
         this.checkUserExistsHandlerMock
             .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
+            new CreateNewUserCompanyQuery(cnpj, companyName));
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -132,7 +129,6 @@ public class CreateNewUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
-        const string timeZone = "UTC";
 
         this.checkUserExistsHandlerMock
             .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
@@ -143,7 +139,7 @@ public class CreateNewUserHandlerTests : IDisposable
             .ReturnsAsync(true);
 
         var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
+            new CreateNewUserCompanyQuery(cnpj, companyName));
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -161,7 +157,6 @@ public class CreateNewUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
-        const string timeZone = "UTC";
 
         this.checkUserExistsHandlerMock
             .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
@@ -176,7 +171,7 @@ public class CreateNewUserHandlerTests : IDisposable
             .ReturnsAsync((GetAdminRoleResponse?)null);
 
         var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
+            new CreateNewUserCompanyQuery(cnpj, companyName));
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -194,7 +189,6 @@ public class CreateNewUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
-        const string timeZone = "UTC";
         var adminRoleId = Guid.NewGuid();
 
         this.checkUserExistsHandlerMock
@@ -210,7 +204,7 @@ public class CreateNewUserHandlerTests : IDisposable
             .ReturnsAsync(new GetAdminRoleResponse(adminRoleId, "Admin"));
 
         var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
+            new CreateNewUserCompanyQuery(cnpj, companyName));
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -231,7 +225,6 @@ public class CreateNewUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
-        const string timeZone = "UTC";
 
         this.checkUserExistsHandlerMock
             .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
@@ -246,7 +239,7 @@ public class CreateNewUserHandlerTests : IDisposable
             .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
 
         var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
+            new CreateNewUserCompanyQuery(cnpj, companyName));
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -269,7 +262,6 @@ public class CreateNewUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
-        const string timeZone = "UTC";
 
         this.checkUserExistsHandlerMock
             .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
@@ -284,7 +276,7 @@ public class CreateNewUserHandlerTests : IDisposable
             .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
 
         var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
+            new CreateNewUserCompanyQuery(cnpj, companyName));
 
         // Act
         await this.handler.Handle(request, CancellationToken.None);
@@ -304,7 +296,6 @@ public class CreateNewUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
-        const string timeZone = "UTC";
 
         this.checkUserExistsHandlerMock
             .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
@@ -319,7 +310,7 @@ public class CreateNewUserHandlerTests : IDisposable
             .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
 
         var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
+            new CreateNewUserCompanyQuery(cnpj, companyName));
 
         // Act
         await this.handler.Handle(request, CancellationToken.None);
@@ -328,40 +319,5 @@ public class CreateNewUserHandlerTests : IDisposable
         var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.NotNull(company);
         Assert.True(company.IsActive);
-    }
-
-    [Fact]
-    public async Task Handle_CompanyLanguageIsSetToDefault()
-    {
-        // Arrange
-        var email = this.faker.Internet.Email();
-        var password = this.faker.Internet.Password();
-        var name = this.faker.Person.FullName;
-        var cnpj = this.faker.Company.Cnpj();
-        var companyName = this.faker.Company.CompanyName();
-        const string timeZone = "UTC";
-
-        this.checkUserExistsHandlerMock
-            .Setup(x => x.Handle(email, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.checkCompanyExistsHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CheckCompanyExistsQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        this.getAdminRoleHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new GetAdminRoleResponse(Guid.NewGuid(), "Admin"));
-
-        var request = new CreateNewUserQuery(email, password, name,
-            new CreateNewUserCompanyQuery(cnpj, companyName, timeZone));
-
-        // Act
-        await this.handler.Handle(request, CancellationToken.None);
-
-        // Assert
-        var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
-        Assert.NotNull(company);
-        Assert.Equal("pt-BR", company.Language);
     }
 }

@@ -67,9 +67,7 @@ public class CreateNewOrderHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel
@@ -173,9 +171,7 @@ public class CreateNewOrderHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel
@@ -220,9 +216,7 @@ public class CreateNewOrderHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel
@@ -270,9 +264,7 @@ public class CreateNewOrderHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel
@@ -338,9 +330,7 @@ public class CreateNewOrderHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel
@@ -413,9 +403,7 @@ public class CreateNewOrderHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel
@@ -472,9 +460,7 @@ public class CreateNewOrderHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel
@@ -549,9 +535,7 @@ public class CreateNewOrderHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel

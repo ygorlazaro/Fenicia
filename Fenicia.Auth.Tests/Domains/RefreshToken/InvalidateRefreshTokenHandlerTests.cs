@@ -367,4 +367,46 @@ public class InvalidateRefreshTokenHandlerTests
             Times.Once
         );
     }
+
+    [Fact]
+    public async Task Handler_WhenRedisThrowsException_SilentlyIgnores()
+    {
+        // Arrange
+        const string refreshToken = "redis_error_token";
+        const string key = $"refresh_token:{refreshToken}";
+
+        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>()))
+            .ThrowsAsync(new RedisConnectionException(ConnectionFailureType.None, "Connection failed"));
+
+        // Act & Assert - Should not throw
+        await this.handler.Handler(refreshToken);
+    }
+
+    [Fact]
+    public async Task Handler_WhenJsonDeserializationFails_ReturnsSilently()
+    {
+        // Arrange
+        const string refreshToken = "bad_json_token";
+        const string key = $"refresh_token:{refreshToken}";
+
+        var redisResult = new RedisValue("not_valid_json{{{");
+
+        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(redisResult);
+
+        // Act
+        await this.handler.Handler(refreshToken);
+
+        // Assert
+        this.redisDbMock.Verify(
+            x => x.StringSetAsync(
+                It.IsAny<RedisKey>(),
+                It.IsAny<RedisValue>(),
+                It.IsAny<TimeSpan?>(),
+                It.IsAny<When>(),
+                It.IsAny<CommandFlags>()
+            ),
+            Times.Never
+        );
+    }
 }

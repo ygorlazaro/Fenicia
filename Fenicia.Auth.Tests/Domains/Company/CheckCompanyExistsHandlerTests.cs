@@ -44,9 +44,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = cnpj,
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         this.context.AuthCompanies.Add(company);
@@ -85,9 +83,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = cnpj,
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         this.context.AuthCompanies.Add(company);
@@ -112,9 +108,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = cnpj,
-            IsActive = false,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = false
         };
 
         this.context.AuthCompanies.Add(company);
@@ -139,9 +133,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = cnpj,
-            IsActive = false,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = false
         };
 
         this.context.AuthCompanies.Add(company);
@@ -168,9 +160,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = cnpj1,
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var company2 = new CompanyModel
@@ -178,9 +168,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = cnpj2,
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         this.context.AuthCompanies.AddRange(company1, company2);
@@ -206,9 +194,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = cnpj,
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var inactiveCompany = new CompanyModel
@@ -216,9 +202,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = cnpj,
-            IsActive = false,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = false
         };
 
         this.context.AuthCompanies.AddRange(activeCompany, inactiveCompany);
@@ -259,9 +243,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = "12345678000195",
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         this.context.AuthCompanies.Add(company);

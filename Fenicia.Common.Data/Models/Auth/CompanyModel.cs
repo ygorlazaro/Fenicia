@@ -21,16 +21,6 @@ public class CompanyModel : BaseModel
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
 
-    [Required]
-    [MaxLength(256)]
-    [Column("time_zone")]
-    public string TimeZone { get; set; } = null!;
-
-    [Required]
-    [MaxLength(10)]
-    [Column("language")]
-    public string Language { get; set; } = "pt-BR";
-
     [Column("address_id")]
     public Guid? AddressId { get; set; }
 

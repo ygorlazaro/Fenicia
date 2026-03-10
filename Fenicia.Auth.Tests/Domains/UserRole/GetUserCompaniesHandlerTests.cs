@@ -42,9 +42,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Id = companyId,
             Name = "Test Company",
             Cnpj = "12345678000190",
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -104,9 +102,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Id = companyId,
             Name = companyName,
             Cnpj = cnpj,
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -167,9 +163,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = $"Company {i}",
                 Cnpj = $"0000000{i}000100",
-                IsActive = true,
-                TimeZone = "UTC",
-                Language = "pt-BR"
+                IsActive = true
             };
             companies.Add(company);
 
@@ -215,9 +209,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Company 1",
             Cnpj = "00000001000100",
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var company2 = new CompanyModel
@@ -225,9 +217,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Company 2",
             Cnpj = "00000002000100",
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         this.context.AuthCompanies.AddRange(company1, company2);
@@ -302,9 +292,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Company 1",
             Cnpj = "00000001000100",
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var company2 = new CompanyModel
@@ -312,9 +300,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Company 2",
             Cnpj = "00000002000100",
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         this.context.AuthCompanies.AddRange(company1, company2);
@@ -362,9 +348,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Id = companyId,
             Name = "Test Company",
             Cnpj = "12345678000190",
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
