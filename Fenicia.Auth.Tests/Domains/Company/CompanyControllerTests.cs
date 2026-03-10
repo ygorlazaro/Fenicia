@@ -116,9 +116,7 @@ public class CompanyControllerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -206,9 +204,7 @@ public class CompanyControllerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var adminRole = new RoleModel
@@ -239,7 +235,7 @@ public class CompanyControllerTests : IDisposable
         this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "America/Sao_Paulo");
+        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
 
         // Act
         var result = await this.controller.PatchAsync(
@@ -260,7 +256,6 @@ public class CompanyControllerTests : IDisposable
         var updatedCompany = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
         Assert.NotNull(updatedCompany);
         Assert.Equal(request.Name, updatedCompany.Name);
-        Assert.Equal("America/Sao_Paulo", updatedCompany.TimeZone);
     }
 
     [Fact]
@@ -271,7 +266,7 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
+        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
 
         // Act & Assert
         await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
@@ -295,9 +290,7 @@ public class CompanyControllerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new RoleModel
@@ -328,7 +321,7 @@ public class CompanyControllerTests : IDisposable
         this.context.AuthUserRoles.Add(userRoleMapping);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
+        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
 
         // Act & Assert
         await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
@@ -352,9 +345,7 @@ public class CompanyControllerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var adminRole = new RoleModel
@@ -385,7 +376,7 @@ public class CompanyControllerTests : IDisposable
         this.context.AuthUserRoles.Add(userRole);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName(), "UTC");
+        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
 
         // Act
         await this.controller.PatchAsync(

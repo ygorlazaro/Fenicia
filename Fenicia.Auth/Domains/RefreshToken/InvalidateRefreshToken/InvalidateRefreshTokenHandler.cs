@@ -25,12 +25,7 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
 
             var tokenObj = JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)value!);
 
-            if (tokenObj == null)
-            {
-                return;
-            }
-
-            tokenObj.IsActive = false;
+            tokenObj?.IsActive = false;
 
             await this.redisDb.StringSetAsync(
                 key,

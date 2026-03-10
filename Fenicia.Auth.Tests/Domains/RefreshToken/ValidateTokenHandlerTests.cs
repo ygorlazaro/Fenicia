@@ -258,4 +258,57 @@ public class ValidateTokenHandlerTests
         // Assert
         Assert.False(result);
     }
+
+    [Fact]
+    public async Task Handle_WhenRefreshTokenIsWhitespace_ThrowsArgumentException()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var query = new ValidateTokenQuery(userId, "   ");
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query));
+    }
+
+    [Fact]
+    public async Task Handle_WhenRedisThrowsException_ReturnsFalse()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        const string refreshToken = "redis_error_token";
+        const string key = $"refresh_token:{refreshToken}";
+
+        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>()))
+            .ThrowsAsync(new RedisConnectionException(ConnectionFailureType.None, "Connection failed"));
+
+        var query = new ValidateTokenQuery(userId, refreshToken);
+
+        // Act
+        var result = await this.handler.Handle(query);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task Handle_WhenTokenIsNullAfterDeserialization_ReturnsFalse()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        const string refreshToken = "null_deserialize_token";
+        const string key = $"refresh_token:{refreshToken}";
+
+        var redisResult = new RedisValue("null");
+
+        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(redisResult);
+
+        var query = new ValidateTokenQuery(userId, refreshToken);
+
+        // Act
+        var result = await this.handler.Handle(query);
+
+        // Assert
+        Assert.False(result);
+    }
 }

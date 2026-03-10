@@ -48,9 +48,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Original Company Name",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -84,8 +82,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Company Name",
-            "America/Sao_Paulo"
+            "Updated Company Name"
         );
 
         // Act
@@ -95,7 +92,6 @@ public class UpdateCompanyHandlerTests : IDisposable
         var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal("Updated Company Name", updatedCompany.Name);
-        Assert.Equal("America/Sao_Paulo", updatedCompany.TimeZone);
         Assert.True(updatedCompany.IsActive);
     }
 
@@ -112,9 +108,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Existing Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         this.context.AuthCompanies.Add(company);
@@ -123,8 +117,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             nonExistentCompanyId,
             userId,
-            "Updated Name",
-            "UTC"
+            "Updated Name"
         );
 
         // Act & Assert
@@ -147,9 +140,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Inactive Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = false,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = false
         };
 
         var role = new RoleModel
@@ -183,8 +174,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Name",
-            "UTC"
+            "Updated Name"
         );
 
         // Act & Assert
@@ -207,9 +197,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Original Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -243,8 +231,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Name",
-            "UTC"
+            "Updated Name"
         );
 
         // Act & Assert
@@ -268,9 +255,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Original Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -304,8 +289,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Name",
-            "UTC"
+            "Updated Name"
         );
 
         // Act & Assert
@@ -329,9 +313,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId1,
             Name = "Company 1",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var company2 = new CompanyModel
@@ -339,9 +321,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId2,
             Name = "Company 2",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -375,8 +355,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId2,
             userId,
-            "Updated Name",
-            "UTC"
+            "Updated Name"
         );
 
         // Act & Assert
@@ -400,9 +379,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Original Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var adminRole = new RoleModel
@@ -452,8 +429,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Company Name",
-            "Europe/London"
+            "Updated Company Name"
         );
 
         // Act
@@ -463,7 +439,6 @@ public class UpdateCompanyHandlerTests : IDisposable
         var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal("Updated Company Name", updatedCompany.Name);
-        Assert.Equal("Europe/London", updatedCompany.TimeZone);
     }
 
     [Fact]
@@ -480,9 +455,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Original Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -534,8 +507,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             admin2Id,
-            "Updated by Admin 2",
-            "Asia/Tokyo"
+            "Updated by Admin 2"
         );
 
         // Act
@@ -545,7 +517,6 @@ public class UpdateCompanyHandlerTests : IDisposable
         var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal("Updated by Admin 2", updatedCompany.Name);
-        Assert.Equal("Asia/Tokyo", updatedCompany.TimeZone);
     }
 
     [Fact]
@@ -560,9 +531,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Company Without User Roles",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var user = new UserModel
@@ -580,8 +549,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Name",
-            "UTC"
+            "Updated Name"
         );
 
         // Act & Assert
@@ -604,9 +572,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Original Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -640,8 +606,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Name",
-            "UTC"
+            "Updated Name"
         );
 
         // Act & Assert
@@ -664,9 +629,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Original Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -700,8 +663,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Name",
-            "UTC"
+            "Updated Name"
         );
 
         // Act & Assert
@@ -724,9 +686,7 @@ public class UpdateCompanyHandlerTests : IDisposable
             Id = companyId,
             Name = "Original Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -760,8 +720,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Name",
-            "America/New_York"
+            "Updated Name"
         );
 
         // Act
@@ -772,7 +731,6 @@ public class UpdateCompanyHandlerTests : IDisposable
         Assert.NotNull(updatedCompany);
         Assert.True(updatedCompany.IsActive);
         Assert.Equal(company.Cnpj, updatedCompany.Cnpj);
-        Assert.Equal("pt-BR", updatedCompany.Language);
     }
 
     [Fact]
@@ -785,8 +743,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         var command = new UpdateCompanyCommand(
             companyId,
             userId,
-            "Updated Name",
-            "UTC"
+            "Updated Name"
         );
 
         // Act & Assert

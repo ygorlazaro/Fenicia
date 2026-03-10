@@ -43,8 +43,7 @@ public class CreateNewUserHandler(
         var companyRequest = new CompanyModel
         {
             Name = request.Company.Name,
-            Cnpj = request.Company.Cnpj,
-            TimeZone = request.Company.TimeZone
+            Cnpj = request.Company.Cnpj
         };
 
         context.AuthCompanies.Add(companyRequest);

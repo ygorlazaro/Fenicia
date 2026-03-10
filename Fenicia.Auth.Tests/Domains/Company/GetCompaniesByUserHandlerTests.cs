@@ -67,9 +67,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -131,9 +129,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = false,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = false
         };
 
         var role = new RoleModel
@@ -189,9 +185,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = companyId1,
             Name = "Zebra Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var company2 = new CompanyModel
@@ -199,9 +193,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = companyId2,
             Name = "Beta Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var company3 = new CompanyModel
@@ -209,9 +201,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = companyId3,
             Name = "Alpha Company",
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role = new RoleModel
@@ -291,9 +281,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
                 Cnpj = this.faker.Company.Cnpj(),
-                IsActive = true,
-                TimeZone = "UTC",
-                Language = "pt-BR"
+                IsActive = true
             };
             companies.Add(company);
 
@@ -362,9 +350,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = this.faker.Company.CompanyName(),
                 Cnpj = this.faker.Company.Cnpj(),
-                IsActive = true,
-                TimeZone = "UTC",
-                Language = "pt-BR"
+                IsActive = true
             };
 
             companies.Add(company);
@@ -428,9 +414,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var user = new UserModel
@@ -487,9 +471,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var role1 = new RoleModel
@@ -563,9 +545,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var company2 = new CompanyModel
@@ -573,9 +553,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var user1 = new UserModel
@@ -645,9 +623,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var inactiveCompany = new CompanyModel
@@ -655,9 +631,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = false,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = false
         };
 
         var user = new UserModel
@@ -722,9 +696,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             Id = companyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var user = new UserModel

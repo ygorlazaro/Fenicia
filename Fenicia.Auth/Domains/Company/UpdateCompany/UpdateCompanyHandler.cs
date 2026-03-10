@@ -27,7 +27,6 @@ public sealed class UpdateCompanyHandler(DefaultContext context)
         }
 
         company.Name = command.Name;
-        company.TimeZone = command.TimeZone;
 
         await context.SaveChangesAsync(ct);
     }

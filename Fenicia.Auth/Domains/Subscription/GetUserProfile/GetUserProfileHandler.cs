@@ -17,7 +17,7 @@ public class GetUserProfileHandler(DefaultContext context)
         }
 
         var userCompanies = await context.AuthCompanies
-            .Where(c => c.UsersRoles.Any(u => u.Id == query.UserId))
+            .Where(c => c.UsersRoles.Any(u => u.UserId == query.UserId))
             .Select(c => new UserCompanyResponse
             {
                 Id = c.Id,
@@ -30,7 +30,7 @@ public class GetUserProfileHandler(DefaultContext context)
             .Include(s => s.Credits)
                 .ThenInclude(c => c.Module)
             .Include(s => s.Company)
-            .Where(s => s.Company.UsersRoles.Any(u => u.Id == query.UserId))
+            .Where(s => s.Company.UsersRoles.Any(u => u.UserId == query.UserId))
             .Select(s => new UserSubscriptionResponse
             {
                 Id = s.Id,

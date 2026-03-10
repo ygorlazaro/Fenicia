@@ -118,9 +118,7 @@ public class OrderControllerTests : IDisposable
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel
@@ -178,9 +176,7 @@ public class OrderControllerTests : IDisposable
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel
@@ -260,9 +256,7 @@ public class OrderControllerTests : IDisposable
             Id = this.testCompanyId,
             Name = this.faker.Company.CompanyName(),
             Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true,
-            TimeZone = "UTC",
-            Language = "pt-BR"
+            IsActive = true
         };
 
         var userRole = new UserRoleModel

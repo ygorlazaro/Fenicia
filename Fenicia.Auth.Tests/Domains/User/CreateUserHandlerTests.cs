@@ -98,7 +98,6 @@ public class CreateUserHandlerTests : IDisposable
         var company = new CompanyModel
         {
             Name = this.faker.Company.CompanyName(),
-            TimeZone = string.Empty,
             Cnpj = string.Empty
         };
         var role = new RoleModel { Name = "Admin" };
@@ -170,7 +169,6 @@ public class CreateUserHandlerTests : IDisposable
         var company = new CompanyModel
         {
             Name = this.faker.Company.CompanyName(),
-            TimeZone = string.Empty,
             Cnpj =string.Empty
         };
         this.context.AuthCompanies.Add(company);
