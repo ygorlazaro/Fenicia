@@ -1,4 +1,5 @@
-using Fenicia.Auth.Domains.UserRole.GetCompaniesByUser;
+using Fenicia.Auth.Domains.UserRole.Handlers;
+using Fenicia.Auth.Domains.UserRole.Queries;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;

@@ -5,7 +5,7 @@ using Fenicia.Auth.Domains.RefreshToken.InvalidateRefreshToken;
 using Fenicia.Auth.Domains.RefreshToken.ValidateToken;
 using Fenicia.Auth.Domains.Token.GenerateToken;
 using Fenicia.Auth.Domains.Token.GenerateTokenString;
-using Fenicia.Auth.Domains.User.GetUserForRefresh;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
 

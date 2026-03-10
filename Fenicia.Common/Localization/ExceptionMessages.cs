@@ -38,6 +38,8 @@ public static class ExceptionMessages
     public static string CompanyNotFoundMessage => GetString("CompanyNotFoundById");
     public static string PermissionDeniedUpdateCompany => GetString("PermissionDeniedUpdateCompany");
 
+    public static string CompanyExists => GetString("CompanyExists");
+
     public static string UserWithIdNotFound(string userId) => string.Format(GetString("UserWithIdNotFound"), userId);
     public static string CompanyNotFoundById(string companyId) => string.Format(GetString("CompanyNotFound"), companyId);
     public static string RoleNotFoundById(string roleId) => string.Format(GetString("RoleNotFound"), roleId);

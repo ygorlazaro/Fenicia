@@ -1,18 +1,16 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.User.ChangeUserPassword;
-using Fenicia.Auth.Domains.User.CreateUser;
-using Fenicia.Auth.Domains.User.DeleteUser;
-using Fenicia.Auth.Domains.User.GetUserModules;
-using Fenicia.Auth.Domains.User.ListUsers;
-using Fenicia.Auth.Domains.User.UpdateUser;
-using Fenicia.Auth.Domains.UserRole.GetUserCompanies;
+using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.Handlers;
+using Fenicia.Auth.Domains.User.Queries;
+using Fenicia.Auth.Domains.UserRole.Handlers;
+using Fenicia.Auth.Domains.UserRole.Responses;
 using Fenicia.Common.API;
-using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User;
 
@@ -22,13 +20,13 @@ namespace Fenicia.Auth.Domains.User;
 public class UserController(
     GetUserModuleHandler getUserModuleHandler,
     GetUserCompaniesHandler getUserCompaniesHandler,
-    ListUsersHandler listUsersHandler,
+    GetUserHandler getUserHandler,
     CreateUserHandler createUserHandler,
-    UpdateUserHandler updateUserHandler) : ControllerBase
+    UpdateUserHandler updateUserHandler,
+    GetUserByIdHandler getUserByIdHandler,
+    DeleteUserHandler deleteUserHandler,
+    UpdateUserPasswordHandler updateUserPasswordHandler) : ControllerBase
 {
-    /// <summary>
-    /// Get user modules
-    /// </summary>
     [HttpGet("module")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserModulesResponse))]
     public async Task<ActionResult<List<GetUserModulesResponse>>> GetUserModulesAsync(
@@ -37,19 +35,15 @@ public class UserController(
         CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
-        var companyId = headers.CompanyId;
-
         wide.UserId = userId.ToString();
-        var query = new GetUserModulesQuery(companyId, userId);
 
+        var companyId = headers.CompanyId;
+        var query = new GetUserModulesQuery(companyId, userId);
         var response = await getUserModuleHandler.Handle(query, ct);
 
         return Ok(response);
     }
 
-    /// <summary>
-    /// Get user companies
-    /// </summary>
     [HttpGet("company")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetUserCompaniesResponse))]
     public async Task<ActionResult<List<GetUserCompaniesResponse>>> GetUserCompanyAsync(
@@ -57,7 +51,6 @@ public class UserController(
         CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
-
         wide.UserId = userId.ToString();
 
         var response = await getUserCompaniesHandler.Handle(userId, ct);
@@ -65,277 +58,97 @@ public class UserController(
         return Ok(response);
     }
 
-    /// <summary>
-    /// List all users with pagination and alphabetical sorting
-    /// </summary>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAsync(
+        CancellationToken ct,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] string? searchTerm = null,
-        CancellationToken ct = default)
+        [FromQuery] int pageSize = 10)
     {
-        // Validate role - only God and Admin can list users
-        ClaimReader.ValidateRole(this.User, "God");
-
-        var query = new ListUsersQuery(page, pageSize, searchTerm);
-        var result = await listUsersHandler.Handle(query, ct);
+        var query = new GetUsersQuery(page, pageSize);
+        var result = await getUserHandler.Handle(query, ct);
 
         return Ok(result);
     }
 
-    /// <summary>
-    /// Get user by ID
-    /// </summary>
     [HttpGet("{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Obsolete("We cannot depend on DbContext at the controller. Marked to great refactor")]
     public async Task<IActionResult> GetByIdAsync(
         Guid userId,
-        [FromServices] DefaultContext context = null!,
-        CancellationToken ct = default)
+        CancellationToken ct)
     {
-        // Validate role - only God and Admin can get user details
-        ClaimReader.ValidateRole(this.User, "God");
+        var user = await getUserByIdHandler.Handler(userId, ct);
 
-        var user = await context.AuthUsers
-            .Include(u => u.UsersRoles)
-                .ThenInclude(ur => ur.Role)
-            .Include(u => u.UsersRoles)
-                .ThenInclude(ur => ur.Company)
-            .FirstOrDefaultAsync(u => u.Id == userId, ct);
-
-        if (user is not { Deleted: null })
+        if (user is null)
         {
-            return NotFound(new { Message = "User not found" });
+            return NotFound();
         }
 
-        var userRoles = this.User.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();
+        return Ok(user);
 
-        if (userRoles.Contains("God", StringComparer.OrdinalIgnoreCase))
-        {
-            return Ok(new
-            {
-                user.Id,
-                user.Name,
-                user.Email,
-                user.Created,
-                user.Updated,
-                Companies = user.UsersRoles.Select(ur => new
-                {
-                    ur.CompanyId,
-                    CompanyName = ur.Company.Name,
-                    ur.RoleId,
-                    RoleName = ur.Role.Name
-                }).ToList()
-            });
-        }
-
-        var currentUserId = ClaimReader.UserId(this.User);
-        var adminCompanies = await context.AuthUserRoles
-            .Where(ur => ur.UserId == currentUserId)
-            .Select(ur => ur.CompanyId)
-            .ToListAsync(ct);
-
-        var userHasAccessToCompany = user.UsersRoles
-            .Any(ur => adminCompanies.Contains(ur.CompanyId));
-
-        if (!userHasAccessToCompany)
-        {
-            return NotFound(new { Message = "User not found" });
-        }
-
-        return Ok(new
-        {
-            user.Id,
-            user.Name,
-            user.Email,
-            user.Created,
-            user.Updated,
-            Companies = user.UsersRoles.Select(ur => new
-            {
-                ur.CompanyId,
-                CompanyName = ur.Company.Name,
-                ur.RoleId,
-                RoleName = ur.Role.Name
-            }).ToList()
-        });
     }
 
-    /// <summary>
-    /// Create a new user
-    /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> CreateAsync(
-        CreateUserQuery request,
-        CancellationToken ct = default)
+        CreateUserCommand request,
+        CancellationToken ct)
     {
-        ClaimReader.ValidateRole(this.User, "God");
-
-        var userRoles = this.User.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();
-        var currentUserId = ClaimReader.UserId(this.User);
-
-        if (userRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase) && 
-            !userRoles.Contains("God", StringComparer.OrdinalIgnoreCase))
-        {
-            if (request.CompaniesRoles != null && request.CompaniesRoles.Any())
-            {
-                var adminCompanies = await this.HttpContext.RequestServices
-                    .GetRequiredService<DefaultContext>()
-                    .AuthUserRoles
-                    .Where(ur => ur.UserId == currentUserId)
-                    .Select(ur => ur.CompanyId)
-                    .ToListAsync(ct);
-
-                var invalidCompanies = request.CompaniesRoles
-                    .Where(cr => !adminCompanies.Contains(cr.CompanyId))
-                    .ToList();
-
-                if (invalidCompanies.Any())
-                {
-                    return BadRequest(new 
-                    { 
-                        Message = "You can only create users for companies you have access to",
-                        InvalidCompanies = invalidCompanies.Select(c => c.CompanyId).ToList()
-                    });
-                }
-            }
-        }
-
         var result = await createUserHandler.Handle(request, ct);
 
         return Created($"/user/{result.Id}", result);
     }
 
-    /// <summary>
-    /// Update an existing user
-    /// </summary>
     [HttpPatch("{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Consumes(MediaTypeNames.Application.Json)]
-    [Obsolete("We cannot depend on DbContext at the controller. Marked to great refactor")]
+    [Authorize(Roles = "God,Admin")]
     public async Task<IActionResult> UpdateAsync(
         Guid userId,
-        UpdateUserQuery request,
-        [FromServices] DefaultContext context = null!,
-        CancellationToken ct = default)
+        UpdateUserCommand request,
+        CancellationToken ct)
     {
-        // Validate role - only God and Admin can update users
-        ClaimReader.ValidateRole(this.User, "God");
-
-        var userRoles = this.User.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();
-        var currentUserId = ClaimReader.UserId(this.User);
-
-        // Check if user exists
-        var user = await context.AuthUsers
-            .Include(u => u.UsersRoles)
-            .FirstOrDefaultAsync(u => u.Id == userId, ct);
-
-        if (user is not { Deleted: null })
+        try
         {
-            return NotFound(new { Message = "User not found" });
-        }
+            var updateRequest = request with { UserId = userId };
+            var result = await updateUserHandler.Handle(updateRequest, ct);
 
-        // Admin users can only update users from their companies
-        if (userRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase) && 
-            !userRoles.Contains("God", StringComparer.OrdinalIgnoreCase))
+            return Ok(result);
+        }
+        catch (InvalidRequestException)
         {
-            var adminCompanies = await context.AuthUserRoles
-                .Where(ur => ur.UserId == currentUserId)
-                .Select(ur => ur.CompanyId)
-                .ToListAsync(ct);
-
-            var userHasAccessToCompany = user.UsersRoles
-                .Any(ur => adminCompanies.Contains(ur.CompanyId));
-
-            if (!userHasAccessToCompany)
-            {
-                return NotFound(new { Message = "User not found" });
-            }
-
-            // Validate that admin is not trying to assign companies they don't have access to
-            if (request.CompaniesRoles != null && request.CompaniesRoles.Any())
-            {
-                var invalidCompanies = request.CompaniesRoles
-                    .Where(cr => !adminCompanies.Contains(cr.CompanyId))
-                    .ToList();
-
-                if (invalidCompanies.Any())
-                {
-                    return BadRequest(new 
-                    { 
-                        Message = "You can only assign companies you have access to",
-                        InvalidCompanies = invalidCompanies.Select(c => c.CompanyId).ToList()
-                    });
-                }
-            }
+            return NotFound();
         }
-
-        // Update user ID in request
-        var updateRequest = request with { UserId = userId };
-        var result = await updateUserHandler.Handle(updateRequest, ct);
-
-        return Ok(result);
     }
 
-    /// <summary>
-    /// Delete a user (soft delete)
-    /// </summary>
     [HttpDelete("{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAsync(
         Guid userId,
-        [FromServices] DeleteUserHandler handler = null!,
-        [FromServices] DefaultContext context = null!,
-        CancellationToken ct = default)
+        CancellationToken ct)
     {
-        // Validate role - only God users can delete users
-        ClaimReader.ValidateRole(this.User, "God");
-
-        var userRoles = this.User.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();
-
-        // Only God users can delete users
-        if (!userRoles.Contains("God", StringComparer.OrdinalIgnoreCase))
+        try
         {
-            return Unauthorized(new { Message = "Only God users can delete users" });
+            await deleteUserHandler.Handle(new DeleteUserCommand(userId), ct);
+            return NoContent();
         }
-
-        // Check if user exists
-        var user = await context.AuthUsers.FindAsync([userId, ct], ct);
-
-        if (user is not { Deleted: null })
+        catch (InvalidRequestException)
         {
-            return NotFound(new { Message = "User not found" });
+            return NotFound();
         }
-
-        // Prevent self-deletion
-        var currentUserId = ClaimReader.UserId(this.User);
-        if (userId == currentUserId)
-        {
-            return BadRequest(new { Message = "Cannot delete yourself" });
-        }
-
-        var result = await handler.Handle(new DeleteUserQuery(userId), ct);
-
-        return Ok(result);
     }
 
-    /// <summary>
-    /// Change user password (admin function)
-    /// </summary>
     [HttpPatch("{userId:guid}/password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -344,49 +157,19 @@ public class UserController(
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> ChangePasswordAsync(
         Guid userId,
-        ChangeUserPasswordQuery request,
-        [FromServices] ChangeUserPasswordHandler handler = null!,
-        [FromServices] DefaultContext context = null!,
-        CancellationToken ct = default)
+        UpdateUserPasswordCommand request,
+        CancellationToken ct)
     {
-        // Validate role - only God and Admin can change passwords
-        ClaimReader.ValidateRole(this.User, "God");
-
-        var userRoles = this.User.Claims.Where(c => c.Type == "role").Select(c => c.Value).ToList();
-        var currentUserId = ClaimReader.UserId(this.User);
-
-        // Check if user exists
-        var user = await context.AuthUsers
-            .Include(u => u.UsersRoles)
-            .FirstOrDefaultAsync(u => u.Id == userId, ct);
-
-        if (user is not { Deleted: null })
+        try
         {
-            return NotFound(new { Message = "User not found" });
-        }
+            var updateRequest = request with { UserId = userId };
+            var result = await updateUserPasswordHandler.Handle(updateRequest, ct);
 
-        // Admin users can only change passwords for users from their companies
-        if (userRoles.Contains("Admin", StringComparer.OrdinalIgnoreCase) && 
-            !userRoles.Contains("God", StringComparer.OrdinalIgnoreCase))
+            return Ok(result);
+        }
+        catch (InvalidRequestException)
         {
-            var adminCompanies = await context.AuthUserRoles
-                .Where(ur => ur.UserId == currentUserId)
-                .Select(ur => ur.CompanyId)
-                .ToListAsync(ct);
-
-            var userHasAccessToCompany = user.UsersRoles
-                .Any(ur => adminCompanies.Contains(ur.CompanyId));
-
-            if (!userHasAccessToCompany)
-            {
-                return NotFound(new { Message = "User not found" });
-            }
+            return NotFound();
         }
-
-        // Update user ID in request
-        var updateRequest = request with { UserId = userId };
-        var result = await handler.Handle(updateRequest, ct);
-
-        return Ok(result);
     }
 }

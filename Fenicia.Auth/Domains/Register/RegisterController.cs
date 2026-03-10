@@ -1,6 +1,8 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.User.CreateNewUser;
+using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.Handlers;
+using Fenicia.Auth.Domains.User.Responses;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +22,7 @@ public class RegisterController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CreateNewUserResponse>> CreateNewUserAsync(
-        CreateNewUserQuery request,
+        CreateNewUserCommand request,
         WideEventContext wide,
         CancellationToken ct)
     {

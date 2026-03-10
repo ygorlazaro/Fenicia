@@ -1,8 +1,8 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.User;
-using Fenicia.Auth.Domains.User.CreateUser;
+using Fenicia.Auth.Domains.User.Commands;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -21,9 +21,9 @@ public class CreateUserHandlerTests : IDisposable
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        var checkUserExistsHandler = new CheckUserExistsHandler(this.context);
         this.hashPasswordHandler = new HashPasswordHandler();
-        this.handler = new CreateUserHandler(this.context, checkUserExistsHandler, this.hashPasswordHandler);
+        
+        this.handler = new CreateUserHandler(this.context);
         this.faker = new Faker();
     }
 
@@ -40,7 +40,7 @@ public class CreateUserHandlerTests : IDisposable
         var password = this.faker.Internet.Password();
         var name = this.faker.Person.FullName;
 
-        var request = new CreateUserQuery(email, password, name);
+        var request = new CreateUserCommand(email, password, name);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -77,7 +77,7 @@ public class CreateUserHandlerTests : IDisposable
         this.context.AuthUsers.Add(existingUser);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new CreateUserQuery(email, password, "Another " + name);
+        var request = new CreateUserCommand(email, password, "Another " + name);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -106,22 +106,18 @@ public class CreateUserHandlerTests : IDisposable
         this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var companiesRoles = new List<UserCompanyRoleCommand>
+        var companiesRoles = new List<CreateUserRoleCommand>
         {
             new(company.Id, role.Id)
         };
 
-        var request = new CreateUserQuery(email, password, name, companiesRoles);
+        var request = new CreateUserCommand(email, password, name, companiesRoles);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotEmpty(result.CompaniesRoles);
-        Assert.Single(result.CompaniesRoles);
-        Assert.Equal(company.Id, result.CompaniesRoles[0].CompanyId);
-        Assert.Equal(role.Id, result.CompaniesRoles[0].RoleId);
 
         // Verify user role was saved to database
         var userRole = await this.context.AuthUserRoles
@@ -144,12 +140,12 @@ public class CreateUserHandlerTests : IDisposable
         this.context.AuthRoles.Add(role);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var companiesRoles = new List<UserCompanyRoleCommand>
+        var companiesRoles = new List<CreateUserRoleCommand>
         {
             new(Guid.NewGuid(), role.Id) // Non-existent company
         };
 
-        var request = new CreateUserQuery(email, password, name, companiesRoles);
+        var request = new CreateUserCommand(email, password, name, companiesRoles);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -174,12 +170,12 @@ public class CreateUserHandlerTests : IDisposable
         this.context.AuthCompanies.Add(company);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var companiesRoles = new List<UserCompanyRoleCommand>
+        var companiesRoles = new List<CreateUserRoleCommand>
         {
             new(company.Id, Guid.NewGuid()) // Non-existent role
         };
 
-        var request = new CreateUserQuery(email, password, name, companiesRoles);
+        var request = new CreateUserCommand(email, password, name, companiesRoles);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -196,7 +192,7 @@ public class CreateUserHandlerTests : IDisposable
         var password = this.faker.Internet.Password();
         var name = this.faker.Person.FullName;
 
-        var request = new CreateUserQuery(email, password, name);
+        var request = new CreateUserCommand(email, password, name);
 
         // Act
         await this.handler.Handle(request, CancellationToken.None);

@@ -144,4 +144,7 @@
   <data name="PermissionDeniedUpdateCompany" xml:space="preserve">
     <value>No está autorizado para actualizar esta empresa.</value>
   </data>
+    <data name="CompanyExists" xml:space="preserve">
+  <value>Ya existe una empresa con este CNPJ.</value>
+</data>
 </root>

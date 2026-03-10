@@ -1,6 +1,6 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.User.GetByEmail;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;

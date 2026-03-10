@@ -4,7 +4,7 @@ using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
 using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.User.ChangePassword;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
@@ -30,7 +30,7 @@ public class ForgotPasswordControllerTests : IDisposable
 
         this.context = new DefaultContext(options, new TestCompanyContext());
         this.mockHashPasswordHandler = new Mock<HashPasswordHandler>();
-        var changePasswordHandler = new ChangePasswordHandler(this.context, this.mockHashPasswordHandler.Object);
+        var changePasswordHandler = new UpdatePasswordHandler(this.context);
         var addForgotPasswordHandler = new AddForgotPasswordHandler(this.context);
         var resetPasswordHandler = new ResetPasswordHandler(this.context, changePasswordHandler);
         var mockHttpContext = new Mock<HttpContext>();

@@ -1,5 +1,4 @@
 using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
-using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -16,7 +15,7 @@ public class CreateNewOrderHandler(
 {
     public virtual async Task<CreateNewOrderResponse?> Handle(CreateNewOrderCommand command, CancellationToken ct)
     {
-        var existingUser = await db.UserExistsAsync(command.UserId, command.CompanyId, ct);
+        var existingUser = await UserExistsAsync(command.UserId, command.CompanyId, ct);
 
         if (!existingUser)
         {
@@ -55,6 +54,16 @@ public class CreateNewOrderHandler(
                 order.Details.Select(d => new CreateCreditsForOrderDetailsQuery(d.Id, d.ModuleId))), ct);
 
         return new CreateNewOrderResponse(order.Id);
+    }
+
+    private async Task<bool> UserExistsAsync(Guid userId, Guid companyId, CancellationToken ct)
+    {
+        var query = from ur in db.AuthUserRoles
+                     where ur.CompanyId == companyId
+                           && ur.UserId == userId
+                     select 1;
+
+        return await query.AnyAsync(ct);
     }
 
     private async Task<List<ModuleModel>> PopulateModules(List<Guid> request, CancellationToken ct)

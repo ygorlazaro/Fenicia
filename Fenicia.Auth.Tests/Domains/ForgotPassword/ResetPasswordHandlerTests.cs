@@ -1,8 +1,7 @@
 using Bogus;
 
 using Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
-using Fenicia.Auth.Domains.Security.HashPassword;
-using Fenicia.Auth.Domains.User.ChangePassword;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -21,8 +20,7 @@ public class ResetPasswordHandlerTests : IDisposable
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        var hashPasswordHandler = new HashPasswordHandler();
-        var changePasswordHandler = new ChangePasswordHandler(this.context, hashPasswordHandler);
+        var changePasswordHandler = new UpdatePasswordHandler(this.context);
         this.handler = new ResetPasswordHandler(this.context, changePasswordHandler);
         this.faker = new Faker();
     }

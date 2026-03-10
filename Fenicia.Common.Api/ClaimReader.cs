@@ -9,16 +9,6 @@ public static class ClaimReader
         return GetGuidClaimValue(user, "userId");
     }
 
-    public static void ValidateRole(ClaimsPrincipal user, string roleToSearch)
-    {
-        var access = user.Claims.Where(c => c.Type == "role").Any(x => x.Value == roleToSearch);
-
-        if (!access)
-        {
-            throw new UnauthorizedAccessException();
-        }
-    }
-
     private static Guid GetGuidClaimValue(ClaimsPrincipal user, string claimType)
     {
         var claim = user.Claims.FirstOrDefault(c => string.Equals(c.Type, claimType, StringComparison.Ordinal));

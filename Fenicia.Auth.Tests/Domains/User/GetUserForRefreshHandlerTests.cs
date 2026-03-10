@@ -1,9 +1,10 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.User.GetUserForRefresh;
+using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -70,7 +71,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
         var userId = Guid.NewGuid();
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(userId, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
@@ -122,7 +123,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
         var userId = Guid.NewGuid();
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(userId, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
