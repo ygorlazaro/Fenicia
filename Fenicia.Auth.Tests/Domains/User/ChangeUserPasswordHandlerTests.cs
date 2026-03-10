@@ -11,11 +11,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class ChangeUserPasswordHandlerTests
+public class ChangeUserPasswordHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly ChangeUserPasswordHandler handler;
+    private readonly DefaultContext context;
+    private readonly HashPasswordHandler hashPasswordHandler;
+    private readonly Faker faker;
+    private readonly UserModel testUser;
+
+    public ChangeUserPasswordHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -38,19 +42,14 @@ public class ChangeUserPasswordHandlerTests
         this.context.SaveChanges();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private ChangeUserPasswordHandler handler = null!;
-    private DefaultContext context = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-    private Faker faker = null!;
-    private UserModel testUser = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenValidRequest_ChangesPasswordSuccessfully()
     {
         // Arrange
@@ -62,24 +61,20 @@ public class ChangeUserPasswordHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Success, Is.True);
-            Assert.That(result.Message, Is.EqualTo("Password changed successfully"));
-        }
+        Assert.NotNull(result);
+        
+        Assert.True(result.Success);
+        Assert.Equal("Password changed successfully", result.Message);
 
         // Verify password was updated in database
         var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
-        Assert.That(updatedUser, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedUser.Password, Is.Not.EqualTo(originalPasswordHash));
-            Assert.That(updatedUser.Updated, Is.Not.Null);
-        }
+        Assert.NotNull(updatedUser);
+        
+        Assert.NotEqual(originalPasswordHash, updatedUser.Password);
+        Assert.NotNull(updatedUser.Updated);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_NewPasswordIsHashed()
     {
         // Arrange
@@ -91,17 +86,17 @@ public class ChangeUserPasswordHandlerTests
 
         // Assert
         var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
-        Assert.That(updatedUser, Is.Not.Null);
-        Assert.That(updatedUser.Password, Is.Not.EqualTo(newPassword)); // Should be hashed
-        Assert.That(updatedUser.Password, Does.StartWith("$2")); // BCrypt format
+        Assert.NotNull(updatedUser);
+        Assert.NotEqual(newPassword, updatedUser.Password); // Should be hashed
+        Assert.StartsWith("$2", updatedUser.Password); // BCrypt format
 
         // Verify new password works
         this.hashPasswordHandler.Handle(newPassword);
-        Assert.That(BCrypt.Net.BCrypt.Verify(newPassword, updatedUser.Password), Is.True);
+        Assert.True(BCrypt.Net.BCrypt.Verify(newPassword, updatedUser.Password));
     }
 
-    [Test]
-    public void Handle_WhenUserNotFound_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
     {
         // Arrange
         var nonExistentUserId = Guid.NewGuid();
@@ -109,13 +104,13 @@ public class ChangeUserPasswordHandlerTests
         var request = new ChangeUserPasswordQuery(nonExistentUserId, newPassword);
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<InvalidRequestException>(async () =>
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
             await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.That(exception!.Message, Is.EqualTo("User not found"));
+        Assert.Equal("User not found", exception.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_UpdatesTimestamp()
     {
         // Arrange
@@ -127,8 +122,8 @@ public class ChangeUserPasswordHandlerTests
 
         // Assert
         var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
-        Assert.That(updatedUser, Is.Not.Null);
-        Assert.That(updatedUser.Updated, Is.Not.Null);
-        Assert.That(updatedUser.Updated.Value, Is.GreaterThanOrEqualTo(this.testUser.Updated ?? DateTime.MinValue));
+        Assert.NotNull(updatedUser);
+        Assert.NotNull(updatedUser.Updated);
+        Assert.True(updatedUser.Updated.Value >= (this.testUser.Updated ?? DateTime.MinValue));
     }
 }

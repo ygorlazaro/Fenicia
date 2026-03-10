@@ -24,7 +24,7 @@ public class GetInventoryDashboardHandler(DefaultContext context)
                 p.CostPrice,
                 p.SalesPrice,
                 p.CategoryId,
-                p.Category!.Name))
+                p.Category.Name))
             .ToList();
 
         var totalCustomers = await context.BasicCustomers.CountAsync(ct);

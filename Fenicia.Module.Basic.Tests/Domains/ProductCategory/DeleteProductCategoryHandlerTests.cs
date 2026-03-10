@@ -7,32 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
-[TestFixture]
-public class DeleteProductCategoryHandlerTests
+public class DeleteProductCategoryHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteProductCategoryHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteProductCategoryHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly DeleteProductCategoryHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteProductCategoryHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenCategoryExists_SetsDeletedDate()
     {
         // Arrange
@@ -54,13 +45,13 @@ public class DeleteProductCategoryHandlerTests
 
         // Assert
         var deletedCategory = await this.context.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
-        Assert.That(deletedCategory, Is.Not.Null);
-        Assert.That(deletedCategory.Deleted, Is.Not.Null);
-        Assert.That(deletedCategory.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedCategory.Deleted, Is.LessThanOrEqualTo(DateTime.Now.AddSeconds(1)));
+        Assert.NotNull(deletedCategory);
+        Assert.NotNull(deletedCategory.Deleted);
+        Assert.True(deletedCategory.Deleted >= beforeDelete.AddSeconds(-1));
+        Assert.True(deletedCategory.Deleted <= DateTime.Now.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCategoryDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -71,10 +62,10 @@ public class DeleteProductCategoryHandlerTests
 
         // Assert
         var categories = await this.context.BasicProductCategories.ToListAsync();
-        Assert.That(categories, Is.Empty);
+        Assert.Empty(categories);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCategories_OnlyDeletesSpecified()
     {
         // Arrange
@@ -96,16 +87,13 @@ public class DeleteProductCategoryHandlerTests
         var deletedCategory = await this.context.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
         var notDeletedCategory = await this.context.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
 
-        Assert.That(deletedCategory, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedCategory.Deleted, Is.Not.Null);
-            Assert.That(notDeletedCategory, Is.Not.Null);
-        }
-        Assert.That(notDeletedCategory?.Deleted, Is.Null);
+        Assert.NotNull(deletedCategory);
+        Assert.NotNull(deletedCategory.Deleted);
+        Assert.NotNull(notDeletedCategory);
+        Assert.Null(notDeletedCategory.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -116,6 +104,11 @@ public class DeleteProductCategoryHandlerTests
 
         // Assert
         var categories = await this.context.BasicProductCategories.ToListAsync();
-        Assert.That(categories, Is.Empty);
+        Assert.Empty(categories);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

@@ -8,11 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;
 
-[TestFixture]
-public class AddStockMovementHandlerTests
+public class AddStockMovementHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddStockMovementHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -23,17 +21,11 @@ public class AddStockMovementHandlerTests
         this.handler = new AddStockMovementHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly TestCompanyContext companyContext;
+    private readonly DefaultContext context;
+    private readonly AddStockMovementHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddStockMovementHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsStockMovementAndReturnsResponse()
     {
         // Arrange
@@ -66,17 +58,14 @@ public class AddStockMovementHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.ProductId, Is.EqualTo(command.ProductId));
-            Assert.That(result.Quantity, Is.EqualTo(command.Quantity));
-            Assert.That(result.Type, Is.EqualTo(command.Type));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.ProductId, result.ProductId);
+        Assert.Equal(command.Quantity, result.Quantity);
+        Assert.Equal(command.Type, result.Type);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithStockMovementIn_IncreasesProductQuantity()
     {
         // Arrange
@@ -110,11 +99,11 @@ public class AddStockMovementHandlerTests
 
         // Assert
         var updatedProduct = await this.context.BasicProducts.FindAsync([product.Id], CancellationToken.None);
-        Assert.That(updatedProduct, Is.Not.Null);
-        Assert.That(updatedProduct.Quantity, Is.EqualTo(110));
+        Assert.NotNull(updatedProduct);
+        Assert.Equal(110, updatedProduct.Quantity);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithStockMovementOut_DecreasesProductQuantity()
     {
         // Arrange
@@ -148,11 +137,11 @@ public class AddStockMovementHandlerTests
 
         // Assert
         var updatedProduct = await this.context.BasicProducts.FindAsync([product.Id], CancellationToken.None);
-        Assert.That(updatedProduct, Is.Not.Null);
-        Assert.That(updatedProduct.Quantity, Is.EqualTo(90));
+        Assert.NotNull(updatedProduct);
+        Assert.Equal(90, updatedProduct.Quantity);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullProduct_DoesNotUpdateQuantity()
     {
         // Arrange
@@ -173,12 +162,12 @@ public class AddStockMovementHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
         var movement = await this.context.BasicStockMovements.FindAsync([command.Id], CancellationToken.None);
-        Assert.That(movement, Is.Not.Null);
+        Assert.NotNull(movement);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesStockMovementWasSavedToDatabase()
     {
         // Arrange
@@ -212,11 +201,13 @@ public class AddStockMovementHandlerTests
 
         // Assert
         var movement = await this.context.BasicStockMovements.FindAsync([command.Id], CancellationToken.None);
-        Assert.That(movement, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(movement.Quantity, Is.EqualTo(command.Quantity));
-            Assert.That(movement.Type, Is.EqualTo(command.Type));
-        }
+        Assert.NotNull(movement);
+        Assert.Equal(command.Quantity, movement.Quantity);
+        Assert.Equal(command.Type, movement.Type);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

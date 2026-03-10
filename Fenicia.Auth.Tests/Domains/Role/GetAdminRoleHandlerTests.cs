@@ -7,11 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Role;
 
-[TestFixture]
-public class GetAdminRoleHandlerTests
+public class GetAdminRoleHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetAdminRoleHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -21,16 +19,16 @@ public class GetAdminRoleHandlerTests
         this.handler = new GetAdminRoleHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context = null!;
-    private GetAdminRoleHandler handler = null!;
+    private readonly DefaultContext context;
+    private readonly GetAdminRoleHandler handler;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenAdminRoleExists_ReturnsAdminRole()
     {
         // Arrange
@@ -49,15 +47,12 @@ public class GetAdminRoleHandlerTests
         var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result!.Id, Is.EqualTo(adminRoleId), "RoleId should match");
-            Assert.That(result.Name, Is.EqualTo("Admin"), "RoleName should be Admin");
-        }
+        Assert.NotNull(result);
+        Assert.Equal(adminRoleId, result.Id);
+        Assert.Equal("Admin", result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenAdminRoleDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -74,10 +69,10 @@ public class GetAdminRoleHandlerTests
         var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleRolesExist_ReturnsOnlyAdminRole()
     {
         // Arrange
@@ -108,15 +103,12 @@ public class GetAdminRoleHandlerTests
         var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result!.Id, Is.EqualTo(adminRoleId), "Should return admin role");
-            Assert.That(result.Name, Is.EqualTo("Admin"), "RoleName should be Admin");
-        }
+        Assert.NotNull(result);
+        Assert.Equal(adminRoleId, result.Id);
+        Assert.Equal("Admin", result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenAdminRoleNameHasDifferentCase_ReturnsNull()
     {
         // Arrange
@@ -133,20 +125,20 @@ public class GetAdminRoleHandlerTests
         var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Act
         var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenAdminRoleNameHasExtraSpaces_ReturnsNull()
     {
         // Arrange
@@ -163,10 +155,10 @@ public class GetAdminRoleHandlerTests
         var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleAdminRolesExist_ReturnsFirst()
     {
         // Arrange
@@ -192,7 +184,7 @@ public class GetAdminRoleHandlerTests
         var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Name, Is.EqualTo("Admin"), "Should return an Admin role");
+        Assert.NotNull(result);
+        Assert.Equal("Admin", result.Name);
     }
 }

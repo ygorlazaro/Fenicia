@@ -10,11 +10,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Module;
 
-[TestFixture]
-public class GetModulesHandlerTests
+public class GetModulesHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly DefaultContext context;
+    private readonly GetModulesHandler handler;
+    private readonly Faker faker;
+
+    public GetModulesHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -25,17 +27,14 @@ public class GetModulesHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context;
-    private GetModulesHandler handler;
-    private Faker faker;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenModulesExist_ReturnsPaginatedModules()
     {
         // Arrange
@@ -64,17 +63,15 @@ public class GetModulesHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(2), "Should return 2 modules");
-            Assert.That(result.Total, Is.EqualTo(2), "Total should be 2");
-            Assert.That(result.Page, Is.EqualTo(1), "Page should be 1");
-            Assert.That(result.PerPage, Is.EqualTo(10), "PerPage should be 10");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(2, result.Total);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(10, result.PerPage);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenModulesExist_ExcludesErpAndAuthTypes()
     {
         // Arrange
@@ -103,16 +100,14 @@ public class GetModulesHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(1), "Should exclude Auth modules");
-            Assert.That(result.Data[0].Name, Is.EqualTo(basicModule.Name), "Should return only Basic module");
-            Assert.That(result.Total, Is.EqualTo(1), "Total should be 1");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Single(result.Data);
+        Assert.Equal(basicModule.Name, result.Data[0].Name);
+        Assert.Equal(1, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPaginationIsApplied_ReturnsCorrectPage()
     {
         // Arrange
@@ -137,18 +132,16 @@ public class GetModulesHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(10), "Should return 10 modules for page 2");
-            Assert.That(result.Total, Is.EqualTo(25), "Total should be 25");
-            Assert.That(result.Page, Is.EqualTo(2), "Page should be 2");
-            Assert.That(result.PerPage, Is.EqualTo(10), "PerPage should be 10");
-            Assert.That(result.Pages, Is.EqualTo(3), "Should have 3 pages total");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
+        Assert.Equal(2, result.Page);
+        Assert.Equal(10, result.PerPage);
+        Assert.Equal(3, result.Pages);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenNoModulesExist_ReturnsEmptyPagination()
     {
         // Arrange
@@ -158,15 +151,13 @@ public class GetModulesHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Is.Empty, "Should return empty list");
-            Assert.That(result.Total, Is.Zero, "Total should be 0");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Empty(result.Data);
+        Assert.Equal(0, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPageExceedsTotalPages_ReturnsEmptyData()
     {
         // Arrange
@@ -187,15 +178,13 @@ public class GetModulesHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Is.Empty, "Should return empty data for page beyond total");
-            Assert.That(result.Total, Is.EqualTo(1), "Total should still be 1");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Empty(result.Data);
+        Assert.Equal(1, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_ResultsAreOrderedByType()
     {
         // Arrange
@@ -232,17 +221,15 @@ public class GetModulesHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(3), "Should return 3 modules");
-            Assert.That(result.Data[0].Type, Is.EqualTo(ModuleType.Basic), "First should be Basic");
-            Assert.That(result.Data[1].Type, Is.EqualTo(ModuleType.SocialNetwork), "Second should be SocialNetwork");
-            Assert.That(result.Data[2].Type, Is.EqualTo(ModuleType.Hr), "Third should be Hr");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(3, result.Data.Count);
+        Assert.Equal(ModuleType.Basic, result.Data[0].Type);
+        Assert.Equal(ModuleType.SocialNetwork, result.Data[1].Type);
+        Assert.Equal(ModuleType.Hr, result.Data[2].Type);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithDefaultRequest_ReturnsFirstPage()
     {
         // Arrange
@@ -263,15 +250,13 @@ public class GetModulesHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Page, Is.EqualTo(1), "Default page should be 1");
-            Assert.That(result.PerPage, Is.EqualTo(20), "Default PerPage should be 20");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(1, result.Page);
+        Assert.Equal(20, result.PerPage);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesResponseContainsAllFields()
     {
         // Arrange
@@ -293,14 +278,12 @@ public class GetModulesHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Is.Not.Empty, "Should have data");
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Data);
         var moduleResponse = result.Data[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(moduleResponse.Id, Is.EqualTo(moduleId), "Id should match");
-            Assert.That(moduleResponse.Name, Is.EqualTo(module.Name), "Name should match");
-            Assert.That(moduleResponse.Type, Is.EqualTo(ModuleType.Basic), "Type should match");
-        }
+        
+        Assert.Equal(moduleId, moduleResponse.Id);
+        Assert.Equal(module.Name, moduleResponse.Name);
+        Assert.Equal(ModuleType.Basic, moduleResponse.Type);
     }
 }

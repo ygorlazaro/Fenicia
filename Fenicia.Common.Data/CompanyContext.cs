@@ -4,7 +4,7 @@ namespace Fenicia.Common.Data;
 
 public class CompanyContext(IHttpContextAccessor http) : ICompanyContext
 {
-    public Guid? CompanyId
+    public Guid CompanyId
     {
         get
         {
@@ -18,12 +18,12 @@ public class CompanyContext(IHttpContextAccessor http) : ICompanyContext
 
             if (http.HttpContext?.Request?.Headers?.TryGetValue("x-company", out var headerValue) != true)
             {
-                return null;
+                return Guid.Empty;
             }
 
             if (!Guid.TryParse(headerValue.ToString(), out var headerCompanyId))
             {
-                return null;
+                return Guid.Empty;
             }
 
             return headerCompanyId;

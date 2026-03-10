@@ -1,5 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +11,11 @@ public class UpsertConfigurationHandler(DefaultContext context)
 {
     public async Task Handle(UpsertConfigurationCommand command, CancellationToken ct)
     {
+        if (command.CompanyId is null)
+        {
+            throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundMessage);
+        }
+        
         var configuration = await context.AuthConfiguration
             .FirstOrDefaultAsync(c => 
                 c.UserId == command.UserId && 
@@ -23,7 +30,7 @@ public class UpsertConfigurationHandler(DefaultContext context)
             {
                 Id = Guid.NewGuid(),
                 UserId = command.UserId,
-                CompanyId = command.CompanyId,
+                CompanyId = command.CompanyId.Value,
                 ConfigType = command.ConfigType,
                 Value = command.Value
             };

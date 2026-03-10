@@ -9,32 +9,23 @@ using Fenicia.Common.Data.Models.Basic;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 
-[TestFixture]
-public class CreateOrderHandlerTests
+public class CreateOrderHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public CreateOrderHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new CreateOrderHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly CreateOrderHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private CreateOrderHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_CreatesOrderAndReturnsResponse()
     {
         // Arrange
@@ -59,19 +50,16 @@ public class CreateOrderHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.UserId, Is.EqualTo(userId));
-            Assert.That(result.CustomerId, Is.EqualTo(customerId));
-            Assert.That(result.EmployeeId, Is.EqualTo(employeeId));
-            Assert.That(result.TotalAmount, Is.EqualTo(110.00m));
-            Assert.That(result.SaleDate, Is.EqualTo(command.SaleDate));
-            Assert.That(result.Status, Is.EqualTo(OrderStatus.Pending));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(userId, result.UserId);
+        Assert.Equal(customerId, result.CustomerId);
+        Assert.Equal(employeeId, result.EmployeeId);
+        Assert.Equal(110.00m, result.TotalAmount);
+        Assert.Equal(command.SaleDate, result.SaleDate);
+        Assert.Equal(OrderStatus.Pending, result.Status);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithSingleDetail_CalculatesCorrectTotalAmount()
     {
         // Arrange
@@ -91,11 +79,11 @@ public class CreateOrderHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.TotalAmount, Is.EqualTo(30.00m));
+        Assert.NotNull(result);
+        Assert.Equal(30.00m, result.TotalAmount);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleDetails_CreatesStockMovements()
     {
         // Arrange
@@ -115,7 +103,7 @@ public class CreateOrderHandlerTests
         };
         this.context.BasicProducts.Add(product);
         await this.context.SaveChangesAsync(CancellationToken.None);
-    
+
         var details = new List<OrderDetailCommand>
         {
             new(productId, 10.00m, 5)
@@ -134,24 +122,21 @@ public class CreateOrderHandlerTests
 
         // Assert
         var stockMovements = await this.context.BasicStockMovements.ToListAsync();
-        Assert.That(stockMovements, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(stockMovements[0].ProductId, Is.EqualTo(productId));
-            Assert.That(stockMovements[0].CustomerId, Is.EqualTo(customerId));
-            Assert.That(stockMovements[0].EmployeeId, Is.EqualTo(employeeId));
-            Assert.That(stockMovements[0].Type, Is.EqualTo(StockMovementType.Out));
-            Assert.That(stockMovements[0].Quantity, Is.EqualTo(5));
-            Assert.That(stockMovements[0].Reason, Does.Contain("Sale order"));
-        }
-    
+        Assert.Single(stockMovements);
+        Assert.Equal(productId, stockMovements[0].ProductId);
+        Assert.Equal(customerId, stockMovements[0].CustomerId);
+        Assert.Equal(employeeId, stockMovements[0].EmployeeId);
+        Assert.Equal(StockMovementType.Out, stockMovements[0].Type);
+        Assert.Equal(5, stockMovements[0].Quantity);
+        Assert.Contains("Sale order", stockMovements[0].Reason);
+
         // Verify product quantity was reduced
         var updatedProduct = await this.context.BasicProducts.FindAsync(productId);
-        Assert.That(updatedProduct, Is.Not.Null);
-        Assert.That(updatedProduct.Quantity, Is.EqualTo(95)); // 100 - 5
+        Assert.NotNull(updatedProduct);
+        Assert.Equal(95, updatedProduct.Quantity); // 100 - 5
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleDetails_SubtractsProductQuantity()
     {
         // Arrange
@@ -174,7 +159,7 @@ public class CreateOrderHandlerTests
             SalesPrice = 15.00m,
             CategoryId = Guid.NewGuid()
         };
-    
+
         this.context.BasicProducts.AddRange(product1, product2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
@@ -197,14 +182,11 @@ public class CreateOrderHandlerTests
         // Assert
         var updatedProduct1 = await this.context.BasicProducts.FindAsync(product1.Id);
         var updatedProduct2 = await this.context.BasicProducts.FindAsync(product2.Id);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedProduct1?.Quantity, Is.EqualTo(45)); // 50 - 5
-            Assert.That(updatedProduct2?.Quantity, Is.EqualTo(27)); // 30 - 3
-        }
+        Assert.Equal(45, updatedProduct1?.Quantity); // 50 - 5
+        Assert.Equal(27, updatedProduct2?.Quantity); // 30 - 3
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesOrderWasSavedToDatabase()
     {
         // Arrange
@@ -225,15 +207,12 @@ public class CreateOrderHandlerTests
 
         // Assert
         var orders = await this.context.BasicOrders.ToListAsync();
-        Assert.That(orders, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(orders[0].CustomerId, Is.EqualTo(command.CustomerId));
-            Assert.That(orders[0].Status, Is.EqualTo(OrderStatus.Pending));
-        }
+        Assert.Single(orders);
+        Assert.Equal(command.CustomerId, orders[0].CustomerId);
+        Assert.Equal(OrderStatus.Pending, orders[0].Status);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleDetails_CreatesOrderDetails()
     {
         // Arrange
@@ -255,10 +234,10 @@ public class CreateOrderHandlerTests
 
         // Assert
         var orderDetails = await this.context.BasicOrderDetails.ToListAsync();
-        Assert.That(orderDetails, Has.Count.EqualTo(2));
+        Assert.Equal(2, orderDetails.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullEmployeeId_CreatesOrderWithoutEmployee()
     {
         // Arrange
@@ -278,9 +257,14 @@ public class CreateOrderHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result.EmployeeId, Is.Null);
-    
+        Assert.Null(result.EmployeeId);
+
         var orders = await this.context.BasicOrders.ToListAsync();
-        Assert.That(orders[0].EmployeeId, Is.Null);
+        Assert.Null(orders[0].EmployeeId);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

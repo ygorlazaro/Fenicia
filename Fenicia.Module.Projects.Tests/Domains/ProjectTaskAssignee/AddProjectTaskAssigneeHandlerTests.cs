@@ -1,5 +1,3 @@
-using Bogus;
-
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Add;
@@ -8,34 +6,30 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;
 
-[TestFixture]
-public class AddProjectTaskAssigneeHandlerTests
+public class AddProjectTaskAssigneeHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddProjectTaskAssigneeHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddProjectTaskAssigneeHandler(this.context);
-        this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddProjectTaskAssigneeHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly AddProjectTaskAssigneeHandler handler;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsProjectTaskAssigneeAndReturnsResponse()
     {
         // Arrange
@@ -50,15 +44,12 @@ public class AddProjectTaskAssigneeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Role, Is.EqualTo(command.Role));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Role, result.Role);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesProjectTaskAssigneeWasSaved()
     {
         // Arrange
@@ -79,15 +70,12 @@ public class AddProjectTaskAssigneeHandlerTests
         var assignee = await this.context.ProjectTaskAssignees
             .FirstOrDefaultAsync(a => a.Id == command.Id);
 
-        Assert.That(assignee, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(assignee.TaskId, Is.EqualTo(taskId));
-            Assert.That(assignee.UserId, Is.EqualTo(userId));
-        }
+        Assert.NotNull(assignee);
+        Assert.Equal(taskId, assignee.TaskId);
+        Assert.Equal(userId, assignee.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProjectTaskAssignees()
     {
         // Arrange
@@ -112,10 +100,10 @@ public class AddProjectTaskAssigneeHandlerTests
 
         // Assert
         var assignees = await this.context.ProjectTaskAssignees.ToListAsync();
-        Assert.That(assignees, Has.Count.EqualTo(2));
+        Assert.Equal(2, assignees.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMemberRole_AddsProjectTaskAssigneeSuccessfully()
     {
         // Arrange
@@ -130,15 +118,12 @@ public class AddProjectTaskAssigneeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Role, Is.EqualTo("Contributor"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal("Contributor", result.Role);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPastAssignedDate_AddsProjectTaskAssigneeSuccessfully()
     {
         // Arrange
@@ -154,11 +139,8 @@ public class AddProjectTaskAssigneeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.AssignedAt, Is.EqualTo(pastDate));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(pastDate, result.AssignedAt);
     }
 }

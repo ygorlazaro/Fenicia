@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
 
-[TestFixture]
-public class DeleteProjectSubtaskHandlerTests
+public class DeleteProjectSubtaskHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteProjectSubtaskHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteProjectSubtaskHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteProjectSubtaskHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly DeleteProjectSubtaskHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectSubtaskExists_SetsDeletedDate()
     {
         // Arrange
@@ -63,13 +61,12 @@ public class DeleteProjectSubtaskHandlerTests
 
         // Assert
         var deletedSubtask = await this.context.ProjectSubtasks.FindAsync([subtaskId], CancellationToken.None);
-        Assert.That(deletedSubtask, Is.Not.Null);
-        Assert.That(deletedSubtask.Deleted, Is.Not.Null);
-        Assert.That(deletedSubtask.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedSubtask.Deleted, Is.LessThanOrEqualTo(DateTime.UtcNow.AddSeconds(1)));
+        Assert.NotNull(deletedSubtask);
+        Assert.NotNull(deletedSubtask.Deleted);
+        Assert.InRange(deletedSubtask.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectSubtaskDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -80,10 +77,10 @@ public class DeleteProjectSubtaskHandlerTests
 
         // Assert
         var subtasks = await this.context.ProjectSubtasks.ToListAsync();
-        Assert.That(subtasks, Is.Empty);
+        Assert.Empty(subtasks);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -94,10 +91,10 @@ public class DeleteProjectSubtaskHandlerTests
 
         // Assert
         var subtasks = await this.context.ProjectSubtasks.ToListAsync();
-        Assert.That(subtasks, Is.Empty);
+        Assert.Empty(subtasks);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectSubtasks_OnlyDeletesSpecified()
     {
         // Arrange
@@ -137,16 +134,13 @@ public class DeleteProjectSubtaskHandlerTests
         var deletedSubtask = await this.context.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
         var notDeletedSubtask = await this.context.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
 
-        Assert.That(deletedSubtask, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedSubtask.Deleted, Is.Not.Null);
-            Assert.That(notDeletedSubtask, Is.Not.Null);
-        }
-        Assert.That(notDeletedSubtask?.Deleted, Is.Null);
+        Assert.NotNull(deletedSubtask);
+        Assert.NotNull(deletedSubtask.Deleted);
+        Assert.NotNull(notDeletedSubtask);
+        Assert.Null(notDeletedSubtask.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectSubtasks_DeletesCorrectProjectSubtask()
     {
         // Arrange
@@ -198,17 +192,11 @@ public class DeleteProjectSubtaskHandlerTests
         var deletedSubtask = await this.context.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
         var subtask3InDb = await this.context.ProjectSubtasks.FindAsync([subtask3Id], CancellationToken.None);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(subtask1InDb, Is.Not.Null);
-            Assert.That(deletedSubtask, Is.Not.Null);
-            Assert.That(subtask3InDb, Is.Not.Null);
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(subtask1InDb?.Deleted, Is.Null);
-            Assert.That(deletedSubtask?.Deleted, Is.Not.Null);
-            Assert.That(subtask3InDb?.Deleted, Is.Null);
-        }
+        Assert.NotNull(subtask1InDb);
+        Assert.NotNull(deletedSubtask);
+        Assert.NotNull(subtask3InDb);
+        Assert.Null(subtask1InDb.Deleted);
+        Assert.NotNull(deletedSubtask.Deleted);
+        Assert.Null(subtask3InDb.Deleted);
     }
 }

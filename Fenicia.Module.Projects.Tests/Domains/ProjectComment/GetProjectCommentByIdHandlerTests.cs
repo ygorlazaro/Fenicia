@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
 
-[TestFixture]
-public class GetProjectCommentByIdHandlerTests
+public class GetProjectCommentByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetProjectCommentByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetProjectCommentByIdHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetProjectCommentByIdHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly GetProjectCommentByIdHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectCommentExists_ReturnsProjectCommentResponse()
     {
         // Arrange
@@ -60,15 +58,12 @@ public class GetProjectCommentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(commentId));
-            Assert.That(result.Content, Is.EqualTo(comment.Content));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(commentId, result.Id);
+        Assert.Equal(comment.Content, result.Content);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectCommentDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -78,10 +73,10 @@ public class GetProjectCommentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -91,10 +86,10 @@ public class GetProjectCommentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectComments_ReturnsOnlyRequestedComment()
     {
         // Arrange
@@ -128,15 +123,12 @@ public class GetProjectCommentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(comment1Id));
-            Assert.That(result.Content, Is.EqualTo(comment1.Content));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(comment1Id, result.Id);
+        Assert.Equal(comment1.Content, result.Content);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithLongContent_ReturnsCorrectResponse()
     {
         // Arrange
@@ -161,11 +153,8 @@ public class GetProjectCommentByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(commentId));
-            Assert.That(result.Content, Is.EqualTo(longContent));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(commentId, result.Id);
+        Assert.Equal(longContent, result.Content);
     }
 }

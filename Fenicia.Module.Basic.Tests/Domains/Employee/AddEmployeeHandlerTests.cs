@@ -8,34 +8,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-[TestFixture]
-public class AddEmployeeHandlerTests
+public class AddEmployeeHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddEmployeeHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddEmployeeHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly AddEmployeeHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddEmployeeHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsEmployeeAndReturnsResponse()
     {
         // Arrange
@@ -59,15 +50,12 @@ public class AddEmployeeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.PositionId, Is.EqualTo(positionId));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(positionId, result.PositionId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullPhoneNumber_SetsEmptyString()
     {
         // Arrange
@@ -90,10 +78,10 @@ public class AddEmployeeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullStreet_SetsEmptyString()
     {
         // Arrange
@@ -116,10 +104,10 @@ public class AddEmployeeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullZipCode_SetsEmptyString()
     {
         // Arrange
@@ -142,10 +130,10 @@ public class AddEmployeeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullNumber_SetsEmptyString()
     {
         // Arrange
@@ -168,10 +156,10 @@ public class AddEmployeeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullComplement_KeepsNull()
     {
         // Arrange
@@ -194,10 +182,10 @@ public class AddEmployeeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullNeighborhood_KeepsNull()
     {
         // Arrange
@@ -220,10 +208,10 @@ public class AddEmployeeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullCity_KeepsNull()
     {
         // Arrange
@@ -246,10 +234,10 @@ public class AddEmployeeHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesEmployeeWasSavedToDatabase()
     {
         // Arrange
@@ -277,15 +265,12 @@ public class AddEmployeeHandlerTests
             .Include(e => e.Person)
             .FirstOrDefaultAsync(e => e.Id == command.Id);
 
-        Assert.That(employee, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(employee.Person.Name, Is.EqualTo(command.Name));
-            Assert.That(employee.PositionId, Is.EqualTo(positionId));
-        }
+        Assert.NotNull(employee);
+        Assert.Equal(command.Name, employee.Person.Name);
+        Assert.Equal(positionId, employee.PositionId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllEmployees()
     {
         // Arrange
@@ -325,6 +310,13 @@ public class AddEmployeeHandlerTests
 
         // Assert
         var employees = await this.context.BasicEmployees.ToListAsync();
-        Assert.That(employees, Has.Count.EqualTo(2));
+        Assert.Equal(2, employees.Count);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

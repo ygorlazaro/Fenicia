@@ -8,34 +8,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Attachment;
 
-[TestFixture]
-public class AddProjectAttachmentHandlerTests
+public class AddProjectAttachmentHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddProjectAttachmentHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext1 = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext1);
         this.handler = new AddProjectAttachmentHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddProjectAttachmentHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly AddProjectAttachmentHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsProjectAttachmentAndReturnsResponse()
     {
         // Arrange
@@ -52,15 +50,12 @@ public class AddProjectAttachmentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.FileName, Is.EqualTo(command.FileName));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.FileName, result.FileName);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesProjectAttachmentWasSaved()
     {
         // Arrange
@@ -83,15 +78,12 @@ public class AddProjectAttachmentHandlerTests
         var attachment = await this.context.ProjectAttachments
             .FirstOrDefaultAsync(a => a.Id == command.Id);
 
-        Assert.That(attachment, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(attachment.FileName, Is.EqualTo(fileName));
-            Assert.That(attachment.FileUrl, Is.EqualTo(fileUrl));
-        }
+        Assert.NotNull(attachment);
+        Assert.Equal(fileName, attachment.FileName);
+        Assert.Equal(fileUrl, attachment.FileUrl);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProjectAttachments()
     {
         // Arrange
@@ -120,10 +112,10 @@ public class AddProjectAttachmentHandlerTests
 
         // Assert
         var attachments = await this.context.ProjectAttachments.ToListAsync();
-        Assert.That(attachments, Has.Count.EqualTo(2));
+        Assert.Equal(2, attachments.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithLargeFileSize_AddsProjectAttachmentSuccessfully()
     {
         // Arrange
@@ -141,15 +133,12 @@ public class AddProjectAttachmentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.FileSize, Is.EqualTo(largeFileSize));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(largeFileSize, result.FileSize);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithSmallFileSize_AddsProjectAttachmentSuccessfully()
     {
         // Arrange
@@ -167,11 +156,8 @@ public class AddProjectAttachmentHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.FileSize, Is.EqualTo(smallFileSize));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(smallFileSize, result.FileSize);
     }
 }

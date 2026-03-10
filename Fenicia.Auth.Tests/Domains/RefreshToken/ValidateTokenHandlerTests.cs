@@ -9,26 +9,23 @@ using StackExchange.Redis;
 
 namespace Fenicia.Auth.Tests.Domains.RefreshToken;
 
-[TestFixture]
 public class ValidateTokenHandlerTests
 {
-    [SetUp]
-    public void SetUp()
+    private readonly Mock<IDatabase> redisDbMock;
+    private readonly ValidateTokenHandler handler;
+
+    public ValidateTokenHandlerTests()
     {
-        this.redisMock = new Mock<IConnectionMultiplexer>();
+        var redisMock = new Mock<IConnectionMultiplexer>();
         this.redisDbMock = new Mock<IDatabase>();
 
-        this.redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>()))
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>()))
             .Returns(this.redisDbMock.Object);
 
-        this.handler = new ValidateTokenHandler(this.redisMock.Object);
+        this.handler = new ValidateTokenHandler(redisMock.Object);
     }
 
-    private Mock<IConnectionMultiplexer> redisMock;
-    private Mock<IDatabase> redisDbMock;
-    private ValidateTokenHandler handler;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenTokenIsValidAndActive_ReturnsTrue()
     {
         // Arrange
@@ -55,10 +52,10 @@ public class ValidateTokenHandlerTests
         var result = await this.handler.Handle(query);
 
         // Assert
-        Assert.That(result, Is.True, "Should return true for valid and active token");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenTokenDoesNotExistInRedis_ReturnsFalse()
     {
         // Arrange
@@ -75,10 +72,10 @@ public class ValidateTokenHandlerTests
         var result = await this.handler.Handle(query);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when token doesn't exist");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenTokenIsInactive_ReturnsFalse()
     {
         // Arrange
@@ -105,10 +102,10 @@ public class ValidateTokenHandlerTests
         var result = await this.handler.Handle(query);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false for inactive token");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenTokenIsExpired_ReturnsFalse()
     {
         // Arrange
@@ -135,10 +132,10 @@ public class ValidateTokenHandlerTests
         var result = await this.handler.Handle(query);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false for expired token");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenTokenBelongsToDifferentUser_ReturnsFalse()
     {
         // Arrange
@@ -166,22 +163,21 @@ public class ValidateTokenHandlerTests
         var result = await this.handler.Handle(query);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when token belongs to different user");
+        Assert.False(result);
     }
 
-    [Test]
-    public void Handle_WhenRefreshTokenIsNull_ThrowsArgumentException()
+    [Fact]
+    public async Task Handle_WhenRefreshTokenIsNull_ThrowsArgumentException()
     {
         // Arrange
         var userId = Guid.NewGuid();
         var query = new ValidateTokenQuery(userId, null!);
 
         // Act & Assert
-        Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query)
-        );
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenTokenIsExpiringSoon_ReturnsTrue()
     {
         // Arrange
@@ -208,10 +204,10 @@ public class ValidateTokenHandlerTests
         var result = await this.handler.Handle(query);
 
         // Assert
-        Assert.That(result, Is.True, "Should return true for token expiring soon but still valid");
+        Assert.True(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenTokenHasExactlyCurrentExpirationTime_ReturnsFalse()
     {
         // Arrange
@@ -238,10 +234,10 @@ public class ValidateTokenHandlerTests
         var result = await this.handler.Handle(query);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when expiration equals current time");
+        Assert.False(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMalformedJsonInRedis_ReturnsFalse()
     {
         // Arrange
@@ -260,6 +256,6 @@ public class ValidateTokenHandlerTests
         var result = await this.handler.Handle(query);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false for malformed JSON in Redis");
+        Assert.False(result);
     }
 }

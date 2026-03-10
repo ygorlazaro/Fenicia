@@ -18,11 +18,9 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.State;
 
-[TestFixture]
-public class StateControllerTests
+public class StateControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public StateControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -45,18 +43,18 @@ public class StateControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private StateController controller = null!;
-    private DefaultContext context = null!;
-    private GetAllStateHandler getAllStateHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Faker faker = null!;
+    private readonly TestCompanyContext companyContext;
+    private readonly StateController controller;
+    private readonly DefaultContext context;
+    private readonly GetAllStateHandler getAllStateHandler;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -72,7 +70,7 @@ public class StateControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetAllAsync_WhenNoStatesExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -83,18 +81,18 @@ public class StateControllerTests
         var result = await this.controller.GetAllAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedStates = okResult.Value as List<GetAllStateResponse>;
-        Assert.That(returnedStates, Is.Not.Null);
-        Assert.That(returnedStates, Is.Empty);
+        Assert.NotNull(returnedStates);
+        Assert.Empty(returnedStates);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAllAsync_WhenStatesExist_ReturnsOkWithStates()
     {
         // Arrange
@@ -122,18 +120,18 @@ public class StateControllerTests
         var result = await this.controller.GetAllAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedStates = okResult.Value as List<GetAllStateResponse>;
-        Assert.That(returnedStates, Is.Not.Null);
-        Assert.That(returnedStates, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedStates);
+        Assert.Equal(2, returnedStates.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAllAsync_WhenStatesExist_ReturnsStatesOrderedByUf()
     {
         // Arrange
@@ -168,24 +166,21 @@ public class StateControllerTests
         var result = await this.controller.GetAllAsync(wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedStates = okResult.Value as List<GetAllStateResponse>;
-        Assert.That(returnedStates, Is.Not.Null);
-        Assert.That(returnedStates, Has.Count.EqualTo(3));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedStates[0].Uf, Is.EqualTo("AC"));
-            Assert.That(returnedStates[1].Uf, Is.EqualTo("RJ"));
-            Assert.That(returnedStates[2].Uf, Is.EqualTo("SP"));
-        }
+        Assert.NotNull(returnedStates);
+        Assert.Equal(3, returnedStates.Count);
+        Assert.Equal("AC", returnedStates[0].Uf);
+        Assert.Equal("RJ", returnedStates[1].Uf);
+        Assert.Equal("SP", returnedStates[2].Uf);
     }
 
-    [Test]
+    [Fact]
     public void StateController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -195,10 +190,10 @@ public class StateControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "StateController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void StateController_HasRouteAttribute()
     {
         // Arrange
@@ -209,11 +204,11 @@ public class StateControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "StateController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void StateController_HasApiControllerAttribute()
     {
         // Arrange
@@ -224,6 +219,6 @@ public class StateControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "StateController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
     }
 }

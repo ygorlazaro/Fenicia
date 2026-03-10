@@ -12,11 +12,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
-[TestFixture]
-public class ResetPasswordHandlerTests
+public class ResetPasswordHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public ResetPasswordHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -24,23 +22,22 @@ public class ResetPasswordHandlerTests
 
         this.context = new DefaultContext(options, new TestCompanyContext());
         var hashPasswordHandler = new HashPasswordHandler();
-        this.changePasswordHandler = new ChangePasswordHandler(this.context, hashPasswordHandler);
-        this.handler = new ResetPasswordHandler(this.context, this.changePasswordHandler);
+        var changePasswordHandler = new ChangePasswordHandler(this.context, hashPasswordHandler);
+        this.handler = new ResetPasswordHandler(this.context, changePasswordHandler);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context;
-    private ResetPasswordHandler handler;
-    private ChangePasswordHandler changePasswordHandler;
-    private Faker faker;
+    private readonly DefaultContext context;
+    private readonly ResetPasswordHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenValidCode_ResetsPasswordSuccessfully()
     {
         // Arrange
@@ -77,16 +74,16 @@ public class ResetPasswordHandlerTests
 
         // Assert
         var updatedUser = await this.context.AuthUsers.FindAsync(userId);
-        Assert.That(updatedUser, Is.Not.Null);
-        Assert.That(updatedUser!.Password, Is.Not.EqualTo("old_hashed_password"), "Password should be changed");
+        Assert.NotNull(updatedUser);
+        Assert.NotEqual("old_hashed_password", updatedUser.Password);
 
         var updatedCode = await this.context.AuthForgottenPasswords.FindAsync(forgotPassword.Id);
-        Assert.That(updatedCode, Is.Not.Null);
-        Assert.That(updatedCode!.IsActive, Is.False, "Code should be invalidated after use");
+        Assert.NotNull(updatedCode);
+        Assert.False(updatedCode.IsActive);
     }
 
-    [Test]
-    public void Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
+    [Fact]
+    public async Task Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -96,13 +93,13 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("User with given email does not exist."));
+        Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCodeDoesNotExist_ThrowsInvalidDataException()
     {
         // Arrange
@@ -136,13 +133,13 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, invalidCode);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Invalid forgot password code."));
+        Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCodeIsInactive_ThrowsInvalidDataException()
     {
         // Arrange
@@ -175,13 +172,13 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Invalid forgot password code."));
+        Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCodeIsExpired_ThrowsInvalidDataException()
     {
         // Arrange
@@ -214,13 +211,13 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Invalid forgot password code."));
+        Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCodeBelongsToDifferentUser_ThrowsInvalidDataException()
     {
         // Arrange
@@ -263,13 +260,13 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email2, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Invalid forgot password code."));
+        Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCodeIsUsedSecondTime_ThrowsInvalidDataException()
     {
         // Arrange
@@ -305,13 +302,13 @@ public class ResetPasswordHandlerTests
         await this.handler.Handle(command, CancellationToken.None);
 
         // Act & Assert - Second use
-        var ex = Assert.ThrowsAsync<InvalidDataException>(async () =>
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Invalid forgot password code."));
+        Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesPasswordWasActuallyChanged()
     {
         // Arrange
@@ -348,18 +345,15 @@ public class ResetPasswordHandlerTests
 
         // Assert
         var updatedUser = await this.context.AuthUsers.FindAsync(userId);
-        Assert.That(updatedUser, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedUser!.Password, Is.Not.EqualTo("old_hashed_password"), "Password hash should change");
-            Assert.That(updatedUser.Password, Is.Not.EqualTo(newPassword), "Password should be hashed, not plain text");
-            Assert.That(updatedUser.Email, Is.EqualTo(email), "Email should not change");
-            Assert.That(updatedUser.Name, Is.EqualTo(user.Name), "Name should not change");
-        }
+        Assert.NotNull(updatedUser);
+        Assert.NotEqual("old_hashed_password", updatedUser.Password);
+        Assert.NotEqual(newPassword, updatedUser.Password);
+        Assert.Equal(email, updatedUser.Email);
+        Assert.Equal(user.Name, updatedUser.Name);
     }
 
-    [Test]
-    public void Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
+    [Fact]
+    public async Task Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
     {
         // Arrange
         var email = this.faker.Internet.Email();
@@ -369,9 +363,9 @@ public class ResetPasswordHandlerTests
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("User with given email does not exist."));
+        Assert.Equal("User with given email does not exist.", ex.Message);
     }
 }

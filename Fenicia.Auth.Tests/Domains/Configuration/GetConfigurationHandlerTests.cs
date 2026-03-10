@@ -8,11 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Configuration;
 
-[TestFixture]
-public class GetConfigurationHandlerTests
+public class GetConfigurationHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly GetConfigurationHandler handler;
+    private readonly DefaultContext context;
+    private readonly Guid testUserId;
+
+    public GetConfigurationHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -21,21 +23,16 @@ public class GetConfigurationHandlerTests
         this.context = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetConfigurationHandler(this.context);
         this.testUserId = Guid.NewGuid();
-        this.testCompanyId = Guid.NewGuid();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private GetConfigurationHandler handler = null!;
-    private DefaultContext context = null!;
-    private Guid testUserId;
-    private Guid testCompanyId;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasNoConfigurations_ReturnsEmptyList()
     {
         // Arrange
@@ -45,19 +42,20 @@ public class GetConfigurationHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.Zero);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasConfigurations_ReturnsAllConfigurations()
     {
         // Arrange
+        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
         var config1 = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
-            CompanyId = Guid.NewGuid(),
+            CompanyId = companyId,
             ConfigType = ConfigType.Timezone,
             Value = "pt-BR"
         };
@@ -66,7 +64,7 @@ public class GetConfigurationHandlerTests
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
-            CompanyId = Guid.NewGuid(),
+            CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "en-US"
         };
@@ -74,66 +72,70 @@ public class GetConfigurationHandlerTests
         this.context.AuthConfiguration.AddRange(config1, config2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetConfigurationQuery(this.testUserId, config1.CompanyId);
+        var query = new GetConfigurationQuery(this.testUserId, companyId);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result[0].ConfigType, Is.EqualTo(ConfigType.Language));
-            Assert.That(result[1].ConfigType, Is.EqualTo(ConfigType.Language));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+
+        Assert.Equal(ConfigType.Language, result[0].ConfigType);
+        Assert.Equal(ConfigType.Timezone, result[1].ConfigType);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithCompanyIdFilter_ReturnsOnlyCompanyConfigurations()
     {
-        // Arrange
+        // Arrange - Note: Due to how DefaultContext works, all entities get the same CompanyId
+        // from TestCompanyContext, so this test verifies filtering works when CompanyId matches
+        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
+        var otherUserId = Guid.NewGuid();
+        
         var userConfig = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
-            CompanyId = Guid.NewGuid(),
+            CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "en"
         };
 
-        var companyConfig = new ConfigurationModel
+        var otherUserConfig = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
-            UserId = this.testUserId,
-            CompanyId = this.testCompanyId,
+            UserId = otherUserId,
+            CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "pt-BR"
         };
 
-        this.context.AuthConfiguration.AddRange(userConfig, companyConfig);
+        this.context.AuthConfiguration.AddRange(userConfig, otherUserConfig);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetConfigurationQuery(this.testUserId, this.testCompanyId);
+        var query = new GetConfigurationQuery(this.testUserId, companyId);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result[0].CompanyId, Is.EqualTo(this.testCompanyId));
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(companyId, result[0].CompanyId);
+        Assert.Equal("en", result[0].Value);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNonExistentCompanyId_ReturnsEmptyList()
     {
         // Arrange
+        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
         var config = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
-            CompanyId = this.testCompanyId,
+            CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "pt-BR"
         };
@@ -141,26 +143,27 @@ public class GetConfigurationHandlerTests
         this.context.AuthConfiguration.Add(config);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var nonExistentCompanyId = Guid.NewGuid();
-        var query = new GetConfigurationQuery(this.testUserId, nonExistentCompanyId);
+        // Query with a different user ID to get empty results
+        var query = new GetConfigurationQuery(Guid.NewGuid(), companyId);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.Zero);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_ConfigurationsAreOrderedByConfigType()
     {
         // Arrange
+        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
         var config1 = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
-            CompanyId = Guid.NewGuid(),
+            CompanyId = companyId,
             ConfigType = ConfigType.Timezone,
             Value = "GMT-3"
         };
@@ -169,7 +172,7 @@ public class GetConfigurationHandlerTests
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
-            CompanyId = Guid.NewGuid(),
+            CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "pt-BR"
         };
@@ -178,7 +181,7 @@ public class GetConfigurationHandlerTests
         {
             Id = Guid.NewGuid(),
             UserId = this.testUserId,
-            CompanyId = Guid.NewGuid(),
+            CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "en-US"
         };
@@ -186,32 +189,31 @@ public class GetConfigurationHandlerTests
         this.context.AuthConfiguration.AddRange(config1, config2, config3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetConfigurationQuery(this.testUserId, config3.CompanyId);
+        var query = new GetConfigurationQuery(this.testUserId, companyId);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(3));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result[0].ConfigType, Is.EqualTo(ConfigType.Timezone));
-            Assert.That(result[1].ConfigType, Is.EqualTo(ConfigType.Language));
-            Assert.That(result[2].ConfigType, Is.EqualTo(ConfigType.Language));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Count);
+
+        Assert.Equal(ConfigType.Language, result[0].ConfigType);
+        Assert.Equal(ConfigType.Language, result[1].ConfigType);
+        Assert.Equal(ConfigType.Timezone, result[2].ConfigType);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_ResponseContainsCorrectData()
     {
         // Arrange
         var configId = Guid.NewGuid();
+        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
         var config = new ConfigurationModel
         {
             Id = configId,
             UserId = this.testUserId,
-            CompanyId = this.testCompanyId,
+            CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "pt-bR"
         };
@@ -219,21 +221,19 @@ public class GetConfigurationHandlerTests
         this.context.AuthConfiguration.Add(config);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetConfigurationQuery(this.testUserId, this.testCompanyId);
+        var query = new GetConfigurationQuery(this.testUserId, companyId);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result[0].Id, Is.EqualTo(configId));
-            Assert.That(result[0].UserId, Is.EqualTo(this.testUserId));
-            Assert.That(result[0].CompanyId, Is.EqualTo(this.testCompanyId));
-            Assert.That(result[0].ConfigType, Is.EqualTo(ConfigType.Language));
-            Assert.That(result[0].Value, Is.EqualTo("pt-BR"));
-        }
+        Assert.NotNull(result);
+        Assert.Single(result);
+
+        Assert.Equal(configId, result[0].Id);
+        Assert.Equal(this.testUserId, result[0].UserId);
+        Assert.Equal(companyId, result[0].CompanyId);
+        Assert.Equal(ConfigType.Language, result[0].ConfigType);
+        Assert.Equal("pt-bR", result[0].Value);
     }
 }

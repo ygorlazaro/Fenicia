@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectStatus;
 
-[TestFixture]
-public class GetProjectStatusByIdHandlerTests
+public class GetProjectStatusByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetProjectStatusByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetProjectStatusByIdHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetProjectStatusByIdHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly GetProjectStatusByIdHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectStatusExists_ReturnsProjectStatusResponse()
     {
         // Arrange
@@ -61,15 +59,12 @@ public class GetProjectStatusByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(statusId));
-            Assert.That(result.Name, Is.EqualTo(status.Name));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(statusId, result.Id);
+        Assert.Equal(status.Name, result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectStatusDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -79,10 +74,10 @@ public class GetProjectStatusByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -92,10 +87,10 @@ public class GetProjectStatusByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectStatuses_ReturnsOnlyRequestedStatus()
     {
         // Arrange
@@ -132,15 +127,12 @@ public class GetProjectStatusByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(status1Id));
-            Assert.That(result.Name, Is.EqualTo(status1.Name));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(status1Id, result.Id);
+        Assert.Equal(status1.Name, result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithIsFinalTrue_ReturnsCorrectResponse()
     {
         // Arrange
@@ -165,11 +157,8 @@ public class GetProjectStatusByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(statusId));
-            Assert.That(result.IsFinal, Is.True);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(statusId, result.Id);
+        Assert.True(result.IsFinal);
     }
 }

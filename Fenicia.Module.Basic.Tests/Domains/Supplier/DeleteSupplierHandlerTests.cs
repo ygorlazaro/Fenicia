@@ -9,34 +9,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
-[TestFixture]
-public class DeleteSupplierHandlerTests
+public class DeleteSupplierHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteSupplierHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteSupplierHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly DeleteSupplierHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteSupplierHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenSupplierExists_SetsDeletedDate()
     {
         // Arrange
@@ -70,13 +61,13 @@ public class DeleteSupplierHandlerTests
 
         // Assert
         var deletedSupplier = await this.context.BasicSuppliers.FindAsync([supplierId], CancellationToken.None);
-        Assert.That(deletedSupplier, Is.Not.Null);
-        Assert.That(deletedSupplier.Deleted, Is.Not.Null);
-        Assert.That(deletedSupplier.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedSupplier.Deleted, Is.LessThanOrEqualTo(DateTime.Now.AddSeconds(1)));
+        Assert.NotNull(deletedSupplier);
+        Assert.NotNull(deletedSupplier.Deleted);
+        Assert.True(deletedSupplier.Deleted >= beforeDelete.AddSeconds(-1));
+        Assert.True(deletedSupplier.Deleted <= DateTime.Now.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenSupplierDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -87,10 +78,10 @@ public class DeleteSupplierHandlerTests
 
         // Assert
         var suppliers = await this.context.BasicSuppliers.ToListAsync();
-        Assert.That(suppliers, Is.Empty);
+        Assert.Empty(suppliers);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleSuppliers_OnlyDeletesSpecified()
     {
         // Arrange
@@ -131,12 +122,14 @@ public class DeleteSupplierHandlerTests
         var deletedSupplier = await this.context.BasicSuppliers.FindAsync([supplier1Id], CancellationToken.None);
         var notDeletedSupplier = await this.context.BasicSuppliers.FindAsync([supplier2Id], CancellationToken.None);
 
-        Assert.That(deletedSupplier, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedSupplier.Deleted, Is.Not.Null);
-            Assert.That(notDeletedSupplier, Is.Not.Null);
-        }
-        Assert.That(notDeletedSupplier?.Deleted, Is.Null);
+        Assert.NotNull(deletedSupplier);
+        Assert.NotNull(deletedSupplier.Deleted);
+        Assert.NotNull(notDeletedSupplier);
+        Assert.Null(notDeletedSupplier.Deleted);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

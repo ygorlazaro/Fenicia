@@ -7,32 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
-[TestFixture]
-public class GetProductsByCategoryIdHandlerTests
+public class GetProductsByCategoryIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetProductsByCategoryIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetProductsByCategoryIdHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly GetProductsByCategoryIdHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetProductsByCategoryIdHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithNoProductsForCategory_ReturnsEmptyList()
     {
         // Arrange
@@ -43,11 +34,11 @@ public class GetProductsByCategoryIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithProductsForCategory_ReturnsFilteredList()
     {
         // Arrange
@@ -97,12 +88,12 @@ public class GetProductsByCategoryIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
-        Assert.That(result.All(p => p.CategoryId == category1Id), Is.True);
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.True(result.All(p => p.CategoryId == category1Id));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
@@ -132,11 +123,11 @@ public class GetProductsByCategoryIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
@@ -166,11 +157,11 @@ public class GetProductsByCategoryIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesCategoryDataIsIncluded()
     {
         // Arrange
@@ -197,8 +188,13 @@ public class GetProductsByCategoryIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result[0].CategoryName, Is.EqualTo("Electronics"));
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal("Electronics", result[0].CategoryName);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

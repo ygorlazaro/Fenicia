@@ -8,34 +8,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.Project;
 
-[TestFixture]
-public class AddProjectHandlerTests
+public class AddProjectHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddProjectHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddProjectHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddProjectHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly AddProjectHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsProjectAndReturnsResponse()
     {
         // Arrange
@@ -52,15 +50,12 @@ public class AddProjectHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Title, Is.EqualTo(command.Title));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Title, result.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesProjectWasSaved()
     {
         // Arrange
@@ -80,15 +75,12 @@ public class AddProjectHandlerTests
         var project = await this.context.Projects
             .FirstOrDefaultAsync(p => p.Id == command.Id);
 
-        Assert.That(project, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(project.Title, Is.EqualTo(command.Title));
-            Assert.That(project.Description, Is.EqualTo(command.Description));
-        }
+        Assert.NotNull(project);
+        Assert.Equal(command.Title, project.Title);
+        Assert.Equal(command.Description, project.Description);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProjects()
     {
         // Arrange
@@ -116,10 +108,10 @@ public class AddProjectHandlerTests
 
         // Assert
         var projects = await this.context.Projects.ToListAsync();
-        Assert.That(projects, Has.Count.EqualTo(2));
+        Assert.Equal(2, projects.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullDescription_AddsProjectSuccessfully()
     {
         // Arrange
@@ -136,15 +128,12 @@ public class AddProjectHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Description, Is.Null);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Null(result.Description);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullEndDate_AddsProjectSuccessfully()
     {
         // Arrange
@@ -161,11 +150,8 @@ public class AddProjectHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.EndDate, Is.Null);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Null(result.EndDate);
     }
 }

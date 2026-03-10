@@ -9,11 +9,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class GetUserForRefreshHandlerTests
+public class GetUserForRefreshHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly DefaultContext context;
+    private readonly GetUserForRefreshHandler handler;
+    private readonly Faker faker;
+
+    public GetUserForRefreshHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -24,17 +26,14 @@ public class GetUserForRefreshHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context = null!;
-    private GetUserForRefreshHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserExists_ReturnsUserResponse()
     {
         // Arrange
@@ -57,29 +56,26 @@ public class GetUserForRefreshHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(userId), "UserId should match");
-            Assert.That(result.Email, Is.EqualTo(email), "Email should match");
-            Assert.That(result.Name, Is.EqualTo(name), "Name should match");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(userId, result.Id);
+        Assert.Equal(email, result.Email);
+        Assert.Equal(name, result.Name);
     }
 
-    [Test]
-    public void Handle_WhenUserDoesNotExist_ThrowsUnauthorizedAccessException()
+    [Fact]
+    public async Task Handle_WhenUserDoesNotExist_ThrowsUnauthorizedAccessException()
     {
         // Arrange
         var userId = Guid.NewGuid();
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await this.handler.Handle(userId, CancellationToken.None)
-        );
-        Assert.That(ex?.Message, Is.EqualTo("User not found"));
+        var ex = await Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
+            await this.handler.Handle(userId, CancellationToken.None));
+        Assert.Equal("User not found", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsCorrectUser()
     {
         // Arrange
@@ -113,28 +109,25 @@ public class GetUserForRefreshHandlerTests
         var result = await this.handler.Handle(userId1, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(userId1), "Should return user1");
-            Assert.That(result.Email, Is.EqualTo(email1), "Email should match user1");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(userId1, result.Id);
+        Assert.Equal(email1, result.Email);
     }
 
-    [Test]
-    public void Handle_WithEmptyDatabase_ThrowsUnauthorizedAccessException()
+    [Fact]
+    public async Task Handle_WithEmptyDatabase_ThrowsUnauthorizedAccessException()
     {
         // Arrange
         var userId = Guid.NewGuid();
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
-            await this.handler.Handle(userId, CancellationToken.None)
-        );
-        Assert.That(ex?.Message, Is.EqualTo("User not found"));
+        var ex = await Assert.ThrowsAsync<UnauthorizedAccessException>(async () =>
+            await this.handler.Handle(userId, CancellationToken.None));
+        Assert.Equal("User not found", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_ResponseDoesNotIncludePassword()
     {
         // Arrange
@@ -158,11 +151,11 @@ public class GetUserForRefreshHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Email, Is.Not.Null, "Password should not be included in response");
+        Assert.NotNull(result);
+        Assert.NotNull(result.Email);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesResponseContainsAllExpectedFields()
     {
         // Arrange
@@ -185,12 +178,10 @@ public class GetUserForRefreshHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty), "Id should be set");
-            Assert.That(result.Email, Is.Not.Null, "Email should not be null");
-            Assert.That(result.Name, Is.Not.Null, "Name should not be null");
-        }
+        Assert.NotNull(result);
+        
+        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.NotNull(result.Email);
+        Assert.NotNull(result.Name);
     }
 }

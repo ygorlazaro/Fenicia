@@ -1,4 +1,4 @@
-    using Bogus;
+using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
@@ -10,34 +10,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-[TestFixture]
-public class GetEmployeeByIdHandlerTests
+public class GetEmployeeByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetEmployeeByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetEmployeeByIdHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly GetEmployeeByIdHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetEmployeeByIdHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmployeeExists_ReturnsEmployeeResponse()
     {
         // Arrange
@@ -87,27 +78,24 @@ public class GetEmployeeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(employeeId));
-            Assert.That(result.PersonId, Is.EqualTo(employee.Person.Id));
-            Assert.That(result.PositionId, Is.EqualTo(position.Id));
-            Assert.That(result.Name, Is.EqualTo(employee.Person.Name));
-            Assert.That(result.Email, Is.EqualTo(employee.Person.Email));
-            Assert.That(result.PhoneNumber, Is.EqualTo(employee.Person.PhoneNumber));
-            Assert.That(result.Document, Is.EqualTo(employee.Person.Document));
-            Assert.That(result.Street, Is.EqualTo(employee.Person.Street));
-            Assert.That(result.Number, Is.EqualTo(employee.Person.Number));
-            Assert.That(result.Complement, Is.EqualTo(employee.Person.Complement));
-            Assert.That(result.Neighborhood, Is.EqualTo(employee.Person.Neighborhood));
-            Assert.That(result.ZipCode, Is.EqualTo(employee.Person.ZipCode));
-            Assert.That(result.StateId, Is.EqualTo(employee.Person.StateId));
-            Assert.That(result.City, Is.EqualTo(employee.Person.City));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(employeeId, result.Id);
+        Assert.Equal(employee.Person.Id, result.PersonId);
+        Assert.Equal(position.Id, result.PositionId);
+        Assert.Equal(employee.Person.Name, result.Name);
+        Assert.Equal(employee.Person.Email, result.Email);
+        Assert.Equal(employee.Person.PhoneNumber, result.PhoneNumber);
+        Assert.Equal(employee.Person.Document, result.Document);
+        Assert.Equal(employee.Person.Street, result.Street);
+        Assert.Equal(employee.Person.Number, result.Number);
+        Assert.Equal(employee.Person.Complement, result.Complement);
+        Assert.Equal(employee.Person.Neighborhood, result.Neighborhood);
+        Assert.Equal(employee.Person.ZipCode, result.ZipCode);
+        Assert.Equal(employee.Person.StateId, result.StateId);
+        Assert.Equal(employee.Person.City, result.City);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmployeeDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -117,10 +105,10 @@ public class GetEmployeeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -130,10 +118,10 @@ public class GetEmployeeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesPersonAndPositionDataIsIncluded()
     {
         // Arrange
@@ -183,15 +171,12 @@ public class GetEmployeeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.PositionId, Is.EqualTo(position.Id));
-            Assert.That(result.Name, Is.EqualTo(employee.Person.Name));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(position.Id, result.PositionId);
+        Assert.Equal(employee.Person.Name, result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleEmployees_ReturnsOnlyRequestedEmployee()
     {
         // Arrange
@@ -263,15 +248,12 @@ public class GetEmployeeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(employee1Id));
-            Assert.That(result.Name, Is.EqualTo(employee1.Person.Name));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(employee1Id, result.Id);
+        Assert.Equal(employee1.Person.Name, result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullAddressFields_ReturnsCorrectResponse()
     {
         // Arrange
@@ -323,11 +305,15 @@ public class GetEmployeeByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Name, Is.EqualTo(employee.Person.Name));
-            Assert.That(result.Email, Is.EqualTo(employee.Person.Email));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(employee.Person.Name, result.Name);
+        Assert.Equal(employee.Person.Email, result.Email);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

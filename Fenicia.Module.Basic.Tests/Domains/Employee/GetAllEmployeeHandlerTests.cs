@@ -10,34 +10,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-[TestFixture]
-public class GetAllEmployeeHandlerTests
+public class GetAllEmployeeHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetAllEmployeeHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetAllEmployeeHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly GetAllEmployeeHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetAllEmployeeHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
         // Arrange
@@ -47,11 +38,11 @@ public class GetAllEmployeeHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result.Data);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmployees_ReturnsAllEmployees()
     {
         // Arrange
@@ -121,25 +112,22 @@ public class GetAllEmployeeHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(2));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data[0].PersonId, Is.EqualTo(employee1.Person.Id));
-            Assert.That(result.Data[0].Name, Is.EqualTo(employee1.Person.Name));
-            Assert.That(result.Data[0].Email, Is.EqualTo(employee1.Person.Email));
-            Assert.That(result.Data[0].PositionName, Is.EqualTo(position.Name));
-            Assert.That(result.Data[0].StateName, Is.EqualTo(state.Name));
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(employee1.Person.Id, result.Data[0].PersonId);
+        Assert.Equal(employee1.Person.Name, result.Data[0].Name);
+        Assert.Equal(employee1.Person.Email, result.Data[0].Email);
+        Assert.Equal(position.Name, result.Data[0].PositionName);
+        Assert.Equal(state.Name, result.Data[0].StateName);
 
-            Assert.That(result.Data[1].PersonId, Is.EqualTo(employee2.Person.Id));
-            Assert.That(result.Data[1].Name, Is.EqualTo(employee2.Person.Name));
-            Assert.That(result.Data[1].Email, Is.EqualTo(employee2.Person.Email));
-            Assert.That(result.Data[1].PositionName, Is.EqualTo(position.Name));
-            Assert.That(result.Data[1].StateName, Is.EqualTo(state.Name));
-        }
+        Assert.Equal(employee2.Person.Id, result.Data[1].PersonId);
+        Assert.Equal(employee2.Person.Name, result.Data[1].Name);
+        Assert.Equal(employee2.Person.Email, result.Data[1].Email);
+        Assert.Equal(position.Name, result.Data[1].PositionName);
+        Assert.Equal(state.Name, result.Data[1].StateName);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
@@ -191,11 +179,11 @@ public class GetAllEmployeeHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(10));
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Data.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
@@ -247,11 +235,11 @@ public class GetAllEmployeeHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result.Data);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
@@ -303,11 +291,11 @@ public class GetAllEmployeeHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(10));
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Data.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesPersonAndPositionDataIsIncluded()
     {
         // Arrange
@@ -356,15 +344,19 @@ public class GetAllEmployeeHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Data, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data[0].PersonId, Is.EqualTo(employee.Person.Id));
-            Assert.That(result.Data[0].PositionId, Is.EqualTo(position.Id));
-            Assert.That(result.Data[0].Name, Is.EqualTo(employee.Person.Name));
-            Assert.That(result.Data[0].PositionName, Is.EqualTo(position.Name));
-            Assert.That(result.Data[0].StateName, Is.EqualTo(state.Name));
-        }
+        Assert.NotNull(result);
+        Assert.Single(result.Data);
+        Assert.Equal(employee.Person.Id, result.Data[0].PersonId);
+        Assert.Equal(position.Id, result.Data[0].PositionId);
+        Assert.Equal(employee.Person.Name, result.Data[0].Name);
+        Assert.Equal(position.Name, result.Data[0].PositionName);
+        Assert.Equal(state.Name, result.Data[0].StateName);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

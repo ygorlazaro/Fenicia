@@ -9,34 +9,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
 
-[TestFixture]
-public class GetProjectSubtaskByIdHandlerTests
+public class GetProjectSubtaskByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetProjectSubtaskByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetProjectSubtaskByIdHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetProjectSubtaskByIdHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly GetProjectSubtaskByIdHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectSubtaskExists_ReturnsProjectSubtaskResponse()
     {
         // Arrange
@@ -61,15 +59,12 @@ public class GetProjectSubtaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(subtaskId));
-            Assert.That(result.Title, Is.EqualTo(subtask.Title));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(subtaskId, result.Id);
+        Assert.Equal(subtask.Title, result.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenProjectSubtaskDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -79,10 +74,10 @@ public class GetProjectSubtaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -92,10 +87,10 @@ public class GetProjectSubtaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleProjectSubtasks_ReturnsOnlyRequestedSubtask()
     {
         // Arrange
@@ -132,15 +127,12 @@ public class GetProjectSubtaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(subtask1Id));
-            Assert.That(result.Title, Is.EqualTo(subtask1.Title));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(subtask1Id, result.Id);
+        Assert.Equal(subtask1.Title, result.Title);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithCompletedSubtask_ReturnsCorrectResponse()
     {
         // Arrange
@@ -166,12 +158,9 @@ public class GetProjectSubtaskByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(subtaskId));
-            Assert.That(result.IsCompleted, Is.True);
-            Assert.That(result.CompletedAt, Is.EqualTo(completedAt));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(subtaskId, result.Id);
+        Assert.True(result.IsCompleted);
+        Assert.Equal(completedAt, result.CompletedAt);
     }
 }

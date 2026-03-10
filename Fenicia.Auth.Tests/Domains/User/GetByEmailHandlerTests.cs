@@ -9,11 +9,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class GetByEmailHandlerTests
+public class GetByEmailHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly DefaultContext context;
+    private readonly GetByEmailHandler handler;
+    private readonly Faker faker;
+
+    public GetByEmailHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -24,17 +26,14 @@ public class GetByEmailHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context = null!;
-    private GetByEmailHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserExists_ReturnsUserResponse()
     {
         // Arrange
@@ -58,17 +57,15 @@ public class GetByEmailHandlerTests
         var result = await this.handler.Handle(email, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result!.Id, Is.EqualTo(userId), "UserId should match");
-            Assert.That(result.Email, Is.EqualTo(email), "Email should match");
-            Assert.That(result.Name, Is.EqualTo(name), "Name should match");
-            Assert.That(result.Password, Is.EqualTo(password), "Password should match");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(userId, result.Id);
+        Assert.Equal(email, result.Email);
+        Assert.Equal(name, result.Name);
+        Assert.Equal(password, result.Password);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -78,10 +75,10 @@ public class GetByEmailHandlerTests
         var result = await this.handler.Handle(email, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_ReturnsNull()
     {
         // Arrange
@@ -106,10 +103,10 @@ public class GetByEmailHandlerTests
         var result = await this.handler.Handle(upperCaseEmail, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsCorrectUser()
     {
         // Arrange
@@ -145,15 +142,13 @@ public class GetByEmailHandlerTests
         var result = await this.handler.Handle(email1, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result!.Id, Is.EqualTo(userId1), "Should return user1");
-            Assert.That(result.Email, Is.EqualTo(email1), "Email should match user1");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(userId1, result.Id);
+        Assert.Equal(email1, result.Email);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -163,10 +158,10 @@ public class GetByEmailHandlerTests
         var result = await this.handler.Handle(email, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailContainsExtraSpaces_ReturnsNull()
     {
         // Arrange
@@ -191,10 +186,10 @@ public class GetByEmailHandlerTests
         var result = await this.handler.Handle(emailWithSpaces, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesResponseContainsAllFields()
     {
         // Arrange
@@ -218,13 +213,11 @@ public class GetByEmailHandlerTests
         var result = await this.handler.Handle(email, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result!.Id, Is.Not.EqualTo(Guid.Empty), "Id should be set");
-            Assert.That(result.Email, Is.Not.Null, "Email should not be null");
-            Assert.That(result.Name, Is.Not.Null, "Name should not be null");
-            Assert.That(result.Password, Is.Not.Null, "Password should not be null");
-        }
+        Assert.NotNull(result);
+        
+        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.NotNull(result.Email);
+        Assert.NotNull(result.Name);
+        Assert.NotNull(result.Password);
     }
 }

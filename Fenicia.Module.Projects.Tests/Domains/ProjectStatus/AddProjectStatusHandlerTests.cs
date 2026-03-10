@@ -8,34 +8,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Projects.Tests.Domains.ProjectStatus;
 
-[TestFixture]
-public class AddProjectStatusHandlerTests
+public class AddProjectStatusHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddProjectStatusHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddProjectStatusHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddProjectStatusHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly AddProjectStatusHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsProjectStatusAndReturnsResponse()
     {
         // Arrange
@@ -51,15 +49,12 @@ public class AddProjectStatusHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Name, Is.EqualTo(command.Name));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Name, result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesProjectStatusWasSaved()
     {
         // Arrange
@@ -78,15 +73,12 @@ public class AddProjectStatusHandlerTests
         var status = await this.context.ProjectStatuses
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 
-        Assert.That(status, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(status.Name, Is.EqualTo(command.Name));
-            Assert.That(status.Color, Is.EqualTo(command.Color));
-        }
+        Assert.NotNull(status);
+        Assert.Equal(command.Name, status.Name);
+        Assert.Equal(command.Color, status.Color);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProjectStatuses()
     {
         // Arrange
@@ -113,10 +105,10 @@ public class AddProjectStatusHandlerTests
 
         // Assert
         var statuses = await this.context.ProjectStatuses.ToListAsync();
-        Assert.That(statuses, Has.Count.EqualTo(2));
+        Assert.Equal(2, statuses.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithIsFinalTrue_AddsProjectStatusSuccessfully()
     {
         // Arrange
@@ -132,15 +124,12 @@ public class AddProjectStatusHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.IsFinal, Is.True);
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.True(result.IsFinal);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithOrderZero_AddsProjectStatusSuccessfully()
     {
         // Arrange
@@ -156,11 +145,8 @@ public class AddProjectStatusHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Order, Is.EqualTo(0));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(0, result.Order);
     }
 }

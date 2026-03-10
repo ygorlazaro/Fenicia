@@ -6,32 +6,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
-[TestFixture]
-public class AddProductCategoryHandlerTests
+public class AddProductCategoryHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddProductCategoryHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddProductCategoryHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly AddProductCategoryHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddProductCategoryHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsCategoryAndReturnsResponse()
     {
         // Arrange
@@ -41,15 +32,12 @@ public class AddProductCategoryHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Name, Is.EqualTo(command.Name));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Name, result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesCategoryWasSavedToDatabase()
     {
         // Arrange
@@ -60,11 +48,11 @@ public class AddProductCategoryHandlerTests
 
         // Assert
         var category = await this.context.BasicProductCategories.FindAsync([command.Id], CancellationToken.None);
-        Assert.That(category, Is.Not.Null);
-        Assert.That(category.Name, Is.EqualTo(command.Name));
+        Assert.NotNull(category);
+        Assert.Equal(command.Name, category.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllCategories()
     {
         // Arrange
@@ -77,6 +65,11 @@ public class AddProductCategoryHandlerTests
 
         // Assert
         var categories = await this.context.BasicProductCategories.ToListAsync();
-        Assert.That(categories, Has.Count.EqualTo(2));
+        Assert.Equal(2, categories.Count);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

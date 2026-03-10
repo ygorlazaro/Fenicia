@@ -9,30 +9,27 @@ using Microsoft.Extensions.Configuration;
 
 namespace Fenicia.Auth.Tests.Domains.Token;
 
-[TestFixture]
 public class GenerateTokenStringHandlerTests
 {
-    [SetUp]
-    public void SetUp()
+    public GenerateTokenStringHandlerTests()
     {
         var inMemorySettings = new Dictionary<string, string?>
         {
             { "Jwt:Secret", "ThisIsAVeryLongSecretKeyForJwtTokenGenerationThatShouldBeAtLeast32Bytes" }
         };
 
-        this.configuration = new ConfigurationBuilder()
+        var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
             .Build();
 
-        this.handler = new GenerateTokenStringHandler(this.configuration);
+        this.handler = new GenerateTokenStringHandler(configuration);
         this.faker = new Faker();
     }
 
-    private IConfiguration configuration = null!;
-    private GenerateTokenStringHandler handler = null!;
-    private Faker faker = null!;
+    private readonly GenerateTokenStringHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public void Handle_WhenValidUser_ReturnsValidToken()
     {
         // Arrange
@@ -45,11 +42,11 @@ public class GenerateTokenStringHandlerTests
         var token = this.handler.Handle(user);
 
         // Assert
-        Assert.That(token, Is.Not.Null);
-        Assert.That(token, Is.Not.Empty, "Token should not be empty");
+        Assert.NotNull(token);
+        Assert.NotEmpty(token);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenValidUser_ReturnsTokenThatCanBeRead()
     {
         // Arrange
@@ -65,10 +62,10 @@ public class GenerateTokenStringHandlerTests
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
-        Assert.That(jwtToken, Is.Not.Null, "Token should be readable");
+        Assert.NotNull(jwtToken);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenValidUser_TokenContainsCorrectClaims()
     {
         // Arrange
@@ -84,17 +81,13 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(jwtToken.Claims.FirstOrDefault(c => c.Type == "userId")?.Value, Is.EqualTo(userId.ToString()));
-            Assert.That(jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value, Is.EqualTo(email));
-            Assert.That(jwtToken.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value, Is.EqualTo(name));
-            Assert.That(jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti), Is.Not.Null,
-                "Should have JTI claim");
-        }
+        Assert.Equal(userId.ToString(), jwtToken.Claims.FirstOrDefault(c => c.Type == "userId")?.Value);
+        Assert.Equal(email, jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value);
+        Assert.Equal(name, jwtToken.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value);
+        Assert.NotNull(jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti));
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenUserHasCompanyId_TokenContainsCompanyIdClaim()
     {
         // Arrange
@@ -111,11 +104,11 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var companyIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "companyId");
-        Assert.That(companyIdClaim, Is.Not.Null, "Should have companyId claim");
-        Assert.That(companyIdClaim?.Value, Is.EqualTo(userWithCompany.CompanyId.ToString()));
+        Assert.NotNull(companyIdClaim);
+        Assert.Equal(userWithCompany.CompanyId.ToString(), companyIdClaim.Value);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenUserHasRoles_TokenContainsRoleClaims()
     {
         // Arrange
@@ -133,16 +126,13 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var roleClaims = jwtToken.Claims.Where(c => c.Type == "role").ToList();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(roleClaims, Has.Count.EqualTo(3), "Should have 3 role claims");
-            Assert.That(roleClaims.Select(c => c.Value), Does.Contain("Admin"));
-            Assert.That(roleClaims.Select(c => c.Value), Does.Contain("User"));
-            Assert.That(roleClaims.Select(c => c.Value), Does.Contain("Manager"));
-        }
+        Assert.Equal(3, roleClaims.Count);
+        Assert.Contains("Admin", roleClaims.Select(c => c.Value));
+        Assert.Contains("User", roleClaims.Select(c => c.Value));
+        Assert.Contains("Manager", roleClaims.Select(c => c.Value));
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenUserHasModules_TokenContainsModuleClaims()
     {
         // Arrange
@@ -160,16 +150,13 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(moduleClaims, Has.Count.EqualTo(3), "Should have 3 module claims");
-            Assert.That(moduleClaims.Select(c => c.Value), Does.Contain("erp"));
-            Assert.That(moduleClaims.Select(c => c.Value), Does.Contain("basic"));
-            Assert.That(moduleClaims.Select(c => c.Value), Does.Contain("social"));
-        }
+        Assert.Equal(3, moduleClaims.Count);
+        Assert.Contains("erp", moduleClaims.Select(c => c.Value));
+        Assert.Contains("basic", moduleClaims.Select(c => c.Value));
+        Assert.Contains("social", moduleClaims.Select(c => c.Value));
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenUserHasGodRole_AutoAddsErpModule()
     {
         // Arrange
@@ -188,10 +175,10 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
 
-        Assert.That(moduleClaims, Does.Contain("erp"), "Should auto-add erp module for God role");
+        Assert.Contains("erp", moduleClaims);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenUserHasGodRoleAndErpModule_DoesNotDuplicate()
     {
         // Arrange
@@ -211,10 +198,10 @@ public class GenerateTokenStringHandlerTests
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
 
         var erpCount = moduleClaims.Count(m => m == "erp");
-        Assert.That(erpCount, Is.EqualTo(1), "Should not duplicate erp module");
+        Assert.Equal(1, erpCount);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenTokenIsGenerated_HasExpiration()
     {
         // Arrange
@@ -230,10 +217,10 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var expClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "exp");
-        Assert.That(expClaim, Is.Not.Null, "Token should have expiration claim");
+        Assert.NotNull(expClaim);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenConfigurationSecretIsNull_ThrowsInvalidOperationException()
     {
         // Arrange
@@ -251,7 +238,7 @@ public class GenerateTokenStringHandlerTests
         Assert.Throws<InvalidOperationException>(() => badHandler.Handle(user));
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenUserHasEmptyRoles_DoesNotAddEmptyClaims()
     {
         // Arrange
@@ -269,10 +256,10 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var roleClaims = jwtToken.Claims.Where(c => c.Type == "role").ToList();
 
-        Assert.That(roleClaims, Has.Count.EqualTo(2), "Should only have non-empty roles");
+        Assert.Equal(2, roleClaims.Count);
     }
 
-    [Test]
+    [Fact]
     public void Handle_WhenUserHasEmptyModules_DoesNotAddEmptyClaims()
     {
         // Arrange
@@ -290,7 +277,7 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
 
-        Assert.That(moduleClaims, Has.Count.EqualTo(2), "Should only have non-empty modules");
+        Assert.Equal(2, moduleClaims.Count);
     }
 
     // Helper classes for testing properties that don't exist in base response

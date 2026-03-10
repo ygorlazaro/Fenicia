@@ -7,32 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
-[TestFixture]
-public class GetAllProductCategoryHandlerTests
+public class GetAllProductCategoryHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetAllProductCategoryHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetAllProductCategoryHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly GetAllProductCategoryHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetAllProductCategoryHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
         // Arrange
@@ -42,15 +33,12 @@ public class GetAllProductCategoryHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Is.Empty);
-            Assert.That(result.Total, Is.EqualTo(0));
-        }
+        Assert.NotNull(result);
+        Assert.Empty(result.Data);
+        Assert.Equal(0, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithCategories_ReturnsAllCategories()
     {
         // Arrange
@@ -66,20 +54,14 @@ public class GetAllProductCategoryHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(2));
-            Assert.That(result.Total, Is.EqualTo(2));
-        }
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Any(c => c.Id == category1.Id));
-            Assert.That(result.Data.Any(c => c.Id == category2.Id));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(2, result.Total);
+        Assert.Contains(result.Data, c => c.Id == category1.Id);
+        Assert.Contains(result.Data, c => c.Id == category2.Id);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
@@ -101,15 +83,12 @@ public class GetAllProductCategoryHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(10));
-            Assert.That(result.Total, Is.EqualTo(25));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
@@ -131,15 +110,12 @@ public class GetAllProductCategoryHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Is.Empty);
-            Assert.That(result.Total, Is.EqualTo(5));
-        }
+        Assert.NotNull(result);
+        Assert.Empty(result.Data);
+        Assert.Equal(5, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
@@ -161,11 +137,13 @@ public class GetAllProductCategoryHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data, Has.Count.EqualTo(10));
-            Assert.That(result.Total, Is.EqualTo(25));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

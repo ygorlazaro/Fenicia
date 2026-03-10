@@ -22,11 +22,16 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Order;
 
-[TestFixture]
-public class OrderControllerTests
+public class OrderControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly OrderController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testUserId;
+    private readonly Guid testCompanyId;
+    private readonly Faker faker;
+
+    public OrderControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -35,12 +40,12 @@ public class OrderControllerTests
         this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.testCompanyId = Guid.NewGuid();
-        this.mockCreateCreditsForOrderHandler = new Mock<CreateCreditsForOrderHandler>(this.context);
-        this.createNewOrderHandler = new CreateNewOrderHandler(this.context,
-            this.mockCreateCreditsForOrderHandler.Object);
+        var mockCreateCreditsForOrderHandler = new Mock<CreateCreditsForOrderHandler>(this.context);
+        var createNewOrderHandler = new CreateNewOrderHandler(this.context,
+            mockCreateCreditsForOrderHandler.Object);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new OrderController(this.createNewOrderHandler)
+        this.controller = new OrderController(createNewOrderHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -52,20 +57,12 @@ public class OrderControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
-
-    private OrderController controller;
-    private DefaultContext context;
-    private CreateNewOrderHandler createNewOrderHandler;
-    private Mock<CreateCreditsForOrderHandler> mockCreateCreditsForOrderHandler;
-    private Mock<HttpContext> mockHttpContext;
-    private Guid testUserId;
-    private Guid testCompanyId;
-    private Faker faker;
 
     private void SetupUserClaims(Guid userId)
     {
@@ -81,8 +78,8 @@ public class OrderControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
-    public void CreateNewOrderAsync_WhenUserDoesNotBelongToCompany_ThrowsPermissionDeniedException()
+    [Fact]
+    public async Task CreateNewOrderAsync_WhenUserDoesNotBelongToCompany_ThrowsPermissionDeniedException()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -93,7 +90,7 @@ public class OrderControllerTests
         var headers = new Headers { CompanyId = this.testCompanyId };
 
         // Act & Assert
-        Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.controller.CreateNewOrderAsync(
                 command,
                 headers,
@@ -101,7 +98,7 @@ public class OrderControllerTests
                 ct));
     }
 
-    [Test]
+    [Fact]
     public async Task CreateNewOrderAsync_WhenModulesDoNotExist_ThrowsItemNotExistsException()
     {
         // Arrange
@@ -144,7 +141,7 @@ public class OrderControllerTests
         var headers = new Headers { CompanyId = this.testCompanyId };
 
         // Act & Assert
-        Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.controller.CreateNewOrderAsync(
                 command,
                 headers,
@@ -152,7 +149,7 @@ public class OrderControllerTests
                 ct));
     }
 
-    [Test]
+    [Fact]
     public async Task CreateNewOrderAsync_WhenValidRequest_ReturnsOkWithOrder()
     {
         // Arrange
@@ -212,33 +209,29 @@ public class OrderControllerTests
             ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
-        Assert.That(okResult.StatusCode, Is.EqualTo(200));
+        Assert.NotNull(okResult);
+        Assert.Equal(200, okResult.StatusCode);
 
         var returnedResponse = okResult.Value as CreateNewOrderResponse;
-        Assert.That(returnedResponse, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedResponse!.OrderId, Is.Not.EqualTo(Guid.Empty));
-            Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
-        }
+        Assert.NotNull(returnedResponse);
+        
+        Assert.NotEqual(Guid.Empty, returnedResponse.OrderId);
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
 
         // Verify order was created
         var createdOrder =
             await this.context.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
-        Assert.That(createdOrder, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(createdOrder!.UserId, Is.EqualTo(this.testUserId));
-            Assert.That(createdOrder.CompanyId, Is.EqualTo(this.testCompanyId));
-        }
+        Assert.NotNull(createdOrder);
+        
+        Assert.Equal(this.testUserId, createdOrder.UserId);
+        Assert.Equal(this.testCompanyId, createdOrder.CompanyId);
     }
 
-    [Test]
+    [Fact]
     public async Task CreateNewOrderAsync_SetsWideEventContextUserId()
     {
         // Arrange
@@ -298,10 +291,10 @@ public class OrderControllerTests
             ct);
 
         // Assert
-        Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public void OrderController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -311,10 +304,10 @@ public class OrderControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "OrderController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void OrderController_HasRouteAttribute()
     {
         // Arrange
@@ -325,11 +318,11 @@ public class OrderControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "OrderController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void OrderController_HasProducesAttribute()
     {
         // Arrange
@@ -340,7 +333,7 @@ public class OrderControllerTests
             controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
-        Assert.That(producesAttribute, Is.Not.Null, "OrderController should have Produces attribute");
-        Assert.That(producesAttribute!.ContentTypes.FirstOrDefault(), Is.EqualTo("application/json"));
+        Assert.NotNull(producesAttribute);
+        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
     }
 }

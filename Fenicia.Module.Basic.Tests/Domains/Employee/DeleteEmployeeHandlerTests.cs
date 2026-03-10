@@ -9,34 +9,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-[TestFixture]
-public class DeleteEmployeeHandlerTests
+public class DeleteEmployeeHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeleteEmployeeHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeleteEmployeeHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly DeleteEmployeeHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeleteEmployeeHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmployeeExists_SetsDeletedDate()
     {
         // Arrange
@@ -71,13 +62,13 @@ public class DeleteEmployeeHandlerTests
 
         // Assert
         var deletedEmployee = await this.context.BasicEmployees.FindAsync([employeeId], CancellationToken.None);
-        Assert.That(deletedEmployee, Is.Not.Null);
-        Assert.That(deletedEmployee.Deleted, Is.Not.Null);
-        Assert.That(deletedEmployee.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedEmployee.Deleted, Is.LessThanOrEqualTo(DateTime.Now.AddSeconds(1)));
+        Assert.NotNull(deletedEmployee);
+        Assert.NotNull(deletedEmployee.Deleted);
+        Assert.True(deletedEmployee.Deleted >= beforeDelete.AddSeconds(-1));
+        Assert.True(deletedEmployee.Deleted <= DateTime.Now.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmployeeDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -88,10 +79,10 @@ public class DeleteEmployeeHandlerTests
 
         // Assert
         var employees = await this.context.BasicEmployees.ToListAsync();
-        Assert.That(employees, Is.Empty);
+        Assert.Empty(employees);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleEmployees_OnlyDeletesSpecified()
     {
         // Arrange
@@ -148,16 +139,13 @@ public class DeleteEmployeeHandlerTests
         var deletedEmployee = await this.context.BasicEmployees.FindAsync([employee1Id], CancellationToken.None);
         var notDeletedEmployee = await this.context.BasicEmployees.FindAsync([employee2Id], CancellationToken.None);
 
-        Assert.That(deletedEmployee, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedEmployee.Deleted, Is.Not.Null);
-            Assert.That(notDeletedEmployee, Is.Not.Null);
-        }
-        Assert.That(notDeletedEmployee?.Deleted, Is.Null);
+        Assert.NotNull(deletedEmployee);
+        Assert.NotNull(deletedEmployee.Deleted);
+        Assert.NotNull(notDeletedEmployee);
+        Assert.Null(notDeletedEmployee.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -168,6 +156,13 @@ public class DeleteEmployeeHandlerTests
 
         // Assert
         var employees = await this.context.BasicEmployees.ToListAsync();
-        Assert.That(employees, Is.Empty);
+        Assert.Empty(employees);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

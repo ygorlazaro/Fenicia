@@ -10,11 +10,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class ListUsersHandlerTests
+public class ListUsersHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly ListUsersHandler handler;
+    private readonly DefaultContext context;
+    private readonly HashPasswordHandler hashPasswordHandler;
+    private readonly Faker faker;
+    private readonly List<UserModel> testUsers;
+
+    public ListUsersHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -42,19 +46,14 @@ public class ListUsersHandlerTests
         this.context.SaveChanges();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private ListUsersHandler handler = null!;
-    private DefaultContext context = null!;
-    private HashPasswordHandler hashPasswordHandler = null!;
-    private Faker faker = null!;
-    private List<UserModel> testUsers = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenNoParameters_ReturnsFirstPageWithDefaultPageSize()
     {
         // Arrange
@@ -64,20 +63,18 @@ public class ListUsersHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Page, Is.EqualTo(1));
-            Assert.That(result.PageSize, Is.EqualTo(10));
-            Assert.That(result.Users, Has.Count.LessThanOrEqualTo(10));
-            Assert.That(result.TotalCount, Is.EqualTo(15));
-            Assert.That(result.TotalPages, Is.EqualTo(2));
-            Assert.That(result.HasPrevious, Is.False);
-            Assert.That(result.HasNext, Is.True);
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(1, result.Page);
+        Assert.Equal(10, result.PageSize);
+        Assert.True(result.Users.Count <= 10);
+        Assert.Equal(15, result.TotalCount);
+        Assert.Equal(2, result.TotalPages);
+        Assert.False(result.HasPrevious);
+        Assert.True(result.HasNext);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPageSpecified_ReturnsCorrectPage()
     {
         // Arrange
@@ -87,18 +84,16 @@ public class ListUsersHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Page, Is.EqualTo(2));
-            Assert.That(result.PageSize, Is.EqualTo(5));
-            Assert.That(result.Users, Has.Count.EqualTo(5));
-            Assert.That(result.HasPrevious, Is.True);
-            Assert.That(result.HasNext, Is.True);
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(2, result.Page);
+        Assert.Equal(5, result.PageSize);
+        Assert.Equal(5, result.Users.Count);
+        Assert.True(result.HasPrevious);
+        Assert.True(result.HasNext);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_UsersAreOrderedAlphabeticallyByName()
     {
         // Arrange
@@ -108,11 +103,11 @@ public class ListUsersHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Users, Is.Ordered.By("Name"));
+        Assert.NotNull(result);
+        Assert.Equal(result.Users.Select(u => u.Name).OrderBy(n => n), result.Users.Select(u => u.Name));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenSearchTermProvided_FiltersByName()
     {
         // Arrange
@@ -123,12 +118,12 @@ public class ListUsersHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Users, Is.Not.Empty);
-        Assert.That(result.Users.All(u => u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)), Is.True);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Users);
+        Assert.True(result.Users.All(u => u.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenSearchTermProvided_FiltersByEmail()
     {
         // Arrange
@@ -139,12 +134,12 @@ public class ListUsersHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Users, Has.Count.EqualTo(1));
-        Assert.That(result.Users[0].Email, Does.Contain(searchTerm));
+        Assert.NotNull(result);
+        Assert.Single(result.Users);
+        Assert.Contains(searchTerm, result.Users[0].Email);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenSearchTermNotFound_ReturnsEmptyList()
     {
         // Arrange
@@ -154,15 +149,13 @@ public class ListUsersHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Users.Count, Is.Zero);
-            Assert.That(result.TotalCount, Is.Zero);
-        }
+        Assert.NotNull(result);
+        
+        Assert.Empty(result.Users);
+        Assert.Equal(0, result.TotalCount);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenLastPage_HasNextIsFalse()
     {
         // Arrange
@@ -172,16 +165,14 @@ public class ListUsersHandlerTests
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Page, Is.EqualTo(2));
-            Assert.That(result.HasNext, Is.False);
-            Assert.That(result.HasPrevious, Is.True);
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(2, result.Page);
+        Assert.False(result.HasNext);
+        Assert.True(result.HasPrevious);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_ReturnsUserCompaniesAndRoles()
     {
         // Arrange - Create user with company and role
@@ -222,14 +213,12 @@ public class ListUsersHandlerTests
 
         // Assert
         var userResult = result.Users.FirstOrDefault(u => u.Id == userWithRole.Id);
-        Assert.That(userResult, Is.Not.Null);
-        Assert.That(userResult.Companies, Is.Not.Empty);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(userResult.Companies[0].CompanyId, Is.EqualTo(company.Id));
-            Assert.That(userResult.Companies[0].RoleId, Is.EqualTo(role.Id));
-            Assert.That(userResult.Companies[0].CompanyName, Is.EqualTo(company.Name));
-            Assert.That(userResult.Companies[0].RoleName, Is.EqualTo(role.Name));
-        }
+        Assert.NotNull(userResult);
+        Assert.NotEmpty(userResult.Companies);
+        
+        Assert.Equal(company.Id, userResult.Companies[0].CompanyId);
+        Assert.Equal(role.Id, userResult.Companies[0].RoleId);
+        Assert.Equal(company.Name, userResult.Companies[0].CompanyName);
+        Assert.Equal(role.Name, userResult.Companies[0].RoleName);
     }
 }

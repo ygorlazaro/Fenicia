@@ -7,11 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.UserRole;
 
-[TestFixture]
-public class GetUserCompaniesHandlerTests
+public class GetUserCompaniesHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly DefaultContext context;
+    private readonly GetUserCompaniesHandler handler;
+
+    public GetUserCompaniesHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -21,16 +22,14 @@ public class GetUserCompaniesHandlerTests
         this.handler = new GetUserCompaniesHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context = null!;
-    private GetUserCompaniesHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasCompanies_ReturnsCompanies()
     {
         // Arrange
@@ -71,11 +70,11 @@ public class GetUserCompaniesHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1), "Should return 1 company");
+        Assert.NotNull(result);
+        Assert.Single(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasNoCompanies_ReturnsEmptyList()
     {
         // Arrange
@@ -85,11 +84,11 @@ public class GetUserCompaniesHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty, "Should return empty list");
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesResponseContainsAllFields()
     {
         // Arrange
@@ -133,20 +132,18 @@ public class GetUserCompaniesHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Not.Empty, "Should have data");
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
         var response = result[0];
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(response.Id, Is.EqualTo(companyId), "CompanyId should match");
-            Assert.That(response.Role, Is.EqualTo(roleName), "Role should match");
-            Assert.That(response.CompanyId, Is.EqualTo(companyId), "Company.Id should match");
-            Assert.That(response.CompanyName, Is.EqualTo(companyName), "Company.Name should match");
-            Assert.That(response.Cnpj, Is.EqualTo(cnpj), "Company.Cnpj should match");
-        }
+        
+        Assert.Equal(companyId, response.Id);
+        Assert.Equal(roleName, response.Role);
+        Assert.Equal(companyId, response.CompanyId);
+        Assert.Equal(companyName, response.CompanyName);
+        Assert.Equal(cnpj, response.Cnpj);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasMultipleCompanies_ReturnsAllCompanies()
     {
         // Arrange
@@ -194,11 +191,11 @@ public class GetUserCompaniesHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(3), "Should return all 3 companies");
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsOnlyRequestedUserCompanies()
     {
         // Arrange
@@ -259,16 +256,14 @@ public class GetUserCompaniesHandlerTests
         var result2 = await this.handler.Handle(userId2, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result1, Has.Count.EqualTo(1), "Should return only user1's company");
-            Assert.That(result1[0].CompanyId, Is.EqualTo(company1.Id), "Should return company1");
-            Assert.That(result2, Has.Count.EqualTo(1), "Should return only user2's company");
-            Assert.That(result2[0].CompanyId, Is.EqualTo(company2.Id), "Should return company2");
-        }
+        
+        Assert.Single(result1);
+        Assert.Equal(company1.Id, result1[0].CompanyId);
+        Assert.Single(result2);
+        Assert.Equal(company2.Id, result2[0].CompanyId);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
         // Arrange
@@ -278,11 +273,11 @@ public class GetUserCompaniesHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty, "Should return empty list for empty database");
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasDifferentRoles_ReturnsAllWithCorrectRoles()
     {
         // Arrange
@@ -347,16 +342,14 @@ public class GetUserCompaniesHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result, Has.Count.EqualTo(2), "Should return 2 companies");
-            Assert.That(result.Any(r => r.Role == "Admin"), Is.True, "Should have Admin role");
-            Assert.That(result.Any(r => r.Role == "User"), Is.True, "Should have User role");
-        }
+        Assert.NotNull(result);
+        
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, r => r.Role == "Admin");
+        Assert.Contains(result, r => r.Role == "User");
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCompanyHasNullDescription_HandlesCorrectly()
     {
         // Arrange
@@ -397,7 +390,7 @@ public class GetUserCompaniesHandlerTests
         var result = await this.handler.Handle(userId, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1), "Should handle company without issues");
+        Assert.NotNull(result);
+        Assert.Single(result);
     }
 }

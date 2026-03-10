@@ -7,40 +7,40 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;
 
-[TestFixture]
-public class DeletePositionHandlerTests
+public class DeletePositionHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public DeletePositionHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new DeletePositionHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private DeletePositionHandler handler = null!;
+    private readonly DefaultContext context;
+    private readonly DeletePositionHandler handler;
 
-    [Test]
-    public async Task Handle_WhenPositionExists_SetsDeletedDate()
+    [Theory]
+    [InlineData("Developer")]
+    [InlineData("Designer")]
+    [InlineData("Manager")]
+    public async Task Handle_WhenPositionExists_SetsDeletedDate(string positionName)
     {
         // Arrange
         var positionId = Guid.NewGuid();
         var position = new PositionModel
         {
             Id = positionId,
-            Name = "Developer"
+            Name = positionName
         };
 
         this.context.BasicPositions.Add(position);
@@ -54,13 +54,12 @@ public class DeletePositionHandlerTests
 
         // Assert
         var deletedPosition = await this.context.BasicPositions.FindAsync([positionId], CancellationToken.None);
-        Assert.That(deletedPosition, Is.Not.Null);
-        Assert.That(deletedPosition.Deleted, Is.Not.Null);
-        Assert.That(deletedPosition.Deleted, Is.GreaterThanOrEqualTo(beforeDelete.AddSeconds(-1)));
-        Assert.That(deletedPosition.Deleted, Is.LessThanOrEqualTo(DateTime.Now.AddSeconds(1)));
+        Assert.NotNull(deletedPosition);
+        Assert.NotNull(deletedPosition.Deleted);
+        Assert.InRange(deletedPosition.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.Now.AddSeconds(1));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPositionDoesNotExist_DoesNothing()
     {
         // Arrange
@@ -71,10 +70,10 @@ public class DeletePositionHandlerTests
 
         // Assert
         var positions = await this.context.BasicPositions.ToListAsync();
-        Assert.That(positions, Is.Empty);
+        Assert.Empty(positions);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultiplePositions_OnlyDeletesSpecified()
     {
         // Arrange
@@ -96,16 +95,13 @@ public class DeletePositionHandlerTests
         var deletedPosition = await this.context.BasicPositions.FindAsync([position1Id], CancellationToken.None);
         var notDeletedPosition = await this.context.BasicPositions.FindAsync([position2Id], CancellationToken.None);
 
-        Assert.That(deletedPosition, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(deletedPosition.Deleted, Is.Not.Null);
-            Assert.That(notDeletedPosition, Is.Not.Null);
-        }
-        Assert.That(notDeletedPosition?.Deleted, Is.Null);
+        Assert.NotNull(deletedPosition);
+        Assert.NotNull(deletedPosition.Deleted);
+        Assert.NotNull(notDeletedPosition);
+        Assert.Null(notDeletedPosition.Deleted);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
         // Arrange
@@ -116,6 +112,6 @@ public class DeletePositionHandlerTests
 
         // Assert
         var positions = await this.context.BasicPositions.ToListAsync();
-        Assert.That(positions, Is.Empty);
+        Assert.Empty(positions);
     }
 }

@@ -10,34 +10,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
-[TestFixture]
-public class GetSupplierByIdHandlerTests
+public class GetSupplierByIdHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetSupplierByIdHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new GetSupplierByIdHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly GetSupplierByIdHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetSupplierByIdHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenSupplierExists_ReturnsSupplierResponse()
     {
         // Arrange
@@ -79,26 +70,23 @@ public class GetSupplierByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(supplierId));
-            Assert.That(result.PersonId, Is.EqualTo(supplier.Person.Id));
-            Assert.That(result.Name, Is.EqualTo(supplier.Person.Name));
-            Assert.That(result.Email, Is.EqualTo(supplier.Person.Email));
-            Assert.That(result.PhoneNumber, Is.EqualTo(supplier.Person.PhoneNumber));
-            Assert.That(result.Document, Is.EqualTo(supplier.Person.Document));
-            Assert.That(result.Street, Is.EqualTo(supplier.Person.Street));
-            Assert.That(result.Number, Is.EqualTo(supplier.Person.Number));
-            Assert.That(result.Complement, Is.EqualTo(supplier.Person.Complement));
-            Assert.That(result.Neighborhood, Is.EqualTo(supplier.Person.Neighborhood));
-            Assert.That(result.ZipCode, Is.EqualTo(supplier.Person.ZipCode));
-            Assert.That(result.StateId, Is.EqualTo(supplier.Person.StateId));
-            Assert.That(result.City, Is.EqualTo(supplier.Person.City));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(supplierId, result.Id);
+        Assert.Equal(supplier.Person.Id, result.PersonId);
+        Assert.Equal(supplier.Person.Name, result.Name);
+        Assert.Equal(supplier.Person.Email, result.Email);
+        Assert.Equal(supplier.Person.PhoneNumber, result.PhoneNumber);
+        Assert.Equal(supplier.Person.Document, result.Document);
+        Assert.Equal(supplier.Person.Street, result.Street);
+        Assert.Equal(supplier.Person.Number, result.Number);
+        Assert.Equal(supplier.Person.Complement, result.Complement);
+        Assert.Equal(supplier.Person.Neighborhood, result.Neighborhood);
+        Assert.Equal(supplier.Person.ZipCode, result.ZipCode);
+        Assert.Equal(supplier.Person.StateId, result.StateId);
+        Assert.Equal(supplier.Person.City, result.City);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenSupplierDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -108,10 +96,10 @@ public class GetSupplierByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -121,10 +109,10 @@ public class GetSupplierByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleSuppliers_ReturnsOnlyRequestedSupplier()
     {
         // Arrange
@@ -187,15 +175,12 @@ public class GetSupplierByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(supplier1Id));
-            Assert.That(result.Name, Is.EqualTo(supplier1.Person.Name));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(supplier1Id, result.Id);
+        Assert.Equal(supplier1.Person.Name, result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullAddressFields_ReturnsCorrectResponse()
     {
         // Arrange
@@ -239,11 +224,13 @@ public class GetSupplierByIdHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Name, Is.EqualTo(supplier.Person.Name));
-            Assert.That(result.Email, Is.EqualTo(supplier.Person.Email));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(supplier.Person.Name, result.Name);
+        Assert.Equal(supplier.Person.Email, result.Email);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

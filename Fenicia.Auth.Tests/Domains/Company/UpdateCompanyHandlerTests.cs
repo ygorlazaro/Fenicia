@@ -11,11 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
 
-[TestFixture]
-public class UpdateCompanyHandlerTests
+public class UpdateCompanyHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateCompanyHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -26,17 +24,18 @@ public class UpdateCompanyHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context;
-    private UpdateCompanyHandler handler;
-    private Faker faker;
+    private readonly DefaultContext context;
+    private readonly UpdateCompanyHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserIsAdmin_CompanyIsUpdatedSuccessfully()
     {
         // Arrange
@@ -94,16 +93,13 @@ public class UpdateCompanyHandlerTests
 
         // Assert
         var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
-        Assert.That(updatedCompany, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedCompany!.Name, Is.EqualTo("Updated Company Name"), "Company name should be updated");
-            Assert.That(updatedCompany.TimeZone, Is.EqualTo("America/Sao_Paulo"), "TimeZone should be updated");
-            Assert.That(updatedCompany.IsActive, Is.True, "IsActive should remain true");
-        }
+        Assert.NotNull(updatedCompany);
+        Assert.Equal("Updated Company Name", updatedCompany.Name);
+        Assert.Equal("America/Sao_Paulo", updatedCompany.TimeZone);
+        Assert.True(updatedCompany.IsActive);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCompanyDoesNotExist_ThrowsItemNotExistsException()
     {
         // Arrange
@@ -132,13 +128,13 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Company not found."));
+        Assert.Equal("Company not found.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCompanyIsInactive_ThrowsItemNotExistsException()
     {
         // Arrange
@@ -192,13 +188,13 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Company not found."));
+        Assert.Equal("Company not found.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserIsNotAdmin_ThrowsPermissionDeniedException()
     {
         // Arrange
@@ -252,13 +248,13 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("You are not authorized to update this company."));
+        Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasNoRoleInCompany_ThrowsPermissionDeniedException()
     {
         // Arrange
@@ -313,13 +309,13 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("You are not authorized to update this company."));
+        Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasAdminRoleInDifferentCompany_ThrowsPermissionDeniedException()
     {
         // Arrange
@@ -384,13 +380,13 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("You are not authorized to update this company."));
+        Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasMultipleRolesIncludingAdmin_CompanyIsUpdated()
     {
         // Arrange
@@ -465,15 +461,12 @@ public class UpdateCompanyHandlerTests
 
         // Assert
         var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
-        Assert.That(updatedCompany, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedCompany!.Name, Is.EqualTo("Updated Company Name"), "Company name should be updated");
-            Assert.That(updatedCompany.TimeZone, Is.EqualTo("Europe/London"), "TimeZone should be updated");
-        }
+        Assert.NotNull(updatedCompany);
+        Assert.Equal("Updated Company Name", updatedCompany.Name);
+        Assert.Equal("Europe/London", updatedCompany.TimeZone);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleAdminsExist_AnyAdminCanUpdate()
     {
         // Arrange
@@ -550,16 +543,12 @@ public class UpdateCompanyHandlerTests
 
         // Assert
         var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
-        Assert.That(updatedCompany, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedCompany!.Name, Is.EqualTo("Updated by Admin 2"),
-                "Company name should be updated by admin2");
-            Assert.That(updatedCompany.TimeZone, Is.EqualTo("Asia/Tokyo"), "TimeZone should be updated");
-        }
+        Assert.NotNull(updatedCompany);
+        Assert.Equal("Updated by Admin 2", updatedCompany.Name);
+        Assert.Equal("Asia/Tokyo", updatedCompany.TimeZone);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCompanyExistsButUserHasNoRoles_ThrowsPermissionDeniedException()
     {
         // Arrange
@@ -596,13 +585,13 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("You are not authorized to update this company."));
+        Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenRoleNameIsNotExactlyAdmin_ThrowsPermissionDeniedException()
     {
         // Arrange
@@ -656,13 +645,13 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("You are not authorized to update this company."));
+        Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenRoleNameIsAdminWithDifferentCase_ThrowsPermissionDeniedException()
     {
         // Arrange
@@ -716,13 +705,13 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<PermissionDeniedException>(async () =>
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("You are not authorized to update this company."));
+        Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesCompanyIsActiveFlagIsPreserved()
     {
         // Arrange
@@ -780,17 +769,14 @@ public class UpdateCompanyHandlerTests
 
         // Assert
         var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
-        Assert.That(updatedCompany, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedCompany!.IsActive, Is.True, "IsActive should remain true after update");
-            Assert.That(updatedCompany.Cnpj, Is.EqualTo(company.Cnpj), "CNPJ should not change");
-            Assert.That(updatedCompany.Language, Is.EqualTo("pt-BR"), "Language should not change");
-        }
+        Assert.NotNull(updatedCompany);
+        Assert.True(updatedCompany.IsActive);
+        Assert.Equal(company.Cnpj, updatedCompany.Cnpj);
+        Assert.Equal("pt-BR", updatedCompany.Language);
     }
 
-    [Test]
-    public void Handle_WhenDatabaseIsEmpty_ThrowsItemNotExistsException()
+    [Fact]
+    public async Task Handle_WhenDatabaseIsEmpty_ThrowsItemNotExistsException()
     {
         // Arrange
         var userId = Guid.NewGuid();
@@ -804,9 +790,9 @@ public class UpdateCompanyHandlerTests
         );
 
         // Act & Assert
-        var ex = Assert.ThrowsAsync<ItemNotExistsException>(async () =>
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
             await this.handler.Handle(command, CancellationToken.None)
         );
-        Assert.That(ex?.Message, Is.EqualTo("Company not found."));
+        Assert.Equal("Company not found.", ex.Message);
     }
 }

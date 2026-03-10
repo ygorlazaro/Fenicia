@@ -9,35 +9,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
-[TestFixture]
-public class UpdateCustomerHandlerTests
+public class UpdateCustomerHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateCustomerHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new UpdateCustomerHandler(this.context);
         this.faker = new Faker();
     }
 
-    private TestCompanyContext companyContext = null!;
-
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context = null!;
-    private UpdateCustomerHandler handler = null!;
-    private Faker faker = null!;
+    private readonly DefaultContext context;
+    private readonly UpdateCustomerHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCustomerExists_UpdatesCustomerAndReturnsResponse()
     {
         // Arrange
@@ -81,15 +77,12 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.PersonId, Is.EqualTo(customer.Person.Id));
-            Assert.That(result.Id, Is.EqualTo(customerId));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(customer.Person.Id, result.PersonId);
+        Assert.Equal(customerId, result.Id);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCustomerDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -111,10 +104,10 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -136,10 +129,10 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullPhoneNumber_SetsEmptyString()
     {
         // Arrange
@@ -183,11 +176,11 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.PersonId, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(new[] { result.PersonId });
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullStreet_SetsEmptyString()
     {
         // Arrange
@@ -231,11 +224,11 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.PersonId, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(new[] { result.PersonId });
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullZipCode_SetsEmptyString()
     {
         // Arrange
@@ -279,11 +272,11 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.PersonId, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(new[] { result.PersonId });
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullNumber_SetsEmptyString()
     {
         // Arrange
@@ -327,11 +320,11 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.PersonId, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(new[] { result.PersonId });
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullComplement_KeepsNull()
     {
         // Arrange
@@ -375,11 +368,11 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.PersonId, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(new[] { result.PersonId });
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullNeighborhood_KeepsNull()
     {
         // Arrange
@@ -423,11 +416,11 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.PersonId, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(new[] { result.PersonId });
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullCity_KeepsNull()
     {
         // Arrange
@@ -471,11 +464,11 @@ public class UpdateCustomerHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.PersonId, Is.Not.Empty);
+        Assert.NotNull(result);
+        Assert.NotEmpty(new[] { result.PersonId });
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesCustomerWasUpdatedInDatabase()
     {
         // Arrange
@@ -523,12 +516,9 @@ public class UpdateCustomerHandlerTests
             .Include(c => c.Person)
             .FirstOrDefaultAsync(c => c.Id == customerId);
 
-        Assert.That(updatedCustomer, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedCustomer.Person.Name, Is.EqualTo("New Name"));
-            Assert.That(updatedCustomer.Person.Email, Is.EqualTo("new@email.com"));
-            Assert.That(updatedCustomer.Person.City, Is.EqualTo("New City"));
-        }
+        Assert.NotNull(updatedCustomer);
+        Assert.Equal("New Name", updatedCustomer.Person.Name);
+        Assert.Equal("new@email.com", updatedCustomer.Person.Email);
+        Assert.Equal("New City", updatedCustomer.Person.City);
     }
 }

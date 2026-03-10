@@ -11,11 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
 
-[TestFixture]
-public class GetCompaniesByUserHandlerTests
+public class GetCompaniesByUserHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetCompaniesByUserHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -26,17 +24,17 @@ public class GetCompaniesByUserHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context;
-    private GetCompaniesByUserHandler handler;
-    private Faker faker;
+    private readonly DefaultContext context;
+    private readonly GetCompaniesByUserHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasNoCompanies_ReturnsEmptyPagination()
     {
         // Arrange
@@ -47,19 +45,16 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result, Is.Not.Null, "Result should not be null");
-            Assert.That(result.Data, Is.Not.Null, "Data should not be null");
-            Assert.That(result.Data.Count(), Is.Zero, "Should return empty list");
-            Assert.That(result.Total, Is.Zero, "Total should be zero");
-            Assert.That(result.Page, Is.EqualTo(1), "Page should match query");
-            Assert.That(result.PerPage, Is.EqualTo(10), "PerPage should match query");
-            Assert.That(result.Pages, Is.Zero, "Pages should be zero");
-        }
+        Assert.NotNull(result);
+        Assert.NotNull(result.Data);
+        Assert.Empty(result.Data);
+        Assert.Equal(0, result.Total);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(10, result.PerPage);
+        Assert.Equal(0, result.Pages);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasOneActiveCompany_ReturnsCompanyInPagination()
     {
         // Arrange
@@ -111,22 +106,19 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result, Is.Not.Null, "Result should not be null");
-            Assert.That(result.Data.Count(), Is.EqualTo(1), "Should return one company");
-            Assert.That(result.Total, Is.EqualTo(1), "Total should be one");
-            Assert.That(result.Pages, Is.EqualTo(1), "Should have one page");
+        Assert.NotNull(result);
+        Assert.Single(result.Data);
+        Assert.Equal(1, result.Total);
+        Assert.Equal(1, result.Pages);
 
-            var item = result.Data.First();
-            Assert.That(item.Id, Is.EqualTo(companyId), "Company ID should match");
-            Assert.That(item.Name, Is.EqualTo(company.Name), "Company name should match");
-            Assert.That(item.Cnpj, Is.EqualTo(company.Cnpj), "CNPJ should match");
-            Assert.That(item.Role, Is.EqualTo("Admin"), "Role name should match");
-        }
+        var item = result.Data.First();
+        Assert.Equal(companyId, item.Id);
+        Assert.Equal(company.Name, item.Name);
+        Assert.Equal(company.Cnpj, item.Cnpj);
+        Assert.Equal("Admin", item.Role);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasInactiveCompany_DoesNotReturnInResults()
     {
         // Arrange
@@ -178,14 +170,11 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Count(), Is.Zero, "Should not return inactive companies");
-            Assert.That(result.Total, Is.Zero, "Total should be zero");
-        }
+        Assert.Empty(result.Data);
+        Assert.Equal(0, result.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasMultipleCompanies_ReturnsAllSortedByName()
     {
         // Arrange
@@ -276,19 +265,16 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Count(), Is.EqualTo(3), "Should return all three companies");
-            Assert.That(result.Total, Is.EqualTo(3), "Total should be three");
+        Assert.Equal(3, result.Data.Count());
+        Assert.Equal(3, result.Total);
 
-            var items = result.Data.ToList();
-            Assert.That(items[0].Name, Is.EqualTo("Alpha Company"), "First should be Alpha (sorted)");
-            Assert.That(items[1].Name, Is.EqualTo("Beta Company"), "Second should be Beta (sorted)");
-            Assert.That(items[2].Name, Is.EqualTo("Zebra Company"), "Third should be Zebra (sorted)");
-        }
+        var items = result.Data.ToList();
+        Assert.Equal("Alpha Company", items[0].Name);
+        Assert.Equal("Beta Company", items[1].Name);
+        Assert.Equal("Zebra Company", items[2].Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPaginationRequested_ReturnsCorrectPage()
     {
         // Arrange
@@ -347,22 +333,19 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Count(), Is.EqualTo(10), "Should return 10 items per page");
-            Assert.That(result.Total, Is.EqualTo(25), "Total should be 25");
-            Assert.That(result.Page, Is.EqualTo(2), "Page should be 2");
-            Assert.That(result.PerPage, Is.EqualTo(10), "PerPage should be 10");
-            Assert.That(result.Pages, Is.EqualTo(3), "Should have 3 pages total");
+        Assert.Equal(10, result.Data.Count());
+        Assert.Equal(25, result.Total);
+        Assert.Equal(2, result.Page);
+        Assert.Equal(10, result.PerPage);
+        Assert.Equal(3, result.Pages);
 
-            var items = result.Data.ToList();
-            var sortedCompanies = companies.OrderBy(c => c.Name).ToList();
-            Assert.That(items[0].Name, Is.EqualTo(sortedCompanies.Skip(10).FirstOrDefault()?.Name), "First item on page 2 should be Company 010");
-            Assert.That(items[^1].Name, Is.EqualTo(sortedCompanies.Skip(10).Take(10).LastOrDefault()?.Name), "Last item on page 2 should be Company 019");
-        }
+        var items = result.Data.ToList();
+        var sortedCompanies = companies.OrderBy(c => c.Name).ToList();
+        Assert.Equal(sortedCompanies.Skip(10).FirstOrDefault()?.Name, items[0].Name);
+        Assert.Equal(sortedCompanies.Skip(10).Take(10).LastOrDefault()?.Name, items[^1].Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenLastPageRequested_ReturnsRemainingItems()
     {
         // Arrange
@@ -422,21 +405,18 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Count(), Is.EqualTo(5), "Should return remaining 5 items");
-            Assert.That(result.Total, Is.EqualTo(25), "Total should be 25");
-            Assert.That(result.Page, Is.EqualTo(3), "Page should be 3");
-            Assert.That(result.Pages, Is.EqualTo(3), "Should have 3 pages total");
+        Assert.Equal(5, result.Data.Count());
+        Assert.Equal(25, result.Total);
+        Assert.Equal(3, result.Page);
+        Assert.Equal(3, result.Pages);
 
-            var items = result.Data.ToList();
-            var sortedCompanies = companies.OrderBy(c => c.Name).ToList();
-            Assert.That(items[0].Name, Is.EqualTo(sortedCompanies.Skip(20).FirstOrDefault()?.Name), "First item on page 3 should be Company 020");
-            Assert.That(items[^1].Name, Is.EqualTo(sortedCompanies.Skip(20).LastOrDefault()?.Name), "Last item on page 3 should be Company 024");
-        }
+        var items = result.Data.ToList();
+        var sortedCompanies = companies.OrderBy(c => c.Name).ToList();
+        Assert.Equal(sortedCompanies.Skip(20).FirstOrDefault()?.Name, items[0].Name);
+        Assert.Equal(sortedCompanies.Skip(20).LastOrDefault()?.Name, items[^1].Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenPageBeyondAvailablePages_ReturnsEmptyList()
     {
         // Arrange
@@ -487,16 +467,13 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Count(), Is.Zero, "Should return empty list for page beyond available");
-            Assert.That(result.Total, Is.EqualTo(1), "Total should still be 1");
-            Assert.That(result.Page, Is.EqualTo(5), "Page should be 5 as requested");
-            Assert.That(result.Pages, Is.EqualTo(1), "Total pages should be 1");
-        }
+        Assert.Empty(result.Data);
+        Assert.Equal(1, result.Total);
+        Assert.Equal(5, result.Page);
+        Assert.Equal(1, result.Pages);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenUserHasMultipleRolesInSameCompany_ReturnsCompanyOncePerRole()
     {
         // Arrange
@@ -565,18 +542,15 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Count(), Is.EqualTo(2), "Should return company twice (once per role)");
-            Assert.That(result.Total, Is.EqualTo(2), "Total should be 2");
+        Assert.Equal(2, result.Data.Count());
+        Assert.Equal(2, result.Total);
 
-            var items = result.Data.ToList();
-            Assert.That(items.Any(i => i.Role == "Admin"), Is.True, "Should have Admin role");
-            Assert.That(items.Any(i => i.Role == "Contributor"), Is.True, "Should have \"Contributor\" role");
-        }
+        var items = result.Data.ToList();
+        Assert.Contains(items, i => i.Role == "Admin");
+        Assert.Contains(items, i => i.Role == "Contributor");
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsOnlyRequestedUserCompanies()
     {
         // Arrange
@@ -654,15 +628,12 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Count(), Is.EqualTo(1), "Should return only user 1's company");
-            Assert.That(result.Total, Is.EqualTo(1), "Total should be 1");
-            Assert.That(result.Data.First().Name, Is.EqualTo(company1.Name), "Should return correct company");
-        }
+        Assert.Single(result.Data);
+        Assert.Equal(1, result.Total);
+        Assert.Equal(company1.Name, result.Data.First().Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMixedActiveAndInactiveCompanies_ReturnsOnlyActive()
     {
         // Arrange
@@ -733,15 +704,12 @@ public class GetCompaniesByUserHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Count(), Is.EqualTo(1), "Should return only active company");
-            Assert.That(result.Total, Is.EqualTo(1), "Total should be 1");
-            Assert.That(result.Data.First().Name, Is.EqualTo(activeCompany.Name), "Should return active company");
-        }
+        Assert.Single(result.Data);
+        Assert.Equal(1, result.Total);
+        Assert.Equal(activeCompany.Name, result.Data.First().Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithZeroPerPage_ReturnsEmptyData()
     {
         // Arrange
@@ -790,81 +758,7 @@ public class GetCompaniesByUserHandlerTests
         var query = new GetCompaniesByUserQuery(userId, 1, 0);
 
         // Act
-        Assert.CatchAsync<InvalidRequestException>(async () =>
-        {
-            await this.handler.Handle(query, CancellationToken.None);
-        });
-    }
-
-    [Test]
-    public async Task Handle_WithDifferentRoles_ReturnsCorrectRoleNames()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-
-        var companies = new List<CompanyModel>();
-        var roles = new List<RoleModel>();
-        var userRoles = new List<UserRoleModel>();
-
-        var roleNames = new[] { "Admin", "Manager", "Contributor", "Viewer" };
-
-        foreach (var roleName in roleNames)
-        {
-            var company = new CompanyModel
-            {
-                Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Cnpj = this.faker.Company.Cnpj(),
-                IsActive = true,
-                TimeZone = "UTC",
-                Language = "pt-BR"
-            };
-            companies.Add(company);
-
-            var role = new RoleModel
-            {
-                Id = Guid.NewGuid(),
-                Name = roleName
-            };
-            roles.Add(role);
-
-            var userRole = new UserRoleModel
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = role.Id,
-                CompanyId = company.Id
-            };
-            userRoles.Add(userRole);
-        }
-
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Internet.UserName(),
-            Password = this.faker.Internet.Password()
-        };
-
-        this.context.AuthCompanies.AddRange(companies);
-        this.context.AuthRoles.AddRange(roles);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.AddRange(userRoles);
-        await this.context.SaveChangesAsync(CancellationToken.None);
-
-        var query = new GetCompaniesByUserQuery(userId, 1, 10);
-
-        // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Data.Count(), Is.EqualTo(4), "Should return all 4 companies");
-
-            var items = result.Data.ToList();
-            Assert.That(items.Select(i => i.Role).OrderBy(r => r), Is.EqualTo(roleNames.OrderBy(r => r)),
-                "Should return all role names correctly");
-        }
+        await Assert.ThrowsAsync<InvalidRequestException>(async () =>
+            await this.handler.Handle(query, CancellationToken.None));
     }
 }

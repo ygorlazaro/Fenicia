@@ -9,11 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class CheckUserExistsHandlerTests
+public class CheckUserExistsHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public CheckUserExistsHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -24,17 +22,11 @@ public class CheckUserExistsHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly CheckUserExistsHandler handler;
+    private readonly Faker faker;
 
-    private DefaultContext context = null!;
-    private CheckUserExistsHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailExists_ReturnsTrue()
     {
         // Arrange
@@ -55,10 +47,10 @@ public class CheckUserExistsHandlerTests
         var result = await this.handler.Handle(email, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.True, "Should return true when email exists");
+        Assert.True(result, "Should return true when email exists");
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailDoesNotExist_ReturnsFalse()
     {
         // Arrange
@@ -68,10 +60,10 @@ public class CheckUserExistsHandlerTests
         var result = await this.handler.Handle(email, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false when email doesn't exist");
+        Assert.False(result, "Should return false when email doesn't exist");
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_ReturnsFalse()
     {
         // Arrange
@@ -93,10 +85,10 @@ public class CheckUserExistsHandlerTests
         var result = await this.handler.Handle(upperCaseEmail, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False, "Email comparison is case-sensitive");
+        Assert.False(result, "Email comparison is case-sensitive");
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleUsersExist_OnlyMatchesExactEmail()
     {
         // Arrange
@@ -128,15 +120,12 @@ public class CheckUserExistsHandlerTests
         var result3 = await this.handler.Handle("other@example.com", CancellationToken.None);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result1, Is.True, "Should find user1");
-            Assert.That(result2, Is.True, "Should find user2");
-            Assert.That(result3, Is.False, "Should not find other user");
-        }
+        Assert.True(result1, "Should find user1");
+        Assert.True(result2, "Should find user2");
+        Assert.False(result3, "Should not find other user");
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsFalse()
     {
         // Arrange
@@ -146,10 +135,10 @@ public class CheckUserExistsHandlerTests
         var result = await this.handler.Handle(email, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False, "Should return false with empty database");
+        Assert.False(result, "Should return false with empty database");
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailContainsExtraSpaces_ReturnsFalse()
     {
         // Arrange
@@ -171,10 +160,10 @@ public class CheckUserExistsHandlerTests
         var result = await this.handler.Handle(emailWithSpaces, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False, "Should not match email with extra spaces");
+        Assert.False(result, "Should not match email with extra spaces");
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailHasExtraCharacters_ReturnsFalse()
     {
         // Arrange
@@ -196,6 +185,13 @@ public class CheckUserExistsHandlerTests
         var result = await this.handler.Handle(emailWithExtra, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.False, "Should not match email with extra characters");
+        Assert.False(result, "Should not match email with extra characters");
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

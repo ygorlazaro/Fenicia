@@ -6,28 +6,20 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-[TestFixture]
-public class ResetAttemptsHandlerTests
+public class ResetAttemptsHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public ResetAttemptsHandlerTests()
     {
         this.cache = new MemoryCache(new MemoryCacheOptions());
         this.handler = new ResetAttemptsHandler(this.cache);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.cache.Dispose();
-    }
+    private readonly MemoryCache cache;
+    private readonly Faker faker;
+    private readonly ResetAttemptsHandler handler;
 
-    private MemoryCache cache;
-    private Faker faker;
-    private ResetAttemptsHandler handler;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenAttemptsExist_RemovesAttempts()
     {
         // Arrange
@@ -40,10 +32,10 @@ public class ResetAttemptsHandlerTests
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
-        Assert.That(exists, Is.False, "Should remove the login attempts");
+        Assert.False(exists);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenNoAttemptsExist_CompletesSuccessfully()
     {
         // Arrange
@@ -53,10 +45,10 @@ public class ResetAttemptsHandlerTests
         await this.handler.Handle(email);
 
         // Assert
-        Assert.Pass("Should complete successfully even when no attempts exist");
+        // Should complete successfully even when no attempts exist
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_RemovesCorrectAttempts()
     {
         // Arrange
@@ -70,17 +62,17 @@ public class ResetAttemptsHandlerTests
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
-        Assert.That(exists, Is.False, "Should remove attempts regardless of email case");
+        Assert.False(exists);
     }
 
-    [Test]
-    public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
+    [Fact]
+    public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handle(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handle(null!));
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenEmailIsEmpty_RemovesEmptyKey()
     {
         // Arrange
@@ -93,10 +85,10 @@ public class ResetAttemptsHandlerTests
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
-        Assert.That(exists, Is.False, "Should remove attempts for empty email");
+        Assert.False(exists);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenMultipleEmailsExist_RemovesOnlySpecifiedEmail()
     {
         // Arrange
@@ -111,15 +103,12 @@ public class ResetAttemptsHandlerTests
         await this.handler.Handle(email1);
 
         // Assert
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(this.cache.TryGetValue(key1, out _), Is.False, "Should remove user1 attempts");
-            Assert.That(this.cache.TryGetValue(key2, out int count), Is.True, "Should keep user2 attempts");
-            Assert.That(count, Is.EqualTo(4), "User2 count should remain unchanged");
-        }
+        Assert.False(this.cache.TryGetValue(key1, out _));
+        Assert.True(this.cache.TryGetValue(key2, out int count));
+        Assert.Equal(4, count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenHighAttemptCountExists_RemovesSuccessfully()
     {
         // Arrange
@@ -132,10 +121,10 @@ public class ResetAttemptsHandlerTests
 
         // Assert
         var exists = this.cache.TryGetValue(key, out _);
-        Assert.That(exists, Is.False, "Should remove high attempt count");
+        Assert.False(exists);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_MultipleResetsForSameEmail_CompletesSuccessfully()
     {
         // Arrange
@@ -146,7 +135,11 @@ public class ResetAttemptsHandlerTests
         await this.handler.Handle(email);
         await this.handler.Handle(email);
 
-        // Assert
-        Assert.Pass("Should handle multiple resets without errors");
+        // Assert - Should handle multiple resets without errors
+    }
+
+    public void Dispose()
+    {
+        this.cache.Dispose();
     }
 }

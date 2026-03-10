@@ -24,34 +24,32 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-[TestFixture]
-public class EmployeeControllerTests
+public class EmployeeControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public EmployeeControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.testEmployeeId = Guid.NewGuid();
-        this.getAllEmployeeHandler = new GetAllEmployeeHandler(this.context);
-        this.getEmployeeByIdHandler = new GetEmployeeByIdHandler(this.context);
-        this.addEmployeeHandler = new AddEmployeeHandler(this.context);
-        this.updateEmployeeHandler = new UpdateEmployeeHandler(this.context);
-        this.deleteEmployeeHandler = new DeleteEmployeeHandler(this.context);
-        this.getEmployeePerformanceHandler = new GetEmployeePerformanceHandler(this.context);
+        var getAllEmployeeHandler = new GetAllEmployeeHandler(this.context);
+        var getEmployeeByIdHandler = new GetEmployeeByIdHandler(this.context);
+        var addEmployeeHandler = new AddEmployeeHandler(this.context);
+        var updateEmployeeHandler = new UpdateEmployeeHandler(this.context);
+        var deleteEmployeeHandler = new DeleteEmployeeHandler(this.context);
+        var getEmployeePerformanceHandler = new GetEmployeePerformanceHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new EmployeeController(
-            this.getAllEmployeeHandler,
-            this.getEmployeeByIdHandler,
-            this.addEmployeeHandler,
-            this.updateEmployeeHandler,
-            this.deleteEmployeeHandler,
-            this.getEmployeePerformanceHandler
+            getAllEmployeeHandler,
+            getEmployeeByIdHandler,
+            addEmployeeHandler,
+            updateEmployeeHandler,
+            deleteEmployeeHandler,
+            getEmployeePerformanceHandler
             )
         {
             ControllerContext = new ControllerContext
@@ -64,24 +62,11 @@ public class EmployeeControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
-
-    private TestCompanyContext companyContext = null!;
-    private EmployeeController controller = null!;
-    private DefaultContext context = null!;
-    private GetAllEmployeeHandler getAllEmployeeHandler = null!;
-    private GetEmployeeByIdHandler getEmployeeByIdHandler = null!;
-    private AddEmployeeHandler addEmployeeHandler = null!;
-    private UpdateEmployeeHandler updateEmployeeHandler = null!;
-    private DeleteEmployeeHandler deleteEmployeeHandler = null!;
-    private GetEmployeePerformanceHandler getEmployeePerformanceHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testEmployeeId;
-    private Faker faker = null!;
+    private readonly EmployeeController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testEmployeeId;
+    private readonly Faker faker;
 
     private void SetupUserClaims()
     {
@@ -97,7 +82,7 @@ public class EmployeeControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenNoEmployeesExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -110,22 +95,19 @@ public class EmployeeControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedEmployees = okResult.Value as Pagination<List<GetAllEmployeeResponse>>;
-        Assert.That(returnedEmployees, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedEmployees.Data, Is.Empty);
-            Assert.That(returnedEmployees.Total, Is.EqualTo(0));
-        }
+        Assert.NotNull(returnedEmployees);
+        Assert.Empty(returnedEmployees.Data);
+        Assert.Equal(0, returnedEmployees.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task GetAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
@@ -169,8 +151,8 @@ public class EmployeeControllerTests
         this.context.BasicEmployees.AddRange(employee1, employee2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var page = 1;
-        var perPage = 10;
+        const int page = 1;
+        const int perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
@@ -178,22 +160,19 @@ public class EmployeeControllerTests
         var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedEmployees = okResult.Value as Pagination<List<GetAllEmployeeResponse>>;
-        Assert.That(returnedEmployees, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedEmployees.Data, Has.Count.EqualTo(2));
-            Assert.That(returnedEmployees.Total, Is.EqualTo(2));
-        }
+        Assert.NotNull(returnedEmployees);
+        Assert.Equal(2, returnedEmployees.Data.Count);
+        Assert.Equal(2, returnedEmployees.Total);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOkWithEmployee()
     {
         // Arrange
@@ -229,22 +208,19 @@ public class EmployeeControllerTests
         var result = await this.controller.GetByIdAsync(this.testEmployeeId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedEmployee = okResult.Value as GetEmployeeByIdResponse;
-        Assert.That(returnedEmployee, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedEmployee.Id, Is.EqualTo(this.testEmployeeId));
-            Assert.That(returnedEmployee.PersonId, Is.EqualTo(employee.Person.Id));
-        }
+        Assert.NotNull(returnedEmployee);
+        Assert.Equal(this.testEmployeeId, returnedEmployee.Id);
+        Assert.Equal(employee.Person.Id, returnedEmployee.PersonId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetByIdAsync_WhenEmployeeDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -256,11 +232,11 @@ public class EmployeeControllerTests
         var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithEmployee()
     {
         // Arrange
@@ -295,18 +271,18 @@ public class EmployeeControllerTests
         var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201));
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedEmployee = createdResult.Value as AddEmployeeResponse;
-        Assert.That(returnedEmployee, Is.Not.Null);
+        Assert.NotNull(returnedEmployee);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenEmployeeExists_ReturnsOkWithUpdatedEmployee()
     {
         // Arrange
@@ -357,17 +333,17 @@ public class EmployeeControllerTests
         var result = await this.controller.PatchAsync(command, this.testEmployeeId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedEmployee = okResult.Value as UpdateEmployeeResponse;
-        Assert.That(returnedEmployee, Is.Not.Null);
+        Assert.NotNull(returnedEmployee);
     }
 
-    [Test]
+    [Fact]
     public async Task PatchAsync_WhenEmployeeDoesNotExist_ReturnsNotFound()
     {
         // Arrange
@@ -403,11 +379,11 @@ public class EmployeeControllerTests
         var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+        Assert.NotNull(result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenEmployeeExists_ReturnsNoContent()
     {
         // Arrange
@@ -435,14 +411,14 @@ public class EmployeeControllerTests
         var result = await this.controller.DeleteAsync(this.testEmployeeId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
 
         // Verify employee was deleted
         var deletedEmployee = await this.context.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId && x.Deleted == null, ct);
-        Assert.That(deletedEmployee, Is.Null);
+        Assert.Null(deletedEmployee);
     }
 
-    [Test]
+    [Fact]
     public async Task DeleteAsync_WhenEmployeeDoesNotExist_ReturnsNoContent()
     {
         // Arrange
@@ -454,10 +430,10 @@ public class EmployeeControllerTests
         var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
+        Assert.NotNull(result);
     }
 
-    [Test]
+    [Fact]
     public void EmployeeController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -467,10 +443,10 @@ public class EmployeeControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "EmployeeController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void EmployeeController_HasRouteAttribute()
     {
         // Arrange
@@ -481,11 +457,11 @@ public class EmployeeControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "EmployeeController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void EmployeeController_HasApiControllerAttribute()
     {
         // Arrange
@@ -496,6 +472,13 @@ public class EmployeeControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "EmployeeController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 }

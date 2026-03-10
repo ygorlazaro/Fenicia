@@ -7,32 +7,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
-[TestFixture]
-public class UpdateProductCategoryHandlerTests
+public class UpdateProductCategoryHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateProductCategoryHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new UpdateProductCategoryHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly UpdateProductCategoryHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private UpdateProductCategoryHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenCategoryExists_UpdatesCategoryAndReturnsResponse()
     {
         // Arrange
@@ -52,15 +43,12 @@ public class UpdateProductCategoryHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(categoryId));
-            Assert.That(result.Name, Is.EqualTo("New Category"));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(categoryId, result.Id);
+        Assert.Equal("New Category", result.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenCategoryDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -70,10 +58,10 @@ public class UpdateProductCategoryHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -83,10 +71,10 @@ public class UpdateProductCategoryHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesCategoryWasUpdatedInDatabase()
     {
         // Arrange
@@ -107,11 +95,11 @@ public class UpdateProductCategoryHandlerTests
 
         // Assert
         var updatedCategory = await this.context.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
-        Assert.That(updatedCategory, Is.Not.Null);
-        Assert.That(updatedCategory.Name, Is.EqualTo("New Category"));
+        Assert.NotNull(updatedCategory);
+        Assert.Equal("New Category", updatedCategory.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleCategories_OnlyUpdatesSpecified()
     {
         // Arrange
@@ -133,12 +121,14 @@ public class UpdateProductCategoryHandlerTests
         var updatedCategory1 = await this.context.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
         var notUpdatedCategory2 = await this.context.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
 
-        Assert.That(updatedCategory1, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedCategory1.Name, Is.EqualTo("Home Appliances"));
-            Assert.That(notUpdatedCategory2, Is.Not.Null);
-        }
-        Assert.That(notUpdatedCategory2?.Name, Is.EqualTo("Books"));
+        Assert.NotNull(updatedCategory1);
+        Assert.Equal("Home Appliances", updatedCategory1.Name);
+        Assert.NotNull(notUpdatedCategory2);
+        Assert.Equal("Books", notUpdatedCategory2.Name);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

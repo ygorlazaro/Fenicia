@@ -8,11 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.StockMovement;
 
-[TestFixture]
-public class UpdateStockMovementHandlerTests
+public class UpdateStockMovementHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public UpdateStockMovementHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -23,17 +21,11 @@ public class UpdateStockMovementHandlerTests
         this.handler = new UpdateStockMovementHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly TestCompanyContext companyContext;
+    private readonly DefaultContext context;
+    private readonly UpdateStockMovementHandler handler;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private UpdateStockMovementHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WhenStockMovementExists_UpdatesStockMovementAndReturnsResponse()
     {
         // Arrange
@@ -78,16 +70,13 @@ public class UpdateStockMovementHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Quantity, Is.EqualTo(20));
-            Assert.That(result.Type, Is.EqualTo(StockMovementType.Out));
-            Assert.That(result.Price, Is.EqualTo(25.00m));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(20, result.Quantity);
+        Assert.Equal(StockMovementType.Out, result.Type);
+        Assert.Equal(25.00m, result.Price);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WhenStockMovementDoesNotExist_ReturnsNull()
     {
         // Arrange
@@ -108,10 +97,10 @@ public class UpdateStockMovementHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
@@ -132,10 +121,10 @@ public class UpdateStockMovementHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Null);
+        Assert.Null(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesStockMovementWasUpdatedInDatabase()
     {
         // Arrange
@@ -181,11 +170,13 @@ public class UpdateStockMovementHandlerTests
 
         // Assert
         var updatedMovement = await this.context.BasicStockMovements.FindAsync([movementId], CancellationToken.None);
-        Assert.That(updatedMovement, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(updatedMovement.Quantity, Is.EqualTo(20));
-            Assert.That(updatedMovement.Type, Is.EqualTo(StockMovementType.Out));
-        }
+        Assert.NotNull(updatedMovement);
+        Assert.Equal(20, updatedMovement.Quantity);
+        Assert.Equal(StockMovementType.Out, updatedMovement.Type);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

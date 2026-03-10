@@ -8,11 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
-public class GetUserModuleHandlerTests
+public class GetUserModuleHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    private readonly DefaultContext context;
+    private readonly GetUserModuleHandler handler;
+
+    public GetUserModuleHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -22,16 +23,14 @@ public class GetUserModuleHandlerTests
         this.handler = new GetUserModuleHandler(this.context);
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        
+        GC.SuppressFinalize(this);
     }
 
-    private DefaultContext context = null!;
-    private GetUserModuleHandler handler = null!;
-
-    [Test]
+    [Fact]
     public async Task Handler_WhenUserHasActiveSubscription_ReturnsModules()
     {
         // Arrange
@@ -93,17 +92,15 @@ public class GetUserModuleHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1), "Should return 1 module");
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result[0].Id, Is.EqualTo(moduleId), "ModuleId should match");
-            Assert.That(result[0].Name, Is.EqualTo("Test Module"), "ModuleName should match");
-            Assert.That(result[0].Type, Is.EqualTo(ModuleType.Accounting), "ModuleType should match");
-        }
+        Assert.NotNull(result);
+        Assert.Single(result);
+        
+        Assert.Equal(moduleId, result[0].Id);
+        Assert.Equal("Test Module", result[0].Name);
+        Assert.Equal(ModuleType.Accounting, result[0].Type);
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenUserHasNoSubscription_ReturnsEmptyList()
     {
         // Arrange
@@ -116,11 +113,11 @@ public class GetUserModuleHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty, "Should return empty list");
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenSubscriptionIsInactive_ReturnsEmptyList()
     {
         // Arrange
@@ -182,11 +179,11 @@ public class GetUserModuleHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty, "Should return empty list for inactive subscription");
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenSubscriptionCreditIsInactive_ReturnsEmptyList()
     {
         // Arrange
@@ -248,11 +245,11 @@ public class GetUserModuleHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty, "Should return empty list for inactive credit");
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenSubscriptionIsExpired_ReturnsEmptyList()
     {
         // Arrange
@@ -314,11 +311,11 @@ public class GetUserModuleHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty, "Should return empty list for expired subscription");
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenUserHasMultipleModules_ReturnsAllModules()
     {
         // Arrange
@@ -397,11 +394,11 @@ public class GetUserModuleHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2), "Should return 2 modules");
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_WhenUserIsNotInCompany_ReturnsEmptyList()
     {
         // Arrange
@@ -462,11 +459,11 @@ public class GetUserModuleHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty, "Should return empty list when user is not in company");
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handler_RemovesDuplicateModules()
     {
         // Arrange
@@ -536,7 +533,7 @@ public class GetUserModuleHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1), "Should return unique modules only");
+        Assert.NotNull(result);
+        Assert.Single(result);
     }
 }

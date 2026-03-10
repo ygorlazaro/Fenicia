@@ -8,34 +8,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
-[TestFixture]
-public class AddSupplierHandlerTests
+public class AddSupplierHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public AddSupplierHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.handler = new AddSupplierHandler(this.context);
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
+    private readonly DefaultContext context;
+    private readonly AddSupplierHandler handler;
+    private readonly Faker faker;
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private AddSupplierHandler handler = null!;
-    private Faker faker = null!;
-
-    [Test]
+    [Fact]
     public async Task Handle_WithValidCommand_AddsSupplierAndReturnsResponse()
     {
         // Arrange
@@ -58,15 +49,12 @@ public class AddSupplierHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Id, Is.EqualTo(command.Id));
-            Assert.That(result.Cnpj, Is.EqualTo(command.Cnpj));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Cnpj, result.Cnpj);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesSupplierWasSavedToDatabase()
     {
         // Arrange
@@ -93,11 +81,11 @@ public class AddSupplierHandlerTests
             .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 
-        Assert.That(supplier, Is.Not.Null);
-        Assert.That(supplier.Person.Name, Is.EqualTo(command.Name));
+        Assert.NotNull(supplier);
+        Assert.Equal(command.Name, supplier.Person.Name);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithNullCnpj_HandlesCorrectly()
     {
         // Arrange
@@ -120,7 +108,12 @@ public class AddSupplierHandlerTests
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Cnpj, Is.Null);
+        Assert.NotNull(result);
+        Assert.Null(result.Cnpj);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }

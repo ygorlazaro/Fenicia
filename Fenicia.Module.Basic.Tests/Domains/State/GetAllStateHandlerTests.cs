@@ -9,11 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.State;
 
-[TestFixture]
-public class GetAllStateHandlerTests
+public class GetAllStateHandlerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public GetAllStateHandlerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -25,18 +23,18 @@ public class GetAllStateHandlerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
+    public void Dispose()
     {
         this.context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private TestCompanyContext companyContext = null!;
-    private DefaultContext context = null!;
-    private GetAllStateHandler handler = null!;
-    private Faker faker = null!;
+    private readonly TestCompanyContext companyContext;
+    private readonly DefaultContext context;
+    private readonly GetAllStateHandler handler;
+    private readonly Faker faker;
 
-    [Test]
+    [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
         // Arrange
@@ -46,11 +44,11 @@ public class GetAllStateHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.Empty);
+        Assert.NotNull(result);
+        Assert.Empty(result);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithStates_ReturnsAllStates()
     {
         // Arrange
@@ -77,16 +75,13 @@ public class GetAllStateHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(2));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Any(s => s.Id == state1.Id));
-            Assert.That(result.Any(s => s.Id == state2.Id));
-        }
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count);
+        Assert.Contains(result, s => s.Id == state1.Id);
+        Assert.Contains(result, s => s.Id == state2.Id);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_WithMultipleStates_ReturnsAllWithoutPagination()
     {
         // Arrange
@@ -109,11 +104,11 @@ public class GetAllStateHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(27));
+        Assert.NotNull(result);
+        Assert.Equal(27, result.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task Handle_VerifiesStateDataIsCorrect()
     {
         // Arrange
@@ -133,12 +128,9 @@ public class GetAllStateHandlerTests
         var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result[0].Name, Is.EqualTo("Minas Gerais"));
-            Assert.That(result[0].Uf, Is.EqualTo("MG"));
-        }
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal("Minas Gerais", result[0].Name);
+        Assert.Equal("MG", result[0].Uf);
     }
 }

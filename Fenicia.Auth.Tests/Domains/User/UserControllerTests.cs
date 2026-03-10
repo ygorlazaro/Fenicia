@@ -25,11 +25,9 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.User;
 
-[TestFixture]
 public class UserControllerTests
 {
-    [SetUp]
-    public void SetUp()
+    public UserControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -41,14 +39,14 @@ public class UserControllerTests
         var hashPasswordHandler = new HashPasswordHandler();
 
         this.testUserId = Guid.NewGuid();
-        this.getUserModuleModel = new GetUserModuleHandler(this.context);
-        this.getUserCompaniesHandler = new GetUserCompaniesHandler(this.context);
-        this.listUserHandler = new ListUsersHandler(this.context);
-        this.createUserHandler = new CreateUserHandler(this.context, checkUserExistsHandler, hashPasswordHandler);
-        this.updateUserHandler = new UpdateUserHandler(this.context);
+        var getUserModuleModel = new GetUserModuleHandler(this.context);
+        var getUserCompaniesHandler = new GetUserCompaniesHandler(this.context);
+        var listUserHandler = new ListUsersHandler(this.context);
+        var createUserHandler = new CreateUserHandler(this.context, checkUserExistsHandler, hashPasswordHandler);
+        var updateUserHandler = new UpdateUserHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new UserController(this.getUserModuleModel, this.getUserCompaniesHandler, this.listUserHandler, this.createUserHandler, this.updateUserHandler)
+        this.controller = new UserController(getUserModuleModel, getUserCompaniesHandler, listUserHandler, createUserHandler, updateUserHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -60,22 +58,11 @@ public class UserControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
-
-    private UserController controller = null!;
-    private DefaultContext context = null!;
-    private GetUserModuleHandler getUserModuleModel = null!;
-    private GetUserCompaniesHandler getUserCompaniesHandler = null!;
-    private ListUsersHandler listUserHandler = null!;
-    private CreateUserHandler createUserHandler = null!;
-    private UpdateUserHandler updateUserHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testUserId;
-    private Faker faker = null!;
+    private readonly UserController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testUserId;
+    private readonly Faker faker;
 
     private void SetupUserClaims(Guid userId)
     {
@@ -91,7 +78,7 @@ public class UserControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task GetUserModulesAsync_WhenUserHasNoModules_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -107,22 +94,17 @@ public class UserControllerTests
             ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
 
-        var returnedModules = okResult.Value as List<GetUserModulesResponse>;
-        Assert.That(returnedModules, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedModules, Is.Empty);
-            Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
-        }
+        var returnedModules = Assert.IsType<List<GetUserModulesResponse>>(okResult.Value);
+        Assert.Empty(returnedModules);
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetUserModulesAsync_WhenUserHasActiveSubscription_ReturnsOkWithModules()
     {
         // Arrange
@@ -192,24 +174,19 @@ public class UserControllerTests
             ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
 
-        var returnedModules = okResult.Value as List<GetUserModulesResponse>;
-        Assert.That(returnedModules, Is.Not.Null);
-        Assert.That(returnedModules, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedModules[0].Id, Is.EqualTo(moduleId));
-            Assert.That(returnedModules[0].Name, Is.EqualTo(module.Name));
-            Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
-        }
+        var returnedModules = Assert.IsType<List<GetUserModulesResponse>>(okResult.Value);
+        Assert.Single(returnedModules);
+        Assert.Equal(moduleId, returnedModules[0].Id);
+        Assert.Equal(module.Name, returnedModules[0].Name);
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetUserModulesAsync_SetsWideEventContextUserId()
     {
         // Arrange
@@ -225,10 +202,10 @@ public class UserControllerTests
             ct);
 
         // Assert
-        Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetUserCompanyAsync_WhenUserHasNoCompanies_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -241,22 +218,17 @@ public class UserControllerTests
             ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
 
-        var returnedCompanies = okResult.Value as List<GetUserCompaniesResponse>;
-        Assert.That(returnedCompanies, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCompanies, Is.Empty);
-            Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
-        }
+        var returnedCompanies = Assert.IsType<List<GetUserCompaniesResponse>>(okResult.Value);
+        Assert.Empty(returnedCompanies);
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetUserCompanyAsync_WhenUserHasCompanies_ReturnsOkWithCompanies()
     {
         // Arrange
@@ -310,25 +282,20 @@ public class UserControllerTests
             ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
 
-        var returnedCompanies = okResult.Value as List<GetUserCompaniesResponse>;
-        Assert.That(returnedCompanies, Is.Not.Null);
-        Assert.That(returnedCompanies, Has.Count.EqualTo(1));
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedCompanies[0].Id, Is.EqualTo(companyId));
-            Assert.That(returnedCompanies[0].Role, Is.EqualTo("Admin"));
-            Assert.That(returnedCompanies[0].CompanyName, Is.EqualTo(company.Name));
-            Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
-        }
+        var returnedCompanies = Assert.IsType<List<GetUserCompaniesResponse>>(okResult.Value);
+        Assert.Single(returnedCompanies);
+        Assert.Equal(companyId, returnedCompanies[0].Id);
+        Assert.Equal("Admin", returnedCompanies[0].Role);
+        Assert.Equal(company.Name, returnedCompanies[0].CompanyName);
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public async Task GetUserCompanyAsync_SetsWideEventContextUserId()
     {
         // Arrange
@@ -341,10 +308,10 @@ public class UserControllerTests
             ct);
 
         // Assert
-        Assert.That(wide.UserId, Is.EqualTo(this.testUserId.ToString()));
+        Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
-    [Test]
+    [Fact]
     public void UserController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -354,10 +321,10 @@ public class UserControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "UserController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void UserController_HasRouteAttribute()
     {
         // Arrange
@@ -368,11 +335,11 @@ public class UserControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "UserController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void UserController_HasApiControllerAttribute()
     {
         // Arrange
@@ -383,6 +350,6 @@ public class UserControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "UserController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
     }
 }

@@ -24,36 +24,34 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 
-[TestFixture]
-public class OrderControllerTests
+public class OrderControllerTests : IDisposable
 {
-    [SetUp]
-    public void SetUp()
+    public OrderControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.context = new DefaultContext(options, companyContext);
         this.testOrderId = Guid.NewGuid();
         this.testUserId = Guid.NewGuid();
         this.testCustomerId = Guid.NewGuid();
-        this.createOrderHandler = new CreateOrderHandler(this.context);
-        this.getOrderDetailsByOrderIdHandler = new GetOrderDetailsByOrderIdHandler(this.context);
-        this.getAllOrderHandler = new GetAllOrderHandler(this.context);
-        this.getOrderByIdHandler = new GetOrderByIdHandler(this.context);
-        this.deleteOrderHandler = new DeleteOrderHandler(this.context);
-        this.getOrderAnalyticsHandler = new GetOrderAnalyticsHandler(this.context);
+        var createOrderHandler = new CreateOrderHandler(this.context);
+        var getOrderDetailsByOrderIdHandler = new GetOrderDetailsByOrderIdHandler(this.context);
+        var getAllOrderHandler = new GetAllOrderHandler(this.context);
+        var getOrderByIdHandler = new GetOrderByIdHandler(this.context);
+        var deleteOrderHandler = new DeleteOrderHandler(this.context);
+        var getOrderAnalyticsHandler = new GetOrderAnalyticsHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new OrderController(
-            this.getAllOrderHandler,
-            this.getOrderByIdHandler,
-            this.createOrderHandler,
-            this.deleteOrderHandler,
-            this.getOrderDetailsByOrderIdHandler,
-            this.getOrderAnalyticsHandler)
+            getAllOrderHandler,
+            getOrderByIdHandler,
+            createOrderHandler,
+            deleteOrderHandler,
+            getOrderDetailsByOrderIdHandler,
+            getOrderAnalyticsHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -65,26 +63,13 @@ public class OrderControllerTests
         this.faker = new Faker();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        this.context.Dispose();
-    }
-
-    private TestCompanyContext companyContext = null!;
-    private OrderController controller = null!;
-    private DefaultContext context = null!;
-    private CreateOrderHandler createOrderHandler = null!;
-    private GetOrderDetailsByOrderIdHandler getOrderDetailsByOrderIdHandler = null!;
-    private GetAllOrderHandler getAllOrderHandler = null!;
-    private GetOrderByIdHandler getOrderByIdHandler = null!;
-    private DeleteOrderHandler deleteOrderHandler = null!;
-    private GetOrderAnalyticsHandler getOrderAnalyticsHandler = null!;
-    private Mock<HttpContext> mockHttpContext = null!;
-    private Guid testOrderId;
-    private Guid testUserId;
-    private Guid testCustomerId;
-    private Faker faker = null!;
+    private readonly OrderController controller;
+    private readonly DefaultContext context;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testOrderId;
+    private readonly Guid testUserId;
+    private readonly Guid testCustomerId;
+    private readonly Faker faker;
 
     private void SetupUserClaims(Guid userId)
     {
@@ -100,7 +85,7 @@ public class OrderControllerTests
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    [Test]
+    [Fact]
     public async Task CreateOrderAsync_WithValidCommand_ReturnsCreatedWithOrder()
     {
         // Arrange
@@ -148,24 +133,21 @@ public class OrderControllerTests
         var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
-        Assert.That(createdResult.StatusCode, Is.EqualTo(201));
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedOrder = createdResult.Value as CreateOrderResponse;
-        Assert.That(returnedOrder, Is.Not.Null);
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(returnedOrder.CustomerId, Is.EqualTo(this.testCustomerId));
-            Assert.That(returnedOrder.UserId, Is.EqualTo(this.testUserId));
-            Assert.That(returnedOrder.TotalAmount, Is.GreaterThan(0));
-        }
+        Assert.NotNull(returnedOrder);
+        Assert.Equal(this.testCustomerId, returnedOrder.CustomerId);
+        Assert.Equal(this.testUserId, returnedOrder.UserId);
+        Assert.True(returnedOrder.TotalAmount > 0);
     }
 
-    [Test]
+    [Fact]
     public async Task GetDetailsAsync_WhenOrderExists_ReturnsOkWithOrderDetails()
     {
         // Arrange
@@ -208,18 +190,18 @@ public class OrderControllerTests
         var result = await this.controller.GetDetailsAsync(this.testOrderId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedDetails = okResult.Value as List<GetOrderDetailsByOrderIdResponse>;
-        Assert.That(returnedDetails, Is.Not.Null);
-        Assert.That(returnedDetails, Has.Count.EqualTo(2));
+        Assert.NotNull(returnedDetails);
+        Assert.Equal(2, returnedDetails.Count);
     }
 
-    [Test]
+    [Fact]
     public async Task GetDetailsAsync_WhenOrderDoesNotExist_ReturnsOkWithEmptyList()
     {
         // Arrange
@@ -231,18 +213,18 @@ public class OrderControllerTests
         var result = await this.controller.GetDetailsAsync(nonExistentId, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<OkObjectResult>());
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
 
         var okResult = result.Result as OkObjectResult;
-        Assert.That(okResult, Is.Not.Null);
+        Assert.NotNull(okResult);
 
         var returnedDetails = okResult.Value as List<GetOrderDetailsByOrderIdResponse>;
-        Assert.That(returnedDetails, Is.Not.Null);
-        Assert.That(returnedDetails, Is.Empty);
+        Assert.NotNull(returnedDetails);
+        Assert.Empty(returnedDetails);
     }
 
-    [Test]
+    [Fact]
     public async Task CreateOrderAsync_SetsUserIdFromClaims()
     {
         // Arrange
@@ -287,18 +269,18 @@ public class OrderControllerTests
         var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Result, Is.InstanceOf<CreatedResult>());
+        Assert.NotNull(result);
+        Assert.IsType<CreatedResult>(result.Result);
 
         var createdResult = result.Result as CreatedResult;
-        Assert.That(createdResult, Is.Not.Null);
+        Assert.NotNull(createdResult);
 
         var returnedOrder = createdResult.Value as CreateOrderResponse;
-        Assert.That(returnedOrder, Is.Not.Null);
-        Assert.That(returnedOrder.UserId, Is.EqualTo(this.testUserId));
+        Assert.NotNull(returnedOrder);
+        Assert.Equal(this.testUserId, returnedOrder.UserId);
     }
 
-    [Test]
+    [Fact]
     public void OrderController_HasAuthorizeAttribute()
     {
         // Arrange
@@ -308,10 +290,10 @@ public class OrderControllerTests
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(authorizeAttribute, Is.Not.Null, "OrderController should have Authorize attribute");
+        Assert.NotNull(authorizeAttribute);
     }
 
-    [Test]
+    [Fact]
     public void OrderController_HasRouteAttribute()
     {
         // Arrange
@@ -322,11 +304,11 @@ public class OrderControllerTests
             controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
-        Assert.That(routeAttribute, Is.Not.Null, "OrderController should have Route attribute");
-        Assert.That(routeAttribute!.Template, Is.EqualTo("[controller]"));
+        Assert.NotNull(routeAttribute);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    [Test]
+    [Fact]
     public void OrderController_HasApiControllerAttribute()
     {
         // Arrange
@@ -337,6 +319,11 @@ public class OrderControllerTests
             controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
-        Assert.That(apiControllerAttribute, Is.Not.Null, "OrderController should have ApiController attribute");
+        Assert.NotNull(apiControllerAttribute);
+    }
+
+    public void Dispose()
+    {
+        this.context.Dispose();
     }
 }
