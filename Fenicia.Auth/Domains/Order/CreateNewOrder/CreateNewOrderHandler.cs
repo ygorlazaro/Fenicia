@@ -1,4 +1,6 @@
-using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
+using Fenicia.Auth.Domains.Subscription.Commands;
+using Fenicia.Auth.Domains.Subscription.Handlers;
+using Fenicia.Auth.Domains.Subscription.Queries;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
@@ -50,8 +52,8 @@ public class CreateNewOrderHandler(
         await db.SaveChangesAsync(ct);
 
         await createCreditsForOrderHandler.Handle(
-            new CreateCreditsForOrderQuery(order.Id, order.CompanyId,
-                order.Details.Select(d => new CreateCreditsForOrderDetailsQuery(d.Id, d.ModuleId))), ct);
+            new CreateCreditsForOrderCommand(order.Id, order.CompanyId,
+                order.Details.Select(d => new CreateCreditsForOrderDetailsCommand(d.Id, d.ModuleId))), ct);
 
         return new CreateNewOrderResponse(order.Id);
     }

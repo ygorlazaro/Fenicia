@@ -1,4 +1,6 @@
-using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
+using Fenicia.Auth.Domains.Subscription.Commands;
+using Fenicia.Auth.Domains.Subscription.Handlers;
+using Fenicia.Auth.Domains.Subscription.Queries;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
@@ -40,13 +42,13 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         var detail1Id = Guid.NewGuid();
         var detail2Id = Guid.NewGuid();
 
-        var details = new List<CreateCreditsForOrderDetailsQuery>
+        var details = new List<CreateCreditsForOrderDetailsCommand>
         {
             new(detail1Id, module1Id),
             new(detail2Id, module2Id)
         };
 
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, details);
+        var query = new CreateCreditsForOrderCommand(orderId, companyId, details);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
@@ -71,12 +73,12 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         var module1Id = Guid.NewGuid();
         var detail1Id = Guid.NewGuid();
 
-        var details = new List<CreateCreditsForOrderDetailsQuery>
+        var details = new List<CreateCreditsForOrderDetailsCommand>
         {
             new(detail1Id, module1Id)
         };
 
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, details);
+        var query = new CreateCreditsForOrderCommand(orderId, companyId, details);
         var beforeCall = DateTime.UtcNow;
 
         // Act
@@ -104,12 +106,12 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         var module1Id = Guid.NewGuid();
         var detail1Id = Guid.NewGuid();
 
-        var details = new List<CreateCreditsForOrderDetailsQuery>
+        var details = new List<CreateCreditsForOrderDetailsCommand>
         {
             new(detail1Id, module1Id)
         };
 
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, details);
+        var query = new CreateCreditsForOrderCommand(orderId, companyId, details);
         var beforeCall = DateTime.UtcNow;
 
         // Act
@@ -129,7 +131,7 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         // Arrange
         var orderId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, []);
+        var query = new CreateCreditsForOrderCommand(orderId, companyId, []);
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -147,8 +149,8 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         var moduleIds = Enumerable.Range(0, 5).Select(_ => Guid.NewGuid()).ToList();
         var detailIds = Enumerable.Range(0, 5).Select(_ => Guid.NewGuid()).ToList();
 
-        var details = moduleIds.Select((id, i) => new CreateCreditsForOrderDetailsQuery(detailIds[i], id)).ToList();
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, details);
+        var details = moduleIds.Select((id, i) => new CreateCreditsForOrderDetailsCommand(detailIds[i], id)).ToList();
+        var query = new CreateCreditsForOrderCommand(orderId, companyId, details);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
@@ -169,12 +171,12 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         var module1Id = Guid.NewGuid();
         var detail1Id = Guid.NewGuid();
 
-        var details = new List<CreateCreditsForOrderDetailsQuery>
+        var details = new List<CreateCreditsForOrderDetailsCommand>
         {
             new(detail1Id, module1Id)
         };
 
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, details);
+        var query = new CreateCreditsForOrderCommand(orderId, companyId, details);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
@@ -195,12 +197,12 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         var module1Id = Guid.NewGuid();
         var detail1Id = Guid.NewGuid();
 
-        var details = new List<CreateCreditsForOrderDetailsQuery>
+        var details = new List<CreateCreditsForOrderDetailsCommand>
         {
             new(detail1Id, module1Id)
         };
 
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, details);
+        var query = new CreateCreditsForOrderCommand(orderId, companyId, details);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
@@ -222,8 +224,8 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         var moduleIds = Enumerable.Range(0, 3).Select(_ => Guid.NewGuid()).ToList();
         var detailIds = Enumerable.Range(0, 3).Select(_ => Guid.NewGuid()).ToList();
 
-        var details = moduleIds.Select((id, i) => new CreateCreditsForOrderDetailsQuery(detailIds[i], id)).ToList();
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, details);
+        var details = moduleIds.Select((id, i) => new CreateCreditsForOrderDetailsCommand(detailIds[i], id)).ToList();
+        var query = new CreateCreditsForOrderCommand(orderId, companyId, details);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
@@ -243,13 +245,13 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         var module1Id = Guid.NewGuid();
         var detail1Id = Guid.NewGuid();
 
-        var details = new List<CreateCreditsForOrderDetailsQuery>
+        var details = new List<CreateCreditsForOrderDetailsCommand>
         {
             new(detail1Id, module1Id)
         };
 
-        var query1 = new CreateCreditsForOrderQuery(Guid.NewGuid(), companyId, details);
-        var query2 = new CreateCreditsForOrderQuery(Guid.NewGuid(), companyId, details);
+        var query1 = new CreateCreditsForOrderCommand(Guid.NewGuid(), companyId, details);
+        var query2 = new CreateCreditsForOrderCommand(Guid.NewGuid(), companyId, details);
 
         // Act
         var result1 = await this.handler.Handle(query1, CancellationToken.None);
@@ -272,13 +274,13 @@ public class CreateCreditsForOrderHandlerTests : IDisposable
         var detail1Id = Guid.NewGuid();
         var detail2Id = Guid.NewGuid();
 
-        var details = new List<CreateCreditsForOrderDetailsQuery>
+        var details = new List<CreateCreditsForOrderDetailsCommand>
         {
             new(detail1Id, module1Id),
             new(detail2Id, module1Id) // Same module, different detail
         };
 
-        var query = new CreateCreditsForOrderQuery(orderId, companyId, details);
+        var query = new CreateCreditsForOrderCommand(orderId, companyId, details);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);

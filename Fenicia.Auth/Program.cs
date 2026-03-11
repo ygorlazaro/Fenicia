@@ -1,5 +1,5 @@
 using Fenicia.Auth.Domains.LoginAttempt.Services;
-using Fenicia.Auth.Domains.Subscription.GetUserProfile;
+using Fenicia.Auth.Domains.Subscription.Handlers;
 using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;

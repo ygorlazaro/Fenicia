@@ -1,6 +1,6 @@
 using Fenicia.Common.Enums.Auth;
 
-namespace Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
+namespace Fenicia.Auth.Domains.Subscription.Responses;
 
 public record CreateCreditsForOrderResponse(
     Guid Id,

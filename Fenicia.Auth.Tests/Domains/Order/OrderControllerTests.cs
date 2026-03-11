@@ -5,7 +5,7 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Order;
 using Fenicia.Auth.Domains.Order.CreateNewOrder;
-using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
+using Fenicia.Auth.Domains.Subscription.Handlers;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
