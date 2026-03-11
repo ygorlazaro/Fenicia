@@ -18,12 +18,12 @@ public class DeleteEmployeeHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new DeleteEmployeeHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new DeleteEmployeeHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly DeleteEmployeeHandler handler;
     private readonly Faker faker;
 
@@ -51,8 +51,8 @@ public class DeleteEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteEmployeeCommand(employeeId);
         var beforeDelete = DateTime.Now;
@@ -61,7 +61,7 @@ public class DeleteEmployeeHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedEmployee = await this.context.BasicEmployees.FindAsync([employeeId], CancellationToken.None);
+        var deletedEmployee = await this.db.BasicEmployees.FindAsync([employeeId], CancellationToken.None);
         Assert.NotNull(deletedEmployee);
         Assert.NotNull(deletedEmployee.Deleted);
         Assert.True(deletedEmployee.Deleted >= beforeDelete.AddSeconds(-1));
@@ -78,7 +78,7 @@ public class DeleteEmployeeHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var employees = await this.context.BasicEmployees.ToListAsync();
+        var employees = await this.db.BasicEmployees.ToListAsync();
         Assert.Empty(employees);
     }
 
@@ -127,8 +127,8 @@ public class DeleteEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.AddRange(employee1, employee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.AddRange(employee1, employee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteEmployeeCommand(employee1Id);
 
@@ -136,8 +136,8 @@ public class DeleteEmployeeHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedEmployee = await this.context.BasicEmployees.FindAsync([employee1Id], CancellationToken.None);
-        var notDeletedEmployee = await this.context.BasicEmployees.FindAsync([employee2Id], CancellationToken.None);
+        var deletedEmployee = await this.db.BasicEmployees.FindAsync([employee1Id], CancellationToken.None);
+        var notDeletedEmployee = await this.db.BasicEmployees.FindAsync([employee2Id], CancellationToken.None);
 
         Assert.NotNull(deletedEmployee);
         Assert.NotNull(deletedEmployee.Deleted);
@@ -155,13 +155,13 @@ public class DeleteEmployeeHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var employees = await this.context.BasicEmployees.ToListAsync();
+        var employees = await this.db.BasicEmployees.ToListAsync();
         Assert.Empty(employees);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

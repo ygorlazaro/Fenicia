@@ -18,19 +18,19 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectAttachmentHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateProjectAttachmentHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateProjectAttachmentHandler handler;
     private readonly Faker faker;
 
@@ -51,8 +51,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.Add(attachment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.Add(attachment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var newFileName = $"{this.faker.System.FileName()}.pdf";
         var newFileUrl = this.faker.Internet.Url();
@@ -142,8 +142,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.AddRange(attachment1, attachment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.AddRange(attachment1, attachment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var newFileName = $"{this.faker.System.FileName()}_updated.pdf";
         var command = new UpdateProjectAttachmentCommand(
@@ -162,8 +162,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
         Assert.Equal(attachment1Id, result.Id);
         Assert.Equal(newFileName, result.FileName);
 
-        var updatedAttachment1 = await this.context.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
-        var attachment2InDb = await this.context.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
+        var updatedAttachment1 = await this.db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
+        var attachment2InDb = await this.db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
 
         Assert.NotNull(updatedAttachment1);
         Assert.NotNull(attachment2InDb);
@@ -188,8 +188,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.Add(attachment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.Add(attachment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const long newFileSize = 500000L;
         var command = new UpdateProjectAttachmentCommand(

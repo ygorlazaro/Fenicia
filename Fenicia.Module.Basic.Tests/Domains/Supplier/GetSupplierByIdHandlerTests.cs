@@ -19,12 +19,12 @@ public class GetSupplierByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetSupplierByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetSupplierByIdHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetSupplierByIdHandler handler;
     private readonly Faker faker;
 
@@ -39,7 +39,7 @@ public class GetSupplierByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var supplier = new SupplierModel
         {
@@ -61,8 +61,8 @@ public class GetSupplierByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.Add(supplier);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.Add(supplier);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetSupplierByIdQuery(supplierId);
 
@@ -124,7 +124,7 @@ public class GetSupplierByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var supplier1 = new SupplierModel
         {
@@ -166,8 +166,8 @@ public class GetSupplierByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.AddRange(supplier1, supplier2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetSupplierByIdQuery(supplier1Id);
 
@@ -191,7 +191,7 @@ public class GetSupplierByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var supplier = new SupplierModel
         {
@@ -215,8 +215,8 @@ public class GetSupplierByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.Add(supplier);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.Add(supplier);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetSupplierByIdQuery(supplierId);
 
@@ -231,6 +231,6 @@ public class GetSupplierByIdHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

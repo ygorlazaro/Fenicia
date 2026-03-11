@@ -31,13 +31,13 @@ public class ProjectAttachmentControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectAttachmentId = Guid.NewGuid();
-        var getAllProjectAttachmentHandler = new GetAllProjectAttachmentHandler(this.context);
-        var getProjectAttachmentByIdHandler = new GetProjectAttachmentByIdHandler(this.context);
-        var addProjectAttachmentHandler = new AddProjectAttachmentHandler(this.context);
-        var updateProjectAttachmentHandler = new UpdateProjectAttachmentHandler(this.context);
-        var deleteProjectAttachmentHandler = new DeleteProjectAttachmentHandler(this.context);
+        var getAllProjectAttachmentHandler = new GetAllProjectAttachmentHandler(this.db);
+        var getProjectAttachmentByIdHandler = new GetProjectAttachmentByIdHandler(this.db);
+        var addProjectAttachmentHandler = new AddProjectAttachmentHandler(this.db);
+        var updateProjectAttachmentHandler = new UpdateProjectAttachmentHandler(this.db);
+        var deleteProjectAttachmentHandler = new DeleteProjectAttachmentHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProjectAttachmentController(
@@ -59,13 +59,13 @@ public class ProjectAttachmentControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
     private readonly ProjectAttachmentController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testProjectAttachmentId;
     private readonly Faker faker;
@@ -134,8 +134,8 @@ public class ProjectAttachmentControllerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.AddRange(projectAttachment1, projectAttachment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.AddRange(projectAttachment1, projectAttachment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -172,8 +172,8 @@ public class ProjectAttachmentControllerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.Add(projectAttachment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.Add(projectAttachment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -258,8 +258,8 @@ public class ProjectAttachmentControllerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.Add(projectAttachment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.Add(projectAttachment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectAttachmentCommand(
             projectAttachment.Id,
@@ -326,8 +326,8 @@ public class ProjectAttachmentControllerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.Add(projectAttachment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.Add(projectAttachment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -339,7 +339,7 @@ public class ProjectAttachmentControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify project attachment was deleted
-        var deletedAttachment = await this.context.ProjectAttachments.FirstOrDefaultAsync(x => x.Id == this.testProjectAttachmentId && x.Deleted == null, ct);
+        var deletedAttachment = await this.db.ProjectAttachments.FirstOrDefaultAsync(x => x.Id == this.testProjectAttachmentId && x.Deleted == null, ct);
         Assert.Null(deletedAttachment);
     }
 

@@ -33,14 +33,14 @@ public class ProductCategoryControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testCategoryId = Guid.NewGuid();
-        var getAllProductCategoryHandler = new GetAllProductCategoryHandler(this.context);
-        var getProductCategoryByIdHandler = new GetProductCategoryByIdHandler(this.context);
-        var addProductCategoryHandler = new AddProductCategoryHandler(this.context);
-        var updateProductCategoryHandler = new UpdateProductCategoryHandler(this.context);
-        var deleteProductCategoryHandler = new DeleteProductCategoryHandler(this.context);
-        var getProductsByCategoryIdHandler = new GetProductsByCategoryIdHandler(this.context);
+        var getAllProductCategoryHandler = new GetAllProductCategoryHandler(this.db);
+        var getProductCategoryByIdHandler = new GetProductCategoryByIdHandler(this.db);
+        var addProductCategoryHandler = new AddProductCategoryHandler(this.db);
+        var updateProductCategoryHandler = new UpdateProductCategoryHandler(this.db);
+        var deleteProductCategoryHandler = new DeleteProductCategoryHandler(this.db);
+        var getProductsByCategoryIdHandler = new GetProductsByCategoryIdHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProductCategoryController(
@@ -62,7 +62,7 @@ public class ProductCategoryControllerTests : IDisposable
     }
 
     private readonly ProductCategoryController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testCategoryId;
     private readonly Faker faker;
@@ -120,8 +120,8 @@ public class ProductCategoryControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.BasicProductCategories.AddRange(category1, category2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.AddRange(category1, category2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -152,8 +152,8 @@ public class ProductCategoryControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.BasicProductCategories.Add(category);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -224,8 +224,8 @@ public class ProductCategoryControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.BasicProductCategories.Add(category);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(this.testCategoryId, this.faker.Commerce.Categories(1)[0] + " Updated");
         var ct = CancellationToken.None;
@@ -273,8 +273,8 @@ public class ProductCategoryControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.BasicProductCategories.Add(category);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -286,7 +286,7 @@ public class ProductCategoryControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify category was deleted
-        var deletedCategory = await this.context.BasicProductCategories.FirstOrDefaultAsync(x => x.Id == this.testCategoryId && x.Deleted == null, ct);
+        var deletedCategory = await this.db.BasicProductCategories.FirstOrDefaultAsync(x => x.Id == this.testCategoryId && x.Deleted == null, ct);
         Assert.Null(deletedCategory);
     }
 
@@ -315,8 +315,8 @@ public class ProductCategoryControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.BasicProductCategories.Add(category);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var ct = CancellationToken.None;
@@ -367,9 +367,9 @@ public class ProductCategoryControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var ct = CancellationToken.None;
@@ -434,6 +434,6 @@ public class ProductCategoryControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

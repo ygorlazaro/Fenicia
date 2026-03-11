@@ -1,7 +1,9 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Company.GetCompaniesByUser;
-using Fenicia.Auth.Domains.Company.UpdateCompany;
+using Fenicia.Auth.Domains.Company.Commands;
+using Fenicia.Auth.Domains.Company.Handlers;
+using Fenicia.Auth.Domains.Company.Queries;
+using Fenicia.Auth.Domains.Company.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
 

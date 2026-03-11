@@ -19,12 +19,12 @@ public class GetAllSupplierHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllSupplierHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllSupplierHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllSupplierHandler handler;
     private readonly Faker faker;
 
@@ -53,7 +53,7 @@ public class GetAllSupplierHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var supplier1 = new SupplierModel
         {
@@ -95,8 +95,8 @@ public class GetAllSupplierHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.AddRange(supplier1, supplier2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllSupplierQuery();
 
@@ -126,7 +126,7 @@ public class GetAllSupplierHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -149,10 +149,10 @@ public class GetAllSupplierHandlerTests : IDisposable
                     City = this.faker.Address.City()
                 }
             };
-            this.context.BasicSuppliers.Add(supplier);
+            this.db.BasicSuppliers.Add(supplier);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllSupplierQuery(2);
 
@@ -175,7 +175,7 @@ public class GetAllSupplierHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 5; i++)
         {
@@ -198,10 +198,10 @@ public class GetAllSupplierHandlerTests : IDisposable
                     City = this.faker.Address.City()
                 }
             };
-            this.context.BasicSuppliers.Add(supplier);
+            this.db.BasicSuppliers.Add(supplier);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllSupplierQuery(10);
 
@@ -224,7 +224,7 @@ public class GetAllSupplierHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -247,10 +247,10 @@ public class GetAllSupplierHandlerTests : IDisposable
                     City = this.faker.Address.City()
                 }
             };
-            this.context.BasicSuppliers.Add(supplier);
+            this.db.BasicSuppliers.Add(supplier);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllSupplierQuery();
 
@@ -265,6 +265,6 @@ public class GetAllSupplierHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

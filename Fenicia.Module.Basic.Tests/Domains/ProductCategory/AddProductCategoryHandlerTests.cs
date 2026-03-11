@@ -15,11 +15,11 @@ public class AddProductCategoryHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new AddProductCategoryHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new AddProductCategoryHandler(this.db);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly AddProductCategoryHandler handler;
 
     [Fact]
@@ -47,7 +47,7 @@ public class AddProductCategoryHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var category = await this.context.BasicProductCategories.FindAsync([command.Id], CancellationToken.None);
+        var category = await this.db.BasicProductCategories.FindAsync([command.Id], CancellationToken.None);
         Assert.NotNull(category);
         Assert.Equal(command.Name, category.Name);
     }
@@ -64,12 +64,12 @@ public class AddProductCategoryHandlerTests : IDisposable
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var categories = await this.context.BasicProductCategories.ToListAsync();
+        var categories = await this.db.BasicProductCategories.ToListAsync();
         Assert.Equal(2, categories.Count);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

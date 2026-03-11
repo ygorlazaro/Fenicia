@@ -18,19 +18,19 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectCommentByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetProjectCommentByIdHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetProjectCommentByIdHandler handler;
     private readonly Faker faker;
 
@@ -49,8 +49,8 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.Add(comment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.Add(comment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectCommentByIdQuery(commentId);
 
@@ -114,8 +114,8 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.AddRange(comment1, comment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.AddRange(comment1, comment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectCommentByIdQuery(comment1Id);
 
@@ -144,8 +144,8 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
             Content = longContent
         };
 
-        this.context.ProjectComments.Add(comment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.Add(comment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectCommentByIdQuery(commentId);
 

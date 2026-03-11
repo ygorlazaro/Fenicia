@@ -1,7 +1,8 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
 
-using Fenicia.Auth.Domains.Company.CheckCompanyExists;
+using Fenicia.Auth.Domains.Company.Handlers;
+using Fenicia.Auth.Domains.Company.Queries;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -18,19 +19,19 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new CheckCompanyExistsHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new CheckCompanyExistsHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly CheckCompanyExistsHandler handler;
     private readonly Faker faker;
 
@@ -47,8 +48,8 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.context.AuthCompanies.Add(company);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, false);
 
@@ -86,8 +87,8 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.context.AuthCompanies.Add(company);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, true);
 
@@ -111,8 +112,8 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             IsActive = false
         };
 
-        this.context.AuthCompanies.Add(company);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, true);
 
@@ -136,8 +137,8 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             IsActive = false
         };
 
-        this.context.AuthCompanies.Add(company);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, false);
 
@@ -171,8 +172,8 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.context.AuthCompanies.AddRange(company1, company2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.AddRange(company1, company2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj1, false);
 
@@ -205,8 +206,8 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             IsActive = false
         };
 
-        this.context.AuthCompanies.AddRange(activeCompany, inactiveCompany);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var activeQuery = new CheckCompanyExistsQuery(cnpj, true);
         var inactiveQuery = new CheckCompanyExistsQuery(cnpj, false);
@@ -246,8 +247,8 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.context.AuthCompanies.Add(company);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, false);
 

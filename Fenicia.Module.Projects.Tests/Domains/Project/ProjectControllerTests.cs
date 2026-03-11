@@ -31,13 +31,13 @@ public class ProjectControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectId = Guid.NewGuid();
-        var getAllProjectHandler = new GetAllProjectHandler(this.context);
-        var getProjectByIdHandler = new GetProjectByIdHandler(this.context);
-        var addProjectHandler = new AddProjectHandler(this.context);
-        var updateProjectHandler = new UpdateProjectHandler(this.context);
-        var deleteProjectHandler = new DeleteProjectHandler(this.context);
+        var getAllProjectHandler = new GetAllProjectHandler(this.db);
+        var getProjectByIdHandler = new GetProjectByIdHandler(this.db);
+        var addProjectHandler = new AddProjectHandler(this.db);
+        var updateProjectHandler = new UpdateProjectHandler(this.db);
+        var deleteProjectHandler = new DeleteProjectHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProjectController(
@@ -58,7 +58,7 @@ public class ProjectControllerTests : IDisposable
     }
 
     private readonly ProjectController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testProjectId;
     private readonly Faker faker;
@@ -126,8 +126,8 @@ public class ProjectControllerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.AddRange(project1, project2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.AddRange(project1, project2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -163,8 +163,8 @@ public class ProjectControllerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.Add(project);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.Add(project);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -248,8 +248,8 @@ public class ProjectControllerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.Add(project);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.Add(project);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommand(
             project.Id,
@@ -317,8 +317,8 @@ public class ProjectControllerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.Add(project);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.Add(project);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -330,7 +330,7 @@ public class ProjectControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify project was deleted
-        var deletedProject = await this.context.Projects.FirstOrDefaultAsync(x => x.Id == this.testProjectId && x.Deleted == null, ct);
+        var deletedProject = await this.db.Projects.FirstOrDefaultAsync(x => x.Id == this.testProjectId && x.Deleted == null, ct);
         Assert.Null(deletedProject);
     }
 
@@ -438,7 +438,7 @@ public class ProjectControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

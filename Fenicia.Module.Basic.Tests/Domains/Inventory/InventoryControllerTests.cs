@@ -30,14 +30,14 @@ public class InventoryControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProductId = Guid.NewGuid();
         this.testCategoryId = Guid.NewGuid();
-        var getInventoryHandler = new GetInventoryHandler(this.context);
-        var getInventoryByProductHandler = new GetInventoryByProductHandler(this.context);
-        var getInventoryByCategoryHandler = new GetInventoryByCategoryHandler(this.context);
-        var getInventoryDashboardHandler = new GetInventoryDashboardHandler(this.context);
-        var getInventoryHealthHandler = new GetInventoryHealthHandler(this.context);
+        var getInventoryHandler = new GetInventoryHandler(this.db);
+        var getInventoryByProductHandler = new GetInventoryByProductHandler(this.db);
+        var getInventoryByCategoryHandler = new GetInventoryByCategoryHandler(this.db);
+        var getInventoryDashboardHandler = new GetInventoryDashboardHandler(this.db);
+        var getInventoryHealthHandler = new GetInventoryHealthHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new InventoryController(
@@ -58,7 +58,7 @@ public class InventoryControllerTests : IDisposable
     }
 
     private readonly InventoryController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testProductId;
     private readonly Guid testCategoryId;
@@ -134,9 +134,9 @@ public class InventoryControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var page = 1;
         var perPage = 10;
@@ -180,9 +180,9 @@ public class InventoryControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -255,9 +255,9 @@ public class InventoryControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -382,11 +382,11 @@ public class InventoryControllerTests : IDisposable
             }
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.AddRange(product1, product2);
-        this.context.BasicCustomers.Add(customer);
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.AddRange(product1, product2);
+        this.db.BasicCustomers.Add(customer);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -439,9 +439,9 @@ public class InventoryControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -483,9 +483,9 @@ public class InventoryControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -556,7 +556,7 @@ public class InventoryControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

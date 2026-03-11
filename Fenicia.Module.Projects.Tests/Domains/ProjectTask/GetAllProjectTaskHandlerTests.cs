@@ -18,19 +18,19 @@ public class GetAllProjectTaskHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectTaskHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllProjectTaskHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllProjectTaskHandler handler;
     private readonly Faker faker;
 
@@ -84,8 +84,8 @@ public class GetAllProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.AddRange(task1, task2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.AddRange(task1, task2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskQuery();
 
@@ -121,10 +121,10 @@ public class GetAllProjectTaskHandlerTests : IDisposable
                 DueDate = DateTime.UtcNow.AddDays(i),
                 CreatedBy = Guid.NewGuid()
             };
-            this.context.ProjectTasks.Add(task);
+            this.db.ProjectTasks.Add(task);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskQuery(2);
 
@@ -158,10 +158,10 @@ public class GetAllProjectTaskHandlerTests : IDisposable
                 DueDate = null,
                 CreatedBy = Guid.NewGuid()
             };
-            this.context.ProjectTasks.Add(task);
+            this.db.ProjectTasks.Add(task);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskQuery(10);
 
@@ -195,10 +195,10 @@ public class GetAllProjectTaskHandlerTests : IDisposable
                 DueDate = null,
                 CreatedBy = Guid.NewGuid()
             };
-            this.context.ProjectTasks.Add(task);
+            this.db.ProjectTasks.Add(task);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskQuery();
 

@@ -16,18 +16,18 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectTaskAssigneeHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateProjectTaskAssigneeHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateProjectTaskAssigneeHandler handler;
 
     [Fact]
@@ -46,8 +46,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-10)
         };
 
-        this.context.ProjectTaskAssignees.Add(assignee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.Add(assignee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var newUserId = Guid.NewGuid();
         var command = new UpdateProjectTaskAssigneeCommand(
@@ -130,8 +130,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.context.ProjectTaskAssignees.AddRange(assignee1, assignee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var newUserId = Guid.NewGuid();
         var command = new UpdateProjectTaskAssigneeCommand(
@@ -149,8 +149,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
         Assert.Equal(assignee1Id, result.Id);
         Assert.Equal("Contributor", result.Role);
 
-        var updatedAssignee1 = await this.context.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
-        var assignee2InDb = await this.context.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
+        var updatedAssignee1 = await this.db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
+        var assignee2InDb = await this.db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
 
         Assert.NotNull(updatedAssignee1);
         Assert.NotNull(assignee2InDb);
@@ -174,8 +174,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-10)
         };
 
-        this.context.ProjectTaskAssignees.Add(assignee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.Add(assignee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskAssigneeCommand(
             assigneeId,

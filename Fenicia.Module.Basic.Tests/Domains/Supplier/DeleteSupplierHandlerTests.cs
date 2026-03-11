@@ -18,12 +18,12 @@ public class DeleteSupplierHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new DeleteSupplierHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new DeleteSupplierHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly DeleteSupplierHandler handler;
     private readonly Faker faker;
 
@@ -50,8 +50,8 @@ public class DeleteSupplierHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.Add(supplier);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.Add(supplier);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteSupplierCommand(supplierId);
         var beforeDelete = DateTime.Now;
@@ -60,7 +60,7 @@ public class DeleteSupplierHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedSupplier = await this.context.BasicSuppliers.FindAsync([supplierId], CancellationToken.None);
+        var deletedSupplier = await this.db.BasicSuppliers.FindAsync([supplierId], CancellationToken.None);
         Assert.NotNull(deletedSupplier);
         Assert.NotNull(deletedSupplier.Deleted);
         Assert.True(deletedSupplier.Deleted >= beforeDelete.AddSeconds(-1));
@@ -77,7 +77,7 @@ public class DeleteSupplierHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var suppliers = await this.context.BasicSuppliers.ToListAsync();
+        var suppliers = await this.db.BasicSuppliers.ToListAsync();
         Assert.Empty(suppliers);
     }
 
@@ -110,8 +110,8 @@ public class DeleteSupplierHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.AddRange(supplier1, supplier2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteSupplierCommand(supplier1Id);
 
@@ -119,8 +119,8 @@ public class DeleteSupplierHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedSupplier = await this.context.BasicSuppliers.FindAsync([supplier1Id], CancellationToken.None);
-        var notDeletedSupplier = await this.context.BasicSuppliers.FindAsync([supplier2Id], CancellationToken.None);
+        var deletedSupplier = await this.db.BasicSuppliers.FindAsync([supplier1Id], CancellationToken.None);
+        var notDeletedSupplier = await this.db.BasicSuppliers.FindAsync([supplier2Id], CancellationToken.None);
 
         Assert.NotNull(deletedSupplier);
         Assert.NotNull(deletedSupplier.Deleted);
@@ -130,6 +130,6 @@ public class DeleteSupplierHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

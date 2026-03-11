@@ -17,12 +17,12 @@ public class AddEmployeeHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new AddEmployeeHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new AddEmployeeHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly AddEmployeeHandler handler;
     private readonly Faker faker;
 
@@ -261,7 +261,7 @@ public class AddEmployeeHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var employee = await this.context.BasicEmployees
+        var employee = await this.db.BasicEmployees
             .Include(e => e.Person)
             .FirstOrDefaultAsync(e => e.Id == command.Id);
 
@@ -309,13 +309,13 @@ public class AddEmployeeHandlerTests : IDisposable
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var employees = await this.context.BasicEmployees.ToListAsync();
+        var employees = await this.db.BasicEmployees.ToListAsync();
         Assert.Equal(2, employees.Count);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

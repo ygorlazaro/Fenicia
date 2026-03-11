@@ -16,17 +16,17 @@ public class DeletePositionHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new DeletePositionHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new DeletePositionHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly DeletePositionHandler handler;
 
     [Theory]
@@ -43,8 +43,8 @@ public class DeletePositionHandlerTests : IDisposable
             Name = positionName
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeletePositionCommand(positionId);
         var beforeDelete = DateTime.Now;
@@ -53,7 +53,7 @@ public class DeletePositionHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedPosition = await this.context.BasicPositions.FindAsync([positionId], CancellationToken.None);
+        var deletedPosition = await this.db.BasicPositions.FindAsync([positionId], CancellationToken.None);
         Assert.NotNull(deletedPosition);
         Assert.NotNull(deletedPosition.Deleted);
         Assert.InRange(deletedPosition.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.Now.AddSeconds(1));
@@ -69,7 +69,7 @@ public class DeletePositionHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var positions = await this.context.BasicPositions.ToListAsync();
+        var positions = await this.db.BasicPositions.ToListAsync();
         Assert.Empty(positions);
     }
 
@@ -83,8 +83,8 @@ public class DeletePositionHandlerTests : IDisposable
         var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
         var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
 
-        this.context.BasicPositions.AddRange(position1, position2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.AddRange(position1, position2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeletePositionCommand(position1Id);
 
@@ -92,8 +92,8 @@ public class DeletePositionHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedPosition = await this.context.BasicPositions.FindAsync([position1Id], CancellationToken.None);
-        var notDeletedPosition = await this.context.BasicPositions.FindAsync([position2Id], CancellationToken.None);
+        var deletedPosition = await this.db.BasicPositions.FindAsync([position1Id], CancellationToken.None);
+        var notDeletedPosition = await this.db.BasicPositions.FindAsync([position2Id], CancellationToken.None);
 
         Assert.NotNull(deletedPosition);
         Assert.NotNull(deletedPosition.Deleted);
@@ -111,7 +111,7 @@ public class DeletePositionHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var positions = await this.context.BasicPositions.ToListAsync();
+        var positions = await this.db.BasicPositions.ToListAsync();
         Assert.Empty(positions);
     }
 }

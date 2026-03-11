@@ -33,16 +33,16 @@ public class OrderControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testOrderId = Guid.NewGuid();
         this.testUserId = Guid.NewGuid();
         this.testCustomerId = Guid.NewGuid();
-        var createOrderHandler = new CreateOrderHandler(this.context);
-        var getOrderDetailsByOrderIdHandler = new GetOrderDetailsByOrderIdHandler(this.context);
-        var getAllOrderHandler = new GetAllOrderHandler(this.context);
-        var getOrderByIdHandler = new GetOrderByIdHandler(this.context);
-        var deleteOrderHandler = new DeleteOrderHandler(this.context);
-        var getOrderAnalyticsHandler = new GetOrderAnalyticsHandler(this.context);
+        var createOrderHandler = new CreateOrderHandler(this.db);
+        var getOrderDetailsByOrderIdHandler = new GetOrderDetailsByOrderIdHandler(this.db);
+        var getAllOrderHandler = new GetAllOrderHandler(this.db);
+        var getOrderByIdHandler = new GetOrderByIdHandler(this.db);
+        var deleteOrderHandler = new DeleteOrderHandler(this.db);
+        var getOrderAnalyticsHandler = new GetOrderAnalyticsHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new OrderController(
@@ -64,7 +64,7 @@ public class OrderControllerTests : IDisposable
     }
 
     private readonly OrderController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testOrderId;
     private readonly Guid testUserId;
@@ -112,9 +112,9 @@ public class OrderControllerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.BasicCustomers.Add(customer);
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateOrderCommand(
             this.testUserId,
@@ -179,9 +179,9 @@ public class OrderControllerTests : IDisposable
             Quantity = 3
         };
 
-        this.context.BasicOrders.Add(order);
-        this.context.BasicOrderDetails.AddRange(orderDetail1, orderDetail2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicOrders.Add(order);
+        this.db.BasicOrderDetails.AddRange(orderDetail1, orderDetail2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -251,9 +251,9 @@ public class OrderControllerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.BasicCustomers.Add(customer);
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateOrderCommand(
             Guid.Empty, // Will be overridden by claims
@@ -324,6 +324,6 @@ public class OrderControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

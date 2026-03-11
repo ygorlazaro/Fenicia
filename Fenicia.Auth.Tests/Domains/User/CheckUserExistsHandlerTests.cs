@@ -17,12 +17,12 @@ public class CheckUserExistsHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new CheckUserExistsHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new CheckUserExistsHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly CheckUserExistsHandler handler;
     private readonly Faker faker;
 
@@ -40,8 +40,8 @@ public class CheckUserExistsHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(email, CancellationToken.None);
@@ -78,8 +78,8 @@ public class CheckUserExistsHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(upperCaseEmail, CancellationToken.None);
@@ -111,8 +111,8 @@ public class CheckUserExistsHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.AddRange(user1, user2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.AddRange(user1, user2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result1 = await this.handler.Handle(email1, CancellationToken.None);
@@ -153,8 +153,8 @@ public class CheckUserExistsHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(emailWithSpaces, CancellationToken.None);
@@ -178,8 +178,8 @@ public class CheckUserExistsHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(emailWithExtra, CancellationToken.None);
@@ -190,7 +190,7 @@ public class CheckUserExistsHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

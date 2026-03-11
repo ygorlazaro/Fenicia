@@ -18,19 +18,19 @@ public class GetAllProjectCommentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectCommentHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllProjectCommentHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllProjectCommentHandler handler;
     private readonly Faker faker;
 
@@ -70,8 +70,8 @@ public class GetAllProjectCommentHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.AddRange(comment1, comment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.AddRange(comment1, comment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectCommentQuery();
 
@@ -100,10 +100,10 @@ public class GetAllProjectCommentHandlerTests : IDisposable
                 UserId = userId,
                 Content = $"{this.faker.Lorem.Paragraph()} {i}"
             };
-            this.context.ProjectComments.Add(comment);
+            this.db.ProjectComments.Add(comment);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectCommentQuery(2);
 
@@ -130,10 +130,10 @@ public class GetAllProjectCommentHandlerTests : IDisposable
                 UserId = userId,
                 Content = $"{this.faker.Lorem.Paragraph()} {i}"
             };
-            this.context.ProjectComments.Add(comment);
+            this.db.ProjectComments.Add(comment);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectCommentQuery(10);
 
@@ -160,10 +160,10 @@ public class GetAllProjectCommentHandlerTests : IDisposable
                 UserId = userId,
                 Content = $"{this.faker.Lorem.Paragraph()} {i}"
             };
-            this.context.ProjectComments.Add(comment);
+            this.db.ProjectComments.Add(comment);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectCommentQuery();
 

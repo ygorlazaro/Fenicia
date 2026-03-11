@@ -16,11 +16,11 @@ public class GetAllProductCategoryHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProductCategoryHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllProductCategoryHandler(this.db);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllProductCategoryHandler handler;
 
     [Fact]
@@ -45,8 +45,8 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var category1 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         var category2 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
 
-        this.context.BasicProductCategories.AddRange(category1, category2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.AddRange(category1, category2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery();
 
@@ -72,10 +72,10 @@ public class GetAllProductCategoryHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = $"Category {i}"
             };
-            this.context.BasicProductCategories.Add(category);
+            this.db.BasicProductCategories.Add(category);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery(2);
 
@@ -99,10 +99,10 @@ public class GetAllProductCategoryHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = $"Category {i}"
             };
-            this.context.BasicProductCategories.Add(category);
+            this.db.BasicProductCategories.Add(category);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery(10);
 
@@ -126,10 +126,10 @@ public class GetAllProductCategoryHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = $"Category {i}"
             };
-            this.context.BasicProductCategories.Add(category);
+            this.db.BasicProductCategories.Add(category);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery();
 
@@ -144,6 +144,6 @@ public class GetAllProductCategoryHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

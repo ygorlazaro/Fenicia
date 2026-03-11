@@ -16,17 +16,17 @@ public class GetPositionByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetPositionByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetPositionByIdHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetPositionByIdHandler handler;
 
     [Theory]
@@ -44,8 +44,8 @@ public class GetPositionByIdHandlerTests : IDisposable
             Name = positionName
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetPositionByIdQuery(positionId);
 
@@ -94,8 +94,8 @@ public class GetPositionByIdHandlerTests : IDisposable
         var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
         var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
 
-        this.context.BasicPositions.AddRange(position1, position2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.AddRange(position1, position2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetPositionByIdQuery(position1Id);
 

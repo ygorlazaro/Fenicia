@@ -16,11 +16,11 @@ public class GetAllProductHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProductHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllProductHandler(this.db);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllProductHandler handler;
 
     [Fact]
@@ -42,7 +42,7 @@ public class GetAllProductHandlerTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         var product1 = new ProductModel
         {
@@ -64,8 +64,8 @@ public class GetAllProductHandlerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery();
 
@@ -84,7 +84,7 @@ public class GetAllProductHandlerTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
@@ -97,10 +97,10 @@ public class GetAllProductHandlerTests : IDisposable
                 Quantity = 100,
                 CategoryId = category.Id
             };
-            this.context.BasicProducts.Add(product);
+            this.db.BasicProducts.Add(product);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery(2);
 
@@ -117,7 +117,7 @@ public class GetAllProductHandlerTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 5; i++)
         {
@@ -130,10 +130,10 @@ public class GetAllProductHandlerTests : IDisposable
                 Quantity = 100,
                 CategoryId = category.Id
             };
-            this.context.BasicProducts.Add(product);
+            this.db.BasicProducts.Add(product);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery(10);
 
@@ -150,7 +150,7 @@ public class GetAllProductHandlerTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         var product = new ProductModel
         {
@@ -162,8 +162,8 @@ public class GetAllProductHandlerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery();
 
@@ -178,6 +178,6 @@ public class GetAllProductHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

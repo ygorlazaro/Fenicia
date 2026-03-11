@@ -4,8 +4,9 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company;
-using Fenicia.Auth.Domains.Company.GetCompaniesByUser;
-using Fenicia.Auth.Domains.Company.UpdateCompany;
+using Fenicia.Auth.Domains.Company.Commands;
+using Fenicia.Auth.Domains.Company.Handlers;
+using Fenicia.Auth.Domains.Company.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
@@ -30,10 +31,10 @@ public class CompanyControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
-        var getCompaniesByUserHandler = new GetCompaniesByUserHandler(this.context);
-        var updateCompanyHandler = new UpdateCompanyHandler(this.context);
+        var getCompaniesByUserHandler = new GetCompaniesByUserHandler(this.db);
+        var updateCompanyHandler = new UpdateCompanyHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new CompanyController(
@@ -52,12 +53,12 @@ public class CompanyControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private readonly CompanyController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
     private readonly Faker faker;
@@ -141,11 +142,11 @@ public class CompanyControllerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
@@ -229,11 +230,11 @@ public class CompanyControllerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(adminRole);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(adminRole);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
 
@@ -253,7 +254,7 @@ public class CompanyControllerTests : IDisposable
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
 
         // Verify company was updated
-        var updatedCompany = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
+        var updatedCompany = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
         Assert.NotNull(updatedCompany);
         Assert.Equal(request.Name, updatedCompany.Name);
     }
@@ -315,11 +316,11 @@ public class CompanyControllerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(userRole);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRoleMapping);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(userRole);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRoleMapping);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
 
@@ -370,11 +371,11 @@ public class CompanyControllerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(adminRole);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(adminRole);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
 

@@ -28,8 +28,8 @@ public class SubscriptionControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        var getUserProfileHandler = new GetUserProfileHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        var getUserProfileHandler = new GetUserProfileHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new SubscriptionController(getUserProfileHandler)
@@ -46,12 +46,12 @@ public class SubscriptionControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private readonly SubscriptionController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId = Guid.NewGuid();
     private readonly Faker faker;
@@ -143,14 +143,14 @@ public class SubscriptionControllerTests : IDisposable
         company.UsersRoles = [userRole];
         company.Subscriptions = [subscription];
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUserRoles.Add(userRole);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthModules.Add(module);
-        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUserRoles.Add(userRole);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthModules.Add(module);
+        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.GetUserProfile(wide, ct);
@@ -213,8 +213,8 @@ public class SubscriptionControllerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.GetUserProfile(wide, ct);
@@ -273,11 +273,11 @@ public class SubscriptionControllerTests : IDisposable
 
         company.UsersRoles = [userRole];
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.GetUserProfile(wide, ct);
@@ -409,17 +409,17 @@ public class SubscriptionControllerTests : IDisposable
         company1.Subscriptions = [subscription1];
         company2.Subscriptions = [subscription2];
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company1);
-        this.context.AuthCompanies.Add(company2);
-        this.context.AuthUserRoles.Add(userRole1);
-        this.context.AuthUserRoles.Add(userRole2);
-        this.context.AuthSubscriptions.Add(subscription1);
-        this.context.AuthSubscriptions.Add(subscription2);
-        this.context.AuthModules.Add(module);
-        this.context.AuthSubscriptionCredits.Add(subscriptionCredit1);
-        this.context.AuthSubscriptionCredits.Add(subscriptionCredit2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company1);
+        this.db.AuthCompanies.Add(company2);
+        this.db.AuthUserRoles.Add(userRole1);
+        this.db.AuthUserRoles.Add(userRole2);
+        this.db.AuthSubscriptions.Add(subscription1);
+        this.db.AuthSubscriptions.Add(subscription2);
+        this.db.AuthModules.Add(module);
+        this.db.AuthSubscriptionCredits.Add(subscriptionCredit1);
+        this.db.AuthSubscriptionCredits.Add(subscriptionCredit2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.GetUserProfile(wide, ct);
@@ -451,8 +451,8 @@ public class SubscriptionControllerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.GetUserProfile(wide, ct);
@@ -555,16 +555,16 @@ public class SubscriptionControllerTests : IDisposable
         company.UsersRoles = [userRole];
         company.Subscriptions = [subscription];
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUserRoles.Add(userRole);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthModules.Add(module1);
-        this.context.AuthModules.Add(module2);
-        this.context.AuthSubscriptionCredits.Add(activeCredit);
-        this.context.AuthSubscriptionCredits.Add(inactiveCredit);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUserRoles.Add(userRole);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthModules.Add(module1);
+        this.db.AuthModules.Add(module2);
+        this.db.AuthSubscriptionCredits.Add(activeCredit);
+        this.db.AuthSubscriptionCredits.Add(inactiveCredit);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.GetUserProfile(wide, ct);

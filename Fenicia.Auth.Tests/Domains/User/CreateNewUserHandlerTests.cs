@@ -20,9 +20,9 @@ public class CreateNewUserHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new CreateNewUserHandler(
-            this.context
+            this.db
         );
         this.faker = new Faker();
 
@@ -33,20 +33,20 @@ public class CreateNewUserHandlerTests : IDisposable
     private void SeedAdminRole()
     {
         var adminRole = new RoleModel { Id = this.adminRoleId, Name = "Admin" };
-        this.context.AuthRoles.Add(adminRole);
-        this.context.SaveChanges();
+        this.db.AuthRoles.Add(adminRole);
+        this.db.SaveChanges();
     }
 
     private readonly Guid adminRoleId;
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly CreateNewUserHandler handler;
     private readonly Faker faker;
 
@@ -69,13 +69,13 @@ public class CreateNewUserHandlerTests : IDisposable
         // Assert
         Assert.NotNull(result);
 
-        var user = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
         Assert.Equal(email, user.Email);
         Assert.Equal(name, user.Name);
         Assert.NotEqual(password, user.Password);
 
-        var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
+        var company = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.NotNull(company);
         Assert.Equal(companyName, company.Name);
         Assert.Equal(cnpj, company.Cnpj);
@@ -92,8 +92,8 @@ public class CreateNewUserHandlerTests : IDisposable
         var companyName = this.faker.Company.CompanyName();
 
         var existingUser = new UserModel { Email = email, Name = "Existing User", Password = "password" };
-        this.context.AuthUsers.Add(existingUser);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(existingUser);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new CreateNewUserCommand(email, password, name,
             new CreateNewUserCompanyCommand(cnpj, companyName));
@@ -116,8 +116,8 @@ public class CreateNewUserHandlerTests : IDisposable
         var companyName = this.faker.Company.CompanyName();
 
         var existingCompany = new CompanyModel { Cnpj = cnpj, Name = "Existing Company" };
-        this.context.AuthCompanies.Add(existingCompany);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(existingCompany);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new CreateNewUserCommand(email, password, name,
             new CreateNewUserCompanyCommand(cnpj, companyName));
@@ -142,9 +142,9 @@ public class CreateNewUserHandlerTests : IDisposable
         var request = new CreateNewUserCommand(email, password, name,
             new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        var adminRole = this.context.AuthRoles.First();
-        this.context.AuthRoles.Remove(adminRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        var adminRole = this.db.AuthRoles.First();
+        this.db.AuthRoles.Remove(adminRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -171,7 +171,7 @@ public class CreateNewUserHandlerTests : IDisposable
         var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var userRole = await this.context.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
+        var userRole = await this.db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
         Assert.NotNull(userRole);
         Assert.Equal(this.adminRoleId, userRole.RoleId);
         Assert.NotEqual(Guid.Empty, userRole.CompanyId);
@@ -219,7 +219,7 @@ public class CreateNewUserHandlerTests : IDisposable
         await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var user = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
         Assert.NotEqual(password, user.Password);
     }
@@ -241,7 +241,7 @@ public class CreateNewUserHandlerTests : IDisposable
         await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var company = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
+        var company = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.NotNull(company);
         Assert.True(company.IsActive);
     }

@@ -18,19 +18,19 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectAttachmentByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetProjectAttachmentByIdHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetProjectAttachmentByIdHandler handler;
     private readonly Faker faker;
 
@@ -55,8 +55,8 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.Add(attachment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.Add(attachment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectAttachmentByIdQuery(attachmentId);
 
@@ -125,8 +125,8 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.AddRange(attachment1, attachment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.AddRange(attachment1, attachment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectAttachmentByIdQuery(attachment1Id);
 
@@ -157,8 +157,8 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.Add(attachment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.Add(attachment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectAttachmentByIdQuery(attachmentId);
 

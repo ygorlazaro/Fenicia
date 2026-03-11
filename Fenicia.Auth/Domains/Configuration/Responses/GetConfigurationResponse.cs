@@ -1,6 +1,6 @@
 using Fenicia.Common.Enums.Auth;
 
-namespace Fenicia.Auth.Domains.Configuration.GetConfiguration;
+namespace Fenicia.Auth.Domains.Configuration.Responses;
 
 public record GetConfigurationResponse(
     Guid Id,

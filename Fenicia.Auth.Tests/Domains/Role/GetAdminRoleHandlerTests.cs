@@ -15,17 +15,17 @@ public class GetAdminRoleHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetAdminRoleHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new GetAdminRoleHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAdminRoleHandler handler;
 
     [Fact]
@@ -40,8 +40,8 @@ public class GetAdminRoleHandlerTests : IDisposable
             Name = "Admin"
         };
 
-        this.context.AuthRoles.Add(adminRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthRoles.Add(adminRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(CancellationToken.None);
@@ -62,8 +62,8 @@ public class GetAdminRoleHandlerTests : IDisposable
             Name = "User"
         };
 
-        this.context.AuthRoles.Add(role);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthRoles.Add(role);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(CancellationToken.None);
@@ -96,8 +96,8 @@ public class GetAdminRoleHandlerTests : IDisposable
             Name = "Manager"
         };
 
-        this.context.AuthRoles.AddRange(adminRole, userRole, managerRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthRoles.AddRange(adminRole, userRole, managerRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(CancellationToken.None);
@@ -118,8 +118,8 @@ public class GetAdminRoleHandlerTests : IDisposable
             Name = "admin"
         };
 
-        this.context.AuthRoles.Add(role);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthRoles.Add(role);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(CancellationToken.None);
@@ -148,8 +148,8 @@ public class GetAdminRoleHandlerTests : IDisposable
             Name = " Admin "
         };
 
-        this.context.AuthRoles.Add(role);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthRoles.Add(role);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(CancellationToken.None);
@@ -177,8 +177,8 @@ public class GetAdminRoleHandlerTests : IDisposable
             Name = "Admin"
         };
 
-        this.context.AuthRoles.AddRange(adminRole1, adminRole2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthRoles.AddRange(adminRole1, adminRole2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(CancellationToken.None);

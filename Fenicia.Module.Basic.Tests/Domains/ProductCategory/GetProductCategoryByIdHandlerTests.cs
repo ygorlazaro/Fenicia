@@ -16,11 +16,11 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetProductCategoryByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetProductCategoryByIdHandler(this.db);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetProductCategoryByIdHandler handler;
 
     [Fact]
@@ -34,8 +34,8 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
             Name = "Electronics"
         };
 
-        this.context.BasicProductCategories.Add(category);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductCategoryByIdQuery(categoryId);
 
@@ -93,8 +93,8 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
             Name = "Books"
         };
 
-        this.context.BasicProductCategories.AddRange(category1, category2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.AddRange(category1, category2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductCategoryByIdQuery(category1Id);
 
@@ -109,6 +109,6 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

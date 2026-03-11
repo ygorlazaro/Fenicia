@@ -16,11 +16,11 @@ public class UpdateProductCategoryHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProductCategoryHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateProductCategoryHandler(this.db);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateProductCategoryHandler handler;
 
     [Fact]
@@ -34,8 +34,8 @@ public class UpdateProductCategoryHandlerTests : IDisposable
             Name = "Old Category"
         };
 
-        this.context.BasicProductCategories.Add(category);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(categoryId, "New Category");
 
@@ -85,8 +85,8 @@ public class UpdateProductCategoryHandlerTests : IDisposable
             Name = "Old Category"
         };
 
-        this.context.BasicProductCategories.Add(category);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(categoryId, "New Category");
 
@@ -94,7 +94,7 @@ public class UpdateProductCategoryHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCategory = await this.context.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
+        var updatedCategory = await this.db.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
         Assert.NotNull(updatedCategory);
         Assert.Equal("New Category", updatedCategory.Name);
     }
@@ -109,8 +109,8 @@ public class UpdateProductCategoryHandlerTests : IDisposable
         var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
         var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
 
-        this.context.BasicProductCategories.AddRange(category1, category2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.AddRange(category1, category2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(category1Id, "Home Appliances");
 
@@ -118,8 +118,8 @@ public class UpdateProductCategoryHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCategory1 = await this.context.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
-        var notUpdatedCategory2 = await this.context.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
+        var updatedCategory1 = await this.db.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
+        var notUpdatedCategory2 = await this.db.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
 
         Assert.NotNull(updatedCategory1);
         Assert.Equal("Home Appliances", updatedCategory1.Name);
@@ -129,6 +129,6 @@ public class UpdateProductCategoryHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

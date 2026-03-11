@@ -27,8 +27,8 @@ public class StateControllerTests : IDisposable
             .Options;
 
         this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
-        this.getAllStateHandler = new GetAllStateHandler(this.context);
+        this.db = new DefaultContext(options, this.companyContext);
+        this.getAllStateHandler = new GetAllStateHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new StateController(this.getAllStateHandler)
@@ -45,13 +45,13 @@ public class StateControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private readonly TestCompanyContext companyContext;
     private readonly StateController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllStateHandler getAllStateHandler;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Faker faker;
@@ -110,8 +110,8 @@ public class StateControllerTests : IDisposable
             Uf = this.faker.Address.StateAbbr()
         };
 
-        this.context.AuthStates.AddRange(state1, state2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthStates.AddRange(state1, state2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -156,8 +156,8 @@ public class StateControllerTests : IDisposable
             Uf = "RJ"
         };
 
-        this.context.AuthStates.AddRange(state1, state2, state3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthStates.AddRange(state1, state2, state3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 

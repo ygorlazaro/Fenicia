@@ -18,19 +18,19 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectSubtaskHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateProjectSubtaskHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateProjectSubtaskHandler handler;
     private readonly Faker faker;
 
@@ -50,8 +50,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             CompletedAt = null
         };
 
-        this.context.ProjectSubtasks.Add(subtask);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectSubtasks.Add(subtask);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectSubtaskCommand(
             subtaskId,
@@ -136,8 +136,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        this.context.ProjectSubtasks.AddRange(subtask1, subtask2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectSubtasks.AddRange(subtask1, subtask2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectSubtaskCommand(
             subtask1Id,
@@ -155,8 +155,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
         Assert.Equal(subtask1Id, result.Id);
         Assert.Equal("Updated Subtask 1 Title", result.Title);
 
-        var updatedSubtask1 = await this.context.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
-        var subtask2InDb = await this.context.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
+        var updatedSubtask1 = await this.db.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
+        var subtask2InDb = await this.db.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
 
         Assert.NotNull(updatedSubtask1);
         Assert.NotNull(subtask2InDb);
@@ -180,8 +180,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             CompletedAt = null
         };
 
-        this.context.ProjectSubtasks.Add(subtask);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectSubtasks.Add(subtask);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var completedAt = DateTime.UtcNow;
         var command = new UpdateProjectSubtaskCommand(

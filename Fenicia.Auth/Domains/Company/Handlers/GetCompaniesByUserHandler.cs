@@ -1,3 +1,5 @@
+using Fenicia.Auth.Domains.Company.Queries;
+using Fenicia.Auth.Domains.Company.Responses;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
@@ -5,7 +7,7 @@ using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Domains.Company.GetCompaniesByUser;
+namespace Fenicia.Auth.Domains.Company.Handlers;
 
 public sealed class GetCompaniesByUserHandler(DefaultContext db)
 {

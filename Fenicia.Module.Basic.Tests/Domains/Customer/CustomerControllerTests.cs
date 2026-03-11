@@ -34,14 +34,14 @@ public class CustomerControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testCustomerId = Guid.NewGuid();
-        var getAllCustomerHandler = new GetAllCustomerHandler(this.context);
-        var getCustomerByIdHandler = new GetCustomerByIdHandler(this.context);
-        var addCustomerHandler = new AddCustomerHandler(this.context);
-        var updateCustomerHandler = new UpdateCustomerHandler(this.context);
-        var deleteCustomerHandler = new DeleteCustomerHandler(this.context);
-        var getCustomerInsightsHandler = new GetCustomerInsightsHandler(this.context);
+        var getAllCustomerHandler = new GetAllCustomerHandler(this.db);
+        var getCustomerByIdHandler = new GetCustomerByIdHandler(this.db);
+        var addCustomerHandler = new AddCustomerHandler(this.db);
+        var updateCustomerHandler = new UpdateCustomerHandler(this.db);
+        var deleteCustomerHandler = new DeleteCustomerHandler(this.db);
+        var getCustomerInsightsHandler = new GetCustomerInsightsHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new CustomerController(
@@ -65,12 +65,12 @@ public class CustomerControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private readonly CustomerController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testCustomerId;
     private readonly Faker faker;
@@ -124,7 +124,7 @@ public class CustomerControllerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var customer1 = new CustomerModel
         {
@@ -170,8 +170,8 @@ public class CustomerControllerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.AddRange(customer1, customer2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.AddRange(customer1, customer2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -208,7 +208,7 @@ public class CustomerControllerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var customer = new CustomerModel
         {
@@ -232,8 +232,8 @@ public class CustomerControllerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -335,8 +335,8 @@ public class CustomerControllerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customer.Id,
@@ -417,8 +417,8 @@ public class CustomerControllerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -431,7 +431,7 @@ public class CustomerControllerTests : IDisposable
 
         // Verify customer was deleted
         var deletedCustomer =
-            await this.context.BasicCustomers.FirstOrDefaultAsync(x => this.testCustomerId == x.Id && x.Deleted == null, CancellationToken.None);
+            await this.db.BasicCustomers.FirstOrDefaultAsync(x => this.testCustomerId == x.Id && x.Deleted == null, CancellationToken.None);
         Assert.Null(deletedCustomer);
     }
 

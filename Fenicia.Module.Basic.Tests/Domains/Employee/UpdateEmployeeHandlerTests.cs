@@ -18,12 +18,12 @@ public class UpdateEmployeeHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateEmployeeHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateEmployeeHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateEmployeeHandler handler;
     private readonly Faker faker;
 
@@ -47,7 +47,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Name = "New Position"
         };
 
-        this.context.BasicPositions.AddRange(position1, position2);
+        this.db.BasicPositions.AddRange(position1, position2);
 
         var employee = new EmployeeModel
         {
@@ -68,8 +68,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employeeId,
@@ -157,7 +157,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -178,8 +178,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employeeId,
@@ -213,7 +213,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -234,8 +234,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employeeId,
@@ -269,7 +269,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -290,8 +290,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employeeId,
@@ -325,7 +325,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -346,8 +346,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employeeId,
@@ -381,7 +381,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -402,8 +402,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employeeId,
@@ -437,7 +437,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -458,8 +458,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employeeId,
@@ -493,7 +493,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -514,8 +514,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employeeId,
@@ -559,7 +559,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Name = "New Position"
         };
 
-        this.context.BasicPositions.AddRange(position1, position2);
+        this.db.BasicPositions.AddRange(position1, position2);
 
         var employee = new EmployeeModel
         {
@@ -580,8 +580,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employeeId,
@@ -602,7 +602,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedEmployee = await this.context.BasicEmployees
+        var updatedEmployee = await this.db.BasicEmployees
             .Include(e => e.Person)
             .FirstOrDefaultAsync(e => e.Id == employeeId);
 
@@ -614,7 +614,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

@@ -17,19 +17,19 @@ public class AddProjectAttachmentHandlerTests : IDisposable
             .Options;
 
         var companyContext1 = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext1);
-        this.handler = new AddProjectAttachmentHandler(this.context);
+        this.db = new DefaultContext(options, companyContext1);
+        this.handler = new AddProjectAttachmentHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly AddProjectAttachmentHandler handler;
     private readonly Faker faker;
 
@@ -75,7 +75,7 @@ public class AddProjectAttachmentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var attachment = await this.context.ProjectAttachments
+        var attachment = await this.db.ProjectAttachments
             .FirstOrDefaultAsync(a => a.Id == command.Id);
 
         Assert.NotNull(attachment);
@@ -111,7 +111,7 @@ public class AddProjectAttachmentHandlerTests : IDisposable
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var attachments = await this.context.ProjectAttachments.ToListAsync();
+        var attachments = await this.db.ProjectAttachments.ToListAsync();
         Assert.Equal(2, attachments.Count);
     }
 

@@ -39,7 +39,7 @@ public class TokenControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         var cache = new MemoryCache(new MemoryCacheOptions());
 
@@ -53,7 +53,7 @@ public class TokenControllerTests : IDisposable
         mockRedis.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(this.mockDatabase.Object);
 
         var generateTokenHandler1 = new GenerateTokenHandler(
-            this.context,
+            this.db,
             this.mockLoginAttemptHandler.Object,
             mockIncrementAttempts.Object,
             this.mockVerifyPasswordHandler.Object);
@@ -62,7 +62,7 @@ public class TokenControllerTests : IDisposable
         var generateRefreshTokenHandler1 = new GenerateRefreshTokenHandler(mockRedis.Object);
         var validateTokenHandler1 = new ValidateTokenHandler(mockRedis.Object);
         var invalidateRefreshTokenHandler1 = new InvalidateRefreshTokenHandler(mockRedis.Object);
-        var getUserForRefreshHandler1 = new GetUserForRefreshHandler(this.context);
+        var getUserForRefreshHandler1 = new GetUserForRefreshHandler(this.db);
 
         var mockHttpContext1 = new Mock<HttpContext>();
 
@@ -86,13 +86,13 @@ public class TokenControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
     private readonly TokenController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<LoginAttemptService> mockLoginAttemptHandler;
     private readonly Mock<VerifyPasswordService> mockVerifyPasswordHandler;
     private readonly Mock<IDatabase> mockDatabase;
@@ -174,8 +174,8 @@ public class TokenControllerTests : IDisposable
             Password = hashedPassword
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GenerateTokenQuery(email, password);
 
@@ -249,8 +249,8 @@ public class TokenControllerTests : IDisposable
             Password = hashedPassword
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GenerateTokenQuery(email, password);
 
@@ -314,8 +314,8 @@ public class TokenControllerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new ValidateTokenQuery(this.testUserId, refreshToken);
 
@@ -368,8 +368,8 @@ public class TokenControllerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new ValidateTokenQuery(this.testUserId, refreshToken);
 

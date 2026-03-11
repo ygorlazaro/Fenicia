@@ -6,7 +6,7 @@ namespace Fenicia.Common.Data.Contexts;
 
 public partial class DefaultContext
 {
-    public DbSet<ConfigurationModel> AuthConfiguration { get; set; }
+    public DbSet<ConfigurationModel> AuthConfigurations { get; set; }
 
     public DbSet<RoleModel> AuthRoles { get; set; } = null!;
 

@@ -33,14 +33,14 @@ public class PositionControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testPositionId = Guid.NewGuid();
-        var getAllPositionHandler = new GetAllPositionHandler(this.context);
-        var getPositionByIdHandler = new GetPositionByIdHandler(this.context);
-        var addPositionHandler = new AddPositionHandler(this.context);
-        var updatePositionHandler = new UpdatePositionHandler(this.context);
-        var deletePositionHandler = new DeletePositionHandler(this.context);
-        var getEmployeesByPositionIdHandler = new GetEmployeesByPositionIdHandler(this.context);
+        var getAllPositionHandler = new GetAllPositionHandler(this.db);
+        var getPositionByIdHandler = new GetPositionByIdHandler(this.db);
+        var addPositionHandler = new AddPositionHandler(this.db);
+        var updatePositionHandler = new UpdatePositionHandler(this.db);
+        var deletePositionHandler = new DeletePositionHandler(this.db);
+        var getEmployeesByPositionIdHandler = new GetEmployeesByPositionIdHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new PositionController(
@@ -63,12 +63,12 @@ public class PositionControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private readonly PositionController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testPositionId;
     private readonly Faker faker;
@@ -128,8 +128,8 @@ public class PositionControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.BasicPositions.AddRange(position1, position2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.AddRange(position1, position2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -162,8 +162,8 @@ public class PositionControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -210,8 +210,8 @@ public class PositionControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var ct = CancellationToken.None;
@@ -270,9 +270,9 @@ public class PositionControllerTests : IDisposable
             }
         };
 
-        this.context.BasicPositions.Add(position);
-        this.context.BasicEmployees.AddRange(employee1, employee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        this.db.BasicEmployees.AddRange(employee1, employee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var ct = CancellationToken.None;
@@ -327,8 +327,8 @@ public class PositionControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdatePositionCommand(this.testPositionId, this.faker.Commerce.Department() + " Updated");
         var ct = CancellationToken.None;
@@ -376,8 +376,8 @@ public class PositionControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -389,7 +389,7 @@ public class PositionControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify position was deleted
-        var deletedPosition = await this.context.BasicPositions.FirstOrDefaultAsync(x => x.Id == this.testPositionId && x.Deleted == null, ct);
+        var deletedPosition = await this.db.BasicPositions.FirstOrDefaultAsync(x => x.Id == this.testPositionId && x.Deleted == null, ct);
         Assert.Null(deletedPosition);
     }
 

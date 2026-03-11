@@ -18,19 +18,19 @@ public class GetAllProjectStatusHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectStatusHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllProjectStatusHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllProjectStatusHandler handler;
     private readonly Faker faker;
 
@@ -73,8 +73,8 @@ public class GetAllProjectStatusHandlerTests : IDisposable
             IsFinal = true
         };
 
-        this.context.ProjectStatuses.AddRange(status1, status2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.AddRange(status1, status2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectStatusQuery();
 
@@ -104,10 +104,10 @@ public class GetAllProjectStatusHandlerTests : IDisposable
                 Order = i,
                 IsFinal = i % 2 == 0
             };
-            this.context.ProjectStatuses.Add(status);
+            this.db.ProjectStatuses.Add(status);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectStatusQuery(2);
 
@@ -135,10 +135,10 @@ public class GetAllProjectStatusHandlerTests : IDisposable
                 Order = i,
                 IsFinal = false
             };
-            this.context.ProjectStatuses.Add(status);
+            this.db.ProjectStatuses.Add(status);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectStatusQuery(10);
 
@@ -166,10 +166,10 @@ public class GetAllProjectStatusHandlerTests : IDisposable
                 Order = i,
                 IsFinal = false
             };
-            this.context.ProjectStatuses.Add(status);
+            this.db.ProjectStatuses.Add(status);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectStatusQuery();
 

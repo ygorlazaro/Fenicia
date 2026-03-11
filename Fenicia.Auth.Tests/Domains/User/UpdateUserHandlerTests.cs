@@ -20,8 +20,8 @@ public class UpdateUserHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new UpdateUserHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new UpdateUserHandler(this.db);
         this.faker = new Faker();
 
         // Create test user
@@ -32,18 +32,18 @@ public class UpdateUserHandlerTests : IDisposable
             Name = this.faker.Person.FullName
         };
 
-        this.context.AuthUsers.Add(this.testUser);
-        this.context.SaveChanges();
+        this.db.AuthUsers.Add(this.testUser);
+        this.db.SaveChanges();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private readonly UpdateUserHandler handler;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly UserModel testUser;
 
@@ -62,7 +62,7 @@ public class UpdateUserHandlerTests : IDisposable
         Assert.Equal(newName, result.Name);
 
         // Verify user was updated in database
-        var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
+        var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(updatedUser);
         Assert.Equal(newName, updatedUser.Name);
     }
@@ -82,7 +82,7 @@ public class UpdateUserHandlerTests : IDisposable
         Assert.Equal(newEmail, result.Email);
 
         // Verify user was updated in database
-        var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
+        var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(updatedUser);
         Assert.Equal(newEmail, updatedUser.Email);
     }
@@ -115,8 +115,8 @@ public class UpdateUserHandlerTests : IDisposable
             Name = this.faker.Person.FullName
         };
 
-        this.context.AuthUsers.Add(anotherUser);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(anotherUser);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new UpdateUserCommand(this.testUser.Id, Email: existingEmail);
 
@@ -132,8 +132,8 @@ public class UpdateUserHandlerTests : IDisposable
     {
         // Arrange
         var role = new RoleModel { Name = "Admin" };
-        this.context.AuthRoles.Add(role);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthRoles.Add(role);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UpdateUserRoleCommand>
         {
@@ -158,8 +158,8 @@ public class UpdateUserHandlerTests : IDisposable
             Name = this.faker.Company.CompanyName(),
             Cnpj = string.Empty
         };
-        this.context.AuthCompanies.Add(company);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UpdateUserRoleCommand>
         {

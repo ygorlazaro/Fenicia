@@ -31,13 +31,13 @@ public class ProjectSubtaskControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectSubtaskId = Guid.NewGuid();
-        var getAllProjectSubtaskHandler = new GetAllProjectSubtaskHandler(this.context);
-        var getProjectSubtaskByIdHandler = new GetProjectSubtaskByIdHandler(this.context);
-        var addProjectSubtaskHandler = new AddProjectSubtaskHandler(this.context);
-        var updateProjectSubtaskHandler = new UpdateProjectSubtaskHandler(this.context);
-        var deleteProjectSubtaskHandler = new DeleteProjectSubtaskHandler(this.context);
+        var getAllProjectSubtaskHandler = new GetAllProjectSubtaskHandler(this.db);
+        var getProjectSubtaskByIdHandler = new GetProjectSubtaskByIdHandler(this.db);
+        var addProjectSubtaskHandler = new AddProjectSubtaskHandler(this.db);
+        var updateProjectSubtaskHandler = new UpdateProjectSubtaskHandler(this.db);
+        var deleteProjectSubtaskHandler = new DeleteProjectSubtaskHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProjectSubtaskController(
@@ -59,13 +59,13 @@ public class ProjectSubtaskControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
     private readonly ProjectSubtaskController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testProjectSubtaskId;
     private readonly Faker faker;
@@ -132,8 +132,8 @@ public class ProjectSubtaskControllerTests : IDisposable
             CompletedAt = DateTime.UtcNow
         };
 
-        this.context.ProjectSubtasks.AddRange(projectSubtask1, projectSubtask2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectSubtasks.AddRange(projectSubtask1, projectSubtask2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -169,8 +169,8 @@ public class ProjectSubtaskControllerTests : IDisposable
             CompletedAt = null
         };
 
-        this.context.ProjectSubtasks.Add(projectSubtask);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectSubtasks.Add(projectSubtask);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -253,8 +253,8 @@ public class ProjectSubtaskControllerTests : IDisposable
             CompletedAt = null
         };
 
-        this.context.ProjectSubtasks.Add(projectSubtask);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectSubtasks.Add(projectSubtask);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectSubtaskCommand(
             projectSubtask.Id,
@@ -320,8 +320,8 @@ public class ProjectSubtaskControllerTests : IDisposable
             CompletedAt = null
         };
 
-        this.context.ProjectSubtasks.Add(projectSubtask);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectSubtasks.Add(projectSubtask);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -333,7 +333,7 @@ public class ProjectSubtaskControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify project subtask was deleted
-        var deletedSubtask = await this.context.ProjectSubtasks.FirstOrDefaultAsync(x => x.Id == this.testProjectSubtaskId && x.Deleted == null, ct);
+        var deletedSubtask = await this.db.ProjectSubtasks.FirstOrDefaultAsync(x => x.Id == this.testProjectSubtaskId && x.Deleted == null, ct);
         Assert.Null(deletedSubtask);
     }
 

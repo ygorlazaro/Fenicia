@@ -18,19 +18,19 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectCommentHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateProjectCommentHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateProjectCommentHandler handler;
     private readonly Faker faker;
 
@@ -49,8 +49,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             Content = "Old comment content"
         };
 
-        this.context.ProjectComments.Add(comment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.Add(comment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommentCommand(
             commentId,
@@ -120,8 +120,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             Content = "Comment 2 content"
         };
 
-        this.context.ProjectComments.AddRange(comment1, comment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.AddRange(comment1, comment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommentCommand(
             comment1Id,
@@ -135,8 +135,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
         Assert.Equal(comment1Id, result.Id);
         Assert.Equal("Updated Comment 1 content", result.Content);
 
-        var updatedComment1 = await this.context.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
-        var comment2InDb = await this.context.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
+        var updatedComment1 = await this.db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
+        var comment2InDb = await this.db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
 
         Assert.NotNull(updatedComment1);
         Assert.NotNull(comment2InDb);
@@ -159,8 +159,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.Add(comment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.Add(comment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var longContent = this.faker.Lorem.Paragraphs(5);
         var command = new UpdateProjectCommentCommand(

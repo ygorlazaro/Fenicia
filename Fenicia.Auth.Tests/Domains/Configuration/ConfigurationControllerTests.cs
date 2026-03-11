@@ -1,8 +1,9 @@
 using System.Security.Claims;
 
 using Fenicia.Auth.Domains.Configuration;
-using Fenicia.Auth.Domains.Configuration.GetConfiguration;
-using Fenicia.Auth.Domains.Configuration.UpsertConfiguration;
+using Fenicia.Auth.Domains.Configuration.Commands;
+using Fenicia.Auth.Domains.Configuration.Handlers;
+using Fenicia.Auth.Domains.Configuration.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
@@ -21,7 +22,7 @@ namespace Fenicia.Auth.Tests.Domains.Configuration;
 public class ConfigurationControllerTests : IDisposable
 {
     private readonly ConfigurationController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
 
@@ -31,10 +32,10 @@ public class ConfigurationControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
-        var getConfigurationHandler = new GetConfigurationHandler(this.context);
-        var upsertConfigurationHandler = new UpsertConfigurationHandler(this.context);
+        var getConfigurationHandler = new GetConfigurationHandler(this.db);
+        var upsertConfigurationHandler = new UpsertConfigurationHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ConfigurationController(
@@ -52,7 +53,7 @@ public class ConfigurationControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -98,7 +99,7 @@ public class ConfigurationControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenUserHasConfigurations_ReturnsOkWithList()
     {
-        var companyId = this.context.CurrentCompanyId  ?? Guid.NewGuid();
+        var companyId = this.db.CurrentCompanyId  ?? Guid.NewGuid();
         // Arrange
         var config1 = new ConfigurationModel
         {
@@ -118,8 +119,8 @@ public class ConfigurationControllerTests : IDisposable
             Value = "en-US"
         };
 
-        this.context.AuthConfiguration.AddRange(config1, config2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthConfigurations.AddRange(config1, config2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
@@ -146,7 +147,7 @@ public class ConfigurationControllerTests : IDisposable
     {
         // Arrange - Note: Due to how DefaultContext works, all entities get the same CompanyId
         // from TestCompanyContext, so this test verifies filtering by UserId
-        var companyId = this.context.CurrentCompanyId  ?? Guid.NewGuid();
+        var companyId = this.db.CurrentCompanyId  ?? Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
 
         var userConfig = new ConfigurationModel
@@ -167,8 +168,8 @@ public class ConfigurationControllerTests : IDisposable
             Value = "en-US"
         };
 
-        this.context.AuthConfiguration.AddRange(userConfig, otherUserConfig);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthConfigurations.AddRange(userConfig, otherUserConfig);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
@@ -216,7 +217,7 @@ public class ConfigurationControllerTests : IDisposable
             this.testUserId,
             ConfigType.Language,
             "pt-BR",
-            this.context.CurrentCompanyId
+            this.db.CurrentCompanyId ?? Guid.Empty
         );
 
         // Act
@@ -226,7 +227,7 @@ public class ConfigurationControllerTests : IDisposable
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
-        var configuration = await this.context.AuthConfiguration
+        var configuration = await this.db.AuthConfigurations
             .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
 
         Assert.NotNull(configuration);
@@ -238,7 +239,7 @@ public class ConfigurationControllerTests : IDisposable
     public async Task PatchAsync_WhenConfigurationExists_UpdatesExistingConfiguration()
     {
         // Arrange
-        var companyId = this.context.CurrentCompanyId ?? Guid.NewGuid();
+        var companyId = this.db.CurrentCompanyId ?? Guid.NewGuid();
         var existingConfig = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
@@ -248,8 +249,8 @@ public class ConfigurationControllerTests : IDisposable
             Value = "light"
         };
 
-        this.context.AuthConfiguration.Add(existingConfig);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthConfigurations.Add(existingConfig);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
@@ -268,7 +269,7 @@ public class ConfigurationControllerTests : IDisposable
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
-        var updatedConfig = await this.context.AuthConfiguration
+        var updatedConfig = await this.db.AuthConfigurations
             .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
 
         Assert.NotNull(updatedConfig);
@@ -280,7 +281,7 @@ public class ConfigurationControllerTests : IDisposable
     public async Task PatchAsync_WithCompanyId_CreatesCompanyConfiguration()
     {
         // Arrange
-        var companyId = this.context.CurrentCompanyId;
+        var companyId = this.db.CurrentCompanyId ?? Guid.Empty;
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -298,7 +299,7 @@ public class ConfigurationControllerTests : IDisposable
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
-        var configuration = await this.context.AuthConfiguration
+        var configuration = await this.db.AuthConfigurations
             .FirstOrDefaultAsync(c =>
                 c.UserId == this.testUserId &&
                 c.ConfigType == ConfigType.Language &&
@@ -321,7 +322,7 @@ public class ConfigurationControllerTests : IDisposable
             this.testUserId,
             ConfigType.Language,
             "pt-BR",
-            this.context.CurrentCompanyId
+            this.db.CurrentCompanyId?? Guid.Empty
         );
 
         // Act

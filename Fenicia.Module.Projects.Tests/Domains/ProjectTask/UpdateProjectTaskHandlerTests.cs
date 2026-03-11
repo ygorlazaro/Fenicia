@@ -18,19 +18,19 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectTaskHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateProjectTaskHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateProjectTaskHandler handler;
     private readonly Faker faker;
 
@@ -56,8 +56,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.Add(task);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.Add(task);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskCommand(
             taskId,
@@ -168,8 +168,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.AddRange(task1, task2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.AddRange(task1, task2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskCommand(
             task1Id,
@@ -192,8 +192,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
         Assert.Equal(task1Id, result.Id);
         Assert.Equal("Updated Task 1 Title", result.Title);
 
-        var updatedTask1 = await this.context.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
-        var task2InDb = await this.context.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
+        var updatedTask1 = await this.db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
+        var task2InDb = await this.db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
 
         Assert.NotNull(updatedTask1);
         Assert.NotNull(task2InDb);
@@ -223,8 +223,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.Add(task);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.Add(task);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskCommand(
             taskId,

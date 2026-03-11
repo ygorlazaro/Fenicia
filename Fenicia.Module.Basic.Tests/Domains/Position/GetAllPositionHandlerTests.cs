@@ -18,18 +18,18 @@ public class GetAllPositionHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllPositionHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllPositionHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllPositionHandler handler;
     private readonly Faker faker;
 
@@ -54,8 +54,8 @@ public class GetAllPositionHandlerTests : IDisposable
         var position1 = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
         var position2 = new PositionModel { Id = Guid.NewGuid(), Name = "Designer" };
 
-        this.context.BasicPositions.AddRange(position1, position2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.AddRange(position1, position2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery();
 
@@ -80,10 +80,10 @@ public class GetAllPositionHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
             };
-            this.context.BasicPositions.Add(position);
+            this.db.BasicPositions.Add(position);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery(2);
 
@@ -106,10 +106,10 @@ public class GetAllPositionHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
             };
-            this.context.BasicPositions.Add(position);
+            this.db.BasicPositions.Add(position);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery(10);
 
@@ -132,10 +132,10 @@ public class GetAllPositionHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = $"{this.faker.Commerce.Department()} {i}"
             };
-            this.context.BasicPositions.Add(position);
+            this.db.BasicPositions.Add(position);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery();
 

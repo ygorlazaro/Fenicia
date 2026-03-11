@@ -15,7 +15,7 @@ namespace Fenicia.Auth.Tests.Domains.User;
 public class UpdateUserPasswordHandlerTests : IDisposable
 {
     private readonly UpdateUserPasswordHandler handler;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly UserModel testUser;
 
@@ -25,9 +25,9 @@ public class UpdateUserPasswordHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         
-        this.handler = new UpdateUserPasswordHandler(this.context);
+        this.handler = new UpdateUserPasswordHandler(this.db);
         this.faker = new Faker();
 
         // Create test user
@@ -38,13 +38,13 @@ public class UpdateUserPasswordHandlerTests : IDisposable
             Name = this.faker.Person.FullName
         };
 
-        this.context.AuthUsers.Add(this.testUser);
-        this.context.SaveChanges();
+        this.db.AuthUsers.Add(this.testUser);
+        this.db.SaveChanges();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -66,7 +66,7 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         Assert.Equal("Password changed successfully", result.Message);
 
         // Verify password was updated in database
-        var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
+        var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(updatedUser);
         
         Assert.NotEqual(originalPasswordHash, updatedUser.Password);
@@ -83,7 +83,7 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
+        var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(updatedUser);
         Assert.NotEqual(newPassword, updatedUser.Password); // Should be hashed
         Assert.StartsWith("$2", updatedUser.Password); // BCrypt format

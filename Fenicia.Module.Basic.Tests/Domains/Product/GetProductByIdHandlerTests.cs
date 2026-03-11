@@ -16,11 +16,11 @@ public class GetProductByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetProductByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetProductByIdHandler(this.db);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetProductByIdHandler handler;
 
     [Fact]
@@ -29,7 +29,7 @@ public class GetProductByIdHandlerTests : IDisposable
         // Arrange
         var productId = Guid.NewGuid();
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         var product = new ProductModel
         {
@@ -41,8 +41,8 @@ public class GetProductByIdHandlerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductByIdQuery(productId);
 
@@ -89,7 +89,7 @@ public class GetProductByIdHandlerTests : IDisposable
         var product1Id = Guid.NewGuid();
         var product2Id = Guid.NewGuid();
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         var product1 = new ProductModel
         {
@@ -111,8 +111,8 @@ public class GetProductByIdHandlerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductByIdQuery(product1Id);
 
@@ -128,6 +128,6 @@ public class GetProductByIdHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

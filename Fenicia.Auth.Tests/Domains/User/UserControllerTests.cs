@@ -33,21 +33,21 @@ public class UserControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
 
         this.mockHttpContext = new Mock<HttpContext>();
         var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(this.mockHttpContext.Object);
 
-        var getUserModuleModel = new GetUserModuleHandler(this.context);
-        var getUserCompaniesHandler = new GetUserCompaniesHandler(this.context);
-        var listUserHandler = new GetUserHandler(this.context);
-        var createUserHandler = new CreateUserHandler(this.context);
-        var updateUserHandler = new UpdateUserHandler(this.context);
-        var getUserByIdHandler = new GetUserByIdHandler(this.context);
-        var updateUserPasswordHandler = new UpdateUserPasswordHandler(this.context);
-        var deleteUserHandler = new DeleteUserHandler(this.context);
+        var getUserModuleModel = new GetUserModuleHandler(this.db);
+        var getUserCompaniesHandler = new GetUserCompaniesHandler(this.db);
+        var listUserHandler = new GetUserHandler(this.db);
+        var createUserHandler = new CreateUserHandler(this.db);
+        var updateUserHandler = new UpdateUserHandler(this.db);
+        var getUserByIdHandler = new GetUserByIdHandler(this.db);
+        var updateUserPasswordHandler = new UpdateUserPasswordHandler(this.db);
+        var deleteUserHandler = new DeleteUserHandler(this.db);
 
         this.controller = new UserController(getUserModuleModel, getUserCompaniesHandler, listUserHandler, createUserHandler, updateUserHandler, getUserByIdHandler, deleteUserHandler, updateUserPasswordHandler)
         {
@@ -62,7 +62,7 @@ public class UserControllerTests
     }
 
     private readonly UserController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
     private readonly Faker faker;
@@ -164,12 +164,12 @@ public class UserControllerTests
             CompanyId = companyId
         };
 
-        this.context.AuthModules.Add(module);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var headers = new Headers { CompanyId = companyId };
         var wide = new WideEventContext();
@@ -273,11 +273,11 @@ public class UserControllerTests
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
@@ -375,8 +375,8 @@ public class UserControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.GetAsync(CancellationToken.None);
@@ -419,11 +419,11 @@ public class UserControllerTests
             CompanyId = companyId
         };
 
-        this.context.AuthRoles.Add(role);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.GetByIdAsync(user.Id, CancellationToken.None);
@@ -463,8 +463,8 @@ public class UserControllerTests
             Deleted = DateTime.UtcNow
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.GetByIdAsync(user.Id, CancellationToken.None);
@@ -510,8 +510,8 @@ public class UserControllerTests
             Deleted = DateTime.UtcNow
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdateUserCommand(user.Id, "Updated Name");
 
@@ -557,8 +557,8 @@ public class UserControllerTests
             Deleted = DateTime.UtcNow
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.DeleteAsync(user.Id, CancellationToken.None);
@@ -582,8 +582,8 @@ public class UserControllerTests
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.controller.DeleteAsync(this.testUserId, CancellationToken.None);
@@ -629,8 +629,8 @@ public class UserControllerTests
             Deleted = DateTime.UtcNow
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdateUserPasswordCommand(user.Id, this.faker.Internet.Password());
         

@@ -18,11 +18,11 @@ public class CreateOrderHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new CreateOrderHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new CreateOrderHandler(this.db);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly CreateOrderHandler handler;
 
     [Fact]
@@ -101,8 +101,8 @@ public class CreateOrderHandlerTests : IDisposable
             SalesPrice = 10.00m,
             CategoryId = Guid.NewGuid()
         };
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var details = new List<OrderDetailCommand>
         {
@@ -121,7 +121,7 @@ public class CreateOrderHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var stockMovements = await this.context.BasicStockMovements.ToListAsync();
+        var stockMovements = await this.db.BasicStockMovements.ToListAsync();
         Assert.Single(stockMovements);
         Assert.Equal(productId, stockMovements[0].ProductId);
         Assert.Equal(customerId, stockMovements[0].CustomerId);
@@ -131,7 +131,7 @@ public class CreateOrderHandlerTests : IDisposable
         Assert.Contains("Sale order", stockMovements[0].Reason);
 
         // Verify product quantity was reduced
-        var updatedProduct = await this.context.BasicProducts.FindAsync(productId);
+        var updatedProduct = await this.db.BasicProducts.FindAsync(productId);
         Assert.NotNull(updatedProduct);
         Assert.Equal(95, updatedProduct.Quantity); // 100 - 5
     }
@@ -160,8 +160,8 @@ public class CreateOrderHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var details = new List<OrderDetailCommand>
         {
@@ -180,8 +180,8 @@ public class CreateOrderHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedProduct1 = await this.context.BasicProducts.FindAsync(product1.Id);
-        var updatedProduct2 = await this.context.BasicProducts.FindAsync(product2.Id);
+        var updatedProduct1 = await this.db.BasicProducts.FindAsync(product1.Id);
+        var updatedProduct2 = await this.db.BasicProducts.FindAsync(product2.Id);
         Assert.Equal(45, updatedProduct1?.Quantity); // 50 - 5
         Assert.Equal(27, updatedProduct2?.Quantity); // 30 - 3
     }
@@ -206,7 +206,7 @@ public class CreateOrderHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var orders = await this.context.BasicOrders.ToListAsync();
+        var orders = await this.db.BasicOrders.ToListAsync();
         Assert.Single(orders);
         Assert.Equal(command.CustomerId, orders[0].CustomerId);
         Assert.Equal(OrderStatus.Pending, orders[0].Status);
@@ -233,7 +233,7 @@ public class CreateOrderHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var orderDetails = await this.context.BasicOrderDetails.ToListAsync();
+        var orderDetails = await this.db.BasicOrderDetails.ToListAsync();
         Assert.Equal(2, orderDetails.Count);
     }
 
@@ -259,12 +259,12 @@ public class CreateOrderHandlerTests : IDisposable
         // Assert
         Assert.Null(result.EmployeeId);
 
-        var orders = await this.context.BasicOrders.ToListAsync();
+        var orders = await this.db.BasicOrders.ToListAsync();
         Assert.Null(orders[0].EmployeeId);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

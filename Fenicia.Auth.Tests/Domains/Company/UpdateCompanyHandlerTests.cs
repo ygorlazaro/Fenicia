@@ -1,7 +1,8 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
 
-using Fenicia.Auth.Domains.Company.UpdateCompany;
+using Fenicia.Auth.Domains.Company.Commands;
+using Fenicia.Auth.Domains.Company.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -19,19 +20,19 @@ public class UpdateCompanyHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new UpdateCompanyHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new UpdateCompanyHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateCompanyHandler handler;
     private readonly Faker faker;
 
@@ -73,11 +74,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -89,7 +90,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal("Updated Company Name", updatedCompany.Name);
         Assert.True(updatedCompany.IsActive);
@@ -111,8 +112,8 @@ public class UpdateCompanyHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.context.AuthCompanies.Add(company);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             nonExistentCompanyId,
@@ -165,11 +166,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -222,11 +223,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -280,11 +281,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(otherUser);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(otherUser);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -346,11 +347,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             CompanyId = companyId1
         };
 
-        this.context.AuthCompanies.AddRange(company1, company2);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.AddRange(company1, company2);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId2,
@@ -420,11 +421,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             }
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.AddRange(adminRole, memberRole);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.AddRange(userRoles);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.AddRange(adminRole, memberRole);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.AddRange(userRoles);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -436,7 +437,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal("Updated Company Name", updatedCompany.Name);
     }
@@ -498,11 +499,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             }
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.AddRange(admin1, admin2);
-        this.context.AuthUserRoles.AddRange(userRoles);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.AddRange(admin1, admin2);
+        this.db.AuthUserRoles.AddRange(userRoles);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -514,7 +515,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal("Updated by Admin 2", updatedCompany.Name);
     }
@@ -542,9 +543,9 @@ public class UpdateCompanyHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -597,11 +598,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -654,11 +655,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -711,11 +712,11 @@ public class UpdateCompanyHandlerTests : IDisposable
             CompanyId = companyId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(
             companyId,
@@ -727,7 +728,7 @@ public class UpdateCompanyHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.context.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.True(updatedCompany.IsActive);
         Assert.Equal(company.Cnpj, updatedCompany.Cnpj);

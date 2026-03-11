@@ -1,16 +1,17 @@
+using Fenicia.Auth.Domains.Company.Commands;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Domains.Company.UpdateCompany;
+namespace Fenicia.Auth.Domains.Company.Handlers;
 
-public sealed class UpdateCompanyHandler(DefaultContext context)
+public sealed class UpdateCompanyHandler(DefaultContext db)
 {
     public async Task Handle(UpdateCompanyCommand command, CancellationToken ct)
     {
-        var company = await context.AuthCompanies
+        var company = await db.AuthCompanies
                           .FirstOrDefaultAsync(c => c.Id == command.CompanyId && c.IsActive, ct)
                       ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
 
@@ -28,12 +29,12 @@ public sealed class UpdateCompanyHandler(DefaultContext context)
 
         company.Name = command.Name;
 
-        await context.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
     }
 
     private async Task<bool> HasRoleAsync(Guid userId, Guid companyId, string role, CancellationToken ct)
     {
-        var query = context.AuthUserRoles.Where(ur => ur.UserId == userId
+        var query = db.AuthUserRoles.Where(ur => ur.UserId == userId
                                                   && ur.CompanyId == companyId && ur.Role.Name == role)
             .Select(ur => 1);
 

@@ -29,13 +29,13 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectTaskAssigneeId = Guid.NewGuid();
-        var getAllProjectTaskAssigneeHandler = new GetAllProjectTaskAssigneeHandler(this.context);
-        var getProjectTaskAssigneeByIdHandler = new GetProjectTaskAssigneeByIdHandler(this.context);
-        var addProjectTaskAssigneeHandler = new AddProjectTaskAssigneeHandler(this.context);
-        var updateProjectTaskAssigneeHandler = new UpdateProjectTaskAssigneeHandler(this.context);
-        var deleteProjectTaskAssigneeHandler = new DeleteProjectTaskAssigneeHandler(this.context);
+        var getAllProjectTaskAssigneeHandler = new GetAllProjectTaskAssigneeHandler(this.db);
+        var getProjectTaskAssigneeByIdHandler = new GetProjectTaskAssigneeByIdHandler(this.db);
+        var addProjectTaskAssigneeHandler = new AddProjectTaskAssigneeHandler(this.db);
+        var updateProjectTaskAssigneeHandler = new UpdateProjectTaskAssigneeHandler(this.db);
+        var deleteProjectTaskAssigneeHandler = new DeleteProjectTaskAssigneeHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProjectTaskAssigneeController(
@@ -56,13 +56,13 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
     private readonly ProjectTaskAssigneeController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testProjectTaskAssigneeId;
 
@@ -126,8 +126,8 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-1)
         };
 
-        this.context.ProjectTaskAssignees.AddRange(projectTaskAssignee1, projectTaskAssignee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.AddRange(projectTaskAssignee1, projectTaskAssignee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -162,8 +162,8 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
             AssignedAt = DateTime.UtcNow
         };
 
-        this.context.ProjectTaskAssignees.Add(projectTaskAssignee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.Add(projectTaskAssignee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -244,8 +244,8 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
             AssignedAt = DateTime.UtcNow
         };
 
-        this.context.ProjectTaskAssignees.Add(projectTaskAssignee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.Add(projectTaskAssignee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskAssigneeCommand(
             projectTaskAssignee.Id,
@@ -308,8 +308,8 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
             AssignedAt = DateTime.UtcNow
         };
 
-        this.context.ProjectTaskAssignees.Add(projectTaskAssignee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.Add(projectTaskAssignee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -321,7 +321,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify project task assignee was deleted
-        var deletedAssignee = await this.context.ProjectTaskAssignees.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskAssigneeId && x.Deleted == null, ct);
+        var deletedAssignee = await this.db.ProjectTaskAssignees.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskAssigneeId && x.Deleted == null, ct);
         Assert.Null(deletedAssignee);
     }
 

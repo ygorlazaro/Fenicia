@@ -1,4 +1,4 @@
-namespace Fenicia.Auth.Domains.Configuration.GetConfiguration;
+namespace Fenicia.Auth.Domains.Configuration.Queries;
 
 public record GetConfigurationQuery(
     Guid UserId,

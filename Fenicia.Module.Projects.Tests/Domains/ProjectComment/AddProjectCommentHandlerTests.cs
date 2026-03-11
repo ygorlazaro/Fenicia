@@ -17,19 +17,19 @@ public class AddProjectCommentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new AddProjectCommentHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new AddProjectCommentHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly AddProjectCommentHandler handler;
     private readonly Faker faker;
 
@@ -66,7 +66,7 @@ public class AddProjectCommentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var comment = await this.context.ProjectComments
+        var comment = await this.db.ProjectComments
             .FirstOrDefaultAsync(c => c.Id == command.Id);
 
         Assert.NotNull(comment);
@@ -97,7 +97,7 @@ public class AddProjectCommentHandlerTests : IDisposable
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var comments = await this.context.ProjectComments.ToListAsync();
+        var comments = await this.db.ProjectComments.ToListAsync();
         Assert.Equal(2, comments.Count);
     }
 

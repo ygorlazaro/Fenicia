@@ -17,18 +17,18 @@ public class AddCustomerHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new AddCustomerHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new AddCustomerHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly AddCustomerHandler handler;
     private readonly Faker faker;
 
@@ -256,7 +256,7 @@ public class AddCustomerHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var customer = await this.context.BasicCustomers
+        var customer = await this.db.BasicCustomers
             .Include(c => c.Person)
             .FirstOrDefaultAsync(c => c.Id == command.Id);
 
@@ -302,7 +302,7 @@ public class AddCustomerHandlerTests : IDisposable
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var customers = await this.context.BasicCustomers.ToListAsync();
+        var customers = await this.db.BasicCustomers.ToListAsync();
         Assert.Equal(2, customers.Count);
     }
 }

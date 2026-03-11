@@ -17,19 +17,19 @@ public class AddProjectStatusHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new AddProjectStatusHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new AddProjectStatusHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly AddProjectStatusHandler handler;
     private readonly Faker faker;
 
@@ -70,7 +70,7 @@ public class AddProjectStatusHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var status = await this.context.ProjectStatuses
+        var status = await this.db.ProjectStatuses
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 
         Assert.NotNull(status);
@@ -104,7 +104,7 @@ public class AddProjectStatusHandlerTests : IDisposable
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var statuses = await this.context.ProjectStatuses.ToListAsync();
+        var statuses = await this.db.ProjectStatuses.ToListAsync();
         Assert.Equal(2, statuses.Count);
     }
 

@@ -18,19 +18,19 @@ public class UpdateProjectHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateProjectHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateProjectHandler handler;
     private readonly Faker faker;
 
@@ -50,8 +50,8 @@ public class UpdateProjectHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.Add(project);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.Add(project);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommand(
             projectId,
@@ -140,8 +140,8 @@ public class UpdateProjectHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.AddRange(project1, project2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.AddRange(project1, project2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommand(
             project1Id,
@@ -160,8 +160,8 @@ public class UpdateProjectHandlerTests : IDisposable
         Assert.Equal(project1Id, result.Id);
         Assert.Equal("Updated Project 1 Title", result.Title);
 
-        var updatedProject1 = await this.context.Projects.FindAsync([project1Id], CancellationToken.None);
-        var project2InDb = await this.context.Projects.FindAsync([project2Id], CancellationToken.None);
+        var updatedProject1 = await this.db.Projects.FindAsync([project1Id], CancellationToken.None);
+        var project2InDb = await this.db.Projects.FindAsync([project2Id], CancellationToken.None);
 
         Assert.NotNull(updatedProject1);
         Assert.NotNull(project2InDb);
@@ -185,8 +185,8 @@ public class UpdateProjectHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.Add(project);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.Add(project);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommand(
             projectId,

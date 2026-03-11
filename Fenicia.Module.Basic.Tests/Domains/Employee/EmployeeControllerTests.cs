@@ -33,14 +33,14 @@ public class EmployeeControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testEmployeeId = Guid.NewGuid();
-        var getAllEmployeeHandler = new GetAllEmployeeHandler(this.context);
-        var getEmployeeByIdHandler = new GetEmployeeByIdHandler(this.context);
-        var addEmployeeHandler = new AddEmployeeHandler(this.context);
-        var updateEmployeeHandler = new UpdateEmployeeHandler(this.context);
-        var deleteEmployeeHandler = new DeleteEmployeeHandler(this.context);
-        var getEmployeePerformanceHandler = new GetEmployeePerformanceHandler(this.context);
+        var getAllEmployeeHandler = new GetAllEmployeeHandler(this.db);
+        var getEmployeeByIdHandler = new GetEmployeeByIdHandler(this.db);
+        var addEmployeeHandler = new AddEmployeeHandler(this.db);
+        var updateEmployeeHandler = new UpdateEmployeeHandler(this.db);
+        var deleteEmployeeHandler = new DeleteEmployeeHandler(this.db);
+        var getEmployeePerformanceHandler = new GetEmployeePerformanceHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new EmployeeController(
@@ -63,7 +63,7 @@ public class EmployeeControllerTests : IDisposable
     }
 
     private readonly EmployeeController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testEmployeeId;
     private readonly Faker faker;
@@ -147,9 +147,9 @@ public class EmployeeControllerTests : IDisposable
             }
         };
 
-        this.context.BasicPositions.Add(position);
-        this.context.BasicEmployees.AddRange(employee1, employee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        this.db.BasicEmployees.AddRange(employee1, employee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -197,9 +197,9 @@ public class EmployeeControllerTests : IDisposable
             }
         };
 
-        this.context.BasicPositions.Add(position);
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -246,8 +246,8 @@ public class EmployeeControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddEmployeeCommand(
             Guid.NewGuid(),
@@ -307,9 +307,9 @@ public class EmployeeControllerTests : IDisposable
             }
         };
 
-        this.context.BasicPositions.Add(position);
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             employee.Id,
@@ -354,8 +354,8 @@ public class EmployeeControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
             nonExistentId,
@@ -401,8 +401,8 @@ public class EmployeeControllerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -414,7 +414,7 @@ public class EmployeeControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify employee was deleted
-        var deletedEmployee = await this.context.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId && x.Deleted == null, ct);
+        var deletedEmployee = await this.db.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId && x.Deleted == null, ct);
         Assert.Null(deletedEmployee);
     }
 
@@ -477,7 +477,7 @@ public class EmployeeControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
