@@ -1,6 +1,8 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Module.Handlers;
+using Fenicia.Auth.Domains.Module.Queries;
+using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Auth.Domains.User.Commands;
 using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Auth.Domains.User.Queries;

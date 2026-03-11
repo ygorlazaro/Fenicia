@@ -1,6 +1,8 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Module.GetModules;
+using Fenicia.Auth.Domains.Module.Handlers;
+using Fenicia.Auth.Domains.Module.Queries;
+using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
 
@@ -29,7 +31,7 @@ public class ModuleController(
     {
         wide.UserId = "Guest";
 
-        var modules = await getModulesHandler.Handle(new GetModulesRequest(query.Page, query.PerPage), ct);
+        var modules = await getModulesHandler.Handle(new GetModulesQuery(query.Page, query.PerPage), ct);
 
         return Ok(modules);
     }

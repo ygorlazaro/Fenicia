@@ -1,4 +1,5 @@
-using Fenicia.Auth.Domains.Module;
+using Fenicia.Auth.Domains.Module.Handlers;
+using Fenicia.Auth.Domains.Module.Queries;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
