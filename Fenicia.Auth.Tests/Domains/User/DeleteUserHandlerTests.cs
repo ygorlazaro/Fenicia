@@ -15,7 +15,7 @@ namespace Fenicia.Auth.Tests.Domains.User;
 public class DeleteUserHandlerTests : IDisposable
 {
     private readonly DeleteUserHandler handler;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UserModel testUser;
 
     public DeleteUserHandlerTests()
@@ -24,8 +24,8 @@ public class DeleteUserHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new DeleteUserHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new DeleteUserHandler(this.db);
         var faker = new Faker();
 
         // Create test user
@@ -36,13 +36,13 @@ public class DeleteUserHandlerTests : IDisposable
             Name = faker.Person.FullName
         };
 
-        this.context.AuthUsers.Add(this.testUser);
-        this.context.SaveChanges();
+        this.db.AuthUsers.Add(this.testUser);
+        this.db.SaveChanges();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -58,7 +58,7 @@ public class DeleteUserHandlerTests : IDisposable
 
         // Assert
         // Verify user was soft deleted (not removed)
-        var deletedUser = await this.context.AuthUsers.FindAsync(this.testUser.Id);
+        var deletedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(deletedUser);
         Assert.NotNull(deletedUser.Deleted);
         Assert.True(deletedUser.Deleted.Value <= DateTime.UtcNow);
@@ -83,7 +83,7 @@ public class DeleteUserHandlerTests : IDisposable
     {
         // Arrange
         this.testUser.Deleted = DateTime.UtcNow;
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new DeleteUserCommand(this.testUser.Id);
 
@@ -104,13 +104,13 @@ public class DeleteUserHandlerTests : IDisposable
         await this.handler.Handle(request, CancellationToken.None);
 
         // Assert - User should still exist but be marked as deleted
-        var user = await this.context.AuthUsers.FindAsync(this.testUser.Id);
+        var user = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(user);
         Assert.NotNull(user.Deleted);
 
         // Verify user count hasn't changed (soft delete, not hard delete)
         // Note: Need IgnoreQueryFilters() to bypass the global soft-delete filter
-        var totalCount = await this.context.AuthUsers.IgnoreQueryFilters().CountAsync();
+        var totalCount = await this.db.AuthUsers.IgnoreQueryFilters().CountAsync();
         Assert.Equal(1, totalCount);
     }
 }

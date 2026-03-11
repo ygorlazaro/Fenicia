@@ -16,18 +16,18 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectTaskAssigneeHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllProjectTaskAssigneeHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllProjectTaskAssigneeHandler handler;
 
     [Fact]
@@ -69,8 +69,8 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.context.ProjectTaskAssignees.AddRange(assignee1, assignee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskAssigneeQuery();
 
@@ -99,10 +99,10 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
                 Role = i % 2 == 0 ? Common.Enums.Project.EnumAssigneeRole.Owner : Common.Enums.Project.EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
-            this.context.ProjectTaskAssignees.Add(assignee);
+            this.db.ProjectTaskAssignees.Add(assignee);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskAssigneeQuery(2);
 
@@ -129,10 +129,10 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
                 Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
-            this.context.ProjectTaskAssignees.Add(assignee);
+            this.db.ProjectTaskAssignees.Add(assignee);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskAssigneeQuery(10);
 
@@ -159,10 +159,10 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
                 Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
-            this.context.ProjectTaskAssignees.Add(assignee);
+            this.db.ProjectTaskAssignees.Add(assignee);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskAssigneeQuery();
 

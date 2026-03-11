@@ -14,7 +14,7 @@ namespace Fenicia.Auth.Tests.Domains.User;
 public class GetUserHandlerTests : IDisposable
 {
     private readonly GetUserHandler handler;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
 
     public GetUserHandlerTests()
     {
@@ -22,8 +22,8 @@ public class GetUserHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetUserHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new GetUserHandler(this.db);
         
         var faker = new Faker();
 
@@ -35,15 +35,15 @@ public class GetUserHandlerTests : IDisposable
                 Password = faker.Internet.Password().Hash(),
                 Name = faker.Person.FullName
             };
-            this.context.AuthUsers.Add(user);
+            this.db.AuthUsers.Add(user);
         }
 
-        this.context.SaveChanges();
+        this.db.SaveChanges();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 

@@ -18,19 +18,19 @@ public class GetProjectByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetProjectByIdHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetProjectByIdHandler handler;
     private readonly Faker faker;
 
@@ -50,8 +50,8 @@ public class GetProjectByIdHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.Add(project);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.Add(project);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectByIdQuery(projectId);
 
@@ -119,8 +119,8 @@ public class GetProjectByIdHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.AddRange(project1, project2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.AddRange(project1, project2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectByIdQuery(project1Id);
 
@@ -149,8 +149,8 @@ public class GetProjectByIdHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.Add(project);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.Add(project);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectByIdQuery(projectId);
 

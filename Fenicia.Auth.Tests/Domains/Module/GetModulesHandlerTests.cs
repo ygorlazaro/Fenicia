@@ -13,7 +13,7 @@ namespace Fenicia.Auth.Tests.Domains.Module;
 
 public class GetModulesHandlerTests : IDisposable
 {
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetModulesHandler handler;
     private readonly Faker faker;
 
@@ -23,14 +23,14 @@ public class GetModulesHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetModulesHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new GetModulesHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -55,8 +55,8 @@ public class GetModulesHandlerTests : IDisposable
             Price = 20.0m
         };
 
-        this.context.AuthModules.AddRange(module1, module2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.AddRange(module1, module2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(1, 10);
 
@@ -92,8 +92,8 @@ public class GetModulesHandlerTests : IDisposable
             Price = 10.0m
         };
 
-        this.context.AuthModules.AddRange(authModule, basicModule);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.AddRange(authModule, basicModule);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(1, 10);
 
@@ -124,8 +124,8 @@ public class GetModulesHandlerTests : IDisposable
             });
         }
 
-        this.context.AuthModules.AddRange(modules);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.AddRange(modules);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(2, 10);
 
@@ -170,8 +170,8 @@ public class GetModulesHandlerTests : IDisposable
             Price = 10.0m
         };
 
-        this.context.AuthModules.Add(module);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(10, 10);
 
@@ -213,8 +213,8 @@ public class GetModulesHandlerTests : IDisposable
             Price = 30.0m
         };
 
-        this.context.AuthModules.AddRange(module1, module2, module3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.AddRange(module1, module2, module3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(1, 10);
 
@@ -242,8 +242,8 @@ public class GetModulesHandlerTests : IDisposable
             Price = 10.0m
         };
 
-        this.context.AuthModules.Add(module);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery();
 
@@ -270,8 +270,8 @@ public class GetModulesHandlerTests : IDisposable
             Price = 10.0m
         };
 
-        this.context.AuthModules.Add(module);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(1, 10);
 

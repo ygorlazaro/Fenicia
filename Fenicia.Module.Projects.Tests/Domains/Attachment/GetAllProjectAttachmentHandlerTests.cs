@@ -18,19 +18,19 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectAttachmentHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllProjectAttachmentHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllProjectAttachmentHandler handler;
     private readonly Faker faker;
 
@@ -75,8 +75,8 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.AddRange(attachment1, attachment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.AddRange(attachment1, attachment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectAttachmentQuery();
 
@@ -107,10 +107,10 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
                 UploadedBy = Guid.NewGuid(),
                 ContentType = "application/json"
             };
-            this.context.ProjectAttachments.Add(attachment);
+            this.db.ProjectAttachments.Add(attachment);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectAttachmentQuery(2);
 
@@ -139,10 +139,10 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
                 UploadedBy = Guid.NewGuid(),
                 ContentType = "application/json"
             };
-            this.context.ProjectAttachments.Add(attachment);
+            this.db.ProjectAttachments.Add(attachment);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectAttachmentQuery(10);
 
@@ -171,10 +171,10 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
                 UploadedBy = Guid.NewGuid(),
                 ContentType = "application/json"
             };
-            this.context.ProjectAttachments.Add(attachment);
+            this.db.ProjectAttachments.Add(attachment);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectAttachmentQuery();
 

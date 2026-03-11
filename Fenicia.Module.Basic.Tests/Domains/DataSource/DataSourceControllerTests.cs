@@ -26,13 +26,13 @@ public class DataSourceControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        var getAllPositionForDataSourceHandler = new GetAllPositionForDataSourceHandler(this.context);
-        var getAllProductCategoryForDataSourceHandler = new GetAllProductCategoryForDataSourceHandler(this.context);
-        var getAllSupplierForDataSourceHandler = new GetAllSupplierForDataSourceHandler(this.context);
-        var getAllCustomerForDataSourceHandler = new GetAllCustomerForDataSourceHandler(this.context);
-        var getAllProductForDataSourceHandler = new GetAllProductForDataSourceHandler(this.context);
-        var getAllEmployeeForDataSourceHandler = new GetAllEmployeeForDataSourceHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        var getAllPositionForDataSourceHandler = new GetAllPositionForDataSourceHandler(this.db);
+        var getAllProductCategoryForDataSourceHandler = new GetAllProductCategoryForDataSourceHandler(this.db);
+        var getAllSupplierForDataSourceHandler = new GetAllSupplierForDataSourceHandler(this.db);
+        var getAllCustomerForDataSourceHandler = new GetAllCustomerForDataSourceHandler(this.db);
+        var getAllProductForDataSourceHandler = new GetAllProductForDataSourceHandler(this.db);
+        var getAllEmployeeForDataSourceHandler = new GetAllEmployeeForDataSourceHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new DataSourceController(
@@ -55,12 +55,12 @@ public class DataSourceControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private readonly DataSourceController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Faker faker;
 
@@ -116,8 +116,8 @@ public class DataSourceControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.context.BasicPositions.AddRange(position1, position2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.AddRange(position1, position2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -159,8 +159,8 @@ public class DataSourceControllerTests : IDisposable
             Name = "Manager"
         };
 
-        this.context.BasicPositions.AddRange(position1, position2, position3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.AddRange(position1, position2, position3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -223,8 +223,8 @@ public class DataSourceControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.BasicProductCategories.AddRange(category1, category2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.AddRange(category1, category2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -300,9 +300,9 @@ public class DataSourceControllerTests : IDisposable
             Person = person2
         };
 
-        this.context.BasicPeople.AddRange(person1, person2);
-        this.context.BasicSuppliers.AddRange(supplier1, supplier2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPeople.AddRange(person1, person2);
+        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -378,9 +378,9 @@ public class DataSourceControllerTests : IDisposable
             Person = person2
         };
 
-        this.context.BasicPeople.AddRange(person1, person2);
-        this.context.BasicCustomers.AddRange(customer1, customer2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPeople.AddRange(person1, person2);
+        this.db.BasicCustomers.AddRange(customer1, customer2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -452,9 +452,9 @@ public class DataSourceControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -538,10 +538,10 @@ public class DataSourceControllerTests : IDisposable
             Person = person2
         };
 
-        this.context.BasicPositions.Add(position);
-        this.context.BasicPeople.AddRange(person1, person2);
-        this.context.BasicEmployees.AddRange(employee1, employee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        this.db.BasicPeople.AddRange(person1, person2);
+        this.db.BasicEmployees.AddRange(employee1, employee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 

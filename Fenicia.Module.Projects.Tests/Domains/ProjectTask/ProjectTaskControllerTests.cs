@@ -31,13 +31,13 @@ public class ProjectTaskControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectTaskId = Guid.NewGuid();
-        var getAllProjectTaskHandler = new GetAllProjectTaskHandler(this.context);
-        var getProjectTaskByIdHandler = new GetProjectTaskByIdHandler(this.context);
-        var addProjectTaskHandler = new AddProjectTaskHandler(this.context);
-        var updateProjectTaskHandler = new UpdateProjectTaskHandler(this.context);
-        var deleteProjectTaskHandler = new DeleteProjectTaskHandler(this.context);
+        var getAllProjectTaskHandler = new GetAllProjectTaskHandler(this.db);
+        var getProjectTaskByIdHandler = new GetProjectTaskByIdHandler(this.db);
+        var addProjectTaskHandler = new AddProjectTaskHandler(this.db);
+        var updateProjectTaskHandler = new UpdateProjectTaskHandler(this.db);
+        var deleteProjectTaskHandler = new DeleteProjectTaskHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProjectTaskController(
@@ -59,13 +59,13 @@ public class ProjectTaskControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
     private readonly ProjectTaskController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testProjectTaskId;
     private readonly Faker faker;
@@ -142,8 +142,8 @@ public class ProjectTaskControllerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.AddRange(projectTask1, projectTask2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.AddRange(projectTask1, projectTask2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -184,8 +184,8 @@ public class ProjectTaskControllerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.Add(projectTask);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.Add(projectTask);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -278,8 +278,8 @@ public class ProjectTaskControllerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.Add(projectTask);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.Add(projectTask);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskCommand(
             projectTask.Id,
@@ -360,8 +360,8 @@ public class ProjectTaskControllerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.Add(projectTask);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.Add(projectTask);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -373,7 +373,7 @@ public class ProjectTaskControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify project task was deleted
-        var deletedTask = await this.context.ProjectTasks.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskId && x.Deleted == null, ct);
+        var deletedTask = await this.db.ProjectTasks.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskId && x.Deleted == null, ct);
         Assert.Null(deletedTask);
     }
 

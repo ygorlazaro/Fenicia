@@ -15,7 +15,7 @@ namespace Fenicia.Auth.Tests.Domains.Order;
 
 public class CreateNewOrderHandlerTests : IDisposable
 {
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly CreateNewOrderHandler handler;
     private readonly Faker faker;
 
@@ -25,16 +25,16 @@ public class CreateNewOrderHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new CreateNewOrderHandler(
-            this.context
+            this.db
         );
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -97,11 +97,11 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 150.00m
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        this.context.AuthModules.AddRange(module1, module2, moduleBasic);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        this.db.AuthModules.AddRange(module1, module2, moduleBasic);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
@@ -111,7 +111,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         // Assert
         Assert.NotNull(result);
 
-        var order = await this.context.AuthOrders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result.OrderId);
+        var order = await this.db.AuthOrders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result.OrderId);
         Assert.NotNull(order);
         
         Assert.Equal(userId, order.UserId);
@@ -170,10 +170,10 @@ public class CreateNewOrderHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
@@ -215,10 +215,10 @@ public class CreateNewOrderHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
@@ -271,11 +271,11 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 50.00m
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        this.context.AuthModules.Add(basicModule);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        this.db.AuthModules.Add(basicModule);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
@@ -283,7 +283,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var order = await this.context.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await this.db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
         Assert.Single(order.Details);
     }
@@ -338,11 +338,11 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 50.00m
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        this.context.AuthModules.AddRange(accountingModule, basicModule);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        this.db.AuthModules.AddRange(accountingModule, basicModule);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
@@ -350,7 +350,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var order = await this.context.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await this.db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
         Assert.Equal(2, order.Details.Count);
     }
@@ -396,11 +396,11 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 100.00m
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        this.context.AuthModules.Add(accountingModule);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        this.db.AuthModules.Add(accountingModule);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
@@ -461,11 +461,11 @@ public class CreateNewOrderHandlerTests : IDisposable
             Price = 50.00m
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        this.context.AuthModules.AddRange(module1, basicModule);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        this.db.AuthModules.AddRange(module1, basicModule);
+        await this.db.SaveChangesAsync(CancellationToken.None);
         
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
@@ -473,7 +473,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var order = await this.context.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
+        var order = await this.db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
         Assert.Equal(2, order.Details.Count);
     }

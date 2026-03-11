@@ -16,18 +16,18 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectTaskAssigneeByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetProjectTaskAssigneeByIdHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetProjectTaskAssigneeByIdHandler handler;
 
     [Fact]
@@ -47,8 +47,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             AssignedAt = assignedAt
         };
 
-        this.context.ProjectTaskAssignees.Add(assignee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.Add(assignee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskAssigneeByIdQuery(assigneeId);
 
@@ -115,8 +115,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.context.ProjectTaskAssignees.AddRange(assignee1, assignee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskAssigneeByIdQuery(assignee1Id);
 
@@ -146,8 +146,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             AssignedAt = assignedAt
         };
 
-        this.context.ProjectTaskAssignees.Add(assignee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTaskAssignees.Add(assignee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskAssigneeByIdQuery(assigneeId);
 

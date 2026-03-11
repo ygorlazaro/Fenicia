@@ -18,12 +18,12 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetInventoryByCategoryHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetInventoryByCategoryHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetInventoryByCategoryHandler handler;
     private readonly Faker faker;
 
@@ -54,7 +54,7 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
 
         var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
         var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
-        this.context.BasicProductCategories.AddRange(category1, category2);
+        this.db.BasicProductCategories.AddRange(category1, category2);
 
         var product1 = new ProductModel
         {
@@ -86,8 +86,8 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
             CategoryId = category2Id
         };
 
-        this.context.BasicProducts.AddRange(product1, product2, product3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.AddRange(product1, product2, product3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryByCategoryQuery(category1Id);
 
@@ -106,7 +106,7 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
         // Arrange
         var categoryId = Guid.NewGuid();
         var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         var product1 = new ProductModel
         {
@@ -128,8 +128,8 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
             CategoryId = categoryId
         };
 
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryByCategoryQuery(categoryId);
 
@@ -149,7 +149,7 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
         // Arrange
         var categoryId = Guid.NewGuid();
         var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
@@ -162,10 +162,10 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
                 Quantity = 100,
                 CategoryId = categoryId
             };
-            this.context.BasicProducts.Add(product);
+            this.db.BasicProducts.Add(product);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryByCategoryQuery(categoryId, 2);
 
@@ -179,6 +179,6 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

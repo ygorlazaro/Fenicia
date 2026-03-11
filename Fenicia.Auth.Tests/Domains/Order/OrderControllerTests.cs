@@ -26,7 +26,7 @@ namespace Fenicia.Auth.Tests.Domains.Order;
 public class OrderControllerTests : IDisposable
 {
     private readonly OrderController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testUserId;
     private readonly Guid testCompanyId;
@@ -38,10 +38,10 @@ public class OrderControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.testCompanyId = Guid.NewGuid();
-        var createNewOrderHandler = new CreateNewOrderHandler(this.context);
+        var createNewOrderHandler = new CreateNewOrderHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new OrderController(createNewOrderHandler)
@@ -58,7 +58,7 @@ public class OrderControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -128,10 +128,10 @@ public class OrderControllerTests : IDisposable
             CompanyId = this.testCompanyId
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { Guid.NewGuid() };
         var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
@@ -186,11 +186,11 @@ public class OrderControllerTests : IDisposable
             CompanyId = this.testCompanyId
         };
 
-        this.context.AuthModules.Add(module);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { moduleId };
         var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
@@ -219,7 +219,7 @@ public class OrderControllerTests : IDisposable
 
         // Verify order was created
         var createdOrder =
-            await this.context.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
+            await this.db.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
         Assert.NotNull(createdOrder);
         
         Assert.Equal(this.testUserId, createdOrder.UserId);
@@ -266,11 +266,11 @@ public class OrderControllerTests : IDisposable
             CompanyId = this.testCompanyId
         };
 
-        this.context.AuthModules.Add(module);
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { moduleId };
         var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);

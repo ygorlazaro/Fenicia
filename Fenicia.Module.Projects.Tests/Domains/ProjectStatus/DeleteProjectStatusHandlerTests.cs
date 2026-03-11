@@ -18,19 +18,19 @@ public class DeleteProjectStatusHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new DeleteProjectStatusHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new DeleteProjectStatusHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly DeleteProjectStatusHandler handler;
     private readonly Faker faker;
 
@@ -50,8 +50,8 @@ public class DeleteProjectStatusHandlerTests : IDisposable
             IsFinal = false
         };
 
-        this.context.ProjectStatuses.Add(status);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.Add(status);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectStatusCommand(statusId);
         var beforeDelete = DateTime.UtcNow;
@@ -60,7 +60,7 @@ public class DeleteProjectStatusHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedStatus = await this.context.ProjectStatuses.FindAsync([statusId], CancellationToken.None);
+        var deletedStatus = await this.db.ProjectStatuses.FindAsync([statusId], CancellationToken.None);
         Assert.NotNull(deletedStatus);
         Assert.NotNull(deletedStatus.Deleted);
         Assert.InRange(deletedStatus.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
@@ -76,7 +76,7 @@ public class DeleteProjectStatusHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var statuses = await this.context.ProjectStatuses.ToListAsync();
+        var statuses = await this.db.ProjectStatuses.ToListAsync();
         Assert.Empty(statuses);
     }
 
@@ -90,7 +90,7 @@ public class DeleteProjectStatusHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var statuses = await this.context.ProjectStatuses.ToListAsync();
+        var statuses = await this.db.ProjectStatuses.ToListAsync();
         Assert.Empty(statuses);
     }
 
@@ -122,8 +122,8 @@ public class DeleteProjectStatusHandlerTests : IDisposable
             IsFinal = true
         };
 
-        this.context.ProjectStatuses.AddRange(status1, status2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.AddRange(status1, status2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectStatusCommand(status1Id);
 
@@ -131,8 +131,8 @@ public class DeleteProjectStatusHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedStatus = await this.context.ProjectStatuses.FindAsync([status1Id], CancellationToken.None);
-        var notDeletedStatus = await this.context.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
+        var deletedStatus = await this.db.ProjectStatuses.FindAsync([status1Id], CancellationToken.None);
+        var notDeletedStatus = await this.db.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
 
         Assert.NotNull(deletedStatus);
         Assert.NotNull(deletedStatus.Deleted);
@@ -179,8 +179,8 @@ public class DeleteProjectStatusHandlerTests : IDisposable
             IsFinal = false
         };
 
-        this.context.ProjectStatuses.AddRange(status1, status2, status3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.AddRange(status1, status2, status3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectStatusCommand(status2Id);
 
@@ -188,9 +188,9 @@ public class DeleteProjectStatusHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var status1InDb = await this.context.ProjectStatuses.FindAsync([status1Id], CancellationToken.None);
-        var deletedStatus = await this.context.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
-        var status3InDb = await this.context.ProjectStatuses.FindAsync([status3Id], CancellationToken.None);
+        var status1InDb = await this.db.ProjectStatuses.FindAsync([status1Id], CancellationToken.None);
+        var deletedStatus = await this.db.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
+        var status3InDb = await this.db.ProjectStatuses.FindAsync([status3Id], CancellationToken.None);
 
         Assert.NotNull(status1InDb);
         Assert.NotNull(deletedStatus);

@@ -17,12 +17,12 @@ public class AddSupplierHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new AddSupplierHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new AddSupplierHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly AddSupplierHandler handler;
     private readonly Faker faker;
 
@@ -77,7 +77,7 @@ public class AddSupplierHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var supplier = await this.context.BasicSuppliers
+        var supplier = await this.db.BasicSuppliers
             .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 
@@ -114,6 +114,6 @@ public class AddSupplierHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

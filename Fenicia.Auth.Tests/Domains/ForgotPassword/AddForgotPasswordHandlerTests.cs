@@ -19,18 +19,18 @@ public class AddForgotPasswordHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new AddForgotPasswordHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new AddForgotPasswordHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly AddForgotPasswordHandler handler;
     private readonly Faker faker;
 
@@ -49,8 +49,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddForgotPasswordCommand(email);
 
@@ -58,7 +58,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var forgotPassword = await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
+        var forgotPassword = await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
         Assert.NotNull(forgotPassword);
         Assert.Equal(6, forgotPassword.Code.Length);
         Assert.True(forgotPassword.IsActive);
@@ -96,8 +96,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddForgotPasswordCommand(upperCaseEmail);
 
@@ -133,8 +133,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.AddRange(user1, user2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.AddRange(user1, user2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddForgotPasswordCommand(email1);
 
@@ -142,13 +142,13 @@ public class AddForgotPasswordHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var forgotPassword = await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId1);
+        var forgotPassword = await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId1);
         Assert.NotNull(forgotPassword);
         Assert.Equal(userId1, forgotPassword.UserId);
         Assert.Equal(6, forgotPassword.Code.Length);
 
         var forgotPasswordForUser2 =
-            await this.context.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId2);
+            await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId2);
         Assert.Null(forgotPasswordForUser2);
     }
 
@@ -167,8 +167,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddForgotPasswordCommand(email);
 
@@ -177,7 +177,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var codes = await this.context.AuthForgottenPasswords.Where(fp => fp.UserId == userId).ToListAsync();
+        var codes = await this.db.AuthForgottenPasswords.Where(fp => fp.UserId == userId).ToListAsync();
         Assert.Equal(2, codes.Count);
         Assert.True(codes.All(c => c.IsActive));
         Assert.True(codes.All(c => c.Code.Length == 6));
@@ -222,8 +222,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.AddRange(user1, user2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.AddRange(user1, user2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command1 = new AddForgotPasswordCommand(email1);
         var command2 = new AddForgotPasswordCommand(email2);
@@ -233,7 +233,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var codes = await this.context.AuthForgottenPasswords.ToListAsync();
+        var codes = await this.db.AuthForgottenPasswords.ToListAsync();
         var distinctCodes = codes.Select(c => c.Code).Distinct().ToList();
         Assert.Equal(2, distinctCodes.Count);
     }

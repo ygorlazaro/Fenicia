@@ -19,12 +19,12 @@ public class GetAllEmployeeHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllEmployeeHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllEmployeeHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllEmployeeHandler handler;
     private readonly Faker faker;
 
@@ -51,7 +51,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var state = new StateModel
         {
@@ -59,7 +59,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var employee1 = new EmployeeModel
         {
@@ -103,8 +103,8 @@ public class GetAllEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.AddRange(employee1, employee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.AddRange(employee1, employee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllEmployeeQuery();
 
@@ -136,7 +136,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var state = new StateModel
         {
@@ -144,7 +144,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -168,10 +168,10 @@ public class GetAllEmployeeHandlerTests : IDisposable
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
-            this.context.BasicEmployees.Add(employee);
+            this.db.BasicEmployees.Add(employee);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllEmployeeQuery(2);
 
@@ -192,7 +192,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var state = new StateModel
         {
@@ -200,7 +200,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 5; i++)
         {
@@ -224,10 +224,10 @@ public class GetAllEmployeeHandlerTests : IDisposable
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
-            this.context.BasicEmployees.Add(employee);
+            this.db.BasicEmployees.Add(employee);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllEmployeeQuery(10);
 
@@ -248,7 +248,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var state = new StateModel
         {
@@ -256,7 +256,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -280,10 +280,10 @@ public class GetAllEmployeeHandlerTests : IDisposable
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
-            this.context.BasicEmployees.Add(employee);
+            this.db.BasicEmployees.Add(employee);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllEmployeeQuery();
 
@@ -304,7 +304,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var state = new StateModel
         {
@@ -312,7 +312,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var employee = new EmployeeModel
         {
@@ -335,8 +335,8 @@ public class GetAllEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllEmployeeQuery();
 
@@ -355,7 +355,7 @@ public class GetAllEmployeeHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

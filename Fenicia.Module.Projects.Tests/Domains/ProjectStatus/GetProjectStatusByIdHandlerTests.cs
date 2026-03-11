@@ -18,19 +18,19 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectStatusByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetProjectStatusByIdHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetProjectStatusByIdHandler handler;
     private readonly Faker faker;
 
@@ -50,8 +50,8 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
             IsFinal = false
         };
 
-        this.context.ProjectStatuses.Add(status);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.Add(status);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectStatusByIdQuery(statusId);
 
@@ -118,8 +118,8 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
             IsFinal = true
         };
 
-        this.context.ProjectStatuses.AddRange(status1, status2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.AddRange(status1, status2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectStatusByIdQuery(status1Id);
 
@@ -148,8 +148,8 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
             IsFinal = true
         };
 
-        this.context.ProjectStatuses.Add(status);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.Add(status);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectStatusByIdQuery(statusId);
 

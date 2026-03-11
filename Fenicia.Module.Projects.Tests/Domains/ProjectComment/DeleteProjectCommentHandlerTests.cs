@@ -18,19 +18,19 @@ public class DeleteProjectCommentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new DeleteProjectCommentHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new DeleteProjectCommentHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly DeleteProjectCommentHandler handler;
     private readonly Faker faker;
 
@@ -49,8 +49,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.Add(comment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.Add(comment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectCommentCommand(commentId);
         var beforeDelete = DateTime.UtcNow;
@@ -59,7 +59,7 @@ public class DeleteProjectCommentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedComment = await this.context.ProjectComments.FindAsync([commentId], CancellationToken.None);
+        var deletedComment = await this.db.ProjectComments.FindAsync([commentId], CancellationToken.None);
         Assert.NotNull(deletedComment);
         Assert.NotNull(deletedComment.Deleted);
         Assert.InRange(deletedComment.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
@@ -75,7 +75,7 @@ public class DeleteProjectCommentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var comments = await this.context.ProjectComments.ToListAsync();
+        var comments = await this.db.ProjectComments.ToListAsync();
         Assert.Empty(comments);
     }
 
@@ -89,7 +89,7 @@ public class DeleteProjectCommentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var comments = await this.context.ProjectComments.ToListAsync();
+        var comments = await this.db.ProjectComments.ToListAsync();
         Assert.Empty(comments);
     }
 
@@ -118,8 +118,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.AddRange(comment1, comment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.AddRange(comment1, comment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectCommentCommand(comment1Id);
 
@@ -127,8 +127,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedComment = await this.context.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
-        var notDeletedComment = await this.context.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
+        var deletedComment = await this.db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
+        var notDeletedComment = await this.db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
 
         Assert.NotNull(deletedComment);
         Assert.NotNull(deletedComment.Deleted);
@@ -170,8 +170,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.AddRange(comment1, comment2, comment3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.AddRange(comment1, comment2, comment3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectCommentCommand(comment2Id);
 
@@ -179,9 +179,9 @@ public class DeleteProjectCommentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var comment1InDb = await this.context.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
-        var deletedComment = await this.context.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
-        var comment3InDb = await this.context.ProjectComments.FindAsync([comment3Id], CancellationToken.None);
+        var comment1InDb = await this.db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
+        var deletedComment = await this.db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
+        var comment3InDb = await this.db.ProjectComments.FindAsync([comment3Id], CancellationToken.None);
 
         Assert.NotNull(comment1InDb);
         Assert.NotNull(deletedComment);

@@ -18,19 +18,19 @@ public class GetAllProjectHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllProjectHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllProjectHandler handler;
     private readonly Faker faker;
 
@@ -74,8 +74,8 @@ public class GetAllProjectHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.context.Projects.AddRange(project1, project2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.Projects.AddRange(project1, project2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectQuery();
 
@@ -105,10 +105,10 @@ public class GetAllProjectHandlerTests : IDisposable
                 EndDate = null,
                 Owner = Guid.NewGuid()
             };
-            this.context.Projects.Add(project);
+            this.db.Projects.Add(project);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectQuery(2);
 
@@ -136,10 +136,10 @@ public class GetAllProjectHandlerTests : IDisposable
                 EndDate = null,
                 Owner = Guid.NewGuid()
             };
-            this.context.Projects.Add(project);
+            this.db.Projects.Add(project);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectQuery(10);
 
@@ -167,10 +167,10 @@ public class GetAllProjectHandlerTests : IDisposable
                 EndDate = null,
                 Owner = Guid.NewGuid()
             };
-            this.context.Projects.Add(project);
+            this.db.Projects.Add(project);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectQuery();
 

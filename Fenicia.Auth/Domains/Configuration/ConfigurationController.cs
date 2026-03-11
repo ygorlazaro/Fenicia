@@ -1,7 +1,9 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Configuration.GetConfiguration;
-using Fenicia.Auth.Domains.Configuration.UpsertConfiguration;
+using Fenicia.Auth.Domains.Configuration.Commands;
+using Fenicia.Auth.Domains.Configuration.Handlers;
+using Fenicia.Auth.Domains.Configuration.Queries;
+using Fenicia.Auth.Domains.Configuration.Responses;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;
@@ -18,9 +20,6 @@ public class ConfigurationController(
     GetConfigurationHandler getConfigurationHandler,
     UpsertConfigurationHandler upsertConfigurationHandler) : ControllerBase
 {
-    /// <summary>
-    /// Get all configurations for the current user
-    /// </summary>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync(
@@ -37,9 +36,6 @@ public class ConfigurationController(
         return Ok(result);
     }
 
-    /// <summary>
-    /// Create or update a configuration (upsert)
-    /// </summary>
     [HttpPatch]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

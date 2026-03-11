@@ -16,17 +16,17 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetOrderDetailsByOrderIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetOrderDetailsByOrderIdHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetOrderDetailsByOrderIdHandler handler;
 
     [Fact]
@@ -78,8 +78,8 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             Quantity = 2
         };
 
-        this.context.BasicOrderDetails.AddRange(detail1, detail2, detail3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicOrderDetails.AddRange(detail1, detail2, detail3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetOrderDetailsByOrderIdQuery(order1Id);
 
@@ -106,8 +106,8 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             Quantity = 10
         };
 
-        this.context.BasicOrderDetails.Add(detail);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicOrderDetails.Add(detail);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetOrderDetailsByOrderIdQuery(orderId);
 

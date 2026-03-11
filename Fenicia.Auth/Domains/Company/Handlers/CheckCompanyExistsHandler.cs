@@ -1,6 +1,7 @@
+using Fenicia.Auth.Domains.Company.Queries;
 using Fenicia.Common.Data.Contexts;
 
-namespace Fenicia.Auth.Domains.Company.CheckCompanyExists;
+namespace Fenicia.Auth.Domains.Company.Handlers;
 
 public class CheckCompanyExistsHandler(DefaultContext db)
 {

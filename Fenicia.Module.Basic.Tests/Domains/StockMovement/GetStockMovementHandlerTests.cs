@@ -17,12 +17,12 @@ public class GetStockMovementHandlerTests : IDisposable
             .Options;
 
         this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
-        this.handler = new GetStockMovementHandler(this.context);
+        this.db = new DefaultContext(options, this.companyContext);
+        this.handler = new GetStockMovementHandler(this.db);
     }
 
     private readonly TestCompanyContext companyContext;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetStockMovementHandler handler;
 
     [Fact]
@@ -54,7 +54,7 @@ public class GetStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.BasicProducts.Add(product);
+        this.db.BasicProducts.Add(product);
 
         var movement1 = new StockMovementModel
         {
@@ -89,8 +89,8 @@ public class GetStockMovementHandlerTests : IDisposable
             Reason = null
         };
 
-        this.context.BasicStockMovements.AddRange(movement1, movement2, movement3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicStockMovements.AddRange(movement1, movement2, movement3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var startDate = DateTime.Now.AddDays(-10);
         var endDate = DateTime.Now;
@@ -118,7 +118,7 @@ public class GetStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.BasicProducts.Add(product);
+        this.db.BasicProducts.Add(product);
 
         for (var i = 0; i < 25; i++)
         {
@@ -131,10 +131,10 @@ public class GetStockMovementHandlerTests : IDisposable
                 Type = StockMovementType.In,
                 ProductId = product.Id
             };
-            this.context.BasicStockMovements.Add(movement);
+            this.db.BasicStockMovements.Add(movement);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var startDate = DateTime.Now.AddDays(-30);
         var endDate = DateTime.Now;
@@ -161,7 +161,7 @@ public class GetStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.context.BasicProducts.Add(product);
+        this.db.BasicProducts.Add(product);
 
         for (var i = 0; i < 5; i++)
         {
@@ -174,10 +174,10 @@ public class GetStockMovementHandlerTests : IDisposable
                 Type = StockMovementType.In,
                 ProductId = product.Id
             };
-            this.context.BasicStockMovements.Add(movement);
+            this.db.BasicStockMovements.Add(movement);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var startDate = DateTime.Now.AddDays(-30);
         var endDate = DateTime.Now;
@@ -193,6 +193,6 @@ public class GetStockMovementHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

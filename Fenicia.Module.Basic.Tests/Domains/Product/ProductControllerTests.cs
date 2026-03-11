@@ -33,14 +33,14 @@ public class ProductControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProductId = Guid.NewGuid();
-        var getAllProductHandler = new GetAllProductHandler(this.context);
-        var getProductByIdHandler = new GetProductByIdHandler(this.context);
-        var addProductHandler = new AddProductHandler(this.context);
-        var updateProductHandler = new UpdateProductHandler(this.context);
-        var deleteProductHandler = new DeleteProductHandler(this.context);
-        var getProductPerformanceHandler = new GetProductPerformanceHandler(this.context);
+        var getAllProductHandler = new GetAllProductHandler(this.db);
+        var getProductByIdHandler = new GetProductByIdHandler(this.db);
+        var addProductHandler = new AddProductHandler(this.db);
+        var updateProductHandler = new UpdateProductHandler(this.db);
+        var deleteProductHandler = new DeleteProductHandler(this.db);
+        var getProductPerformanceHandler = new GetProductPerformanceHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProductController(
@@ -62,7 +62,7 @@ public class ProductControllerTests : IDisposable
     }
 
     private readonly ProductController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testProductId;
     private readonly Faker faker;
@@ -135,9 +135,9 @@ public class ProductControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var page = 1;
         var perPage = 10;
@@ -179,9 +179,9 @@ public class ProductControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -228,8 +228,8 @@ public class ProductControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.BasicProductCategories.Add(category);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddProductCommand(
             category.Id,
@@ -281,9 +281,9 @@ public class ProductControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProductCategories.Add(category);
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCommand(
             product.Id,
@@ -323,8 +323,8 @@ public class ProductControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.context.BasicProductCategories.Add(category);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProductCategories.Add(category);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCommand(
             nonExistentId,
@@ -360,8 +360,8 @@ public class ProductControllerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -373,7 +373,7 @@ public class ProductControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify product was deleted
-        var deletedProduct = await this.context.BasicProducts.FirstOrDefaultAsync(x => x.Id == this.testProductId && x.Deleted == null, ct);
+        var deletedProduct = await this.db.BasicProducts.FirstOrDefaultAsync(x => x.Id == this.testProductId && x.Deleted == null, ct);
         Assert.Null(deletedProduct);
     }
 
@@ -436,6 +436,6 @@ public class ProductControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

@@ -18,18 +18,18 @@ public class DeleteCustomerHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new DeleteCustomerHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new DeleteCustomerHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly DeleteCustomerHandler handler;
     private readonly Faker faker;
 
@@ -56,8 +56,8 @@ public class DeleteCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteCustomerCommand(customerId);
         var beforeDelete = DateTime.Now;
@@ -66,7 +66,7 @@ public class DeleteCustomerHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedCustomer = await this.context.BasicCustomers.FindAsync([customerId], CancellationToken.None);
+        var deletedCustomer = await this.db.BasicCustomers.FindAsync([customerId], CancellationToken.None);
         Assert.NotNull(deletedCustomer);
         Assert.NotNull(deletedCustomer.Deleted);
         Assert.InRange(deletedCustomer.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.Now.AddSeconds(1));
@@ -82,7 +82,7 @@ public class DeleteCustomerHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var customers = await this.context.BasicCustomers.ToListAsync();
+        var customers = await this.db.BasicCustomers.ToListAsync();
         Assert.Empty(customers);
     }
 
@@ -129,8 +129,8 @@ public class DeleteCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.AddRange(customer1, customer2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.AddRange(customer1, customer2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteCustomerCommand(customer1Id);
 
@@ -138,8 +138,8 @@ public class DeleteCustomerHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedCustomer = await this.context.BasicCustomers.FindAsync([customer1Id], CancellationToken.None);
-        var notDeletedCustomer = await this.context.BasicCustomers.FindAsync([customer2Id], CancellationToken.None);
+        var deletedCustomer = await this.db.BasicCustomers.FindAsync([customer1Id], CancellationToken.None);
+        var notDeletedCustomer = await this.db.BasicCustomers.FindAsync([customer2Id], CancellationToken.None);
 
         Assert.NotNull(deletedCustomer);
         Assert.NotNull(deletedCustomer.Deleted);
@@ -157,7 +157,7 @@ public class DeleteCustomerHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var customers = await this.context.BasicCustomers.ToListAsync();
+        var customers = await this.db.BasicCustomers.ToListAsync();
         Assert.Empty(customers);
     }
 }

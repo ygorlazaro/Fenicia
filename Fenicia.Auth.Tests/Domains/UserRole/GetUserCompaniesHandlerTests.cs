@@ -9,7 +9,7 @@ namespace Fenicia.Auth.Tests.Domains.UserRole;
 
 public class GetUserCompaniesHandlerTests : IDisposable
 {
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetUserCompaniesHandler handler;
 
     public GetUserCompaniesHandlerTests()
@@ -18,13 +18,13 @@ public class GetUserCompaniesHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetUserCompaniesHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new GetUserCompaniesHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -59,10 +59,10 @@ public class GetUserCompaniesHandlerTests : IDisposable
             RoleId = roleId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(userId, CancellationToken.None);
@@ -119,10 +119,10 @@ public class GetUserCompaniesHandlerTests : IDisposable
             RoleId = roleId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(userId, CancellationToken.None);
@@ -151,7 +151,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Id = roleId,
             Name = "Admin"
         };
-        this.context.AuthRoles.Add(role);
+        this.db.AuthRoles.Add(role);
 
         var companies = new List<CompanyModel>();
         var userRoles = new List<UserRoleModel>();
@@ -177,9 +177,9 @@ public class GetUserCompaniesHandlerTests : IDisposable
             userRoles.Add(userRole);
         }
 
-        this.context.AuthCompanies.AddRange(companies);
-        this.context.AuthUserRoles.AddRange(userRoles);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.AddRange(companies);
+        this.db.AuthUserRoles.AddRange(userRoles);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(userId, CancellationToken.None);
@@ -202,7 +202,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Id = roleId,
             Name = "Admin"
         };
-        this.context.AuthRoles.Add(role);
+        this.db.AuthRoles.Add(role);
 
         var company1 = new CompanyModel
         {
@@ -220,7 +220,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.context.AuthCompanies.AddRange(company1, company2);
+        this.db.AuthCompanies.AddRange(company1, company2);
 
         var userRole1 = new UserRoleModel
         {
@@ -238,8 +238,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
             RoleId = roleId
         };
 
-        this.context.AuthUserRoles.AddRange(userRole1, userRole2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result1 = await this.handler.Handle(userId1, CancellationToken.None);
@@ -285,7 +285,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Name = "User"
         };
 
-        this.context.AuthRoles.AddRange(adminRole, userRole);
+        this.db.AuthRoles.AddRange(adminRole, userRole);
 
         var company1 = new CompanyModel
         {
@@ -303,7 +303,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.context.AuthCompanies.AddRange(company1, company2);
+        this.db.AuthCompanies.AddRange(company1, company2);
 
         var userRole1 = new UserRoleModel
         {
@@ -321,8 +321,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
             RoleId = userRole.Id
         };
 
-        this.context.AuthUserRoles.AddRange(userRole1, userRole2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(userId, CancellationToken.None);
@@ -365,10 +365,10 @@ public class GetUserCompaniesHandlerTests : IDisposable
             RoleId = roleId
         };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(userId, CancellationToken.None);

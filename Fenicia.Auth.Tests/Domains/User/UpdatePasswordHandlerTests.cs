@@ -14,7 +14,7 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class UpdatePasswordHandlerTests : IDisposable
 {
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdatePasswordHandler handler;
     private readonly Faker faker;
 
@@ -24,14 +24,14 @@ public class UpdatePasswordHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new UpdatePasswordHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new UpdatePasswordHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -52,8 +52,8 @@ public class UpdatePasswordHandlerTests : IDisposable
             Password = oldPassword
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
@@ -67,7 +67,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         Assert.Equal(user.Name, result.Name);
         Assert.Equal(user.Email, result.Email);
 
-        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
+        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
         Assert.NotEqual(oldPassword, updatedUser.Password);
     }
@@ -101,8 +101,8 @@ public class UpdatePasswordHandlerTests : IDisposable
             Password = "old_password"
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
@@ -110,7 +110,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
+        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
         
         Assert.NotEqual(newPassword, updatedUser.Password);
@@ -132,8 +132,8 @@ public class UpdatePasswordHandlerTests : IDisposable
             Password = "old_password"
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
@@ -141,7 +141,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
+        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
 
         var verifyHandler = new VerifyPasswordService();
@@ -175,8 +175,8 @@ public class UpdatePasswordHandlerTests : IDisposable
             Password = oldPassword2
         };
 
-        this.context.AuthUsers.AddRange(user1, user2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.AddRange(user1, user2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId1, newPassword);
 
@@ -184,8 +184,8 @@ public class UpdatePasswordHandlerTests : IDisposable
         await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser1 = await this.context.AuthUsers.FindAsync(userId1);
-        var updatedUser2 = await this.context.AuthUsers.FindAsync(userId2);
+        var updatedUser1 = await this.db.AuthUsers.FindAsync(userId1);
+        var updatedUser2 = await this.db.AuthUsers.FindAsync(userId2);
         
         Assert.NotEqual(oldPassword1, updatedUser1!.Password);
         Assert.Equal(oldPassword2, updatedUser2!.Password);
@@ -208,8 +208,8 @@ public class UpdatePasswordHandlerTests : IDisposable
             Password = "old_password"
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
@@ -217,7 +217,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
+        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
         
         Assert.Equal(email, updatedUser.Email);
@@ -254,8 +254,8 @@ public class UpdatePasswordHandlerTests : IDisposable
             Password = "old_password"
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
@@ -282,8 +282,8 @@ public class UpdatePasswordHandlerTests : IDisposable
             Password = "old_password"
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 

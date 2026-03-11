@@ -18,19 +18,19 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new DeleteProjectAttachmentHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new DeleteProjectAttachmentHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly DeleteProjectAttachmentHandler handler;
     private readonly Faker faker;
 
@@ -51,8 +51,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             ContentType = "application/pdf",
         };
 
-        this.context.ProjectAttachments.Add(attachment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.Add(attachment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectAttachmentCommand(attachmentId);
         var beforeDelete = DateTime.UtcNow;
@@ -61,7 +61,7 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedAttachment = await this.context.ProjectAttachments.FindAsync([attachmentId], CancellationToken.None);
+        var deletedAttachment = await this.db.ProjectAttachments.FindAsync([attachmentId], CancellationToken.None);
         Assert.NotNull(deletedAttachment);
         Assert.NotNull(deletedAttachment.Deleted);
         Assert.InRange(deletedAttachment.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
@@ -77,7 +77,7 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var attachments = await this.context.ProjectAttachments.ToListAsync();
+        var attachments = await this.db.ProjectAttachments.ToListAsync();
         Assert.Empty(attachments);
     }
 
@@ -91,7 +91,7 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var attachments = await this.context.ProjectAttachments.ToListAsync();
+        var attachments = await this.db.ProjectAttachments.ToListAsync();
         Assert.Empty(attachments);
     }
 
@@ -125,8 +125,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.AddRange(attachment1, attachment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.AddRange(attachment1, attachment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectAttachmentCommand(attachment1Id);
 
@@ -134,8 +134,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedAttachment = await this.context.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
-        var notDeletedAttachment = await this.context.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
+        var deletedAttachment = await this.db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
+        var notDeletedAttachment = await this.db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
 
         Assert.NotNull(deletedAttachment);
         Assert.NotNull(deletedAttachment.Deleted);
@@ -185,8 +185,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.context.ProjectAttachments.AddRange(attachment1, attachment2, attachment3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectAttachments.AddRange(attachment1, attachment2, attachment3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectAttachmentCommand(attachment2Id);
 
@@ -194,9 +194,9 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var attachment1InDb = await this.context.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
-        var deletedAttachment = await this.context.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
-        var attachment3InDb = await this.context.ProjectAttachments.FindAsync([attachment3Id], CancellationToken.None);
+        var attachment1InDb = await this.db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
+        var deletedAttachment = await this.db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
+        var attachment3InDb = await this.db.ProjectAttachments.FindAsync([attachment3Id], CancellationToken.None);
 
         Assert.NotNull(attachment1InDb);
         Assert.NotNull(deletedAttachment);

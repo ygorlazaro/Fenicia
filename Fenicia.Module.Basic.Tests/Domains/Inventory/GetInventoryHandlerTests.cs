@@ -18,12 +18,12 @@ public class GetInventoryHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetInventoryHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetInventoryHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetInventoryHandler handler;
     private readonly Faker faker;
 
@@ -49,7 +49,7 @@ public class GetInventoryHandlerTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         var product1 = new ProductModel
         {
@@ -71,8 +71,8 @@ public class GetInventoryHandlerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryQuery();
 
@@ -92,7 +92,7 @@ public class GetInventoryHandlerTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
@@ -105,10 +105,10 @@ public class GetInventoryHandlerTests : IDisposable
                 Quantity = 100,
                 CategoryId = category.Id
             };
-            this.context.BasicProducts.Add(product);
+            this.db.BasicProducts.Add(product);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryQuery(2);
 
@@ -125,7 +125,7 @@ public class GetInventoryHandlerTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         var product1 = new ProductModel
         {
@@ -157,8 +157,8 @@ public class GetInventoryHandlerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProducts.AddRange(product1, product2, product3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.AddRange(product1, product2, product3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryQuery();
 
@@ -176,7 +176,7 @@ public class GetInventoryHandlerTests : IDisposable
     {
         // Arrange
         var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.context.BasicProductCategories.Add(category);
+        this.db.BasicProductCategories.Add(category);
 
         var product = new ProductModel
         {
@@ -188,8 +188,8 @@ public class GetInventoryHandlerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryQuery();
 
@@ -204,6 +204,6 @@ public class GetInventoryHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

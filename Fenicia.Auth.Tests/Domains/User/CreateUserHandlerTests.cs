@@ -20,14 +20,14 @@ public class CreateUserHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         
-        this.handler = new CreateUserHandler(this.context);
+        this.handler = new CreateUserHandler(this.db);
         this.faker = new Faker();
     }
 
     private readonly CreateUserHandler handler;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Faker faker;
 
     [Fact]
@@ -50,7 +50,7 @@ public class CreateUserHandlerTests : IDisposable
         Assert.NotEqual(Guid.Empty, result.Id);
 
         // Verify user was saved to database
-        var user = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
         Assert.Equal(email, user.Email);
         Assert.Equal(name, user.Name);
@@ -72,8 +72,8 @@ public class CreateUserHandlerTests : IDisposable
             Name = name
         };
 
-        this.context.AuthUsers.Add(existingUser);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(existingUser);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var request = new CreateUserCommand(email, password, "Another " + name);
 
@@ -100,9 +100,9 @@ public class CreateUserHandlerTests : IDisposable
         };
         var role = new RoleModel { Name = "Admin" };
 
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthRoles.Add(role);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        this.db.AuthRoles.Add(role);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<CreateUserRoleCommand>
         {
@@ -118,7 +118,7 @@ public class CreateUserHandlerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify user role was saved to database
-        var userRole = await this.context.AuthUserRoles
+        var userRole = await this.db.AuthUserRoles
             .FirstOrDefaultAsync(ur => ur.UserId == result.Id);
 
         Assert.NotNull(userRole);
@@ -135,8 +135,8 @@ public class CreateUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
 
         var role = new RoleModel { Name = "Admin" };
-        this.context.AuthRoles.Add(role);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthRoles.Add(role);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<CreateUserRoleCommand>
         {
@@ -165,8 +165,8 @@ public class CreateUserHandlerTests : IDisposable
             Name = this.faker.Company.CompanyName(),
             Cnpj =string.Empty
         };
-        this.context.AuthCompanies.Add(company);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(company);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<CreateUserRoleCommand>
         {
@@ -196,7 +196,7 @@ public class CreateUserHandlerTests : IDisposable
         await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var user = this.context.AuthUsers.Local.FirstOrDefault(u => u.Email == email);
+        var user = this.db.AuthUsers.Local.FirstOrDefault(u => u.Email == email);
         Assert.NotNull(user);
         Assert.NotEqual(password, user.Password); // Password should be hashed
         Assert.StartsWith("$2", user.Password); // BCrypt hashes start with $2
@@ -204,7 +204,7 @@ public class CreateUserHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

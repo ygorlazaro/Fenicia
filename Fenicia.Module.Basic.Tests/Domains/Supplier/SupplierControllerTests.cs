@@ -35,14 +35,14 @@ public class SupplierControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testSupplierId = Guid.NewGuid();
-        var getAllSupplierHandler = new GetAllSupplierHandler(this.context);
-        var getSupplierByIdHandler = new GetSupplierByIdHandler(this.context);
-        var addSupplierHandler = new AddSupplierHandler(this.context);
-        var updateSupplierHandler = new UpdateSupplierHandler(this.context);
-        var deleteSupplierHandler = new DeleteSupplierHandler(this.context);
-        var getSupplierPerformanceHandler = new GetSupplierPerformanceHandler(this.context);
+        var getAllSupplierHandler = new GetAllSupplierHandler(this.db);
+        var getSupplierByIdHandler = new GetSupplierByIdHandler(this.db);
+        var addSupplierHandler = new AddSupplierHandler(this.db);
+        var updateSupplierHandler = new UpdateSupplierHandler(this.db);
+        var deleteSupplierHandler = new DeleteSupplierHandler(this.db);
+        var getSupplierPerformanceHandler = new GetSupplierPerformanceHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new SupplierController(
@@ -64,7 +64,7 @@ public class SupplierControllerTests : IDisposable
     }
 
     private readonly SupplierController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testSupplierId;
     private readonly Faker faker;
@@ -118,7 +118,7 @@ public class SupplierControllerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var supplier1 = new SupplierModel
         {
@@ -166,8 +166,8 @@ public class SupplierControllerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.AddRange(supplier1, supplier2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -204,7 +204,7 @@ public class SupplierControllerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var supplier = new SupplierModel
         {
@@ -229,8 +229,8 @@ public class SupplierControllerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.Add(supplier);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.Add(supplier);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -326,8 +326,8 @@ public class SupplierControllerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.Add(supplier);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.Add(supplier);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateSupplierCommand(
             this.testSupplierId,
@@ -410,8 +410,8 @@ public class SupplierControllerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.Add(supplier);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.Add(supplier);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -423,7 +423,7 @@ public class SupplierControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify supplier was deleted
-        var deletedSupplier = await this.context.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId && x.Deleted == null, ct);
+        var deletedSupplier = await this.db.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId && x.Deleted == null, ct);
         Assert.Null(deletedSupplier);
     }
 
@@ -486,7 +486,7 @@ public class SupplierControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

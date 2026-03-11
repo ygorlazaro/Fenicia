@@ -19,18 +19,18 @@ public class ResetPasswordHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new ResetPasswordHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new ResetPasswordHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly ResetPasswordHandler handler;
     private readonly Faker faker;
 
@@ -60,9 +60,9 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthForgottenPasswords.Add(forgotPassword);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthForgottenPasswords.Add(forgotPassword);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
@@ -70,11 +70,11 @@ public class ResetPasswordHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
+        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
         Assert.NotEqual("old_hashed_password", updatedUser.Password);
 
-        var updatedCode = await this.context.AuthForgottenPasswords.FindAsync(forgotPassword.Id);
+        var updatedCode = await this.db.AuthForgottenPasswords.FindAsync(forgotPassword.Id);
         Assert.NotNull(updatedCode);
         Assert.False(updatedCode.IsActive);
     }
@@ -123,9 +123,9 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthForgottenPasswords.Add(forgotPassword);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthForgottenPasswords.Add(forgotPassword);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, invalidCode);
 
@@ -162,9 +162,9 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthForgottenPasswords.Add(forgotPassword);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthForgottenPasswords.Add(forgotPassword);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
@@ -201,9 +201,9 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(-10)
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthForgottenPasswords.Add(forgotPassword);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthForgottenPasswords.Add(forgotPassword);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
@@ -250,9 +250,9 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.AuthUsers.AddRange(user1, user2);
-        this.context.AuthForgottenPasswords.Add(forgotPassword);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.AddRange(user1, user2);
+        this.db.AuthForgottenPasswords.Add(forgotPassword);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email2, newPassword, code);
 
@@ -289,9 +289,9 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthForgottenPasswords.Add(forgotPassword);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthForgottenPasswords.Add(forgotPassword);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
@@ -331,9 +331,9 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.context.AuthUsers.Add(user);
-        this.context.AuthForgottenPasswords.Add(forgotPassword);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        this.db.AuthForgottenPasswords.Add(forgotPassword);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
@@ -341,7 +341,7 @@ public class ResetPasswordHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.context.AuthUsers.FindAsync(userId);
+        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
         Assert.NotEqual("old_hashed_password", updatedUser.Password);
         Assert.NotEqual(newPassword, updatedUser.Password);

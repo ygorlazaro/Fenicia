@@ -11,7 +11,7 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class GetUserModuleHandlerTests : IDisposable
 {
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetUserModuleHandler handler;
 
     public GetUserModuleHandlerTests()
@@ -20,13 +20,13 @@ public class GetUserModuleHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetUserModuleHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new GetUserModuleHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -81,11 +81,11 @@ public class GetUserModuleHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.context.AuthModules.Add(module);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
@@ -168,11 +168,11 @@ public class GetUserModuleHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.context.AuthModules.Add(module);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
@@ -234,11 +234,11 @@ public class GetUserModuleHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.context.AuthModules.Add(module);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
@@ -300,11 +300,11 @@ public class GetUserModuleHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.context.AuthModules.Add(module);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
@@ -383,11 +383,11 @@ public class GetUserModuleHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.context.AuthModules.AddRange(module1, module2);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthSubscriptionCredits.AddRange(credit1, credit2);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.AddRange(module1, module2);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
@@ -448,11 +448,11 @@ public class GetUserModuleHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.context.AuthModules.Add(module);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
@@ -522,11 +522,11 @@ public class GetUserModuleHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.context.AuthModules.Add(module);
-        this.context.AuthSubscriptions.Add(subscription);
-        this.context.AuthSubscriptionCredits.AddRange(credit1, credit2);
-        this.context.AuthUserRoles.Add(userRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.Add(module);
+        this.db.AuthSubscriptions.Add(subscription);
+        this.db.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        this.db.AuthUserRoles.Add(userRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 

@@ -16,11 +16,11 @@ public class DeleteProductHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new DeleteProductHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new DeleteProductHandler(this.db);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly DeleteProductHandler handler;
 
     [Fact]
@@ -38,8 +38,8 @@ public class DeleteProductHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.BasicProducts.Add(product);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.Add(product);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProductCommand(productId);
         var beforeDelete = DateTime.Now;
@@ -48,7 +48,7 @@ public class DeleteProductHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedProduct = await this.context.BasicProducts.FindAsync([productId], CancellationToken.None);
+        var deletedProduct = await this.db.BasicProducts.FindAsync([productId], CancellationToken.None);
         Assert.NotNull(deletedProduct);
         Assert.NotNull(deletedProduct.Deleted);
         Assert.True(deletedProduct.Deleted >= beforeDelete.AddSeconds(-1));
@@ -65,7 +65,7 @@ public class DeleteProductHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var products = await this.context.BasicProducts.ToListAsync();
+        var products = await this.db.BasicProducts.ToListAsync();
         Assert.Empty(products);
     }
 
@@ -96,8 +96,8 @@ public class DeleteProductHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        this.context.BasicProducts.AddRange(product1, product2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicProducts.AddRange(product1, product2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProductCommand(product1Id);
 
@@ -105,8 +105,8 @@ public class DeleteProductHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedProduct = await this.context.BasicProducts.FindAsync([product1Id], CancellationToken.None);
-        var notDeletedProduct = await this.context.BasicProducts.FindAsync([product2Id], CancellationToken.None);
+        var deletedProduct = await this.db.BasicProducts.FindAsync([product1Id], CancellationToken.None);
+        var notDeletedProduct = await this.db.BasicProducts.FindAsync([product2Id], CancellationToken.None);
 
         Assert.NotNull(deletedProduct);
         Assert.NotNull(deletedProduct.Deleted);
@@ -124,12 +124,12 @@ public class DeleteProductHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var products = await this.context.BasicProducts.ToListAsync();
+        var products = await this.db.BasicProducts.ToListAsync();
         Assert.Empty(products);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

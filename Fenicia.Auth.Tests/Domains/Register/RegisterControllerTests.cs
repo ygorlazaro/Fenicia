@@ -25,8 +25,8 @@ public class RegisterControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        var createNewUserHandler = new CreateNewUserHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        var createNewUserHandler = new CreateNewUserHandler(this.db);
 
         var mockHttpContext = new Mock<HttpContext>();
 
@@ -44,18 +44,18 @@ public class RegisterControllerTests : IDisposable
     private void SeedAdminRole()
     {
         var adminRole = new RoleModel { Id = this.adminRoleId, Name = "Admin" };
-        this.context.AuthRoles.Add(adminRole); 
-        this.context.SaveChanges();
+        this.db.AuthRoles.Add(adminRole); 
+        this.db.SaveChanges();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private readonly RegisterController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Guid adminRoleId;
 
     [Fact]
@@ -69,8 +69,8 @@ public class RegisterControllerTests : IDisposable
         var query = new CreateNewUserCommand("existing@example.com", "password123", "Test User", companyQuery);
 
         var existingUser = new UserModel { Email = query.Email, Name = "Existing User", Password = "password" };
-        this.context.AuthUsers.Add(existingUser);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(existingUser);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -91,8 +91,8 @@ public class RegisterControllerTests : IDisposable
         var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
 
         var existingCompany = new CompanyModel { Cnpj = companyQuery.Cnpj, Name = "Existing Company" };
-        this.context.AuthCompanies.Add(existingCompany);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthCompanies.Add(existingCompany);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -112,9 +112,9 @@ public class RegisterControllerTests : IDisposable
         var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
 
-        var adminRole = this.context.AuthRoles.First();
-        this.context.AuthRoles.Remove(adminRole);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        var adminRole = this.db.AuthRoles.First();
+        this.db.AuthRoles.Remove(adminRole);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -156,18 +156,18 @@ public class RegisterControllerTests : IDisposable
         Assert.Equal(query.Email, wide.UserId);
 
         // Verify user was created
-        var createdUser = await this.context.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
+        var createdUser = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
         Assert.NotNull(createdUser);
         Assert.NotEqual(query.Password, createdUser.Password);
         Assert.StartsWith("$2a$", createdUser.Password);
 
         // Verify company was created
-        var createdCompany = await this.context.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
+        var createdCompany = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
         Assert.NotNull(createdCompany);
         Assert.Equal(companyQuery.Name, createdCompany.Name);
 
         // Verify user role was created
-        var userRole = await this.context.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
+        var userRole = await this.db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
         Assert.NotNull(userRole);
         Assert.Equal(this.adminRoleId, userRole.RoleId);
     }

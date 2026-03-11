@@ -16,11 +16,11 @@ public class UpdateSupplierHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateSupplierHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateSupplierHandler(this.db);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateSupplierHandler handler;
 
     [Fact]
@@ -41,8 +41,8 @@ public class UpdateSupplierHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.Add(supplier);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.Add(supplier);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateSupplierCommand(
             supplierId,
@@ -137,8 +137,8 @@ public class UpdateSupplierHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicSuppliers.Add(supplier);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicSuppliers.Add(supplier);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateSupplierCommand(
             supplierId,
@@ -159,7 +159,7 @@ public class UpdateSupplierHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedSupplier = await this.context.BasicSuppliers
+        var updatedSupplier = await this.db.BasicSuppliers
             .Include(s => s.Person)
             .FirstOrDefaultAsync(s => s.Id == supplierId);
 
@@ -170,6 +170,6 @@ public class UpdateSupplierHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
     }
 }

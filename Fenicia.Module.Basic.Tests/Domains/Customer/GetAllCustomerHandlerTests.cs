@@ -19,18 +19,18 @@ public class GetAllCustomerHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllCustomerHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllCustomerHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllCustomerHandler handler;
     private readonly Faker faker;
 
@@ -59,7 +59,7 @@ public class GetAllCustomerHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var customer1 = new CustomerModel
         {
@@ -101,8 +101,8 @@ public class GetAllCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.AddRange(customer1, customer2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.AddRange(customer1, customer2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery();
 
@@ -131,7 +131,7 @@ public class GetAllCustomerHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -154,10 +154,10 @@ public class GetAllCustomerHandlerTests : IDisposable
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
-            this.context.BasicCustomers.Add(customer);
+            this.db.BasicCustomers.Add(customer);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery(2);
 
@@ -180,7 +180,7 @@ public class GetAllCustomerHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 5; i++)
         {
@@ -203,10 +203,10 @@ public class GetAllCustomerHandlerTests : IDisposable
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
-            this.context.BasicCustomers.Add(customer);
+            this.db.BasicCustomers.Add(customer);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery(10);
 
@@ -229,7 +229,7 @@ public class GetAllCustomerHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -252,10 +252,10 @@ public class GetAllCustomerHandlerTests : IDisposable
                     PhoneNumber = this.faker.Phone.PhoneNumber()
                 }
             };
-            this.context.BasicCustomers.Add(customer);
+            this.db.BasicCustomers.Add(customer);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery();
 

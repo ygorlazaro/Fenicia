@@ -27,9 +27,9 @@ public class GenerateTokenHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GenerateTokenHandler(
-            this.context,
+            this.db,
             loginAttemptService,
             incrementAttemptsService,
             verifyPasswordService);
@@ -38,7 +38,7 @@ public class GenerateTokenHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         this.cache.Dispose();
         
         GC.SuppressFinalize(this);
@@ -46,7 +46,7 @@ public class GenerateTokenHandlerTests : IDisposable
 
     private readonly MemoryCache cache;
     private readonly GenerateTokenHandler handler;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Faker faker;
 
     [Fact]
@@ -94,8 +94,8 @@ public class GenerateTokenHandlerTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(query, CancellationToken.None);
@@ -124,8 +124,8 @@ public class GenerateTokenHandlerTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(correctPassword)
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
@@ -150,8 +150,8 @@ public class GenerateTokenHandlerTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         await Record.ExceptionAsync(async () => await this.handler.Handle(query, CancellationToken.None));
@@ -174,8 +174,8 @@ public class GenerateTokenHandlerTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(correctPassword)
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         _ = await Record.ExceptionAsync(async () =>
@@ -216,8 +216,8 @@ public class GenerateTokenHandlerTests : IDisposable
             Password = BCrypt.Net.BCrypt.HashPassword(password)
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>

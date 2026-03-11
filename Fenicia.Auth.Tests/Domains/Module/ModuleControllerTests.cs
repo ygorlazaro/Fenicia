@@ -27,8 +27,8 @@ public class ModuleControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        var getModulesHandler = new GetModulesHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        var getModulesHandler = new GetModulesHandler(this.db);
         var mockHttpContext = new Mock<HttpContext>();
         this.faker = new Faker();
 
@@ -43,13 +43,13 @@ public class ModuleControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
     private readonly ModuleController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Faker faker;
 
     [Fact]
@@ -100,8 +100,8 @@ public class ModuleControllerTests : IDisposable
             Price = 20.0m
         };
 
-        this.context.AuthModules.AddRange(module1, module2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.AddRange(module1, module2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
@@ -147,8 +147,8 @@ public class ModuleControllerTests : IDisposable
             Price = 10.0m
         };
 
-        this.context.AuthModules.AddRange(authModule, basicModule);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.AddRange(authModule, basicModule);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
@@ -207,8 +207,8 @@ public class ModuleControllerTests : IDisposable
             });
         }
 
-        this.context.AuthModules.AddRange(modules);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthModules.AddRange(modules);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(2, 10);
         var wide = new WideEventContext();

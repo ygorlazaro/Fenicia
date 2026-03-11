@@ -11,7 +11,7 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class GetByEmailHandlerTests : IDisposable
 {
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetByEmailHandler handler;
     private readonly Faker faker;
 
@@ -21,14 +21,14 @@ public class GetByEmailHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetByEmailHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new GetByEmailHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -50,8 +50,8 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(email, CancellationToken.None);
@@ -96,8 +96,8 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(upperCaseEmail, CancellationToken.None);
@@ -135,8 +135,8 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password2
         };
 
-        this.context.AuthUsers.AddRange(user1, user2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.AddRange(user1, user2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(email1, CancellationToken.None);
@@ -179,8 +179,8 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(emailWithSpaces, CancellationToken.None);
@@ -206,8 +206,8 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(email, CancellationToken.None);

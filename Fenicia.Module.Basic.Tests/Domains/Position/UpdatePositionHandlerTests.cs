@@ -16,17 +16,17 @@ public class UpdatePositionHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdatePositionHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdatePositionHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdatePositionHandler handler;
 
     [Theory]
@@ -44,8 +44,8 @@ public class UpdatePositionHandlerTests : IDisposable
             Name = oldName
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdatePositionCommand(positionId, newName);
 
@@ -95,8 +95,8 @@ public class UpdatePositionHandlerTests : IDisposable
             Name = "Old Position"
         };
 
-        this.context.BasicPositions.Add(position);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.Add(position);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdatePositionCommand(positionId, "New Position");
 
@@ -104,7 +104,7 @@ public class UpdatePositionHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedPosition = await this.context.BasicPositions.FindAsync([positionId], CancellationToken.None);
+        var updatedPosition = await this.db.BasicPositions.FindAsync([positionId], CancellationToken.None);
         Assert.NotNull(updatedPosition);
         Assert.Equal("New Position", updatedPosition.Name);
     }
@@ -119,8 +119,8 @@ public class UpdatePositionHandlerTests : IDisposable
         var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
         var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
 
-        this.context.BasicPositions.AddRange(position1, position2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicPositions.AddRange(position1, position2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdatePositionCommand(position1Id, "Senior Developer");
 
@@ -128,8 +128,8 @@ public class UpdatePositionHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedPosition1 = await this.context.BasicPositions.FindAsync([position1Id], CancellationToken.None);
-        var notUpdatedPosition2 = await this.context.BasicPositions.FindAsync([position2Id], CancellationToken.None);
+        var updatedPosition1 = await this.db.BasicPositions.FindAsync([position1Id], CancellationToken.None);
+        var notUpdatedPosition2 = await this.db.BasicPositions.FindAsync([position2Id], CancellationToken.None);
 
         Assert.NotNull(updatedPosition1);
         Assert.Equal("Senior Developer", updatedPosition1.Name);

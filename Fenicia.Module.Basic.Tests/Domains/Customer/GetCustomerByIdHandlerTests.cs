@@ -19,18 +19,18 @@ public class GetCustomerByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetCustomerByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetCustomerByIdHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetCustomerByIdHandler handler;
     private readonly Faker faker;
 
@@ -45,7 +45,7 @@ public class GetCustomerByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var customer = new CustomerModel
         {
@@ -67,8 +67,8 @@ public class GetCustomerByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customerId);
 
@@ -130,7 +130,7 @@ public class GetCustomerByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var customer1 = new CustomerModel
         {
@@ -172,8 +172,8 @@ public class GetCustomerByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.AddRange(customer1, customer2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.AddRange(customer1, customer2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customer1Id);
 
@@ -198,7 +198,7 @@ public class GetCustomerByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var customer = new CustomerModel
         {
@@ -222,8 +222,8 @@ public class GetCustomerByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customerId);
 

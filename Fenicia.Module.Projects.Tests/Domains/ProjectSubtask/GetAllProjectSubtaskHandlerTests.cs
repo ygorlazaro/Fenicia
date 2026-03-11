@@ -18,19 +18,19 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectSubtaskHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetAllProjectSubtaskHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllProjectSubtaskHandler handler;
     private readonly Faker faker;
 
@@ -73,8 +73,8 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        this.context.ProjectSubtasks.AddRange(subtask1, subtask2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectSubtasks.AddRange(subtask1, subtask2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery();
 
@@ -104,10 +104,10 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
                 Order = i,
                 CompletedAt = i % 2 == 0 ? DateTime.UtcNow.AddDays(-i) : null
             };
-            this.context.ProjectSubtasks.Add(subtask);
+            this.db.ProjectSubtasks.Add(subtask);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery(2);
 
@@ -135,10 +135,10 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
                 Order = i,
                 CompletedAt = null
             };
-            this.context.ProjectSubtasks.Add(subtask);
+            this.db.ProjectSubtasks.Add(subtask);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery(10);
 
@@ -166,10 +166,10 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
                 Order = i,
                 CompletedAt = null
             };
-            this.context.ProjectSubtasks.Add(subtask);
+            this.db.ProjectSubtasks.Add(subtask);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery();
 

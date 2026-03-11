@@ -15,17 +15,17 @@ public class AddPositionHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new AddPositionHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new AddPositionHandler(this.db);
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly AddPositionHandler handler;
 
     [Theory]
@@ -61,7 +61,7 @@ public class AddPositionHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var position = await this.context.BasicPositions.FindAsync([command.Id], CancellationToken.None);
+        var position = await this.db.BasicPositions.FindAsync([command.Id], CancellationToken.None);
         Assert.NotNull(position);
         Assert.Equal(positionName, position.Name);
     }
@@ -78,7 +78,7 @@ public class AddPositionHandlerTests : IDisposable
         await this.handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var positions = await this.context.BasicPositions.ToListAsync();
+        var positions = await this.db.BasicPositions.ToListAsync();
         Assert.Equal(2, positions.Count);
     }
 }

@@ -31,13 +31,13 @@ public class ProjectCommentControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectCommentId = Guid.NewGuid();
-        var getAllProjectCommentHandler = new GetAllProjectCommentHandler(this.context);
-        var getProjectCommentByIdHandler = new GetProjectCommentByIdHandler(this.context);
-        var addProjectCommentHandler = new AddProjectCommentHandler(this.context);
-        var updateProjectCommentHandler = new UpdateProjectCommentHandler(this.context);
-        var deleteProjectCommentHandler = new DeleteProjectCommentHandler(this.context);
+        var getAllProjectCommentHandler = new GetAllProjectCommentHandler(this.db);
+        var getProjectCommentByIdHandler = new GetProjectCommentByIdHandler(this.db);
+        var addProjectCommentHandler = new AddProjectCommentHandler(this.db);
+        var updateProjectCommentHandler = new UpdateProjectCommentHandler(this.db);
+        var deleteProjectCommentHandler = new DeleteProjectCommentHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProjectCommentController(
@@ -59,13 +59,13 @@ public class ProjectCommentControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
     private readonly ProjectCommentController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testProjectCommentId;
     private readonly Faker faker;
@@ -128,8 +128,8 @@ public class ProjectCommentControllerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.AddRange(projectComment1, projectComment2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.AddRange(projectComment1, projectComment2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -163,8 +163,8 @@ public class ProjectCommentControllerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.Add(projectComment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.Add(projectComment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -243,8 +243,8 @@ public class ProjectCommentControllerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.Add(projectComment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.Add(projectComment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommentCommand(
             projectComment.Id,
@@ -300,8 +300,8 @@ public class ProjectCommentControllerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.context.ProjectComments.Add(projectComment);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectComments.Add(projectComment);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -313,7 +313,7 @@ public class ProjectCommentControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify project comment was deleted
-        var deletedComment = await this.context.ProjectComments.FirstOrDefaultAsync(x => x.Id == this.testProjectCommentId && x.Deleted == null, ct);
+        var deletedComment = await this.db.ProjectComments.FirstOrDefaultAsync(x => x.Id == this.testProjectCommentId && x.Deleted == null, ct);
         Assert.Null(deletedComment);
     }
 

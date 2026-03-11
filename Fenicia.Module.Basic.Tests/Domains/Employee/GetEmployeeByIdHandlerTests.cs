@@ -19,12 +19,12 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetEmployeeByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetEmployeeByIdHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetEmployeeByIdHandler handler;
     private readonly Faker faker;
 
@@ -38,7 +38,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var state = new StateModel
         {
@@ -46,7 +46,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var employee = new EmployeeModel
         {
@@ -69,8 +69,8 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeeByIdQuery(employeeId);
 
@@ -131,7 +131,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var state = new StateModel
         {
@@ -139,7 +139,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var employee = new EmployeeModel
         {
@@ -162,8 +162,8 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeeByIdQuery(employeeId);
 
@@ -187,7 +187,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var state = new StateModel
         {
@@ -195,7 +195,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var employee1 = new EmployeeModel
         {
@@ -239,8 +239,8 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.AddRange(employee1, employee2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.AddRange(employee1, employee2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeeByIdQuery(employee1Id);
 
@@ -263,7 +263,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var state = new StateModel
         {
@@ -271,7 +271,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             Name = "São Paulo",
             Uf = "SP"
         };
-        this.context.AuthStates.Add(state);
+        this.db.AuthStates.Add(state);
 
         var employee = new EmployeeModel
         {
@@ -296,8 +296,8 @@ public class GetEmployeeByIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeeByIdQuery(employeeId);
 
@@ -312,7 +312,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

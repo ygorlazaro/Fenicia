@@ -18,12 +18,12 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetEmployeesByPositionIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetEmployeesByPositionIdHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetEmployeesByPositionIdHandler handler;
     private readonly Faker faker;
 
@@ -61,7 +61,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             Name = "Designer"
         };
 
-        this.context.BasicPositions.AddRange(position1, position2);
+        this.db.BasicPositions.AddRange(position1, position2);
 
         var employee1 = new EmployeeModel
         {
@@ -120,8 +120,8 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.AddRange(employee1, employee2, employee3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.AddRange(employee1, employee2, employee3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(position1Id);
 
@@ -144,7 +144,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             Id = positionId,
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
         {
@@ -166,10 +166,10 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
                     City = this.faker.Address.City()
                 }
             };
-            this.context.BasicEmployees.Add(employee);
+            this.db.BasicEmployees.Add(employee);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(positionId, 2);
 
@@ -191,7 +191,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             Id = positionId,
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         for (var i = 0; i < 5; i++)
         {
@@ -213,10 +213,10 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
                     City = this.faker.Address.City()
                 }
             };
-            this.context.BasicEmployees.Add(employee);
+            this.db.BasicEmployees.Add(employee);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(positionId, 10);
 
@@ -238,7 +238,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             Id = positionId,
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
         {
@@ -260,10 +260,10 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
                     City = this.faker.Address.City()
                 }
             };
-            this.context.BasicEmployees.Add(employee);
+            this.db.BasicEmployees.Add(employee);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
@@ -285,7 +285,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             Id = positionId,
             Name = "Developer"
         };
-        this.context.BasicPositions.Add(position);
+        this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -306,8 +306,8 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicEmployees.Add(employee);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicEmployees.Add(employee);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
@@ -323,7 +323,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }

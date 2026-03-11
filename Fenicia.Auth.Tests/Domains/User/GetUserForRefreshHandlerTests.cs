@@ -12,7 +12,7 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class GetUserForRefreshHandlerTests : IDisposable
 {
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetUserForRefreshHandler handler;
     private readonly Faker faker;
 
@@ -22,14 +22,14 @@ public class GetUserForRefreshHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetUserForRefreshHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new GetUserForRefreshHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -50,8 +50,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(userId, CancellationToken.None);
@@ -103,8 +103,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.AddRange(user1, user2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.AddRange(user1, user2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(userId1, CancellationToken.None);
@@ -145,8 +145,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Password = password
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(userId, CancellationToken.None);
@@ -172,8 +172,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.context.AuthUsers.Add(user);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthUsers.Add(user);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
         var result = await this.handler.Handle(userId, CancellationToken.None);

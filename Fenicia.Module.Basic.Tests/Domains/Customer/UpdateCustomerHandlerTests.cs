@@ -18,18 +18,18 @@ public class UpdateCustomerHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new UpdateCustomerHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new UpdateCustomerHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly UpdateCustomerHandler handler;
     private readonly Faker faker;
 
@@ -56,8 +56,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customerId,
@@ -155,8 +155,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customerId,
@@ -203,8 +203,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customerId,
@@ -251,8 +251,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customerId,
@@ -299,8 +299,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customerId,
@@ -347,8 +347,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customerId,
@@ -395,8 +395,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customerId,
@@ -443,8 +443,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customerId,
@@ -491,8 +491,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.context.BasicCustomers.Add(customer);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.BasicCustomers.Add(customer);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
             customerId,
@@ -512,7 +512,7 @@ public class UpdateCustomerHandlerTests : IDisposable
         await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCustomer = await this.context.BasicCustomers
+        var updatedCustomer = await this.db.BasicCustomers
             .Include(c => c.Person)
             .FirstOrDefaultAsync(c => c.Id == customerId);
 

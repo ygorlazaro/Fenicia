@@ -31,13 +31,13 @@ public class ProjectStatusControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectStatusId = Guid.NewGuid();
-        var getAllProjectStatusHandler = new GetAllProjectStatusHandler(this.context);
-        var getProjectStatusByIdHandler = new GetProjectStatusByIdHandler(this.context);
-        var addProjectStatusHandler = new AddProjectStatusHandler(this.context);
-        var updateProjectStatusHandler = new UpdateProjectStatusHandler(this.context);
-        var deleteProjectStatusHandler = new DeleteProjectStatusHandler(this.context);
+        var getAllProjectStatusHandler = new GetAllProjectStatusHandler(this.db);
+        var getProjectStatusByIdHandler = new GetProjectStatusByIdHandler(this.db);
+        var addProjectStatusHandler = new AddProjectStatusHandler(this.db);
+        var updateProjectStatusHandler = new UpdateProjectStatusHandler(this.db);
+        var deleteProjectStatusHandler = new DeleteProjectStatusHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new ProjectStatusController(
@@ -59,13 +59,13 @@ public class ProjectStatusControllerTests : IDisposable
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
     private readonly ProjectStatusController controller;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testProjectStatusId;
     private readonly Faker faker;
@@ -132,8 +132,8 @@ public class ProjectStatusControllerTests : IDisposable
             IsFinal = true
         };
 
-        this.context.ProjectStatuses.AddRange(projectStatus1, projectStatus2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.AddRange(projectStatus1, projectStatus2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -169,8 +169,8 @@ public class ProjectStatusControllerTests : IDisposable
             IsFinal = false
         };
 
-        this.context.ProjectStatuses.Add(projectStatus);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.Add(projectStatus);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -253,8 +253,8 @@ public class ProjectStatusControllerTests : IDisposable
             IsFinal = false
         };
 
-        this.context.ProjectStatuses.Add(projectStatus);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.Add(projectStatus);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectStatusCommand(
             projectStatus.Id,
@@ -320,8 +320,8 @@ public class ProjectStatusControllerTests : IDisposable
             IsFinal = false
         };
 
-        this.context.ProjectStatuses.Add(projectStatus);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectStatuses.Add(projectStatus);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
@@ -333,7 +333,7 @@ public class ProjectStatusControllerTests : IDisposable
         Assert.NotNull(result);
 
         // Verify project status was deleted
-        var deletedStatus = await this.context.ProjectStatuses.FirstOrDefaultAsync(x => x.Id == this.testProjectStatusId && x.Deleted == null, ct);
+        var deletedStatus = await this.db.ProjectStatuses.FirstOrDefaultAsync(x => x.Id == this.testProjectStatusId && x.Deleted == null, ct);
         Assert.Null(deletedStatus);
     }
 

@@ -18,19 +18,19 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectTaskByIdHandler(this.context);
+        this.db = new DefaultContext(options, companyContext);
+        this.handler = new GetProjectTaskByIdHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetProjectTaskByIdHandler handler;
     private readonly Faker faker;
 
@@ -56,8 +56,8 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.Add(task);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.Add(task);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskByIdQuery(taskId);
 
@@ -135,8 +135,8 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.AddRange(task1, task2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.AddRange(task1, task2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskByIdQuery(task1Id);
 
@@ -171,8 +171,8 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.context.ProjectTasks.Add(task);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.ProjectTasks.Add(task);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskByIdQuery(taskId);
 

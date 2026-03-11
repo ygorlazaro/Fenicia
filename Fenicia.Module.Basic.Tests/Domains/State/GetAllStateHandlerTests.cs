@@ -18,19 +18,19 @@ public class GetAllStateHandlerTests : IDisposable
             .Options;
 
         this.companyContext = new TestCompanyContext();
-        this.context = new DefaultContext(options, this.companyContext);
-        this.handler = new GetAllStateHandler(this.context);
+        this.db = new DefaultContext(options, this.companyContext);
+        this.handler = new GetAllStateHandler(this.db);
         this.faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private readonly TestCompanyContext companyContext;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly GetAllStateHandler handler;
     private readonly Faker faker;
 
@@ -66,8 +66,8 @@ public class GetAllStateHandlerTests : IDisposable
             Uf = "RJ"
         };
 
-        this.context.AuthStates.AddRange(state1, state2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthStates.AddRange(state1, state2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllStateQuery();
 
@@ -93,10 +93,10 @@ public class GetAllStateHandlerTests : IDisposable
                 Name = $"{this.faker.Address.State()} {i}",
                 Uf = this.faker.Random.String2(2).ToUpper()
             };
-            this.context.AuthStates.Add(state);
+            this.db.AuthStates.Add(state);
         }
 
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllStateQuery();
 
@@ -119,8 +119,8 @@ public class GetAllStateHandlerTests : IDisposable
             Uf = "MG"
         };
 
-        this.context.AuthStates.Add(state);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthStates.Add(state);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllStateQuery();
 

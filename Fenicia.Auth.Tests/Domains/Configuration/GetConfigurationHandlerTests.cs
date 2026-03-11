@@ -1,4 +1,5 @@
-using Fenicia.Auth.Domains.Configuration.GetConfiguration;
+using Fenicia.Auth.Domains.Configuration.Handlers;
+using Fenicia.Auth.Domains.Configuration.Queries;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -11,7 +12,7 @@ namespace Fenicia.Auth.Tests.Domains.Configuration;
 public class GetConfigurationHandlerTests : IDisposable
 {
     private readonly GetConfigurationHandler handler;
-    private readonly DefaultContext context;
+    private readonly DefaultContext db;
     private readonly Guid testUserId;
 
     public GetConfigurationHandlerTests()
@@ -20,14 +21,14 @@ public class GetConfigurationHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.context = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetConfigurationHandler(this.context);
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new GetConfigurationHandler(this.db);
         this.testUserId = Guid.NewGuid();
     }
 
     public void Dispose()
     {
-        this.context.Dispose();
+        this.db.Dispose();
         
         GC.SuppressFinalize(this);
     }
@@ -50,7 +51,7 @@ public class GetConfigurationHandlerTests : IDisposable
     public async Task Handle_WhenUserHasConfigurations_ReturnsAllConfigurations()
     {
         // Arrange
-        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
+        var companyId = this.db.CurrentCompanyId ?? Guid.Empty;
         var config1 = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
@@ -69,8 +70,8 @@ public class GetConfigurationHandlerTests : IDisposable
             Value = "en-US"
         };
 
-        this.context.AuthConfiguration.AddRange(config1, config2);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthConfigurations.AddRange(config1, config2);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetConfigurationQuery(this.testUserId, companyId);
 
@@ -90,7 +91,7 @@ public class GetConfigurationHandlerTests : IDisposable
     {
         // Arrange - Note: Due to how DefaultContext works, all entities get the same CompanyId
         // from TestCompanyContext, so this test verifies filtering works when CompanyId matches
-        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
+        var companyId = this.db.CurrentCompanyId ?? Guid.Empty;
         var otherUserId = Guid.NewGuid();
         
         var userConfig = new ConfigurationModel
@@ -111,8 +112,8 @@ public class GetConfigurationHandlerTests : IDisposable
             Value = "pt-BR"
         };
 
-        this.context.AuthConfiguration.AddRange(userConfig, otherUserConfig);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthConfigurations.AddRange(userConfig, otherUserConfig);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetConfigurationQuery(this.testUserId, companyId);
 
@@ -130,7 +131,7 @@ public class GetConfigurationHandlerTests : IDisposable
     public async Task Handle_WithNonExistentCompanyId_ReturnsEmptyList()
     {
         // Arrange
-        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
+        var companyId = this.db.CurrentCompanyId ?? Guid.Empty;
         var config = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
@@ -140,8 +141,8 @@ public class GetConfigurationHandlerTests : IDisposable
             Value = "pt-BR"
         };
 
-        this.context.AuthConfiguration.Add(config);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthConfigurations.Add(config);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Query with a different user ID to get empty results
         var query = new GetConfigurationQuery(Guid.NewGuid(), companyId);
@@ -158,7 +159,7 @@ public class GetConfigurationHandlerTests : IDisposable
     public async Task Handle_ConfigurationsAreOrderedByConfigType()
     {
         // Arrange
-        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
+        var companyId = this.db.CurrentCompanyId ?? Guid.Empty;
         var config1 = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
@@ -186,8 +187,8 @@ public class GetConfigurationHandlerTests : IDisposable
             Value = "en-US"
         };
 
-        this.context.AuthConfiguration.AddRange(config1, config2, config3);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthConfigurations.AddRange(config1, config2, config3);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetConfigurationQuery(this.testUserId, companyId);
 
@@ -208,7 +209,7 @@ public class GetConfigurationHandlerTests : IDisposable
     {
         // Arrange
         var configId = Guid.NewGuid();
-        var companyId = this.context.CurrentCompanyId ?? Guid.Empty;
+        var companyId = this.db.CurrentCompanyId ?? Guid.Empty;
         var config = new ConfigurationModel
         {
             Id = configId,
@@ -218,8 +219,8 @@ public class GetConfigurationHandlerTests : IDisposable
             Value = "pt-bR"
         };
 
-        this.context.AuthConfiguration.Add(config);
-        await this.context.SaveChangesAsync(CancellationToken.None);
+        this.db.AuthConfigurations.Add(config);
+        await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetConfigurationQuery(this.testUserId, companyId);
 
