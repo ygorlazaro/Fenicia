@@ -1,11 +1,8 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
 
-using Fenicia.Auth.Domains.Order.CreateNewOrder;
-using Fenicia.Auth.Domains.Subscription.Commands;
-using Fenicia.Auth.Domains.Subscription.Handlers;
-using Fenicia.Auth.Domains.Subscription.Queries;
-using Fenicia.Auth.Domains.Subscription.Responses;
+using Fenicia.Auth.Domains.Order.CreateNewOrder.Commands;
+using Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -14,15 +11,12 @@ using Fenicia.Common.Exceptions;
 
 using Microsoft.EntityFrameworkCore;
 
-using Moq;
-
 namespace Fenicia.Auth.Tests.Domains.Order;
 
 public class CreateNewOrderHandlerTests : IDisposable
 {
     private readonly DefaultContext context;
     private readonly CreateNewOrderHandler handler;
-    private readonly Mock<CreateCreditsForOrderHandler> createCreditsForOrderHandlerMock;
     private readonly Faker faker;
 
     public CreateNewOrderHandlerTests()
@@ -32,10 +26,8 @@ public class CreateNewOrderHandlerTests : IDisposable
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        this.createCreditsForOrderHandlerMock = new Mock<CreateCreditsForOrderHandler>(this.context);
         this.handler = new CreateNewOrderHandler(
-            this.context,
-            this.createCreditsForOrderHandlerMock.Object
+            this.context
         );
         this.faker = new Faker();
     }
@@ -110,13 +102,6 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.context.AuthUserRoles.Add(userRole);
         this.context.AuthModules.AddRange(module1, module2, moduleBasic);
         await this.context.SaveChangesAsync(CancellationToken.None);
-
-        this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
-                SubscriptionStatus.Active
-            ));
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
@@ -292,13 +277,6 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.context.AuthModules.Add(basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
-                SubscriptionStatus.Active
-            ));
-
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act
@@ -365,13 +343,6 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.context.AuthUserRoles.Add(userRole);
         this.context.AuthModules.AddRange(accountingModule, basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
-
-        this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
-                SubscriptionStatus.Active
-            ));
 
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
@@ -442,81 +413,6 @@ public class CreateNewOrderHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_CallsCreateCreditsForOrderHandler()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var module1Id = Guid.NewGuid();
-        var modules = new List<Guid> { module1Id };
-
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
-
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            CompanyId = companyId,
-            RoleId = Guid.NewGuid()
-        };
-
-        var module1 = new ModuleModel
-        {
-            Id = module1Id,
-            Name = nameof(ModuleType.Accounting),
-            Type = ModuleType.Accounting,
-            Price = 100.00m
-        };
-
-        var moduleBasic = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = nameof(ModuleType.Basic),
-            Type = ModuleType.Basic,
-            Price = 100.00m
-        };
-
-        this.context.AuthUsers.Add(user);
-        this.context.AuthCompanies.Add(company);
-        this.context.AuthUserRoles.Add(userRole);
-        this.context.AuthModules.Add(module1);
-        this.context.AuthModules.Add(moduleBasic);
-        await this.context.SaveChangesAsync(CancellationToken.None);
-
-        this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
-                SubscriptionStatus.Active
-            ));
-
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
-
-        // Act
-        await this.handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        this.createCreditsForOrderHandlerMock.Verify(
-            x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()),
-            Times.Once
-        );
-    }
-
-    [Fact]
     public async Task Handle_WhenDuplicateModuleIds_RemovesDuplicates()
     {
         // Arrange
@@ -570,14 +466,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.context.AuthUserRoles.Add(userRole);
         this.context.AuthModules.AddRange(module1, basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
-
-        this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateCreditsForOrderResponse(
-                Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
-                SubscriptionStatus.Active
-            ));
-
+        
         var command = new CreateNewOrderCommand(userId, companyId, modules);
 
         // Act

@@ -3,7 +3,7 @@ using System.Text.Json;
 
 using StackExchange.Redis;
 
-namespace Fenicia.Auth.Domains.RefreshToken.GenerateRefreshToken;
+namespace Fenicia.Auth.Domains.RefreshToken.Handlers;
 
 public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
 {

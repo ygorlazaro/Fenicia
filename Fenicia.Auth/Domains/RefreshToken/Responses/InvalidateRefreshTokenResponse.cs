@@ -1,4 +1,4 @@
-namespace Fenicia.Auth.Domains.RefreshToken.InvalidateRefreshToken;
+namespace Fenicia.Auth.Domains.RefreshToken.Responses;
 
 public record InvalidateRefreshTokenResponse(string Token, DateTime ExpirationDate, Guid UserId)
 {

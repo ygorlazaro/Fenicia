@@ -1,6 +1,5 @@
 using Fenicia.Auth.Domains.Subscription.Queries;
 using Fenicia.Auth.Domains.Subscription.Responses;
-using Fenicia.Auth.Domains.User;
 using Fenicia.Common.Data.Contexts;
 
 using Microsoft.EntityFrameworkCore;

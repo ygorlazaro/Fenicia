@@ -1,8 +1,7 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.RefreshToken.GenerateRefreshToken;
-using Fenicia.Auth.Domains.RefreshToken.InvalidateRefreshToken;
-using Fenicia.Auth.Domains.RefreshToken.ValidateToken;
+using Fenicia.Auth.Domains.RefreshToken.Handlers;
+using Fenicia.Auth.Domains.RefreshToken.Queries;
 using Fenicia.Auth.Domains.Token.Handlers;
 using Fenicia.Auth.Domains.Token.Queries;
 using Fenicia.Auth.Domains.Token.Responses;

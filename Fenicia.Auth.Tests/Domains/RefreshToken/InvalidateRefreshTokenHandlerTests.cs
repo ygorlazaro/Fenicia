@@ -1,6 +1,7 @@
 using System.Text.Json;
 
-using Fenicia.Auth.Domains.RefreshToken.InvalidateRefreshToken;
+using Fenicia.Auth.Domains.RefreshToken.Handlers;
+using Fenicia.Auth.Domains.RefreshToken.Responses;
 
 using Moq;
 
