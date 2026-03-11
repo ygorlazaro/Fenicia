@@ -1,6 +1,7 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.Module.GetModules;
+using Fenicia.Auth.Domains.Module.Handlers;
+using Fenicia.Auth.Domains.Module.Queries;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -57,7 +58,7 @@ public class GetModulesHandlerTests : IDisposable
         this.context.AuthModules.AddRange(module1, module2);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesRequest(1, 10);
+        var request = new GetModulesQuery(1, 10);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -94,7 +95,7 @@ public class GetModulesHandlerTests : IDisposable
         this.context.AuthModules.AddRange(authModule, basicModule);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesRequest(1, 10);
+        var request = new GetModulesQuery(1, 10);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -126,7 +127,7 @@ public class GetModulesHandlerTests : IDisposable
         this.context.AuthModules.AddRange(modules);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesRequest(2, 10);
+        var request = new GetModulesQuery(2, 10);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -145,7 +146,7 @@ public class GetModulesHandlerTests : IDisposable
     public async Task Handle_WhenNoModulesExist_ReturnsEmptyPagination()
     {
         // Arrange
-        var request = new GetModulesRequest(1, 10);
+        var request = new GetModulesQuery(1, 10);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -172,7 +173,7 @@ public class GetModulesHandlerTests : IDisposable
         this.context.AuthModules.Add(module);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesRequest(10, 10);
+        var request = new GetModulesQuery(10, 10);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -215,7 +216,7 @@ public class GetModulesHandlerTests : IDisposable
         this.context.AuthModules.AddRange(module1, module2, module3);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesRequest(1, 10);
+        var request = new GetModulesQuery(1, 10);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -244,7 +245,7 @@ public class GetModulesHandlerTests : IDisposable
         this.context.AuthModules.Add(module);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesRequest();
+        var request = new GetModulesQuery();
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);
@@ -272,7 +273,7 @@ public class GetModulesHandlerTests : IDisposable
         this.context.AuthModules.Add(module);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesRequest(1, 10);
+        var request = new GetModulesQuery(1, 10);
 
         // Act
         var result = await this.handler.Handle(request, CancellationToken.None);

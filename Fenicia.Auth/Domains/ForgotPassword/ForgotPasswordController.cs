@@ -1,7 +1,7 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
-using Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
+using Fenicia.Auth.Domains.ForgotPassword.Commands;
+using Fenicia.Auth.Domains.ForgotPassword.Handlers;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;

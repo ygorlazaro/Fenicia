@@ -1,3 +1,4 @@
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
@@ -19,6 +20,20 @@ public static class UserExtensions
         public async Task<bool> AnyEmailAsync(string email, CancellationToken ct)
         {
             return await dbUser.AnyAsync(u => u.Email == email, ct);
+        }
+
+        public async Task<UserModel?> FirstByEmailOrDefaultAsync(string email, CancellationToken ct)
+        {
+            return await dbUser.FirstOrDefaultAsync(u => u.Email == email, ct);
+        }
+
+        public async Task<UserModel?> UpdatePasswordAsync(Guid userId, string plainPassword, CancellationToken ct)
+        {
+            var user = await dbUser.FirstByIdAsync(userId, ct);
+
+            user.Password = plainPassword.Hash();
+
+            return user;
         }
     }
 }

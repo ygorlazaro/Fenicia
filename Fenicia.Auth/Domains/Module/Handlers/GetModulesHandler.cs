@@ -1,14 +1,16 @@
+using Fenicia.Auth.Domains.Module.Queries;
+using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Domains.Module.GetModules;
+namespace Fenicia.Auth.Domains.Module.Handlers;
 
 public class GetModulesHandler(DefaultContext db)
 {
-    public async Task<Pagination<List<GetModuleResponse>>> Handle(GetModulesRequest query, CancellationToken ct)
+    public async Task<Pagination<List<GetModuleResponse>>> Handle(GetModulesQuery query, CancellationToken ct)
     {
         var request = db.AuthModules
             .Where(m => m.Type != ModuleType.Auth)

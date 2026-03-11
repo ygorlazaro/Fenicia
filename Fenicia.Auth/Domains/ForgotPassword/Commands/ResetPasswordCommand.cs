@@ -1,3 +1,3 @@
-namespace Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
+namespace Fenicia.Auth.Domains.ForgotPassword.Commands;
 
 public sealed record ResetPasswordCommand(string Email, string Password, string Code);

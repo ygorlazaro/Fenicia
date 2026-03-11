@@ -1,9 +1,11 @@
+using Fenicia.Auth.Domains.Module.Queries;
+using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Domains.Module;
+namespace Fenicia.Auth.Domains.Module.Handlers;
 
 public class GetUserModuleHandler(DefaultContext db)
 {

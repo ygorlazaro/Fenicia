@@ -1,7 +1,8 @@
-using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User.Commands;
 using Fenicia.Auth.Domains.User.Responses;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Exceptions;
+using Fenicia.Common.Localization;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -11,11 +12,13 @@ public class UpdatePasswordHandler(DefaultContext db)
 {
     public async Task<UpdatePasswordResponse> Handle(UpdatePasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByIdAsync(command.UserId , ct);
-        var hashedPassword = command.Password.Hash();
+        var user = await db.AuthUsers.UpdatePasswordAsync(command.UserId, command.Password, ct);
 
-        user.Password = hashedPassword;
-
+        if (user is null)
+        {
+            throw new ItemNotExistsException(ExceptionMessages.UserNotFound);
+        }
+        
         db.Entry(user).State = EntityState.Modified;
 
         await db.SaveChangesAsync(ct);
