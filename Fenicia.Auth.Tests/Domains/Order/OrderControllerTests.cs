@@ -4,8 +4,9 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Order;
-using Fenicia.Auth.Domains.Order.CreateNewOrder;
-using Fenicia.Auth.Domains.Subscription.Handlers;
+using Fenicia.Auth.Domains.Order.CreateNewOrder.Commands;
+using Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
+using Fenicia.Auth.Domains.Order.CreateNewOrder.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
@@ -40,9 +41,7 @@ public class OrderControllerTests : IDisposable
         this.context = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.testCompanyId = Guid.NewGuid();
-        var mockCreateCreditsForOrderHandler = new Mock<CreateCreditsForOrderHandler>(this.context);
-        var createNewOrderHandler = new CreateNewOrderHandler(this.context,
-            mockCreateCreditsForOrderHandler.Object);
+        var createNewOrderHandler = new CreateNewOrderHandler(this.context);
         this.mockHttpContext = new Mock<HttpContext>();
 
         this.controller = new OrderController(createNewOrderHandler)

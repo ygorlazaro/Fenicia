@@ -1,8 +1,10 @@
 using System.Text.Json;
 
+using Fenicia.Auth.Domains.RefreshToken.Responses;
+
 using StackExchange.Redis;
 
-namespace Fenicia.Auth.Domains.RefreshToken.InvalidateRefreshToken;
+namespace Fenicia.Auth.Domains.RefreshToken.Handlers;
 
 public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
 {

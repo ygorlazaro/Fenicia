@@ -1,6 +1,8 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Order.CreateNewOrder;
+using Fenicia.Auth.Domains.Order.CreateNewOrder.Commands;
+using Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
+using Fenicia.Auth.Domains.Order.CreateNewOrder.Responses;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;

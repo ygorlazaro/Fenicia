@@ -1,11 +1,13 @@
 using System.Text.Json;
 
+using Fenicia.Auth.Domains.RefreshToken.Queries;
+using Fenicia.Auth.Domains.RefreshToken.Responses;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
 using StackExchange.Redis;
 
-namespace Fenicia.Auth.Domains.RefreshToken.ValidateToken;
+namespace Fenicia.Auth.Domains.RefreshToken.Handlers;
 
 public class ValidateTokenHandler(IConnectionMultiplexer redis)
 {

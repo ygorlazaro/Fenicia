@@ -1,4 +1,4 @@
-using Fenicia.Auth.Domains.Role.GetAdminRole;
+using Fenicia.Auth.Domains.Role.Handlers;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;

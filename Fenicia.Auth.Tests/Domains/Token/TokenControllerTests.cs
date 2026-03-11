@@ -3,9 +3,9 @@ using System.Text.Json;
 using Bogus;
 
 using Fenicia.Auth.Domains.LoginAttempt.Services;
-using Fenicia.Auth.Domains.RefreshToken.GenerateRefreshToken;
-using Fenicia.Auth.Domains.RefreshToken.InvalidateRefreshToken;
-using Fenicia.Auth.Domains.RefreshToken.ValidateToken;
+using Fenicia.Auth.Domains.RefreshToken.Handlers;
+using Fenicia.Auth.Domains.RefreshToken.Queries;
+using Fenicia.Auth.Domains.RefreshToken.Responses;
 using Fenicia.Auth.Domains.Security.Services;
 using Fenicia.Auth.Domains.Token;
 using Fenicia.Auth.Domains.Token.Handlers;
