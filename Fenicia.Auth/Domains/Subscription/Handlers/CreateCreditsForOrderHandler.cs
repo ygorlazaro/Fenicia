@@ -1,23 +1,25 @@
+using Fenicia.Auth.Domains.Subscription.Commands;
+using Fenicia.Auth.Domains.Subscription.Responses;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
-namespace Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
+namespace Fenicia.Auth.Domains.Subscription.Handlers;
 
-public class CreateCreditsForOrderHandler(DefaultContext context)
+public class CreateCreditsForOrderHandler(DefaultContext db)
 {
     public virtual async Task<CreateCreditsForOrderResponse> Handle(
-        CreateCreditsForOrderQuery query,
+        CreateCreditsForOrderCommand command,
         CancellationToken ct)
     {
-        if (!query.Details.Any())
+        if (!command.Details.Any())
         {
             throw new InvalidRequestException(ExceptionMessages.OrderDetailsCannotBeEmpty);
         }
 
-        var credits = query.Details.Select(d => new SubscriptionCreditModel
+        var credits = command.Details.Select(d => new SubscriptionCreditModel
         {
             ModuleId = d.ModuleId,
             IsActive = true,
@@ -29,18 +31,18 @@ public class CreateCreditsForOrderHandler(DefaultContext context)
         var subscription = new SubscriptionModel
         {
             Status = SubscriptionStatus.Active,
-            CompanyId = query.CompanyId,
+            CompanyId = command.CompanyId,
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddMonths(1),
-            OrderId = query.Id,
+            OrderId = command.Id,
             Credits = credits
         };
 
-        context.AuthSubscriptions.Add(subscription);
+        db.AuthSubscriptions.Add(subscription);
 
-        await context.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
 
         return new CreateCreditsForOrderResponse(subscription.Id, subscription.CompanyId, subscription.StartDate,
-            subscription.EndDate, query.Id, subscription.Status);
+            subscription.EndDate, command.Id, subscription.Status);
     }
 }

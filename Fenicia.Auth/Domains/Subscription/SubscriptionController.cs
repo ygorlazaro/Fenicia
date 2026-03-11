@@ -1,6 +1,8 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Subscription.GetUserProfile;
+using Fenicia.Auth.Domains.Subscription.Handlers;
+using Fenicia.Auth.Domains.Subscription.Queries;
+using Fenicia.Auth.Domains.Subscription.Responses;
 using Fenicia.Common.API;
 
 using Microsoft.AspNetCore.Authorization;

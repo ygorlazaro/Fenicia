@@ -2,7 +2,10 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Order.CreateNewOrder;
-using Fenicia.Auth.Domains.Subscription.CreateCreditsForOrder;
+using Fenicia.Auth.Domains.Subscription.Commands;
+using Fenicia.Auth.Domains.Subscription.Handlers;
+using Fenicia.Auth.Domains.Subscription.Queries;
+using Fenicia.Auth.Domains.Subscription.Responses;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -109,7 +112,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
                 Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
                 SubscriptionStatus.Active
@@ -290,7 +293,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
                 Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
                 SubscriptionStatus.Active
@@ -364,7 +367,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
                 Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
                 SubscriptionStatus.Active
@@ -495,7 +498,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
                 Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
                 SubscriptionStatus.Active
@@ -508,7 +511,7 @@ public class CreateNewOrderHandlerTests : IDisposable
 
         // Assert
         this.createCreditsForOrderHandlerMock.Verify(
-            x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()),
+            x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()),
             Times.Once
         );
     }
@@ -569,7 +572,7 @@ public class CreateNewOrderHandlerTests : IDisposable
         await this.context.SaveChangesAsync(CancellationToken.None);
 
         this.createCreditsForOrderHandlerMock
-            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Handle(It.IsAny<CreateCreditsForOrderCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateCreditsForOrderResponse(
                 Guid.NewGuid(), companyId, DateTime.UtcNow, DateTime.UtcNow.AddMonths(1), Guid.NewGuid(),
                 SubscriptionStatus.Active

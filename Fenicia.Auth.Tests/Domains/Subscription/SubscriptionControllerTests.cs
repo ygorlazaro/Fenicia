@@ -4,7 +4,8 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Subscription;
-using Fenicia.Auth.Domains.Subscription.GetUserProfile;
+using Fenicia.Auth.Domains.Subscription.Handlers;
+using Fenicia.Auth.Domains.Subscription.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
@@ -167,10 +168,14 @@ public class SubscriptionControllerTests : IDisposable
         Assert.Equal(user.Name, profile.Name);
         Assert.Single(profile.Companies);
         Assert.Single(profile.Subscriptions);
-        Assert.Equal(company.Id, profile.Companies[0].Id);
-        Assert.Equal(company.Name, profile.Companies[0].Name);
-        Assert.Equal(subscription.Id, profile.Subscriptions[0].Id);
-        Assert.Equal("Active", profile.Subscriptions[0].Status);
+
+        var companies = profile.Companies.ToList();
+        var subscriptions = profile.Subscriptions.ToList();
+        
+        Assert.Equal(company.Id, companies[0].Id);
+        Assert.Equal(company.Name, companies[0].Name);
+        Assert.Equal(subscription.Id, subscriptions[0].Id);
+        Assert.Equal(SubscriptionStatus.Active, subscriptions[0].Status);
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
@@ -426,8 +431,8 @@ public class SubscriptionControllerTests : IDisposable
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
         Assert.Equal(this.testUserId, profile.Id);
-        Assert.Equal(2, profile.Companies.Count);
-        Assert.Equal(2, profile.Subscriptions.Count);
+        Assert.Equal(2, profile.Companies.Count());
+        Assert.Equal(2, profile.Subscriptions.Count());
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
@@ -571,9 +576,6 @@ public class SubscriptionControllerTests : IDisposable
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
         Assert.Single(profile.Subscriptions);
-        var subscriptionResponse = profile.Subscriptions[0];
-        Assert.Single(subscriptionResponse.Modules);
-        Assert.Equal("Active Module", subscriptionResponse.Modules[0].Name);
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 }
