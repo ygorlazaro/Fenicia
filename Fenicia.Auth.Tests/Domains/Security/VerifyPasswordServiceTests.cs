@@ -1,6 +1,6 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.Security.HashPassword;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.Security.Services;
 
 namespace Fenicia.Auth.Tests.Domains.Security;
@@ -9,7 +9,6 @@ public class VerifyPasswordServiceTests
 {
     private readonly Faker faker = new();
     private readonly VerifyPasswordService _service = new();
-    private readonly HashPasswordHandler hashPasswordHandler = new();
 
     [Theory]
     [InlineData("SimplePass123")]
@@ -19,7 +18,7 @@ public class VerifyPasswordServiceTests
     public void Handle_WhenPasswordMatchesHash_ReturnsTrue(string password)
     {
         // Arrange
-        var hashedPassword = this.hashPasswordHandler.Handle(password);
+        var hashedPassword = password.Hash();
 
         // Act
         var result = this._service.Handle(password, hashedPassword);
@@ -35,7 +34,7 @@ public class VerifyPasswordServiceTests
     public void Handle_WhenPasswordDoesNotMatchHash_ReturnsFalse(string password, string wrongPassword)
     {
         // Arrange
-        var hashedPassword = this.hashPasswordHandler.Handle(password);
+        var hashedPassword = password.Hash();
 
         // Act
         var result = this._service.Handle(wrongPassword, hashedPassword);
@@ -48,7 +47,7 @@ public class VerifyPasswordServiceTests
     public void Handle_WhenPasswordIsNull_ReturnsFalse()
     {
         // Arrange
-        var hashedPassword = this.hashPasswordHandler.Handle(this.faker.Internet.Password());
+        var hashedPassword = this.faker.Internet.Password().Hash();
 
         // Act
         var result = this._service.Handle(null!, hashedPassword);
@@ -84,7 +83,7 @@ public class VerifyPasswordServiceTests
     public void Handle_WhenPasswordIsEmpty_ReturnsFalse()
     {
         // Arrange
-        var hashedPassword = this.hashPasswordHandler.Handle(this.faker.Internet.Password());
+        var hashedPassword = this.faker.Internet.Password().Hash();
 
         // Act
         var result = this._service.Handle(string.Empty, hashedPassword);
@@ -112,7 +111,7 @@ public class VerifyPasswordServiceTests
         // Arrange
         var password = this.faker.Internet.Password();
         var wrongCasePassword = password.ToLowerInvariant();
-        var hashedPassword = this.hashPasswordHandler.Handle(password);
+        var hashedPassword = password.Hash();
 
         // Act
         var result = this._service.Handle(wrongCasePassword, hashedPassword);
@@ -140,7 +139,7 @@ public class VerifyPasswordServiceTests
     {
         // Arrange
         var password = $"P@$$w0rd!{this.faker.Random.AlphaNumeric(10)}";
-        var hashedPassword = this.hashPasswordHandler.Handle(password);
+        var hashedPassword = password.Hash();
 
         // Act
         var result = this._service.Handle(password, hashedPassword);
@@ -154,7 +153,7 @@ public class VerifyPasswordServiceTests
     {
         // Arrange
         var password = this.faker.Lorem.Paragraphs();
-        var hashedPassword = this.hashPasswordHandler.Handle(password);
+        var hashedPassword = password.Hash();
 
         // Act
         var result = this._service.Handle(password, hashedPassword);
@@ -169,7 +168,7 @@ public class VerifyPasswordServiceTests
         // Arrange
         // Use ASCII range to avoid Unicode surrogate characters that cause encoding issues in BCrypt
         var password = this.faker.Random.String2(1, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-        var hashedPassword = this.hashPasswordHandler.Handle(password);
+        var hashedPassword = password.Hash();
 
         // Act
         var result = this._service.Handle(password, hashedPassword);
@@ -183,7 +182,7 @@ public class VerifyPasswordServiceTests
     {
         // Arrange
         var password = $"{this.faker.Internet.Password()} 日本語 🔐";
-        var hashedPassword = this.hashPasswordHandler.Handle(password);
+        var hashedPassword = password.Hash();
 
         // Act
         var result = this._service.Handle(password, hashedPassword);
@@ -198,8 +197,8 @@ public class VerifyPasswordServiceTests
         // Arrange
         var password1 = this.faker.Internet.Password();
         var password2 = this.faker.Internet.Password();
-        var hash1 = this.hashPasswordHandler.Handle(password1);
-        var hash2 = this.hashPasswordHandler.Handle(password2);
+        var hash1 = password1.Hash();
+        var hash2 = password2.Hash();
 
         // Act
         var result1 = this._service.Handle(password1, hash1);

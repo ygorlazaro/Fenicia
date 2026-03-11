@@ -1,6 +1,6 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.Security.HashPassword;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User.Commands;
 using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
@@ -16,7 +16,6 @@ public class UpdateUserPasswordHandlerTests : IDisposable
 {
     private readonly UpdateUserPasswordHandler handler;
     private readonly DefaultContext context;
-    private readonly HashPasswordHandler hashPasswordHandler;
     private readonly Faker faker;
     private readonly UserModel testUser;
 
@@ -27,7 +26,6 @@ public class UpdateUserPasswordHandlerTests : IDisposable
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        this.hashPasswordHandler = new HashPasswordHandler();
         
         this.handler = new UpdateUserPasswordHandler(this.context);
         this.faker = new Faker();
@@ -36,7 +34,7 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         this.testUser = new UserModel
         {
             Email = this.faker.Internet.Email(),
-            Password = this.hashPasswordHandler.Handle(this.faker.Internet.Password()),
+            Password = this.faker.Internet.Password().Hash(),
             Name = this.faker.Person.FullName
         };
 
@@ -91,7 +89,6 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         Assert.StartsWith("$2", updatedUser.Password); // BCrypt format
 
         // Verify new password works
-        this.hashPasswordHandler.Handle(newPassword);
         Assert.True(BCrypt.Net.BCrypt.Verify(newPassword, updatedUser.Password));
     }
 
