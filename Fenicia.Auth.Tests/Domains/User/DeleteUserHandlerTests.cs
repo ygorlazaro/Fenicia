@@ -1,6 +1,6 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.Security.HashPassword;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User.Commands;
 using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
@@ -25,7 +25,6 @@ public class DeleteUserHandlerTests : IDisposable
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        var hashPasswordHandler = new HashPasswordHandler();
         this.handler = new DeleteUserHandler(this.context);
         var faker = new Faker();
 
@@ -33,7 +32,7 @@ public class DeleteUserHandlerTests : IDisposable
         this.testUser = new UserModel
         {
             Email = faker.Internet.Email(),
-            Password = hashPasswordHandler.Handle(faker.Internet.Password()),
+            Password =faker.Internet.Password().Hash(),
             Name = faker.Person.FullName
         };
 

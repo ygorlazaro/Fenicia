@@ -3,7 +3,6 @@ using Bogus;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.AddForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.ResetPassword;
-using Fenicia.Auth.Domains.Security.HashPassword;
 using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.API;
 using Fenicia.Common.Data;
@@ -29,7 +28,6 @@ public class ForgotPasswordControllerTests : IDisposable
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        this.mockHashPasswordHandler = new Mock<HashPasswordHandler>();
         var changePasswordHandler = new UpdatePasswordHandler(this.context);
         var addForgotPasswordHandler = new AddForgotPasswordHandler(this.context);
         var resetPasswordHandler = new ResetPasswordHandler(this.context, changePasswordHandler);
@@ -56,7 +54,6 @@ public class ForgotPasswordControllerTests : IDisposable
 
     private readonly ForgotPasswordController controller;
     private readonly DefaultContext context;
-    private readonly Mock<HashPasswordHandler> mockHashPasswordHandler;
     private readonly Faker faker;
 
     [Fact]
@@ -178,10 +175,6 @@ public class ForgotPasswordControllerTests : IDisposable
         this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
 
-        this.mockHashPasswordHandler
-            .Setup(h => h.Handle(newPassword))
-            .Returns(this.faker.Internet.Password());
-
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act
@@ -290,10 +283,6 @@ public class ForgotPasswordControllerTests : IDisposable
         this.context.AuthUsers.Add(user);
         this.context.AuthForgottenPasswords.Add(forgotPassword);
         await this.context.SaveChangesAsync(CancellationToken.None);
-
-        this.mockHashPasswordHandler
-            .Setup(h => h.Handle(newPassword))
-            .Returns(this.faker.Internet.Password());
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 

@@ -1,6 +1,6 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.Security.HashPassword;
+using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User.Commands;
 using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.Data;
@@ -21,7 +21,6 @@ public class UpdateUserHandlerTests : IDisposable
             .Options;
 
         this.context = new DefaultContext(options, new TestCompanyContext());
-        this.hashPasswordHandler = new HashPasswordHandler();
         this.handler = new UpdateUserHandler(this.context);
         this.faker = new Faker();
 
@@ -29,7 +28,7 @@ public class UpdateUserHandlerTests : IDisposable
         this.testUser = new UserModel
         {
             Email = this.faker.Internet.Email(),
-            Password = this.hashPasswordHandler.Handle(this.faker.Internet.Password()),
+            Password = this.faker.Internet.Password().Hash(),
             Name = this.faker.Person.FullName
         };
 
@@ -45,7 +44,6 @@ public class UpdateUserHandlerTests : IDisposable
 
     private readonly UpdateUserHandler handler;
     private readonly DefaultContext context;
-    private readonly HashPasswordHandler hashPasswordHandler;
     private readonly Faker faker;
     private readonly UserModel testUser;
 
@@ -113,7 +111,7 @@ public class UpdateUserHandlerTests : IDisposable
         var anotherUser = new UserModel
         {
             Email = existingEmail,
-            Password = this.hashPasswordHandler.Handle(this.faker.Internet.Password()),
+            Password = this.faker.Internet.Password().Hash(),
             Name = this.faker.Person.FullName
         };
 
