@@ -1,11 +1,12 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Module.Basic.Domains.Order.CreateOrder;
 
 using Microsoft.EntityFrameworkCore;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Module.Basic.Domains.Order.Commands;
+using Fenicia.Module.Basic.Domains.Order.Handlers;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 
@@ -18,7 +19,8 @@ public class CreateOrderHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new CreateOrderHandler(this.db);
     }
 
@@ -34,8 +36,12 @@ public class CreateOrderHandlerTests : IDisposable
         var employeeId = Guid.NewGuid();
         var details = new List<OrderDetailCommand>
         {
-            new(Guid.NewGuid(), 10.00m, 5),
-            new(Guid.NewGuid(), 20.00m, 3)
+            new(Guid.NewGuid(),
+                10.00m,
+                5),
+            new(Guid.NewGuid(),
+                20.00m,
+                3)
         };
 
         var command = new CreateOrderCommand(
@@ -47,16 +53,23 @@ public class CreateOrderHandlerTests : IDisposable
             employeeId);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(userId, result.UserId);
-        Assert.Equal(customerId, result.CustomerId);
-        Assert.Equal(employeeId, result.EmployeeId);
-        Assert.Equal(110.00m, result.TotalAmount);
-        Assert.Equal(command.SaleDate, result.SaleDate);
-        Assert.Equal(OrderStatus.Pending, result.Status);
+        Assert.Equal(userId,
+            result.UserId);
+        Assert.Equal(customerId,
+            result.CustomerId);
+        Assert.Equal(employeeId,
+            result.EmployeeId);
+        Assert.Equal(110.00m,
+            result.TotalAmount);
+        Assert.Equal(command.SaleDate,
+            result.SaleDate);
+        Assert.Equal(OrderStatus.Pending,
+            result.Status);
     }
 
     [Fact]
@@ -65,7 +78,9 @@ public class CreateOrderHandlerTests : IDisposable
         // Arrange
         var details = new List<OrderDetailCommand>
         {
-            new(Guid.NewGuid(), 15.00m, 2)
+            new(Guid.NewGuid(),
+                15.00m,
+                2)
         };
 
         var command = new CreateOrderCommand(
@@ -76,11 +91,13 @@ public class CreateOrderHandlerTests : IDisposable
             details);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(30.00m, result.TotalAmount);
+        Assert.Equal(30.00m,
+            result.TotalAmount);
     }
 
     [Fact]
@@ -106,7 +123,9 @@ public class CreateOrderHandlerTests : IDisposable
 
         var details = new List<OrderDetailCommand>
         {
-            new(productId, 10.00m, 5)
+            new(productId,
+                10.00m,
+                5)
         };
 
         var command = new CreateOrderCommand(
@@ -118,22 +137,30 @@ public class CreateOrderHandlerTests : IDisposable
             employeeId);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var stockMovements = await this.db.BasicStockMovements.ToListAsync();
         Assert.Single(stockMovements);
-        Assert.Equal(productId, stockMovements[0].ProductId);
-        Assert.Equal(customerId, stockMovements[0].CustomerId);
-        Assert.Equal(employeeId, stockMovements[0].EmployeeId);
-        Assert.Equal(StockMovementType.Out, stockMovements[0].Type);
-        Assert.Equal(5, stockMovements[0].Quantity);
-        Assert.Contains("Sale order", stockMovements[0].Reason);
+        Assert.Equal(productId,
+            stockMovements[0].ProductId);
+        Assert.Equal(customerId,
+            stockMovements[0].CustomerId);
+        Assert.Equal(employeeId,
+            stockMovements[0].EmployeeId);
+        Assert.Equal(StockMovementType.Out,
+            stockMovements[0].Type);
+        Assert.Equal(5,
+            stockMovements[0].Quantity);
+        Assert.Contains("Sale order",
+            stockMovements[0].Reason);
 
         // Verify product quantity was reduced
         var updatedProduct = await this.db.BasicProducts.FindAsync(productId);
         Assert.NotNull(updatedProduct);
-        Assert.Equal(95, updatedProduct.Quantity); // 100 - 5
+        Assert.Equal(95,
+            updatedProduct.Quantity); // 100 - 5
     }
 
     [Fact]
@@ -160,13 +187,18 @@ public class CreateOrderHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        this.db.BasicProducts.AddRange(product1, product2);
+        this.db.BasicProducts.AddRange(product1,
+            product2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var details = new List<OrderDetailCommand>
         {
-            new(product1.Id, 10.00m, 5),
-            new(product2.Id, 15.00m, 3)
+            new(product1.Id,
+                10.00m,
+                5),
+            new(product2.Id,
+                15.00m,
+                3)
         };
 
         var command = new CreateOrderCommand(
@@ -177,13 +209,16 @@ public class CreateOrderHandlerTests : IDisposable
             details);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var updatedProduct1 = await this.db.BasicProducts.FindAsync(product1.Id);
         var updatedProduct2 = await this.db.BasicProducts.FindAsync(product2.Id);
-        Assert.Equal(45, updatedProduct1?.Quantity); // 50 - 5
-        Assert.Equal(27, updatedProduct2?.Quantity); // 30 - 3
+        Assert.Equal(45,
+            updatedProduct1?.Quantity); // 50 - 5
+        Assert.Equal(27,
+            updatedProduct2?.Quantity); // 30 - 3
     }
 
     [Fact]
@@ -192,7 +227,9 @@ public class CreateOrderHandlerTests : IDisposable
         // Arrange
         var details = new List<OrderDetailCommand>
         {
-            new(Guid.NewGuid(), 10.00m, 5)
+            new(Guid.NewGuid(),
+                10.00m,
+                5)
         };
 
         var command = new CreateOrderCommand(
@@ -203,13 +240,16 @@ public class CreateOrderHandlerTests : IDisposable
             details);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var orders = await this.db.BasicOrders.ToListAsync();
         Assert.Single(orders);
-        Assert.Equal(command.CustomerId, orders[0].CustomerId);
-        Assert.Equal(OrderStatus.Pending, orders[0].Status);
+        Assert.Equal(command.CustomerId,
+            orders[0].CustomerId);
+        Assert.Equal(OrderStatus.Pending,
+            orders[0].Status);
     }
 
     [Fact]
@@ -218,8 +258,12 @@ public class CreateOrderHandlerTests : IDisposable
         // Arrange
         var details = new List<OrderDetailCommand>
         {
-            new(Guid.NewGuid(), 10.00m, 5),
-            new(Guid.NewGuid(), 20.00m, 3)
+            new(Guid.NewGuid(),
+                10.00m,
+                5),
+            new(Guid.NewGuid(),
+                20.00m,
+                3)
         };
 
         var command = new CreateOrderCommand(
@@ -230,11 +274,13 @@ public class CreateOrderHandlerTests : IDisposable
             details);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var orderDetails = await this.db.BasicOrderDetails.ToListAsync();
-        Assert.Equal(2, orderDetails.Count);
+        Assert.Equal(2,
+            orderDetails.Count);
     }
 
     [Fact]
@@ -243,7 +289,9 @@ public class CreateOrderHandlerTests : IDisposable
         // Arrange
         var details = new List<OrderDetailCommand>
         {
-            new(Guid.NewGuid(), 10.00m, 5)
+            new(Guid.NewGuid(),
+                10.00m,
+                5)
         };
 
         var command = new CreateOrderCommand(
@@ -254,7 +302,8 @@ public class CreateOrderHandlerTests : IDisposable
             details);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result.EmployeeId);

@@ -19,7 +19,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new AddForgotPasswordHandler(this.db);
         this.faker = new Faker();
     }
@@ -55,14 +56,17 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var command = new AddForgotPasswordCommand(email);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var forgotPassword = await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
         Assert.NotNull(forgotPassword);
-        Assert.Equal(6, forgotPassword.Code.Length);
+        Assert.Equal(6,
+            forgotPassword.Code.Length);
         Assert.True(forgotPassword.IsActive);
-        Assert.Equal(userId, forgotPassword.UserId);
+        Assert.Equal(userId,
+            forgotPassword.UserId);
         Assert.True(forgotPassword.ExpirationDate > DateTime.UtcNow);
     }
 
@@ -75,9 +79,11 @@ public class AddForgotPasswordHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("User with given email does not exist.", ex.Message);
+        Assert.Equal("User with given email does not exist.",
+            ex.Message);
     }
 
     [Fact]
@@ -103,9 +109,11 @@ public class AddForgotPasswordHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("User with given email does not exist.", ex.Message);
+        Assert.Equal("User with given email does not exist.",
+            ex.Message);
     }
 
     [Fact]
@@ -133,19 +141,23 @@ public class AddForgotPasswordHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.db.AuthUsers.AddRange(user1, user2);
+        this.db.AuthUsers.AddRange(user1,
+            user2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddForgotPasswordCommand(email1);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var forgotPassword = await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId1);
         Assert.NotNull(forgotPassword);
-        Assert.Equal(userId1, forgotPassword.UserId);
-        Assert.Equal(6, forgotPassword.Code.Length);
+        Assert.Equal(userId1,
+            forgotPassword.UserId);
+        Assert.Equal(6,
+            forgotPassword.Code.Length);
 
         var forgotPasswordForUser2 =
             await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId2);
@@ -173,12 +185,15 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var command = new AddForgotPasswordCommand(email);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var codes = await this.db.AuthForgottenPasswords.Where(fp => fp.UserId == userId).ToListAsync();
-        Assert.Equal(2, codes.Count);
+        Assert.Equal(2,
+            codes.Count);
         Assert.True(codes.All(c => c.IsActive));
         Assert.True(codes.All(c => c.Code.Length == 6));
     }
@@ -192,9 +207,11 @@ public class AddForgotPasswordHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("User with given email does not exist.", ex.Message);
+        Assert.Equal("User with given email does not exist.",
+            ex.Message);
     }
 
     [Fact]
@@ -222,19 +239,23 @@ public class AddForgotPasswordHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.db.AuthUsers.AddRange(user1, user2);
+        this.db.AuthUsers.AddRange(user1,
+            user2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command1 = new AddForgotPasswordCommand(email1);
         var command2 = new AddForgotPasswordCommand(email2);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command1,
+            CancellationToken.None);
+        await this.handler.Handle(command2,
+            CancellationToken.None);
 
         // Assert
         var codes = await this.db.AuthForgottenPasswords.ToListAsync();
         var distinctCodes = codes.Select(c => c.Code).Distinct().ToList();
-        Assert.Equal(2, distinctCodes.Count);
+        Assert.Equal(2,
+            distinctCodes.Count);
     }
 }

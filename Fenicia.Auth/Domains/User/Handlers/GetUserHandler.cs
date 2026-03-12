@@ -24,6 +24,9 @@ public class GetUserHandler(
             ))
             .ToListAsync(ct);
 
-        return new Pagination<List<UserListItemResponse>>(users, totalCount, query.Page, query.PerPage);
+        return new Pagination<List<UserListItemResponse>>(users,
+            totalCount,
+            query.Page,
+            query.PerPage);
     }
 }

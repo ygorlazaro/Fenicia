@@ -18,7 +18,8 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new DeleteProjectTaskHandler(this.db);
         this.faker = new Faker();
     }
@@ -63,13 +64,19 @@ public class DeleteProjectTaskHandlerTests : IDisposable
         var beforeDelete = DateTime.UtcNow;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedTask = await this.db.ProjectTasks.FindAsync([taskId], CancellationToken.None);
+        var deletedTask = await this.db.ProjectTasks.FindAsync([
+                taskId
+            ],
+            CancellationToken.None);
         Assert.NotNull(deletedTask);
         Assert.NotNull(deletedTask.Deleted);
-        Assert.InRange(deletedTask.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
+        Assert.InRange(deletedTask.Deleted.Value,
+            beforeDelete.AddSeconds(-1),
+            DateTime.UtcNow.AddSeconds(1));
     }
 
     [Fact]
@@ -79,7 +86,8 @@ public class DeleteProjectTaskHandlerTests : IDisposable
         var command = new DeleteProjectTaskCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var tasks = await this.db.ProjectTasks.ToListAsync();
@@ -93,7 +101,8 @@ public class DeleteProjectTaskHandlerTests : IDisposable
         var command = new DeleteProjectTaskCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var tasks = await this.db.ProjectTasks.ToListAsync();
@@ -139,17 +148,25 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(task1, task2);
+        this.db.ProjectTasks.AddRange(task1,
+            task2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskCommand(task1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedTask = await this.db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
-        var notDeletedTask = await this.db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
+        var deletedTask = await this.db.ProjectTasks.FindAsync([
+                task1Id
+            ],
+            CancellationToken.None);
+        var notDeletedTask = await this.db.ProjectTasks.FindAsync([
+                task2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(deletedTask);
         Assert.NotNull(deletedTask.Deleted);
@@ -212,18 +229,30 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(task1, task2, task3);
+        this.db.ProjectTasks.AddRange(task1,
+            task2,
+            task3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskCommand(task2Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var task1InDb = await this.db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
-        var deletedTask = await this.db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
-        var task3InDb = await this.db.ProjectTasks.FindAsync([task3Id], CancellationToken.None);
+        var task1InDb = await this.db.ProjectTasks.FindAsync([
+                task1Id
+            ],
+            CancellationToken.None);
+        var deletedTask = await this.db.ProjectTasks.FindAsync([
+                task2Id
+            ],
+            CancellationToken.None);
+        var task3InDb = await this.db.ProjectTasks.FindAsync([
+                task3Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(task1InDb);
         Assert.NotNull(deletedTask);

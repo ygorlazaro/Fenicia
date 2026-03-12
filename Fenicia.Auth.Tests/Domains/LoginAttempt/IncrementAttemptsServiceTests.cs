@@ -36,8 +36,10 @@ public class IncrementAttemptsServiceTests : IDisposable
 
         
         // Assert
-        Assert.True(this.cache.TryGetValue(key, out int count));
-        Assert.Equal(1, count);
+        Assert.True(this.cache.TryGetValue(key,
+            out int count));
+        Assert.Equal(1,
+            count);
     }
 
     [Fact]
@@ -46,15 +48,18 @@ public class IncrementAttemptsServiceTests : IDisposable
         // Arrange
         var email = this.faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 3);
+        this.cache.Set(key,
+            3);
 
         // Act
         await this.handler.SetKey(email);
 
         
         // Assert
-        Assert.True(this.cache.TryGetValue(key, out int count));
-        Assert.Equal(4, count);
+        Assert.True(this.cache.TryGetValue(key,
+            out int count));
+        Assert.Equal(4,
+            count);
     }
 
     [Fact]
@@ -64,15 +69,18 @@ public class IncrementAttemptsServiceTests : IDisposable
         var email = this.faker.Internet.Email();
         var upperCaseEmail = email.ToUpper();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 2);
+        this.cache.Set(key,
+            2);
 
         // Act
         await this.handler.SetKey(upperCaseEmail);
 
         
         // Assert
-        Assert.True(this.cache.TryGetValue(key, out int count));
-        Assert.Equal(3, count);
+        Assert.True(this.cache.TryGetValue(key,
+            out int count));
+        Assert.Equal(3,
+            count);
     }
 
     [Fact]
@@ -94,8 +102,10 @@ public class IncrementAttemptsServiceTests : IDisposable
 
         
         // Assert
-        Assert.True(this.cache.TryGetValue(key, out int count));
-        Assert.Equal(1, count);
+        Assert.True(this.cache.TryGetValue(key,
+            out int count));
+        Assert.Equal(1,
+            count);
     }
 
     [Fact]
@@ -112,8 +122,10 @@ public class IncrementAttemptsServiceTests : IDisposable
         // Assert
         var key = $"login-attempt:{email.ToLower()}";
         
-        Assert.True(this.cache.TryGetValue(key, out int count));
-        Assert.Equal(3, count);
+        Assert.True(this.cache.TryGetValue(key,
+            out int count));
+        Assert.Equal(3,
+            count);
     }
 
     [Fact]
@@ -132,10 +144,14 @@ public class IncrementAttemptsServiceTests : IDisposable
         var key1 = $"login-attempt:{email1.ToLower()}";
         var key2 = $"login-attempt:{email2.ToLower()}";
         
-        Assert.True(this.cache.TryGetValue(key1, out int count1));
-        Assert.Equal(2, count1);
-        Assert.True(this.cache.TryGetValue(key2, out int count2));
-        Assert.Equal(1, count2);
+        Assert.True(this.cache.TryGetValue(key1,
+            out int count1));
+        Assert.Equal(2,
+            count1);
+        Assert.True(this.cache.TryGetValue(key2,
+            out int count2));
+        Assert.Equal(1,
+            count2);
     }
 
     [Fact]
@@ -149,7 +165,8 @@ public class IncrementAttemptsServiceTests : IDisposable
         await this.handler.SetKey(email);
 
         // Assert - verify entry exists
-        Assert.True(this.cache.TryGetValue(key, out _));
+        Assert.True(this.cache.TryGetValue(key,
+            out _));
     }
 
     [Fact]
@@ -158,15 +175,18 @@ public class IncrementAttemptsServiceTests : IDisposable
         // Arrange
         var email = this.faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 99);
+        this.cache.Set(key,
+            99);
 
         // Act
         await this.handler.SetKey(email);
 
         
         // Assert
-        Assert.True(this.cache.TryGetValue(key, out int count));
-        Assert.Equal(100, count);
+        Assert.True(this.cache.TryGetValue(key,
+            out int count));
+        Assert.Equal(100,
+            count);
     }
 
     [Fact]
@@ -181,7 +201,9 @@ public class IncrementAttemptsServiceTests : IDisposable
 
         
         // Assert
-        Assert.True(this.cache.TryGetValue(key, out int count));
-        Assert.Equal(1, count);
+        Assert.True(this.cache.TryGetValue(key,
+            out int count));
+        Assert.Equal(1,
+            count);
     }
 }

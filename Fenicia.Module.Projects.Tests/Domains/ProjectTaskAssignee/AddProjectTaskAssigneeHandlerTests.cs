@@ -15,7 +15,8 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new AddProjectTaskAssigneeHandler(this.db);
     }
 
@@ -41,12 +42,15 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(command.Role, result.Role);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(command.Role,
+            result.Role);
     }
 
     [Fact]
@@ -64,15 +68,18 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
             assignedAt);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var assignee = await this.db.ProjectTaskAssignees
             .FirstOrDefaultAsync(a => a.Id == command.Id);
 
         Assert.NotNull(assignee);
-        Assert.Equal(taskId, assignee.TaskId);
-        Assert.Equal(userId, assignee.UserId);
+        Assert.Equal(taskId,
+            assignee.TaskId);
+        Assert.Equal(userId,
+            assignee.UserId);
     }
 
     [Fact]
@@ -95,12 +102,15 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
             DateTime.UtcNow.AddDays(-3));
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command1,
+            CancellationToken.None);
+        await this.handler.Handle(command2,
+            CancellationToken.None);
 
         // Assert
         var assignees = await this.db.ProjectTaskAssignees.ToListAsync();
-        Assert.Equal(2, assignees.Count);
+        Assert.Equal(2,
+            assignees.Count);
     }
 
     [Fact]
@@ -115,12 +125,15 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal("Contributor", result.Role);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal("Contributor",
+            result.Role);
     }
 
     [Fact]
@@ -136,11 +149,14 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
             pastDate);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(pastDate, result.AssignedAt);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(pastDate,
+            result.AssignedAt);
     }
 }

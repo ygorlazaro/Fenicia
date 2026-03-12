@@ -7,7 +7,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Module.Basic.Domains.State;
-using Fenicia.Module.Basic.Domains.State.GetAll;
+using Fenicia.Module.Basic.Domains.State.Handlers;
+using Fenicia.Module.Basic.Domains.State.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +28,8 @@ public class StateControllerTests : IDisposable
             .Options;
 
         this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
+        this.db = new DefaultContext(options,
+            this.companyContext);
         this.getAllStateHandler = new GetAllStateHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
@@ -60,10 +62,13 @@ public class StateControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", Guid.NewGuid().ToString())
+            new("userId",
+                Guid.NewGuid()
+                    .ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -78,7 +83,8 @@ public class StateControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAllAsync(wide, ct);
+        var result = await this.controller.GetAllAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -110,14 +116,16 @@ public class StateControllerTests : IDisposable
             Uf = this.faker.Address.StateAbbr()
         };
 
-        this.db.AuthStates.AddRange(state1, state2);
+        this.db.AuthStates.AddRange(state1,
+            state2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAllAsync(wide, ct);
+        var result = await this.controller.GetAllAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -128,7 +136,8 @@ public class StateControllerTests : IDisposable
 
         var returnedStates = okResult.Value as List<GetAllStateResponse>;
         Assert.NotNull(returnedStates);
-        Assert.Equal(2, returnedStates.Count);
+        Assert.Equal(2,
+            returnedStates.Count);
     }
 
     [Fact]
@@ -156,14 +165,17 @@ public class StateControllerTests : IDisposable
             Uf = "RJ"
         };
 
-        this.db.AuthStates.AddRange(state1, state2, state3);
+        this.db.AuthStates.AddRange(state1,
+            state2,
+            state3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAllAsync(wide, ct);
+        var result = await this.controller.GetAllAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -174,10 +186,14 @@ public class StateControllerTests : IDisposable
 
         var returnedStates = okResult.Value as List<GetAllStateResponse>;
         Assert.NotNull(returnedStates);
-        Assert.Equal(3, returnedStates.Count);
-        Assert.Equal("AC", returnedStates[0].Uf);
-        Assert.Equal("RJ", returnedStates[1].Uf);
-        Assert.Equal("SP", returnedStates[2].Uf);
+        Assert.Equal(3,
+            returnedStates.Count);
+        Assert.Equal("AC",
+            returnedStates[0].Uf);
+        Assert.Equal("RJ",
+            returnedStates[1].Uf);
+        Assert.Equal("SP",
+            returnedStates[2].Uf);
     }
 
     [Fact]
@@ -187,7 +203,8 @@ public class StateControllerTests : IDisposable
         var controllerType = typeof(StateController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -201,11 +218,13 @@ public class StateControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -216,7 +235,8 @@ public class StateControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);

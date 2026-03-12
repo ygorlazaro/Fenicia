@@ -35,7 +35,9 @@ public class ProjectController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projects = await getAllProjectHandler.Handle(new GetAllProjectQuery(page, perPage), ct);
+        var projects = await getAllProjectHandler.Handle(new GetAllProjectQuery(page,
+                perPage),
+            ct);
 
         return Ok(projects);
     }
@@ -51,7 +53,8 @@ public class ProjectController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var project = await getProductByIdHandler.Handle(new GetProjectByIdQuery(id), ct);
+        var project = await getProductByIdHandler.Handle(new GetProjectByIdQuery(id),
+            ct);
 
         return project is null ? NotFound() : Ok(project);
     }
@@ -70,9 +73,11 @@ public class ProjectController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var project = await addProjectHandler.Handle(command, ct);
+        var project = await addProjectHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, project);
+        return new CreatedResult(string.Empty,
+            project);
     }
 
     [HttpPatch("{id:guid}")]
@@ -91,7 +96,11 @@ public class ProjectController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var project = await updateProjectHandler.Handle(command with { Id = id }, ct);
+        var project = await updateProjectHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return project is null ? NotFound() : Ok(project);
     }
@@ -108,7 +117,8 @@ public class ProjectController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteProjectHandler.Handle(new DeleteProjectCommand(id), ct);
+        await deleteProjectHandler.Handle(new DeleteProjectCommand(id),
+            ct);
 
         return NoContent();
     }

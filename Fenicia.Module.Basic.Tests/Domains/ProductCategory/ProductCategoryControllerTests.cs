@@ -7,13 +7,12 @@ using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Product.GetByCategoryId;
+using Fenicia.Module.Basic.Domains.Product.Handlers;
+using Fenicia.Module.Basic.Domains.Product.Responses;
 using Fenicia.Module.Basic.Domains.ProductCategory;
-using Fenicia.Module.Basic.Domains.ProductCategory.Add;
-using Fenicia.Module.Basic.Domains.ProductCategory.Delete;
-using Fenicia.Module.Basic.Domains.ProductCategory.GetAll;
-using Fenicia.Module.Basic.Domains.ProductCategory.GetById;
-using Fenicia.Module.Basic.Domains.ProductCategory.Update;
+using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
+using Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
+using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +32,8 @@ public class ProductCategoryControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.testCategoryId = Guid.NewGuid();
         var getAllProductCategoryHandler = new GetAllProductCategoryHandler(this.db);
         var getProductCategoryByIdHandler = new GetProductCategoryByIdHandler(this.db);
@@ -71,10 +71,13 @@ public class ProductCategoryControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", Guid.NewGuid().ToString())
+            new("userId",
+                Guid.NewGuid()
+                    .ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -89,7 +92,10 @@ public class ProductCategoryControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page: 1, perPage: 10, ct);
+        var result = await this.controller.GetAsync(wide,
+            page: 1,
+            perPage: 10,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -101,7 +107,8 @@ public class ProductCategoryControllerTests : IDisposable
         var returnedCategories = okResult.Value as Pagination<List<GetAllProductCategoryResponse>>;
         Assert.NotNull(returnedCategories);
         Assert.Empty(returnedCategories.Data);
-        Assert.Equal(0, returnedCategories.Total);
+        Assert.Equal(0,
+            returnedCategories.Total);
     }
 
     [Fact]
@@ -120,14 +127,18 @@ public class ProductCategoryControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
+        this.db.BasicProductCategories.AddRange(category1,
+            category2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page: 1, perPage: 10, ct);
+        var result = await this.controller.GetAsync(wide,
+            page: 1,
+            perPage: 10,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -138,8 +149,10 @@ public class ProductCategoryControllerTests : IDisposable
 
         var returnedCategories = okResult.Value as Pagination<List<GetAllProductCategoryResponse>>;
         Assert.NotNull(returnedCategories);
-        Assert.Equal(2, returnedCategories.Data.Count);
-        Assert.Equal(2, returnedCategories.Total);
+        Assert.Equal(2,
+            returnedCategories.Data.Count);
+        Assert.Equal(2,
+            returnedCategories.Total);
     }
 
     [Fact]
@@ -159,7 +172,9 @@ public class ProductCategoryControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testCategoryId, wide, ct);
+        var result = await this.controller.GetByIdAsync(this.testCategoryId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -170,8 +185,10 @@ public class ProductCategoryControllerTests : IDisposable
 
         var returnedCategory = okResult.Value as GetProductCategoryByIdResponse;
         Assert.NotNull(returnedCategory);
-        Assert.Equal(this.testCategoryId, returnedCategory.Id);
-        Assert.Equal(category.Name, returnedCategory.Name);
+        Assert.Equal(this.testCategoryId,
+            returnedCategory.Id);
+        Assert.Equal(category.Name,
+            returnedCategory.Name);
     }
 
     [Fact]
@@ -183,7 +200,9 @@ public class ProductCategoryControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
+        var result = await this.controller.GetByIdAsync(nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -194,12 +213,15 @@ public class ProductCategoryControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithCategory()
     {
         // Arrange
-        var command = new AddProductCategoryCommand(Guid.NewGuid(), this.faker.Commerce.Categories(1)[0]);
+        var command = new AddProductCategoryCommand(Guid.NewGuid(),
+            this.faker.Commerce.Categories(1)[0]);
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await this.controller.PostAsync(command,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -207,11 +229,13 @@ public class ProductCategoryControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201, createdResult.StatusCode);
+        Assert.Equal(201,
+            createdResult.StatusCode);
 
         var returnedCategory = createdResult.Value as AddProductCategoryResponse;
         Assert.NotNull(returnedCategory);
-        Assert.Equal(command.Name, returnedCategory.Name);
+        Assert.Equal(command.Name,
+            returnedCategory.Name);
     }
 
     [Fact]
@@ -227,12 +251,16 @@ public class ProductCategoryControllerTests : IDisposable
         this.db.BasicProductCategories.Add(category);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProductCategoryCommand(this.testCategoryId, this.faker.Commerce.Categories(1)[0] + " Updated");
+        var command = new UpdateProductCategoryCommand(this.testCategoryId,
+            this.faker.Commerce.Categories(1)[0] + " Updated");
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, this.testCategoryId, wide, ct);
+        var result = await this.controller.PatchAsync(command,
+            this.testCategoryId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -241,9 +269,10 @@ public class ProductCategoryControllerTests : IDisposable
         var okResult = result.Result as OkObjectResult;
         Assert.NotNull(okResult);
 
-        var returnedCategory = okResult.Value as UpdateProductCategoryRecord;
+        var returnedCategory = okResult.Value as UpdateProductCategoryResponse;
         Assert.NotNull(returnedCategory);
-        Assert.Contains("Updated", returnedCategory.Name);
+        Assert.Contains("Updated",
+            returnedCategory.Name);
     }
 
     [Fact]
@@ -251,12 +280,16 @@ public class ProductCategoryControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdateProductCategoryCommand(nonExistentId, this.faker.Commerce.Categories(1)[0]);
+        var command = new UpdateProductCategoryCommand(nonExistentId,
+            this.faker.Commerce.Categories(1)[0]);
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
+        var result = await this.controller.PatchAsync(command,
+            nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -280,13 +313,17 @@ public class ProductCategoryControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testCategoryId, wide, ct);
+        var result = await this.controller.DeleteAsync(this.testCategoryId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify category was deleted
-        var deletedCategory = await this.db.BasicProductCategories.FirstOrDefaultAsync(x => x.Id == this.testCategoryId && x.Deleted == null, ct);
+        var deletedCategory = await this.db.BasicProductCategories.FirstOrDefaultAsync(
+            x => x.Id == this.testCategoryId && x.Deleted == null,
+            ct);
         Assert.Null(deletedCategory);
     }
 
@@ -299,7 +336,9 @@ public class ProductCategoryControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
+        var result = await this.controller.DeleteAsync(nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -318,12 +357,16 @@ public class ProductCategoryControllerTests : IDisposable
         this.db.BasicProductCategories.Add(category);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId, query, wide, ct);
+        var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId,
+            query,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -368,15 +411,20 @@ public class ProductCategoryControllerTests : IDisposable
         };
 
         this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.AddRange(product1, product2);
+        this.db.BasicProducts.AddRange(product1,
+            product2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId, query, wide, ct);
+        var result = await this.controller.GetProductsByCategoryAsync(this.testCategoryId,
+            query,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -387,7 +435,8 @@ public class ProductCategoryControllerTests : IDisposable
 
         var returnedProducts = okResult.Value as List<GetProductsByCategoryIdResponse>;
         Assert.NotNull(returnedProducts);
-        Assert.Equal(2, returnedProducts.Count);
+        Assert.Equal(2,
+            returnedProducts.Count);
     }
 
     [Fact]
@@ -397,7 +446,8 @@ public class ProductCategoryControllerTests : IDisposable
         var controllerType = typeof(ProductCategoryController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -411,11 +461,13 @@ public class ProductCategoryControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -426,7 +478,8 @@ public class ProductCategoryControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);

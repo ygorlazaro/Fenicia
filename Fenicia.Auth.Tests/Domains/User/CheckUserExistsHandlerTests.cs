@@ -17,7 +17,8 @@ public class CheckUserExistsHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new CheckUserExistsHandler(this.db);
         this.faker = new Faker();
     }
@@ -44,10 +45,12 @@ public class CheckUserExistsHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(email, CancellationToken.None);
+        var result = await this.handler.Handle(email,
+            CancellationToken.None);
 
         // Assert
-        Assert.True(result, "Should return true when email exists");
+        Assert.True(result,
+            "Should return true when email exists");
     }
 
     [Fact]
@@ -57,10 +60,12 @@ public class CheckUserExistsHandlerTests : IDisposable
         var email = this.faker.Internet.Email();
 
         // Act
-        var result = await this.handler.Handle(email, CancellationToken.None);
+        var result = await this.handler.Handle(email,
+            CancellationToken.None);
 
         // Assert
-        Assert.False(result, "Should return false when email doesn't exist");
+        Assert.False(result,
+            "Should return false when email doesn't exist");
     }
 
     [Fact]
@@ -82,10 +87,12 @@ public class CheckUserExistsHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(upperCaseEmail, CancellationToken.None);
+        var result = await this.handler.Handle(upperCaseEmail,
+            CancellationToken.None);
 
         // Assert
-        Assert.False(result, "Email comparison is case-sensitive");
+        Assert.False(result,
+            "Email comparison is case-sensitive");
     }
 
     [Fact]
@@ -111,18 +118,25 @@ public class CheckUserExistsHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.db.AuthUsers.AddRange(user1, user2);
+        this.db.AuthUsers.AddRange(user1,
+            user2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result1 = await this.handler.Handle(email1, CancellationToken.None);
-        var result2 = await this.handler.Handle(email2, CancellationToken.None);
-        var result3 = await this.handler.Handle("other@example.com", CancellationToken.None);
+        var result1 = await this.handler.Handle(email1,
+            CancellationToken.None);
+        var result2 = await this.handler.Handle(email2,
+            CancellationToken.None);
+        var result3 = await this.handler.Handle("other@example.com",
+            CancellationToken.None);
 
         // Assert
-        Assert.True(result1, "Should find user1");
-        Assert.True(result2, "Should find user2");
-        Assert.False(result3, "Should not find other user");
+        Assert.True(result1,
+            "Should find user1");
+        Assert.True(result2,
+            "Should find user2");
+        Assert.False(result3,
+            "Should not find other user");
     }
 
     [Fact]
@@ -132,10 +146,12 @@ public class CheckUserExistsHandlerTests : IDisposable
         var email = this.faker.Internet.Email();
 
         // Act
-        var result = await this.handler.Handle(email, CancellationToken.None);
+        var result = await this.handler.Handle(email,
+            CancellationToken.None);
 
         // Assert
-        Assert.False(result, "Should return false with empty database");
+        Assert.False(result,
+            "Should return false with empty database");
     }
 
     [Fact]
@@ -157,10 +173,12 @@ public class CheckUserExistsHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(emailWithSpaces, CancellationToken.None);
+        var result = await this.handler.Handle(emailWithSpaces,
+            CancellationToken.None);
 
         // Assert
-        Assert.False(result, "Should not match email with extra spaces");
+        Assert.False(result,
+            "Should not match email with extra spaces");
     }
 
     [Fact]
@@ -182,10 +200,12 @@ public class CheckUserExistsHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(emailWithExtra, CancellationToken.None);
+        var result = await this.handler.Handle(emailWithExtra,
+            CancellationToken.None);
 
         // Assert
-        Assert.False(result, "Should not match email with extra characters");
+        Assert.False(result,
+            "Should not match email with extra characters");
     }
 
     public void Dispose()

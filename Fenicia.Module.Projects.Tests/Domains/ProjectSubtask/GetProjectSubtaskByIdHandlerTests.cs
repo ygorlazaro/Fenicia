@@ -18,7 +18,8 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetProjectSubtaskByIdHandler(this.db);
         this.faker = new Faker();
     }
@@ -56,12 +57,15 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
         var query = new GetProjectSubtaskByIdQuery(subtaskId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(subtaskId, result.Id);
-        Assert.Equal(subtask.Title, result.Title);
+        Assert.Equal(subtaskId,
+            result.Id);
+        Assert.Equal(subtask.Title,
+            result.Title);
     }
 
     [Fact]
@@ -71,7 +75,8 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
         var query = new GetProjectSubtaskByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -84,7 +89,8 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
         var query = new GetProjectSubtaskByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -118,18 +124,22 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        this.db.ProjectSubtasks.AddRange(subtask1, subtask2);
+        this.db.ProjectSubtasks.AddRange(subtask1,
+            subtask2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectSubtaskByIdQuery(subtask1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(subtask1Id, result.Id);
-        Assert.Equal(subtask1.Title, result.Title);
+        Assert.Equal(subtask1Id,
+            result.Id);
+        Assert.Equal(subtask1.Title,
+            result.Title);
     }
 
     [Fact]
@@ -155,12 +165,15 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
         var query = new GetProjectSubtaskByIdQuery(subtaskId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(subtaskId, result.Id);
+        Assert.Equal(subtaskId,
+            result.Id);
         Assert.True(result.IsCompleted);
-        Assert.Equal(completedAt, result.CompletedAt);
+        Assert.Equal(completedAt,
+            result.CompletedAt);
     }
 }

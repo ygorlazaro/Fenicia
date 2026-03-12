@@ -1,7 +1,8 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Supplier.Update;
+using Fenicia.Module.Basic.Domains.Supplier.Commands;
+using Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,8 @@ public class UpdateSupplierHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new UpdateSupplierHandler(this.db);
     }
 
@@ -60,11 +62,13 @@ public class UpdateSupplierHandlerTests : IDisposable
             "98.765.432/0001-10");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("98.765.432/0001-10", result.Cnpj);
+        Assert.Equal("98.765.432/0001-10",
+            result.Cnpj);
     }
 
     [Fact]
@@ -87,7 +91,8 @@ public class UpdateSupplierHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -113,7 +118,8 @@ public class UpdateSupplierHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -156,7 +162,8 @@ public class UpdateSupplierHandlerTests : IDisposable
             "98.765.432/0001-10");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var updatedSupplier = await this.db.BasicSuppliers
@@ -164,8 +171,10 @@ public class UpdateSupplierHandlerTests : IDisposable
             .FirstOrDefaultAsync(s => s.Id == supplierId);
 
         Assert.NotNull(updatedSupplier);
-        Assert.Equal("New Name", updatedSupplier.Person.Name);
-        Assert.Equal("98.765.432/0001-10", updatedSupplier.Cnpj);
+        Assert.Equal("New Name",
+            updatedSupplier.Person.Name);
+        Assert.Equal("98.765.432/0001-10",
+            updatedSupplier.Cnpj);
     }
 
     public void Dispose()

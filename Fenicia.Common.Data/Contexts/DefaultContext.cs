@@ -58,12 +58,12 @@ public partial class DefaultContext: DbContext
 
         foreach (var entry in entries)
         {
-            if (this.CurrentCompanyId == null)
+            entry.Entity.CompanyId = this.CurrentCompanyId switch
             {
-                throw new InvalidOperationException("CompanyId is required");
-            }
+                null => throw new InvalidOperationException("CompanyId is required"),
+                _ => this.CurrentCompanyId.Value
+            };
 
-            entry.Entity.CompanyId = this.CurrentCompanyId.Value;
         }
     }
 
@@ -94,19 +94,27 @@ public partial class DefaultContext: DbContext
             if (typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
             {
                 var method = typeof(DefaultContext)
-                    .GetMethod(nameof(SetFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
+                    .GetMethod(nameof(SetFilter),
+                        BindingFlags.NonPublic | BindingFlags.Instance)!
                     .MakeGenericMethod(entityType.ClrType);
 
-                method.Invoke(this, [modelBuilder]);
+                method.Invoke(this,
+                [
+                    modelBuilder
+                ]);
             }
             else if (typeof(BaseModel).IsAssignableFrom(entityType.ClrType) &&
                      !typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
             {
                 var method = typeof(DefaultContext)
-                    .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
+                    .GetMethod(nameof(SetSoftDeleteFilter),
+                        BindingFlags.NonPublic | BindingFlags.Instance)!
                     .MakeGenericMethod(entityType.ClrType);
 
-                method.Invoke(this, [modelBuilder]);
+                method.Invoke(this,
+                [
+                    modelBuilder
+                ]);
             }
         }
     }

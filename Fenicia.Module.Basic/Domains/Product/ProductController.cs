@@ -2,12 +2,10 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Product.Add;
-using Fenicia.Module.Basic.Domains.Product.Delete;
-using Fenicia.Module.Basic.Domains.Product.GetAll;
-using Fenicia.Module.Basic.Domains.Product.GetById;
-using Fenicia.Module.Basic.Domains.Product.GetProductPerformance;
-using Fenicia.Module.Basic.Domains.Product.Update;
+using Fenicia.Module.Basic.Domains.Product.Commands;
+using Fenicia.Module.Basic.Domains.Product.Handlers;
+using Fenicia.Module.Basic.Domains.Product.Queries;
+using Fenicia.Module.Basic.Domains.Product.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +36,9 @@ public class ProductController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var products = await getAllProductHandler.Handle(new GetAllProductQuery(page, perPage), ct);
+        var products = await getAllProductHandler.Handle(new GetAllProductQuery(page,
+                perPage),
+            ct);
 
         return Ok(products);
     }
@@ -54,7 +54,8 @@ public class ProductController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var product = await getProductByIdHandler.Handle(new GetProductByIdQuery(id), ct);
+        var product = await getProductByIdHandler.Handle(new GetProductByIdQuery(id),
+            ct);
 
         return product is null ? NotFound() : Ok(product);
     }
@@ -71,9 +72,11 @@ public class ProductController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var product = await addProductHandler.Handle(command, ct);
+        var product = await addProductHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, product);
+        return new CreatedResult(string.Empty,
+            product);
     }
 
     [HttpPatch("{id:guid}")]
@@ -90,7 +93,11 @@ public class ProductController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var product = await updateProductHandler.Handle(command with { Id = id }, ct);
+        var product = await updateProductHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return product is null ? NotFound() : Ok(product);
     }
@@ -105,7 +112,8 @@ public class ProductController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteProductHandler.Handle(new DeleteProductCommand(id), ct);
+        await deleteProductHandler.Handle(new DeleteProductCommand(id),
+            ct);
 
         return NoContent();
     }
@@ -121,7 +129,9 @@ public class ProductController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var performance = await getProductPerformanceHandler.Handle(new GetProductPerformanceQuery(days, topLimit), ct);
+        var performance = await getProductPerformanceHandler.Handle(new GetProductPerformanceQuery(days,
+                topLimit),
+            ct);
 
         return Ok(performance);
     }

@@ -22,7 +22,8 @@ public class BrevoProvider : IBrevoProvider
         var client = new TransactionalEmailsApi(config);
         var sendSmtpEmail = new SendSmtpEmail
         {
-            To = [new SendSmtpEmailTo(email, name)],
+            To = [new SendSmtpEmailTo(email,
+                name)],
             TemplateId = (int)template,
             Params = parameters
         };

@@ -2,12 +2,10 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Employee.Add;
-using Fenicia.Module.Basic.Domains.Employee.Delete;
-using Fenicia.Module.Basic.Domains.Employee.GetAll;
-using Fenicia.Module.Basic.Domains.Employee.GetById;
-using Fenicia.Module.Basic.Domains.Employee.GetEmployeePerformance;
-using Fenicia.Module.Basic.Domains.Employee.Update;
+using Fenicia.Module.Basic.Domains.Employee.Commands;
+using Fenicia.Module.Basic.Domains.Employee.Handlers;
+using Fenicia.Module.Basic.Domains.Employee.Queries;
+using Fenicia.Module.Basic.Domains.Employee.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +36,9 @@ public class EmployeeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var employees = await getAllEmployeeHandler.Handle(new GetAllEmployeeQuery(page, perPage), ct);
+        var employees = await getAllEmployeeHandler.Handle(new GetAllEmployeeQuery(page,
+                perPage),
+            ct);
 
         return Ok(employees);
     }
@@ -54,7 +54,8 @@ public class EmployeeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var employee = await getEmployeeByIdHandler.Handle(new GetEmployeeByIdQuery(id), ct);
+        var employee = await getEmployeeByIdHandler.Handle(new GetEmployeeByIdQuery(id),
+            ct);
 
         return employee is null ? NotFound() : Ok(employee);
     }
@@ -71,9 +72,11 @@ public class EmployeeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var employee = await addEmployeeHandler.Handle(command, ct);
+        var employee = await addEmployeeHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, employee);
+        return new CreatedResult(string.Empty,
+            employee);
     }
 
     [HttpPatch("{id:guid}")]
@@ -90,7 +93,11 @@ public class EmployeeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var employee = await updateEmployeeHandler.Handle(command with { Id = id }, ct);
+        var employee = await updateEmployeeHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return employee is null ? NotFound() : Ok(employee);
     }
@@ -105,7 +112,8 @@ public class EmployeeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteEmployeeHandler.Handle(new DeleteEmployeeCommand(id), ct);
+        await deleteEmployeeHandler.Handle(new DeleteEmployeeCommand(id),
+            ct);
 
         return NoContent();
     }
@@ -121,7 +129,9 @@ public class EmployeeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var performance = await getEmployeePerformanceHandler.Handle(new GetEmployeePerformanceQuery(days, topLimit), ct);
+        var performance = await getEmployeePerformanceHandler.Handle(new GetEmployeePerformanceQuery(days,
+                topLimit),
+            ct);
 
         return Ok(performance);
     }

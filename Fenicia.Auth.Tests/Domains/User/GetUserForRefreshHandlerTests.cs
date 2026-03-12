@@ -22,7 +22,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new GetUserForRefreshHandler(this.db);
         this.faker = new Faker();
     }
@@ -54,14 +55,18 @@ public class GetUserForRefreshHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.Equal(userId, result.Id);
-        Assert.Equal(email, result.Email);
-        Assert.Equal(name, result.Name);
+        Assert.Equal(userId,
+            result.Id);
+        Assert.Equal(email,
+            result.Email);
+        Assert.Equal(name,
+            result.Name);
     }
 
     [Fact]
@@ -72,8 +77,10 @@ public class GetUserForRefreshHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(userId, CancellationToken.None));
-        Assert.Equal("User not found", ex.Message);
+            await this.handler.Handle(userId,
+                CancellationToken.None));
+        Assert.Equal("User not found",
+            ex.Message);
     }
 
     [Fact]
@@ -103,17 +110,21 @@ public class GetUserForRefreshHandlerTests : IDisposable
             Password = this.faker.Internet.Password()
         };
 
-        this.db.AuthUsers.AddRange(user1, user2);
+        this.db.AuthUsers.AddRange(user1,
+            user2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId1, CancellationToken.None);
+        var result = await this.handler.Handle(userId1,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.Equal(userId1, result.Id);
-        Assert.Equal(email1, result.Email);
+        Assert.Equal(userId1,
+            result.Id);
+        Assert.Equal(email1,
+            result.Email);
     }
 
     [Fact]
@@ -124,8 +135,10 @@ public class GetUserForRefreshHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(userId, CancellationToken.None));
-        Assert.Equal("User not found", ex.Message);
+            await this.handler.Handle(userId,
+                CancellationToken.None));
+        Assert.Equal("User not found",
+            ex.Message);
     }
 
     [Fact]
@@ -149,7 +162,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -176,12 +190,14 @@ public class GetUserForRefreshHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.NotEqual(Guid.Empty,
+            result.Id);
         Assert.NotNull(result.Email);
         Assert.NotNull(result.Name);
     }

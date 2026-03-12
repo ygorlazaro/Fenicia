@@ -1,7 +1,9 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Dashboard.GetFinancialDashboard;
+using Fenicia.Module.Basic.Domains.Dashboard.Handlers;
+using Fenicia.Module.Basic.Domains.Dashboard.Queries;
+using Fenicia.Module.Basic.Domains.Dashboard.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +28,8 @@ public class DashboardController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var dashboard = await getFinancialDashboardHandler.Handle(new GetFinancialDashboardQuery(days), ct);
+        var dashboard = await getFinancialDashboardHandler.Handle(new GetFinancialDashboardQuery(days),
+            ct);
 
         return Ok(dashboard);
     }

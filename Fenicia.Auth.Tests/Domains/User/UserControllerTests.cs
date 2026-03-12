@@ -33,7 +33,8 @@ public class UserControllerTests
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
 
         this.mockHttpContext = new Mock<HttpContext>();
@@ -49,7 +50,14 @@ public class UserControllerTests
         var updateUserPasswordHandler = new UpdateUserPasswordHandler(this.db);
         var deleteUserHandler = new DeleteUserHandler(this.db);
 
-        this.controller = new UserController(getUserModuleModel, getUserCompaniesHandler, listUserHandler, createUserHandler, updateUserHandler, getUserByIdHandler, deleteUserHandler, updateUserPasswordHandler)
+        this.controller = new UserController(getUserModuleModel,
+            getUserCompaniesHandler,
+            listUserHandler,
+            createUserHandler,
+            updateUserHandler,
+            getUserByIdHandler,
+            deleteUserHandler,
+            updateUserPasswordHandler)
         {
             ControllerContext = new ControllerContext
             {
@@ -71,15 +79,18 @@ public class UserControllerTests
     {
         var claims = new List<Claim>
         {
-            new("userId", userId.ToString())
+            new("userId",
+                userId.ToString())
         };
 
         if (!string.IsNullOrWhiteSpace(role))
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new Claim(ClaimTypes.Role,
+                role));
         }
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -109,7 +120,8 @@ public class UserControllerTests
 
         var returnedModules = Assert.IsType<List<GetUserModulesResponse>>(okResult.Value);
         Assert.Empty(returnedModules);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -126,7 +138,8 @@ public class UserControllerTests
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = this.faker.Finance.Amount(10, 100)
+            Price = this.faker.Finance.Amount(10,
+                100)
         };
 
         var subscription = new SubscriptionModel
@@ -189,9 +202,12 @@ public class UserControllerTests
 
         var returnedModules = Assert.IsType<List<GetUserModulesResponse>>(okResult.Value);
         Assert.Single(returnedModules);
-        Assert.Equal(moduleId, returnedModules[0].Id);
-        Assert.Equal(module.Name, returnedModules[0].Name);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(moduleId,
+            returnedModules[0].Id);
+        Assert.Equal(module.Name,
+            returnedModules[0].Name);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -210,7 +226,8 @@ public class UserControllerTests
             ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -233,7 +250,8 @@ public class UserControllerTests
 
         var returnedCompanies = Assert.IsType<List<GetUserCompaniesResponse>>(okResult.Value);
         Assert.Empty(returnedCompanies);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -295,10 +313,14 @@ public class UserControllerTests
 
         var returnedCompanies = Assert.IsType<List<GetUserCompaniesResponse>>(okResult.Value);
         Assert.Single(returnedCompanies);
-        Assert.Equal(companyId, returnedCompanies[0].Id);
-        Assert.Equal("Admin", returnedCompanies[0].Role);
-        Assert.Equal(company.Name, returnedCompanies[0].CompanyName);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(companyId,
+            returnedCompanies[0].Id);
+        Assert.Equal("Admin",
+            returnedCompanies[0].Role);
+        Assert.Equal(company.Name,
+            returnedCompanies[0].CompanyName);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -314,7 +336,8 @@ public class UserControllerTests
             ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -324,7 +347,8 @@ public class UserControllerTests
         var controllerType = typeof(UserController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -338,11 +362,13 @@ public class UserControllerTests
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -353,7 +379,8 @@ public class UserControllerTests
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
@@ -365,7 +392,8 @@ public class UserControllerTests
     public async Task GetAsync_WithGodRole_ReturnsOkWithUsers()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
 
         var user = new UserModel
         {
@@ -395,7 +423,8 @@ public class UserControllerTests
     public async Task GetByIdAsync_WithGodRole_ReturnsFullUserData()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
 
         var roleId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
@@ -426,7 +455,8 @@ public class UserControllerTests
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetByIdAsync(user.Id, CancellationToken.None);
+        var result = await this.controller.GetByIdAsync(user.Id,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -437,11 +467,13 @@ public class UserControllerTests
     public async Task GetByIdAsync_WhenUserNotFound_ReturnsNotFound()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
         var nonExistentUserId = Guid.NewGuid();
 
         // Act
-        var result = await this.controller.GetByIdAsync(nonExistentUserId, CancellationToken.None);
+        var result = await this.controller.GetByIdAsync(nonExistentUserId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -452,7 +484,8 @@ public class UserControllerTests
     public async Task GetByIdAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
 
         var user = new UserModel
         {
@@ -467,7 +500,8 @@ public class UserControllerTests
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetByIdAsync(user.Id, CancellationToken.None);
+        var result = await this.controller.GetByIdAsync(user.Id,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -482,13 +516,17 @@ public class UserControllerTests
     public async Task UpdateAsync_WhenUserNotFound_ReturnsNotFound()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
         var nonExistentUserId = Guid.NewGuid();
 
-        var query = new UpdateUserCommand(nonExistentUserId, "Updated Name");
+        var query = new UpdateUserCommand(nonExistentUserId,
+            "Updated Name");
 
         // Act
-        var result = await this.controller.UpdateAsync(nonExistentUserId, query, CancellationToken.None);
+        var result = await this.controller.UpdateAsync(nonExistentUserId,
+            query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -499,7 +537,8 @@ public class UserControllerTests
     public async Task UpdateAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
 
         var user = new UserModel
         {
@@ -513,10 +552,13 @@ public class UserControllerTests
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new UpdateUserCommand(user.Id, "Updated Name");
+        var query = new UpdateUserCommand(user.Id,
+            "Updated Name");
 
         // Act
-        var result = await this.controller.UpdateAsync(user.Id, query, CancellationToken.None);
+        var result = await this.controller.UpdateAsync(user.Id,
+            query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -531,11 +573,13 @@ public class UserControllerTests
     public async Task DeleteAsync_WhenUserNotFound_ReturnsNotFound()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
         var nonExistentUserId = Guid.NewGuid();
 
         // Act
-        var result = await this.controller.DeleteAsync(nonExistentUserId, CancellationToken.None);
+        var result = await this.controller.DeleteAsync(nonExistentUserId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -546,7 +590,8 @@ public class UserControllerTests
     public async Task DeleteAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
 
         var user = new UserModel
         {
@@ -561,7 +606,8 @@ public class UserControllerTests
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.DeleteAsync(user.Id, CancellationToken.None);
+        var result = await this.controller.DeleteAsync(user.Id,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -572,7 +618,8 @@ public class UserControllerTests
     public async Task DeleteAsync_WhenAttemptingSelfDeletion_ReturnsBadRequest()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
 
         var user = new UserModel
         {
@@ -586,7 +633,8 @@ public class UserControllerTests
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.DeleteAsync(this.testUserId, CancellationToken.None);
+        var result = await this.controller.DeleteAsync(this.testUserId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -601,13 +649,17 @@ public class UserControllerTests
     public async Task ChangePasswordAsync_WhenUserNotFound_ReturnsNotFound()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
         var nonExistentUserId = Guid.NewGuid();
 
-        var query = new UpdateUserPasswordCommand(this.testUserId, this.faker.Internet.Password());
+        var query = new UpdateUserPasswordCommand(this.testUserId,
+            this.faker.Internet.Password());
 
         // Act
-        var result = await this.controller.ChangePasswordAsync(nonExistentUserId, query, CancellationToken.None);
+        var result = await this.controller.ChangePasswordAsync(nonExistentUserId,
+            query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -618,7 +670,8 @@ public class UserControllerTests
     public async Task ChangePasswordAsync_WhenUserIsDeleted_ReturnsNotFound()
     {
         // Arrange
-        SetupUserClaims(this.testUserId, "God");
+        SetupUserClaims(this.testUserId,
+            "God");
 
         var user = new UserModel
         {
@@ -632,10 +685,13 @@ public class UserControllerTests
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new UpdateUserPasswordCommand(user.Id, this.faker.Internet.Password());
+        var query = new UpdateUserPasswordCommand(user.Id,
+            this.faker.Internet.Password());
         
         // Act
-        var result = await this.controller.ChangePasswordAsync(user.Id, query, CancellationToken.None);
+        var result = await this.controller.ChangePasswordAsync(user.Id,
+            query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

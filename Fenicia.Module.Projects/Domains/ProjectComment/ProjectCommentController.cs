@@ -35,7 +35,9 @@ public class ProjectCommentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectComments = await getAllProjectCommentHandler.Handle(new GetAllProjectCommentQuery(page, perPage), ct);
+        var projectComments = await getAllProjectCommentHandler.Handle(new GetAllProjectCommentQuery(page,
+                perPage),
+            ct);
 
         return Ok(projectComments);
     }
@@ -51,7 +53,8 @@ public class ProjectCommentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectComment = await getProjectCommentByIdHandler.Handle(new GetProjectCommentByIdQuery(id), ct);
+        var projectComment = await getProjectCommentByIdHandler.Handle(new GetProjectCommentByIdQuery(id),
+            ct);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }
@@ -70,9 +73,11 @@ public class ProjectCommentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectComment = await addProjectCommentHandler.Handle(command, ct);
+        var projectComment = await addProjectCommentHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, projectComment);
+        return new CreatedResult(string.Empty,
+            projectComment);
     }
 
     [HttpPatch("{id:guid}")]
@@ -91,7 +96,11 @@ public class ProjectCommentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectComment = await updateProjectCommentHandler.Handle(command with { Id = id }, ct);
+        var projectComment = await updateProjectCommentHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }
@@ -108,7 +117,8 @@ public class ProjectCommentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteProjectCommentHandler.Handle(new DeleteProjectCommentCommand(id), ct);
+        await deleteProjectCommentHandler.Handle(new DeleteProjectCommentCommand(id),
+            ct);
 
         return NoContent();
     }

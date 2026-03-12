@@ -22,7 +22,8 @@ public class GetUserHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new GetUserHandler(this.db);
         
         var faker = new Faker();
@@ -54,47 +55,61 @@ public class GetUserHandlerTests : IDisposable
         var request = new GetUsersQuery();
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
 
-        Assert.Equal(1, result.Page);
-        Assert.Equal(10, result.PerPage);
+        Assert.Equal(1,
+            result.Page);
+        Assert.Equal(10,
+            result.PerPage);
         Assert.True(result.Data.Count <= 10);
-        Assert.Equal(15, result.Total);
-        Assert.Equal(2, result.Pages);
+        Assert.Equal(15,
+            result.Total);
+        Assert.Equal(2,
+            result.Pages);
     }
 
     [Fact]
     public async Task Handle_WhenPageSpecified_ReturnsCorrectPage()
     {
         // Arrange
-        var request = new GetUsersQuery(Page: 2, PerPage: 5);
+        var request = new GetUsersQuery(Page: 2,
+            PerPage: 5);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
 
-        Assert.Equal(2, result.Page);
-        Assert.Equal(5, result.PerPage);
-        Assert.Equal(5, result.Data.Count);
+        Assert.Equal(2,
+            result.Page);
+        Assert.Equal(5,
+            result.PerPage);
+        Assert.Equal(5,
+            result.Data.Count);
     }
 
     [Fact]
     public async Task Handle_UsersAreOrderedAlphabeticallyByName()
     {
         // Arrange
-        var request = new GetUsersQuery(Page: 1, PerPage: 15);
+        var request = new GetUsersQuery(Page: 1,
+            PerPage: 15);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(result.Data.Select(u => u.Name).OrderBy(n => n), result.Data.Select(u => u.Name));
+        Assert.Equal(result.Data.Select(u => u.Name)
+                .OrderBy(n => n),
+            result.Data.Select(u => u.Name));
     }
 
 
@@ -102,14 +117,17 @@ public class GetUserHandlerTests : IDisposable
     public async Task Handle_WhenLastPage_HasNextIsFalse()
     {
         // Arrange
-        var request = new GetUsersQuery(Page: 2, PerPage: 10);
+        var request = new GetUsersQuery(Page: 2,
+            PerPage: 10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
 
-        Assert.Equal(2, result.Page);
+        Assert.Equal(2,
+            result.Page);
     }
 }

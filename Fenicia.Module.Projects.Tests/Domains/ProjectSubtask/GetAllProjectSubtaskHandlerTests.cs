@@ -18,7 +18,8 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetAllProjectSubtaskHandler(this.db);
         this.faker = new Faker();
     }
@@ -41,7 +42,8 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var query = new GetAllProjectSubtaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -73,19 +75,24 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        this.db.ProjectSubtasks.AddRange(subtask1, subtask2);
+        this.db.ProjectSubtasks.AddRange(subtask1,
+            subtask2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
-        Assert.Equal(subtask1.Id, result[0].Id);
-        Assert.Equal(subtask2.Id, result[1].Id);
+        Assert.Equal(2,
+            result.Count);
+        Assert.Equal(subtask1.Id,
+            result[0].Id);
+        Assert.Equal(subtask2.Id,
+            result[1].Id);
     }
 
     [Fact]
@@ -112,11 +119,13 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var query = new GetAllProjectSubtaskQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Count);
+        Assert.Equal(10,
+            result.Count);
     }
 
     [Fact]
@@ -143,7 +152,8 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var query = new GetAllProjectSubtaskQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -174,10 +184,12 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var query = new GetAllProjectSubtaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Count);
+        Assert.Equal(10,
+            result.Count);
     }
 }

@@ -1,7 +1,8 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
+using Fenicia.Module.Basic.Domains.OrderDetail.Handlers;
+using Fenicia.Module.Basic.Domains.OrderDetail.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,8 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetOrderDetailsByOrderIdHandler(this.db);
     }
 
@@ -37,7 +39,8 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
         var query = new GetOrderDetailsByOrderIdQuery(orderId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -78,18 +81,24 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             Quantity = 2
         };
 
-        this.db.BasicOrderDetails.AddRange(detail1, detail2, detail3);
+        this.db.BasicOrderDetails.AddRange(detail1,
+            detail2,
+            detail3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetOrderDetailsByOrderIdQuery(order1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
-        Assert.All(result, d => Assert.Equal(order1Id, d.OrderId));
+        Assert.Equal(2,
+            result.Count);
+        Assert.All(result,
+            d => Assert.Equal(order1Id,
+                d.OrderId));
     }
 
     [Fact]
@@ -112,13 +121,16 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
         var query = new GetOrderDetailsByOrderIdQuery(orderId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal(15.00m, result[0].Price);
-        Assert.Equal(10, result[0].Quantity);
+        Assert.Equal(15.00m,
+            result[0].Price);
+        Assert.Equal(10,
+            result[0].Quantity);
     }
 
     [Fact]
@@ -128,7 +140,8 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
         var query = new GetOrderDetailsByOrderIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

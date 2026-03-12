@@ -25,7 +25,8 @@ public class UpdateUserPasswordHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         
         this.handler = new UpdateUserPasswordHandler(this.db);
         this.faker = new Faker();
@@ -53,23 +54,27 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     {
         // Arrange
         var newPassword = this.faker.Internet.Password();
-        var request = new UpdateUserPasswordCommand(this.testUser.Id, newPassword);
+        var request = new UpdateUserPasswordCommand(this.testUser.Id,
+            newPassword);
         var originalPasswordHash = this.testUser.Password;
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
         Assert.True(result.Success);
-        Assert.Equal("Password changed successfully", result.Message);
+        Assert.Equal("Password changed successfully",
+            result.Message);
 
         // Verify password was updated in database
         var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(updatedUser);
         
-        Assert.NotEqual(originalPasswordHash, updatedUser.Password);
+        Assert.NotEqual(originalPasswordHash,
+            updatedUser.Password);
     }
 
     [Fact]
@@ -77,19 +82,24 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     {
         // Arrange
         var newPassword = this.faker.Internet.Password();
-        var request = new UpdateUserPasswordCommand(this.testUser.Id, newPassword);
+        var request = new UpdateUserPasswordCommand(this.testUser.Id,
+            newPassword);
 
         // Act
-        await this.handler.Handle(request, CancellationToken.None);
+        await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(updatedUser);
-        Assert.NotEqual(newPassword, updatedUser.Password); // Should be hashed
-        Assert.StartsWith("$2", updatedUser.Password); // BCrypt format
+        Assert.NotEqual(newPassword,
+            updatedUser.Password); // Should be hashed
+        Assert.StartsWith("$2",
+            updatedUser.Password); // BCrypt format
 
         // Verify new password works
-        Assert.True(BCrypt.Net.BCrypt.Verify(newPassword, updatedUser.Password));
+        Assert.True(BCrypt.Net.BCrypt.Verify(newPassword,
+            updatedUser.Password));
     }
 
     [Fact]
@@ -98,12 +108,15 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         // Arrange
         var nonExistentUserId = Guid.NewGuid();
         var newPassword = this.faker.Internet.Password();
-        var request = new UpdateUserPasswordCommand(nonExistentUserId, newPassword);
+        var request = new UpdateUserPasswordCommand(nonExistentUserId,
+            newPassword);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request, CancellationToken.None));
+            await this.handler.Handle(request,
+                CancellationToken.None));
 
-        Assert.Equal("User not found", exception.Message);
+        Assert.Equal("User not found",
+            exception.Message);
     }
 }

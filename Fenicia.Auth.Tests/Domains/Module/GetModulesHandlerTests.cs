@@ -23,7 +23,8 @@ public class GetModulesHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new GetModulesHandler(this.db);
         this.faker = new Faker();
     }
@@ -55,21 +56,28 @@ public class GetModulesHandlerTests : IDisposable
             Price = 20.0m
         };
 
-        this.db.AuthModules.AddRange(module1, module2);
+        this.db.AuthModules.AddRange(module1,
+            module2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesQuery(1, 10);
+        var request = new GetModulesQuery(1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.Equal(2, result.Data.Count);
-        Assert.Equal(2, result.Total);
-        Assert.Equal(1, result.Page);
-        Assert.Equal(10, result.PerPage);
+        Assert.Equal(2,
+            result.Data.Count);
+        Assert.Equal(2,
+            result.Total);
+        Assert.Equal(1,
+            result.Page);
+        Assert.Equal(10,
+            result.PerPage);
     }
 
     [Fact]
@@ -92,20 +100,25 @@ public class GetModulesHandlerTests : IDisposable
             Price = 10.0m
         };
 
-        this.db.AuthModules.AddRange(authModule, basicModule);
+        this.db.AuthModules.AddRange(authModule,
+            basicModule);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesQuery(1, 10);
+        var request = new GetModulesQuery(1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
         Assert.Single(result.Data);
-        Assert.Equal(basicModule.Name, result.Data[0].Name);
-        Assert.Equal(1, result.Total);
+        Assert.Equal(basicModule.Name,
+            result.Data[0].Name);
+        Assert.Equal(1,
+            result.Total);
     }
 
     [Fact]
@@ -127,35 +140,45 @@ public class GetModulesHandlerTests : IDisposable
         this.db.AuthModules.AddRange(modules);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesQuery(2, 10);
+        var request = new GetModulesQuery(2,
+            10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.Equal(10, result.Data.Count);
-        Assert.Equal(25, result.Total);
-        Assert.Equal(2, result.Page);
-        Assert.Equal(10, result.PerPage);
-        Assert.Equal(3, result.Pages);
+        Assert.Equal(10,
+            result.Data.Count);
+        Assert.Equal(25,
+            result.Total);
+        Assert.Equal(2,
+            result.Page);
+        Assert.Equal(10,
+            result.PerPage);
+        Assert.Equal(3,
+            result.Pages);
     }
 
     [Fact]
     public async Task Handle_WhenNoModulesExist_ReturnsEmptyPagination()
     {
         // Arrange
-        var request = new GetModulesQuery(1, 10);
+        var request = new GetModulesQuery(1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
         Assert.Empty(result.Data);
-        Assert.Equal(0, result.Total);
+        Assert.Equal(0,
+            result.Total);
     }
 
     [Fact]
@@ -173,16 +196,19 @@ public class GetModulesHandlerTests : IDisposable
         this.db.AuthModules.Add(module);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesQuery(10, 10);
+        var request = new GetModulesQuery(10,
+            10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
         Assert.Empty(result.Data);
-        Assert.Equal(1, result.Total);
+        Assert.Equal(1,
+            result.Total);
     }
 
     [Fact]
@@ -213,21 +239,29 @@ public class GetModulesHandlerTests : IDisposable
             Price = 30.0m
         };
 
-        this.db.AuthModules.AddRange(module1, module2, module3);
+        this.db.AuthModules.AddRange(module1,
+            module2,
+            module3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesQuery(1, 10);
+        var request = new GetModulesQuery(1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.Equal(3, result.Data.Count);
-        Assert.Equal(ModuleType.Basic, result.Data[0].Type);
-        Assert.Equal(ModuleType.SocialNetwork, result.Data[1].Type);
-        Assert.Equal(ModuleType.Hr, result.Data[2].Type);
+        Assert.Equal(3,
+            result.Data.Count);
+        Assert.Equal(ModuleType.Basic,
+            result.Data[0].Type);
+        Assert.Equal(ModuleType.SocialNetwork,
+            result.Data[1].Type);
+        Assert.Equal(ModuleType.Hr,
+            result.Data[2].Type);
     }
 
     [Fact]
@@ -248,13 +282,16 @@ public class GetModulesHandlerTests : IDisposable
         var request = new GetModulesQuery();
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.Equal(1, result.Page);
-        Assert.Equal(20, result.PerPage);
+        Assert.Equal(1,
+            result.Page);
+        Assert.Equal(20,
+            result.PerPage);
     }
 
     [Fact]
@@ -273,18 +310,23 @@ public class GetModulesHandlerTests : IDisposable
         this.db.AuthModules.Add(module);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new GetModulesQuery(1, 10);
+        var request = new GetModulesQuery(1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await this.handler.Handle(request,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result.Data);
         var moduleResponse = result.Data[0];
         
-        Assert.Equal(moduleId, moduleResponse.Id);
-        Assert.Equal(module.Name, moduleResponse.Name);
-        Assert.Equal(ModuleType.Basic, moduleResponse.Type);
+        Assert.Equal(moduleId,
+            moduleResponse.Id);
+        Assert.Equal(module.Name,
+            moduleResponse.Name);
+        Assert.Equal(ModuleType.Basic,
+            moduleResponse.Type);
     }
 }

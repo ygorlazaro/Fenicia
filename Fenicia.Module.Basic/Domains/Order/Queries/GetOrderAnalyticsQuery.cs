@@ -1,0 +1,5 @@
+namespace Fenicia.Module.Basic.Domains.Order.Queries;
+
+public record GetOrderAnalyticsQuery(
+    int Days = 90,
+    int TopCustomersLimit = 10);

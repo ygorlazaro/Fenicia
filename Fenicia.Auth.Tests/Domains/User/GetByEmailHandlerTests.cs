@@ -21,7 +21,8 @@ public class GetByEmailHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new GetByEmailHandler(this.db);
         this.faker = new Faker();
     }
@@ -54,15 +55,20 @@ public class GetByEmailHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(email, CancellationToken.None);
+        var result = await this.handler.Handle(email,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.Equal(userId, result.Id);
-        Assert.Equal(email, result.Email);
-        Assert.Equal(name, result.Name);
-        Assert.Equal(password, result.Password);
+        Assert.Equal(userId,
+            result.Id);
+        Assert.Equal(email,
+            result.Email);
+        Assert.Equal(name,
+            result.Name);
+        Assert.Equal(password,
+            result.Password);
     }
 
     [Fact]
@@ -72,7 +78,8 @@ public class GetByEmailHandlerTests : IDisposable
         var email = this.faker.Internet.Email();
 
         // Act
-        var result = await this.handler.Handle(email, CancellationToken.None);
+        var result = await this.handler.Handle(email,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -100,7 +107,8 @@ public class GetByEmailHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(upperCaseEmail, CancellationToken.None);
+        var result = await this.handler.Handle(upperCaseEmail,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -135,17 +143,21 @@ public class GetByEmailHandlerTests : IDisposable
             Password = password2
         };
 
-        this.db.AuthUsers.AddRange(user1, user2);
+        this.db.AuthUsers.AddRange(user1,
+            user2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(email1, CancellationToken.None);
+        var result = await this.handler.Handle(email1,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.Equal(userId1, result.Id);
-        Assert.Equal(email1, result.Email);
+        Assert.Equal(userId1,
+            result.Id);
+        Assert.Equal(email1,
+            result.Email);
     }
 
     [Fact]
@@ -155,7 +167,8 @@ public class GetByEmailHandlerTests : IDisposable
         var email = this.faker.Internet.Email();
 
         // Act
-        var result = await this.handler.Handle(email, CancellationToken.None);
+        var result = await this.handler.Handle(email,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -183,7 +196,8 @@ public class GetByEmailHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(emailWithSpaces, CancellationToken.None);
+        var result = await this.handler.Handle(emailWithSpaces,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -210,12 +224,14 @@ public class GetByEmailHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(email, CancellationToken.None);
+        var result = await this.handler.Handle(email,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.NotEqual(Guid.Empty,
+            result.Id);
         Assert.NotNull(result.Email);
         Assert.NotNull(result.Name);
         Assert.NotNull(result.Password);

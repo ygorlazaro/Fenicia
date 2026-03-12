@@ -2,12 +2,13 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Product.GetByCategoryId;
-using Fenicia.Module.Basic.Domains.ProductCategory.Add;
-using Fenicia.Module.Basic.Domains.ProductCategory.Delete;
-using Fenicia.Module.Basic.Domains.ProductCategory.GetAll;
-using Fenicia.Module.Basic.Domains.ProductCategory.GetById;
-using Fenicia.Module.Basic.Domains.ProductCategory.Update;
+using Fenicia.Module.Basic.Domains.Product.Handlers;
+using Fenicia.Module.Basic.Domains.Product.Queries;
+using Fenicia.Module.Basic.Domains.Product.Responses;
+using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
+using Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
+using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
+using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +39,9 @@ public class ProductCategoryController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(page, perPage), ct);
+        var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(page,
+                perPage),
+            ct);
 
         return Ok(productCategory);
     }
@@ -54,7 +57,8 @@ public class ProductCategoryController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id), ct);
+        var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id),
+            ct);
 
         return productCategory is null ? NotFound() : Ok(productCategory);
     }
@@ -71,18 +75,20 @@ public class ProductCategoryController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var productCategory = await addProductCategoryHandler.Handle(command, ct);
+        var productCategory = await addProductCategoryHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, productCategory);
+        return new CreatedResult(string.Empty,
+            productCategory);
     }
 
     [HttpPatch("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProductCategoryRecord))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProductCategoryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProductCategoryRecord>> PatchAsync(
+    public async Task<ActionResult<UpdateProductCategoryResponse>> PatchAsync(
         [FromBody] UpdateProductCategoryCommand command,
         [FromRoute] Guid id,
         WideEventContext wide,
@@ -90,7 +96,11 @@ public class ProductCategoryController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var productCategory = await updateProductCategoryHandler.Handle(command with { Id = id }, ct);
+        var productCategory = await updateProductCategoryHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return productCategory is null ? NotFound() : Ok(productCategory);
     }
@@ -105,7 +115,8 @@ public class ProductCategoryController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id), ct);
+        await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id),
+            ct);
 
         return NoContent();
     }
@@ -121,7 +132,10 @@ public class ProductCategoryController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var products = await getProductsByCategoryIdHandler.Handle(new GetProductsByCategoryIdQuery(categoryId, query.Page, query.PerPage), ct);
+        var products = await getProductsByCategoryIdHandler.Handle(new GetProductsByCategoryIdQuery(categoryId,
+                query.Page,
+                query.PerPage),
+            ct);
 
         return Ok(products);
     }

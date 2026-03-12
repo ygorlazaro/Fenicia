@@ -4,7 +4,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Customer.GetById;
+using Fenicia.Module.Basic.Domains.Customer.Handlers;
+using Fenicia.Module.Basic.Domains.Customer.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,8 @@ public class GetCustomerByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetCustomerByIdHandler(this.db);
         this.faker = new Faker();
     }
@@ -73,23 +75,37 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(customerId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(customerId, result.Id);
-        Assert.Equal(customer.Person.Id, result.PersonId);
-        Assert.Equal(customer.Person.Name, result.Name);
-        Assert.Equal(customer.Person.Email, result.Email);
-        Assert.Equal(customer.Person.PhoneNumber, result.PhoneNumber);
-        Assert.Equal(customer.Person.Document, result.Document);
-        Assert.Equal(customer.Person.Street, result.Street);
-        Assert.Equal(customer.Person.Number, result.Number);
-        Assert.Equal(customer.Person.Complement, result.Complement);
-        Assert.Equal(customer.Person.Neighborhood, result.Neighborhood);
-        Assert.Equal(customer.Person.ZipCode, result.ZipCode);
-        Assert.Equal(customer.Person.StateId, result.StateId);
-        Assert.Equal(customer.Person.City, result.City);
+        Assert.Equal(customerId,
+            result.Id);
+        Assert.Equal(customer.Person.Id,
+            result.PersonId);
+        Assert.Equal(customer.Person.Name,
+            result.Name);
+        Assert.Equal(customer.Person.Email,
+            result.Email);
+        Assert.Equal(customer.Person.PhoneNumber,
+            result.PhoneNumber);
+        Assert.Equal(customer.Person.Document,
+            result.Document);
+        Assert.Equal(customer.Person.Street,
+            result.Street);
+        Assert.Equal(customer.Person.Number,
+            result.Number);
+        Assert.Equal(customer.Person.Complement,
+            result.Complement);
+        Assert.Equal(customer.Person.Neighborhood,
+            result.Neighborhood);
+        Assert.Equal(customer.Person.ZipCode,
+            result.ZipCode);
+        Assert.Equal(customer.Person.StateId,
+            result.StateId);
+        Assert.Equal(customer.Person.City,
+            result.City);
     }
 
     [Fact]
@@ -99,7 +115,8 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -112,7 +129,8 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -172,19 +190,24 @@ public class GetCustomerByIdHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicCustomers.AddRange(customer1, customer2);
+        this.db.BasicCustomers.AddRange(customer1,
+            customer2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customer1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(customer1Id, result.Id);
-        Assert.Equal(customer1.Person.Id, result.PersonId);
-        Assert.Equal(customer1.Person.Name, result.Name);
+        Assert.Equal(customer1Id,
+            result.Id);
+        Assert.Equal(customer1.Person.Id,
+            result.PersonId);
+        Assert.Equal(customer1.Person.Name,
+            result.Name);
     }
 
     [Fact]
@@ -228,11 +251,14 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(customerId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(customer.Person.Name, result.Name);
-        Assert.Equal(customer.Person.Email, result.Email);
+        Assert.Equal(customer.Person.Name,
+            result.Name);
+        Assert.Equal(customer.Person.Email,
+            result.Email);
     }
 }

@@ -25,7 +25,8 @@ public class RegisterControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         var createNewUserHandler = new CreateNewUserHandler(this.db);
 
         var mockHttpContext = new Mock<HttpContext>();
@@ -65,8 +66,12 @@ public class RegisterControllerTests : IDisposable
         var wide = new WideEventContext();
         var xrt = CancellationToken.None;
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var query = new CreateNewUserCommand("existing@example.com", "password123", "Test User", companyQuery);
+        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90",
+            "Company Name");
+        var query = new CreateNewUserCommand("existing@example.com",
+            "password123",
+            "Test User",
+            companyQuery);
 
         var existingUser = new UserModel { Email = query.Email, Name = "Existing User", Password = "password" };
         this.db.AuthUsers.Add(existingUser);
@@ -87,8 +92,12 @@ public class RegisterControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Existing Company");
-        var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
+        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90",
+            "Existing Company");
+        var query = new CreateNewUserCommand("test@example.com",
+            "password123",
+            "Test User",
+            companyQuery);
 
         var existingCompany = new CompanyModel { Cnpj = companyQuery.Cnpj, Name = "Existing Company" };
         this.db.AuthCompanies.Add(existingCompany);
@@ -109,8 +118,12 @@ public class RegisterControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
+        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90",
+            "Company Name");
+        var query = new CreateNewUserCommand("test@example.com",
+            "password123",
+            "Test User",
+            companyQuery);
 
         var adminRole = this.db.AuthRoles.First();
         this.db.AuthRoles.Remove(adminRole);
@@ -131,8 +144,12 @@ public class RegisterControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
+        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90",
+            "Company Name");
+        var query = new CreateNewUserCommand("test@example.com",
+            "password123",
+            "Test User",
+            companyQuery);
 
         // Act
         var result = await this.controller.CreateNewUserAsync(
@@ -146,30 +163,42 @@ public class RegisterControllerTests : IDisposable
 
         var okResult = result.Result as OkObjectResult;
         Assert.NotNull(okResult);
-        Assert.Equal(200, okResult.StatusCode);
+        Assert.Equal(200,
+            okResult.StatusCode);
 
         var returnedResponse = okResult.Value as CreateNewUserResponse;
         Assert.NotNull(returnedResponse);
-        Assert.Equal(query.Email, returnedResponse.Email);
-        Assert.Equal(query.Name, returnedResponse.Name);
-        Assert.Equal(companyQuery.Name, returnedResponse.Company.Name);
-        Assert.Equal(query.Email, wide.UserId);
+        Assert.Equal(query.Email,
+            returnedResponse.Email);
+        Assert.Equal(query.Name,
+            returnedResponse.Name);
+        Assert.Equal(companyQuery.Name,
+            returnedResponse.Company.Name);
+        Assert.Equal(query.Email,
+            wide.UserId);
 
         // Verify user was created
-        var createdUser = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
+        var createdUser = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email,
+            ct);
         Assert.NotNull(createdUser);
-        Assert.NotEqual(query.Password, createdUser.Password);
-        Assert.StartsWith("$2a$", createdUser.Password);
+        Assert.NotEqual(query.Password,
+            createdUser.Password);
+        Assert.StartsWith("$2a$",
+            createdUser.Password);
 
         // Verify company was created
-        var createdCompany = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
+        var createdCompany = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj,
+            ct);
         Assert.NotNull(createdCompany);
-        Assert.Equal(companyQuery.Name, createdCompany.Name);
+        Assert.Equal(companyQuery.Name,
+            createdCompany.Name);
 
         // Verify user role was created
-        var userRole = await this.db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
+        var userRole = await this.db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id,
+            ct);
         Assert.NotNull(userRole);
-        Assert.Equal(this.adminRoleId, userRole.RoleId);
+        Assert.Equal(this.adminRoleId,
+            userRole.RoleId);
     }
 
     [Fact]
@@ -179,8 +208,12 @@ public class RegisterControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
+        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90",
+            "Company Name");
+        var query = new CreateNewUserCommand("test@example.com",
+            "password123",
+            "Test User",
+            companyQuery);
 
         // Act
         await this.controller.CreateNewUserAsync(
@@ -189,7 +222,8 @@ public class RegisterControllerTests : IDisposable
             ct);
 
         // Assert
-        Assert.Equal(query.Email, wide.UserId);
+        Assert.Equal(query.Email,
+            wide.UserId);
     }
 
     [Fact]
@@ -200,7 +234,8 @@ public class RegisterControllerTests : IDisposable
 
         // Act
         var allowAnonymousAttribute =
-            controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(allowAnonymousAttribute);
@@ -214,11 +249,13 @@ public class RegisterControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -229,7 +266,8 @@ public class RegisterControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
@@ -243,10 +281,12 @@ public class RegisterControllerTests : IDisposable
 
         // Act
         var producesAttribute =
-            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute),
+                false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.NotNull(producesAttribute);
-        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
+        Assert.Equal("application/json",
+            producesAttribute.ContentTypes.FirstOrDefault());
     }
 }

@@ -3,7 +3,8 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Position.GetAll;
+using Fenicia.Module.Basic.Domains.Position.Handlers;
+using Fenicia.Module.Basic.Domains.Position.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,8 @@ public class GetAllPositionHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetAllPositionHandler(this.db);
         this.faker = new Faker();
     }
@@ -40,7 +42,8 @@ public class GetAllPositionHandlerTests : IDisposable
         var query = new GetAllPositionQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -54,19 +57,24 @@ public class GetAllPositionHandlerTests : IDisposable
         var position1 = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
         var position2 = new PositionModel { Id = Guid.NewGuid(), Name = "Designer" };
 
-        this.db.BasicPositions.AddRange(position1, position2);
+        this.db.BasicPositions.AddRange(position1,
+            position2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Data.Count);
-        Assert.Contains(result.Data, p => p.Id == position1.Id);
-        Assert.Contains(result.Data, p => p.Id == position2.Id);
+        Assert.Equal(2,
+            result.Data.Count);
+        Assert.Contains(result.Data,
+            p => p.Id == position1.Id);
+        Assert.Contains(result.Data,
+            p => p.Id == position2.Id);
     }
 
     [Fact]
@@ -88,11 +96,13 @@ public class GetAllPositionHandlerTests : IDisposable
         var query = new GetAllPositionQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(10,
+            result.Data.Count);
     }
 
     [Fact]
@@ -114,7 +124,8 @@ public class GetAllPositionHandlerTests : IDisposable
         var query = new GetAllPositionQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -140,10 +151,12 @@ public class GetAllPositionHandlerTests : IDisposable
         var query = new GetAllPositionQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(10,
+            result.Data.Count);
     }
 }

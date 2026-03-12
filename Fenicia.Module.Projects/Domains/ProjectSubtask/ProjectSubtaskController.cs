@@ -35,7 +35,9 @@ public class ProjectSubtaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectSubtasks = await getAllProjectSubtaskHandler.Handle(new GetAllProjectSubtaskQuery(page, perPage), ct);
+        var projectSubtasks = await getAllProjectSubtaskHandler.Handle(new GetAllProjectSubtaskQuery(page,
+                perPage),
+            ct);
 
         return Ok(projectSubtasks);
     }
@@ -51,7 +53,8 @@ public class ProjectSubtaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectSubtask = await getProjectSubtaskByIdHandler.Handle(new GetProjectSubtaskByIdQuery(id), ct);
+        var projectSubtask = await getProjectSubtaskByIdHandler.Handle(new GetProjectSubtaskByIdQuery(id),
+            ct);
 
         return projectSubtask is null ? NotFound() : Ok(projectSubtask);
     }
@@ -70,9 +73,11 @@ public class ProjectSubtaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectSubtask = await addProjectSubtaskHandler.Handle(command, ct);
+        var projectSubtask = await addProjectSubtaskHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, projectSubtask);
+        return new CreatedResult(string.Empty,
+            projectSubtask);
     }
 
     [HttpPatch("{id:guid}")]
@@ -91,7 +96,11 @@ public class ProjectSubtaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectSubtask = await updateProjectSubtaskHandler.Handle(command with { Id = id }, ct);
+        var projectSubtask = await updateProjectSubtaskHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return projectSubtask is null ? NotFound() : Ok(projectSubtask);
     }
@@ -108,7 +117,8 @@ public class ProjectSubtaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteProjectSubtaskHandler.Handle(new DeleteProjectSubtaskCommand(id), ct);
+        await deleteProjectSubtaskHandler.Handle(new DeleteProjectSubtaskCommand(id),
+            ct);
 
         return NoContent();
     }

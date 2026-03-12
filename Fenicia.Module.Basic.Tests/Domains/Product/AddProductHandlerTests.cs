@@ -1,6 +1,7 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.Product.Add;
+using Fenicia.Module.Basic.Domains.Product.Commands;
+using Fenicia.Module.Basic.Domains.Product.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +16,8 @@ public class AddProductHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new AddProductHandler(this.db);
     }
 
@@ -37,16 +39,23 @@ public class AddProductHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(command.Name, result.Name);
-        Assert.Equal(command.CostPrice, result.CostPrice);
-        Assert.Equal(command.SalesPrice, result.SalesPrice);
-        Assert.Equal(command.Quantity, result.Quantity);
-        Assert.Equal(command.CategoryId, result.CategoryId);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(command.Name,
+            result.Name);
+        Assert.Equal(command.CostPrice,
+            result.CostPrice);
+        Assert.Equal(command.SalesPrice,
+            result.SalesPrice);
+        Assert.Equal(command.Quantity,
+            result.Quantity);
+        Assert.Equal(command.CategoryId,
+            result.CategoryId);
     }
 
     [Fact]
@@ -63,12 +72,17 @@ public class AddProductHandlerTests : IDisposable
             null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var product = await this.db.BasicProducts.FindAsync([command.Id], CancellationToken.None);
+        var product = await this.db.BasicProducts.FindAsync([
+                command.Id
+            ],
+            CancellationToken.None);
         Assert.NotNull(product);
-        Assert.Equal(command.Name, product.Name);
+        Assert.Equal(command.Name,
+            product.Name);
     }
 
     [Fact]
@@ -94,12 +108,15 @@ public class AddProductHandlerTests : IDisposable
             null);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command1,
+            CancellationToken.None);
+        await this.handler.Handle(command2,
+            CancellationToken.None);
 
         // Assert
         var products = await this.db.BasicProducts.ToListAsync();
-        Assert.Equal(2, products.Count);
+        Assert.Equal(2,
+            products.Count);
     }
 
     [Fact]
@@ -116,7 +133,8 @@ public class AddProductHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

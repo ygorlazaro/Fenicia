@@ -3,7 +3,8 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Employee.Update;
+using Fenicia.Module.Basic.Domains.Employee.Commands;
+using Fenicia.Module.Basic.Domains.Employee.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new UpdateEmployeeHandler(this.db);
         this.faker = new Faker();
     }
@@ -47,7 +49,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Name = "New Position"
         };
 
-        this.db.BasicPositions.AddRange(position1, position2);
+        this.db.BasicPositions.AddRange(position1,
+            position2);
 
         var employee = new EmployeeModel
         {
@@ -87,12 +90,15 @@ public class UpdateEmployeeHandlerTests : IDisposable
             "(11) 98765-4321");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(employee.PersonId, result.PersonId);
-        Assert.Equal(position2Id, result.PositionId);
+        Assert.Equal(employee.PersonId,
+            result.PersonId);
+        Assert.Equal(position2Id,
+            result.PositionId);
     }
 
     [Fact]
@@ -115,7 +121,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -141,7 +148,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -197,7 +205,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -253,7 +262,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -309,7 +319,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -365,7 +376,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -421,7 +433,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -477,7 +490,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -533,7 +547,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -559,7 +574,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Name = "New Position"
         };
 
-        this.db.BasicPositions.AddRange(position1, position2);
+        this.db.BasicPositions.AddRange(position1,
+            position2);
 
         var employee = new EmployeeModel
         {
@@ -599,7 +615,8 @@ public class UpdateEmployeeHandlerTests : IDisposable
             "(11) 98765-4321");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var updatedEmployee = await this.db.BasicEmployees
@@ -607,9 +624,12 @@ public class UpdateEmployeeHandlerTests : IDisposable
             .FirstOrDefaultAsync(e => e.Id == employeeId);
 
         Assert.NotNull(updatedEmployee);
-        Assert.Equal("New Name", updatedEmployee.Person.Name);
-        Assert.Equal("new@email.com", updatedEmployee.Person.Email);
-        Assert.Equal(position2Id, updatedEmployee.PositionId);
+        Assert.Equal("New Name",
+            updatedEmployee.Person.Name);
+        Assert.Equal("new@email.com",
+            updatedEmployee.Person.Email);
+        Assert.Equal(position2Id,
+            updatedEmployee.PositionId);
     }
 
     public void Dispose()

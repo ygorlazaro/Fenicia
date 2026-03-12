@@ -25,7 +25,8 @@ public class CreateNewOrderHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new CreateNewOrderHandler(
             this.db
         );
@@ -100,13 +101,18 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.db.AuthUsers.Add(user);
         this.db.AuthCompanies.Add(company);
         this.db.AuthUserRoles.Add(userRole);
-        this.db.AuthModules.AddRange(module1, module2, moduleBasic);
+        this.db.AuthModules.AddRange(module1,
+            module2,
+            moduleBasic);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand(userId,
+            companyId,
+            modules);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -114,11 +120,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         var order = await this.db.AuthOrders.Include(orderModel => orderModel.Details).FirstOrDefaultAsync(o => o.Id == result.OrderId);
         Assert.NotNull(order);
         
-        Assert.Equal(userId, order.UserId);
-        Assert.Equal(companyId, order.CompanyId);
-        Assert.Equal(OrderStatus.Approved, order.Status);
-        Assert.Equal(400.00m, order.TotalAmount);
-        Assert.Equal(3, order.Details.Count);
+        Assert.Equal(userId,
+            order.UserId);
+        Assert.Equal(companyId,
+            order.CompanyId);
+        Assert.Equal(OrderStatus.Approved,
+            order.Status);
+        Assert.Equal(400.00m,
+            order.TotalAmount);
+        Assert.Equal(3,
+            order.Details.Count);
     }
 
     [Fact]
@@ -129,12 +140,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var modules = new List<Guid> { Guid.NewGuid() };
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand(userId,
+            companyId,
+            modules);
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None));
-        Assert.Equal("User does not exists at the company", ex.Message);
+            await this.handler.Handle(command,
+                CancellationToken.None));
+        Assert.Equal("User does not exists at the company",
+            ex.Message);
     }
 
     [Fact]
@@ -175,12 +190,16 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand(userId,
+            companyId,
+            modules);
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None));
-        Assert.Equal("Modules not found", ex.Message);
+            await this.handler.Handle(command,
+                CancellationToken.None));
+        Assert.Equal("Modules not found",
+            ex.Message);
     }
 
     [Fact]
@@ -220,14 +239,18 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand(userId,
+            companyId,
+            modules);
 
         // Act
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None));
+            await this.handler.Handle(command,
+                CancellationToken.None));
 
         // Assert
-        Assert.Equal("Modules not found", ex.Message);
+        Assert.Equal("Modules not found",
+            ex.Message);
     }
 
     [Fact]
@@ -277,10 +300,13 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.db.AuthModules.Add(basicModule);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand(userId,
+            companyId,
+            modules);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var order = await this.db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
@@ -341,18 +367,23 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.db.AuthUsers.Add(user);
         this.db.AuthCompanies.Add(company);
         this.db.AuthUserRoles.Add(userRole);
-        this.db.AuthModules.AddRange(accountingModule, basicModule);
+        this.db.AuthModules.AddRange(accountingModule,
+            basicModule);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand(userId,
+            companyId,
+            modules);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var order = await this.db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
-        Assert.Equal(2, order.Details.Count);
+        Assert.Equal(2,
+            order.Details.Count);
     }
 
     [Fact]
@@ -402,14 +433,18 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.db.AuthModules.Add(accountingModule);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand(userId,
+            companyId,
+            modules);
 
         // Act
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None));
+            await this.handler.Handle(command,
+                CancellationToken.None));
 
         // Assert
-        Assert.Equal("Modules not found", ex.Message);
+        Assert.Equal("Modules not found",
+            ex.Message);
     }
 
     [Fact]
@@ -464,17 +499,22 @@ public class CreateNewOrderHandlerTests : IDisposable
         this.db.AuthUsers.Add(user);
         this.db.AuthCompanies.Add(company);
         this.db.AuthUserRoles.Add(userRole);
-        this.db.AuthModules.AddRange(module1, basicModule);
+        this.db.AuthModules.AddRange(module1,
+            basicModule);
         await this.db.SaveChangesAsync(CancellationToken.None);
         
-        var command = new CreateNewOrderCommand(userId, companyId, modules);
+        var command = new CreateNewOrderCommand(userId,
+            companyId,
+            modules);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var order = await this.db.AuthOrders.Include(o => o.Details).FirstOrDefaultAsync(o => o.Id == result!.OrderId);
         Assert.NotNull(order);
-        Assert.Equal(2, order.Details.Count);
+        Assert.Equal(2,
+            order.Details.Count);
     }
 }

@@ -16,7 +16,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new UpdateProjectTaskAssigneeHandler(this.db);
     }
 
@@ -58,12 +59,15 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assigneeId, result.Id);
-        Assert.Equal("Owner", result.Role);
+        Assert.Equal(assigneeId,
+            result.Id);
+        Assert.Equal("Owner",
+            result.Role);
     }
 
     [Fact]
@@ -78,7 +82,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -96,7 +101,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -130,7 +136,8 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
+        this.db.ProjectTaskAssignees.AddRange(assignee1,
+            assignee2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var newUserId = Guid.NewGuid();
@@ -142,20 +149,31 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assignee1Id, result.Id);
-        Assert.Equal("Contributor", result.Role);
+        Assert.Equal(assignee1Id,
+            result.Id);
+        Assert.Equal("Contributor",
+            result.Role);
 
-        var updatedAssignee1 = await this.db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
-        var assignee2InDb = await this.db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
+        var updatedAssignee1 = await this.db.ProjectTaskAssignees.FindAsync([
+                assignee1Id
+            ],
+            CancellationToken.None);
+        var assignee2InDb = await this.db.ProjectTaskAssignees.FindAsync([
+                assignee2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(updatedAssignee1);
         Assert.NotNull(assignee2InDb);
-        Assert.Equal(Common.Enums.Project.EnumAssigneeRole.Contributor, updatedAssignee1.Role);
-        Assert.Equal(Common.Enums.Project.EnumAssigneeRole.Contributor, assignee2InDb.Role);
+        Assert.Equal(Common.Enums.Project.EnumAssigneeRole.Contributor,
+            updatedAssignee1.Role);
+        Assert.Equal(Common.Enums.Project.EnumAssigneeRole.Contributor,
+            assignee2InDb.Role);
     }
 
     [Fact]
@@ -185,11 +203,14 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assigneeId, result.Id);
-        Assert.Equal("Owner", result.Role);
+        Assert.Equal(assigneeId,
+            result.Id);
+        Assert.Equal("Owner",
+            result.Role);
     }
 }

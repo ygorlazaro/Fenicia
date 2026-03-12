@@ -2,12 +2,10 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Supplier.Add;
-using Fenicia.Module.Basic.Domains.Supplier.Delete;
-using Fenicia.Module.Basic.Domains.Supplier.GetAll;
-using Fenicia.Module.Basic.Domains.Supplier.GetById;
-using Fenicia.Module.Basic.Domains.Supplier.GetSupplierPerformance;
-using Fenicia.Module.Basic.Domains.Supplier.Update;
+using Fenicia.Module.Basic.Domains.Supplier.Commands;
+using Fenicia.Module.Basic.Domains.Supplier.Handlers;
+using Fenicia.Module.Basic.Domains.Supplier.Queries;
+using Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +36,9 @@ public class SupplierController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var suppliers = await getAllSupplierHandler.Handle(new GetAllSupplierQuery(page, perPage), ct);
+        var suppliers = await getAllSupplierHandler.Handle(new GetAllSupplierQuery(page,
+                perPage),
+            ct);
 
         return Ok(suppliers);
     }
@@ -54,7 +54,8 @@ public class SupplierController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var supplier = await getSupplierByIdHandler.Handle(new GetSupplierByIdQuery(id), ct);
+        var supplier = await getSupplierByIdHandler.Handle(new GetSupplierByIdQuery(id),
+            ct);
 
         return supplier is null ? NotFound() : Ok(supplier);
     }
@@ -71,9 +72,11 @@ public class SupplierController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var supplier = await addSupplierHandler.Handle(command, ct);
+        var supplier = await addSupplierHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, supplier);
+        return new CreatedResult(string.Empty,
+            supplier);
     }
 
     [HttpPatch("{id:guid}")]
@@ -90,7 +93,11 @@ public class SupplierController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var supplier = await updateSupplierHandler.Handle(command with { Id = id }, ct);
+        var supplier = await updateSupplierHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return supplier is null ? NotFound() : Ok(supplier);
     }
@@ -105,7 +112,8 @@ public class SupplierController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteSupplierHandler.Handle(new DeleteSupplierCommand(id), ct);
+        await deleteSupplierHandler.Handle(new DeleteSupplierCommand(id),
+            ct);
 
         return NoContent();
     }
@@ -121,7 +129,9 @@ public class SupplierController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var performance = await getSupplierPerformanceHandler.Handle(new GetSupplierPerformanceQuery(days, topLimit), ct);
+        var performance = await getSupplierPerformanceHandler.Handle(new GetSupplierPerformanceQuery(days,
+                topLimit),
+            ct);
 
         return Ok(performance);
     }

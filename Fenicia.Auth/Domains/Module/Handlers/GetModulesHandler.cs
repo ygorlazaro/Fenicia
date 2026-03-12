@@ -15,7 +15,9 @@ public class GetModulesHandler(DefaultContext db)
         var request = db.AuthModules
             .Where(m => m.Type != ModuleType.Auth)
             .OrderBy(m => m.Type)
-            .Select(m => new GetModuleResponse(m.Id, m.Name, m.Type));
+            .Select(m => new GetModuleResponse(m.Id,
+                m.Name,
+                m.Type));
 
         var modules = await request
             .Skip((query.Page - 1) * query.PerPage)
@@ -24,6 +26,9 @@ public class GetModulesHandler(DefaultContext db)
 
         var total = await request.CountAsync(ct);
 
-        return new Pagination<List<GetModuleResponse>>(modules, total, query.Page, query.PerPage);
+        return new Pagination<List<GetModuleResponse>>(modules,
+            total,
+            query.Page,
+            query.PerPage);
     }
 }

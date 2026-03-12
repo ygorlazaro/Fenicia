@@ -20,7 +20,8 @@ public class GetUserModuleHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new GetUserModuleHandler(this.db);
     }
 
@@ -87,18 +88,23 @@ public class GetUserModuleHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
+        var query = new GetUserModulesQuery(companyId,
+            userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
         
-        Assert.Equal(moduleId, result[0].Id);
-        Assert.Equal("Test Module", result[0].Name);
-        Assert.Equal(ModuleType.Accounting, result[0].Type);
+        Assert.Equal(moduleId,
+            result[0].Id);
+        Assert.Equal("Test Module",
+            result[0].Name);
+        Assert.Equal(ModuleType.Accounting,
+            result[0].Type);
     }
 
     [Fact]
@@ -108,10 +114,12 @@ public class GetUserModuleHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
-        var query = new GetUserModulesQuery(companyId, userId);
+        var query = new GetUserModulesQuery(companyId,
+            userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -174,10 +182,12 @@ public class GetUserModuleHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
+        var query = new GetUserModulesQuery(companyId,
+            userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -240,10 +250,12 @@ public class GetUserModuleHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
+        var query = new GetUserModulesQuery(companyId,
+            userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -306,10 +318,12 @@ public class GetUserModuleHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
+        var query = new GetUserModulesQuery(companyId,
+            userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -383,20 +397,25 @@ public class GetUserModuleHandlerTests : IDisposable
             RoleId = Guid.NewGuid()
         };
 
-        this.db.AuthModules.AddRange(module1, module2);
+        this.db.AuthModules.AddRange(module1,
+            module2);
         this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        this.db.AuthSubscriptionCredits.AddRange(credit1,
+            credit2);
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
+        var query = new GetUserModulesQuery(companyId,
+            userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
+        Assert.Equal(2,
+            result.Count);
     }
 
     [Fact]
@@ -454,10 +473,12 @@ public class GetUserModuleHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
+        var query = new GetUserModulesQuery(companyId,
+            userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -524,14 +545,17 @@ public class GetUserModuleHandlerTests : IDisposable
 
         this.db.AuthModules.Add(module);
         this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        this.db.AuthSubscriptionCredits.AddRange(credit1,
+            credit2);
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetUserModulesQuery(companyId, userId);
+        var query = new GetUserModulesQuery(companyId,
+            userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

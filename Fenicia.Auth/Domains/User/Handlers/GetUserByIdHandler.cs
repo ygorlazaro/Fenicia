@@ -11,7 +11,9 @@ public class GetUserByIdHandler(DefaultContext db)
     {
         var request = from u in db.AuthUsers
                       where u.Id == id
-                      select new GetUserByIdResponse(u.Id, u.Name, u.Email);
+                      select new GetUserByIdResponse(u.Id,
+                          u.Name,
+                          u.Email);
 
         return await request.FirstOrDefaultAsync(ct);
     }

@@ -15,18 +15,25 @@ public class CreateNewOrderHandler(DefaultContext db)
 {
     public virtual async Task<CreateNewOrderResponse?> Handle(CreateNewOrderCommand command, CancellationToken ct)
     {
-        await ValidateUserAsync(command, ct);
+        await ValidateUserAsync(command,
+            ct);
 
-        var modules = await PopulateModules(command.Modules, ct);
+        var modules = await PopulateModules(command.Modules,
+            ct);
 
         if (modules.Count == 0)
         {
             throw new ItemNotExistsException(ExceptionMessages.ModulesNotFound);
         }
 
-        var order = await PersistOrderAsync(command, modules, ct);
+        var order = await PersistOrderAsync(command,
+            modules,
+            ct);
 
-        await LoadCreditsAsync(order.Id, command.CompanyId, order.Details, ct);
+        await LoadCreditsAsync(order.Id,
+            command.CompanyId,
+            order.Details,
+            ct);
         
         return new CreateNewOrderResponse(order.Id);
     }
@@ -60,7 +67,9 @@ public class CreateNewOrderHandler(DefaultContext db)
 
     private async Task ValidateUserAsync(CreateNewOrderCommand command, CancellationToken ct)
     {
-        var existingUser = await db.AuthUserRoles.AnyIdAndCompanyAsync(command.UserId, command.CompanyId, ct);
+        var existingUser = await db.AuthUserRoles.AnyIdAndCompanyAsync(command.UserId,
+            command.CompanyId,
+            ct);
 
         if (!existingUser)
         {
@@ -72,21 +81,23 @@ public class CreateNewOrderHandler(DefaultContext db)
     {
         try
         {
-            var modules = await GetModulesToOrderAsync(request.Distinct(), ct);
+            var modules = await GetModulesToOrderAsync(request.Distinct(),
+                ct);
 
             if (modules.Any(m => m.Type == ModuleType.Basic))
             {
                 return modules;
             }
 
-            var basicModule = await GetModuleByTypeAsync(ModuleType.Basic, ct);
+            var basicModule = await GetModuleByTypeAsync(ModuleType.Basic,
+                ct);
 
-            if (basicModule is null)
+            return basicModule switch
             {
-                return [];
-            }
+                null => [],
+                _ => [basicModule, .. modules]
+            };
 
-            return [basicModule, ..modules];
         }
         catch
         {
@@ -103,7 +114,8 @@ public class CreateNewOrderHandler(DefaultContext db)
 
     private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
     {
-        return await db.AuthModules.FirstOrDefaultAsync(m => m.Type == moduleType, ct);
+        return await db.AuthModules.FirstOrDefaultAsync(m => m.Type == moduleType,
+            ct);
     }
 
     private async Task LoadCreditsAsync(Guid orderId, Guid companyId, List<OrderDetailModel> details, CancellationToken ct)

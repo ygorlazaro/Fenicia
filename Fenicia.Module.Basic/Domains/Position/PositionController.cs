@@ -2,12 +2,13 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Employee.GetByPositionId;
-using Fenicia.Module.Basic.Domains.Position.Add;
-using Fenicia.Module.Basic.Domains.Position.Delete;
-using Fenicia.Module.Basic.Domains.Position.GetAll;
-using Fenicia.Module.Basic.Domains.Position.GetById;
-using Fenicia.Module.Basic.Domains.Position.Update;
+using Fenicia.Module.Basic.Domains.Employee.Handlers;
+using Fenicia.Module.Basic.Domains.Employee.Queries;
+using Fenicia.Module.Basic.Domains.Employee.Responses;
+using Fenicia.Module.Basic.Domains.Position.Commands;
+using Fenicia.Module.Basic.Domains.Position.Handlers;
+using Fenicia.Module.Basic.Domains.Position.Queries;
+using Fenicia.Module.Basic.Domains.Position.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,9 @@ public class PositionController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page, perPage), ct);
+        var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page,
+                perPage),
+            ct);
 
         return Ok(positions);
     }
@@ -52,7 +55,8 @@ public class PositionController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var position = await getPositionByIdHandler.Handle(new GetPositionByIdQuery(id), ct);
+        var position = await getPositionByIdHandler.Handle(new GetPositionByIdQuery(id),
+            ct);
 
         return position is null ? NotFound() : Ok(position);
     }
@@ -68,7 +72,10 @@ public class PositionController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var employees = await getEmployeesByPositionIdHandler.Handle(new GetEmployeesByPositionIdQuery(id, query.Page, query.PerPage), ct);
+        var employees = await getEmployeesByPositionIdHandler.Handle(new GetEmployeesByPositionIdQuery(id,
+                query.Page,
+                query.PerPage),
+            ct);
 
         return Ok(employees);
     }
@@ -85,9 +92,11 @@ public class PositionController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var position = await addPositionHandler.Handle(command, ct);
+        var position = await addPositionHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, position);
+        return new CreatedResult(string.Empty,
+            position);
     }
 
     [HttpPatch("{id:guid}")]
@@ -104,7 +113,11 @@ public class PositionController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var position = await updatePositionHandler.Handle(command with { Id = id }, ct);
+        var position = await updatePositionHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return position is null ? NotFound() : Ok(position);
     }
@@ -119,7 +132,8 @@ public class PositionController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deletePositionHandler.Handle(new DeletePositionCommand(id), ct);
+        await deletePositionHandler.Handle(new DeletePositionCommand(id),
+            ct);
 
         return NoContent();
     }

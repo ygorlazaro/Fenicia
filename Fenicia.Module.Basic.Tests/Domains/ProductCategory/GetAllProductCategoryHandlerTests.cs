@@ -1,7 +1,8 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.ProductCategory.GetAll;
+using Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
+using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,8 @@ public class GetAllProductCategoryHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetAllProductCategoryHandler(this.db);
     }
 
@@ -30,12 +32,14 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var query = new GetAllProductCategoryQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
-        Assert.Equal(0, result.Total);
+        Assert.Equal(0,
+            result.Total);
     }
 
     [Fact]
@@ -45,20 +49,26 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var category1 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         var category2 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
+        this.db.BasicProductCategories.AddRange(category1,
+            category2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Data.Count);
-        Assert.Equal(2, result.Total);
-        Assert.Contains(result.Data, c => c.Id == category1.Id);
-        Assert.Contains(result.Data, c => c.Id == category2.Id);
+        Assert.Equal(2,
+            result.Data.Count);
+        Assert.Equal(2,
+            result.Total);
+        Assert.Contains(result.Data,
+            c => c.Id == category1.Id);
+        Assert.Contains(result.Data,
+            c => c.Id == category2.Id);
     }
 
     [Fact]
@@ -80,12 +90,15 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var query = new GetAllProductCategoryQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Data.Count);
-        Assert.Equal(25, result.Total);
+        Assert.Equal(10,
+            result.Data.Count);
+        Assert.Equal(25,
+            result.Total);
     }
 
     [Fact]
@@ -107,12 +120,14 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var query = new GetAllProductCategoryQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
-        Assert.Equal(5, result.Total);
+        Assert.Equal(5,
+            result.Total);
     }
 
     [Fact]
@@ -134,12 +149,15 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var query = new GetAllProductCategoryQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Data.Count);
-        Assert.Equal(25, result.Total);
+        Assert.Equal(10,
+            result.Data.Count);
+        Assert.Equal(25,
+            result.Total);
     }
 
     public void Dispose()

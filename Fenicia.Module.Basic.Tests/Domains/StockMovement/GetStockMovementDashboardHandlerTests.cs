@@ -2,7 +2,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
-using Fenicia.Module.Basic.Domains.StockMovement.GetStockMovementDashboard;
+using Fenicia.Module.Basic.Domains.StockMovement.Handlers;
+using Fenicia.Module.Basic.Domains.StockMovement.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             .Options;
 
         this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
+        this.db = new DefaultContext(options,
+            this.companyContext);
         this.handler = new GetStockMovementDashboardHandler(this.db);
     }
 
@@ -39,7 +41,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.handler.Handle(query, ct);
+        var result = await this.handler.Handle(query,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -89,14 +92,18 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
-        Assert.Equal("Test Product", result.History[0].ProductName);
-        Assert.Equal(10, result.History[0].Quantity);
-        Assert.Equal("Test reason", result.History[0].Reason);
+        Assert.Equal("Test Product",
+            result.History[0].ProductName);
+        Assert.Equal(10,
+            result.History[0].Quantity);
+        Assert.Equal("Test reason",
+            result.History[0].Reason);
     }
 
     [Fact]
@@ -144,23 +151,29 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         this.db.BasicProductCategories.Add(category);
         this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.AddRange(movementIn, movementOut);
+        this.db.BasicStockMovements.AddRange(movementIn,
+            movementOut);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result.MonthlyInOut);
 
         var monthlyInOut = result.MonthlyInOut[0];
-        Assert.Equal(50, monthlyInOut.TotalIn);
-        Assert.Equal(20, monthlyInOut.TotalOut);
-        Assert.Equal(100.00m, monthlyInOut.TotalInValue);
-        Assert.Equal(50.00m, monthlyInOut.TotalOutValue);
+        Assert.Equal(50,
+            monthlyInOut.TotalIn);
+        Assert.Equal(20,
+            monthlyInOut.TotalOut);
+        Assert.Equal(100.00m,
+            monthlyInOut.TotalInValue);
+        Assert.Equal(50.00m,
+            monthlyInOut.TotalOutValue);
     }
 
     [Fact]
@@ -229,22 +242,30 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             });
         }
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
-        this.db.BasicProducts.AddRange(product1, product2);
+        this.db.BasicProductCategories.AddRange(category1,
+            category2);
+        this.db.BasicProducts.AddRange(product1,
+            product2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.TopMovedProducts.Count);
-        Assert.Equal("Product 1", result.TopMovedProducts[0].ProductName);
-        Assert.Equal(50, result.TopMovedProducts[0].TotalMoved);
-        Assert.Equal("Product 2", result.TopMovedProducts[1].ProductName);
-        Assert.Equal(10, result.TopMovedProducts[1].TotalMoved);
+        Assert.Equal(2,
+            result.TopMovedProducts.Count);
+        Assert.Equal("Product 1",
+            result.TopMovedProducts[0].ProductName);
+        Assert.Equal(50,
+            result.TopMovedProducts[0].TotalMoved);
+        Assert.Equal("Product 2",
+            result.TopMovedProducts[1].ProductName);
+        Assert.Equal(10,
+            result.TopMovedProducts[1].TotalMoved);
     }
 
     [Fact]
@@ -288,18 +309,24 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result.TurnoverRates);
 
         var turnover = result.TurnoverRates[0];
-        Assert.Equal("Test Product", turnover.ProductName);
-        Assert.Equal(50, turnover.CurrentStock);
-        Assert.Equal(100, turnover.TotalSold);
-        Assert.Equal(2.0, turnover.TurnoverRate);
-        Assert.Equal("High", turnover.TurnoverClassification);
+        Assert.Equal("Test Product",
+            turnover.ProductName);
+        Assert.Equal(50,
+            turnover.CurrentStock);
+        Assert.Equal(100,
+            turnover.TotalSold);
+        Assert.Equal(2.0,
+            turnover.TurnoverRate);
+        Assert.Equal("High",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -340,7 +367,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -348,7 +376,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         var turnover = result.TurnoverRates[0];
         Assert.True(turnover.TurnoverRate < 0.5);
-        Assert.Equal("Very Low", turnover.TurnoverClassification);
+        Assert.Equal("Very Low",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -397,18 +426,21 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         this.db.BasicProductCategories.Add(category);
         this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.AddRange(movementInRange, movementOutOfRange);
+        this.db.BasicStockMovements.AddRange(movementInRange,
+            movementOutOfRange);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
-        Assert.Equal(movementInRange.Id, result.History[0].Id);
+        Assert.Equal(movementInRange.Id,
+            result.History[0].Id);
     }
 
     #region Turnover Classification Tests - GlassifyTurnover
@@ -451,13 +483,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        Assert.Equal(2.0, turnover.TurnoverRate);
-        Assert.Equal("High", turnover.TurnoverClassification);
+        Assert.Equal(2.0,
+            turnover.TurnoverRate);
+        Assert.Equal("High",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -498,13 +533,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        Assert.Equal(5.0, turnover.TurnoverRate);
-        Assert.Equal("High", turnover.TurnoverClassification);
+        Assert.Equal(5.0,
+            turnover.TurnoverRate);
+        Assert.Equal("High",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -545,13 +583,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        Assert.Equal(1.0, turnover.TurnoverRate);
-        Assert.Equal("Medium", turnover.TurnoverClassification);
+        Assert.Equal(1.0,
+            turnover.TurnoverRate);
+        Assert.Equal("Medium",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -592,13 +633,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        Assert.Equal(1.5, turnover.TurnoverRate);
-        Assert.Equal("Medium", turnover.TurnoverClassification);
+        Assert.Equal(1.5,
+            turnover.TurnoverRate);
+        Assert.Equal("Medium",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -639,13 +683,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        Assert.Equal(0.5, turnover.TurnoverRate);
-        Assert.Equal("Low", turnover.TurnoverClassification);
+        Assert.Equal(0.5,
+            turnover.TurnoverRate);
+        Assert.Equal("Low",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -686,13 +733,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        Assert.Equal(0.75, turnover.TurnoverRate);
-        Assert.Equal("Low", turnover.TurnoverClassification);
+        Assert.Equal(0.75,
+            turnover.TurnoverRate);
+        Assert.Equal("Low",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -733,13 +783,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        Assert.Equal(0.25, turnover.TurnoverRate);
-        Assert.Equal("Very Low", turnover.TurnoverClassification);
+        Assert.Equal(0.25,
+            turnover.TurnoverRate);
+        Assert.Equal("Very Low",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -780,13 +833,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
         var turnover = result.TurnoverRates[0];
-        Assert.Equal(0, turnover.TurnoverRate);
-        Assert.Equal("Very Low", turnover.TurnoverClassification);
+        Assert.Equal(0,
+            turnover.TurnoverRate);
+        Assert.Equal("Very Low",
+            turnover.TurnoverClassification);
     }
 
     [Fact]
@@ -816,7 +872,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Empty(result.TurnoverRates);
@@ -883,12 +940,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
-        Assert.Equal("John Doe", result.History[0].CustomerName);
+        Assert.Equal("John Doe",
+            result.History[0].CustomerName);
         Assert.Null(result.History[0].SupplierName);
     }
 
@@ -949,12 +1008,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
-        Assert.Equal("ABC Supplier Ltd", result.History[0].SupplierName);
+        Assert.Equal("ABC Supplier Ltd",
+            result.History[0].SupplierName);
         Assert.Null(result.History[0].CustomerName);
     }
 
@@ -1008,15 +1069,21 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery(TopLimit: 3);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(3, result.TopMovedProducts.Count);
-        Assert.Equal(3, result.TurnoverRates.Count);
-        Assert.Equal("Product 5", result.TopMovedProducts[0].ProductName);
-        Assert.Equal("Product 4", result.TopMovedProducts[1].ProductName);
-        Assert.Equal("Product 3", result.TopMovedProducts[2].ProductName);
+        Assert.Equal(3,
+            result.TopMovedProducts.Count);
+        Assert.Equal(3,
+            result.TurnoverRates.Count);
+        Assert.Equal("Product 5",
+            result.TopMovedProducts[0].ProductName);
+        Assert.Equal("Product 4",
+            result.TopMovedProducts[1].ProductName);
+        Assert.Equal("Product 3",
+            result.TopMovedProducts[2].ProductName);
     }
 
     #endregion
@@ -1043,6 +1110,12 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Name = "Test Category"
         };
 
+        var customer = new CustomerModel
+        {
+            Id = Guid.NewGuid(),
+            Person = new PersonModel { Id = Guid.NewGuid(), Name = "Test Customer" }
+        };
+
         var now = DateTime.UtcNow;
 
         var movementWithin7Days = new StockMovementModel
@@ -1050,6 +1123,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             ProductId = product.Id,
             Product = product,
+            CustomerId = customer.Id,
+            Customer = customer,
             Quantity = 10,
             Date = now.AddDays(-3),
             Price = 15.00m,
@@ -1061,6 +1136,8 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             ProductId = product.Id,
             Product = product,
+            CustomerId = customer.Id,
+            Customer = customer,
             Quantity = 20,
             Date = now.AddDays(-10),
             Price = 25.00m,
@@ -1069,18 +1146,22 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         this.db.BasicProductCategories.Add(category);
         this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.AddRange(movementWithin7Days, movementOutside7Days);
+        this.db.BasicCustomers.Add(customer);
+        this.db.BasicStockMovements.AddRange(movementWithin7Days,
+            movementOutside7Days);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery(Days: 7);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result.History);
-        Assert.Equal(movementWithin7Days.Id, result.History[0].Id);
+        Assert.Equal(movementWithin7Days.Id,
+            result.History[0].Id);
     }
 
     #endregion
@@ -1144,20 +1225,27 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
 
         this.db.BasicProductCategories.Add(category);
         this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.AddRange(movement1, movement2, movement3);
+        this.db.BasicStockMovements.AddRange(movement1,
+            movement2,
+            movement3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(3, result.History.Count);
-        Assert.Equal(movement3.Id, result.History[0].Id);
-        Assert.Equal(movement2.Id, result.History[1].Id);
-        Assert.Equal(movement1.Id, result.History[2].Id);
+        Assert.Equal(3,
+            result.History.Count);
+        Assert.Equal(movement3.Id,
+            result.History[0].Id);
+        Assert.Equal(movement2.Id,
+            result.History[1].Id);
+        Assert.Equal(movement1.Id,
+            result.History[2].Id);
     }
 
     #endregion
@@ -1184,8 +1272,12 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Name = "Test Category"
         };
 
-        var january = new DateTime(DateTime.UtcNow.Year, 1, 15);
-        var february = new DateTime(DateTime.UtcNow.Year, 2, 15);
+        var january = new DateTime(DateTime.UtcNow.Year,
+            1,
+            15);
+        var february = new DateTime(DateTime.UtcNow.Year,
+            2,
+            15);
 
         this.db.BasicStockMovements.Add(new StockMovementModel
         {
@@ -1238,19 +1330,25 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var query = new GetStockMovementDashboardQuery(Days: 60);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.MonthlyInOut.Count);
+        Assert.Equal(2,
+            result.MonthlyInOut.Count);
 
         var januaryData = result.MonthlyInOut.First(m => m.Month.StartsWith("01/"));
         var februaryData = result.MonthlyInOut.First(m => m.Month.StartsWith("02/"));
 
-        Assert.Equal(50, januaryData.TotalIn);
-        Assert.Equal(20, januaryData.TotalOut);
-        Assert.Equal(60, februaryData.TotalIn);
-        Assert.Equal(30, februaryData.TotalOut);
+        Assert.Equal(50,
+            januaryData.TotalIn);
+        Assert.Equal(20,
+            januaryData.TotalOut);
+        Assert.Equal(60,
+            februaryData.TotalIn);
+        Assert.Equal(30,
+            februaryData.TotalOut);
     }
 
     #endregion

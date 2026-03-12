@@ -21,18 +21,22 @@ public class Program
         {
             var tenantId = tenantArg.Split("=")[1];
 
-            Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
+            Environment.SetEnvironmentVariable("TENANT_ID",
+                tenantId);
         }
 
         var configBuilder = new ConfigurationManager();
         var commonApiSettingsPath =
-            Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "../Fenicia.Common.Api/appsettings.json");
         if (!File.Exists(commonApiSettingsPath))
         {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
 
-        configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
+        configBuilder.AddJsonFile(commonApiSettingsPath,
+            false,
+            true);
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configBuilder);
@@ -95,7 +99,8 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseWhen(o => o.Request.Path.StartsWithSegments("/hr"), appBuilder => appBuilder.UseModuleRequirement("hr"));
+        app.UseWhen(o => o.Request.Path.StartsWithSegments("/hr"),
+            appBuilder => appBuilder.UseModuleRequirement("hr"));
 
         app.MapControllers();
 

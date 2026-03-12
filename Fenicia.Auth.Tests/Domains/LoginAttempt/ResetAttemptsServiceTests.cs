@@ -25,13 +25,15 @@ public class ResetAttemptsServiceTests : IDisposable
         // Arrange
         var email = this.faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 5);
+        this.cache.Set(key,
+            5);
 
         // Act
         await this._service.Handle(email);
 
         // Assert
-        var exists = this.cache.TryGetValue(key, out _);
+        var exists = this.cache.TryGetValue(key,
+            out _);
         Assert.False(exists);
     }
 
@@ -55,13 +57,15 @@ public class ResetAttemptsServiceTests : IDisposable
         var email = this.faker.Internet.Email();
         var upperCaseEmail = email.ToUpper();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 3);
+        this.cache.Set(key,
+            3);
 
         // Act
         await this._service.Handle(upperCaseEmail);
 
         // Assert
-        var exists = this.cache.TryGetValue(key, out _);
+        var exists = this.cache.TryGetValue(key,
+            out _);
         Assert.False(exists);
     }
 
@@ -78,13 +82,15 @@ public class ResetAttemptsServiceTests : IDisposable
         // Arrange
         var email = string.Empty;
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 2);
+        this.cache.Set(key,
+            2);
 
         // Act
         await this._service.Handle(email);
 
         // Assert
-        var exists = this.cache.TryGetValue(key, out _);
+        var exists = this.cache.TryGetValue(key,
+            out _);
         Assert.False(exists);
     }
 
@@ -96,16 +102,21 @@ public class ResetAttemptsServiceTests : IDisposable
         var email2 = this.faker.Internet.Email();
         var key1 = $"login-attempt:{email1.ToLower()}";
         var key2 = $"login-attempt:{email2.ToLower()}";
-        this.cache.Set(key1, 2);
-        this.cache.Set(key2, 4);
+        this.cache.Set(key1,
+            2);
+        this.cache.Set(key2,
+            4);
 
         // Act
         await this._service.Handle(email1);
 
         // Assert
-        Assert.False(this.cache.TryGetValue(key1, out _));
-        Assert.True(this.cache.TryGetValue(key2, out int count));
-        Assert.Equal(4, count);
+        Assert.False(this.cache.TryGetValue(key1,
+            out _));
+        Assert.True(this.cache.TryGetValue(key2,
+            out int count));
+        Assert.Equal(4,
+            count);
     }
 
     [Fact]
@@ -114,13 +125,15 @@ public class ResetAttemptsServiceTests : IDisposable
         // Arrange
         var email = this.faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 100);
+        this.cache.Set(key,
+            100);
 
         // Act
         await this._service.Handle(email);
 
         // Assert
-        var exists = this.cache.TryGetValue(key, out _);
+        var exists = this.cache.TryGetValue(key,
+            out _);
         Assert.False(exists);
     }
 

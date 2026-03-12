@@ -8,12 +8,11 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order;
-using Fenicia.Module.Basic.Domains.Order.CreateOrder;
-using Fenicia.Module.Basic.Domains.Order.Delete;
-using Fenicia.Module.Basic.Domains.Order.GetAll;
-using Fenicia.Module.Basic.Domains.Order.GetById;
-using Fenicia.Module.Basic.Domains.Order.GetOrderAnalytics;
-using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
+using Fenicia.Module.Basic.Domains.Order.Commands;
+using Fenicia.Module.Basic.Domains.Order.Handlers;
+using Fenicia.Module.Basic.Domains.Order.Responses;
+using Fenicia.Module.Basic.Domains.OrderDetail.Handlers;
+using Fenicia.Module.Basic.Domains.OrderDetail.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +32,8 @@ public class OrderControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.testOrderId = Guid.NewGuid();
         this.testUserId = Guid.NewGuid();
         this.testCustomerId = Guid.NewGuid();
@@ -75,10 +75,12 @@ public class OrderControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", userId.ToString())
+            new("userId",
+                userId.ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -122,15 +124,21 @@ public class OrderControllerTests : IDisposable
             DateTime.Now,
             OrderStatus.Pending,
             [
-                new OrderDetailCommand(product.Id, 20.00m, 2),
-                new OrderDetailCommand(product.Id, 20.00m, 3)
+                new OrderDetailCommand(product.Id,
+                    20.00m,
+                    2),
+                new OrderDetailCommand(product.Id,
+                    20.00m,
+                    3)
             ]);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await this.controller.PostAsync(command,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -138,12 +146,15 @@ public class OrderControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201, createdResult.StatusCode);
+        Assert.Equal(201,
+            createdResult.StatusCode);
 
         var returnedOrder = createdResult.Value as CreateOrderResponse;
         Assert.NotNull(returnedOrder);
-        Assert.Equal(this.testCustomerId, returnedOrder.CustomerId);
-        Assert.Equal(this.testUserId, returnedOrder.UserId);
+        Assert.Equal(this.testCustomerId,
+            returnedOrder.CustomerId);
+        Assert.Equal(this.testUserId,
+            returnedOrder.UserId);
         Assert.True(returnedOrder.TotalAmount > 0);
     }
 
@@ -180,14 +191,17 @@ public class OrderControllerTests : IDisposable
         };
 
         this.db.BasicOrders.Add(order);
-        this.db.BasicOrderDetails.AddRange(orderDetail1, orderDetail2);
+        this.db.BasicOrderDetails.AddRange(orderDetail1,
+            orderDetail2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetDetailsAsync(this.testOrderId, wide, ct);
+        var result = await this.controller.GetDetailsAsync(this.testOrderId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -198,7 +212,8 @@ public class OrderControllerTests : IDisposable
 
         var returnedDetails = okResult.Value as List<GetOrderDetailsByOrderIdResponse>;
         Assert.NotNull(returnedDetails);
-        Assert.Equal(2, returnedDetails.Count);
+        Assert.Equal(2,
+            returnedDetails.Count);
     }
 
     [Fact]
@@ -210,7 +225,9 @@ public class OrderControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetDetailsAsync(nonExistentId, wide, ct);
+        var result = await this.controller.GetDetailsAsync(nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -260,13 +277,17 @@ public class OrderControllerTests : IDisposable
             this.testCustomerId,
             DateTime.Now,
             OrderStatus.Pending,
-            [new OrderDetailCommand(product.Id, 20.00m, 2)]);
+            [new OrderDetailCommand(product.Id,
+                20.00m,
+                2)]);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await this.controller.PostAsync(command,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -277,7 +298,8 @@ public class OrderControllerTests : IDisposable
 
         var returnedOrder = createdResult.Value as CreateOrderResponse;
         Assert.NotNull(returnedOrder);
-        Assert.Equal(this.testUserId, returnedOrder.UserId);
+        Assert.Equal(this.testUserId,
+            returnedOrder.UserId);
     }
 
     [Fact]
@@ -287,7 +309,8 @@ public class OrderControllerTests : IDisposable
         var controllerType = typeof(OrderController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -301,11 +324,13 @@ public class OrderControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -316,7 +341,8 @@ public class OrderControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);

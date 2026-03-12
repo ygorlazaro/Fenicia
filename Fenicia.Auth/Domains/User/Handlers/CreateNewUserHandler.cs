@@ -15,26 +15,35 @@ public class CreateNewUserHandler(
 {
     public async Task<CreateNewUserResponse> Handle(CreateNewUserCommand command, CancellationToken ct)
     {
-        await ValidateAsync(command, ct);
+        await ValidateAsync(command,
+            ct);
 
-        var (user, company) = await PersistAsync(command, ct);
+        var (user, company) = await PersistAsync(command,
+            ct);
 
         var companyResponse =
-            new CreateNewUserCompanyResponse(company.Id, company.Name, company.Cnpj);
+            new CreateNewUserCompanyResponse(company.Id,
+                company.Name,
+                company.Cnpj);
 
-        return new CreateNewUserResponse(user.Id, user.Name, user.Email, companyResponse);
+        return new CreateNewUserResponse(user.Id,
+            user.Name,
+            user.Email,
+            companyResponse);
     }
 
     private async Task<(UserModel userRequest, CompanyModel companyRequest)> PersistAsync(CreateNewUserCommand command, CancellationToken ct)
     {
-        var existingUser = await db.AuthUsers.AnyEmailAsync(command.Email, ct);
+        var existingUser = await db.AuthUsers.AnyEmailAsync(command.Email,
+            ct);
 
         if (existingUser)
         {
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
         
-        var existingCompany = await db.AuthCompanies.AnyCnpjAsync(command.Company.Cnpj, ct);
+        var existingCompany = await db.AuthCompanies.AnyCnpjAsync(command.Company.Cnpj,
+            ct);
 
         if (existingCompany)
         {
@@ -59,7 +68,8 @@ public class CreateNewUserHandler(
 
         db.AuthCompanies.Add(companyRequest);
 
-        var adminRole = await db.AuthRoles.GetRoleAsync("Admin", ct)
+        var adminRole = await db.AuthRoles.GetRoleAsync("Admin",
+                            ct)
                         ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
         var userRole = new UserRoleModel
         {
@@ -76,8 +86,10 @@ public class CreateNewUserHandler(
 
     private async Task ValidateAsync(CreateNewUserCommand request, CancellationToken ct)
     {
-        var isExistingUser = await db.AuthUsers.AnyEmailAsync(request.Email, ct);
-        var isExistingCompany = await db.AuthCompanies.AnyCnpjAsync(request.Company.Cnpj, ct); 
+        var isExistingUser = await db.AuthUsers.AnyEmailAsync(request.Email,
+            ct);
+        var isExistingCompany = await db.AuthCompanies.AnyCnpjAsync(request.Company.Cnpj,
+            ct); 
             
         if (isExistingUser)
         {

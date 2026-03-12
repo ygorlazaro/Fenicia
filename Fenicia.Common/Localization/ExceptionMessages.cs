@@ -8,7 +8,8 @@ namespace Fenicia.Common.Localization;
 /// </summary>
 public static class ExceptionMessages
 {
-    private static readonly ResourceManager ResourceMapper = new("Fenicia.Common.Resources.ExceptionMessages", typeof(ExceptionMessages).Assembly);
+    private static readonly ResourceManager ResourceMapper = new("Fenicia.Common.Resources.ExceptionMessages",
+        typeof(ExceptionMessages).Assembly);
 
     public static string InvalidRequest => GetString("InvalidRequest");
     public static string ItemNotFound => GetString("ItemNotFound");
@@ -40,9 +41,12 @@ public static class ExceptionMessages
 
     public static string CompanyExists => GetString("CompanyExists");
 
-    public static string UserWithIdNotFound(string userId) => string.Format(GetString("UserWithIdNotFound"), userId);
-    public static string CompanyNotFoundById(string companyId) => string.Format(GetString("CompanyNotFound"), companyId);
-    public static string RoleNotFoundById(string roleId) => string.Format(GetString("RoleNotFound"), roleId);
+    public static string UserWithIdNotFound(string userId) => string.Format(GetString("UserWithIdNotFound"),
+        userId);
+    public static string CompanyNotFoundById(string companyId) => string.Format(GetString("CompanyNotFound"),
+        companyId);
+    public static string RoleNotFoundById(string roleId) => string.Format(GetString("RoleNotFound"),
+        roleId);
 
     private static string GetString(string name)
     {
@@ -52,6 +56,7 @@ public static class ExceptionMessages
     public static string GetStringWithFormat(string key, params object[] args)
     {
         var format = GetString(key);
-        return string.Format(format, args);
+        return string.Format(format,
+            args);
     }
 }

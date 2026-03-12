@@ -1,7 +1,8 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.ProductCategory.Delete;
+using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
+using Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,8 @@ public class DeleteProductCategoryHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new DeleteProductCategoryHandler(this.db);
     }
 
@@ -41,10 +43,14 @@ public class DeleteProductCategoryHandlerTests : IDisposable
         var beforeDelete = DateTime.Now;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedCategory = await this.db.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
+        var deletedCategory = await this.db.BasicProductCategories.FindAsync([
+                categoryId
+            ],
+            CancellationToken.None);
         Assert.NotNull(deletedCategory);
         Assert.NotNull(deletedCategory.Deleted);
         Assert.True(deletedCategory.Deleted >= beforeDelete.AddSeconds(-1));
@@ -58,7 +64,8 @@ public class DeleteProductCategoryHandlerTests : IDisposable
         var command = new DeleteProductCategoryCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var categories = await this.db.BasicProductCategories.ToListAsync();
@@ -75,17 +82,25 @@ public class DeleteProductCategoryHandlerTests : IDisposable
         var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
         var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
+        this.db.BasicProductCategories.AddRange(category1,
+            category2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProductCategoryCommand(category1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedCategory = await this.db.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
-        var notDeletedCategory = await this.db.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
+        var deletedCategory = await this.db.BasicProductCategories.FindAsync([
+                category1Id
+            ],
+            CancellationToken.None);
+        var notDeletedCategory = await this.db.BasicProductCategories.FindAsync([
+                category2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(deletedCategory);
         Assert.NotNull(deletedCategory.Deleted);
@@ -100,7 +115,8 @@ public class DeleteProductCategoryHandlerTests : IDisposable
         var command = new DeleteProductCategoryCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var categories = await this.db.BasicProductCategories.ToListAsync();

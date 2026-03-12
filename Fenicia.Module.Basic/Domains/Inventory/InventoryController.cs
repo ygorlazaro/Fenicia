@@ -1,10 +1,8 @@
 using System.Net.Mime;
 
-using Fenicia.Module.Basic.Domains.Inventory.GetInventory;
-using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByCategory;
-using Fenicia.Module.Basic.Domains.Inventory.GetInventoryByProduct;
-using Fenicia.Module.Basic.Domains.Inventory.GetInventoryDashboard;
-using Fenicia.Module.Basic.Domains.Inventory.GetInventoryHealth;
+using Fenicia.Module.Basic.Domains.Inventory.Handlers;
+using Fenicia.Module.Basic.Domains.Inventory.Queries;
+using Fenicia.Module.Basic.Domains.Inventory.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +26,8 @@ public class InventoryController(
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<InventoryResponse>> GetInventoryByProductIdAsync([FromRoute] Guid productId, CancellationToken ct)
     {
-        var inventory = await getInventoryByProductHandler.Handle(new GetInventoryByProductQuery(productId), ct);
+        var inventory = await getInventoryByProductHandler.Handle(new GetInventoryByProductQuery(productId),
+            ct);
 
         return Ok(inventory);
     }
@@ -38,7 +37,8 @@ public class InventoryController(
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<InventoryResponse>> GetInventoryByCategoryIdAsync([FromRoute] Guid categoryId, CancellationToken ct)
     {
-        var inventory = await getInventoryByCategoryHandler.Handle(new GetInventoryByCategoryQuery(categoryId), ct);
+        var inventory = await getInventoryByCategoryHandler.Handle(new GetInventoryByCategoryQuery(categoryId),
+            ct);
 
         return Ok(inventory);
     }
@@ -48,7 +48,9 @@ public class InventoryController(
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<InventoryResponse>> GetInventoryAsync([FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        var inventory = await getInventoryHandler.Handle(new GetInventoryQuery(page, perPage), ct);
+        var inventory = await getInventoryHandler.Handle(new GetInventoryQuery(page,
+                perPage),
+            ct);
 
         return Ok(inventory);
     }
@@ -71,7 +73,9 @@ public class InventoryController(
         [FromQuery] double overstockMultiplier = 3.0,
         CancellationToken ct = default)
     {
-        var health = await getInventoryHealthHandler.Handle(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), ct);
+        var health = await getInventoryHealthHandler.Handle(new GetInventoryHealthQuery(zeroMovementDays,
+                overstockMultiplier),
+            ct);
 
         return Ok(health);
     }

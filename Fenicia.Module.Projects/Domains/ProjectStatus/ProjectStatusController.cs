@@ -35,7 +35,9 @@ public class ProjectStatusController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var statuses = await getAllProjectStatusHandler.Handle(new GetAllProjectStatusQuery(page, perPage), ct);
+        var statuses = await getAllProjectStatusHandler.Handle(new GetAllProjectStatusQuery(page,
+                perPage),
+            ct);
 
         return Ok(statuses);
     }
@@ -51,7 +53,8 @@ public class ProjectStatusController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var status = await getProjectStatusByIdHandler.Handle(new GetProjectStatusByIdQuery(id), ct);
+        var status = await getProjectStatusByIdHandler.Handle(new GetProjectStatusByIdQuery(id),
+            ct);
 
         return status is null ? NotFound() : Ok(status);
     }
@@ -70,9 +73,11 @@ public class ProjectStatusController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var status = await addProjectStatusHandler.Handle(command, ct);
+        var status = await addProjectStatusHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, status);
+        return new CreatedResult(string.Empty,
+            status);
     }
 
     [HttpPatch("{id:guid}")]
@@ -91,7 +96,11 @@ public class ProjectStatusController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var status = await updateProjectStatusHandler.Handle(command with { Id = id }, ct);
+        var status = await updateProjectStatusHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return status is null ? NotFound() : Ok(status);
     }
@@ -108,7 +117,8 @@ public class ProjectStatusController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteProjectStatusHandler.Handle(new DeleteProjectStatusCommand(id), ct);
+        await deleteProjectStatusHandler.Handle(new DeleteProjectStatusCommand(id),
+            ct);
 
         return NoContent();
     }

@@ -19,27 +19,35 @@ public class GenerateTokenHandler(
     public async Task<GenerateTokenResponse> Handle(GenerateTokenQuery query, CancellationToken ct)
     {
         var attempts = ValidateAttempts(query);
-        var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
+        var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email,
+            ct);
 
         if (user is null)
         {
             await incrementAttemptsServiceHandler.SetKey(query.Email);
-            await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
+            await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts,
+                    5)),
+                ct);
 
             throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
         }
 
-        var isValidPassword = verifyPasswordService.Handle(query.Password, user.Password);
+        var isValidPassword = verifyPasswordService.Handle(query.Password,
+            user.Password);
 
         if (isValidPassword)
         {
             loginAttemptService.Handle(query.Email);
 
-            return new GenerateTokenResponse(user.Id, user.Name, user.Email);
+            return new GenerateTokenResponse(user.Id,
+                user.Name,
+                user.Email);
         }
 
         await incrementAttemptsServiceHandler.SetKey(query.Email);
-        await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts, 5)), ct);
+        await Task.Delay(TimeSpan.FromSeconds(Math.Min(attempts,
+                5)),
+            ct);
 
         throw new PermissionDeniedException(ExceptionMessages.InvalidUsernameOrPassword);
     }

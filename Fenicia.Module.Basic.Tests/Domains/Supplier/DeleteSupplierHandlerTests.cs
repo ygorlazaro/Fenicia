@@ -3,7 +3,8 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Supplier.Delete;
+using Fenicia.Module.Basic.Domains.Supplier.Commands;
+using Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,8 @@ public class DeleteSupplierHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new DeleteSupplierHandler(this.db);
         this.faker = new Faker();
     }
@@ -57,10 +59,14 @@ public class DeleteSupplierHandlerTests : IDisposable
         var beforeDelete = DateTime.Now;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedSupplier = await this.db.BasicSuppliers.FindAsync([supplierId], CancellationToken.None);
+        var deletedSupplier = await this.db.BasicSuppliers.FindAsync([
+                supplierId
+            ],
+            CancellationToken.None);
         Assert.NotNull(deletedSupplier);
         Assert.NotNull(deletedSupplier.Deleted);
         Assert.True(deletedSupplier.Deleted >= beforeDelete.AddSeconds(-1));
@@ -74,7 +80,8 @@ public class DeleteSupplierHandlerTests : IDisposable
         var command = new DeleteSupplierCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var suppliers = await this.db.BasicSuppliers.ToListAsync();
@@ -110,17 +117,25 @@ public class DeleteSupplierHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
+        this.db.BasicSuppliers.AddRange(supplier1,
+            supplier2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteSupplierCommand(supplier1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedSupplier = await this.db.BasicSuppliers.FindAsync([supplier1Id], CancellationToken.None);
-        var notDeletedSupplier = await this.db.BasicSuppliers.FindAsync([supplier2Id], CancellationToken.None);
+        var deletedSupplier = await this.db.BasicSuppliers.FindAsync([
+                supplier1Id
+            ],
+            CancellationToken.None);
+        var notDeletedSupplier = await this.db.BasicSuppliers.FindAsync([
+                supplier2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(deletedSupplier);
         Assert.NotNull(deletedSupplier.Deleted);

@@ -35,7 +35,9 @@ public class ProjectAttachmentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectAttachments = await getAllProjectAttachmentHandler.Handle(new GetAllProjectAttachmentQuery(page, perPage), ct);
+        var projectAttachments = await getAllProjectAttachmentHandler.Handle(new GetAllProjectAttachmentQuery(page,
+                perPage),
+            ct);
 
         return Ok(projectAttachments);
     }
@@ -51,7 +53,8 @@ public class ProjectAttachmentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectAttachment = await getProjectAttachmentByIdHandler.Handle(new GetProjectAttachmentByIdQuery(id), ct);
+        var projectAttachment = await getProjectAttachmentByIdHandler.Handle(new GetProjectAttachmentByIdQuery(id),
+            ct);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
     }
@@ -70,9 +73,11 @@ public class ProjectAttachmentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectAttachment = await addProjectAttachmentHandler.Handle(command, ct);
+        var projectAttachment = await addProjectAttachmentHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, projectAttachment);
+        return new CreatedResult(string.Empty,
+            projectAttachment);
     }
 
     [HttpPatch("{id:guid}")]
@@ -91,7 +96,11 @@ public class ProjectAttachmentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectAttachment = await updateProjectAttachmentHandler.Handle(command with { Id = id }, ct);
+        var projectAttachment = await updateProjectAttachmentHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return projectAttachment is null ? NotFound() : Ok(projectAttachment);
     }
@@ -108,7 +117,8 @@ public class ProjectAttachmentController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteProjectAttachmentHandler.Handle(new DeleteProjectAttachmentCommand(id), ct);
+        await deleteProjectAttachmentHandler.Handle(new DeleteProjectAttachmentCommand(id),
+            ct);
 
         return NoContent();
     }

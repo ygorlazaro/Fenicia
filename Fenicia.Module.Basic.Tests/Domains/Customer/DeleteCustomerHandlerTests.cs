@@ -3,7 +3,8 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Customer.Delete;
+using Fenicia.Module.Basic.Domains.Customer.Commands;
+using Fenicia.Module.Basic.Domains.Customer.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,8 @@ public class DeleteCustomerHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new DeleteCustomerHandler(this.db);
         this.faker = new Faker();
     }
@@ -63,13 +65,19 @@ public class DeleteCustomerHandlerTests : IDisposable
         var beforeDelete = DateTime.Now;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedCustomer = await this.db.BasicCustomers.FindAsync([customerId], CancellationToken.None);
+        var deletedCustomer = await this.db.BasicCustomers.FindAsync([
+                customerId
+            ],
+            CancellationToken.None);
         Assert.NotNull(deletedCustomer);
         Assert.NotNull(deletedCustomer.Deleted);
-        Assert.InRange(deletedCustomer.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.Now.AddSeconds(1));
+        Assert.InRange(deletedCustomer.Deleted.Value,
+            beforeDelete.AddSeconds(-1),
+            DateTime.Now.AddSeconds(1));
     }
 
     [Fact]
@@ -79,7 +87,8 @@ public class DeleteCustomerHandlerTests : IDisposable
         var command = new DeleteCustomerCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var customers = await this.db.BasicCustomers.ToListAsync();
@@ -129,17 +138,25 @@ public class DeleteCustomerHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicCustomers.AddRange(customer1, customer2);
+        this.db.BasicCustomers.AddRange(customer1,
+            customer2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteCustomerCommand(customer1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedCustomer = await this.db.BasicCustomers.FindAsync([customer1Id], CancellationToken.None);
-        var notDeletedCustomer = await this.db.BasicCustomers.FindAsync([customer2Id], CancellationToken.None);
+        var deletedCustomer = await this.db.BasicCustomers.FindAsync([
+                customer1Id
+            ],
+            CancellationToken.None);
+        var notDeletedCustomer = await this.db.BasicCustomers.FindAsync([
+                customer2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(deletedCustomer);
         Assert.NotNull(deletedCustomer.Deleted);
@@ -154,7 +171,8 @@ public class DeleteCustomerHandlerTests : IDisposable
         var command = new DeleteCustomerCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var customers = await this.db.BasicCustomers.ToListAsync();

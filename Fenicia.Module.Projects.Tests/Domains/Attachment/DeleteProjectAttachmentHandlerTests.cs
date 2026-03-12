@@ -18,7 +18,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new DeleteProjectAttachmentHandler(this.db);
         this.faker = new Faker();
     }
@@ -46,7 +47,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             TaskId = taskId,
             FileName = $"{this.faker.System.FileName()}.pdf",
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000, 1000000),
+            FileSize = this.faker.Random.Long(1000,
+                1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/pdf",
         };
@@ -58,13 +60,19 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
         var beforeDelete = DateTime.UtcNow;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedAttachment = await this.db.ProjectAttachments.FindAsync([attachmentId], CancellationToken.None);
+        var deletedAttachment = await this.db.ProjectAttachments.FindAsync([
+                attachmentId
+            ],
+            CancellationToken.None);
         Assert.NotNull(deletedAttachment);
         Assert.NotNull(deletedAttachment.Deleted);
-        Assert.InRange(deletedAttachment.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
+        Assert.InRange(deletedAttachment.Deleted.Value,
+            beforeDelete.AddSeconds(-1),
+            DateTime.UtcNow.AddSeconds(1));
     }
 
     [Fact]
@@ -74,7 +82,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
         var command = new DeleteProjectAttachmentCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var attachments = await this.db.ProjectAttachments.ToListAsync();
@@ -88,7 +97,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
         var command = new DeleteProjectAttachmentCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var attachments = await this.db.ProjectAttachments.ToListAsync();
@@ -109,7 +119,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             TaskId = taskId,
             FileName = $"{this.faker.System.FileName()}.pdf",
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000, 1000000),
+            FileSize = this.faker.Random.Long(1000,
+                1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
@@ -120,22 +131,31 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             TaskId = taskId,
             FileName = $"{this.faker.System.FileName()}.docx",
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000, 1000000),
+            FileSize = this.faker.Random.Long(1000,
+                1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.AddRange(attachment1, attachment2);
+        this.db.ProjectAttachments.AddRange(attachment1,
+            attachment2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectAttachmentCommand(attachment1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedAttachment = await this.db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
-        var notDeletedAttachment = await this.db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
+        var deletedAttachment = await this.db.ProjectAttachments.FindAsync([
+                attachment1Id
+            ],
+            CancellationToken.None);
+        var notDeletedAttachment = await this.db.ProjectAttachments.FindAsync([
+                attachment2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(deletedAttachment);
         Assert.NotNull(deletedAttachment.Deleted);
@@ -158,7 +178,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             TaskId = taskId,
             FileName = $"{this.faker.System.FileName()}.pdf",
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000, 1000000),
+            FileSize = this.faker.Random.Long(1000,
+                1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
@@ -169,7 +190,8 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             TaskId = taskId,
             FileName = $"{this.faker.System.FileName()}.docx",
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000, 1000000),
+            FileSize = this.faker.Random.Long(1000,
+                1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
@@ -180,23 +202,36 @@ public class DeleteProjectAttachmentHandlerTests : IDisposable
             TaskId = taskId,
             FileName = $"{this.faker.System.FileName()}.xlsx",
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000, 1000000),
+            FileSize = this.faker.Random.Long(1000,
+                1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.AddRange(attachment1, attachment2, attachment3);
+        this.db.ProjectAttachments.AddRange(attachment1,
+            attachment2,
+            attachment3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectAttachmentCommand(attachment2Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var attachment1InDb = await this.db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
-        var deletedAttachment = await this.db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
-        var attachment3InDb = await this.db.ProjectAttachments.FindAsync([attachment3Id], CancellationToken.None);
+        var attachment1InDb = await this.db.ProjectAttachments.FindAsync([
+                attachment1Id
+            ],
+            CancellationToken.None);
+        var deletedAttachment = await this.db.ProjectAttachments.FindAsync([
+                attachment2Id
+            ],
+            CancellationToken.None);
+        var attachment3InDb = await this.db.ProjectAttachments.FindAsync([
+                attachment3Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(attachment1InDb);
         Assert.NotNull(deletedAttachment);

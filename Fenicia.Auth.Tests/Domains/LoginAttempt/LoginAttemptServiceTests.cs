@@ -29,7 +29,8 @@ public class LoginAttemptServiceTests : IDisposable
         var result = this._service.Handle(email);
 
         // Assert
-        Assert.Equal(0, result);
+        Assert.Equal(0,
+            result);
     }
 
     [Fact]
@@ -38,13 +39,15 @@ public class LoginAttemptServiceTests : IDisposable
         // Arrange
         var email = this.faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 3);
+        this.cache.Set(key,
+            3);
 
         // Act
         var result = this._service.Handle(email);
 
         // Assert
-        Assert.Equal(3, result);
+        Assert.Equal(3,
+            result);
     }
 
     [Fact]
@@ -54,13 +57,15 @@ public class LoginAttemptServiceTests : IDisposable
         var email = this.faker.Internet.Email();
         var upperCaseEmail = email.ToUpper();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 5);
+        this.cache.Set(key,
+            5);
 
         // Act
         var result = this._service.Handle(upperCaseEmail);
 
         // Assert
-        Assert.Equal(5, result);
+        Assert.Equal(5,
+            result);
     }
 
     [Fact]
@@ -80,7 +85,8 @@ public class LoginAttemptServiceTests : IDisposable
         var result = this._service.Handle(email);
 
         // Assert
-        Assert.Equal(0, result);
+        Assert.Equal(0,
+            result);
     }
 
     [Fact]
@@ -93,7 +99,8 @@ public class LoginAttemptServiceTests : IDisposable
         var result = this._service.Handle(email);
 
         // Assert
-        Assert.Equal(0, result);
+        Assert.Equal(0,
+            result);
     }
 
     [Fact]
@@ -104,16 +111,20 @@ public class LoginAttemptServiceTests : IDisposable
         var email2 = this.faker.Internet.Email();
         var key1 = $"login-attempt:{email1.ToLower()}";
         var key2 = $"login-attempt:{email2.ToLower()}";
-        this.cache.Set(key1, 2);
-        this.cache.Set(key2, 4);
+        this.cache.Set(key1,
+            2);
+        this.cache.Set(key2,
+            4);
 
         // Act
         var result1 = this._service.Handle(email1);
         var result2 = this._service.Handle(email2);
 
         // Assert
-        Assert.Equal(2, result1);
-        Assert.Equal(4, result2);
+        Assert.Equal(2,
+            result1);
+        Assert.Equal(4,
+            result2);
     }
 
     [Fact]
@@ -122,13 +133,15 @@ public class LoginAttemptServiceTests : IDisposable
         // Arrange
         var email = this.faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 100);
+        this.cache.Set(key,
+            100);
 
         // Act
         var result = this._service.Handle(email);
 
         // Assert
-        Assert.Equal(100, result);
+        Assert.Equal(100,
+            result);
     }
 
     public void Dispose()

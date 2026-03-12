@@ -13,7 +13,8 @@ public class AddProjectTaskAssigneeHandler(DefaultContext context)
             Id = command.Id,
             TaskId = command.TaskId,
             UserId = command.UserId,
-            Role = Enum.Parse<EnumAssigneeRole>(command.Role, true),
+            Role = Enum.Parse<EnumAssigneeRole>(command.Role,
+                true),
             AssignedAt = command.AssignedAt
         };
 

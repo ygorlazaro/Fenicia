@@ -2,7 +2,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
-using Fenicia.Module.Basic.Domains.StockMovement.GetMovement;
+using Fenicia.Module.Basic.Domains.StockMovement.Handlers;
+using Fenicia.Module.Basic.Domains.StockMovement.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,8 @@ public class GetStockMovementHandlerTests : IDisposable
             .Options;
 
         this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
+        this.db = new DefaultContext(options,
+            this.companyContext);
         this.handler = new GetStockMovementHandler(this.db);
     }
 
@@ -31,10 +33,12 @@ public class GetStockMovementHandlerTests : IDisposable
         // Arrange
         var startDate = DateTime.Now.AddDays(-10);
         var endDate = DateTime.Now;
-        var query = new GetStockMovementQuery(startDate, endDate);
+        var query = new GetStockMovementQuery(startDate,
+            endDate);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -89,19 +93,24 @@ public class GetStockMovementHandlerTests : IDisposable
             Reason = null
         };
 
-        this.db.BasicStockMovements.AddRange(movement1, movement2, movement3);
+        this.db.BasicStockMovements.AddRange(movement1,
+            movement2,
+            movement3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var startDate = DateTime.Now.AddDays(-10);
         var endDate = DateTime.Now;
-        var query = new GetStockMovementQuery(startDate, endDate);
+        var query = new GetStockMovementQuery(startDate,
+            endDate);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
+        Assert.Equal(2,
+            result.Count);
         Assert.True(result.All(m => m.Date >= startDate && m.Date <= endDate));
     }
 
@@ -138,14 +147,18 @@ public class GetStockMovementHandlerTests : IDisposable
 
         var startDate = DateTime.Now.AddDays(-30);
         var endDate = DateTime.Now;
-        var query = new GetStockMovementQuery(startDate, endDate, 2);
+        var query = new GetStockMovementQuery(startDate,
+            endDate,
+            2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Count);
+        Assert.Equal(10,
+            result.Count);
     }
 
     [Fact]
@@ -181,10 +194,13 @@ public class GetStockMovementHandlerTests : IDisposable
 
         var startDate = DateTime.Now.AddDays(-30);
         var endDate = DateTime.Now;
-        var query = new GetStockMovementQuery(startDate, endDate, 10);
+        var query = new GetStockMovementQuery(startDate,
+            endDate,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

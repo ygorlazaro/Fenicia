@@ -28,7 +28,8 @@ public class RegisterController(
     {
         wide.UserId = request.Email;
 
-        var userResponse = await createNewUserHandler.Handle(request, ct);
+        var userResponse = await createNewUserHandler.Handle(request,
+            ct);
 
         return Ok(userResponse);
     }

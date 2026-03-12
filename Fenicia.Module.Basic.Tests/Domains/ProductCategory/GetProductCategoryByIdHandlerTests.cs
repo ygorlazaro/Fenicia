@@ -1,7 +1,8 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.ProductCategory.GetById;
+using Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
+using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,8 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetProductCategoryByIdHandler(this.db);
     }
 
@@ -40,12 +42,15 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
         var query = new GetProductCategoryByIdQuery(categoryId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(categoryId, result.Id);
-        Assert.Equal("Electronics", result.Name);
+        Assert.Equal(categoryId,
+            result.Id);
+        Assert.Equal("Electronics",
+            result.Name);
     }
 
     [Fact]
@@ -55,7 +60,8 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
         var query = new GetProductCategoryByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -68,7 +74,8 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
         var query = new GetProductCategoryByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -93,18 +100,22 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
             Name = "Books"
         };
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
+        this.db.BasicProductCategories.AddRange(category1,
+            category2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductCategoryByIdQuery(category1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(category1Id, result.Id);
-        Assert.Equal("Electronics", result.Name);
+        Assert.Equal(category1Id,
+            result.Id);
+        Assert.Equal("Electronics",
+            result.Name);
     }
 
     public void Dispose()

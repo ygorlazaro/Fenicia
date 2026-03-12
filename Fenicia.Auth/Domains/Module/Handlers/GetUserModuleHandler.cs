@@ -11,7 +11,8 @@ public class GetUserModuleHandler(DefaultContext db)
 {
     public async Task<List<GetUserModulesResponse>> Handle(GetUserModulesQuery query, CancellationToken ct)
     {
-        var request = ValidModuleBySubscriptionQuery(query.UserId, query.CompanyId);
+        var request = ValidModuleBySubscriptionQuery(query.UserId,
+            query.CompanyId);
 
         return await request.Distinct().ToListAsync(ct);
     }
@@ -30,7 +31,9 @@ public class GetUserModuleHandler(DefaultContext db)
                           && now >= s.StartDate && now <= s.EndDate
                           && sc.IsActive
                           && now >= sc.StartDate && now <= sc.EndDate
-                    select new GetUserModulesResponse(m.Id, m.Name, m.Type);
+                    select new GetUserModulesResponse(m.Id,
+                        m.Name,
+                        m.Type);
 
         return query;
     }

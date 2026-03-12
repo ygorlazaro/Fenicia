@@ -10,12 +10,9 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Supplier;
-using Fenicia.Module.Basic.Domains.Supplier.Add;
-using Fenicia.Module.Basic.Domains.Supplier.Delete;
-using Fenicia.Module.Basic.Domains.Supplier.GetAll;
-using Fenicia.Module.Basic.Domains.Supplier.GetById;
-using Fenicia.Module.Basic.Domains.Supplier.GetSupplierPerformance;
-using Fenicia.Module.Basic.Domains.Supplier.Update;
+using Fenicia.Module.Basic.Domains.Supplier.Commands;
+using Fenicia.Module.Basic.Domains.Supplier.Handlers;
+using Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -35,7 +32,8 @@ public class SupplierControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.testSupplierId = Guid.NewGuid();
         var getAllSupplierHandler = new GetAllSupplierHandler(this.db);
         var getSupplierByIdHandler = new GetSupplierByIdHandler(this.db);
@@ -73,10 +71,13 @@ public class SupplierControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", Guid.NewGuid().ToString())
+            new("userId",
+                Guid.NewGuid()
+                    .ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -93,7 +94,10 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await this.controller.GetAsync(wide,
+            page,
+            perPage,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -105,7 +109,8 @@ public class SupplierControllerTests : IDisposable
         var returnedSuppliers = okResult.Value as Pagination<List<GetAllSupplierResponse>>;
         Assert.NotNull(returnedSuppliers);
         Assert.Empty(returnedSuppliers.Data);
-        Assert.Equal(0, returnedSuppliers.Total);
+        Assert.Equal(0,
+            returnedSuppliers.Total);
     }
 
     [Fact]
@@ -166,7 +171,8 @@ public class SupplierControllerTests : IDisposable
             }
         };
 
-        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
+        this.db.BasicSuppliers.AddRange(supplier1,
+            supplier2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
@@ -175,7 +181,10 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await this.controller.GetAsync(wide,
+            page,
+            perPage,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -186,12 +195,18 @@ public class SupplierControllerTests : IDisposable
 
         var returnedSuppliers = okResult.Value as Pagination<List<GetAllSupplierResponse>>;
         Assert.NotNull(returnedSuppliers);
-        Assert.Equal(2, returnedSuppliers.Data.Count);
-        Assert.Equal(2, returnedSuppliers.Total);
-        Assert.Equal(supplier1.Person.Name, returnedSuppliers.Data[0].Name);
-        Assert.Equal(supplier1.Person.Email, returnedSuppliers.Data[0].Email);
-        Assert.Equal(supplier2.Person.Name, returnedSuppliers.Data[1].Name);
-        Assert.Equal(supplier2.Person.Email, returnedSuppliers.Data[1].Email);
+        Assert.Equal(2,
+            returnedSuppliers.Data.Count);
+        Assert.Equal(2,
+            returnedSuppliers.Total);
+        Assert.Equal(supplier1.Person.Name,
+            returnedSuppliers.Data[0].Name);
+        Assert.Equal(supplier1.Person.Email,
+            returnedSuppliers.Data[0].Email);
+        Assert.Equal(supplier2.Person.Name,
+            returnedSuppliers.Data[1].Name);
+        Assert.Equal(supplier2.Person.Email,
+            returnedSuppliers.Data[1].Email);
     }
 
     [Fact]
@@ -236,7 +251,9 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testSupplierId, wide, ct);
+        var result = await this.controller.GetByIdAsync(this.testSupplierId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -247,10 +264,14 @@ public class SupplierControllerTests : IDisposable
 
         var returnedSupplier = okResult.Value as GetSupplierByIdResponse;
         Assert.NotNull(returnedSupplier);
-        Assert.Equal(this.testSupplierId, returnedSupplier.Id);
-        Assert.Equal(supplier.Person.Id, returnedSupplier.PersonId);
-        Assert.Equal(supplier.Person.Name, returnedSupplier.Name);
-        Assert.Equal(supplier.Person.Email, returnedSupplier.Email);
+        Assert.Equal(this.testSupplierId,
+            returnedSupplier.Id);
+        Assert.Equal(supplier.Person.Id,
+            returnedSupplier.PersonId);
+        Assert.Equal(supplier.Person.Name,
+            returnedSupplier.Name);
+        Assert.Equal(supplier.Person.Email,
+            returnedSupplier.Email);
     }
 
     [Fact]
@@ -262,7 +283,9 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
+        var result = await this.controller.GetByIdAsync(nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -292,7 +315,9 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await this.controller.PostAsync(command,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -300,11 +325,13 @@ public class SupplierControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201, createdResult.StatusCode);
+        Assert.Equal(201,
+            createdResult.StatusCode);
 
         var returnedSupplier = createdResult.Value as AddSupplierResponse;
         Assert.NotNull(returnedSupplier);
-        Assert.Equal(command.Cnpj, returnedSupplier.Cnpj);
+        Assert.Equal(command.Cnpj,
+            returnedSupplier.Cnpj);
     }
 
     [Fact]
@@ -348,7 +375,10 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, this.testSupplierId, wide, ct);
+        var result = await this.controller.PatchAsync(command,
+            this.testSupplierId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -385,7 +415,10 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
+        var result = await this.controller.PatchAsync(command,
+            nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -417,13 +450,17 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testSupplierId, wide, ct);
+        var result = await this.controller.DeleteAsync(this.testSupplierId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify supplier was deleted
-        var deletedSupplier = await this.db.BasicSuppliers.FirstOrDefaultAsync(x => x.Id == this.testSupplierId && x.Deleted == null, ct);
+        var deletedSupplier = await this.db.BasicSuppliers.FirstOrDefaultAsync(
+            x => x.Id == this.testSupplierId && x.Deleted == null,
+            ct);
         Assert.Null(deletedSupplier);
     }
 
@@ -436,7 +473,9 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
+        var result = await this.controller.DeleteAsync(nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -449,7 +488,8 @@ public class SupplierControllerTests : IDisposable
         var controllerType = typeof(SupplierController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -463,11 +503,13 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -478,7 +520,8 @@ public class SupplierControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);

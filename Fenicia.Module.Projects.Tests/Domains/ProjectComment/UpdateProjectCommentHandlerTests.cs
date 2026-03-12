@@ -18,7 +18,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new UpdateProjectCommentHandler(this.db);
         this.faker = new Faker();
     }
@@ -57,12 +58,15 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             "New comment content");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(commentId, result.Id);
-        Assert.Equal("New comment content", result.Content);
+        Assert.Equal(commentId,
+            result.Id);
+        Assert.Equal("New comment content",
+            result.Content);
     }
 
     [Fact]
@@ -74,7 +78,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             "New comment content");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -89,7 +94,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             "New comment content");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -120,7 +126,8 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             Content = "Comment 2 content"
         };
 
-        this.db.ProjectComments.AddRange(comment1, comment2);
+        this.db.ProjectComments.AddRange(comment1,
+            comment2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommentCommand(
@@ -128,20 +135,31 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             "Updated Comment 1 content");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(comment1Id, result.Id);
-        Assert.Equal("Updated Comment 1 content", result.Content);
+        Assert.Equal(comment1Id,
+            result.Id);
+        Assert.Equal("Updated Comment 1 content",
+            result.Content);
 
-        var updatedComment1 = await this.db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
-        var comment2InDb = await this.db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
+        var updatedComment1 = await this.db.ProjectComments.FindAsync([
+                comment1Id
+            ],
+            CancellationToken.None);
+        var comment2InDb = await this.db.ProjectComments.FindAsync([
+                comment2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(updatedComment1);
         Assert.NotNull(comment2InDb);
-        Assert.Equal("Updated Comment 1 content", updatedComment1.Content);
-        Assert.Equal("Comment 2 content", comment2InDb.Content);
+        Assert.Equal("Updated Comment 1 content",
+            updatedComment1.Content);
+        Assert.Equal("Comment 2 content",
+            comment2InDb.Content);
     }
 
     [Fact]
@@ -168,11 +186,14 @@ public class UpdateProjectCommentHandlerTests : IDisposable
             longContent);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(commentId, result.Id);
-        Assert.Equal(longContent, result.Content);
+        Assert.Equal(commentId,
+            result.Id);
+        Assert.Equal(longContent,
+            result.Content);
     }
 }

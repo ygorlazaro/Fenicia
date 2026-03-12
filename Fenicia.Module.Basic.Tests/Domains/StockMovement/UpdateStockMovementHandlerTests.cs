@@ -2,7 +2,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
-using Fenicia.Module.Basic.Domains.StockMovement.Update;
+using Fenicia.Module.Basic.Domains.StockMovement.Commands;
+using Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,8 @@ public class UpdateStockMovementHandlerTests : IDisposable
             .Options;
 
         this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
+        this.db = new DefaultContext(options,
+            this.companyContext);
         this.handler = new UpdateStockMovementHandler(this.db);
     }
 
@@ -67,13 +69,17 @@ public class UpdateStockMovementHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(20, result.Quantity);
-        Assert.Equal(StockMovementType.Out, result.Type);
-        Assert.Equal(25.00m, result.Price);
+        Assert.Equal(20,
+            result.Quantity);
+        Assert.Equal(StockMovementType.Out,
+            result.Type);
+        Assert.Equal(25.00m,
+            result.Price);
     }
 
     [Fact]
@@ -94,7 +100,8 @@ public class UpdateStockMovementHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -118,7 +125,8 @@ public class UpdateStockMovementHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -166,13 +174,19 @@ public class UpdateStockMovementHandlerTests : IDisposable
             null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var updatedMovement = await this.db.BasicStockMovements.FindAsync([movementId], CancellationToken.None);
+        var updatedMovement = await this.db.BasicStockMovements.FindAsync([
+                movementId
+            ],
+            CancellationToken.None);
         Assert.NotNull(updatedMovement);
-        Assert.Equal(20, updatedMovement.Quantity);
-        Assert.Equal(StockMovementType.Out, updatedMovement.Type);
+        Assert.Equal(20,
+            updatedMovement.Quantity);
+        Assert.Equal(StockMovementType.Out,
+            updatedMovement.Type);
     }
 
     public void Dispose()

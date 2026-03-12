@@ -13,14 +13,17 @@ public static class Program
     {
         var configuration = new ConfigurationManager();
         var commonApiSettingsPath =
-            Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "../Fenicia.Common.Api/appsettings.json");
 
         if (!File.Exists(commonApiSettingsPath))
         {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
 
-        configuration.AddJsonFile(commonApiSettingsPath, false, true);
+        configuration.AddJsonFile(commonApiSettingsPath,
+            false,
+            true);
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);
@@ -40,7 +43,9 @@ public static class Program
                 builder.Services.AddScoped<IncrementAttemptsService>();
                 builder.Services.AddScoped<GetUserProfileHandler>();
             })
-            .AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+            .AddFeniciaDbContext<DefaultContext>(configuration,
+                "Fenicia.Auth",
+                "Auth");
 
 
         builder.Start();

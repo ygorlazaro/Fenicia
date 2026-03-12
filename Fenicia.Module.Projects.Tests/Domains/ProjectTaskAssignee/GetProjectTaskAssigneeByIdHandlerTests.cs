@@ -16,7 +16,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetProjectTaskAssigneeByIdHandler(this.db);
     }
 
@@ -53,12 +54,15 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
         var query = new GetProjectTaskAssigneeByIdQuery(assigneeId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assigneeId, result.Id);
-        Assert.Equal(userId, result.UserId);
+        Assert.Equal(assigneeId,
+            result.Id);
+        Assert.Equal(userId,
+            result.UserId);
     }
 
     [Fact]
@@ -68,7 +72,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
         var query = new GetProjectTaskAssigneeByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -81,7 +86,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
         var query = new GetProjectTaskAssigneeByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -115,18 +121,22 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
+        this.db.ProjectTaskAssignees.AddRange(assignee1,
+            assignee2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskAssigneeByIdQuery(assignee1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assignee1Id, result.Id);
-        Assert.Equal(userId1, result.UserId);
+        Assert.Equal(assignee1Id,
+            result.Id);
+        Assert.Equal(userId1,
+            result.UserId);
     }
 
     [Fact]
@@ -152,11 +162,14 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
         var query = new GetProjectTaskAssigneeByIdQuery(assigneeId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assigneeId, result.Id);
-        Assert.Equal("Contributor", result.Role);
+        Assert.Equal(assigneeId,
+            result.Id);
+        Assert.Equal("Contributor",
+            result.Role);
     }
 }

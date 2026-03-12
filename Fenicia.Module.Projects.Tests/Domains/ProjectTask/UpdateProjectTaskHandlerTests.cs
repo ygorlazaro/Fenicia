@@ -18,7 +18,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new UpdateProjectTaskHandler(this.db);
         this.faker = new Faker();
     }
@@ -73,12 +74,15 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(taskId, result.Id);
-        Assert.Equal("New Task Title", result.Title);
+        Assert.Equal(taskId,
+            result.Id);
+        Assert.Equal("New Task Title",
+            result.Title);
     }
 
     [Fact]
@@ -99,7 +103,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -123,7 +128,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -168,7 +174,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(task1, task2);
+        this.db.ProjectTasks.AddRange(task1,
+            task2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskCommand(
@@ -185,20 +192,31 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             task1.CreatedBy);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(task1Id, result.Id);
-        Assert.Equal("Updated Task 1 Title", result.Title);
+        Assert.Equal(task1Id,
+            result.Id);
+        Assert.Equal("Updated Task 1 Title",
+            result.Title);
 
-        var updatedTask1 = await this.db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
-        var task2InDb = await this.db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
+        var updatedTask1 = await this.db.ProjectTasks.FindAsync([
+                task1Id
+            ],
+            CancellationToken.None);
+        var task2InDb = await this.db.ProjectTasks.FindAsync([
+                task2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(updatedTask1);
         Assert.NotNull(task2InDb);
-        Assert.Equal("Updated Task 1 Title", updatedTask1.Title);
-        Assert.Equal("Task 2 Title", task2InDb.Title);
+        Assert.Equal("Updated Task 1 Title",
+            updatedTask1.Title);
+        Assert.Equal("Task 2 Title",
+            task2InDb.Title);
     }
 
     [Fact]
@@ -240,11 +258,13 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(taskId, result.Id);
+        Assert.Equal(taskId,
+            result.Id);
         Assert.Null(result.Description);
     }
 }
