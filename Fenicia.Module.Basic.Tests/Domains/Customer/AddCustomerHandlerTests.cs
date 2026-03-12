@@ -2,7 +2,8 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.Customer.Add;
+using Fenicia.Module.Basic.Domains.Customer.Commands;
+using Fenicia.Module.Basic.Domains.Customer.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,8 @@ public class AddCustomerHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new AddCustomerHandler(this.db);
         this.faker = new Faker();
     }
@@ -51,11 +53,13 @@ public class AddCustomerHandlerTests : IDisposable
             this.faker.Random.Replace("(##) #####-####"));
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Id,
+            result.Id);
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
@@ -78,7 +82,8 @@ public class AddCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -103,7 +108,8 @@ public class AddCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -128,7 +134,8 @@ public class AddCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -153,7 +160,8 @@ public class AddCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -178,7 +186,8 @@ public class AddCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -203,7 +212,8 @@ public class AddCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -228,7 +238,8 @@ public class AddCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -253,7 +264,8 @@ public class AddCustomerHandlerTests : IDisposable
             this.faker.Random.Replace("(##) #####-####"));
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var customer = await this.db.BasicCustomers
@@ -261,8 +273,10 @@ public class AddCustomerHandlerTests : IDisposable
             .FirstOrDefaultAsync(c => c.Id == command.Id);
 
         Assert.NotNull(customer);
-        Assert.Equal(command.Name, customer.Person.Name);
-        Assert.Equal(command.Email, customer.Person.Email);
+        Assert.Equal(command.Name,
+            customer.Person.Name);
+        Assert.Equal(command.Email,
+            customer.Person.Email);
     }
 
     [Fact]
@@ -298,11 +312,14 @@ public class AddCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command1,
+            CancellationToken.None);
+        await this.handler.Handle(command2,
+            CancellationToken.None);
 
         // Assert
         var customers = await this.db.BasicCustomers.ToListAsync();
-        Assert.Equal(2, customers.Count);
+        Assert.Equal(2,
+            customers.Count);
     }
 }

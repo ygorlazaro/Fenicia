@@ -38,7 +38,8 @@ public class OrderControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.testCompanyId = Guid.NewGuid();
         var createNewOrderHandler = new CreateNewOrderHandler(this.db);
@@ -67,10 +68,12 @@ public class OrderControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", userId.ToString())
+            new("userId",
+                userId.ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -85,7 +88,9 @@ public class OrderControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         var modules = new List<Guid> { Guid.NewGuid() };
-        var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
+        var command = new CreateNewOrderCommand(this.testUserId,
+            this.testCompanyId,
+            modules);
         var headers = new Headers { CompanyId = this.testCompanyId };
 
         // Act & Assert
@@ -134,7 +139,9 @@ public class OrderControllerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { Guid.NewGuid() };
-        var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
+        var command = new CreateNewOrderCommand(this.testUserId,
+            this.testCompanyId,
+            modules);
         var headers = new Headers { CompanyId = this.testCompanyId };
 
         // Act & Assert
@@ -159,7 +166,8 @@ public class OrderControllerTests : IDisposable
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = this.faker.Finance.Amount(10, 100)
+            Price = this.faker.Finance.Amount(10,
+                100)
         };
 
         var user = new UserModel
@@ -193,7 +201,9 @@ public class OrderControllerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { moduleId };
-        var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
+        var command = new CreateNewOrderCommand(this.testUserId,
+            this.testCompanyId,
+            modules);
         var headers = new Headers { CompanyId = this.testCompanyId };
 
         // Act
@@ -209,21 +219,27 @@ public class OrderControllerTests : IDisposable
 
         var okResult = result.Result as OkObjectResult;
         Assert.NotNull(okResult);
-        Assert.Equal(200, okResult.StatusCode);
+        Assert.Equal(200,
+            okResult.StatusCode);
 
         var returnedResponse = okResult.Value as CreateNewOrderResponse;
         Assert.NotNull(returnedResponse);
         
-        Assert.NotEqual(Guid.Empty, returnedResponse.OrderId);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.NotEqual(Guid.Empty,
+            returnedResponse.OrderId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
 
         // Verify order was created
         var createdOrder =
-            await this.db.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
+            await this.db.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId,
+                ct);
         Assert.NotNull(createdOrder);
         
-        Assert.Equal(this.testUserId, createdOrder.UserId);
-        Assert.Equal(this.testCompanyId, createdOrder.CompanyId);
+        Assert.Equal(this.testUserId,
+            createdOrder.UserId);
+        Assert.Equal(this.testCompanyId,
+            createdOrder.CompanyId);
     }
 
     [Fact]
@@ -239,7 +255,8 @@ public class OrderControllerTests : IDisposable
             Id = moduleId,
             Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = this.faker.Finance.Amount(10, 100)
+            Price = this.faker.Finance.Amount(10,
+                100)
         };
 
         var user = new UserModel
@@ -273,7 +290,9 @@ public class OrderControllerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { moduleId };
-        var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
+        var command = new CreateNewOrderCommand(this.testUserId,
+            this.testCompanyId,
+            modules);
         var headers = new Headers { CompanyId = this.testCompanyId };
 
         // Act
@@ -284,7 +303,8 @@ public class OrderControllerTests : IDisposable
             ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -294,7 +314,8 @@ public class OrderControllerTests : IDisposable
         var controllerType = typeof(OrderController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -308,11 +329,13 @@ public class OrderControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -323,10 +346,12 @@ public class OrderControllerTests : IDisposable
 
         // Act
         var producesAttribute =
-            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute),
+                false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.NotNull(producesAttribute);
-        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
+        Assert.Equal("application/json",
+            producesAttribute.ContentTypes.FirstOrDefault());
     }
 }

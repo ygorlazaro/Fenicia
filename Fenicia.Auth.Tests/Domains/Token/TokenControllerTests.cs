@@ -39,7 +39,8 @@ public class TokenControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         var cache = new MemoryCache(new MemoryCacheOptions());
 
@@ -50,7 +51,8 @@ public class TokenControllerTests : IDisposable
         mockConfiguration.Setup(c => c["Jwt:Secret"]).Returns("ThisIsASecretKeyForJwtSigning123456");
         var mockRedis = new Mock<IConnectionMultiplexer>();
         this.mockDatabase = new Mock<IDatabase>();
-        mockRedis.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(this.mockDatabase.Object);
+        mockRedis.Setup(r => r.GetDatabase(It.IsAny<int>(),
+            It.IsAny<object?>())).Returns(this.mockDatabase.Object);
 
         var generateTokenHandler1 = new GenerateTokenHandler(
             this.db,
@@ -106,7 +108,8 @@ public class TokenControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var query = new GenerateTokenQuery(this.faker.Internet.Email(), this.faker.Internet.Password());
+        var query = new GenerateTokenQuery(this.faker.Internet.Email(),
+            this.faker.Internet.Password());
 
         this.mockLoginAttemptHandler
             .Setup(h => h.Handle(query.Email))
@@ -124,7 +127,8 @@ public class TokenControllerTests : IDisposable
 
         var badRequestResult = result.Result as BadRequestObjectResult;
         Assert.NotNull(badRequestResult);
-        Assert.Equal(400, badRequestResult.StatusCode);
+        Assert.Equal(400,
+            badRequestResult.StatusCode);
     }
 
     [Fact]
@@ -134,7 +138,8 @@ public class TokenControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var query = new GenerateTokenQuery(this.faker.Internet.Email(), this.faker.Internet.Password());
+        var query = new GenerateTokenQuery(this.faker.Internet.Email(),
+            this.faker.Internet.Password());
 
         this.mockLoginAttemptHandler
             .Setup(h => h.Handle(query.Email))
@@ -152,7 +157,8 @@ public class TokenControllerTests : IDisposable
 
         var badRequestResult = result.Result as BadRequestObjectResult;
         Assert.NotNull(badRequestResult);
-        Assert.Equal(400, badRequestResult.StatusCode);
+        Assert.Equal(400,
+            badRequestResult.StatusCode);
     }
 
     [Fact]
@@ -177,14 +183,16 @@ public class TokenControllerTests : IDisposable
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GenerateTokenQuery(email, password);
+        var query = new GenerateTokenQuery(email,
+            password);
 
         this.mockLoginAttemptHandler
             .Setup(h => h.Handle(query.Email))
             .Returns(0);
 
         this.mockVerifyPasswordHandler
-            .Setup(h => h.Handle(query.Password, hashedPassword))
+            .Setup(h => h.Handle(query.Password,
+                hashedPassword))
             .Returns(true);
 
         // Act
@@ -199,7 +207,8 @@ public class TokenControllerTests : IDisposable
 
         var okResult = result.Result as OkObjectResult;
         Assert.NotNull(okResult);
-        Assert.Equal(200, okResult.StatusCode);
+        Assert.Equal(200,
+            okResult.StatusCode);
 
         var tokenResponse = okResult.Value as TokenResponse;
         Assert.NotNull(tokenResponse);
@@ -207,10 +216,14 @@ public class TokenControllerTests : IDisposable
         Assert.NotEmpty(tokenResponse.AccessToken);
         Assert.NotNull(tokenResponse.RefreshToken);
         Assert.NotEmpty(tokenResponse.RefreshToken);
-        Assert.Equal(this.testUserId, tokenResponse.User.Id);
-        Assert.Equal(email, tokenResponse.User.Email);
-        Assert.Equal(name, tokenResponse.User.Name);
-        Assert.Equal(query.Email, wide.UserId);
+        Assert.Equal(this.testUserId,
+            tokenResponse.User.Id);
+        Assert.Equal(email,
+            tokenResponse.User.Email);
+        Assert.Equal(name,
+            tokenResponse.User.Name);
+        Assert.Equal(query.Email,
+            wide.UserId);
     }
 
     [Fact]
@@ -220,7 +233,8 @@ public class TokenControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var query = new GenerateTokenQuery(string.Empty, this.faker.Internet.Password());
+        var query = new GenerateTokenQuery(string.Empty,
+            this.faker.Internet.Password());
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidRequestException>(async () =>
@@ -252,14 +266,16 @@ public class TokenControllerTests : IDisposable
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GenerateTokenQuery(email, password);
+        var query = new GenerateTokenQuery(email,
+            password);
 
         this.mockLoginAttemptHandler
             .Setup(h => h.Handle(query.Email))
             .Returns(0);
 
         this.mockVerifyPasswordHandler
-            .Setup(h => h.Handle(query.Password, hashedPassword))
+            .Setup(h => h.Handle(query.Password,
+                hashedPassword))
             .Returns(true);
 
         // Act
@@ -269,7 +285,8 @@ public class TokenControllerTests : IDisposable
             ct);
 
         // Assert
-        Assert.Equal(query.Email, wide.UserId);
+        Assert.Equal(query.Email,
+            wide.UserId);
     }
 
     [Fact]
@@ -280,7 +297,8 @@ public class TokenControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         const string refreshToken = "invalid_refresh_token";
-        var query = new ValidateTokenQuery(this.testUserId, refreshToken);
+        var query = new ValidateTokenQuery(this.testUserId,
+            refreshToken);
 
         // Act
         var result = await this.controller.Refresh(
@@ -294,7 +312,8 @@ public class TokenControllerTests : IDisposable
 
         var badRequestResult = result.Result as BadRequestObjectResult;
         Assert.NotNull(badRequestResult);
-        Assert.Equal(400, badRequestResult.StatusCode);
+        Assert.Equal(400,
+            badRequestResult.StatusCode);
     }
 
     [Fact]
@@ -317,14 +336,19 @@ public class TokenControllerTests : IDisposable
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new ValidateTokenQuery(this.testUserId, refreshToken);
+        var query = new ValidateTokenQuery(this.testUserId,
+            refreshToken);
 
         // Mock Redis to return valid token
         var refreshTokenResponse =
-            new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(7), this.testUserId, true);
+            new ValidateTokenResponse(refreshToken,
+                DateTime.UtcNow.AddDays(7),
+                this.testUserId,
+                true);
         var serializedToken = JsonSerializer.Serialize(refreshTokenResponse);
         this.mockDatabase
-            .Setup(db => db.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+            .Setup(db => db.StringGetAsync(It.IsAny<RedisKey>(),
+                It.IsAny<CommandFlags>()))
             .ReturnsAsync(new RedisValue(serializedToken));
 
         // Act
@@ -339,7 +363,8 @@ public class TokenControllerTests : IDisposable
 
         var okResult = result.Result as OkObjectResult;
         Assert.NotNull(okResult);
-        Assert.Equal(200, okResult.StatusCode);
+        Assert.Equal(200,
+            okResult.StatusCode);
 
         var tokenResponse = okResult.Value as TokenResponse;
         Assert.NotNull(tokenResponse);
@@ -347,8 +372,10 @@ public class TokenControllerTests : IDisposable
         Assert.NotEmpty(tokenResponse.AccessToken);
         Assert.NotNull(tokenResponse.RefreshToken);
         Assert.NotEmpty(tokenResponse.RefreshToken);
-        Assert.Equal(this.testUserId, tokenResponse.User.Id);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId,
+            tokenResponse.User.Id);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -371,14 +398,19 @@ public class TokenControllerTests : IDisposable
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new ValidateTokenQuery(this.testUserId, refreshToken);
+        var query = new ValidateTokenQuery(this.testUserId,
+            refreshToken);
 
         // Mock Redis to return valid token
         var refreshTokenResponse =
-            new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(7), this.testUserId, true);
+            new ValidateTokenResponse(refreshToken,
+                DateTime.UtcNow.AddDays(7),
+                this.testUserId,
+                true);
         var serializedToken = JsonSerializer.Serialize(refreshTokenResponse);
         this.mockDatabase
-            .Setup(db => db.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+            .Setup(db => db.StringGetAsync(It.IsAny<RedisKey>(),
+                It.IsAny<CommandFlags>()))
             .ReturnsAsync(new RedisValue(serializedToken));
 
         // Act
@@ -388,7 +420,8 @@ public class TokenControllerTests : IDisposable
             ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -398,7 +431,8 @@ public class TokenControllerTests : IDisposable
         var controllerType = typeof(TokenController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -412,11 +446,13 @@ public class TokenControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -427,7 +463,8 @@ public class TokenControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
@@ -441,11 +478,13 @@ public class TokenControllerTests : IDisposable
 
         // Act
         var producesAttribute =
-            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute),
+                false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.NotNull(producesAttribute);
-        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
+        Assert.Equal("application/json",
+            producesAttribute.ContentTypes.FirstOrDefault());
     }
 
     [Fact]
@@ -457,7 +496,8 @@ public class TokenControllerTests : IDisposable
 
         // Act
         var allowAnonymousAttribute =
-            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
+            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(allowAnonymousAttribute);
@@ -472,7 +512,8 @@ public class TokenControllerTests : IDisposable
 
         // Act
         var allowAnonymousAttribute =
-            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
+            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(allowAnonymousAttribute);

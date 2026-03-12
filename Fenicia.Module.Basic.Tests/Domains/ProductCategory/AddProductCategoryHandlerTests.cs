@@ -1,6 +1,7 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.ProductCategory.Add;
+using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
+using Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +16,8 @@ public class AddProductCategoryHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new AddProductCategoryHandler(this.db);
     }
 
@@ -26,46 +28,61 @@ public class AddProductCategoryHandlerTests : IDisposable
     public async Task Handle_WithValidCommand_AddsCategoryAndReturnsResponse()
     {
         // Arrange
-        var command = new AddProductCategoryCommand(Guid.NewGuid(), "Electronics");
+        var command = new AddProductCategoryCommand(Guid.NewGuid(),
+            "Electronics");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(command.Name, result.Name);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(command.Name,
+            result.Name);
     }
 
     [Fact]
     public async Task Handle_VerifiesCategoryWasSavedToDatabase()
     {
         // Arrange
-        var command = new AddProductCategoryCommand(Guid.NewGuid(), "Books");
+        var command = new AddProductCategoryCommand(Guid.NewGuid(),
+            "Books");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var category = await this.db.BasicProductCategories.FindAsync([command.Id], CancellationToken.None);
+        var category = await this.db.BasicProductCategories.FindAsync([
+                command.Id
+            ],
+            CancellationToken.None);
         Assert.NotNull(category);
-        Assert.Equal(command.Name, category.Name);
+        Assert.Equal(command.Name,
+            category.Name);
     }
 
     [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllCategories()
     {
         // Arrange
-        var command1 = new AddProductCategoryCommand(Guid.NewGuid(), "Electronics");
-        var command2 = new AddProductCategoryCommand(Guid.NewGuid(), "Books");
+        var command1 = new AddProductCategoryCommand(Guid.NewGuid(),
+            "Electronics");
+        var command2 = new AddProductCategoryCommand(Guid.NewGuid(),
+            "Books");
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command1,
+            CancellationToken.None);
+        await this.handler.Handle(command2,
+            CancellationToken.None);
 
         // Assert
         var categories = await this.db.BasicProductCategories.ToListAsync();
-        Assert.Equal(2, categories.Count);
+        Assert.Equal(2,
+            categories.Count);
     }
 
     public void Dispose()

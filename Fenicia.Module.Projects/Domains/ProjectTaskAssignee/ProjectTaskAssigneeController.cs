@@ -35,7 +35,9 @@ public class ProjectTaskAssigneeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var assignees = await getAllProjectTaskAssigneeHandler.Handle(new GetAllProjectTaskAssigneeQuery(page, perPage), ct);
+        var assignees = await getAllProjectTaskAssigneeHandler.Handle(new GetAllProjectTaskAssigneeQuery(page,
+                perPage),
+            ct);
 
         return Ok(assignees);
     }
@@ -51,7 +53,8 @@ public class ProjectTaskAssigneeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var assignee = await getProjectTaskAssigneeByIdHandler.Handle(new GetProjectTaskAssigneeByIdQuery(id), ct);
+        var assignee = await getProjectTaskAssigneeByIdHandler.Handle(new GetProjectTaskAssigneeByIdQuery(id),
+            ct);
 
         return assignee is null ? NotFound() : Ok(assignee);
     }
@@ -70,9 +73,11 @@ public class ProjectTaskAssigneeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var assignee = await addProjectTaskAssigneeHandler.Handle(command, ct);
+        var assignee = await addProjectTaskAssigneeHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, assignee);
+        return new CreatedResult(string.Empty,
+            assignee);
     }
 
     [HttpPatch("{id:guid}")]
@@ -91,7 +96,11 @@ public class ProjectTaskAssigneeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var assignee = await updateProjectTaskAssigneeHandler.Handle(command with { Id = id }, ct);
+        var assignee = await updateProjectTaskAssigneeHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return assignee is null ? NotFound() : Ok(assignee);
     }
@@ -108,7 +117,8 @@ public class ProjectTaskAssigneeController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteProjectTaskAssigneeHandler.Handle(new DeleteProjectTaskAssigneeCommand(id), ct);
+        await deleteProjectTaskAssigneeHandler.Handle(new DeleteProjectTaskAssigneeCommand(id),
+            ct);
 
         return NoContent();
     }

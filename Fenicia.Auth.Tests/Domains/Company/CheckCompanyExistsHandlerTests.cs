@@ -19,7 +19,8 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new CheckCompanyExistsHandler(this.db);
         this.faker = new Faker();
     }
@@ -51,10 +52,12 @@ public class CheckCompanyExistsHandlerTests : IDisposable
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new CheckCompanyExistsQuery(cnpj, false);
+        var query = new CheckCompanyExistsQuery(cnpj,
+            false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -65,10 +68,12 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var query = new CheckCompanyExistsQuery(cnpj, false);
+        var query = new CheckCompanyExistsQuery(cnpj,
+            false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result);
@@ -90,10 +95,12 @@ public class CheckCompanyExistsHandlerTests : IDisposable
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new CheckCompanyExistsQuery(cnpj, true);
+        var query = new CheckCompanyExistsQuery(cnpj,
+            true);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -115,10 +122,12 @@ public class CheckCompanyExistsHandlerTests : IDisposable
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new CheckCompanyExistsQuery(cnpj, true);
+        var query = new CheckCompanyExistsQuery(cnpj,
+            true);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result);
@@ -140,10 +149,12 @@ public class CheckCompanyExistsHandlerTests : IDisposable
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new CheckCompanyExistsQuery(cnpj, false);
+        var query = new CheckCompanyExistsQuery(cnpj,
+            false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -172,13 +183,16 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
+        this.db.AuthCompanies.AddRange(company1,
+            company2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new CheckCompanyExistsQuery(cnpj1, false);
+        var query = new CheckCompanyExistsQuery(cnpj1,
+            false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -206,15 +220,20 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             IsActive = false
         };
 
-        this.db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
+        this.db.AuthCompanies.AddRange(activeCompany,
+            inactiveCompany);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var activeQuery = new CheckCompanyExistsQuery(cnpj, true);
-        var inactiveQuery = new CheckCompanyExistsQuery(cnpj, false);
+        var activeQuery = new CheckCompanyExistsQuery(cnpj,
+            true);
+        var inactiveQuery = new CheckCompanyExistsQuery(cnpj,
+            false);
 
         // Act
-        var activeResult = await this.handler.Handle(activeQuery, CancellationToken.None);
-        var inactiveResult = await this.handler.Handle(inactiveQuery, CancellationToken.None);
+        var activeResult = await this.handler.Handle(activeQuery,
+            CancellationToken.None);
+        var inactiveResult = await this.handler.Handle(inactiveQuery,
+            CancellationToken.None);
 
         // Assert
         Assert.True(activeResult);
@@ -225,10 +244,12 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsFalse()
     {
         // Arrange
-        var query = new CheckCompanyExistsQuery(this.faker.Company.Cnpj(), false);
+        var query = new CheckCompanyExistsQuery(this.faker.Company.Cnpj(),
+            false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result);
@@ -250,10 +271,12 @@ public class CheckCompanyExistsHandlerTests : IDisposable
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new CheckCompanyExistsQuery(cnpj, false);
+        var query = new CheckCompanyExistsQuery(cnpj,
+            false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.False(result);

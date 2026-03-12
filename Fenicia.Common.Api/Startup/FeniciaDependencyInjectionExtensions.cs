@@ -13,7 +13,8 @@ public static class FeniciaDependencyInjectionExtensions
     {
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
-            var config = ConfigurationOptions.Parse("localhost", true);
+            var config = ConfigurationOptions.Parse("localhost",
+                true);
 
             config.ConnectRetry = 3;
             config.ConnectTimeout = 5000;
@@ -41,7 +42,8 @@ public static class FeniciaDependencyInjectionExtensions
 
         var handlerTypes = assembly.GetTypes()
             .Where(t => t is { IsClass: true, IsAbstract: false, IsPublic: true }
-                        && t.Name.EndsWith("Handler", StringComparison.Ordinal));
+                        && t.Name.EndsWith("Handler",
+                            StringComparison.Ordinal));
 
         foreach (var handlerType in handlerTypes)
         {

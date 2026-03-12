@@ -17,7 +17,8 @@ public class AddProjectSubtaskHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new AddProjectSubtaskHandler(this.db);
         this.faker = new Faker();
     }
@@ -42,16 +43,20 @@ public class AddProjectSubtaskHandlerTests : IDisposable
             Guid.NewGuid(),
             this.faker.Lorem.Sentence(5),
             false,
-            this.faker.Random.Number(0, 100),
+            this.faker.Random.Number(0,
+                100),
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(command.Title, result.Title);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(command.Title,
+            result.Title);
     }
 
     [Fact]
@@ -67,15 +72,18 @@ public class AddProjectSubtaskHandlerTests : IDisposable
             null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var subtask = await this.db.ProjectSubtasks
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 
         Assert.NotNull(subtask);
-        Assert.Equal(command.Title, subtask.Title);
-        Assert.Equal(command.IsCompleted, subtask.IsCompleted);
+        Assert.Equal(command.Title,
+            subtask.Title);
+        Assert.Equal(command.IsCompleted,
+            subtask.IsCompleted);
     }
 
     [Fact]
@@ -100,12 +108,15 @@ public class AddProjectSubtaskHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command1,
+            CancellationToken.None);
+        await this.handler.Handle(command2,
+            CancellationToken.None);
 
         // Assert
         var subtasks = await this.db.ProjectSubtasks.ToListAsync();
-        Assert.Equal(2, subtasks.Count);
+        Assert.Equal(2,
+            subtasks.Count);
     }
 
     [Fact]
@@ -122,13 +133,16 @@ public class AddProjectSubtaskHandlerTests : IDisposable
             completedAt);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Id,
+            result.Id);
         Assert.True(result.IsCompleted);
-        Assert.Equal(completedAt, result.CompletedAt);
+        Assert.Equal(completedAt,
+            result.CompletedAt);
     }
 
     [Fact]
@@ -144,11 +158,13 @@ public class AddProjectSubtaskHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Id,
+            result.Id);
         Assert.Null(result.CompletedAt);
     }
 }

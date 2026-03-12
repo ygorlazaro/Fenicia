@@ -17,7 +17,8 @@ public class AddProjectStatusHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new AddProjectStatusHandler(this.db);
         this.faker = new Faker();
     }
@@ -42,16 +43,20 @@ public class AddProjectStatusHandlerTests : IDisposable
             Guid.NewGuid(),
             this.faker.Lorem.Word(),
             this.faker.Internet.Color(),
-            this.faker.Random.Number(0, 100),
+            this.faker.Random.Number(0,
+                100),
             this.faker.Random.Bool());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(command.Name, result.Name);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(command.Name,
+            result.Name);
     }
 
     [Fact]
@@ -63,19 +68,23 @@ public class AddProjectStatusHandlerTests : IDisposable
             Guid.NewGuid(),
             this.faker.Lorem.Word(),
             this.faker.Internet.Color(),
-            this.faker.Random.Number(0, 100),
+            this.faker.Random.Number(0,
+                100),
             this.faker.Random.Bool());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var status = await this.db.ProjectStatuses
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 
         Assert.NotNull(status);
-        Assert.Equal(command.Name, status.Name);
-        Assert.Equal(command.Color, status.Color);
+        Assert.Equal(command.Name,
+            status.Name);
+        Assert.Equal(command.Color,
+            status.Color);
     }
 
     [Fact]
@@ -100,12 +109,15 @@ public class AddProjectStatusHandlerTests : IDisposable
             true);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command1,
+            CancellationToken.None);
+        await this.handler.Handle(command2,
+            CancellationToken.None);
 
         // Assert
         var statuses = await this.db.ProjectStatuses.ToListAsync();
-        Assert.Equal(2, statuses.Count);
+        Assert.Equal(2,
+            statuses.Count);
     }
 
     [Fact]
@@ -121,11 +133,13 @@ public class AddProjectStatusHandlerTests : IDisposable
             true);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
+        Assert.Equal(command.Id,
+            result.Id);
         Assert.True(result.IsFinal);
     }
 
@@ -142,11 +156,14 @@ public class AddProjectStatusHandlerTests : IDisposable
             false);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(0, result.Order);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(0,
+            result.Order);
     }
 }

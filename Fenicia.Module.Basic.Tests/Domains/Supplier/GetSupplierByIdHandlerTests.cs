@@ -4,7 +4,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Supplier.GetById;
+using Fenicia.Module.Basic.Domains.Supplier.Handlers;
+using Fenicia.Module.Basic.Domains.Supplier.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,8 @@ public class GetSupplierByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetSupplierByIdHandler(this.db);
         this.faker = new Faker();
     }
@@ -67,23 +69,37 @@ public class GetSupplierByIdHandlerTests : IDisposable
         var query = new GetSupplierByIdQuery(supplierId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(supplierId, result.Id);
-        Assert.Equal(supplier.Person.Id, result.PersonId);
-        Assert.Equal(supplier.Person.Name, result.Name);
-        Assert.Equal(supplier.Person.Email, result.Email);
-        Assert.Equal(supplier.Person.PhoneNumber, result.PhoneNumber);
-        Assert.Equal(supplier.Person.Document, result.Document);
-        Assert.Equal(supplier.Person.Street, result.Street);
-        Assert.Equal(supplier.Person.Number, result.Number);
-        Assert.Equal(supplier.Person.Complement, result.Complement);
-        Assert.Equal(supplier.Person.Neighborhood, result.Neighborhood);
-        Assert.Equal(supplier.Person.ZipCode, result.ZipCode);
-        Assert.Equal(supplier.Person.StateId, result.StateId);
-        Assert.Equal(supplier.Person.City, result.City);
+        Assert.Equal(supplierId,
+            result.Id);
+        Assert.Equal(supplier.Person.Id,
+            result.PersonId);
+        Assert.Equal(supplier.Person.Name,
+            result.Name);
+        Assert.Equal(supplier.Person.Email,
+            result.Email);
+        Assert.Equal(supplier.Person.PhoneNumber,
+            result.PhoneNumber);
+        Assert.Equal(supplier.Person.Document,
+            result.Document);
+        Assert.Equal(supplier.Person.Street,
+            result.Street);
+        Assert.Equal(supplier.Person.Number,
+            result.Number);
+        Assert.Equal(supplier.Person.Complement,
+            result.Complement);
+        Assert.Equal(supplier.Person.Neighborhood,
+            result.Neighborhood);
+        Assert.Equal(supplier.Person.ZipCode,
+            result.ZipCode);
+        Assert.Equal(supplier.Person.StateId,
+            result.StateId);
+        Assert.Equal(supplier.Person.City,
+            result.City);
     }
 
     [Fact]
@@ -93,7 +109,8 @@ public class GetSupplierByIdHandlerTests : IDisposable
         var query = new GetSupplierByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -106,7 +123,8 @@ public class GetSupplierByIdHandlerTests : IDisposable
         var query = new GetSupplierByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -166,18 +184,22 @@ public class GetSupplierByIdHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
+        this.db.BasicSuppliers.AddRange(supplier1,
+            supplier2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetSupplierByIdQuery(supplier1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(supplier1Id, result.Id);
-        Assert.Equal(supplier1.Person.Name, result.Name);
+        Assert.Equal(supplier1Id,
+            result.Id);
+        Assert.Equal(supplier1.Person.Name,
+            result.Name);
     }
 
     [Fact]
@@ -221,12 +243,15 @@ public class GetSupplierByIdHandlerTests : IDisposable
         var query = new GetSupplierByIdQuery(supplierId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(supplier.Person.Name, result.Name);
-        Assert.Equal(supplier.Person.Email, result.Email);
+        Assert.Equal(supplier.Person.Name,
+            result.Name);
+        Assert.Equal(supplier.Person.Email,
+            result.Email);
     }
 
     public void Dispose()

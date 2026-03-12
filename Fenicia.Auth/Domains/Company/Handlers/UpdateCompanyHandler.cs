@@ -12,7 +12,8 @@ public sealed class UpdateCompanyHandler(DefaultContext db)
     public async Task Handle(UpdateCompanyCommand command, CancellationToken ct)
     {
         var company = await db.AuthCompanies
-                          .FirstOrDefaultAsync(c => c.Id == command.CompanyId && c.IsActive, ct)
+                          .FirstOrDefaultAsync(c => c.Id == command.CompanyId && c.IsActive,
+                              ct)
                       ?? throw new ItemNotExistsException(ExceptionMessages.CompanyNotFoundMessage);
 
         var isAdmin = await HasRoleAsync(

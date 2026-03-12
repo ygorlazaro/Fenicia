@@ -7,6 +7,8 @@ public class CheckCompanyExistsHandler(DefaultContext db)
 {
     public virtual async Task<bool> Handle(CheckCompanyExistsQuery query, CancellationToken ct)
     {
-        return await db.AuthCompanies.AnyCnpjAsync(query.Cnpj, ct, query.OnlyActive);
+        return await db.AuthCompanies.AnyCnpjAsync(query.Cnpj,
+            ct,
+            query.OnlyActive);
     }
 }

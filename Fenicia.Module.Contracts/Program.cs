@@ -21,7 +21,8 @@ public class Program
         {
             var tenantId = tenantArg.Split("=")[1];
 
-            Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
+            Environment.SetEnvironmentVariable("TENANT_ID",
+                tenantId);
         }
 
         var builder = WebApplication.CreateBuilder(args);

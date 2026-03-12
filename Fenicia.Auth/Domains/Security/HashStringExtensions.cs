@@ -12,7 +12,8 @@ public static class HashStringExtensions
             throw new InvalidRequestException(ExceptionMessages.PasswordCannotBeNullOrEmpty);
         }
 
-        var hashed = BCrypt.Net.BCrypt.HashPassword(original, BCrypt.Net.BCrypt.GenerateSalt(12));
+        var hashed = BCrypt.Net.BCrypt.HashPassword(original,
+            BCrypt.Net.BCrypt.GenerateSalt(12));
 
         return hashed ?? throw new Exception(ExceptionMessages.ErrorHashingPassword);
     }

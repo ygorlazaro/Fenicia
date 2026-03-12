@@ -18,7 +18,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new GetUserCompaniesHandler(this.db);
     }
 
@@ -65,7 +66,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -79,7 +81,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         var userId = Guid.NewGuid();
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -125,18 +128,24 @@ public class GetUserCompaniesHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         var response = result[0];
         
-        Assert.Equal(companyId, response.Id);
-        Assert.Equal(roleName, response.Role);
-        Assert.Equal(companyId, response.CompanyId);
-        Assert.Equal(companyName, response.CompanyName);
-        Assert.Equal(cnpj, response.Cnpj);
+        Assert.Equal(companyId,
+            response.Id);
+        Assert.Equal(roleName,
+            response.Role);
+        Assert.Equal(companyId,
+            response.CompanyId);
+        Assert.Equal(companyName,
+            response.CompanyName);
+        Assert.Equal(cnpj,
+            response.Cnpj);
     }
 
     [Fact]
@@ -182,11 +191,13 @@ public class GetUserCompaniesHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(3, result.Count);
+        Assert.Equal(3,
+            result.Count);
     }
 
     [Fact]
@@ -220,7 +231,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
+        this.db.AuthCompanies.AddRange(company1,
+            company2);
 
         var userRole1 = new UserRoleModel
         {
@@ -238,19 +250,24 @@ public class GetUserCompaniesHandlerTests : IDisposable
             RoleId = roleId
         };
 
-        this.db.AuthUserRoles.AddRange(userRole1, userRole2);
+        this.db.AuthUserRoles.AddRange(userRole1,
+            userRole2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result1 = await this.handler.Handle(userId1, CancellationToken.None);
-        var result2 = await this.handler.Handle(userId2, CancellationToken.None);
+        var result1 = await this.handler.Handle(userId1,
+            CancellationToken.None);
+        var result2 = await this.handler.Handle(userId2,
+            CancellationToken.None);
 
         // Assert
         
         Assert.Single(result1);
-        Assert.Equal(company1.Id, result1[0].CompanyId);
+        Assert.Equal(company1.Id,
+            result1[0].CompanyId);
         Assert.Single(result2);
-        Assert.Equal(company2.Id, result2[0].CompanyId);
+        Assert.Equal(company2.Id,
+            result2[0].CompanyId);
     }
 
     [Fact]
@@ -260,7 +277,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         var userId = Guid.NewGuid();
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -285,7 +303,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
             Name = "User"
         };
 
-        this.db.AuthRoles.AddRange(adminRole, userRole);
+        this.db.AuthRoles.AddRange(adminRole,
+            userRole);
 
         var company1 = new CompanyModel
         {
@@ -303,7 +322,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
             IsActive = true
         };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
+        this.db.AuthCompanies.AddRange(company1,
+            company2);
 
         var userRole1 = new UserRoleModel
         {
@@ -321,18 +341,23 @@ public class GetUserCompaniesHandlerTests : IDisposable
             RoleId = userRole.Id
         };
 
-        this.db.AuthUserRoles.AddRange(userRole1, userRole2);
+        this.db.AuthUserRoles.AddRange(userRole1,
+            userRole2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, r => r.Role == "Admin");
-        Assert.Contains(result, r => r.Role == "User");
+        Assert.Equal(2,
+            result.Count);
+        Assert.Contains(result,
+            r => r.Role == "Admin");
+        Assert.Contains(result,
+            r => r.Role == "User");
     }
 
     [Fact]
@@ -371,7 +396,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await this.handler.Handle(userId,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

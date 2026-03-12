@@ -2,7 +2,8 @@ using Bogus;
 
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Module.Basic.Domains.Supplier.Add;
+using Fenicia.Module.Basic.Domains.Supplier.Commands;
+using Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,8 @@ public class AddSupplierHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new AddSupplierHandler(this.db);
         this.faker = new Faker();
     }
@@ -46,12 +48,15 @@ public class AddSupplierHandlerTests : IDisposable
             this.faker.Random.Replace("##.###.###/####-##"));
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(command.Cnpj, result.Cnpj);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(command.Cnpj,
+            result.Cnpj);
     }
 
     [Fact]
@@ -74,7 +79,8 @@ public class AddSupplierHandlerTests : IDisposable
             null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var supplier = await this.db.BasicSuppliers
@@ -82,7 +88,8 @@ public class AddSupplierHandlerTests : IDisposable
             .FirstOrDefaultAsync(s => s.Id == command.Id);
 
         Assert.NotNull(supplier);
-        Assert.Equal(command.Name, supplier.Person.Name);
+        Assert.Equal(command.Name,
+            supplier.Person.Name);
     }
 
     [Fact]
@@ -105,7 +112,8 @@ public class AddSupplierHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

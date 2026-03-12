@@ -17,8 +17,10 @@ public static class FeniciaAuthenticationExtensions
 
         builder.Services.AddAuthorization(options =>
         {
-            options.AddPolicy("God", policy => policy.RequireRole("God"));
-            options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("God",
+                policy => policy.RequireRole("God"));
+            options.AddPolicy("Admin",
+                policy => policy.RequireRole("Admin"));
         });
 
         builder.Services.AddAuthentication(o =>

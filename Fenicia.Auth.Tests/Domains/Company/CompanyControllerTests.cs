@@ -31,7 +31,8 @@ public class CompanyControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         var getCompaniesByUserHandler = new GetCompaniesByUserHandler(this.db);
         var updateCompanyHandler = new UpdateCompanyHandler(this.db);
@@ -67,10 +68,12 @@ public class CompanyControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", userId.ToString())
+            new("userId",
+                userId.ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -81,7 +84,8 @@ public class CompanyControllerTests : IDisposable
     public async Task GetByLoggedUser_WhenUserHasNoCompanies_ReturnsOkWithEmptyPagination()
     {
         // Arrange
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -101,8 +105,10 @@ public class CompanyControllerTests : IDisposable
         var returnedPagination = okResult.Value as Pagination<IEnumerable<GetCompaniesByUserResponse>>;
         Assert.NotNull(returnedPagination);
         Assert.Empty(returnedPagination.Data);
-        Assert.Equal(0, returnedPagination.Total);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(0,
+            returnedPagination.Total);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -148,7 +154,8 @@ public class CompanyControllerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -168,16 +175,21 @@ public class CompanyControllerTests : IDisposable
         var returnedPagination = okResult.Value as Pagination<IEnumerable<GetCompaniesByUserResponse>>;
         Assert.NotNull(returnedPagination);
         Assert.Single(returnedPagination.Data);
-        Assert.Equal(1, returnedPagination.Total);
-        Assert.Equal(company.Name, returnedPagination.Data.First().Name);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(1,
+            returnedPagination.Total);
+        Assert.Equal(company.Name,
+            returnedPagination.Data.First()
+                .Name);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
     public async Task GetByLoggedUser_SetsWideEventContextUserId()
     {
         // Arrange
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -188,7 +200,8 @@ public class CompanyControllerTests : IDisposable
             ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -236,7 +249,9 @@ public class CompanyControllerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
+        var request = new UpdateCompanyCommand(companyId,
+            this.testUserId,
+            this.faker.Company.CompanyName());
 
         // Act
         var result = await this.controller.PatchAsync(
@@ -250,13 +265,17 @@ public class CompanyControllerTests : IDisposable
 
         var noContentResult = result as NoContentResult;
         Assert.NotNull(noContentResult);
-        Assert.Equal(204, noContentResult.StatusCode);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(204,
+            noContentResult.StatusCode);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
 
         // Verify company was updated
-        var updatedCompany = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
+        var updatedCompany = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId,
+            ct);
         Assert.NotNull(updatedCompany);
-        Assert.Equal(request.Name, updatedCompany.Name);
+        Assert.Equal(request.Name,
+            updatedCompany.Name);
     }
 
     [Fact]
@@ -267,7 +286,9 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
+        var request = new UpdateCompanyCommand(companyId,
+            this.testUserId,
+            this.faker.Company.CompanyName());
 
         // Act & Assert
         await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
@@ -322,7 +343,9 @@ public class CompanyControllerTests : IDisposable
         this.db.AuthUserRoles.Add(userRoleMapping);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
+        var request = new UpdateCompanyCommand(companyId,
+            this.testUserId,
+            this.faker.Company.CompanyName());
 
         // Act & Assert
         await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
@@ -377,7 +400,9 @@ public class CompanyControllerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
+        var request = new UpdateCompanyCommand(companyId,
+            this.testUserId,
+            this.faker.Company.CompanyName());
 
         // Act
         await this.controller.PatchAsync(
@@ -386,7 +411,8 @@ public class CompanyControllerTests : IDisposable
             ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -396,7 +422,8 @@ public class CompanyControllerTests : IDisposable
         var controllerType = typeof(CompanyController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -410,11 +437,13 @@ public class CompanyControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -425,11 +454,13 @@ public class CompanyControllerTests : IDisposable
 
         // Act
         var producesAttribute =
-            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute),
+                false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.NotNull(producesAttribute);
-        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
+        Assert.Equal("application/json",
+            producesAttribute.ContentTypes.FirstOrDefault());
     }
 
     [Fact]
@@ -441,10 +472,12 @@ public class CompanyControllerTests : IDisposable
 
         // Act
         var authorizeAttribute =
-            methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
+            methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute),
+                false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin", authorizeAttribute.Roles);
+        Assert.Equal("Admin",
+            authorizeAttribute.Roles);
     }
 }

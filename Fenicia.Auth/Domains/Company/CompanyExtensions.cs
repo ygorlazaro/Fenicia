@@ -14,17 +14,19 @@ public static class CompanyExtensions
         {
             var companies = db.Where(c => c.Cnpj == cnpj);
 
-            if (onlyActive)
+            companies = onlyActive switch
             {
-                companies = companies.Where(c => c.IsActive);
-            }
+                true => companies.Where(c => c.IsActive),
+                _ => companies
+            };
 
             return await companies.AnyAsync(ct);
         }
 
         public async Task ValidateExistingAsync(Guid companyId, CancellationToken ct)
         {
-            var existing = await db.AnyAsync(c => c.Id == companyId, ct);
+            var existing = await db.AnyAsync(c => c.Id == companyId,
+                ct);
 
             if (!existing)
             {

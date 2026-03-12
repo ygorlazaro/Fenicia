@@ -30,7 +30,10 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
-        var result = await getCompaniesByUserHandler.Handle(new GetCompaniesByUserQuery(userId, query.Page, query.PerPage), ct);
+        var result = await getCompaniesByUserHandler.Handle(new GetCompaniesByUserQuery(userId,
+                query.Page,
+                query.PerPage),
+            ct);
 
         return Ok(result);
     }

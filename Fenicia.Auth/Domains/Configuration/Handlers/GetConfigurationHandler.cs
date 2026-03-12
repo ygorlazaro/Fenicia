@@ -14,7 +14,11 @@ public class GetConfigurationHandler(DefaultContext db)
                       where c.UserId == query.UserId
                             && (query.CompanyId == null || c.CompanyId == query.CompanyId)
                       orderby c.ConfigType
-                      select new GetConfigurationResponse(c.Id, c.UserId, c.CompanyId, c.ConfigType, c.Value);
+                      select new GetConfigurationResponse(c.Id,
+                          c.UserId,
+                          c.CompanyId,
+                          c.ConfigType,
+                          c.Value);
 
         return await request.ToListAsync(ct);
     }

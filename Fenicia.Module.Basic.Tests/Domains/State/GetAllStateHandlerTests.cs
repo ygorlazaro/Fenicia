@@ -3,7 +3,7 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Module.Basic.Domains.State.GetAll;
+using Fenicia.Module.Basic.Domains.State.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -17,8 +17,9 @@ public class GetAllStateHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
+        var companyContext = new TestCompanyContext();
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetAllStateHandler(this.db);
         this.faker = new Faker();
     }
@@ -29,7 +30,6 @@ public class GetAllStateHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private readonly TestCompanyContext companyContext;
     private readonly DefaultContext db;
     private readonly GetAllStateHandler handler;
     private readonly Faker faker;
@@ -37,11 +37,8 @@ public class GetAllStateHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
-        var query = new GetAllStateQuery();
-
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -66,19 +63,21 @@ public class GetAllStateHandlerTests : IDisposable
             Uf = "RJ"
         };
 
-        this.db.AuthStates.AddRange(state1, state2);
+        this.db.AuthStates.AddRange(state1,
+            state2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetAllStateQuery();
-
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
-        Assert.Contains(result, s => s.Id == state1.Id);
-        Assert.Contains(result, s => s.Id == state2.Id);
+        Assert.Equal(2,
+            result.Count);
+        Assert.Contains(result,
+            s => s.Id == state1.Id);
+        Assert.Contains(result,
+            s => s.Id == state2.Id);
     }
 
     [Fact]
@@ -98,14 +97,13 @@ public class GetAllStateHandlerTests : IDisposable
 
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetAllStateQuery();
-
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(27, result.Count);
+        Assert.Equal(27,
+            result.Count);
     }
 
     [Fact]
@@ -122,15 +120,15 @@ public class GetAllStateHandlerTests : IDisposable
         this.db.AuthStates.Add(state);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetAllStateQuery();
-
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal("Minas Gerais", result[0].Name);
-        Assert.Equal("MG", result[0].Uf);
+        Assert.Equal("Minas Gerais",
+            result[0].Name);
+        Assert.Equal("MG",
+            result[0].Uf);
     }
 }

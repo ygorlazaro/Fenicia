@@ -26,9 +26,15 @@ public sealed class GetCompaniesByUserHandler(DefaultContext db)
             .OrderBy(ur => ur.Company.Name)
             .Skip((query.Page - 1) * query.PerPage)
             .Take(query.PerPage)
-            .Select(ur => new GetCompaniesByUserResponse(ur.Company.Id, ur.Company.Name, ur.Company.Cnpj, ur.Role.Name))
+            .Select(ur => new GetCompaniesByUserResponse(ur.Company.Id,
+                ur.Company.Name,
+                ur.Company.Cnpj,
+                ur.Role.Name))
             .ToListAsync(ct);
 
-        return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(items, total, query.Page, query.PerPage);
+        return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(items,
+            total,
+            query.Page,
+            query.PerPage);
     }
 }

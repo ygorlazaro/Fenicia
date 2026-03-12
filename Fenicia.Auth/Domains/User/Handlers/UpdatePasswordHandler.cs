@@ -12,7 +12,9 @@ public class UpdatePasswordHandler(DefaultContext db)
 {
     public async Task<UpdatePasswordResponse> Handle(UpdatePasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.UpdatePasswordAsync(command.UserId, command.Password, ct);
+        var user = await db.AuthUsers.UpdatePasswordAsync(command.UserId,
+            command.Password,
+            ct);
 
         if (user is null)
         {
@@ -23,6 +25,8 @@ public class UpdatePasswordHandler(DefaultContext db)
 
         await db.SaveChangesAsync(ct);
 
-        return new UpdatePasswordResponse(user.Id, user.Name, user.Email);
+        return new UpdatePasswordResponse(user.Id,
+            user.Name,
+            user.Email);
     }
 }

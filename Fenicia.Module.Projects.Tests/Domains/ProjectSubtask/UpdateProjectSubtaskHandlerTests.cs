@@ -18,7 +18,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new UpdateProjectSubtaskHandler(this.db);
         this.faker = new Faker();
     }
@@ -62,12 +63,15 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(subtaskId, result.Id);
-        Assert.Equal("New Subtask Title", result.Title);
+        Assert.Equal(subtaskId,
+            result.Id);
+        Assert.Equal("New Subtask Title",
+            result.Title);
     }
 
     [Fact]
@@ -83,7 +87,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -102,7 +107,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -136,7 +142,8 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        this.db.ProjectSubtasks.AddRange(subtask1, subtask2);
+        this.db.ProjectSubtasks.AddRange(subtask1,
+            subtask2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectSubtaskCommand(
@@ -148,20 +155,31 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(subtask1Id, result.Id);
-        Assert.Equal("Updated Subtask 1 Title", result.Title);
+        Assert.Equal(subtask1Id,
+            result.Id);
+        Assert.Equal("Updated Subtask 1 Title",
+            result.Title);
 
-        var updatedSubtask1 = await this.db.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
-        var subtask2InDb = await this.db.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
+        var updatedSubtask1 = await this.db.ProjectSubtasks.FindAsync([
+                subtask1Id
+            ],
+            CancellationToken.None);
+        var subtask2InDb = await this.db.ProjectSubtasks.FindAsync([
+                subtask2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(updatedSubtask1);
         Assert.NotNull(subtask2InDb);
-        Assert.Equal("Updated Subtask 1 Title", updatedSubtask1.Title);
-        Assert.Equal("Subtask 2 Title", subtask2InDb.Title);
+        Assert.Equal("Updated Subtask 1 Title",
+            updatedSubtask1.Title);
+        Assert.Equal("Subtask 2 Title",
+            subtask2InDb.Title);
     }
 
     [Fact]
@@ -193,12 +211,15 @@ public class UpdateProjectSubtaskHandlerTests : IDisposable
             completedAt);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(subtaskId, result.Id);
+        Assert.Equal(subtaskId,
+            result.Id);
         Assert.True(result.IsCompleted);
-        Assert.Equal(completedAt, result.CompletedAt);
+        Assert.Equal(completedAt,
+            result.CompletedAt);
     }
 }

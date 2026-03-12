@@ -18,7 +18,8 @@ public class GetProjectByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetProjectByIdHandler(this.db);
         this.faker = new Faker();
     }
@@ -56,12 +57,15 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(projectId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(projectId, result.Id);
-        Assert.Equal(project.Title, result.Title);
+        Assert.Equal(projectId,
+            result.Id);
+        Assert.Equal(project.Title,
+            result.Title);
     }
 
     [Fact]
@@ -71,7 +75,8 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -84,7 +89,8 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -119,18 +125,22 @@ public class GetProjectByIdHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.AddRange(project1, project2);
+        this.db.Projects.AddRange(project1,
+            project2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectByIdQuery(project1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(project1Id, result.Id);
-        Assert.Equal(project1.Title, result.Title);
+        Assert.Equal(project1Id,
+            result.Id);
+        Assert.Equal(project1.Title,
+            result.Title);
     }
 
     [Fact]
@@ -155,11 +165,13 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(projectId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(projectId, result.Id);
+        Assert.Equal(projectId,
+            result.Id);
         Assert.Null(result.Description);
     }
 }

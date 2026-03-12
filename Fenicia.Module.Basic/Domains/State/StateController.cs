@@ -1,7 +1,8 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.State.GetAll;
+using Fenicia.Module.Basic.Domains.State.Handlers;
+using Fenicia.Module.Basic.Domains.State.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ public class StateController(GetAllStateHandler getAllStateHandler) : Controller
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var states = await getAllStateHandler.Handle(new GetAllStateQuery(), ct);
+        var states = await getAllStateHandler.Handle(ct);
 
         return Ok(states);
     }

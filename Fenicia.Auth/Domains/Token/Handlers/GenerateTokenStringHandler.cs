@@ -18,7 +18,8 @@ public class GenerateTokenStringHandler(IConfiguration configuration)
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Expires = DateTime.UtcNow.AddHours(3),
-            SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
+            SigningCredentials = new SigningCredentials(authSigningKey,
+                SecurityAlgorithms.HmacSha256),
             Subject = new ClaimsIdentity(authClaims)
         };
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -32,10 +33,15 @@ public class GenerateTokenStringHandler(IConfiguration configuration)
     {
         var authClaims = new List<Claim>
         {
-            new("userId", user.Id.ToString()),
-            new("email", user.Email),
-            new("unique_name", user.Name),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new("userId",
+                user.Id.ToString()),
+            new("email",
+                user.Email),
+            new("unique_name",
+                user.Name),
+            new(JwtRegisteredClaimNames.Jti,
+                Guid.NewGuid()
+                    .ToString())
         };
 
         var companyIdProp = user.GetType().GetProperty("CompanyId");
@@ -44,7 +50,8 @@ public class GenerateTokenStringHandler(IConfiguration configuration)
             var companyIdValue = companyIdProp.GetValue(user);
             if (companyIdValue != null && !string.IsNullOrEmpty(companyIdValue.ToString()))
             {
-                authClaims.Add(new Claim("companyId", companyIdValue.ToString()!));
+                authClaims.Add(new Claim("companyId",
+                    companyIdValue.ToString()!));
             }
         }
 
@@ -52,7 +59,8 @@ public class GenerateTokenStringHandler(IConfiguration configuration)
 
         if (rolesProp != null && rolesProp.GetValue(user) is IEnumerable<string> rolesValue)
         {
-            authClaims.AddRange(rolesValue.Where(r => !string.IsNullOrEmpty(r)).Select(r => new Claim("role", r)));
+            authClaims.AddRange(rolesValue.Where(r => !string.IsNullOrEmpty(r)).Select(r => new Claim("role",
+                r)));
         }
 
         var modulesProp = user.GetType().GetProperty("Modules");
@@ -73,7 +81,8 @@ public class GenerateTokenStringHandler(IConfiguration configuration)
         }
 
         authClaims.AddRange(modulesList.Where(m => !string.IsNullOrEmpty(m))
-            .Select(m => new Claim("module", m ?? string.Empty)));
+            .Select(m => new Claim("module",
+                m ?? string.Empty)));
 
         return authClaims;
     }

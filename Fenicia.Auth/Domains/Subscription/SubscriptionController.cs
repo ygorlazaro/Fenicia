@@ -31,7 +31,8 @@ public class SubscriptionController(
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
-        var profile = await getUserProfileHandler.Handle(new GetUserProfileQuery(userId), ct);
+        var profile = await getUserProfileHandler.Handle(new GetUserProfileQuery(userId),
+            ct);
 
         return profile is null ? NotFound() : Ok(profile);
     }

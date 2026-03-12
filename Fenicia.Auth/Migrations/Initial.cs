@@ -27,17 +27,28 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                type = table.Column<int>(type: "integer", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(30)",
+                    maxLength: 30,
+                    nullable: false),
+                price = table.Column<decimal>(type: "numeric(18,2)",
+                    precision: 18,
+                    scale: 2,
+                    nullable: false),
+                type = table.Column<int>(type: "integer",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_modules", x => x.id);
+                table.PrimaryKey("pk_modules",
+                    x => x.id);
             });
 
         migrationBuilder.CreateTable(
@@ -45,15 +56,22 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_positions", x => x.id);
+                table.PrimaryKey("pk_positions",
+                    x => x.id);
             });
 
         migrationBuilder.CreateTable(
@@ -61,15 +79,22 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_product_categories", x => x.id);
+                table.PrimaryKey("pk_product_categories",
+                    x => x.id);
             });
 
         migrationBuilder.CreateTable(
@@ -77,20 +102,31 @@ public partial class Initial : Migration
             schema: "project",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                title = table.Column<string>(type: "text", nullable: false),
-                description = table.Column<string>(type: "text", nullable: true),
-                status = table.Column<int>(type: "integer", nullable: false),
-                start_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                end_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                owner = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                title = table.Column<string>(type: "text",
+                    nullable: false),
+                description = table.Column<string>(type: "text",
+                    nullable: true),
+                status = table.Column<int>(type: "integer",
+                    nullable: false),
+                start_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                end_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                owner = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_projects", x => x.id);
+                table.PrimaryKey("pk_projects",
+                    x => x.id);
             });
 
         migrationBuilder.CreateTable(
@@ -98,15 +134,22 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(10)",
+                    maxLength: 10,
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_roles", x => x.id);
+                table.PrimaryKey("pk_roles",
+                    x => x.id);
             });
 
         migrationBuilder.CreateTable(
@@ -114,16 +157,25 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                uf = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(30)",
+                    maxLength: 30,
+                    nullable: false),
+                uf = table.Column<string>(type: "character varying(2)",
+                    maxLength: 2,
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_states", x => x.id);
+                table.PrimaryKey("pk_states",
+                    x => x.id);
             });
 
         migrationBuilder.CreateTable(
@@ -131,18 +183,31 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                email = table.Column<string>(type: "character varying(48)", maxLength: 48, nullable: false),
-                password = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                name = table.Column<string>(type: "character varying(48)", maxLength: 48, nullable: false),
-                image_url = table.Column<string>(type: "character varying(48)", maxLength: 48, nullable: true),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                email = table.Column<string>(type: "character varying(48)",
+                    maxLength: 48,
+                    nullable: false),
+                password = table.Column<string>(type: "character varying(200)",
+                    maxLength: 200,
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(48)",
+                    maxLength: 48,
+                    nullable: false),
+                image_url = table.Column<string>(type: "character varying(48)",
+                    maxLength: 48,
+                    nullable: true),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_users", x => x.id);
+                table.PrimaryKey("pk_users",
+                    x => x.id);
             });
 
         migrationBuilder.CreateTable(
@@ -150,18 +215,30 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                route = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                description = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                module_id = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                route = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                description = table.Column<string>(type: "character varying(100)",
+                    maxLength: 100,
+                    nullable: true),
+                module_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_submodules", x => x.id);
+                table.PrimaryKey("pk_submodules",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_submodules_modules_module_id",
                     column: x => x.module_id,
@@ -176,19 +253,30 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                cost_price = table.Column<decimal>(type: "numeric", nullable: true),
-                sales_price = table.Column<decimal>(type: "numeric", nullable: false),
-                quantity = table.Column<double>(type: "double precision", nullable: false),
-                category_id = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                cost_price = table.Column<decimal>(type: "numeric",
+                    nullable: true),
+                sales_price = table.Column<decimal>(type: "numeric",
+                    nullable: false),
+                quantity = table.Column<double>(type: "double precision",
+                    nullable: false),
+                category_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_products", x => x.id);
+                table.PrimaryKey("pk_products",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_products_product_categories_category_id",
                     column: x => x.category_id,
@@ -203,19 +291,29 @@ public partial class Initial : Migration
             schema: "project",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                project_id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "text", nullable: false),
-                color = table.Column<string>(type: "text", nullable: false),
-                order = table.Column<int>(type: "integer", nullable: false),
-                is_final = table.Column<bool>(type: "boolean", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                project_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "text",
+                    nullable: false),
+                color = table.Column<string>(type: "text",
+                    nullable: false),
+                order = table.Column<int>(type: "integer",
+                    nullable: false),
+                is_final = table.Column<bool>(type: "boolean",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_statuses", x => x.id);
+                table.PrimaryKey("pk_statuses",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_statuses_projects_project_id",
                     column: x => x.project_id,
@@ -230,20 +328,36 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                street = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                number = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                complement = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                zip_code = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
-                state_id = table.Column<Guid>(type: "uuid", nullable: false),
-                city = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                street = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                number = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                complement = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                zip_code = table.Column<string>(type: "character varying(8)",
+                    maxLength: 8,
+                    nullable: false),
+                state_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                city = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_addresses", x => x.id);
+                table.PrimaryKey("pk_addresses",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_addresses_states_state_id",
                     column: x => x.state_id,
@@ -258,25 +372,51 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                document = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: true),
-                street = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                number = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
-                complement = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
-                neighborhood = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                zip_code = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: true),
-                state_id = table.Column<Guid>(type: "uuid", nullable: true),
-                city = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                document = table.Column<string>(type: "character varying(14)",
+                    maxLength: 14,
+                    nullable: true),
+                street = table.Column<string>(type: "character varying(100)",
+                    maxLength: 100,
+                    nullable: true),
+                number = table.Column<string>(type: "character varying(10)",
+                    maxLength: 10,
+                    nullable: true),
+                complement = table.Column<string>(type: "character varying(10)",
+                    maxLength: 10,
+                    nullable: true),
+                neighborhood = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: true),
+                zip_code = table.Column<string>(type: "character varying(8)",
+                    maxLength: 8,
+                    nullable: true),
+                state_id = table.Column<Guid>(type: "uuid",
+                    nullable: true),
+                city = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: true),
+                email = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: true),
+                phone_number = table.Column<string>(type: "character varying(20)",
+                    maxLength: 20,
+                    nullable: true),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_people", x => x.id);
+                table.PrimaryKey("pk_people",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_people_states_state_id",
                     column: x => x.state_id,
@@ -290,17 +430,26 @@ public partial class Initial : Migration
             schema: "social_network",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                text = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                text = table.Column<string>(type: "character varying(512)",
+                    maxLength: 512,
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_feeds", x => x.id);
+                table.PrimaryKey("pk_feeds",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_feeds_users_user_id",
                     column: x => x.user_id,
@@ -315,18 +464,27 @@ public partial class Initial : Migration
             schema: "social_network",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                follower_id = table.Column<Guid>(type: "uuid", nullable: false),
-                follow_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                is_active = table.Column<bool>(type: "boolean", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                follower_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                follow_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                is_active = table.Column<bool>(type: "boolean",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_followers", x => x.id);
+                table.PrimaryKey("pk_followers",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_followers_users_follower_id",
                     column: x => x.follower_id,
@@ -348,18 +506,28 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                code = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                expiration_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                is_active = table.Column<bool>(type: "boolean", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                code = table.Column<string>(type: "character varying(100)",
+                    maxLength: 100,
+                    nullable: false),
+                expiration_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                is_active = table.Column<bool>(type: "boolean",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_forgotten_passwords", x => x.id);
+                table.PrimaryKey("pk_forgotten_passwords",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_forgotten_passwords_users_user_id",
                     column: x => x.user_id,
@@ -374,25 +542,41 @@ public partial class Initial : Migration
             schema: "project",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                project_id = table.Column<Guid>(type: "uuid", nullable: false),
-                status_id = table.Column<Guid>(type: "uuid", nullable: false),
-                title = table.Column<string>(type: "text", nullable: false),
-                description = table.Column<string>(type: "text", nullable: true),
-                priority = table.Column<int>(type: "integer", nullable: false),
-                type = table.Column<int>(type: "integer", nullable: false),
-                order = table.Column<int>(type: "integer", nullable: false),
-                estimate_points = table.Column<int>(type: "integer", nullable: true),
-                due_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                project_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                status_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                title = table.Column<string>(type: "text",
+                    nullable: false),
+                description = table.Column<string>(type: "text",
+                    nullable: true),
+                priority = table.Column<int>(type: "integer",
+                    nullable: false),
+                type = table.Column<int>(type: "integer",
+                    nullable: false),
+                order = table.Column<int>(type: "integer",
+                    nullable: false),
+                estimate_points = table.Column<int>(type: "integer",
+                    nullable: true),
+                due_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                created_by = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_tasks", x => x.id);
+                table.PrimaryKey("pk_tasks",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_tasks_projects_project_id",
                     column: x => x.project_id,
@@ -421,20 +605,35 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                cnpj = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: false),
-                is_active = table.Column<bool>(type: "boolean", nullable: false),
-                time_zone = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                language = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                address_id = table.Column<Guid>(type: "uuid", nullable: true),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                name = table.Column<string>(type: "character varying(50)",
+                    maxLength: 50,
+                    nullable: false),
+                cnpj = table.Column<string>(type: "character varying(14)",
+                    maxLength: 14,
+                    nullable: false),
+                is_active = table.Column<bool>(type: "boolean",
+                    nullable: false),
+                time_zone = table.Column<string>(type: "character varying(256)",
+                    maxLength: 256,
+                    nullable: false),
+                language = table.Column<string>(type: "character varying(10)",
+                    maxLength: 10,
+                    nullable: false),
+                address_id = table.Column<Guid>(type: "uuid",
+                    nullable: true),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_companies", x => x.id);
+                table.PrimaryKey("pk_companies",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_companies_addresses_address_id",
                     column: x => x.address_id,
@@ -448,15 +647,21 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                person_id = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                person_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_customers", x => x.id);
+                table.PrimaryKey("pk_customers",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_customers_people_person_id",
                     column: x => x.person_id,
@@ -471,16 +676,23 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                position_id = table.Column<Guid>(type: "uuid", nullable: false),
-                person_id = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                position_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                person_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_employees", x => x.id);
+                table.PrimaryKey("pk_employees",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_employees_people_person_id",
                     column: x => x.person_id,
@@ -502,16 +714,24 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                cnpj = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: true),
-                person_id = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                cnpj = table.Column<string>(type: "character varying(14)",
+                    maxLength: 14,
+                    nullable: true),
+                person_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_suppliers", x => x.id);
+                table.PrimaryKey("pk_suppliers",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_suppliers_people_person_id",
                     column: x => x.person_id,
@@ -526,20 +746,31 @@ public partial class Initial : Migration
             schema: "project",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                task_id = table.Column<Guid>(type: "uuid", nullable: false),
-                file_name = table.Column<string>(type: "text", nullable: false),
-                file_url = table.Column<string>(type: "text", nullable: false),
-                file_size = table.Column<long>(type: "bigint", nullable: false),
-                uploaded_by = table.Column<Guid>(type: "uuid", nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                task_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                file_name = table.Column<string>(type: "text",
+                    nullable: false),
+                file_url = table.Column<string>(type: "text",
+                    nullable: false),
+                file_size = table.Column<long>(type: "bigint",
+                    nullable: false),
+                uploaded_by = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_attachments", x => x.id);
+                table.PrimaryKey("pk_attachments",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_attachments_tasks_task_id",
                     column: x => x.task_id,
@@ -561,17 +792,25 @@ public partial class Initial : Migration
             schema: "project",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                task_id = table.Column<Guid>(type: "uuid", nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                content = table.Column<string>(type: "text", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                task_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                content = table.Column<string>(type: "text",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_comments", x => x.id);
+                table.PrimaryKey("pk_comments",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_comments_tasks_task_id",
                     column: x => x.task_id,
@@ -593,19 +832,29 @@ public partial class Initial : Migration
             schema: "project",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                task_id = table.Column<Guid>(type: "uuid", nullable: false),
-                title = table.Column<string>(type: "text", nullable: false),
-                is_completed = table.Column<bool>(type: "boolean", nullable: false),
-                order = table.Column<int>(type: "integer", nullable: false),
-                completed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                task_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                title = table.Column<string>(type: "text",
+                    nullable: false),
+                is_completed = table.Column<bool>(type: "boolean",
+                    nullable: false),
+                order = table.Column<int>(type: "integer",
+                    nullable: false),
+                completed_at = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_project_subtasks", x => x.id);
+                table.PrimaryKey("pk_project_subtasks",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_project_subtasks_tasks_task_id",
                     column: x => x.task_id,
@@ -620,18 +869,27 @@ public partial class Initial : Migration
             schema: "project",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                task_id = table.Column<Guid>(type: "uuid", nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                role = table.Column<int>(type: "integer", nullable: false),
-                assigned_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                task_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                role = table.Column<int>(type: "integer",
+                    nullable: false),
+                assigned_at = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_task_assignees", x => x.id);
+                table.PrimaryKey("pk_task_assignees",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_task_assignees_tasks_task_id",
                     column: x => x.task_id,
@@ -646,19 +904,29 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                company_id = table.Column<Guid>(type: "uuid", nullable: false),
-                total_amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                sale_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                status = table.Column<int>(type: "integer", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                company_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                total_amount = table.Column<decimal>(type: "numeric(18,2)",
+                    nullable: false),
+                sale_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                status = table.Column<int>(type: "integer",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_orders", x => x.id);
+                table.PrimaryKey("pk_orders",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_orders_companies_company_id",
                     column: x => x.company_id,
@@ -680,17 +948,25 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                role_id = table.Column<Guid>(type: "uuid", nullable: false),
-                company_id = table.Column<Guid>(type: "uuid", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                role_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                company_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_users_roles", x => x.id);
+                table.PrimaryKey("pk_users_roles",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_users_roles_companies_company_id",
                     column: x => x.company_id,
@@ -719,19 +995,29 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                customer_id = table.Column<Guid>(type: "uuid", nullable: false),
-                total_amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                sale_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                status = table.Column<int>(type: "integer", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                user_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                customer_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                total_amount = table.Column<decimal>(type: "numeric(18,2)",
+                    nullable: false),
+                sale_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                status = table.Column<int>(type: "integer",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_orders1", x => x.id);
+                table.PrimaryKey("pk_orders1",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_orders_customers_customer_id",
                     column: x => x.customer_id,
@@ -746,21 +1032,33 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                product_id = table.Column<Guid>(type: "uuid", nullable: false),
-                quantity = table.Column<double>(type: "double precision", nullable: false),
-                date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                price = table.Column<decimal>(type: "numeric", nullable: false),
-                type = table.Column<int>(type: "integer", nullable: false),
-                customer_id = table.Column<Guid>(type: "uuid", nullable: true),
-                supplier_id = table.Column<Guid>(type: "uuid", nullable: true),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                product_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                quantity = table.Column<double>(type: "double precision",
+                    nullable: false),
+                date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                price = table.Column<decimal>(type: "numeric",
+                    nullable: false),
+                type = table.Column<int>(type: "integer",
+                    nullable: false),
+                customer_id = table.Column<Guid>(type: "uuid",
+                    nullable: true),
+                supplier_id = table.Column<Guid>(type: "uuid",
+                    nullable: true),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_stock_movements", x => x.id);
+                table.PrimaryKey("pk_stock_movements",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_stock_movements_customers_customer_id",
                     column: x => x.customer_id,
@@ -787,17 +1085,25 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                order_id = table.Column<Guid>(type: "uuid", nullable: false),
-                module_id = table.Column<Guid>(type: "uuid", nullable: false),
-                price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                order_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                module_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                price = table.Column<decimal>(type: "numeric(18,2)",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_order_details", x => x.id);
+                table.PrimaryKey("pk_order_details",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_order_details_modules_module_id",
                     column: x => x.module_id,
@@ -819,19 +1125,29 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                status = table.Column<int>(type: "integer", nullable: false),
-                company_id = table.Column<Guid>(type: "uuid", nullable: false),
-                start_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                end_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                order_id = table.Column<Guid>(type: "uuid", nullable: true),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                status = table.Column<int>(type: "integer",
+                    nullable: false),
+                company_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                start_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                end_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                order_id = table.Column<Guid>(type: "uuid",
+                    nullable: true),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_subscriptions", x => x.id);
+                table.PrimaryKey("pk_subscriptions",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_subscriptions_companies_company_id",
                     column: x => x.company_id,
@@ -852,18 +1168,27 @@ public partial class Initial : Migration
             schema: "basic",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                order_id = table.Column<Guid>(type: "uuid", nullable: false),
-                product_id = table.Column<Guid>(type: "uuid", nullable: false),
-                price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                quantity = table.Column<double>(type: "double precision", nullable: false),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                order_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                product_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                price = table.Column<decimal>(type: "numeric(18,2)",
+                    nullable: false),
+                quantity = table.Column<double>(type: "double precision",
+                    nullable: false),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_order_details1", x => x.id);
+                table.PrimaryKey("pk_order_details1",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_order_details_orders_order_id",
                     column: x => x.order_id,
@@ -885,20 +1210,31 @@ public partial class Initial : Migration
             schema: "auth",
             columns: table => new
             {
-                id = table.Column<Guid>(type: "uuid", nullable: false),
-                subscription_id = table.Column<Guid>(type: "uuid", nullable: false),
-                module_id = table.Column<Guid>(type: "uuid", nullable: false),
-                is_active = table.Column<bool>(type: "boolean", nullable: false),
-                start_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                end_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                order_detail_id = table.Column<Guid>(type: "uuid", nullable: true),
-                created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                updated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                deleted = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                subscription_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                module_id = table.Column<Guid>(type: "uuid",
+                    nullable: false),
+                is_active = table.Column<bool>(type: "boolean",
+                    nullable: false),
+                start_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                end_date = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                order_detail_id = table.Column<Guid>(type: "uuid",
+                    nullable: true),
+                created = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: false),
+                updated = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true),
+                deleted = table.Column<DateTime>(type: "timestamp with time zone",
+                    nullable: true)
             },
             constraints: table =>
             {
-                table.PrimaryKey("pk_subscription_credits", x => x.id);
+                table.PrimaryKey("pk_subscription_credits",
+                    x => x.id);
                 table.ForeignKey(
                     name: "fk_subscription_credits_modules_module_id",
                     column: x => x.module_id,

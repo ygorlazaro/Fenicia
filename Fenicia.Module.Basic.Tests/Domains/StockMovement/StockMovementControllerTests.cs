@@ -8,10 +8,9 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement;
-using Fenicia.Module.Basic.Domains.StockMovement.Add;
-using Fenicia.Module.Basic.Domains.StockMovement.GetMovement;
-using Fenicia.Module.Basic.Domains.StockMovement.GetStockMovementDashboard;
-using Fenicia.Module.Basic.Domains.StockMovement.Update;
+using Fenicia.Module.Basic.Domains.StockMovement.Commands;
+using Fenicia.Module.Basic.Domains.StockMovement.Handlers;
+using Fenicia.Module.Basic.Domains.StockMovement.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -31,7 +30,8 @@ public class StockMovementControllerTests : IDisposable
             .Options;
 
         this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
+        this.db = new DefaultContext(options,
+            this.companyContext);
         this.testMovementId = Guid.NewGuid();
         this.testProductId = Guid.NewGuid();
         this.getStockMovementHandler = new GetStockMovementHandler(this.db);
@@ -72,10 +72,13 @@ public class StockMovementControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", Guid.NewGuid().ToString())
+            new("userId",
+                Guid.NewGuid()
+                    .ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -86,7 +89,8 @@ public class StockMovementControllerTests : IDisposable
     public async Task GetAsync_WhenNoMovementsExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var query = new StockMovementController.StockMovementQuery(1, 10)
+        var query = new StockMovementController.StockMovementQuery(1,
+            10)
         {
             StartDate = DateTime.Now.AddDays(-30),
             EndDate = DateTime.Now
@@ -95,7 +99,9 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(query, wide, ct);
+        var result = await this.controller.GetAsync(query,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -144,10 +150,12 @@ public class StockMovementControllerTests : IDisposable
         };
 
         this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.AddRange(movement1, movement2);
+        this.db.BasicStockMovements.AddRange(movement1,
+            movement2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new StockMovementController.StockMovementQuery(1, 10)
+        var query = new StockMovementController.StockMovementQuery(1,
+            10)
         {
             StartDate = DateTime.Now.AddDays(-30),
             EndDate = DateTime.Now
@@ -156,7 +164,9 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(query, wide, ct);
+        var result = await this.controller.GetAsync(query,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -167,7 +177,8 @@ public class StockMovementControllerTests : IDisposable
 
         var returnedMovements = okResult.Value as List<GetStockMovementResponse>;
         Assert.NotNull(returnedMovements);
-        Assert.Equal(2, returnedMovements.Count);
+        Assert.Equal(2,
+            returnedMovements.Count);
     }
 
     [Fact]
@@ -204,7 +215,9 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await this.controller.PostAsync(command,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -212,14 +225,19 @@ public class StockMovementControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201, createdResult.StatusCode);
+        Assert.Equal(201,
+            createdResult.StatusCode);
 
         var returnedMovement = createdResult.Value as AddStockMovementResponse;
         Assert.NotNull(returnedMovement);
-        Assert.Equal(this.testProductId, returnedMovement.ProductId);
-        Assert.Equal(10, returnedMovement.Quantity);
-        Assert.Equal(StockMovementType.In, returnedMovement.Type);
-        Assert.Equal("Test reason", returnedMovement.Reason);
+        Assert.Equal(this.testProductId,
+            returnedMovement.ProductId);
+        Assert.Equal(10,
+            returnedMovement.Quantity);
+        Assert.Equal(StockMovementType.In,
+            returnedMovement.Type);
+        Assert.Equal("Test reason",
+            returnedMovement.Reason);
     }
 
     [Fact]
@@ -269,7 +287,10 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(this.testMovementId, command, wide, ct);
+        var result = await this.controller.PatchAsync(this.testMovementId,
+            command,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -280,9 +301,12 @@ public class StockMovementControllerTests : IDisposable
 
         var returnedMovement = createdResult.Value as UpdateStockMovementResponse;
         Assert.NotNull(returnedMovement);
-        Assert.Equal(15, returnedMovement.Quantity);
-        Assert.Equal(25.00m, returnedMovement.Price);
-        Assert.Equal("Updated reason", returnedMovement.Reason);
+        Assert.Equal(15,
+            returnedMovement.Quantity);
+        Assert.Equal(25.00m,
+            returnedMovement.Price);
+        Assert.Equal("Updated reason",
+            returnedMovement.Reason);
     }
 
     [Fact]
@@ -309,7 +333,10 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(nonExistentId, command, wide, ct);
+        var result = await this.controller.PatchAsync(nonExistentId,
+            command,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -323,7 +350,8 @@ public class StockMovementControllerTests : IDisposable
         var controllerType = typeof(StockMovementController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -337,11 +365,13 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -352,7 +382,8 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
@@ -367,11 +398,13 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var authorizeAttribute =
-            methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
+            methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute),
+                false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin", authorizeAttribute.Roles);
+        Assert.Equal("Admin",
+            authorizeAttribute.Roles);
     }
 
     [Fact]
@@ -382,7 +415,10 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetDashboardAsync(wide,30, 10, ct);
+        var result = await this.controller.GetDashboardAsync(wide,
+            30,
+            10,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -439,7 +475,10 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetDashboardAsync(wide, 30, 10, ct);
+        var result = await this.controller.GetDashboardAsync(wide,
+            30,
+            10,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -451,19 +490,25 @@ public class StockMovementControllerTests : IDisposable
         var dashboard = okResult.Value as StockMovementDashboardResponse;
         Assert.NotNull(dashboard);
         Assert.NotEmpty(dashboard.History);
-        Assert.Equal(product.Name, dashboard.History[0].ProductName);
-        Assert.Equal("Test reason", dashboard.History[0].Reason);
+        Assert.Equal(product.Name,
+            dashboard.History[0].ProductName);
+        Assert.Equal("Test reason",
+            dashboard.History[0].Reason);
     }
 
     private void SetupAdminUserClaims()
     {
         var claims = new List<Claim>
         {
-            new("userId", Guid.NewGuid().ToString()),
-            new("role", "Admin")
+            new("userId",
+                Guid.NewGuid()
+                    .ToString()),
+            new("role",
+                "Admin")
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);

@@ -19,7 +19,8 @@ public class GenerateRefreshTokenHandlerTests
         var redisMock = new Mock<IConnectionMultiplexer>();
         this.redisDbMock = new Mock<IDatabase>();
 
-        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>()))
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(),
+                It.IsAny<object?>()))
             .Returns(this.redisDbMock.Object);
 
         this.handler = new GenerateRefreshTokenHandler(redisMock.Object);
@@ -38,7 +39,9 @@ public class GenerateRefreshTokenHandlerTests
         Assert.NotNull(result);
         
         Assert.NotEmpty(result);
-        Assert.Equal(32, Convert.FromBase64String(result).Length);
+        Assert.Equal(32,
+            Convert.FromBase64String(result)
+                .Length);
     }
 
     [Fact]
@@ -53,10 +56,13 @@ public class GenerateRefreshTokenHandlerTests
         var token3 = this.handler.Handle(userId);
 
         
-        Assert.NotEqual(token1, token2);
-        Assert.NotEqual(token2, token3);
+        Assert.NotEqual(token1,
+            token2);
+        Assert.NotEqual(token2,
+            token3);
 
-        Assert.NotEqual(token1, token3);
+        Assert.NotEqual(token1,
+            token3);
     }
 
     [Fact]
@@ -95,7 +101,9 @@ public class GenerateRefreshTokenHandlerTests
         this.redisDbMock.Verify(
             x => x.StringSet(
                 It.IsAny<RedisKey>(),
-                It.Is<RedisValue>(v => IsValidToken(v, result, userId)),
+                It.Is<RedisValue>(v => IsValidToken(v,
+                    result,
+                    userId)),
                 It.IsAny<TimeSpan>(),
                 It.IsAny<When>(),
                 It.IsAny<CommandFlags>()
@@ -170,7 +178,8 @@ public class GenerateRefreshTokenHandlerTests
         var token2 = this.handler.Handle(userId2);
 
         // Assert
-        Assert.NotEqual(token1, token2);
+        Assert.NotEqual(token1,
+            token2);
     }
 
     [Fact]
@@ -210,6 +219,7 @@ public class GenerateRefreshTokenHandlerTests
 
         // Assert
         var distinctTokens = tokens.Distinct().ToList();
-        Assert.Equal(10, distinctTokens.Count);
+        Assert.Equal(10,
+            distinctTokens.Count);
     }
 }

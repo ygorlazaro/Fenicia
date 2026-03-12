@@ -1,7 +1,8 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Product.Delete;
+using Fenicia.Module.Basic.Domains.Product.Commands;
+using Fenicia.Module.Basic.Domains.Product.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,8 @@ public class DeleteProductHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new DeleteProductHandler(this.db);
     }
 
@@ -45,10 +47,14 @@ public class DeleteProductHandlerTests : IDisposable
         var beforeDelete = DateTime.Now;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedProduct = await this.db.BasicProducts.FindAsync([productId], CancellationToken.None);
+        var deletedProduct = await this.db.BasicProducts.FindAsync([
+                productId
+            ],
+            CancellationToken.None);
         Assert.NotNull(deletedProduct);
         Assert.NotNull(deletedProduct.Deleted);
         Assert.True(deletedProduct.Deleted >= beforeDelete.AddSeconds(-1));
@@ -62,7 +68,8 @@ public class DeleteProductHandlerTests : IDisposable
         var command = new DeleteProductCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var products = await this.db.BasicProducts.ToListAsync();
@@ -96,17 +103,25 @@ public class DeleteProductHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        this.db.BasicProducts.AddRange(product1, product2);
+        this.db.BasicProducts.AddRange(product1,
+            product2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProductCommand(product1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedProduct = await this.db.BasicProducts.FindAsync([product1Id], CancellationToken.None);
-        var notDeletedProduct = await this.db.BasicProducts.FindAsync([product2Id], CancellationToken.None);
+        var deletedProduct = await this.db.BasicProducts.FindAsync([
+                product1Id
+            ],
+            CancellationToken.None);
+        var notDeletedProduct = await this.db.BasicProducts.FindAsync([
+                product2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(deletedProduct);
         Assert.NotNull(deletedProduct.Deleted);
@@ -121,7 +136,8 @@ public class DeleteProductHandlerTests : IDisposable
         var command = new DeleteProductCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var products = await this.db.BasicProducts.ToListAsync();

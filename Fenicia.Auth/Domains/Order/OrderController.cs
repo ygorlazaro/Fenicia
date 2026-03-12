@@ -32,7 +32,10 @@ public class OrderController(
 
         var userId = ClaimReader.UserId(this.User);
         var companyId = headers.CompanyId;
-        var order = await createNewOrderHandler.Handle(new CreateNewOrderCommand(userId, companyId, request.Modules), ct);
+        var order = await createNewOrderHandler.Handle(new CreateNewOrderCommand(userId,
+                companyId,
+                request.Modules),
+            ct);
 
         return order is null ? BadRequest() : Ok(order);
     }

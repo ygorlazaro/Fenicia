@@ -8,7 +8,8 @@ public class DeleteProjectSubtaskHandler(DefaultContext context)
 {
     public async Task Handle(DeleteProjectSubtaskCommand command, CancellationToken ct)
     {
-        var projectSubtask = await context.ProjectSubtasks.FirstOrDefaultAsync(ps => ps.Id == command.Id, ct);
+        var projectSubtask = await context.ProjectSubtasks.FirstOrDefaultAsync(ps => ps.Id == command.Id,
+            ct);
 
         if (projectSubtask is null)
         {

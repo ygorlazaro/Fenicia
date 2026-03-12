@@ -18,7 +18,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new UpdateProjectAttachmentHandler(this.db);
         this.faker = new Faker();
     }
@@ -56,7 +57,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
 
         var newFileName = $"{this.faker.System.FileName()}.pdf";
         var newFileUrl = this.faker.Internet.Url();
-        var newFileSize = this.faker.Random.Long(50000, 100000);
+        var newFileSize = this.faker.Random.Long(50000,
+            100000);
         var command = new UpdateProjectAttachmentCommand(
             attachmentId,
             taskId,
@@ -66,12 +68,15 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(attachmentId, result.Id);
-        Assert.Equal(newFileName, result.FileName);
+        Assert.Equal(attachmentId,
+            result.Id);
+        Assert.Equal(newFileName,
+            result.FileName);
     }
 
     [Fact]
@@ -83,11 +88,13 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             Guid.NewGuid(),
             $"{this.faker.System.FileName()}.pdf",
             this.faker.Internet.Url(),
-            this.faker.Random.Long(1000, 1000000),
+            this.faker.Random.Long(1000,
+                1000000),
             Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -102,11 +109,13 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             Guid.NewGuid(),
             $"{this.faker.System.FileName()}.pdf",
             this.faker.Internet.Url(),
-            this.faker.Random.Long(1000, 1000000),
+            this.faker.Random.Long(1000,
+                1000000),
             Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -142,7 +151,8 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.AddRange(attachment1, attachment2);
+        this.db.ProjectAttachments.AddRange(attachment1,
+            attachment2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var newFileName = $"{this.faker.System.FileName()}_updated.pdf";
@@ -155,20 +165,31 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(attachment1Id, result.Id);
-        Assert.Equal(newFileName, result.FileName);
+        Assert.Equal(attachment1Id,
+            result.Id);
+        Assert.Equal(newFileName,
+            result.FileName);
 
-        var updatedAttachment1 = await this.db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
-        var attachment2InDb = await this.db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
+        var updatedAttachment1 = await this.db.ProjectAttachments.FindAsync([
+                attachment1Id
+            ],
+            CancellationToken.None);
+        var attachment2InDb = await this.db.ProjectAttachments.FindAsync([
+                attachment2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(updatedAttachment1);
         Assert.NotNull(attachment2InDb);
-        Assert.Equal(newFileName, updatedAttachment1.FileName);
-        Assert.Equal("file2.docx", attachment2InDb.FileName);
+        Assert.Equal(newFileName,
+            updatedAttachment1.FileName);
+        Assert.Equal("file2.docx",
+            attachment2InDb.FileName);
     }
 
     [Fact]
@@ -201,11 +222,14 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(attachmentId, result.Id);
-        Assert.Equal(newFileSize, result.FileSize);
+        Assert.Equal(attachmentId,
+            result.Id);
+        Assert.Equal(newFileSize,
+            result.FileSize);
     }
 }

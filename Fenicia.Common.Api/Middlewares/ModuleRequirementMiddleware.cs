@@ -22,7 +22,8 @@ public class ModuleRequirementMiddleware(RequestDelegate next, string requiredMo
         {
             var modules = JsonSerializer.Deserialize<List<string>>(moduleClaim.Value);
 
-            if (modules is null || !modules.Contains(requiredModule, StringComparer.OrdinalIgnoreCase))
+            if (modules is null || !modules.Contains(requiredModule,
+                    StringComparer.OrdinalIgnoreCase))
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsync($"Access to module '{requiredModule}' is forbidden.");

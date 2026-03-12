@@ -15,7 +15,8 @@ public class CreateUserHandler(
 {
     public virtual async Task<CreateUserResponse> Handle(CreateUserCommand command, CancellationToken ct)
     {
-        var userExists = await db.AuthUsers.AnyEmailAsync(command.Email, ct);
+        var userExists = await db.AuthUsers.AnyEmailAsync(command.Email,
+            ct);
 
         if (userExists)
         {
@@ -32,7 +33,9 @@ public class CreateUserHandler(
         };
 
         db.AuthUsers.Add(user);
-        await RelateRolesAsync(user.Id, command.Roles, ct);
+        await RelateRolesAsync(user.Id,
+            command.Roles,
+            ct);
         await db.SaveChangesAsync(ct);
 
         return new CreateUserResponse(
@@ -45,8 +48,10 @@ public class CreateUserHandler(
     private async Task RelateRolesAsync(Guid userId, List<CreateUserRoleCommand>? command, CancellationToken ct)
     {
         var roles = command ?? [];
-        await ValidateCompanies(roles.Select(r => r.CompanyId), ct);
-        await ValidateRoles(roles.Select(r => r.RoleId), ct);
+        await ValidateCompanies(roles.Select(r => r.CompanyId),
+            ct);
+        await ValidateRoles(roles.Select(r => r.RoleId),
+            ct);
 
         var userRoles = roles.Select(r => new UserRoleModel
         {

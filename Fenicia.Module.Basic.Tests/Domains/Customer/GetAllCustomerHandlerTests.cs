@@ -4,7 +4,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Customer.GetAll;
+using Fenicia.Module.Basic.Domains.Customer.Handlers;
+using Fenicia.Module.Basic.Domains.Customer.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,8 @@ public class GetAllCustomerHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetAllCustomerHandler(this.db);
         this.faker = new Faker();
     }
@@ -41,12 +43,14 @@ public class GetAllCustomerHandlerTests : IDisposable
         var query = new GetAllCustomerQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
-        Assert.Equal(0, result.Total);
+        Assert.Equal(0,
+            result.Total);
     }
 
     [Fact]
@@ -101,24 +105,34 @@ public class GetAllCustomerHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicCustomers.AddRange(customer1, customer2);
+        this.db.BasicCustomers.AddRange(customer1,
+            customer2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Data.Count);
-        Assert.Equal(2, result.Total);
-        Assert.Equal(customer1.Person.Id, result.Data[0].PersonId);
-        Assert.Equal(customer1.Person.Name, result.Data[0].Name);
-        Assert.Equal(customer1.Person.Email, result.Data[0].Email);
-        Assert.Equal(customer2.Person.Id, result.Data[1].PersonId);
-        Assert.Equal(customer2.Person.Name, result.Data[1].Name);
-        Assert.Equal(customer2.Person.Email, result.Data[1].Email);
+        Assert.Equal(2,
+            result.Data.Count);
+        Assert.Equal(2,
+            result.Total);
+        Assert.Equal(customer1.Person.Id,
+            result.Data[0].PersonId);
+        Assert.Equal(customer1.Person.Name,
+            result.Data[0].Name);
+        Assert.Equal(customer1.Person.Email,
+            result.Data[0].Email);
+        Assert.Equal(customer2.Person.Id,
+            result.Data[1].PersonId);
+        Assert.Equal(customer2.Person.Name,
+            result.Data[1].Name);
+        Assert.Equal(customer2.Person.Email,
+            result.Data[1].Email);
     }
 
     [Fact]
@@ -162,12 +176,15 @@ public class GetAllCustomerHandlerTests : IDisposable
         var query = new GetAllCustomerQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Data.Count);
-        Assert.Equal(25, result.Total);
+        Assert.Equal(10,
+            result.Data.Count);
+        Assert.Equal(25,
+            result.Total);
     }
 
     [Fact]
@@ -211,12 +228,14 @@ public class GetAllCustomerHandlerTests : IDisposable
         var query = new GetAllCustomerQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
-        Assert.Equal(5, result.Total);
+        Assert.Equal(5,
+            result.Total);
     }
 
     [Fact]
@@ -260,11 +279,14 @@ public class GetAllCustomerHandlerTests : IDisposable
         var query = new GetAllCustomerQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Data.Count);
-        Assert.Equal(25, result.Total);
+        Assert.Equal(10,
+            result.Data.Count);
+        Assert.Equal(25,
+            result.Total);
     }
 }

@@ -20,7 +20,8 @@ public class UpdateCompanyHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new UpdateCompanyHandler(this.db);
         this.faker = new Faker();
     }
@@ -87,12 +88,14 @@ public class UpdateCompanyHandlerTests : IDisposable
         );
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
-        Assert.Equal("Updated Company Name", updatedCompany.Name);
+        Assert.Equal("Updated Company Name",
+            updatedCompany.Name);
         Assert.True(updatedCompany.IsActive);
     }
 
@@ -123,9 +126,11 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("Company not found.", ex.Message);
+        Assert.Equal("Company not found.",
+            ex.Message);
     }
 
     [Fact]
@@ -180,9 +185,11 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("Company not found.", ex.Message);
+        Assert.Equal("Company not found.",
+            ex.Message);
     }
 
     [Fact]
@@ -237,9 +244,11 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("You are not authorized to update this company.", ex.Message);
+        Assert.Equal("You are not authorized to update this company.",
+            ex.Message);
     }
 
     [Fact]
@@ -295,9 +304,11 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("You are not authorized to update this company.", ex.Message);
+        Assert.Equal("You are not authorized to update this company.",
+            ex.Message);
     }
 
     [Fact]
@@ -347,7 +358,8 @@ public class UpdateCompanyHandlerTests : IDisposable
             CompanyId = companyId1
         };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
+        this.db.AuthCompanies.AddRange(company1,
+            company2);
         this.db.AuthRoles.Add(role);
         this.db.AuthUsers.Add(user);
         this.db.AuthUserRoles.Add(userRole);
@@ -361,9 +373,11 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("You are not authorized to update this company.", ex.Message);
+        Assert.Equal("You are not authorized to update this company.",
+            ex.Message);
     }
 
     [Fact]
@@ -422,7 +436,8 @@ public class UpdateCompanyHandlerTests : IDisposable
         };
 
         this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.AddRange(adminRole, memberRole);
+        this.db.AuthRoles.AddRange(adminRole,
+            memberRole);
         this.db.AuthUsers.Add(user);
         this.db.AuthUserRoles.AddRange(userRoles);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -434,12 +449,14 @@ public class UpdateCompanyHandlerTests : IDisposable
         );
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
-        Assert.Equal("Updated Company Name", updatedCompany.Name);
+        Assert.Equal("Updated Company Name",
+            updatedCompany.Name);
     }
 
     [Fact]
@@ -501,7 +518,8 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.AddRange(admin1, admin2);
+        this.db.AuthUsers.AddRange(admin1,
+            admin2);
         this.db.AuthUserRoles.AddRange(userRoles);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
@@ -512,12 +530,14 @@ public class UpdateCompanyHandlerTests : IDisposable
         );
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
-        Assert.Equal("Updated by Admin 2", updatedCompany.Name);
+        Assert.Equal("Updated by Admin 2",
+            updatedCompany.Name);
     }
 
     [Fact]
@@ -555,9 +575,11 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("You are not authorized to update this company.", ex.Message);
+        Assert.Equal("You are not authorized to update this company.",
+            ex.Message);
     }
 
     [Fact]
@@ -612,9 +634,11 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("You are not authorized to update this company.", ex.Message);
+        Assert.Equal("You are not authorized to update this company.",
+            ex.Message);
     }
 
     [Fact]
@@ -669,9 +693,11 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("You are not authorized to update this company.", ex.Message);
+        Assert.Equal("You are not authorized to update this company.",
+            ex.Message);
     }
 
     [Fact]
@@ -725,13 +751,15 @@ public class UpdateCompanyHandlerTests : IDisposable
         );
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.True(updatedCompany.IsActive);
-        Assert.Equal(company.Cnpj, updatedCompany.Cnpj);
+        Assert.Equal(company.Cnpj,
+            updatedCompany.Cnpj);
     }
 
     [Fact]
@@ -749,8 +777,10 @@ public class UpdateCompanyHandlerTests : IDisposable
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.handler.Handle(command, CancellationToken.None)
+            await this.handler.Handle(command,
+                CancellationToken.None)
         );
-        Assert.Equal("Company not found.", ex.Message);
+        Assert.Equal("Company not found.",
+            ex.Message);
     }
 }

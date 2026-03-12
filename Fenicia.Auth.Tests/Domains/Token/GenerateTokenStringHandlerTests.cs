@@ -72,7 +72,9 @@ public class GenerateTokenStringHandlerTests
         var userId = Guid.NewGuid();
         var email = this.faker.Internet.Email();
         var name = this.faker.Person.FullName;
-        var user = new GenerateTokenResponse(userId, name, email);
+        var user = new GenerateTokenResponse(userId,
+            name,
+            email);
 
         // Act
         var token = this.handler.Handle(user);
@@ -81,9 +83,15 @@ public class GenerateTokenStringHandlerTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
 
-        Assert.Equal(userId.ToString(), jwtToken.Claims.FirstOrDefault(c => c.Type == "userId")?.Value);
-        Assert.Equal(email, jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value);
-        Assert.Equal(name, jwtToken.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value);
+        Assert.Equal(userId.ToString(),
+            jwtToken.Claims.FirstOrDefault(c => c.Type == "userId")
+                ?.Value);
+        Assert.Equal(email,
+            jwtToken.Claims.FirstOrDefault(c => c.Type == "email")
+                ?.Value);
+        Assert.Equal(name,
+            jwtToken.Claims.FirstOrDefault(c => c.Type == "unique_name")
+                ?.Value);
         Assert.NotNull(jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti));
     }
 
@@ -105,7 +113,8 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var companyIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "companyId");
         Assert.NotNull(companyIdClaim);
-        Assert.Equal(userWithCompany.CompanyId.ToString(), companyIdClaim.Value);
+        Assert.Equal(userWithCompany.CompanyId.ToString(),
+            companyIdClaim.Value);
     }
 
     [Fact]
@@ -126,10 +135,14 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var roleClaims = jwtToken.Claims.Where(c => c.Type == "role").ToList();
 
-        Assert.Equal(3, roleClaims.Count);
-        Assert.Contains("Admin", roleClaims.Select(c => c.Value));
-        Assert.Contains("User", roleClaims.Select(c => c.Value));
-        Assert.Contains("Manager", roleClaims.Select(c => c.Value));
+        Assert.Equal(3,
+            roleClaims.Count);
+        Assert.Contains("Admin",
+            roleClaims.Select(c => c.Value));
+        Assert.Contains("User",
+            roleClaims.Select(c => c.Value));
+        Assert.Contains("Manager",
+            roleClaims.Select(c => c.Value));
     }
 
     [Fact]
@@ -150,10 +163,14 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
 
-        Assert.Equal(3, moduleClaims.Count);
-        Assert.Contains("erp", moduleClaims.Select(c => c.Value));
-        Assert.Contains("basic", moduleClaims.Select(c => c.Value));
-        Assert.Contains("social", moduleClaims.Select(c => c.Value));
+        Assert.Equal(3,
+            moduleClaims.Count);
+        Assert.Contains("erp",
+            moduleClaims.Select(c => c.Value));
+        Assert.Contains("basic",
+            moduleClaims.Select(c => c.Value));
+        Assert.Contains("social",
+            moduleClaims.Select(c => c.Value));
     }
 
     [Fact]
@@ -175,7 +192,8 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
 
-        Assert.Contains("erp", moduleClaims);
+        Assert.Contains("erp",
+            moduleClaims);
     }
 
     [Fact]
@@ -198,7 +216,8 @@ public class GenerateTokenStringHandlerTests
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
 
         var erpCount = moduleClaims.Count(m => m == "erp");
-        Assert.Equal(1, erpCount);
+        Assert.Equal(1,
+            erpCount);
     }
 
     [Fact]
@@ -256,7 +275,8 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var roleClaims = jwtToken.Claims.Where(c => c.Type == "role").ToList();
 
-        Assert.Equal(2, roleClaims.Count);
+        Assert.Equal(2,
+            roleClaims.Count);
     }
 
     [Fact]
@@ -277,18 +297,25 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
 
-        Assert.Equal(2, moduleClaims.Count);
+        Assert.Equal(2,
+            moduleClaims.Count);
     }
 
     // Helper classes for testing properties that don't exist in base response
     private record GenerateTokenResponseWithCompany(Guid Id, string Name, string Email, Guid CompanyId)
-        : GenerateTokenResponse(Id, Name, Email);
+        : GenerateTokenResponse(Id,
+            Name,
+            Email);
 
     private record GenerateTokenResponseWithRoles(Guid Id, string Name, string Email, IEnumerable<string> Roles)
-        : GenerateTokenResponse(Id, Name, Email);
+        : GenerateTokenResponse(Id,
+            Name,
+            Email);
 
     private record GenerateTokenResponseWithModules(Guid Id, string Name, string Email, IEnumerable<string> Modules)
-        : GenerateTokenResponse(Id, Name, Email);
+        : GenerateTokenResponse(Id,
+            Name,
+            Email);
 
     private record GenerateTokenResponseWithRolesAndModules(
         Guid Id,
@@ -296,5 +323,7 @@ public class GenerateTokenStringHandlerTests
         string Email,
         IEnumerable<string> Roles,
         IEnumerable<string> Modules)
-        : GenerateTokenResponse(Id, Name, Email);
+        : GenerateTokenResponse(Id,
+            Name,
+            Email);
 }

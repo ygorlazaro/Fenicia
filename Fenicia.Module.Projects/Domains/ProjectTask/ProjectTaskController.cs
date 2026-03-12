@@ -35,7 +35,9 @@ public class ProjectTaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectTasks = await getAllProjectTaskHandler.Handle(new GetAllProjectTaskQuery(page, perPage), ct);
+        var projectTasks = await getAllProjectTaskHandler.Handle(new GetAllProjectTaskQuery(page,
+                perPage),
+            ct);
 
         return Ok(projectTasks);
     }
@@ -51,7 +53,8 @@ public class ProjectTaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectTask = await getProjectTaskByIdHandler.Handle(new GetProjectTaskByIdQuery(id), ct);
+        var projectTask = await getProjectTaskByIdHandler.Handle(new GetProjectTaskByIdQuery(id),
+            ct);
 
         return projectTask is null ? NotFound() : Ok(projectTask);
     }
@@ -70,9 +73,11 @@ public class ProjectTaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectTask = await addProjectTaskHandler.Handle(command, ct);
+        var projectTask = await addProjectTaskHandler.Handle(command,
+            ct);
 
-        return new CreatedResult(string.Empty, projectTask);
+        return new CreatedResult(string.Empty,
+            projectTask);
     }
 
     [HttpPatch("{id:guid}")]
@@ -91,7 +96,11 @@ public class ProjectTaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var projectTask = await updateProjectTaskHandler.Handle(command with { Id = id }, ct);
+        var projectTask = await updateProjectTaskHandler.Handle(command with
+            {
+                Id = id
+            },
+            ct);
 
         return projectTask is null ? NotFound() : Ok(projectTask);
     }
@@ -108,7 +117,8 @@ public class ProjectTaskController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteProjectTaskHandler.Handle(new DeleteProjectTaskCommand(id), ct);
+        await deleteProjectTaskHandler.Handle(new DeleteProjectTaskCommand(id),
+            ct);
 
         return NoContent();
     }

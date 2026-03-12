@@ -15,14 +15,20 @@ public class UpdateUserHandler(
 {
     public virtual async Task<UpdateUserResponse> Handle(UpdateUserCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByIdAsync(command.UserId, ct);
+        var user = await db.AuthUsers.FirstByIdAsync(command.UserId,
+            ct);
 
-        await ValidateFields(user, command, ct);
+        await ValidateFields(user,
+            command,
+            ct);
         
         var companies = command.CompaniesRoles?.Select(c => c.CompanyId) ?? [];
         
-        await ValidateCompanies(companies, ct);
-        await RelateRolesAsync(command, user, ct);
+        await ValidateCompanies(companies,
+            ct);
+        await RelateRolesAsync(command,
+            user,
+            ct);
         await db.SaveChangesAsync(ct);
 
         return new UpdateUserResponse(
@@ -36,7 +42,8 @@ public class UpdateUserHandler(
     {
         foreach (var companyId in companies)
         {
-            await db.AuthCompanies.ValidateExistingAsync(companyId, ct);
+            await db.AuthCompanies.ValidateExistingAsync(companyId,
+                ct);
         }
     }
 
@@ -112,22 +119,24 @@ public class UpdateUserHandler(
 
     private async Task ValidateFields(UserModel user, UpdateUserCommand command, CancellationToken ct)
     {
-        if (!string.IsNullOrWhiteSpace(command.Name))
+        user.Name = string.IsNullOrWhiteSpace(command.Name) switch
         {
-            user.Name = command.Name;
-        }
+            false => command.Name,
+            _ => user.Name
+        };
 
         if (!string.IsNullOrWhiteSpace(command.Email))
         {
             var emailExists = await db.AuthUsers
-                .AnyAsync(u => u.Email == command.Email && u.Id != command.UserId, ct);
+                .AnyAsync(u => u.Email == command.Email && u.Id != command.UserId,
+                    ct);
 
-            if (emailExists)
+            user.Email = emailExists switch
             {
-                throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
-            }
+                true => throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists),
+                _ => command.Email
+            };
 
-            user.Email = command.Email;
         }
     }
 }

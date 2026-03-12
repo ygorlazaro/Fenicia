@@ -28,7 +28,8 @@ public class SubscriptionControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         var getUserProfileHandler = new GetUserProfileHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
@@ -60,10 +61,12 @@ public class SubscriptionControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", userId.ToString())
+            new("userId",
+                userId.ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -125,7 +128,8 @@ public class SubscriptionControllerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = this.faker.Finance.Amount(10, 100)
+            Price = this.faker.Finance.Amount(10,
+                100)
         };
 
         var subscriptionCredit = new SubscriptionCreditModel
@@ -153,7 +157,8 @@ public class SubscriptionControllerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await this.controller.GetUserProfile(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -163,20 +168,28 @@ public class SubscriptionControllerTests : IDisposable
         Assert.NotNull(okResult);
 
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
-        Assert.Equal(this.testUserId, profile.Id);
-        Assert.Equal(user.Email, profile.Email);
-        Assert.Equal(user.Name, profile.Name);
+        Assert.Equal(this.testUserId,
+            profile.Id);
+        Assert.Equal(user.Email,
+            profile.Email);
+        Assert.Equal(user.Name,
+            profile.Name);
         Assert.Single(profile.Companies);
         Assert.Single(profile.Subscriptions);
 
         var companies = profile.Companies.ToList();
         var subscriptions = profile.Subscriptions.ToList();
         
-        Assert.Equal(company.Id, companies[0].Id);
-        Assert.Equal(company.Name, companies[0].Name);
-        Assert.Equal(subscription.Id, subscriptions[0].Id);
-        Assert.Equal(SubscriptionStatus.Active, subscriptions[0].Status);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(company.Id,
+            companies[0].Id);
+        Assert.Equal(company.Name,
+            companies[0].Name);
+        Assert.Equal(subscription.Id,
+            subscriptions[0].Id);
+        Assert.Equal(SubscriptionStatus.Active,
+            subscriptions[0].Status);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -190,12 +203,14 @@ public class SubscriptionControllerTests : IDisposable
         SetupUserClaims(nonExistentUserId);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await this.controller.GetUserProfile(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
-        Assert.Equal(nonExistentUserId.ToString(), wide.UserId);
+        Assert.Equal(nonExistentUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -217,7 +232,8 @@ public class SubscriptionControllerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await this.controller.GetUserProfile(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -225,10 +241,12 @@ public class SubscriptionControllerTests : IDisposable
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
-        Assert.Equal(this.testUserId, profile.Id);
+        Assert.Equal(this.testUserId,
+            profile.Id);
         Assert.Empty(profile.Companies);
         Assert.Empty(profile.Subscriptions);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -280,7 +298,8 @@ public class SubscriptionControllerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await this.controller.GetUserProfile(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -288,10 +307,12 @@ public class SubscriptionControllerTests : IDisposable
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
-        Assert.Equal(this.testUserId, profile.Id);
+        Assert.Equal(this.testUserId,
+            profile.Id);
         Assert.Single(profile.Companies);
         Assert.Empty(profile.Subscriptions);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -378,7 +399,8 @@ public class SubscriptionControllerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = this.faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = this.faker.Finance.Amount(10, 100)
+            Price = this.faker.Finance.Amount(10,
+                100)
         };
 
         var subscriptionCredit1 = new SubscriptionCreditModel
@@ -422,7 +444,8 @@ public class SubscriptionControllerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await this.controller.GetUserProfile(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -430,10 +453,14 @@ public class SubscriptionControllerTests : IDisposable
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
-        Assert.Equal(this.testUserId, profile.Id);
-        Assert.Equal(2, profile.Companies.Count());
-        Assert.Equal(2, profile.Subscriptions.Count());
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId,
+            profile.Id);
+        Assert.Equal(2,
+            profile.Companies.Count());
+        Assert.Equal(2,
+            profile.Subscriptions.Count());
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -455,11 +482,13 @@ public class SubscriptionControllerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await this.controller.GetUserProfile(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
         Assert.NotNull(wide.TraceId);
     }
 
@@ -518,7 +547,8 @@ public class SubscriptionControllerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Active Module",
             Type = ModuleType.Basic,
-            Price = this.faker.Finance.Amount(10, 100)
+            Price = this.faker.Finance.Amount(10,
+                100)
         };
 
         var module2 = new ModuleModel
@@ -526,7 +556,8 @@ public class SubscriptionControllerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Inactive Module",
             Type = ModuleType.Basic,
-            Price = this.faker.Finance.Amount(10, 100)
+            Price = this.faker.Finance.Amount(10,
+                100)
         };
 
         var activeCredit = new SubscriptionCreditModel
@@ -567,7 +598,8 @@ public class SubscriptionControllerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await this.controller.GetUserProfile(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -576,6 +608,7 @@ public class SubscriptionControllerTests : IDisposable
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
         Assert.Single(profile.Subscriptions);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 }

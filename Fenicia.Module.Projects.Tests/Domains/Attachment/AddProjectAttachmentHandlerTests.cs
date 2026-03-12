@@ -17,7 +17,8 @@ public class AddProjectAttachmentHandlerTests : IDisposable
             .Options;
 
         var companyContext1 = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext1);
+        this.db = new DefaultContext(options,
+            companyContext1);
         this.handler = new AddProjectAttachmentHandler(this.db);
         this.faker = new Faker();
     }
@@ -42,17 +43,21 @@ public class AddProjectAttachmentHandlerTests : IDisposable
             Guid.NewGuid(),
             $"{this.faker.System.FileName()}.pdf",
             this.faker.Internet.Url(),
-            this.faker.Random.Long(1000, 1000000),
+            this.faker.Random.Long(1000,
+                1000000),
             Guid.NewGuid(),
             "application/json");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(command.FileName, result.FileName);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(command.FileName,
+            result.FileName);
     }
 
     [Fact]
@@ -61,7 +66,8 @@ public class AddProjectAttachmentHandlerTests : IDisposable
         // Arrange
         var fileName = $"{this.faker.System.FileName()}.pdf";
         var fileUrl = this.faker.Internet.Url();
-        var fileSize = this.faker.Random.Long(1000, 1000000);
+        var fileSize = this.faker.Random.Long(1000,
+            1000000);
         var command = new AddProjectAttachmentCommand(
             Guid.NewGuid(),
             Guid.NewGuid(),
@@ -72,15 +78,18 @@ public class AddProjectAttachmentHandlerTests : IDisposable
             "application/json");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var attachment = await this.db.ProjectAttachments
             .FirstOrDefaultAsync(a => a.Id == command.Id);
 
         Assert.NotNull(attachment);
-        Assert.Equal(fileName, attachment.FileName);
-        Assert.Equal(fileUrl, attachment.FileUrl);
+        Assert.Equal(fileName,
+            attachment.FileName);
+        Assert.Equal(fileUrl,
+            attachment.FileUrl);
     }
 
     [Fact]
@@ -93,7 +102,8 @@ public class AddProjectAttachmentHandlerTests : IDisposable
             taskId,
             $"{this.faker.System.FileName()}.pdf",
             this.faker.Internet.Url(),
-            this.faker.Random.Long(1000, 1000000),
+            this.faker.Random.Long(1000,
+                1000000),
             Guid.NewGuid(),
             "application/json");
 
@@ -102,17 +112,21 @@ public class AddProjectAttachmentHandlerTests : IDisposable
             taskId,
             $"{this.faker.System.FileName()}.docx",
             this.faker.Internet.Url(),
-            this.faker.Random.Long(1000, 1000000),
+            this.faker.Random.Long(1000,
+                1000000),
             Guid.NewGuid(),
             "application/json");
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command1,
+            CancellationToken.None);
+        await this.handler.Handle(command2,
+            CancellationToken.None);
 
         // Assert
         var attachments = await this.db.ProjectAttachments.ToListAsync();
-        Assert.Equal(2, attachments.Count);
+        Assert.Equal(2,
+            attachments.Count);
     }
 
     [Fact]
@@ -130,12 +144,15 @@ public class AddProjectAttachmentHandlerTests : IDisposable
             "application/json");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(largeFileSize, result.FileSize);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(largeFileSize,
+            result.FileSize);
     }
 
     [Fact]
@@ -153,11 +170,14 @@ public class AddProjectAttachmentHandlerTests : IDisposable
             "application/json");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(smallFileSize, result.FileSize);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(smallFileSize,
+            result.FileSize);
     }
 }

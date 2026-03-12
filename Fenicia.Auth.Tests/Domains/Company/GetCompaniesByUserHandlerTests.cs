@@ -20,7 +20,8 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new GetCompaniesByUserHandler(this.db);
         this.faker = new Faker();
     }
@@ -40,19 +41,26 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var query = new GetCompaniesByUserQuery(userId, 1, 10);
+        var query = new GetCompaniesByUserQuery(userId,
+            1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
-        Assert.Equal(0, result.Total);
-        Assert.Equal(1, result.Page);
-        Assert.Equal(10, result.PerPage);
-        Assert.Equal(0, result.Pages);
+        Assert.Equal(0,
+            result.Total);
+        Assert.Equal(1,
+            result.Page);
+        Assert.Equal(10,
+            result.PerPage);
+        Assert.Equal(0,
+            result.Pages);
     }
 
     [Fact]
@@ -99,22 +107,31 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId, 1, 10);
+        var query = new GetCompaniesByUserQuery(userId,
+            1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result.Data);
-        Assert.Equal(1, result.Total);
-        Assert.Equal(1, result.Pages);
+        Assert.Equal(1,
+            result.Total);
+        Assert.Equal(1,
+            result.Pages);
 
         var item = result.Data.First();
-        Assert.Equal(companyId, item.Id);
-        Assert.Equal(company.Name, item.Name);
-        Assert.Equal(company.Cnpj, item.Cnpj);
-        Assert.Equal("Admin", item.Role);
+        Assert.Equal(companyId,
+            item.Id);
+        Assert.Equal(company.Name,
+            item.Name);
+        Assert.Equal(company.Cnpj,
+            item.Cnpj);
+        Assert.Equal("Admin",
+            item.Role);
     }
 
     [Fact]
@@ -161,14 +178,18 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId, 1, 10);
+        var query = new GetCompaniesByUserQuery(userId,
+            1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Empty(result.Data);
-        Assert.Equal(0, result.Total);
+        Assert.Equal(0,
+            result.Total);
     }
 
     [Fact]
@@ -244,25 +265,35 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             }
         };
 
-        this.db.AuthCompanies.AddRange(company1, company2, company3);
+        this.db.AuthCompanies.AddRange(company1,
+            company2,
+            company3);
         this.db.AuthRoles.Add(role);
         this.db.AuthUsers.Add(user);
         this.db.AuthUserRoles.AddRange(userRoles);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId, 1, 10);
+        var query = new GetCompaniesByUserQuery(userId,
+            1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
-        Assert.Equal(3, result.Data.Count());
-        Assert.Equal(3, result.Total);
+        Assert.Equal(3,
+            result.Data.Count());
+        Assert.Equal(3,
+            result.Total);
 
         var items = result.Data.ToList();
-        Assert.Equal("Alpha Company", items[0].Name);
-        Assert.Equal("Beta Company", items[1].Name);
-        Assert.Equal("Zebra Company", items[2].Name);
+        Assert.Equal("Alpha Company",
+            items[0].Name);
+        Assert.Equal("Beta Company",
+            items[1].Name);
+        Assert.Equal("Zebra Company",
+            items[2].Name);
     }
 
     [Fact]
@@ -316,22 +347,37 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         this.db.AuthUserRoles.AddRange(userRoles);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId, 2, 10);
+        var query = new GetCompaniesByUserQuery(userId,
+            2,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
-        Assert.Equal(10, result.Data.Count());
-        Assert.Equal(25, result.Total);
-        Assert.Equal(2, result.Page);
-        Assert.Equal(10, result.PerPage);
-        Assert.Equal(3, result.Pages);
+        Assert.Equal(10,
+            result.Data.Count());
+        Assert.Equal(25,
+            result.Total);
+        Assert.Equal(2,
+            result.Page);
+        Assert.Equal(10,
+            result.PerPage);
+        Assert.Equal(3,
+            result.Pages);
 
         var items = result.Data.ToList();
         var sortedCompanies = companies.OrderBy(c => c.Name).ToList();
-        Assert.Equal(sortedCompanies.Skip(10).FirstOrDefault()?.Name, items[0].Name);
-        Assert.Equal(sortedCompanies.Skip(10).Take(10).LastOrDefault()?.Name, items[^1].Name);
+        Assert.Equal(sortedCompanies.Skip(10)
+                .FirstOrDefault()
+                ?.Name,
+            items[0].Name);
+        Assert.Equal(sortedCompanies.Skip(10)
+                .Take(10)
+                .LastOrDefault()
+                ?.Name,
+            items[^1].Name);
     }
 
     [Fact]
@@ -386,21 +432,34 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         this.db.AuthUserRoles.AddRange(userRoles);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId, 3, 10);
+        var query = new GetCompaniesByUserQuery(userId,
+            3,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
-        Assert.Equal(5, result.Data.Count());
-        Assert.Equal(25, result.Total);
-        Assert.Equal(3, result.Page);
-        Assert.Equal(3, result.Pages);
+        Assert.Equal(5,
+            result.Data.Count());
+        Assert.Equal(25,
+            result.Total);
+        Assert.Equal(3,
+            result.Page);
+        Assert.Equal(3,
+            result.Pages);
 
         var items = result.Data.ToList();
         var sortedCompanies = companies.OrderBy(c => c.Name).ToList();
-        Assert.Equal(sortedCompanies.Skip(20).FirstOrDefault()?.Name, items[0].Name);
-        Assert.Equal(sortedCompanies.Skip(20).LastOrDefault()?.Name, items[^1].Name);
+        Assert.Equal(sortedCompanies.Skip(20)
+                .FirstOrDefault()
+                ?.Name,
+            items[0].Name);
+        Assert.Equal(sortedCompanies.Skip(20)
+                .LastOrDefault()
+                ?.Name,
+            items[^1].Name);
     }
 
     [Fact]
@@ -446,16 +505,22 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId, 5, 10);
+        var query = new GetCompaniesByUserQuery(userId,
+            5,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Empty(result.Data);
-        Assert.Equal(1, result.Total);
-        Assert.Equal(5, result.Page);
-        Assert.Equal(1, result.Pages);
+        Assert.Equal(1,
+            result.Total);
+        Assert.Equal(5,
+            result.Page);
+        Assert.Equal(1,
+            result.Pages);
     }
 
     [Fact]
@@ -514,23 +579,31 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         };
 
         this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.AddRange(role1, role2);
+        this.db.AuthRoles.AddRange(role1,
+            role2);
         this.db.AuthUsers.Add(user);
         this.db.AuthUserRoles.AddRange(userRoles);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId, 1, 10);
+        var query = new GetCompaniesByUserQuery(userId,
+            1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Data.Count());
-        Assert.Equal(2, result.Total);
+        Assert.Equal(2,
+            result.Data.Count());
+        Assert.Equal(2,
+            result.Total);
 
         var items = result.Data.ToList();
-        Assert.Contains(items, i => i.Role == "Admin");
-        Assert.Contains(items, i => i.Role == "Contributor");
+        Assert.Contains(items,
+            i => i.Role == "Admin");
+        Assert.Contains(items,
+            i => i.Role == "Contributor");
     }
 
     [Fact]
@@ -595,21 +668,30 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             CompanyId = company2.Id
         };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
+        this.db.AuthCompanies.AddRange(company1,
+            company2);
         this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.AddRange(user1, user2);
-        this.db.AuthUserRoles.AddRange(userRole1, userRole2);
+        this.db.AuthUsers.AddRange(user1,
+            user2);
+        this.db.AuthUserRoles.AddRange(userRole1,
+            userRole2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId1, 1, 10);
+        var query = new GetCompaniesByUserQuery(userId1,
+            1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Single(result.Data);
-        Assert.Equal(1, result.Total);
-        Assert.Equal(company1.Name, result.Data.First().Name);
+        Assert.Equal(1,
+            result.Total);
+        Assert.Equal(company1.Name,
+            result.Data.First()
+                .Name);
     }
 
     [Fact]
@@ -667,21 +749,28 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             }
         };
 
-        this.db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
+        this.db.AuthCompanies.AddRange(activeCompany,
+            inactiveCompany);
         this.db.AuthRoles.Add(role);
         this.db.AuthUsers.Add(user);
         this.db.AuthUserRoles.AddRange(userRoles);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId, 1, 10);
+        var query = new GetCompaniesByUserQuery(userId,
+            1,
+            10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Single(result.Data);
-        Assert.Equal(1, result.Total);
-        Assert.Equal(activeCompany.Name, result.Data.First().Name);
+        Assert.Equal(1,
+            result.Total);
+        Assert.Equal(activeCompany.Name,
+            result.Data.First()
+                .Name);
     }
 
     [Fact]
@@ -728,10 +817,13 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId, 1, 0);
+        var query = new GetCompaniesByUserQuery(userId,
+            1,
+            0);
 
         // Act
         await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(query, CancellationToken.None));
+            await this.handler.Handle(query,
+                CancellationToken.None));
     }
 }

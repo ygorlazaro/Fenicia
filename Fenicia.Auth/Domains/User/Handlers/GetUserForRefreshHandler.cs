@@ -7,8 +7,11 @@ public class GetUserForRefreshHandler(DefaultContext db)
 {
     public async Task<GetUserForRefreshResponse> Handle(Guid userId, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByIdAsync(userId, ct);
+        var user = await db.AuthUsers.FirstByIdAsync(userId,
+            ct);
 
-        return new GetUserForRefreshResponse(user.Id, user.Email, user.Name);
+        return new GetUserForRefreshResponse(user.Id,
+            user.Email,
+            user.Name);
     }
 }

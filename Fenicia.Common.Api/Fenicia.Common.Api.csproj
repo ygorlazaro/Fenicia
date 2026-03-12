@@ -28,7 +28,7 @@
 <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="3.0.0"/>
 
 
-        <PackageReference Include="Serilog.Enrichers.db" Version="4.6.5"/>
+        <PackageReference Include="Serilog.Enrichers.Context" Version="4.6.5"/>
         <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1"/>
         <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0"/>
 <PackageReference Include="StackExchange.Redis" Version="2.11.8" />

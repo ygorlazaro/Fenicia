@@ -8,7 +8,8 @@ public class UpdateProjectHandler(DefaultContext context)
 {
     public async Task<UpdateProjectResponse?> Handle(UpdateProjectCommand command, CancellationToken ct)
     {
-        var project = await context.Projects.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
+        var project = await context.Projects.FirstOrDefaultAsync(p => p.Id == command.Id,
+            ct);
 
         if (project is null)
         {
@@ -17,7 +18,8 @@ public class UpdateProjectHandler(DefaultContext context)
 
         project.Title = command.Title;
         project.Description = command.Description;
-        project.Status = Enum.Parse<Common.Enums.Project.EnumProjectStatus>(command.Status, true);
+        project.Status = Enum.Parse<Common.Enums.Project.EnumProjectStatus>(command.Status,
+            true);
         project.StartDate = command.StartDate;
         project.EndDate = command.EndDate;
         project.Owner = command.Owner;

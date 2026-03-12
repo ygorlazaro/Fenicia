@@ -14,12 +14,16 @@ public class ResetPasswordHandler(DefaultContext db)
 {
     public virtual async Task Handle(ResetPasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
-        var currentCode = await GetFromUserIdAndCodeAsync(user.Id, command.Code, ct) ?? throw new InvalidDataException(ExceptionMessages.InvalidForgotPasswordCode);
+        var user = await db.AuthUsers.FirstByEmailOrDefaultAsync(command.Email,
+            ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
+        var currentCode = await GetFromUserIdAndCodeAsync(user.Id,
+            command.Code,
+            ct) ?? throw new InvalidDataException(ExceptionMessages.InvalidForgotPasswordCode);
 
         user.Password = command.Password.Hash();
         
-        await InvalidateCodeAsync(currentCode.Id, ct);
+        await InvalidateCodeAsync(currentCode.Id,
+            ct);
     }
 
     private async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
@@ -36,7 +40,8 @@ public class ResetPasswordHandler(DefaultContext db)
 
     private async Task InvalidateCodeAsync(Guid id, CancellationToken ct)
     {
-        var forgotPassword = await db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == id, ct);
+        var forgotPassword = await db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.Id == id,
+            ct);
 
         if (forgotPassword is null)
         {

@@ -27,7 +27,8 @@ public class ModuleControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         var getModulesHandler = new GetModulesHandler(this.db);
         var mockHttpContext = new Mock<HttpContext>();
         this.faker = new Faker();
@@ -56,7 +57,8 @@ public class ModuleControllerTests : IDisposable
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsOkWithEmptyPagination()
     {
         // Arrange
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -76,8 +78,10 @@ public class ModuleControllerTests : IDisposable
         var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.NotNull(returnedPagination);
         Assert.Empty(returnedPagination.Data);
-        Assert.Equal(0, returnedPagination.Total);
-        Assert.Equal("Guest", wide.UserId);
+        Assert.Equal(0,
+            returnedPagination.Total);
+        Assert.Equal("Guest",
+            wide.UserId);
     }
 
     [Fact]
@@ -100,10 +104,12 @@ public class ModuleControllerTests : IDisposable
             Price = 20.0m
         };
 
-        this.db.AuthModules.AddRange(module1, module2);
+        this.db.AuthModules.AddRange(module1,
+            module2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -122,9 +128,12 @@ public class ModuleControllerTests : IDisposable
 
         var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.NotNull(returnedPagination);
-        Assert.Equal(2, returnedPagination.Data.Count);
-        Assert.Equal(2, returnedPagination.Total);
-        Assert.Equal("Guest", wide.UserId);
+        Assert.Equal(2,
+            returnedPagination.Data.Count);
+        Assert.Equal(2,
+            returnedPagination.Total);
+        Assert.Equal("Guest",
+            wide.UserId);
     }
 
     [Fact]
@@ -147,10 +156,12 @@ public class ModuleControllerTests : IDisposable
             Price = 10.0m
         };
 
-        this.db.AuthModules.AddRange(authModule, basicModule);
+        this.db.AuthModules.AddRange(authModule,
+            basicModule);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -170,14 +181,16 @@ public class ModuleControllerTests : IDisposable
         var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.NotNull(returnedPagination);
         Assert.Single(returnedPagination.Data);
-        Assert.Equal(basicModule.Name, returnedPagination.Data[0].Name);
+        Assert.Equal(basicModule.Name,
+            returnedPagination.Data[0].Name);
     }
 
     [Fact]
     public async Task GetAllModulesAsync_SetsWideEventContextUserIdToGuest()
     {
         // Arrange
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -188,7 +201,8 @@ public class ModuleControllerTests : IDisposable
             ct);
 
         // Assert
-        Assert.Equal("Guest", wide.UserId);
+        Assert.Equal("Guest",
+            wide.UserId);
     }
 
     [Fact]
@@ -210,7 +224,8 @@ public class ModuleControllerTests : IDisposable
         this.db.AuthModules.AddRange(modules);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(2, 10);
+        var query = new PaginationQuery(2,
+            10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -229,10 +244,14 @@ public class ModuleControllerTests : IDisposable
 
         var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.NotNull(returnedPagination);
-        Assert.Equal(10, returnedPagination.Data.Count);
-        Assert.Equal(25, returnedPagination.Total);
-        Assert.Equal(2, returnedPagination.Page);
-        Assert.Equal(10, returnedPagination.PerPage);
+        Assert.Equal(10,
+            returnedPagination.Data.Count);
+        Assert.Equal(25,
+            returnedPagination.Total);
+        Assert.Equal(2,
+            returnedPagination.Page);
+        Assert.Equal(10,
+            returnedPagination.PerPage);
     }
 
     [Fact]
@@ -242,7 +261,8 @@ public class ModuleControllerTests : IDisposable
         var controllerType = typeof(ModuleController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -256,11 +276,13 @@ public class ModuleControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -271,11 +293,13 @@ public class ModuleControllerTests : IDisposable
 
         // Act
         var producesAttribute =
-            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute),
+                false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.NotNull(producesAttribute);
-        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
+        Assert.Equal("application/json",
+            producesAttribute.ContentTypes.FirstOrDefault());
     }
 
     [Fact]
@@ -287,7 +311,8 @@ public class ModuleControllerTests : IDisposable
 
         // Act
         var allowAnonymousAttribute =
-            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
+            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(allowAnonymousAttribute);

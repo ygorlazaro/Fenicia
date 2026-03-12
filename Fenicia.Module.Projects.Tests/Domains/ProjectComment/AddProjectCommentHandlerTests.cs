@@ -17,7 +17,8 @@ public class AddProjectCommentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new AddProjectCommentHandler(this.db);
         this.faker = new Faker();
     }
@@ -44,12 +45,15 @@ public class AddProjectCommentHandlerTests : IDisposable
             this.faker.Lorem.Paragraph());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(command.Content, result.Content);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(command.Content,
+            result.Content);
     }
 
     [Fact]
@@ -63,15 +67,18 @@ public class AddProjectCommentHandlerTests : IDisposable
             this.faker.Lorem.Paragraph());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var comment = await this.db.ProjectComments
             .FirstOrDefaultAsync(c => c.Id == command.Id);
 
         Assert.NotNull(comment);
-        Assert.Equal(command.Content, comment.Content);
-        Assert.Equal(command.TaskId, comment.TaskId);
+        Assert.Equal(command.Content,
+            comment.Content);
+        Assert.Equal(command.TaskId,
+            comment.TaskId);
     }
 
     [Fact]
@@ -93,12 +100,15 @@ public class AddProjectCommentHandlerTests : IDisposable
             this.faker.Lorem.Paragraph());
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command1,
+            CancellationToken.None);
+        await this.handler.Handle(command2,
+            CancellationToken.None);
 
         // Assert
         var comments = await this.db.ProjectComments.ToListAsync();
-        Assert.Equal(2, comments.Count);
+        Assert.Equal(2,
+            comments.Count);
     }
 
     [Fact]
@@ -113,12 +123,15 @@ public class AddProjectCommentHandlerTests : IDisposable
             longContent);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal(longContent, result.Content);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal(longContent,
+            result.Content);
     }
 
     [Fact]
@@ -132,11 +145,14 @@ public class AddProjectCommentHandlerTests : IDisposable
             "Short comment");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
-        Assert.Equal("Short comment", result.Content);
+        Assert.Equal(command.Id,
+            result.Id);
+        Assert.Equal("Short comment",
+            result.Content);
     }
 }

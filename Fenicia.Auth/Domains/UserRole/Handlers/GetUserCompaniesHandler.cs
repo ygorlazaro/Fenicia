@@ -14,7 +14,11 @@ public class GetUserCompaniesHandler(DefaultContext db)
         var query = from ur in db.AuthUserRoles
                     join c in db.AuthCompanies on ur.CompanyId equals c.Id
                     where ur.UserId == userId
-                    select new GetUserCompaniesResponse(c.Id, ur.Role.Name, c.Id, c.Name, c.Cnpj);
+                    select new GetUserCompaniesResponse(c.Id,
+                        ur.Role.Name,
+                        c.Id,
+                        c.Name,
+                        c.Cnpj);
 
         return await query.ToListAsync(ct);
     }

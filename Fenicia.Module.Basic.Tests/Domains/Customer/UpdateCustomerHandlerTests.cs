@@ -3,7 +3,8 @@ using Bogus;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Customer.Update;
+using Fenicia.Module.Basic.Domains.Customer.Commands;
+using Fenicia.Module.Basic.Domains.Customer.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new UpdateCustomerHandler(this.db);
         this.faker = new Faker();
     }
@@ -74,12 +76,15 @@ public class UpdateCustomerHandlerTests : IDisposable
             "(11) 98765-4321");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(customer.Person.Id, result.PersonId);
-        Assert.Equal(customerId, result.Id);
+        Assert.Equal(customer.Person.Id,
+            result.PersonId);
+        Assert.Equal(customerId,
+            result.Id);
     }
 
     [Fact]
@@ -101,7 +106,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -126,7 +132,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -173,7 +180,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -221,7 +229,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -269,7 +278,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -317,7 +327,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -365,7 +376,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -413,7 +425,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -461,7 +474,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -509,7 +523,8 @@ public class UpdateCustomerHandlerTests : IDisposable
             "(11) 98765-4321");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var updatedCustomer = await this.db.BasicCustomers
@@ -517,8 +532,11 @@ public class UpdateCustomerHandlerTests : IDisposable
             .FirstOrDefaultAsync(c => c.Id == customerId);
 
         Assert.NotNull(updatedCustomer);
-        Assert.Equal("New Name", updatedCustomer.Person.Name);
-        Assert.Equal("new@email.com", updatedCustomer.Person.Email);
-        Assert.Equal("New City", updatedCustomer.Person.City);
+        Assert.Equal("New Name",
+            updatedCustomer.Person.Name);
+        Assert.Equal("new@email.com",
+            updatedCustomer.Person.Email);
+        Assert.Equal("New City",
+            updatedCustomer.Person.City);
     }
 }

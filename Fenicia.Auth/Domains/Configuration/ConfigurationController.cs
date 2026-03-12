@@ -30,8 +30,10 @@ public class ConfigurationController(
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
-        var query = new GetConfigurationQuery(userId, companyId);
-        var result = await getConfigurationHandler.Handle(query, ct);
+        var query = new GetConfigurationQuery(userId,
+            companyId);
+        var result = await getConfigurationHandler.Handle(query,
+            ct);
 
         return Ok(result);
     }
@@ -49,7 +51,8 @@ public class ConfigurationController(
         wide.UserId = userId.ToString();
 
         var command = request with { UserId = userId };
-        await upsertConfigurationHandler.Handle(command, ct);
+        await upsertConfigurationHandler.Handle(command,
+            ct);
 
         return NoContent();
     }

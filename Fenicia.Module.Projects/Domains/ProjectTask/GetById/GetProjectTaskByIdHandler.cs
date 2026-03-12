@@ -14,45 +14,48 @@ public class GetProjectTaskByIdHandler(DefaultContext context)
             .Include(pt => pt.Subtasks)
             .Include(pt => pt.Assignees)
                 .ThenInclude(a => a.User)
-            .FirstOrDefaultAsync(pt => pt.Id == query.Id, ct);
+            .FirstOrDefaultAsync(pt => pt.Id == query.Id,
+                ct);
 
-        if (projectTask is null)
+        return projectTask switch
         {
-            return null;
-        }
+            null => null,
+            _ => new GetProjectTaskByIdResponse(projectTask.Id,
+                projectTask.ProjectId,
+                projectTask.StatusId,
+                projectTask.Title,
+                projectTask.Description,
+                projectTask.Priority.ToString(),
+                projectTask.Type.ToString(),
+                projectTask.Order,
+                projectTask.EstimatePoints,
+                projectTask.DueDate,
+                projectTask.CreatedBy,
+                projectTask.CompanyId,
+                projectTask.Attachments
+                    .Select(a => new ProjectAttachmentResponse(a.Id,
+                        a.FileName,
+                        a.ContentType,
+                        a.Size))
+                    .ToList(),
+                projectTask.Comments.Select(c => new ProjectCommentResponse(c.Id,
+                        c.Content,
+                        c.AuthorId))
+                    .ToList(),
+                projectTask.Subtasks
+                    .Select(s => new ProjectSubtaskResponse(s.Id,
+                        s.Title,
+                        s.IsCompleted,
+                        s.Order,
+                        s.DueDate))
+                    .ToList(),
+                projectTask.Assignees
+                    .Select(a => new ProjectTaskAssigneeResponse(a.Id,
+                        a.UserId,
+                        a.User.Name,
+                        a.User.Email))
+                    .ToList())
+        };
 
-        return new GetProjectTaskByIdResponse(
-            projectTask.Id,
-            projectTask.ProjectId,
-            projectTask.StatusId,
-            projectTask.Title,
-            projectTask.Description,
-            projectTask.Priority.ToString(),
-            projectTask.Type.ToString(),
-            projectTask.Order,
-            projectTask.EstimatePoints,
-            projectTask.DueDate,
-            projectTask.CreatedBy,
-            projectTask.CompanyId,
-            projectTask.Attachments.Select(a => new ProjectAttachmentResponse(
-                a.Id,
-                a.FileName,
-                a.ContentType,
-                a.Size)).ToList(),
-            projectTask.Comments.Select(c => new ProjectCommentResponse(
-                c.Id,
-                c.Content,
-                c.AuthorId)).ToList(),
-            projectTask.Subtasks.Select(s => new ProjectSubtaskResponse(
-                s.Id,
-                s.Title,
-                s.IsCompleted,
-                s.Order,
-                s.DueDate)).ToList(),
-            projectTask.Assignees.Select(a => new ProjectTaskAssigneeResponse(
-                a.Id,
-                a.UserId,
-                a.User.Name,
-                a.User.Email)).ToList());
     }
 }

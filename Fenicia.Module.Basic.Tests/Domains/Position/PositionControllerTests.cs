@@ -7,13 +7,12 @@ using Fenicia.Common.API;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Employee.GetByPositionId;
+using Fenicia.Module.Basic.Domains.Employee.Handlers;
+using Fenicia.Module.Basic.Domains.Employee.Responses;
 using Fenicia.Module.Basic.Domains.Position;
-using Fenicia.Module.Basic.Domains.Position.Add;
-using Fenicia.Module.Basic.Domains.Position.Delete;
-using Fenicia.Module.Basic.Domains.Position.GetAll;
-using Fenicia.Module.Basic.Domains.Position.GetById;
-using Fenicia.Module.Basic.Domains.Position.Update;
+using Fenicia.Module.Basic.Domains.Position.Commands;
+using Fenicia.Module.Basic.Domains.Position.Handlers;
+using Fenicia.Module.Basic.Domains.Position.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +32,8 @@ public class PositionControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.testPositionId = Guid.NewGuid();
         var getAllPositionHandler = new GetAllPositionHandler(this.db);
         var getPositionByIdHandler = new GetPositionByIdHandler(this.db);
@@ -77,10 +77,13 @@ public class PositionControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", Guid.NewGuid().ToString())
+            new("userId",
+                Guid.NewGuid()
+                    .ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -97,7 +100,10 @@ public class PositionControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await this.controller.GetAsync(wide,
+            page,
+            perPage,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -109,7 +115,8 @@ public class PositionControllerTests : IDisposable
         var returnedPositions = okResult.Value as Pagination<List<GetAllPositionResponse>>;
         Assert.NotNull(returnedPositions);
         Assert.Empty(returnedPositions.Data);
-        Assert.Equal(0, returnedPositions.Total);
+        Assert.Equal(0,
+            returnedPositions.Total);
     }
 
     [Fact]
@@ -128,7 +135,8 @@ public class PositionControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.db.BasicPositions.AddRange(position1, position2);
+        this.db.BasicPositions.AddRange(position1,
+            position2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
@@ -137,7 +145,10 @@ public class PositionControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await this.controller.GetAsync(wide,
+            page,
+            perPage,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -148,8 +159,10 @@ public class PositionControllerTests : IDisposable
 
         var returnedPositions = okResult.Value as Pagination<List<GetAllPositionResponse>>;
         Assert.NotNull(returnedPositions);
-        Assert.Equal(2, returnedPositions.Data.Count);
-        Assert.Equal(2, returnedPositions.Total);
+        Assert.Equal(2,
+            returnedPositions.Data.Count);
+        Assert.Equal(2,
+            returnedPositions.Total);
     }
 
     [Fact]
@@ -169,7 +182,9 @@ public class PositionControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testPositionId, wide, ct);
+        var result = await this.controller.GetByIdAsync(this.testPositionId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -180,8 +195,10 @@ public class PositionControllerTests : IDisposable
 
         var returnedPosition = okResult.Value as GetPositionByIdResponse;
         Assert.NotNull(returnedPosition);
-        Assert.Equal(this.testPositionId, returnedPosition.Id);
-        Assert.Equal(position.Name, returnedPosition.Name);
+        Assert.Equal(this.testPositionId,
+            returnedPosition.Id);
+        Assert.Equal(position.Name,
+            returnedPosition.Name);
     }
 
     [Fact]
@@ -193,7 +210,9 @@ public class PositionControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
+        var result = await this.controller.GetByIdAsync(nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -213,12 +232,16 @@ public class PositionControllerTests : IDisposable
         this.db.BasicPositions.Add(position);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId, query, wide, ct);
+        var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId,
+            query,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -271,15 +294,20 @@ public class PositionControllerTests : IDisposable
         };
 
         this.db.BasicPositions.Add(position);
-        this.db.BasicEmployees.AddRange(employee1, employee2);
+        this.db.BasicEmployees.AddRange(employee1,
+            employee2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(1, 10);
+        var query = new PaginationQuery(1,
+            10);
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId, query, wide, ct);
+        var result = await this.controller.GetEmployeesByPositionIdAsync(this.testPositionId,
+            query,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -290,19 +318,23 @@ public class PositionControllerTests : IDisposable
 
         var returnedEmployees = okResult.Value as List<GetEmployeesByPositionIdResponse>;
         Assert.NotNull(returnedEmployees);
-        Assert.Equal(2, returnedEmployees.Count);
+        Assert.Equal(2,
+            returnedEmployees.Count);
     }
 
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithPosition()
     {
         // Arrange
-        var command = new AddPositionCommand(Guid.NewGuid(), this.faker.Commerce.Department());
+        var command = new AddPositionCommand(Guid.NewGuid(),
+            this.faker.Commerce.Department());
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await this.controller.PostAsync(command,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -310,11 +342,13 @@ public class PositionControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201, createdResult.StatusCode);
+        Assert.Equal(201,
+            createdResult.StatusCode);
 
         var returnedPosition = createdResult.Value as AddPositionResponse;
         Assert.NotNull(returnedPosition);
-        Assert.Equal(command.Name, returnedPosition.Name);
+        Assert.Equal(command.Name,
+            returnedPosition.Name);
     }
 
     [Fact]
@@ -330,12 +364,16 @@ public class PositionControllerTests : IDisposable
         this.db.BasicPositions.Add(position);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdatePositionCommand(this.testPositionId, this.faker.Commerce.Department() + " Updated");
+        var command = new UpdatePositionCommand(this.testPositionId,
+            this.faker.Commerce.Department() + " Updated");
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, this.testPositionId, wide, ct);
+        var result = await this.controller.PatchAsync(command,
+            this.testPositionId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -346,7 +384,8 @@ public class PositionControllerTests : IDisposable
 
         var returnedPosition = okResult.Value as UpdatePositionResponse;
         Assert.NotNull(returnedPosition);
-        Assert.Contains("Updated", returnedPosition.Name);
+        Assert.Contains("Updated",
+            returnedPosition.Name);
     }
 
     [Fact]
@@ -354,12 +393,16 @@ public class PositionControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdatePositionCommand(nonExistentId, this.faker.Commerce.Department());
+        var command = new UpdatePositionCommand(nonExistentId,
+            this.faker.Commerce.Department());
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
+        var result = await this.controller.PatchAsync(command,
+            nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -383,13 +426,17 @@ public class PositionControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testPositionId, wide, ct);
+        var result = await this.controller.DeleteAsync(this.testPositionId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify position was deleted
-        var deletedPosition = await this.db.BasicPositions.FirstOrDefaultAsync(x => x.Id == this.testPositionId && x.Deleted == null, ct);
+        var deletedPosition = await this.db.BasicPositions.FirstOrDefaultAsync(
+            x => x.Id == this.testPositionId && x.Deleted == null,
+            ct);
         Assert.Null(deletedPosition);
     }
 
@@ -402,7 +449,9 @@ public class PositionControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
+        var result = await this.controller.DeleteAsync(nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -415,7 +464,8 @@ public class PositionControllerTests : IDisposable
         var controllerType = typeof(PositionController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -429,11 +479,13 @@ public class PositionControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -444,7 +496,8 @@ public class PositionControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);

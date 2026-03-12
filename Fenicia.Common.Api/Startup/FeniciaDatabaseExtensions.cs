@@ -16,13 +16,16 @@ public static class FeniciaDatabaseExtensions
             throw new Exception("Connection string inválida");
         }
 
-        if (!string.IsNullOrEmpty(tenantId))
+        connectionString = string.IsNullOrEmpty(tenantId) switch
         {
-            connectionString =  connectionString.Replace(tenantId, tenantId);
-        }
+            false => connectionString.Replace(tenantId,
+                tenantId),
+            _ => connectionString
+        };
 
         builder.Services.AddDbContextPool<TContext>(o => o
-            .UseNpgsql(connectionString, b => b.MigrationsAssembly(migrationAssembly))
+            .UseNpgsql(connectionString,
+                b => b.MigrationsAssembly(migrationAssembly))
             .EnableSensitiveDataLogging()
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .UseSnakeCaseNamingConvention());

@@ -32,7 +32,8 @@ public class ConfigurationControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         var getConfigurationHandler = new GetConfigurationHandler(this.db);
         var upsertConfigurationHandler = new UpsertConfigurationHandler(this.db);
@@ -62,10 +63,12 @@ public class ConfigurationControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", userId.ToString())
+            new("userId",
+                userId.ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -80,7 +83,9 @@ public class ConfigurationControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(null, wide, ct);
+        var result = await this.controller.GetAsync(null,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -93,7 +98,8 @@ public class ConfigurationControllerTests : IDisposable
         Assert.NotNull(returnedList);
         
         Assert.Empty(returnedList);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -119,14 +125,17 @@ public class ConfigurationControllerTests : IDisposable
             Value = "en-US"
         };
 
-        this.db.AuthConfigurations.AddRange(config1, config2);
+        this.db.AuthConfigurations.AddRange(config1,
+            config2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(companyId, wide, ct);
+        var result = await this.controller.GetAsync(companyId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -138,8 +147,10 @@ public class ConfigurationControllerTests : IDisposable
         var returnedList = okResult.Value as List<GetConfigurationResponse>;
         Assert.NotNull(returnedList);
 
-        Assert.Equal(2, returnedList.Count);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(2,
+            returnedList.Count);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -168,14 +179,17 @@ public class ConfigurationControllerTests : IDisposable
             Value = "en-US"
         };
 
-        this.db.AuthConfigurations.AddRange(userConfig, otherUserConfig);
+        this.db.AuthConfigurations.AddRange(userConfig,
+            otherUserConfig);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAsync(companyId, wide, ct);
+        var result = await this.controller.GetAsync(companyId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -188,8 +202,10 @@ public class ConfigurationControllerTests : IDisposable
         Assert.NotNull(returnedList);
 
         Assert.Single(returnedList);
-        Assert.Equal(companyId, returnedList[0].CompanyId);
-        Assert.Equal("pt-BR", returnedList[0].Value);
+        Assert.Equal(companyId,
+            returnedList[0].CompanyId);
+        Assert.Equal("pt-BR",
+            returnedList[0].Value);
     }
 
     [Fact]
@@ -200,10 +216,13 @@ public class ConfigurationControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        await this.controller.GetAsync(null, wide, ct);
+        await this.controller.GetAsync(null,
+            wide,
+            ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -221,18 +240,23 @@ public class ConfigurationControllerTests : IDisposable
         );
 
         // Act
-        var result = await this.controller.PatchAsync(request, wide, ct);
+        var result = await this.controller.PatchAsync(request,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
         var configuration = await this.db.AuthConfigurations
-            .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
+            .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language,
+                CancellationToken.None);
 
         Assert.NotNull(configuration);
-        Assert.Equal("pt-BR", configuration.Value);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal("pt-BR",
+            configuration.Value);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -263,18 +287,23 @@ public class ConfigurationControllerTests : IDisposable
         );
 
         // Act
-        var result = await this.controller.PatchAsync(request, wide, ct);
+        var result = await this.controller.PatchAsync(request,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
         var updatedConfig = await this.db.AuthConfigurations
-            .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
+            .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language,
+                CancellationToken.None);
 
         Assert.NotNull(updatedConfig);
-        Assert.Equal("pt-BR", updatedConfig.Value);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal("pt-BR",
+            updatedConfig.Value);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -293,7 +322,9 @@ public class ConfigurationControllerTests : IDisposable
         );
 
         // Act
-        var result = await this.controller.PatchAsync(request, wide, ct);
+        var result = await this.controller.PatchAsync(request,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -301,14 +332,15 @@ public class ConfigurationControllerTests : IDisposable
 
         var configuration = await this.db.AuthConfigurations
             .FirstOrDefaultAsync(c =>
-                c.UserId == this.testUserId &&
-                c.ConfigType == ConfigType.Language &&
-                c.CompanyId == companyId, CancellationToken.None);
+                    c.UserId == this.testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId,
+                CancellationToken.None);
 
         Assert.NotNull(configuration);
 
-        Assert.Equal(companyId, configuration.CompanyId);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(companyId,
+            configuration.CompanyId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -326,10 +358,13 @@ public class ConfigurationControllerTests : IDisposable
         );
 
         // Act
-        await this.controller.PatchAsync(request, wide, ct);
+        await this.controller.PatchAsync(request,
+            wide,
+            ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(this.testUserId.ToString(),
+            wide.UserId);
     }
 
     [Fact]
@@ -339,7 +374,8 @@ public class ConfigurationControllerTests : IDisposable
         var controllerType = typeof(ConfigurationController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -353,11 +389,13 @@ public class ConfigurationControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -368,10 +406,12 @@ public class ConfigurationControllerTests : IDisposable
 
         // Act
         var producesAttribute =
-            controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+            controllerType.GetCustomAttributes(typeof(ProducesAttribute),
+                false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.NotNull(producesAttribute);
-        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
+        Assert.Equal("application/json",
+            producesAttribute.ContentTypes.FirstOrDefault());
     }
 }

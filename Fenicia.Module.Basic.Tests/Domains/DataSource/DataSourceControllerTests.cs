@@ -7,6 +7,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.DataSource;
+using Fenicia.Module.Basic.Domains.DataSource.Handlers;
+using Fenicia.Module.Basic.Domains.DataSource.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -26,7 +28,8 @@ public class DataSourceControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         var getAllPositionForDataSourceHandler = new GetAllPositionForDataSourceHandler(this.db);
         var getAllProductCategoryForDataSourceHandler = new GetAllProductCategoryForDataSourceHandler(this.db);
         var getAllSupplierForDataSourceHandler = new GetAllSupplierForDataSourceHandler(this.db);
@@ -68,10 +71,13 @@ public class DataSourceControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", Guid.NewGuid().ToString())
+            new("userId",
+                Guid.NewGuid()
+                    .ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -86,7 +92,8 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetPositionsAsync(wide, ct);
+        var result = await this.controller.GetPositionsAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -116,14 +123,16 @@ public class DataSourceControllerTests : IDisposable
             Name = this.faker.Commerce.Department()
         };
 
-        this.db.BasicPositions.AddRange(position1, position2);
+        this.db.BasicPositions.AddRange(position1,
+            position2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetPositionsAsync(wide, ct);
+        var result = await this.controller.GetPositionsAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -134,7 +143,8 @@ public class DataSourceControllerTests : IDisposable
 
         var returnedPositions = okResult.Value as List<GetAllPositionForDataSourceResponse>;
         Assert.NotNull(returnedPositions);
-        Assert.Equal(2, returnedPositions.Count);
+        Assert.Equal(2,
+            returnedPositions.Count);
     }
 
     [Fact]
@@ -159,14 +169,17 @@ public class DataSourceControllerTests : IDisposable
             Name = "Manager"
         };
 
-        this.db.BasicPositions.AddRange(position1, position2, position3);
+        this.db.BasicPositions.AddRange(position1,
+            position2,
+            position3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetPositionsAsync(wide, ct);
+        var result = await this.controller.GetPositionsAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -177,10 +190,14 @@ public class DataSourceControllerTests : IDisposable
 
         var returnedPositions = okResult.Value as List<GetAllPositionForDataSourceResponse>;
         Assert.NotNull(returnedPositions);
-        Assert.Equal(3, returnedPositions.Count);
-        Assert.Equal("Alpha", returnedPositions[0].Name);
-        Assert.Equal("Manager", returnedPositions[1].Name);
-        Assert.Equal("Zebra", returnedPositions[2].Name);
+        Assert.Equal(3,
+            returnedPositions.Count);
+        Assert.Equal("Alpha",
+            returnedPositions[0].Name);
+        Assert.Equal("Manager",
+            returnedPositions[1].Name);
+        Assert.Equal("Zebra",
+            returnedPositions[2].Name);
     }
 
     #region Product Categories Tests
@@ -193,7 +210,8 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductCategoriesAsync(wide, ct);
+        var result = await this.controller.GetProductCategoriesAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -223,14 +241,16 @@ public class DataSourceControllerTests : IDisposable
             Name = this.faker.Commerce.Categories(1)[0]
         };
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
+        this.db.BasicProductCategories.AddRange(category1,
+            category2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductCategoriesAsync(wide, ct);
+        var result = await this.controller.GetProductCategoriesAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -241,7 +261,8 @@ public class DataSourceControllerTests : IDisposable
 
         var returnedCategories = okResult.Value as List<GetAllProductCategoryForDataSourceResponse>;
         Assert.NotNull(returnedCategories);
-        Assert.Equal(2, returnedCategories.Count);
+        Assert.Equal(2,
+            returnedCategories.Count);
     }
 
     #endregion
@@ -256,7 +277,8 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetSuppliersAsync(wide, ct);
+        var result = await this.controller.GetSuppliersAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -300,15 +322,18 @@ public class DataSourceControllerTests : IDisposable
             Person = person2
         };
 
-        this.db.BasicPeople.AddRange(person1, person2);
-        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
+        this.db.BasicPeople.AddRange(person1,
+            person2);
+        this.db.BasicSuppliers.AddRange(supplier1,
+            supplier2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetSuppliersAsync(wide, ct);
+        var result = await this.controller.GetSuppliersAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -319,7 +344,8 @@ public class DataSourceControllerTests : IDisposable
 
         var returnedSuppliers = okResult.Value as List<GetAllSupplierForDataSourceResponse>;
         Assert.NotNull(returnedSuppliers);
-        Assert.Equal(2, returnedSuppliers.Count);
+        Assert.Equal(2,
+            returnedSuppliers.Count);
     }
 
     #endregion
@@ -334,7 +360,8 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetCustomersAsync(wide, ct);
+        var result = await this.controller.GetCustomersAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -378,15 +405,18 @@ public class DataSourceControllerTests : IDisposable
             Person = person2
         };
 
-        this.db.BasicPeople.AddRange(person1, person2);
-        this.db.BasicCustomers.AddRange(customer1, customer2);
+        this.db.BasicPeople.AddRange(person1,
+            person2);
+        this.db.BasicCustomers.AddRange(customer1,
+            customer2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetCustomersAsync(wide, ct);
+        var result = await this.controller.GetCustomersAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -397,7 +427,8 @@ public class DataSourceControllerTests : IDisposable
 
         var returnedCustomers = okResult.Value as List<GetAllCustomerForDataSourceResponse>;
         Assert.NotNull(returnedCustomers);
-        Assert.Equal(2, returnedCustomers.Count);
+        Assert.Equal(2,
+            returnedCustomers.Count);
     }
 
     #endregion
@@ -412,7 +443,8 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductsAsync(wide, ct);
+        var result = await this.controller.GetProductsAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -453,14 +485,16 @@ public class DataSourceControllerTests : IDisposable
         };
 
         this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.AddRange(product1, product2);
+        this.db.BasicProducts.AddRange(product1,
+            product2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductsAsync(wide, ct);
+        var result = await this.controller.GetProductsAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -471,7 +505,8 @@ public class DataSourceControllerTests : IDisposable
 
         var returnedProducts = okResult.Value as List<GetAllProductForDataSourceResponse>;
         Assert.NotNull(returnedProducts);
-        Assert.Equal(2, returnedProducts.Count);
+        Assert.Equal(2,
+            returnedProducts.Count);
     }
 
     #endregion
@@ -486,7 +521,8 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetEmployeesAsync(wide, ct);
+        var result = await this.controller.GetEmployeesAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -539,15 +575,18 @@ public class DataSourceControllerTests : IDisposable
         };
 
         this.db.BasicPositions.Add(position);
-        this.db.BasicPeople.AddRange(person1, person2);
-        this.db.BasicEmployees.AddRange(employee1, employee2);
+        this.db.BasicPeople.AddRange(person1,
+            person2);
+        this.db.BasicEmployees.AddRange(employee1,
+            employee2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetEmployeesAsync(wide, ct);
+        var result = await this.controller.GetEmployeesAsync(wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -558,7 +597,8 @@ public class DataSourceControllerTests : IDisposable
 
         var returnedEmployees = okResult.Value as List<GetAllEmployeeForDataSourceResponse>;
         Assert.NotNull(returnedEmployees);
-        Assert.Equal(2, returnedEmployees.Count);
+        Assert.Equal(2,
+            returnedEmployees.Count);
     }
 
     #endregion
@@ -570,7 +610,8 @@ public class DataSourceControllerTests : IDisposable
         var controllerType = typeof(DataSourceController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -584,11 +625,13 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -599,7 +642,8 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);

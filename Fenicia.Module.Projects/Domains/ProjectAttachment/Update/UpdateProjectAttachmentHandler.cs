@@ -8,7 +8,8 @@ public class UpdateProjectAttachmentHandler(DefaultContext context)
 {
     public async Task<UpdateProjectAttachmentResponse?> Handle(UpdateProjectAttachmentCommand command, CancellationToken ct)
     {
-        var projectAttachment = await context.ProjectAttachments.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
+        var projectAttachment = await context.ProjectAttachments.FirstOrDefaultAsync(p => p.Id == command.Id,
+            ct);
 
         if (projectAttachment is null)
         {

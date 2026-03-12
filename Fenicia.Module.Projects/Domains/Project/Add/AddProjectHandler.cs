@@ -12,7 +12,8 @@ public class AddProjectHandler(DefaultContext context)
             Id = command.Id,
             Title = command.Title,
             Description = command.Description,
-            Status = Enum.Parse<Common.Enums.Project.EnumProjectStatus>(command.Status, true),
+            Status = Enum.Parse<Common.Enums.Project.EnumProjectStatus>(command.Status,
+                true),
             StartDate = command.StartDate,
             EndDate = command.EndDate,
             Owner = command.Owner

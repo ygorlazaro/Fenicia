@@ -1,7 +1,8 @@
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
-using Fenicia.Module.Basic.Domains.Position.Delete;
+using Fenicia.Module.Basic.Domains.Position.Commands;
+using Fenicia.Module.Basic.Domains.Position.Handlers;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,8 @@ public class DeletePositionHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new DeletePositionHandler(this.db);
     }
 
@@ -50,13 +52,19 @@ public class DeletePositionHandlerTests : IDisposable
         var beforeDelete = DateTime.Now;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedPosition = await this.db.BasicPositions.FindAsync([positionId], CancellationToken.None);
+        var deletedPosition = await this.db.BasicPositions.FindAsync([
+                positionId
+            ],
+            CancellationToken.None);
         Assert.NotNull(deletedPosition);
         Assert.NotNull(deletedPosition.Deleted);
-        Assert.InRange(deletedPosition.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.Now.AddSeconds(1));
+        Assert.InRange(deletedPosition.Deleted.Value,
+            beforeDelete.AddSeconds(-1),
+            DateTime.Now.AddSeconds(1));
     }
 
     [Fact]
@@ -66,7 +74,8 @@ public class DeletePositionHandlerTests : IDisposable
         var command = new DeletePositionCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var positions = await this.db.BasicPositions.ToListAsync();
@@ -83,17 +92,25 @@ public class DeletePositionHandlerTests : IDisposable
         var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
         var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
 
-        this.db.BasicPositions.AddRange(position1, position2);
+        this.db.BasicPositions.AddRange(position1,
+            position2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeletePositionCommand(position1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedPosition = await this.db.BasicPositions.FindAsync([position1Id], CancellationToken.None);
-        var notDeletedPosition = await this.db.BasicPositions.FindAsync([position2Id], CancellationToken.None);
+        var deletedPosition = await this.db.BasicPositions.FindAsync([
+                position1Id
+            ],
+            CancellationToken.None);
+        var notDeletedPosition = await this.db.BasicPositions.FindAsync([
+                position2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(deletedPosition);
         Assert.NotNull(deletedPosition.Deleted);
@@ -108,7 +125,8 @@ public class DeletePositionHandlerTests : IDisposable
         var command = new DeletePositionCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var positions = await this.db.BasicPositions.ToListAsync();

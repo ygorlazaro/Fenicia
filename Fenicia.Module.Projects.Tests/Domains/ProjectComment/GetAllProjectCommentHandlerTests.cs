@@ -18,7 +18,8 @@ public class GetAllProjectCommentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetAllProjectCommentHandler(this.db);
         this.faker = new Faker();
     }
@@ -41,7 +42,8 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         var query = new GetAllProjectCommentQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -70,19 +72,24 @@ public class GetAllProjectCommentHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.db.ProjectComments.AddRange(comment1, comment2);
+        this.db.ProjectComments.AddRange(comment1,
+            comment2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectCommentQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
-        Assert.Equal(comment1.Id, result[0].Id);
-        Assert.Equal(comment2.Id, result[1].Id);
+        Assert.Equal(2,
+            result.Count);
+        Assert.Equal(comment1.Id,
+            result[0].Id);
+        Assert.Equal(comment2.Id,
+            result[1].Id);
     }
 
     [Fact]
@@ -108,11 +115,13 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         var query = new GetAllProjectCommentQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Count);
+        Assert.Equal(10,
+            result.Count);
     }
 
     [Fact]
@@ -138,7 +147,8 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         var query = new GetAllProjectCommentQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -168,10 +178,12 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         var query = new GetAllProjectCommentQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10, result.Count);
+        Assert.Equal(10,
+            result.Count);
     }
 }

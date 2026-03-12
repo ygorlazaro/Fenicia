@@ -18,7 +18,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new DeleteProjectCommentHandler(this.db);
         this.faker = new Faker();
     }
@@ -56,13 +57,19 @@ public class DeleteProjectCommentHandlerTests : IDisposable
         var beforeDelete = DateTime.UtcNow;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedComment = await this.db.ProjectComments.FindAsync([commentId], CancellationToken.None);
+        var deletedComment = await this.db.ProjectComments.FindAsync([
+                commentId
+            ],
+            CancellationToken.None);
         Assert.NotNull(deletedComment);
         Assert.NotNull(deletedComment.Deleted);
-        Assert.InRange(deletedComment.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
+        Assert.InRange(deletedComment.Deleted.Value,
+            beforeDelete.AddSeconds(-1),
+            DateTime.UtcNow.AddSeconds(1));
     }
 
     [Fact]
@@ -72,7 +79,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
         var command = new DeleteProjectCommentCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var comments = await this.db.ProjectComments.ToListAsync();
@@ -86,7 +94,8 @@ public class DeleteProjectCommentHandlerTests : IDisposable
         var command = new DeleteProjectCommentCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
         var comments = await this.db.ProjectComments.ToListAsync();
@@ -118,17 +127,25 @@ public class DeleteProjectCommentHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.db.ProjectComments.AddRange(comment1, comment2);
+        this.db.ProjectComments.AddRange(comment1,
+            comment2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectCommentCommand(comment1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var deletedComment = await this.db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
-        var notDeletedComment = await this.db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
+        var deletedComment = await this.db.ProjectComments.FindAsync([
+                comment1Id
+            ],
+            CancellationToken.None);
+        var notDeletedComment = await this.db.ProjectComments.FindAsync([
+                comment2Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(deletedComment);
         Assert.NotNull(deletedComment.Deleted);
@@ -170,18 +187,30 @@ public class DeleteProjectCommentHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.db.ProjectComments.AddRange(comment1, comment2, comment3);
+        this.db.ProjectComments.AddRange(comment1,
+            comment2,
+            comment3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectCommentCommand(comment2Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await this.handler.Handle(command,
+            CancellationToken.None);
 
         // Assert
-        var comment1InDb = await this.db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
-        var deletedComment = await this.db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
-        var comment3InDb = await this.db.ProjectComments.FindAsync([comment3Id], CancellationToken.None);
+        var comment1InDb = await this.db.ProjectComments.FindAsync([
+                comment1Id
+            ],
+            CancellationToken.None);
+        var deletedComment = await this.db.ProjectComments.FindAsync([
+                comment2Id
+            ],
+            CancellationToken.None);
+        var comment3InDb = await this.db.ProjectComments.FindAsync([
+                comment3Id
+            ],
+            CancellationToken.None);
 
         Assert.NotNull(comment1InDb);
         Assert.NotNull(deletedComment);

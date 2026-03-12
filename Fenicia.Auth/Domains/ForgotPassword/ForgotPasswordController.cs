@@ -29,7 +29,8 @@ public class ForgotPasswordController(
     {
         wide.UserId = reset.Email;
 
-        await addForgotPasswordHandler.Handle(reset, ct);
+        await addForgotPasswordHandler.Handle(reset,
+            ct);
     }
 
     [HttpPost("reset")]
@@ -42,7 +43,8 @@ public class ForgotPasswordController(
     {
         wide.UserId = request.Email;
 
-        await resetPasswordHandler.Handle(request, ct);
+        await resetPasswordHandler.Handle(request,
+            ct);
 
         return Ok();
     }

@@ -2,12 +2,13 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Order.CreateOrder;
-using Fenicia.Module.Basic.Domains.Order.Delete;
-using Fenicia.Module.Basic.Domains.Order.GetAll;
-using Fenicia.Module.Basic.Domains.Order.GetById;
-using Fenicia.Module.Basic.Domains.Order.GetOrderAnalytics;
-using Fenicia.Module.Basic.Domains.OrderDetail.GetByOrderId;
+using Fenicia.Module.Basic.Domains.Order.Commands;
+using Fenicia.Module.Basic.Domains.Order.Handlers;
+using Fenicia.Module.Basic.Domains.Order.Queries;
+using Fenicia.Module.Basic.Domains.Order.Responses;
+using Fenicia.Module.Basic.Domains.OrderDetail.Handlers;
+using Fenicia.Module.Basic.Domains.OrderDetail.Queries;
+using Fenicia.Module.Basic.Domains.OrderDetail.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +39,9 @@ public class OrderController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var orders = await getAllOrderHandler.Handle(new GetAllOrderQuery(page, perPage), ct);
+        var orders = await getAllOrderHandler.Handle(new GetAllOrderQuery(page,
+                perPage),
+            ct);
 
         return Ok(orders);
     }
@@ -54,7 +57,8 @@ public class OrderController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var order = await getOrderByIdHandler.Handle(new GetOrderByIdQuery(id), ct);
+        var order = await getOrderByIdHandler.Handle(new GetOrderByIdQuery(id),
+            ct);
 
         return order is null ? NotFound() : Ok(order);
     }
@@ -72,9 +76,14 @@ public class OrderController(
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
         var userId = ClaimReader.UserId(this.User);
-        var order = await createOrderHandler.Handle(command with { UserId = userId }, ct);
+        var order = await createOrderHandler.Handle(command with
+            {
+                UserId = userId
+            },
+            ct);
 
-        return new CreatedResult(string.Empty, order);
+        return new CreatedResult(string.Empty,
+            order);
     }
 
     [HttpDelete("{id:guid}")]
@@ -89,7 +98,8 @@ public class OrderController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        await deleteOrderHandler.Handle(new DeleteOrderCommand(id), ct);
+        await deleteOrderHandler.Handle(new DeleteOrderCommand(id),
+            ct);
 
         return NoContent();
     }
@@ -104,7 +114,8 @@ public class OrderController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);
+        var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id),
+            ct);
 
         return Ok(details);
     }
@@ -120,7 +131,9 @@ public class OrderController(
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
         
-        var analytics = await getOrderAnalyticsHandler.Handle(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
+        var analytics = await getOrderAnalyticsHandler.Handle(new GetOrderAnalyticsQuery(days,
+                topCustomersLimit),
+            ct);
 
         return Ok(analytics);
     }

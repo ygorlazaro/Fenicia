@@ -15,7 +15,8 @@ public class GetAdminRoleHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.db = new DefaultContext(options,
+            new TestCompanyContext());
         this.handler = new GetAdminRoleHandler(this.db);
     }
 
@@ -48,8 +49,10 @@ public class GetAdminRoleHandlerTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(adminRoleId, result.Id);
-        Assert.Equal("Admin", result.Name);
+        Assert.Equal(adminRoleId,
+            result.Id);
+        Assert.Equal("Admin",
+            result.Name);
     }
 
     [Fact]
@@ -96,7 +99,9 @@ public class GetAdminRoleHandlerTests : IDisposable
             Name = "Manager"
         };
 
-        this.db.AuthRoles.AddRange(adminRole, userRole, managerRole);
+        this.db.AuthRoles.AddRange(adminRole,
+            userRole,
+            managerRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -104,8 +109,10 @@ public class GetAdminRoleHandlerTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(adminRoleId, result.Id);
-        Assert.Equal("Admin", result.Name);
+        Assert.Equal(adminRoleId,
+            result.Id);
+        Assert.Equal("Admin",
+            result.Name);
     }
 
     [Fact]
@@ -177,7 +184,8 @@ public class GetAdminRoleHandlerTests : IDisposable
             Name = "Admin"
         };
 
-        this.db.AuthRoles.AddRange(adminRole1, adminRole2);
+        this.db.AuthRoles.AddRange(adminRole1,
+            adminRole2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act
@@ -185,6 +193,7 @@ public class GetAdminRoleHandlerTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Admin", result.Name);
+        Assert.Equal("Admin",
+            result.Name);
     }
 }

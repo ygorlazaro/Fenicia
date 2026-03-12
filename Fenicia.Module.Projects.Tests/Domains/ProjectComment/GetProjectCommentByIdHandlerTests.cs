@@ -18,7 +18,8 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.handler = new GetProjectCommentByIdHandler(this.db);
         this.faker = new Faker();
     }
@@ -55,12 +56,15 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var query = new GetProjectCommentByIdQuery(commentId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(commentId, result.Id);
-        Assert.Equal(comment.Content, result.Content);
+        Assert.Equal(commentId,
+            result.Id);
+        Assert.Equal(comment.Content,
+            result.Content);
     }
 
     [Fact]
@@ -70,7 +74,8 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var query = new GetProjectCommentByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -83,7 +88,8 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var query = new GetProjectCommentByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -114,18 +120,22 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
             Content = this.faker.Lorem.Paragraph()
         };
 
-        this.db.ProjectComments.AddRange(comment1, comment2);
+        this.db.ProjectComments.AddRange(comment1,
+            comment2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectCommentByIdQuery(comment1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(comment1Id, result.Id);
-        Assert.Equal(comment1.Content, result.Content);
+        Assert.Equal(comment1Id,
+            result.Id);
+        Assert.Equal(comment1.Content,
+            result.Content);
     }
 
     [Fact]
@@ -150,11 +160,14 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var query = new GetProjectCommentByIdQuery(commentId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await this.handler.Handle(query,
+            CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(commentId, result.Id);
-        Assert.Equal(longContent, result.Content);
+        Assert.Equal(commentId,
+            result.Id);
+        Assert.Equal(longContent,
+            result.Content);
     }
 }

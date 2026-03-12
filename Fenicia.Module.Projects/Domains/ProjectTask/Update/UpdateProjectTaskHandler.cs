@@ -9,7 +9,8 @@ public class UpdateProjectTaskHandler(DefaultContext context)
 {
     public async Task<UpdateProjectTaskResponse?> Handle(UpdateProjectTaskCommand command, CancellationToken ct)
     {
-        var projectTask = await context.ProjectTasks.FirstOrDefaultAsync(pt => pt.Id == command.Id, ct);
+        var projectTask = await context.ProjectTasks.FirstOrDefaultAsync(pt => pt.Id == command.Id,
+            ct);
 
         if (projectTask is null)
         {
@@ -20,8 +21,10 @@ public class UpdateProjectTaskHandler(DefaultContext context)
         projectTask.StatusId = command.StatusId;
         projectTask.Title = command.Title;
         projectTask.Description = command.Description;
-        projectTask.Priority = Enum.Parse<EnumTaskPriority>(command.Priority, true);
-        projectTask.Type = Enum.Parse<EnumTaskType>(command.Type, true);
+        projectTask.Priority = Enum.Parse<EnumTaskPriority>(command.Priority,
+            true);
+        projectTask.Type = Enum.Parse<EnumTaskType>(command.Type,
+            true);
         projectTask.Order = command.Order;
         projectTask.EstimatePoints = command.EstimatePoints;
         projectTask.DueDate = command.DueDate;

@@ -9,7 +9,9 @@ public abstract class Program
 {
     public static void Main(string[] args)
     {
-        var tenantId = FeniciaModuleLoader.Load(args, out var configuration, out var builder);
+        var tenantId = FeniciaModuleLoader.Load(args,
+            out var configuration,
+            out var builder);
 
         builder.AddFeniciaLogging()
             .AddFeniciaRateLimiting(configuration)
@@ -21,8 +23,12 @@ public abstract class Program
                 builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
                 builder.Services.AddHttpContextAccessor();
             })
-            .AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth", tenantId);
+            .AddFeniciaDbContext<DefaultContext>(configuration,
+                "Fenicia.Auth",
+                "Auth",
+                tenantId);
 
-        builder.Start("/projects", "projects");
+        builder.Start("/projects",
+            "projects");
     }
 }

@@ -8,7 +8,8 @@ public class UpdateProjectCommentHandler(DefaultContext context)
 {
     public async Task<UpdateProjectCommentResponse?> Handle(UpdateProjectCommentCommand command, CancellationToken ct)
     {
-        var projectComment = await context.ProjectComments.FirstOrDefaultAsync(pc => pc.Id == command.Id, ct);
+        var projectComment = await context.ProjectComments.FirstOrDefaultAsync(pc => pc.Id == command.Id,
+            ct);
 
         if (projectComment is null)
         {

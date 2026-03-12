@@ -8,12 +8,9 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee;
-using Fenicia.Module.Basic.Domains.Employee.Add;
-using Fenicia.Module.Basic.Domains.Employee.Delete;
-using Fenicia.Module.Basic.Domains.Employee.GetAll;
-using Fenicia.Module.Basic.Domains.Employee.GetById;
-using Fenicia.Module.Basic.Domains.Employee.GetEmployeePerformance;
-using Fenicia.Module.Basic.Domains.Employee.Update;
+using Fenicia.Module.Basic.Domains.Employee.Commands;
+using Fenicia.Module.Basic.Domains.Employee.Handlers;
+using Fenicia.Module.Basic.Domains.Employee.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,7 +30,8 @@ public class EmployeeControllerTests : IDisposable
             .Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
+        this.db = new DefaultContext(options,
+            companyContext);
         this.testEmployeeId = Guid.NewGuid();
         var getAllEmployeeHandler = new GetAllEmployeeHandler(this.db);
         var getEmployeeByIdHandler = new GetEmployeeByIdHandler(this.db);
@@ -72,10 +70,13 @@ public class EmployeeControllerTests : IDisposable
     {
         var claims = new List<Claim>
         {
-            new("userId", Guid.NewGuid().ToString())
+            new("userId",
+                Guid.NewGuid()
+                    .ToString())
         };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "Test");
+        var claimsIdentity = new ClaimsIdentity(claims,
+            "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -92,7 +93,10 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await this.controller.GetAsync(wide,
+            page,
+            perPage,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -104,7 +108,8 @@ public class EmployeeControllerTests : IDisposable
         var returnedEmployees = okResult.Value as Pagination<List<GetAllEmployeeResponse>>;
         Assert.NotNull(returnedEmployees);
         Assert.Empty(returnedEmployees.Data);
-        Assert.Equal(0, returnedEmployees.Total);
+        Assert.Equal(0,
+            returnedEmployees.Total);
     }
 
     [Fact]
@@ -148,7 +153,8 @@ public class EmployeeControllerTests : IDisposable
         };
 
         this.db.BasicPositions.Add(position);
-        this.db.BasicEmployees.AddRange(employee1, employee2);
+        this.db.BasicEmployees.AddRange(employee1,
+            employee2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
@@ -157,7 +163,10 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await this.controller.GetAsync(wide,
+            page,
+            perPage,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -168,8 +177,10 @@ public class EmployeeControllerTests : IDisposable
 
         var returnedEmployees = okResult.Value as Pagination<List<GetAllEmployeeResponse>>;
         Assert.NotNull(returnedEmployees);
-        Assert.Equal(2, returnedEmployees.Data.Count);
-        Assert.Equal(2, returnedEmployees.Total);
+        Assert.Equal(2,
+            returnedEmployees.Data.Count);
+        Assert.Equal(2,
+            returnedEmployees.Total);
     }
 
     [Fact]
@@ -205,7 +216,9 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testEmployeeId, wide, ct);
+        var result = await this.controller.GetByIdAsync(this.testEmployeeId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -216,8 +229,10 @@ public class EmployeeControllerTests : IDisposable
 
         var returnedEmployee = okResult.Value as GetEmployeeByIdResponse;
         Assert.NotNull(returnedEmployee);
-        Assert.Equal(this.testEmployeeId, returnedEmployee.Id);
-        Assert.Equal(employee.Person.Id, returnedEmployee.PersonId);
+        Assert.Equal(this.testEmployeeId,
+            returnedEmployee.Id);
+        Assert.Equal(employee.Person.Id,
+            returnedEmployee.PersonId);
     }
 
     [Fact]
@@ -229,7 +244,9 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
+        var result = await this.controller.GetByIdAsync(nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -268,7 +285,9 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await this.controller.PostAsync(command,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -276,7 +295,8 @@ public class EmployeeControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201, createdResult.StatusCode);
+        Assert.Equal(201,
+            createdResult.StatusCode);
 
         var returnedEmployee = createdResult.Value as AddEmployeeResponse;
         Assert.NotNull(returnedEmployee);
@@ -330,7 +350,10 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, this.testEmployeeId, wide, ct);
+        var result = await this.controller.PatchAsync(command,
+            this.testEmployeeId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -376,7 +399,10 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
+        var result = await this.controller.PatchAsync(command,
+            nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -408,13 +434,17 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testEmployeeId, wide, ct);
+        var result = await this.controller.DeleteAsync(this.testEmployeeId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify employee was deleted
-        var deletedEmployee = await this.db.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId && x.Deleted == null, ct);
+        var deletedEmployee = await this.db.BasicEmployees.FirstOrDefaultAsync(
+            x => x.Id == this.testEmployeeId && x.Deleted == null,
+            ct);
         Assert.Null(deletedEmployee);
     }
 
@@ -427,7 +457,9 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
+        var result = await this.controller.DeleteAsync(nonExistentId,
+            wide,
+            ct);
 
         // Assert
         Assert.NotNull(result);
@@ -440,7 +472,8 @@ public class EmployeeControllerTests : IDisposable
         var controllerType = typeof(EmployeeController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
+            false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -454,11 +487,13 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+            controllerType.GetCustomAttributes(typeof(RouteAttribute),
+                false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        Assert.Equal("[controller]",
+            routeAttribute.Template);
     }
 
     [Fact]
@@ -469,7 +504,8 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
+            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
+                false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
