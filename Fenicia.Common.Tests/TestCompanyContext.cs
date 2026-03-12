@@ -1,6 +1,6 @@
 namespace Fenicia.Common.Data;
 
-public class TestCompanyContext : ICompanyContext
+public record TestCompanyContext : ICompanyContext
 {
     public Guid CompanyId { get; set; } = Guid.NewGuid();
 }
