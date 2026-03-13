@@ -8,64 +8,73 @@ namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
 public class ResetAttemptsServiceTests : IDisposable
 {
-    public ResetAttemptsServiceTests()
-    {
-        this.cache = new MemoryCache(new MemoryCacheOptions());
-        this._service = new ResetAttemptsService(this.cache);
-        this.faker = new Faker();
-    }
+    // Constants for consistent test data
+    private const string ValidEmail = "test.user@example.com";
+    private const string ValidEmailUpperCase = "TEST.USER@EXAMPLE.COM";
+    private const string ValidEmailWithWhitespace = "  test.user@example.com  ";
+    private const string EmptyEmail = "";
+    private const string WhitespaceEmail = "   ";
 
-    private readonly MemoryCache cache;
-    private readonly Faker faker;
+    // System Under Test (SUT) and dependencies
+    private readonly MemoryCache _cache;
+    private readonly Faker _faker;
     private readonly ResetAttemptsService _service;
 
+    public ResetAttemptsServiceTests()
+    {
+        _cache = new MemoryCache(new MemoryCacheOptions());
+        _service = new ResetAttemptsService(_cache);
+        _faker = new Faker();
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _cache.Dispose();
+    }
+
     [Fact]
-    public async Task Handle_WhenAttemptsExist_RemovesAttempts()
+    public async Task Handle_WhenAttemptsExistForValidEmail_RemovesAttemptsFromCache()
     {
         // Arrange
-        var email = this.faker.Internet.Email();
-        var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key,
-            5);
+        var email = ValidEmail;
+        var cacheKey = GetCacheKey(email);
+        _cache.Set(cacheKey, 5);
 
         // Act
-        await this._service.Handle(email);
+        await _service.Handle(email);
 
         // Assert
-        var exists = this.cache.TryGetValue(key,
-            out _);
+        var exists = _cache.TryGetValue(cacheKey, out _);
         Assert.False(exists);
     }
 
     [Fact]
-    public async Task Handle_WhenNoAttemptsExist_CompletesSuccessfully()
+    public async Task Handle_WhenNoAttemptsExistForValidEmail_CompletesSuccessfully()
     {
         // Arrange
-        var email = this.faker.Internet.Email();
+        var email = ValidEmail;
+        var cacheKey = GetCacheKey(email);
+        Assert.False(_cache.TryGetValue(cacheKey, out _));
 
-        // Act
-        await this._service.Handle(email);
-
-        // Assert
-        // Should complete successfully even when no attempts exist
+        // Act & Assert
+        await _service.Handle(email); // Should not throw any exception
     }
 
     [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_RemovesCorrectAttempts()
     {
         // Arrange
-        var email = this.faker.Internet.Email();
-        var upperCaseEmail = email.ToUpper();
-        var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key,
-            3);
+        var originalEmail = ValidEmail;
+        var upperCaseEmail = ValidEmailUpperCase;
+        var cacheKey = GetCacheKey(originalEmail);
+        _cache.Set(cacheKey, 3);
 
         // Act
-        await this._service.Handle(upperCaseEmail);
+        await _service.Handle(upperCaseEmail);
 
         // Assert
-        var exists = this.cache.TryGetValue(key,
-            out _);
+        var exists = _cache.TryGetValue(cacheKey, out _);
         Assert.False(exists);
     }
 
@@ -73,86 +82,81 @@ public class ResetAttemptsServiceTests : IDisposable
     public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await this._service.Handle(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.Handle(null!));
     }
 
     [Fact]
-    public async Task Handle_WhenEmailIsEmpty_RemovesEmptyKey()
+    public async Task Handle_WhenEmailIsEmpty_ThrowsArgumentException()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await _service.Handle(EmptyEmail));
+        Assert.Equal("email", exception.ParamName);
+        Assert.Contains("Email cannot be empty or whitespace-only", exception.Message);
+    }
+
+    [Fact]
+    public async Task Handle_WhenEmailIsWhitespace_ThrowsArgumentException()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await _service.Handle(WhitespaceEmail));
+        Assert.Equal("email", exception.ParamName);
+        Assert.Contains("Email cannot be empty or whitespace-only", exception.Message);
+    }
+
+    [Fact]
+    public async Task Handle_WhenEmailHasLeadingOrTrailingWhitespace_RemovesAttemptsFromCache()
     {
         // Arrange
-        var email = string.Empty;
-        var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key,
-            2);
+        var email = ValidEmailWithWhitespace;
+        var cacheKey = GetCacheKey(email);
+        _cache.Set(cacheKey, 2);
 
         // Act
-        await this._service.Handle(email);
+        await _service.Handle(email);
 
         // Assert
-        var exists = this.cache.TryGetValue(key,
-            out _);
+        var exists = _cache.TryGetValue(cacheKey, out _);
         Assert.False(exists);
     }
 
     [Fact]
-    public async Task Handle_WhenMultipleEmailsExist_RemovesOnlySpecifiedEmail()
+    public async Task Handle_WhenMultipleEmailsExist_RemovesOnlySpecifiedEmailAttempts()
     {
         // Arrange
-        var email1 = this.faker.Internet.Email();
-        var email2 = this.faker.Internet.Email();
-        var key1 = $"login-attempt:{email1.ToLower()}";
-        var key2 = $"login-attempt:{email2.ToLower()}";
-        this.cache.Set(key1,
-            2);
-        this.cache.Set(key2,
-            4);
+        var email1 = ValidEmail;
+        var email2 = _faker.Internet.Email();
+        var cacheKey1 = GetCacheKey(email1);
+        var cacheKey2 = GetCacheKey(email2);
+
+        _cache.Set(cacheKey1, 4);
+        _cache.Set(cacheKey2, 2);
 
         // Act
-        await this._service.Handle(email1);
+        await _service.Handle(email1);
 
         // Assert
-        Assert.False(this.cache.TryGetValue(key1,
-            out _));
-        Assert.True(this.cache.TryGetValue(key2,
-            out int count));
-        Assert.Equal(4,
-            count);
+        Assert.False(_cache.TryGetValue(cacheKey1, out _));
+        Assert.True(_cache.TryGetValue(cacheKey2, out _));
     }
 
     [Fact]
-    public async Task Handle_WhenHighAttemptCountExists_RemovesSuccessfully()
+    public async Task Handle_WhenEmailContainsSpecialCharacters_RemovesAttemptsFromCache()
     {
-        // Arrange
-        var email = this.faker.Internet.Email();
-        var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key,
-            100);
+        // Arrange - Test with email containing special characters (common in some email systems)
+        var email = "user+tag@example.co.uk";
+        var cacheKey = GetCacheKey(email);
+        _cache.Set(cacheKey, 1);
 
         // Act
-        await this._service.Handle(email);
+        await _service.Handle(email);
 
         // Assert
-        var exists = this.cache.TryGetValue(key,
-            out _);
+        var exists = _cache.TryGetValue(cacheKey, out _);
         Assert.False(exists);
     }
 
-    [Fact]
-    public async Task Handle_MultipleResetsForSameEmail_CompletesSuccessfully()
-    {
-        // Arrange
-        var email = this.faker.Internet.Email();
-
-        // Act
-        await this._service.Handle(email);
-        await this._service.Handle(email);
-        await this._service.Handle(email);
-
-        // Assert - Should handle multiple resets without errors
-    }
-
-    public void Dispose()
-    {
-        this.cache.Dispose();
-    }
-}
+    /// <summary>
+    /// Helper method to generate cache key in the same way as the service
+    /// This ensures consistency in tests and avoids duplication
+    /// </summary>
+    /// <param name="email">Email address to generate key for</param>

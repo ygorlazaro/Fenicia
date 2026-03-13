@@ -17,8 +17,7 @@ public class CheckUserExistsHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new CheckUserExistsHandler(this.db);
         this.faker = new Faker();
     }

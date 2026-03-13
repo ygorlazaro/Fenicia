@@ -10,8 +10,7 @@ public class UpsertConfigurationHandler(DefaultContext db)
 {
     public async Task Handle(UpsertConfigurationCommand command, CancellationToken ct)
     {
-        var configuration = await GetCurrentConfigurationAsync(command,
-            ct);
+        var configuration = await GetCurrentConfigurationAsync(command, ct);
 
         if (configuration is null)
         {
@@ -19,8 +18,7 @@ public class UpsertConfigurationHandler(DefaultContext db)
         }
         else
         {
-            UpdateConfiguration(command,
-                configuration);
+            UpdateConfiguration(command, configuration);
         }
 
         await db.SaveChangesAsync(ct);
@@ -48,8 +46,7 @@ public class UpsertConfigurationHandler(DefaultContext db)
 
     private async Task<ConfigurationModel?> GetCurrentConfigurationAsync(UpsertConfigurationCommand command, CancellationToken ct)
     {
-        return await db.AuthConfigurations
-            .FirstOrDefaultAsync(c => 
+        return await db.AuthConfigurations.FirstOrDefaultAsync(c =>
                     c.UserId == command.UserId && 
                     c.ConfigType == command.ConfigType &&
                     c.CompanyId == command.CompanyId, 

@@ -10,18 +10,15 @@ public class GetUserProfileHandler(DefaultContext db)
 {
     public async Task<GetUserProfileResponse?> Handle(GetUserProfileQuery query, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Id == query.UserId,
-            ct);
+        var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Id == query.UserId, ct);
 
         if (user is null)
         {
             return null;
         }
 
-        var userCompanies = await GetUserCompaniesAsync(query.UserId,
-            ct);
-        var subscriptions = await GetUserSubscriptionsAsync(query,
-            ct);
+        var userCompanies = await GetUserCompaniesAsync(query.UserId, ct);
+        var subscriptions = await GetUserSubscriptionsAsync(query, ct);
 
         return new GetUserProfileResponse(
             user.Id,
@@ -54,9 +51,7 @@ public class GetUserProfileHandler(DefaultContext db)
         var request = from ur in db.AuthUserRoles
                       join c in db.AuthCompanies on ur.CompanyId equals c.Id
                       where ur.UserId == userId
-                      select new UserCompanyResponse(c.Id,
-                          c.Name,
-                          c.Cnpj);
+                      select new UserCompanyResponse(c.Id, c.Name, c.Cnpj);
 
         var companies = await request.ToListAsync(ct);
 

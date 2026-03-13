@@ -10,15 +10,9 @@ public class GetConfigurationHandler(DefaultContext db)
 {
     public async Task<List<GetConfigurationResponse>> Handle(GetConfigurationQuery query, CancellationToken ct)
     {
-        var request = from c in db.AuthConfigurations
-                      where c.UserId == query.UserId
-                            && (query.CompanyId == null || c.CompanyId == query.CompanyId)
-                      orderby c.ConfigType
-                      select new GetConfigurationResponse(c.Id,
-                          c.UserId,
-                          c.CompanyId,
-                          c.ConfigType,
-                          c.Value);
+        var request = db.AuthConfigurations.Where(c => c.UserId == query.UserId && query.CompanyId == c.CompanyId)
+            .OrderBy(c => c.ConfigType)
+            .Select(c => new GetConfigurationResponse(c.Id, c.UserId, c.CompanyId, c.ConfigType, c.Value));
 
         return await request.ToListAsync(ct);
     }

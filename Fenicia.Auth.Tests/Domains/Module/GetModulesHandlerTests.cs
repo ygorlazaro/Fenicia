@@ -23,8 +23,7 @@ public class GetModulesHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetModulesHandler(this.db);
         this.faker = new Faker();
     }

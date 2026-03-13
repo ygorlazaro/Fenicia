@@ -41,8 +41,7 @@ public class TokenController(
         {
             wide.UserId = request.Email;
 
-            var userResponse = await generateTokenHandler.Handle(request,
-                ct);
+            var userResponse = await generateTokenHandler.Handle(request, ct);
 
             return PopulateToken(userResponse);
         }
@@ -77,24 +76,18 @@ public class TokenController(
 
         await invalidateRefreshTokenHandler.Handler(request.RefreshToken);
 
-        var userResponse = await getUserForRefreshHandler.Handle(request.UserId,
-            ct);
+        var userResponse = await getUserForRefreshHandler.Handle(request.UserId, ct);
 
-        return PopulateToken(new GenerateTokenResponse(userResponse.Id,
-            userResponse.Name,
-            userResponse.Email));
+        return PopulateToken(new GenerateTokenResponse(userResponse.Id, userResponse.Name, userResponse.Email));
     }
 
     private ActionResult<TokenResponse> PopulateToken(GenerateTokenResponse user)
     {
         var token = generateTokenStringHandler.Handle(user);
         var refreshToken = generateRefreshTokenHandler.Handle(user.Id);
-        var userResponse = new UserResponse(user.Id,
-            user.Name,
-            user.Email);
-        
-        return Ok(new TokenResponse(token,
-            refreshToken,
-            userResponse));
+        var userResponse = new UserResponse(user.Id, user.Name, user.Email);
+        var response = new TokenResponse(token, refreshToken, userResponse);
+
+        return Created(string.Empty, response);
     }
 }

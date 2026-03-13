@@ -21,8 +21,7 @@ public class GetConfigurationHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetConfigurationHandler(this.db);
         this.testUserId = Guid.NewGuid();
     }
@@ -30,7 +29,7 @@ public class GetConfigurationHandlerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
 
@@ -38,12 +37,10 @@ public class GetConfigurationHandlerTests : IDisposable
     public async Task Handle_WhenUserHasNoConfigurations_ReturnsEmptyList()
     {
         // Arrange
-        var query = new GetConfigurationQuery(this.testUserId,
-            Guid.NewGuid());
+        var query = new GetConfigurationQuery(this.testUserId, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -73,26 +70,20 @@ public class GetConfigurationHandlerTests : IDisposable
             Value = "en-US"
         };
 
-        this.db.AuthConfigurations.AddRange(config1,
-            config2);
+        this.db.AuthConfigurations.AddRange(config1, config2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetConfigurationQuery(this.testUserId,
-            companyId);
+        var query = new GetConfigurationQuery(this.testUserId, companyId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2,
-            result.Count);
+        Assert.Equal(2, result.Count);
 
-        Assert.Equal(ConfigType.Language,
-            result[0].ConfigType);
-        Assert.Equal(ConfigType.Timezone,
-            result[1].ConfigType);
+        Assert.Equal(ConfigType.Language, result[0].ConfigType);
+        Assert.Equal(ConfigType.Timezone, result[1].ConfigType);
     }
 
     [Fact]
@@ -102,7 +93,7 @@ public class GetConfigurationHandlerTests : IDisposable
         // from TestCompanyContext, so this test verifies filtering works when CompanyId matches
         var companyId = this.db.CurrentCompanyId ?? Guid.Empty;
         var otherUserId = Guid.NewGuid();
-        
+
         var userConfig = new ConfigurationModel
         {
             Id = Guid.NewGuid(),
@@ -121,24 +112,19 @@ public class GetConfigurationHandlerTests : IDisposable
             Value = "pt-BR"
         };
 
-        this.db.AuthConfigurations.AddRange(userConfig,
-            otherUserConfig);
+        this.db.AuthConfigurations.AddRange(userConfig, otherUserConfig);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetConfigurationQuery(this.testUserId,
-            companyId);
+        var query = new GetConfigurationQuery(this.testUserId, companyId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal(companyId,
-            result[0].CompanyId);
-        Assert.Equal("en",
-            result[0].Value);
+        Assert.Equal(companyId, result[0].CompanyId);
+        Assert.Equal("en", result[0].Value);
     }
 
     [Fact]
@@ -159,12 +145,10 @@ public class GetConfigurationHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Query with a different user ID to get empty results
-        var query = new GetConfigurationQuery(Guid.NewGuid(),
-            companyId);
+        var query = new GetConfigurationQuery(Guid.NewGuid(), companyId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -203,29 +187,21 @@ public class GetConfigurationHandlerTests : IDisposable
             Value = "en-US"
         };
 
-        this.db.AuthConfigurations.AddRange(config1,
-            config2,
-            config3);
+        this.db.AuthConfigurations.AddRange(config1, config2, config3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetConfigurationQuery(this.testUserId,
-            companyId);
+        var query = new GetConfigurationQuery(this.testUserId, companyId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(3,
-            result.Count);
+        Assert.Equal(3, result.Count);
 
-        Assert.Equal(ConfigType.Language,
-            result[0].ConfigType);
-        Assert.Equal(ConfigType.Language,
-            result[1].ConfigType);
-        Assert.Equal(ConfigType.Timezone,
-            result[2].ConfigType);
+        Assert.Equal(ConfigType.Language, result[0].ConfigType);
+        Assert.Equal(ConfigType.Language, result[1].ConfigType);
+        Assert.Equal(ConfigType.Timezone, result[2].ConfigType);
     }
 
     [Fact]
@@ -246,26 +222,19 @@ public class GetConfigurationHandlerTests : IDisposable
         this.db.AuthConfigurations.Add(config);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetConfigurationQuery(this.testUserId,
-            companyId);
+        var query = new GetConfigurationQuery(this.testUserId, companyId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
 
-        Assert.Equal(configId,
-            result[0].Id);
-        Assert.Equal(this.testUserId,
-            result[0].UserId);
-        Assert.Equal(companyId,
-            result[0].CompanyId);
-        Assert.Equal(ConfigType.Language,
-            result[0].ConfigType);
-        Assert.Equal("pt-bR",
-            result[0].Value);
+        Assert.Equal(configId, result[0].Id);
+        Assert.Equal(this.testUserId, result[0].UserId);
+        Assert.Equal(companyId, result[0].CompanyId);
+        Assert.Equal(ConfigType.Language, result[0].ConfigType);
+        Assert.Equal("pt-bR", result[0].Value);
     }
 }

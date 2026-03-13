@@ -30,19 +30,18 @@ public class ConfigurationController(
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
-        var query = new GetConfigurationQuery(userId,
-            companyId);
-        var result = await getConfigurationHandler.Handle(query,
-            ct);
+        var query = new GetConfigurationQuery(userId, companyId);
+        var result = await getConfigurationHandler.Handle(query, ct);
 
         return Ok(result);
     }
 
-    [HttpPatch]
+    [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult> PatchAsync(
+        [FromRoute] Guid id,
         [FromBody] UpsertConfigurationCommand request,
         WideEventContext wide,
         CancellationToken ct)
@@ -50,9 +49,8 @@ public class ConfigurationController(
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
-        var command = request with { UserId = userId };
-        await upsertConfigurationHandler.Handle(command,
-            ct);
+        var command = request with { UserId = userId, Id = id };
+        await upsertConfigurationHandler.Handle(command, ct);
 
         return NoContent();
     }

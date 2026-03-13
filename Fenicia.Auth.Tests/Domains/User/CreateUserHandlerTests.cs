@@ -20,9 +20,8 @@ public class CreateUserHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
-        
+        this.db = new DefaultContext(options, new TestCompanyContext());
+
         this.handler = new CreateUserHandler(this.db);
         this.faker = new Faker();
     }

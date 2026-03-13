@@ -33,8 +33,7 @@ public class ValidateTokenHandler(IConnectionMultiplexer redis)
 
             var tokenObj = JsonSerializer.Deserialize<ValidateTokenResponse>((string)value!);
 
-            return tokenObj != null && tokenObj.UserId == query.UserId && tokenObj.IsActive
-                   && tokenObj.ExpirationDate > DateTime.UtcNow;
+            return tokenObj != null && tokenObj.UserId == query.UserId && tokenObj.IsActive && tokenObj.ExpirationDate > DateTime.UtcNow;
         }
         catch
         {

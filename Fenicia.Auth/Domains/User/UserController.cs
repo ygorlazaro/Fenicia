@@ -40,10 +40,8 @@ public class UserController(
         wide.UserId = userId.ToString();
 
         var companyId = headers.CompanyId;
-        var query = new GetUserModulesQuery(companyId,
-            userId);
-        var response = await getUserModuleHandler.Handle(query,
-            ct);
+        var query = new GetUserModulesQuery(companyId, userId);
+        var response = await getUserModuleHandler.Handle(query, ct);
 
         return Ok(response);
     }
@@ -57,8 +55,7 @@ public class UserController(
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
 
-        var response = await getUserCompaniesHandler.Handle(userId,
-            ct);
+        var response = await getUserCompaniesHandler.Handle(userId, ct);
 
         return Ok(response);
     }
@@ -71,10 +68,8 @@ public class UserController(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
-        var query = new GetUsersQuery(page,
-            pageSize);
-        var result = await getUserHandler.Handle(query,
-            ct);
+        var query = new GetUsersQuery(page, pageSize);
+        var result = await getUserHandler.Handle(query, ct);
 
         return Ok(result);
     }
@@ -87,8 +82,7 @@ public class UserController(
         Guid userId,
         CancellationToken ct)
     {
-        var user = await getUserByIdHandler.Handler(userId,
-            ct);
+        var user = await getUserByIdHandler.Handler(userId, ct);
 
         return user switch
         {
@@ -107,11 +101,9 @@ public class UserController(
         CreateUserCommand request,
         CancellationToken ct)
     {
-        var result = await createUserHandler.Handle(request,
-            ct);
+        var result = await createUserHandler.Handle(request, ct);
 
-        return Created($"/user/{result.Id}",
-            result);
+        return Created(string.Empty, result);
     }
 
     [HttpPatch("{userId:guid}")]
@@ -129,8 +121,7 @@ public class UserController(
         try
         {
             var updateRequest = request with { UserId = userId };
-            var result = await updateUserHandler.Handle(updateRequest,
-                ct);
+            var result = await updateUserHandler.Handle(updateRequest, ct);
 
             return Ok(result);
         }
@@ -150,8 +141,7 @@ public class UserController(
     {
         try
         {
-            await deleteUserHandler.Handle(new DeleteUserCommand(userId),
-                ct);
+            await deleteUserHandler.Handle(new DeleteUserCommand(userId), ct);
             return NoContent();
         }
         catch (InvalidRequestException)
@@ -174,8 +164,7 @@ public class UserController(
         try
         {
             var updateRequest = request with { UserId = userId };
-            var result = await updateUserPasswordHandler.Handle(updateRequest,
-                ct);
+            var result = await updateUserPasswordHandler.Handle(updateRequest, ct);
 
             return Ok(result);
         }

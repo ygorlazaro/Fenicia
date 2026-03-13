@@ -11,8 +11,7 @@ public class VerifyPasswordService
 
         try
         {
-            return BCrypt.Net.BCrypt.Verify(password,
-                hashedPassword);
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
         catch (Exception)
         {

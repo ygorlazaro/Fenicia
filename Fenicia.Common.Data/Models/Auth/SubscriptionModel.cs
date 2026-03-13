@@ -28,5 +28,5 @@ public class SubscriptionModel : BaseModel
     [ForeignKey(nameof(OrderId))]
     public virtual OrderModel? Order { get; set; }
 
-    public virtual List<SubscriptionCreditModel> Credits { get; set; } = null!;
+    public virtual IEnumerable<SubscriptionCreditModel> Credits { get; set; } = null!;
 }

@@ -10,8 +10,7 @@ public class LoginAttemptService(IMemoryCache cache)
 
     public virtual int Handle(string email)
     {
-        return cache.TryGetValue(GetKey(email),
-            out int attempts) ? attempts : 0;
+        return cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0;
     }
 
     private static string GetKey(string email)

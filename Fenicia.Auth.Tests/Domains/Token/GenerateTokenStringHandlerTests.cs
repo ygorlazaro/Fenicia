@@ -153,7 +153,7 @@ public class GenerateTokenStringHandlerTests
             Guid.NewGuid(),
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
-            ["erp", "basic", "social"]);
+            ["basic", "social"]);
 
         // Act
         var token = this.handler.Handle(userWithModules);
@@ -165,59 +165,10 @@ public class GenerateTokenStringHandlerTests
 
         Assert.Equal(3,
             moduleClaims.Count);
-        Assert.Contains("erp",
-            moduleClaims.Select(c => c.Value));
         Assert.Contains("basic",
             moduleClaims.Select(c => c.Value));
         Assert.Contains("social",
             moduleClaims.Select(c => c.Value));
-    }
-
-    [Fact]
-    public void Handle_WhenUserHasGodRole_AutoAddsErpModule()
-    {
-        // Arrange
-        var userWithGodRole = new GenerateTokenResponseWithRolesAndModules(
-            Guid.NewGuid(),
-            this.faker.Person.FullName,
-            this.faker.Internet.Email(),
-            ["God", "Admin"],
-            ["basic", "social"]);
-
-        // Act
-        var token = this.handler.Handle(userWithGodRole);
-
-        // Assert
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtToken = tokenHandler.ReadJwtToken(token);
-        var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
-
-        Assert.Contains("erp",
-            moduleClaims);
-    }
-
-    [Fact]
-    public void Handle_WhenUserHasGodRoleAndErpModule_DoesNotDuplicate()
-    {
-        // Arrange
-        var userWithGodRole = new GenerateTokenResponseWithRolesAndModules(
-            Guid.NewGuid(),
-            this.faker.Person.FullName,
-            this.faker.Internet.Email(),
-            ["God"],
-            ["erp", "basic"]);
-
-        // Act
-        var token = this.handler.Handle(userWithGodRole);
-
-        // Assert
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var jwtToken = tokenHandler.ReadJwtToken(token);
-        var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").Select(c => c.Value).ToList();
-
-        var erpCount = moduleClaims.Count(m => m == "erp");
-        Assert.Equal(1,
-            erpCount);
     }
 
     [Fact]
@@ -287,7 +238,7 @@ public class GenerateTokenStringHandlerTests
             Guid.NewGuid(),
             this.faker.Person.FullName,
             this.faker.Internet.Email(),
-            ["erp", "", null!, "basic"]);
+            ["", null!, "basic"]);
 
         // Act
         var token = this.handler.Handle(userWithEmptyModules);
