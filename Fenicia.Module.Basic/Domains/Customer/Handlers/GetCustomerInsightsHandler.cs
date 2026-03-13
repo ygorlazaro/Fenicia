@@ -31,62 +31,88 @@ public class GetCustomerInsightsHandler(DefaultContext db)
     {
         var now = DateTime.UtcNow;
 
-        var request = from o in db.BasicOrders
-                      group o by o.CustomerId
-                      into g
-                      select new CustomerRiskAlertResponse(
-                          g.Key,
-                          g.First().Customer.Person.Name,
-                          g.Count(),
-                          g.Max(o => o.SaleDate),
-                          (now - g.Max(o => o.SaleDate)).Days,
-                          g.Sum(o => o.TotalAmount),
-                          (now - g.Max(o => o.SaleDate)).Days >= query.RiskThresholdDays * 2 ? "High" :
-                          (now - g.Max(o => o.SaleDate)).Days >= query.RiskThresholdDays ? "Medium" : "Low"
-                      );
+        var orders = await db.BasicOrders
+            .Include(o => o.Customer)
+                .ThenInclude(c => c.Person)
+            .ToListAsync(ct);
 
-        return await request.ToListAsync(ct);
+        var response = orders
+            .GroupBy(o => o.CustomerId)
+            .Select(g =>
+            {
+                var lastOrder = g.Max(o => o.SaleDate);
+                var daysSince = (now - lastOrder).Days;
+                var riskLevel = daysSince >= query.RiskThresholdDays * 2 ? "High" :
+                               daysSince >= query.RiskThresholdDays ? "Medium" : "Low";
+                
+                return new CustomerRiskAlertResponse(
+                    g.Key,
+                    g.First().Customer.Person.Name,
+                    g.Count(),
+                    lastOrder,
+                    daysSince,
+                    g.Sum(o => o.TotalAmount),
+                    riskLevel
+                );
+            })
+            .Where(c => c.DaysSinceLastOrder >= query.RiskThresholdDays)
+            .OrderByDescending(c => c.DaysSinceLastOrder)
+            .ToList();
+
+        return response;
     }
 
     private async Task<List<CustomerRecentOrdersResponse>> GetRecentOrdersAsync(int topLimit, CancellationToken ct)
     {
-        var request = from o in db.BasicOrders
-                      orderby o.SaleDate descending
-                      select new CustomerRecentOrdersResponse(
-                          o.Id,
-                          o.CustomerId,
-                          o.Customer.Person.Name,
-                          o.TotalAmount,
-                          o.SaleDate,
-                          o.Status.ToString(),
-                          o.Details.Sum(d => (int)d.Quantity)
-                          );
-
-        return await request
-            .Take(topLimit)
+        var orders = await db.BasicOrders
+            .Include(o => o.Customer)
+                .ThenInclude(c => c.Person)
+            .Include(o => o.Details)
+            .OrderByDescending(o => o.SaleDate)
+            .Take(topLimit * 2)
             .ToListAsync(ct);
+
+        var response = orders
+            .Take(topLimit)
+            .Select(o => new CustomerRecentOrdersResponse(
+                o.Id,
+                o.CustomerId,
+                o.Customer.Person.Name,
+                o.TotalAmount,
+                o.SaleDate,
+                o.Status.ToString(),
+                o.Details.Sum(d => (int)d.Quantity)
+            ))
+            .ToList();
+
+        return response;
     }
 
     private async Task<List<CustomerOrderHistoryResponse>> GetTopCustomersAsync(int topLimit, CancellationToken ct)
     {
-        var request = from o in db.BasicOrders
-                      group o by new { o.CustomerId, CustomerName = o.Customer.Person.Name }
-                      into g
-                      select new CustomerOrderHistoryResponse(
-                          g.Key.CustomerId,
-                          g.Key.CustomerName,
-                          g.Count(),
-                          g.Sum(o => o.TotalAmount),
-                          g.Sum(o => o.Details.Sum(d => (int)d.Quantity)),
-                          g.Min(o => o.SaleDate),
-                          g.Max(o => o.SaleDate),
-                          g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0
-                      );
-
-        return await request
-            .OrderByDescending(c => c.TotalSpent)
-            .Take(topLimit)
+        var orders = await db.BasicOrders
+            .Include(o => o.Customer)
+                .ThenInclude(c => c.Person)
+            .Include(o => o.Details)
             .ToListAsync(ct);
+
+        var response = orders
+            .GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name })
+            .Select(g => new CustomerOrderHistoryResponse(
+                g.Key.CustomerId,
+                g.Key.CustomerName,
+                g.Count(),
+                g.Sum(o => o.TotalAmount),
+                g.Sum(o => o.Details.Sum(d => (int)d.Quantity)),
+                g.Min(o => o.SaleDate),
+                g.Max(o => o.SaleDate),
+                g.Any() ? g.Sum(o => o.TotalAmount) / g.Count() : 0
+            ))
+            .OrderByDescending(e => e.TotalSpent)
+            .Take(topLimit)
+            .ToList();
+
+        return response;
     }
 
     private async Task<CustomerSummaryResponse> GetSummaryAsync(CancellationToken ct)
@@ -97,10 +123,13 @@ public class GetCustomerInsightsHandler(DefaultContext db)
             ct);
         var averageOrderValue = await db.BasicOrders.AverageAsync(o => o.TotalAmount,
             ct);
-        var averageCustomerLifetimeValue = await db.BasicOrders
+        
+        var customerTotals = await db.BasicOrders
             .GroupBy(o => o.CustomerId)
-            .AverageAsync(g => g.Sum(o => o.TotalAmount),
-                ct);
+            .Select(g => g.Sum(o => o.TotalAmount))
+            .ToListAsync(ct);
+        
+        var averageCustomerLifetimeValue = customerTotals.Average();
 
         var summary = new CustomerSummaryResponse
         {
