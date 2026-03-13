@@ -11,10 +11,13 @@ public class GetStockMovementHandler(DefaultContext context)
     public async Task<List<GetStockMovementResponse>> Handle(GetStockMovementQuery query, CancellationToken ct)
     {
         var request = from m in context.BasicStockMovements
-                      join c in context.BasicCustomers on m.CustomerId equals c.Id
-                      join s in context.BasicSuppliers on  m.SupplierId equals s.Id
-                      join e  in context.BasicEmployees on  m.EmployeeId equals e.Id
-                    where m.Date >= query.StartDate && m.Date <= query.EndDate
+                      join c in context.BasicCustomers on m.CustomerId equals c.Id into customers
+                      from c in customers.DefaultIfEmpty()
+                      join s in context.BasicSuppliers on m.SupplierId equals s.Id into suppliers
+                      from s in suppliers.DefaultIfEmpty()
+                      join e in context.BasicEmployees on m.EmployeeId equals e.Id into employees
+                      from e in employees.DefaultIfEmpty()
+                      where m.Date >= query.StartDate && m.Date <= query.EndDate
                     select new GetStockMovementResponse(
                         m.Id,
                         m.ProductId,
@@ -24,11 +27,11 @@ public class GetStockMovementHandler(DefaultContext context)
                         m.Price,
                         m.Type,
                         m.CustomerId,
-                        c.Person.Name,
+                        c != null && c.Person != null ? c.Person.Name : string.Empty,
                         m.SupplierId,
-                        s.Person.Name,
+                        s != null && s.Person != null ? s.Person.Name : string.Empty,
                         m.EmployeeId,
-                        e.Person.Name,
+                        e != null && e.Person != null ? e.Person.Name : string.Empty,
                         m.OrderId,
                         m.Reason);
         

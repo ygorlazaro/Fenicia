@@ -153,8 +153,10 @@ public class GetStockMovementDashboardHandler(DefaultContext db)
         CancellationToken ct)
     {
         var request = from m in movements
-                      join c in db.BasicCustomers  on m.CustomerId equals c.Id
-                      join s in db.BasicSuppliers  on m.SupplierId equals s.Id
+                      join c in db.BasicCustomers on m.CustomerId equals c.Id into customers
+                      from c in customers.DefaultIfEmpty()
+                      join s in db.BasicSuppliers on m.SupplierId equals s.Id into suppliers
+                      from s in suppliers.DefaultIfEmpty()
                       orderby m.Date descending
                       select new StockMovementHistoryResponse(
                           m.Id,
@@ -165,9 +167,9 @@ public class GetStockMovementDashboardHandler(DefaultContext db)
                           m.Price ?? 0,
                           m.Type.ToString(),
                           m.Reason,
-                          c.Person.Name,
-                          s.Person.Name);
-     
+                          c != null && c.Person != null ? c.Person.Name : string.Empty,
+                          s != null && s.Person != null ? s.Person.Name : string.Empty);
+
         return await request.ToListAsync(ct);
     }
 
