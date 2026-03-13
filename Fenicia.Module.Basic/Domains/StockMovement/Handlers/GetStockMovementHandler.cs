@@ -27,11 +27,11 @@ public class GetStockMovementHandler(DefaultContext context)
                         m.Price,
                         m.Type,
                         m.CustomerId,
-                        c != null && c.Person != null ? c.Person.Name : string.Empty,
+                        c != null && c.Person != null ? c.Person.Name : null,
                         m.SupplierId,
-                        s != null && s.Person != null ? s.Person.Name : string.Empty,
+                        s != null && s.Person != null ? s.Person.Name : null,
                         m.EmployeeId,
-                        e != null && e.Person != null ? e.Person.Name : string.Empty,
+                        e != null && e.Person != null ? e.Person.Name : null,
                         m.OrderId,
                         m.Reason);
         
