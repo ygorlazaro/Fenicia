@@ -25,8 +25,7 @@ public class RegisterControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         var createNewUserHandler = new CreateNewUserHandler(this.db);
 
         var mockHttpContext = new Mock<HttpContext>();

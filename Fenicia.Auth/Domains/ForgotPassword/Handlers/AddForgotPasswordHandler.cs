@@ -11,10 +11,8 @@ public class AddForgotPasswordHandler(DefaultContext db)
 {
     public virtual async Task Handle(AddForgotPasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByEmailOrDefaultAsync(command.Email,
-            ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
-        var code = Guid.NewGuid().ToString().Replace("-",
-            string.Empty)[..6];
+        var user = await db.AuthUsers.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
+        var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
 
         var forgotPasswordModel = new ForgotPasswordModel
         {
@@ -22,9 +20,8 @@ public class AddForgotPasswordHandler(DefaultContext db)
             IsActive = true,
             UserId = user.Id
         };
-        
-        await db.AuthForgottenPasswords.AddAsync(forgotPasswordModel,
-            ct);
+
+        await db.AuthForgottenPasswords.AddAsync(forgotPasswordModel, ct);
         await db.SaveChangesAsync(ct);
     }
 }

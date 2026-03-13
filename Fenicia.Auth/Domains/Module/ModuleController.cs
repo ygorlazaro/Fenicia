@@ -31,9 +31,8 @@ public class ModuleController(
     {
         wide.UserId = "Guest";
 
-        var modules = await getModulesHandler.Handle(new GetModulesQuery(query.Page,
-                query.PerPage),
-            ct);
+        var modulesQuery = new GetModulesQuery(query.Page, query.PerPage);
+        var modules = await getModulesHandler.Handle(modulesQuery, ct);
 
         return Ok(modules);
     }

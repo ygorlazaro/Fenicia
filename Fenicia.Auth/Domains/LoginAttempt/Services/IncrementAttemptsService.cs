@@ -13,17 +13,14 @@ public class IncrementAttemptsService(IMemoryCache cache)
     public Task SetKey(string email)
     {
         var key = GetKey(email);
-        var current = cache.TryGetValue(key,
-            out int count) ? count + 1 : 1;
+        var current = cache.TryGetValue(key, out int count) ? count + 1 : 1;
 
         var options = new MemoryCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(ExpirationMinutes)
         };
 
-        cache.Set(key,
-            current,
-            options);
+        cache.Set(key, current, options);
 
         return Task.CompletedTask;
     }

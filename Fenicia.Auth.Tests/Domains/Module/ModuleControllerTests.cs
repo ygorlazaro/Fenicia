@@ -27,8 +27,7 @@ public class ModuleControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         var getModulesHandler = new GetModulesHandler(this.db);
         var mockHttpContext = new Mock<HttpContext>();
         this.faker = new Faker();

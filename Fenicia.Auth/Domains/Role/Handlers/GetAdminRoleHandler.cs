@@ -7,10 +7,12 @@ public class GetAdminRoleHandler(DefaultContext db)
 {
     public virtual async Task<GetAdminRoleResponse?> Handle(CancellationToken ct)
     {
-        var role = await db.AuthRoles.GetRoleAsync("Admin",
-            ct);
-        
-        return role == null ? null : new GetAdminRoleResponse(role.Id,
-            role.Name);
+        var role = await db.AuthRoles.GetRoleAsync("Admin", ct);
+
+        return role switch
+        {
+            null => null,
+            _ => new GetAdminRoleResponse(role.Id, role.Name)
+        };
     }
 }

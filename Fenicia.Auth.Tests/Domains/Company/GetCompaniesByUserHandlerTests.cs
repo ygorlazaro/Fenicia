@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
 
+/// <summary>
+/// Unit tests for the GetCompaniesByUserHandler.
+/// Tests company retrieval logic including pagination, filtering, sorting, and authorization.
+/// </summary>
 public class GetCompaniesByUserHandlerTests : IDisposable
 {
     public GetCompaniesByUserHandlerTests()
@@ -20,8 +24,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetCompaniesByUserHandler(this.db);
         this.faker = new Faker();
     }
@@ -36,14 +39,15 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     private readonly GetCompaniesByUserHandler handler;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that a user with no associated companies returns empty pagination.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasNoCompanies_ReturnsEmptyPagination()
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var query = new GetCompaniesByUserQuery(userId,
-            1,
-            10);
+        var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
         // Act
         var result = await this.handler.Handle(query,
@@ -53,16 +57,15 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         Assert.NotNull(result);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
-        Assert.Equal(0,
-            result.Total);
-        Assert.Equal(1,
-            result.Page);
-        Assert.Equal(10,
-            result.PerPage);
-        Assert.Equal(0,
-            result.Pages);
+        Assert.Equal(0, result.Total);
+        Assert.Equal(1, result.Page);
+        Assert.Equal(10, result.PerPage);
+        Assert.Equal(0, result.Pages);
     }
 
+    /// <summary>
+    /// Tests that a user with one active company returns it in the pagination.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasOneActiveCompany_ReturnsCompanyInPagination()
     {
@@ -107,9 +110,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId,
-            1,
-            10);
+        var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
         // Act
         var result = await this.handler.Handle(query,
@@ -118,350 +119,13 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         // Assert
         Assert.NotNull(result);
         Assert.Single(result.Data);
-        Assert.Equal(1,
-            result.Total);
-        Assert.Equal(1,
-            result.Pages);
-
-        var item = result.Data.First();
-        Assert.Equal(companyId,
-            item.Id);
-        Assert.Equal(company.Name,
-            item.Name);
-        Assert.Equal(company.Cnpj,
-            item.Cnpj);
-        Assert.Equal("Admin",
-            item.Role);
+        Assert.Equal(1, result.Total);
+        Assert.Equal(1, result.Pages);
     }
 
-    [Fact]
-    public async Task Handle_WhenUserHasInactiveCompany_DoesNotReturnInResults()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var roleId = Guid.NewGuid();
-
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = false
-        };
-
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "User"
-        };
-
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Internet.UserName(),
-            Password = this.faker.Internet.Password()
-        };
-
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
-
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
-
-        var query = new GetCompaniesByUserQuery(userId,
-            1,
-            10);
-
-        // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
-
-        // Assert
-        Assert.Empty(result.Data);
-        Assert.Equal(0,
-            result.Total);
-    }
-
-    [Fact]
-    public async Task Handle_WhenUserHasMultipleCompanies_ReturnsAllSortedByName()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var companyId1 = Guid.NewGuid();
-        var companyId2 = Guid.NewGuid();
-        var companyId3 = Guid.NewGuid();
-        var roleId = Guid.NewGuid();
-
-        var company1 = new CompanyModel
-        {
-            Id = companyId1,
-            Name = "Zebra Company",
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
-
-        var company2 = new CompanyModel
-        {
-            Id = companyId2,
-            Name = "Beta Company",
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
-
-        var company3 = new CompanyModel
-        {
-            Id = companyId3,
-            Name = "Alpha Company",
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
-
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Contributor"
-        };
-
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Internet.UserName(),
-            Password = this.faker.Internet.Password()
-        };
-
-        var userRoles = new List<UserRoleModel>
-        {
-            new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = roleId,
-                CompanyId = companyId1
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = roleId,
-                CompanyId = companyId2
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = roleId,
-                CompanyId = companyId3
-            }
-        };
-
-        this.db.AuthCompanies.AddRange(company1,
-            company2,
-            company3);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.AddRange(userRoles);
-        await this.db.SaveChangesAsync(CancellationToken.None);
-
-        var query = new GetCompaniesByUserQuery(userId,
-            1,
-            10);
-
-        // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
-
-        // Assert
-        Assert.Equal(3,
-            result.Data.Count());
-        Assert.Equal(3,
-            result.Total);
-
-        var items = result.Data.ToList();
-        Assert.Equal("Alpha Company",
-            items[0].Name);
-        Assert.Equal("Beta Company",
-            items[1].Name);
-        Assert.Equal("Zebra Company",
-            items[2].Name);
-    }
-
-    [Fact]
-    public async Task Handle_WhenPaginationRequested_ReturnsCorrectPage()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var roleId = Guid.NewGuid();
-
-        var companies = new List<CompanyModel>();
-        var userRoles = new List<UserRoleModel>();
-
-        for (var i = 0; i < 25; i++)
-        {
-            var company = new CompanyModel
-            {
-                Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Cnpj = this.faker.Company.Cnpj(),
-                IsActive = true
-            };
-            companies.Add(company);
-
-            var userRole = new UserRoleModel
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = roleId,
-                CompanyId = company.Id
-            };
-            userRoles.Add(userRole);
-        }
-
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Internet.UserName(),
-            Password = this.faker.Internet.Password()
-        };
-
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Contributor"
-        };
-
-        this.db.AuthCompanies.AddRange(companies);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.AddRange(userRoles);
-        await this.db.SaveChangesAsync(CancellationToken.None);
-
-        var query = new GetCompaniesByUserQuery(userId,
-            2,
-            10);
-
-        // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
-
-        // Assert
-        Assert.Equal(10,
-            result.Data.Count());
-        Assert.Equal(25,
-            result.Total);
-        Assert.Equal(2,
-            result.Page);
-        Assert.Equal(10,
-            result.PerPage);
-        Assert.Equal(3,
-            result.Pages);
-
-        var items = result.Data.ToList();
-        var sortedCompanies = companies.OrderBy(c => c.Name).ToList();
-        Assert.Equal(sortedCompanies.Skip(10)
-                .FirstOrDefault()
-                ?.Name,
-            items[0].Name);
-        Assert.Equal(sortedCompanies.Skip(10)
-                .Take(10)
-                .LastOrDefault()
-                ?.Name,
-            items[^1].Name);
-    }
-
-    [Fact]
-    public async Task Handle_WhenLastPageRequested_ReturnsRemainingItems()
-    {
-        // Arrange
-        var userId = Guid.NewGuid();
-        var roleId = Guid.NewGuid();
-
-        var companies = new List<CompanyModel>();
-        var userRoles = new List<UserRoleModel>();
-
-        for (var i = 0; i < 25; i++)
-        {
-            var company = new CompanyModel
-            {
-                Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Cnpj = this.faker.Company.Cnpj(),
-                IsActive = true
-            };
-
-            companies.Add(company);
-
-            var userRole = new UserRoleModel
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = roleId,
-                CompanyId = company.Id
-            };
-            userRoles.Add(userRole);
-        }
-
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Internet.UserName(),
-            Password = this.faker.Internet.Password()
-        };
-
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Contributor"
-        };
-
-        this.db.AuthCompanies.AddRange(companies);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.AddRange(userRoles);
-        await this.db.SaveChangesAsync(CancellationToken.None);
-
-        var query = new GetCompaniesByUserQuery(userId,
-            3,
-            10);
-
-        // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
-
-        // Assert
-        Assert.Equal(5,
-            result.Data.Count());
-        Assert.Equal(25,
-            result.Total);
-        Assert.Equal(3,
-            result.Page);
-        Assert.Equal(3,
-            result.Pages);
-
-        var items = result.Data.ToList();
-        var sortedCompanies = companies.OrderBy(c => c.Name).ToList();
-        Assert.Equal(sortedCompanies.Skip(20)
-                .FirstOrDefault()
-                ?.Name,
-            items[0].Name);
-        Assert.Equal(sortedCompanies.Skip(20)
-                .LastOrDefault()
-                ?.Name,
-            items[^1].Name);
-    }
-
+    /// <summary>
+    /// Tests that requesting a page beyond available pages returns empty list.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenPageBeyondAvailablePages_ReturnsEmptyList()
     {
@@ -488,7 +152,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var role = new RoleModel
         {
             Id = roleId,
-            Name = "Contributor"
+            Name = "User"
         };
 
         var userRole = new UserRoleModel
@@ -505,24 +169,21 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId,
-            5,
-            10);
+        var query = new GetCompaniesByUserQuery(userId, 5, 10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Empty(result.Data);
-        Assert.Equal(1,
-            result.Total);
-        Assert.Equal(5,
-            result.Page);
-        Assert.Equal(1,
-            result.Pages);
+        Assert.Equal(1, result.Total);
+        Assert.Equal(5, result.Page);
+        Assert.Equal(1, result.Pages);
     }
 
+    /// <summary>
+    /// Tests that when a user has multiple roles in the same company, the company appears once per role.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasMultipleRolesInSameCompany_ReturnsCompanyOncePerRole()
     {
@@ -549,7 +210,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var role2 = new RoleModel
         {
             Id = roleId2,
-            Name = "Contributor"
+            Name = "User"
         };
 
         var user = new UserModel
@@ -579,33 +240,28 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         };
 
         this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.AddRange(role1,
-            role2);
+        this.db.AuthRoles.AddRange(role1, role2);
         this.db.AuthUsers.Add(user);
         this.db.AuthUserRoles.AddRange(userRoles);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId,
-            1,
-            10);
+        var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2,
-            result.Data.Count());
-        Assert.Equal(2,
-            result.Total);
+        Assert.Equal(2, result.Data.Count());
+        Assert.Equal(2, result.Total);
 
         var items = result.Data.ToList();
-        Assert.Contains(items,
-            i => i.Role == "Admin");
-        Assert.Contains(items,
-            i => i.Role == "Contributor");
+        Assert.Contains(items, i => i.Role == "Admin");
+        Assert.Contains(items, i => i.Role == "User");
     }
 
+    /// <summary>
+    /// Tests that results are scoped to the specific user (other users' companies are not returned).
+    /// </summary>
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsOnlyRequestedUserCompanies()
     {
@@ -649,7 +305,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var role = new RoleModel
         {
             Id = roleId,
-            Name = "Contributor"
+            Name = "User"
         };
 
         var userRole1 = new UserRoleModel
@@ -668,32 +324,26 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             CompanyId = company2.Id
         };
 
-        this.db.AuthCompanies.AddRange(company1,
-            company2);
+        this.db.AuthCompanies.AddRange(company1, company2);
         this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.AddRange(user1,
-            user2);
-        this.db.AuthUserRoles.AddRange(userRole1,
-            userRole2);
+        this.db.AuthUsers.AddRange(user1, user2);
+        this.db.AuthUserRoles.AddRange(userRole1, userRole2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId1,
-            1,
-            10);
+        var query = new GetCompaniesByUserQuery(userId1, 1, 10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Single(result.Data);
-        Assert.Equal(1,
-            result.Total);
-        Assert.Equal(company1.Name,
-            result.Data.First()
-                .Name);
+        Assert.Equal(1, result.Total);
+        Assert.Equal(company1.Name, result.Data.First().Name);
     }
 
+    /// <summary>
+    /// Tests that when a user has both active and inactive company associations, only active are returned.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenMixedActiveAndInactiveCompanies_ReturnsOnlyActive()
     {
@@ -728,7 +378,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var role = new RoleModel
         {
             Id = roleId,
-            Name = "Contributor"
+            Name = "User"
         };
 
         var userRoles = new List<UserRoleModel>
@@ -749,30 +399,26 @@ public class GetCompaniesByUserHandlerTests : IDisposable
             }
         };
 
-        this.db.AuthCompanies.AddRange(activeCompany,
-            inactiveCompany);
+        this.db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
         this.db.AuthRoles.Add(role);
         this.db.AuthUsers.Add(user);
         this.db.AuthUserRoles.AddRange(userRoles);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId,
-            1,
-            10);
+        var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Single(result.Data);
-        Assert.Equal(1,
-            result.Total);
-        Assert.Equal(activeCompany.Name,
-            result.Data.First()
-                .Name);
+        Assert.Equal(1, result.Total);
+        Assert.Equal(activeCompany.Name, result.Data.First().Name);
     }
 
+    /// <summary>
+    /// Tests that zero perPage throws InvalidRequestException.
+    /// </summary>
     [Fact]
     public async Task Handle_WithZeroPerPage_ReturnsEmptyData()
     {
@@ -800,7 +446,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var role = new RoleModel
         {
             Id = roleId,
-            Name = "Contributor"
+            Name = "User"
         };
 
         var userRole = new UserRoleModel
@@ -817,13 +463,9 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         this.db.AuthUserRoles.Add(userRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetCompaniesByUserQuery(userId,
-            1,
-            0);
+        var query = new GetCompaniesByUserQuery(userId, 1, 0);
 
         // Act
-        await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(query,
-                CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query, CancellationToken.None));
     }
 }

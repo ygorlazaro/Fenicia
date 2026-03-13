@@ -38,8 +38,7 @@ public class OrderControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
         this.testCompanyId = Guid.NewGuid();
         var createNewOrderHandler = new CreateNewOrderHandler(this.db);

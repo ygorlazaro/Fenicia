@@ -10,15 +10,13 @@ public class UpdateUserPasswordHandler(
 {
     public virtual async Task<UpdateUserPasswordResponse> Handle(UpdateUserPasswordCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByIdAsync(command.UserId,
-            ct);
+        var user = await db.AuthUsers.FirstByIdAsync(command.UserId, ct);
         var hashedPassword = command.Password.Hash();
 
         user.Password = hashedPassword;
 
         await db.SaveChangesAsync(ct);
 
-        return new UpdateUserPasswordResponse(true,
-            "Password changed successfully");
+        return new UpdateUserPasswordResponse(true, "Password changed successfully");
     }
 }

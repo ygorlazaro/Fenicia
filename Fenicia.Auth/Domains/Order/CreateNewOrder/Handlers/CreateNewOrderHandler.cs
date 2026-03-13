@@ -15,30 +15,25 @@ public class CreateNewOrderHandler(DefaultContext db)
 {
     public virtual async Task<CreateNewOrderResponse?> Handle(CreateNewOrderCommand command, CancellationToken ct)
     {
-        await ValidateUserAsync(command,
-            ct);
+        await ValidateUserAsync(command, ct);
 
-        var modules = await PopulateModules(command.Modules,
-            ct);
+        var modules = await PopulateModules(command.Modules, ct);
 
         if (modules.Count == 0)
         {
             throw new ItemNotExistsException(ExceptionMessages.ModulesNotFound);
         }
 
-        var order = await PersistOrderAsync(command,
-            modules,
-            ct);
+        var order = PersistOrderAsync(command, modules);
 
-        await LoadCreditsAsync(order.Id,
-            command.CompanyId,
-            order.Details,
-            ct);
-        
+        LoadCreditsAsync(command.CompanyId, order);
+
+        await db.SaveChangesAsync(ct);
+
         return new CreateNewOrderResponse(order.Id);
     }
 
-    private async Task<OrderModel> PersistOrderAsync(CreateNewOrderCommand command, List<ModuleModel> modules, CancellationToken ct)
+    private OrderModel PersistOrderAsync(CreateNewOrderCommand command, List<ModuleModel> modules)
     {
         var totalAmount = modules.Sum(m => m.Price);
         
@@ -46,8 +41,8 @@ public class CreateNewOrderHandler(DefaultContext db)
         {
             ModuleId = m.Id,
             Price = m.Price
-        }).ToList();
-        
+        });
+
         var order = new OrderModel
         {
             SaleDate = DateTime.UtcNow,
@@ -60,16 +55,12 @@ public class CreateNewOrderHandler(DefaultContext db)
 
         db.AuthOrders.Add(order);
 
-        await db.SaveChangesAsync(ct);
-        
         return order;
     }
 
     private async Task ValidateUserAsync(CreateNewOrderCommand command, CancellationToken ct)
     {
-        var existingUser = await db.AuthUserRoles.AnyIdAndCompanyAsync(command.UserId,
-            command.CompanyId,
-            ct);
+        var existingUser = await db.AuthUserRoles.AnyIdAndCompanyAsync(command.UserId, command.CompanyId, ct);
 
         if (!existingUser)
         {
@@ -81,23 +72,20 @@ public class CreateNewOrderHandler(DefaultContext db)
     {
         try
         {
-            var modules = await GetModulesToOrderAsync(request.Distinct(),
-                ct);
+            var modules = await GetModulesToOrderAsync(request.Distinct(), ct);
 
             if (modules.Any(m => m.Type == ModuleType.Basic))
             {
                 return modules;
             }
 
-            var basicModule = await GetModuleByTypeAsync(ModuleType.Basic,
-                ct);
+            var basicModule = await GetModuleByTypeAsync(ModuleType.Basic, ct);
 
             return basicModule switch
             {
                 null => [],
                 _ => [basicModule, .. modules]
             };
-
         }
         catch
         {
@@ -114,20 +102,19 @@ public class CreateNewOrderHandler(DefaultContext db)
 
     private async Task<ModuleModel?> GetModuleByTypeAsync(ModuleType moduleType, CancellationToken ct)
     {
-        return await db.AuthModules.FirstOrDefaultAsync(m => m.Type == moduleType,
-            ct);
+        return await db.AuthModules.FirstOrDefaultAsync(m => m.Type == moduleType, ct);
     }
 
-    private async Task LoadCreditsAsync(Guid orderId, Guid companyId, List<OrderDetailModel> details, CancellationToken ct)
+    private void LoadCreditsAsync(Guid companyId, OrderModel order)
     {
-        var credits = details.Select(d => new SubscriptionCreditModel
+        var credits = order.Details.Select(d => new SubscriptionCreditModel
         {
             ModuleId = d.ModuleId,
             IsActive = true,
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddMonths(1),
             OrderDetailId = d.Id
-        }).ToList();
+        });
 
         var subscription = new SubscriptionModel
         {
@@ -135,12 +122,10 @@ public class CreateNewOrderHandler(DefaultContext db)
             CompanyId = companyId,
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddMonths(1),
-            OrderId = orderId,
+            OrderId = order.Id,
             Credits = credits
         };
 
         db.AuthSubscriptions.Add(subscription);
-
-        await db.SaveChangesAsync(ct);
     }
 }

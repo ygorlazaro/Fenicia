@@ -15,26 +15,17 @@ public class UpdateUserHandler(
 {
     public virtual async Task<UpdateUserResponse> Handle(UpdateUserCommand command, CancellationToken ct)
     {
-        var user = await db.AuthUsers.FirstByIdAsync(command.UserId,
-            ct);
+        var user = await db.AuthUsers.FirstByIdAsync(command.UserId, ct);
 
-        await ValidateFields(user,
-            command,
-            ct);
-        
+        await ValidateFields(user, command, ct);
+
         var companies = command.CompaniesRoles?.Select(c => c.CompanyId) ?? [];
-        
-        await ValidateCompanies(companies,
-            ct);
-        await RelateRolesAsync(command,
-            user,
-            ct);
+
+        await ValidateCompanies(companies, ct);
+        await RelateRolesAsync(command, user, ct);
         await db.SaveChangesAsync(ct);
 
-        return new UpdateUserResponse(
-            user.Id,
-            user.Name,
-            user.Email
+        return new UpdateUserResponse(user.Id, user.Name, user.Email
         );
     }
 
@@ -42,8 +33,7 @@ public class UpdateUserHandler(
     {
         foreach (var companyId in companies)
         {
-            await db.AuthCompanies.ValidateExistingAsync(companyId,
-                ct);
+            await db.AuthCompanies.AnyAsync(companyId, ct);
         }
     }
 
@@ -75,9 +65,7 @@ public class UpdateUserHandler(
         {
             var missingRoles = requestedRoleIds.Except(validRoleIds);
 
-            throw new InvalidRequestException(
-                $"Role(s) not found: {string.Join(", ", missingRoles)}"
-            );
+            throw new InvalidRequestException($"Role(s) not found: {string.Join(", ", missingRoles)}");
         }
 
         var requestedSet = requestedRoles
@@ -125,18 +113,17 @@ public class UpdateUserHandler(
             _ => user.Name
         };
 
-        if (!string.IsNullOrWhiteSpace(command.Email))
+        if (string.IsNullOrWhiteSpace(command.Email))
         {
-            var emailExists = await db.AuthUsers
-                .AnyAsync(u => u.Email == command.Email && u.Id != command.UserId,
-                    ct);
-
-            user.Email = emailExists switch
-            {
-                true => throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists),
-                _ => command.Email
-            };
-
+            return;
         }
+
+        var emailExists = await db.AuthUsers.AnyAsync(u => u.Email == command.Email && u.Id != command.UserId, ct);
+
+        user.Email = emailExists switch
+        {
+            true => throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists),
+            _ => command.Email
+        };
     }
 }

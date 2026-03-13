@@ -22,30 +22,30 @@ public class ForgotPasswordController(
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task ForgotPassword(
+    public async Task<IActionResult> ForgotPassword(
         [FromBody] AddForgotPasswordCommand reset,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = reset.Email;
 
-        await addForgotPasswordHandler.Handle(reset,
-            ct);
+        await addForgotPasswordHandler.Handle(reset, ct);
+
+        return Created();
     }
 
     [HttpPost("reset")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> ResetPassword(
+    public async Task<IActionResult> ResetPassword(
         [FromBody] ResetPasswordCommand request,
         WideEventContext wide,
         CancellationToken ct)
     {
         wide.UserId = request.Email;
 
-        await resetPasswordHandler.Handle(request,
-            ct);
+        await resetPasswordHandler.Handle(request, ct);
 
-        return Ok();
+        return Created();
     }
 }

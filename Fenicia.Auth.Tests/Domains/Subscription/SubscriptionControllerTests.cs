@@ -28,8 +28,7 @@ public class SubscriptionControllerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         var getUserProfileHandler = new GetUserProfileHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 

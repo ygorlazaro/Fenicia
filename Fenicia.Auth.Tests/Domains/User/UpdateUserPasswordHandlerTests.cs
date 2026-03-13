@@ -25,9 +25,8 @@ public class UpdateUserPasswordHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
-        
+        this.db = new DefaultContext(options, new TestCompanyContext());
+
         this.handler = new UpdateUserPasswordHandler(this.db);
         this.faker = new Faker();
 

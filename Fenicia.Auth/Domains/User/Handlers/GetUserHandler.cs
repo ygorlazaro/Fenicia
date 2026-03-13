@@ -2,6 +2,7 @@ using Fenicia.Auth.Domains.User.Queries;
 using Fenicia.Auth.Domains.User.Responses;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.Handlers;
@@ -24,9 +25,6 @@ public class GetUserHandler(
             ))
             .ToListAsync(ct);
 
-        return new Pagination<List<UserListItemResponse>>(users,
-            totalCount,
-            query.Page,
-            query.PerPage);
+        return new Pagination<List<UserListItemResponse>>(users, totalCount, query.Page, query.PerPage);
     }
 }

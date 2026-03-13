@@ -24,8 +24,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new UpsertConfigurationHandler(this.db);
         this.faker = new Faker();
         this.testUserId = Guid.NewGuid();
@@ -34,7 +33,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
 
@@ -43,30 +42,25 @@ public class UpsertConfigurationHandlerTests : IDisposable
     {
         // Arrange
         var command = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             "pt-BR",
-            this.db.CurrentCompanyId?? Guid.Empty
+            this.db.CurrentCompanyId ?? Guid.Empty
         );
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var configuration = await this.db.AuthConfigurations
-            .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
+        var configuration = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
 
         Assert.NotNull(configuration);
 
-        Assert.Equal(this.testUserId,
-            configuration.UserId);
-        Assert.Equal(ConfigType.Language,
-            configuration.ConfigType);
-        Assert.Equal("pt-BR",
-            configuration.Value);
-        Assert.Equal(this.db.CurrentCompanyId,
-            configuration.CompanyId);
+        Assert.Equal(this.testUserId, configuration.UserId);
+        Assert.Equal(ConfigType.Language, configuration.ConfigType);
+        Assert.Equal("pt-BR", configuration.Value);
+        Assert.Equal(this.db.CurrentCompanyId, configuration.CompanyId);
     }
 
     [Fact]
@@ -87,24 +81,22 @@ public class UpsertConfigurationHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             "en",
-            companyId?? Guid.Empty
+            companyId ?? Guid.Empty
         );
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedConfig = await this.db.AuthConfigurations
-            .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
+        var updatedConfig = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
 
         Assert.NotNull(updatedConfig);
 
-        Assert.Equal("en",
-            updatedConfig.Value);
+        Assert.Equal("en", updatedConfig.Value);
     }
 
     [Fact]
@@ -112,15 +104,15 @@ public class UpsertConfigurationHandlerTests : IDisposable
     {
         // Arrange
         var command = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             "pt-BR",
-            this.db.CurrentCompanyId?? Guid.Empty
+            this.db.CurrentCompanyId ?? Guid.Empty
         );
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         var configuration = await this.db.AuthConfigurations
@@ -131,10 +123,8 @@ public class UpsertConfigurationHandlerTests : IDisposable
 
         Assert.NotNull(configuration);
 
-        Assert.Equal(this.db.CurrentCompanyId,
-            configuration.CompanyId);
-        Assert.Equal("pt-BR",
-            configuration.Value);
+        Assert.Equal(this.db.CurrentCompanyId, configuration.CompanyId);
+        Assert.Equal("pt-BR", configuration.Value);
     }
 
     [Fact]
@@ -143,32 +133,31 @@ public class UpsertConfigurationHandlerTests : IDisposable
         // Arrange - Note: Due to how DefaultContext works, all entities get the same CompanyId
         // from TestCompanyContext, so this test verifies multiple configurations for same user/type
         var config1 = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             "pt-BR",
-            this.db.CurrentCompanyId?? Guid.NewGuid()
+            this.db.CurrentCompanyId ?? Guid.NewGuid()
         );
 
         var config2 = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Timezone,
             "dark",
-            this.db.CurrentCompanyId?? Guid.NewGuid()
+            this.db.CurrentCompanyId ?? Guid.NewGuid()
         );
 
         // Act
-        await this.handler.Handle(config1,
-            CancellationToken.None);
-        await this.handler.Handle(config2,
-            CancellationToken.None);
+        await this.handler.Handle(config1, CancellationToken.None);
+        await this.handler.Handle(config2, CancellationToken.None);
 
         // Assert
         var configurations = await this.db.AuthConfigurations
             .Where(c => c.UserId == this.testUserId)
             .ToListAsync(CancellationToken.None);
 
-        Assert.Equal(2,
-            configurations.Count);
+        Assert.Equal(2, configurations.Count);
     }
 
     [Fact]
@@ -190,6 +179,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             "en",
@@ -197,8 +187,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
         );
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         var updatedConfig = await this.db.AuthConfigurations
@@ -206,10 +195,8 @@ public class UpsertConfigurationHandlerTests : IDisposable
 
         Assert.NotNull(updatedConfig);
 
-        Assert.Equal(originalId,
-            updatedConfig.Id);
-        Assert.Equal("en",
-            updatedConfig.Value);
+        Assert.Equal(originalId, updatedConfig.Id);
+        Assert.Equal("en", updatedConfig.Value);
     }
 
     [Fact]
@@ -219,6 +206,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
         var companyId = this.db.CurrentCompanyId ?? Guid.NewGuid();
 
         var command1 = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             "pt-BR",
@@ -226,6 +214,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
         );
 
         var command2 = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             "en",
@@ -233,6 +222,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
         );
 
         var command3 = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             "es",
@@ -240,12 +230,9 @@ public class UpsertConfigurationHandlerTests : IDisposable
         );
 
         // Act
-        await this.handler.Handle(command1,
-            CancellationToken.None);
-        await this.handler.Handle(command2,
-            CancellationToken.None);
-        await this.handler.Handle(command3,
-            CancellationToken.None);
+        await this.handler.Handle(command1, CancellationToken.None);
+        await this.handler.Handle(command2, CancellationToken.None);
+        await this.handler.Handle(command3, CancellationToken.None);
 
         // Assert
         var configurations = await this.db.AuthConfigurations
@@ -253,8 +240,7 @@ public class UpsertConfigurationHandlerTests : IDisposable
             .ToListAsync(CancellationToken.None);
 
         Assert.Single(configurations);
-        Assert.Equal("es",
-            configurations[0].Value);
+        Assert.Equal("es", configurations[0].Value);
     }
 
     [Fact]
@@ -262,23 +248,22 @@ public class UpsertConfigurationHandlerTests : IDisposable
     {
         // Arrange
         var command = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             "",
-            this.db.CurrentCompanyId?? Guid.Empty
+            this.db.CurrentCompanyId ?? Guid.Empty
         );
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         var configuration = await this.db.AuthConfigurations
             .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
 
         Assert.NotNull(configuration);
-        Assert.Equal("",
-            configuration.Value);
+        Assert.Equal("", configuration.Value);
     }
 
     [Fact]
@@ -287,10 +272,11 @@ public class UpsertConfigurationHandlerTests : IDisposable
         // Arrange
         var longValue = this.faker.Lorem.Paragraphs(10);
         var command = new UpsertConfigurationCommand(
+            null,
             this.testUserId,
             ConfigType.Language,
             longValue,
-            this.db.CurrentCompanyId?? Guid.Empty
+            this.db.CurrentCompanyId ?? Guid.Empty
         );
 
         // Act
@@ -302,7 +288,6 @@ public class UpsertConfigurationHandlerTests : IDisposable
             .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
 
         Assert.NotNull(configuration);
-        Assert.Equal(longValue,
-            configuration.Value);
+        Assert.Equal(longValue, configuration.Value);
     }
 }

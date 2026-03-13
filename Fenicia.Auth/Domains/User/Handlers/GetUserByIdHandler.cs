@@ -9,11 +9,7 @@ public class GetUserByIdHandler(DefaultContext db)
 {
     public async Task<GetUserByIdResponse?> Handler(Guid id, CancellationToken ct)
     {
-        var request = from u in db.AuthUsers
-                      where u.Id == id
-                      select new GetUserByIdResponse(u.Id,
-                          u.Name,
-                          u.Email);
+        var request = db.AuthUsers.Where(u => u.Id == id).Select(u => new GetUserByIdResponse(u.Id, u.Name, u.Email));
 
         return await request.FirstOrDefaultAsync(ct);
     }

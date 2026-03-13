@@ -18,8 +18,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GetUserCompaniesHandler(this.db);
     }
 

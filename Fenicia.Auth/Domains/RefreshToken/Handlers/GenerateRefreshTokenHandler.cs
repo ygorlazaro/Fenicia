@@ -18,9 +18,7 @@ public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
         rng.GetBytes(randomNumber);
 
         var stringToken = Convert.ToBase64String(randomNumber);
-        var refreshToken = new RefreshTokenModel(stringToken,
-            DateTime.UtcNow.AddDays(7),
-            userId);
+        var refreshToken = new RefreshTokenModel(stringToken, DateTime.UtcNow.AddDays(7), userId);
 
         Add(refreshToken);
 

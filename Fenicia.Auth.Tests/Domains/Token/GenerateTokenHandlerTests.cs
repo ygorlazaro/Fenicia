@@ -27,8 +27,7 @@ public class GenerateTokenHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new GenerateTokenHandler(
             this.db,
             loginAttemptService,
