@@ -121,32 +121,45 @@ public class GetInventoryHealthHandler(DefaultContext db)
 
     private async Task<(List<OverstockProductResponse>, OverstockAlertResponse)> GetOverstockProductsAsync(GetInventoryHealthQuery query, IQueryable<OrderDetailModel> orderDetails, CancellationToken ct)
     {
-        var productSales = orderDetails
+        var productSalesRaw = await orderDetails
             .GroupBy(d => d.ProductId)
-            .ToDictionary(
-                g => g.Key,
-                g => g.Sum(d => d.Quantity) / (query.ZeroMovementDays / 30.0));
+            .Select(g => new { ProductId = g.Key, TotalSales = g.Sum(d => d.Quantity) })
+            .ToListAsync(ct);
+
+        var productSales = productSalesRaw.ToDictionary(
+            x => x.ProductId,
+            x => x.TotalSales / (query.ZeroMovementDays / 30.0));
 
 
-        var request = from p in db.BasicProducts
-                      where p.Quantity > 0
-                            && productSales.ContainsKey(p.Id)
-                            let avgMonthlySales = productSales[p.Id]
-                      let recommendedQuantity = avgMonthlySales * query.OverstockMultiplier
-                      let excessQuantity = Math.Max(0, p.Quantity - recommendedQuantity)
-                      let excessValue = (decimal)excessQuantity * (p.CostPrice ?? 0)
-                      where excessValue > 0
-                      orderby excessValue descending 
-                      select new OverstockProductResponse(
-                          p.Id,
-                          p.Name,
-                          p.Category.Name,
-                          p.Quantity,
-                          recommendedQuantity,
-                          excessValue,
-                          p.CostPrice ?? 0);
+        var allProductsWithStock = await (from p in db.BasicProducts
+                                          where p.Quantity > 0
+                                          select new { p.Id, p.Name, CategoryName = p.Category.Name, p.Quantity, p.CostPrice }).ToListAsync(ct);
 
-        var overstockProducts = await request.ToListAsync(ct);
+        var overstockProducts = allProductsWithStock
+            .Where(p => productSales.ContainsKey(p.Id))
+            .Select(p =>
+            {
+                var avgMonthlySales = productSales[p.Id];
+                var recommendedQuantity = avgMonthlySales * query.OverstockMultiplier;
+                var excessQuantity = Math.Max(0, p.Quantity - recommendedQuantity);
+                var excessValue = (decimal)excessQuantity * (p.CostPrice ?? 0);
+                if (excessValue > 0)
+                {
+                    return new OverstockProductResponse(
+                        p.Id,
+                        p.Name,
+                        p.CategoryName,
+                        p.Quantity,
+                        recommendedQuantity,
+                        excessValue,
+                        p.CostPrice ?? 0);
+                }
+                return null;
+            })
+            .Where(x => x != null)
+            .OrderByDescending(x => x!.ExcessValue)
+            .Cast<OverstockProductResponse>()
+            .ToList();
         var overstockAlert = new OverstockAlertResponse
         {
             TotalOverstockProducts = overstockProducts.Count,

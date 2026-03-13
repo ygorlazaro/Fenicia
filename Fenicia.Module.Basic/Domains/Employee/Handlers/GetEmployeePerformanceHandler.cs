@@ -14,8 +14,13 @@ public class GetEmployeePerformanceHandler(DefaultContext db)
         var endDate = DateTime.UtcNow;
         var startDate = endDate.AddDays(-query.Days);
 
-        var orders = db.BasicOrders
-            .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate);
+        var orders = await db.BasicOrders
+            .Include(o => o.Employee)
+                .ThenInclude(e => e!.Person)
+            .Include(o => o.Employee)
+                .ThenInclude(e => e!.Position)
+            .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate)
+            .ToListAsync(ct);
         
         var summary = await GetEmployeePerformanceSummaryAsync(orders, ct);
         var salesByEmployee = GetSalesByEmployeeAsync(orders);
@@ -64,53 +69,54 @@ public class GetEmployeePerformanceHandler(DefaultContext db)
         return topPerformers;
     }
 
-    private async Task<List<EmployeeOrderCountResponse>> GetOrdersByEmployeeAsync(IQueryable<OrderModel> orders, CancellationToken ct)
+    private async Task<List<EmployeeOrderCountResponse>> GetOrdersByEmployeeAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
-        var ordersByEmployee = await orders
-            .Where(o => o.EmployeeId.HasValue)
-            .GroupBy(o => new
-            {
-                o.EmployeeId,
-                EmployeeName = o.Employee!.Person.Name,
-                PositionName = o.Employee.Position.Name
-            })
-            .Select(g => new EmployeeOrderCountResponse(
-                g.Key.EmployeeId!.Value,
-                g.Key.EmployeeName,
-                g.Key.PositionName,
-                g.Count(),
-                g.Sum(o => o.TotalAmount),
-                g.Min(o => o.SaleDate),
-                g.Max(o => o.SaleDate)))
-            .OrderByDescending(e => e.OrderCount)
+        var employees = await db.BasicEmployees
+            .Include(e => e.Person)
+            .Include(e => e.Position)
             .ToListAsync(ct);
+
+        var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
+        
+        var ordersByEmployee = ordersList
+            .GroupBy(o => o.EmployeeId!.Value)
+            .Select(g =>
+            {
+                var employee = employees.First(e => e.Id == g.Key);
+                return new EmployeeOrderCountResponse(
+                    g.Key,
+                    employee.Person.Name,
+                    employee.Position.Name,
+                    g.Count(),
+                    g.Sum(o => o.TotalAmount),
+                    g.Min(o => o.SaleDate),
+                    g.Max(o => o.SaleDate));
+            })
+            .OrderByDescending(e => e.OrderCount)
+            .ToList();
         
         return ordersByEmployee;
     }
 
-    private List<EmployeeSalesResponse> GetSalesByEmployeeAsync(IQueryable<OrderModel> orders)
+    private List<EmployeeSalesResponse> GetSalesByEmployeeAsync(IEnumerable<OrderModel> orders)
     {
-        var request = from o in orders.AsEnumerable()
-                      join e in db.BasicEmployees on o.EmployeeId equals e.Id
-                      group o by new
-                      {
-                          o.EmployeeId, EmployeeName = e.Person.Name,
-                          PositionName = e.Position.Name
-                      }
-                      into g
-                      let totalSales = g.Sum(o => o.TotalAmount)
-                      let totalOrders = g.Count()
-                      let averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0
-                      select new EmployeeSalesResponse(
-                          g.Key.EmployeeId!.Value,
-                          g.Key.EmployeeName,
-                          g.Key.PositionName,
-                          totalSales,
-                          totalOrders,
-                          totalOrders > 0 ? totalSales : 0,
-                          0);
+        var ordersList = orders.Where(o => o.Employee != null).ToList();
 
-        var data = request.ToList();
+        var data = ordersList
+            .GroupBy(o => o.Employee!.Id)
+            .Select(g =>
+            {
+                var employee = g.First().Employee!;
+                return new EmployeeSalesResponse(
+                    employee.Id,
+                    employee.Person.Name,
+                    employee.Position.Name,
+                    g.Sum(o => o.TotalAmount),
+                    g.Count(),
+                    g.Sum(o => o.TotalAmount),
+                    0);
+            })
+            .ToList();
         
         for (var i = 0; i < data.Count; i++)
         {
@@ -121,20 +127,18 @@ public class GetEmployeePerformanceHandler(DefaultContext db)
     }
 
     private async Task<EmployeePerformanceSummaryResponse> GetEmployeePerformanceSummaryAsync(
-        IQueryable<OrderModel> orders,
+        IEnumerable<OrderModel> orders,
         CancellationToken ct)
     {
-        var employeesWithOrders = await orders
-            .Where(o => o.EmployeeId.HasValue)
+        var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
+        
+        var employeesWithOrders = ordersList
             .Select(o => o.EmployeeId!.Value)
             .Distinct()
-            .CountAsync(ct);
+            .Count();
 
-        var totalSales = await orders
-            .Where(o => o.EmployeeId.HasValue)
-            .SumAsync(o => o.TotalAmount, ct);
-
-        var totalOrders = await orders.CountAsync(o => o.EmployeeId.HasValue, ct);
+        var totalSales = ordersList.Sum(o => o.TotalAmount);
+        var totalOrders = ordersList.Count;
 
         var summary = new EmployeePerformanceSummaryResponse
         {
