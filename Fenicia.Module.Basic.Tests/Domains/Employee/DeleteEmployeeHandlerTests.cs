@@ -1,8 +1,8 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
 
@@ -32,7 +32,6 @@ public class DeleteEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmployeeExists_SetsDeletedDate()
     {
-        // Arrange
         var employeeId = Guid.NewGuid();
         var employee = new EmployeeModel
         {
@@ -59,9 +58,7 @@ public class DeleteEmployeeHandlerTests : IDisposable
         var command = new DeleteEmployeeCommand(employeeId);
         var beforeDelete = DateTime.Now;
 
-        // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         var deletedEmployee = await this.db.BasicEmployees.FindAsync([

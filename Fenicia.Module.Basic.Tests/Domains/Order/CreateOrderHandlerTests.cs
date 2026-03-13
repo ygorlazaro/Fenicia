@@ -1,4 +1,3 @@
-using Fenicia.Common.Data;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Enums.Auth;
 
@@ -7,6 +6,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Order.Commands;
 using Fenicia.Module.Basic.Domains.Order.Handlers;
+using Fenicia.Common.Tests;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 

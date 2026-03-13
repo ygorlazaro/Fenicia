@@ -3,9 +3,9 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Company.Handlers;
 using Fenicia.Auth.Domains.Company.Queries;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +19,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new CheckCompanyExistsHandler(this.db);
         this.faker = new Faker();
     }

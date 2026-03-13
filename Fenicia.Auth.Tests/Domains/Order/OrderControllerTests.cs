@@ -8,11 +8,11 @@ using Fenicia.Auth.Domains.Order.CreateNewOrder.Commands;
 using Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
 using Fenicia.Auth.Domains.Order.CreateNewOrder.Responses;
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Tests;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

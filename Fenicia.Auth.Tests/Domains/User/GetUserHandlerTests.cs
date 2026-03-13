@@ -3,9 +3,9 @@ using Bogus;
 using Fenicia.Auth.Domains.Security;
 using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Auth.Domains.User.Queries;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
+using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
 

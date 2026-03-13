@@ -5,10 +5,10 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.Commands;
 using Fenicia.Module.Basic.Domains.Supplier.Handlers;

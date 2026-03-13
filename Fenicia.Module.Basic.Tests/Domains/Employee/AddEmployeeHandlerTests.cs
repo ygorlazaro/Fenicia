@@ -1,7 +1,7 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
 
@@ -31,7 +31,6 @@ public class AddEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithValidCommand_AddsEmployeeAndReturnsResponse()
     {
-        // Arrange
         var positionId = Guid.NewGuid();
         var command = new AddEmployeeCommand(
             Guid.NewGuid(),
@@ -48,9 +47,7 @@ public class AddEmployeeHandlerTests : IDisposable
             this.faker.Address.ZipCode(),
             this.faker.Random.Replace("(##) #####-####"));
 
-        // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

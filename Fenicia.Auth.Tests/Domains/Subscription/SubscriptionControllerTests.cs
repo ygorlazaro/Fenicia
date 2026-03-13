@@ -7,10 +7,10 @@ using Fenicia.Auth.Domains.Subscription;
 using Fenicia.Auth.Domains.Subscription.Handlers;
 using Fenicia.Auth.Domains.Subscription.Responses;
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
+using Fenicia.Common.Tests;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

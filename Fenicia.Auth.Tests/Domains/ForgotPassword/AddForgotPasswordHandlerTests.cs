@@ -2,10 +2,10 @@ using Bogus;
 
 using Fenicia.Auth.Domains.ForgotPassword.Commands;
 using Fenicia.Auth.Domains.ForgotPassword.Handlers;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
 

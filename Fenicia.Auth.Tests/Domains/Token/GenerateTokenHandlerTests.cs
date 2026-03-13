@@ -4,10 +4,10 @@ using Fenicia.Auth.Domains.LoginAttempt.Services;
 using Fenicia.Auth.Domains.Security.Services;
 using Fenicia.Auth.Domains.Token.Handlers;
 using Fenicia.Auth.Domains.Token.Queries;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
