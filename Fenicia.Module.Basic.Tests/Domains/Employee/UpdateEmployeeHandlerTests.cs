@@ -1,8 +1,8 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
 
@@ -32,7 +32,6 @@ public class UpdateEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmployeeExists_UpdatesEmployeeAndReturnsResponse()
     {
-        // Arrange
         var employeeId = Guid.NewGuid();
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();

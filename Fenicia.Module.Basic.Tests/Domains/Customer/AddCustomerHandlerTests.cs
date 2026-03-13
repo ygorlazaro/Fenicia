@@ -1,7 +1,7 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Customer.Commands;
 using Fenicia.Module.Basic.Domains.Customer.Handlers;
 

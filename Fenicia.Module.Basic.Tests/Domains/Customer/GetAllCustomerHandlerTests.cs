@@ -1,9 +1,9 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Customer.Handlers;
 using Fenicia.Module.Basic.Domains.Customer.Queries;
 

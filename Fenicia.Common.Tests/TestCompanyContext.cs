@@ -1,4 +1,6 @@
-namespace Fenicia.Common.Data;
+using Fenicia.Common.Data;
+
+namespace Fenicia.Common.Tests;
 
 public record TestCompanyContext : ICompanyContext
 {

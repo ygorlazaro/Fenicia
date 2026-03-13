@@ -13,10 +13,10 @@ using Fenicia.Auth.Domains.Token.Queries;
 using Fenicia.Auth.Domains.Token.Responses;
 using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Tests;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

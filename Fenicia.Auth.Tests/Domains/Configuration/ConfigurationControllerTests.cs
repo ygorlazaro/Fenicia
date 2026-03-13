@@ -5,10 +5,10 @@ using Fenicia.Auth.Domains.Configuration.Commands;
 using Fenicia.Auth.Domains.Configuration.Handlers;
 using Fenicia.Auth.Domains.Configuration.Responses;
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
+using Fenicia.Common.Tests;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -78,7 +78,6 @@ public class ConfigurationControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenUserHasNoConfigurations_ReturnsOkWithEmptyList()
     {
-        // Arrange
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 

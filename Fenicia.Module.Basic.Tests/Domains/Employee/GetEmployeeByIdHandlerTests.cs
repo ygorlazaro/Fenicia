@@ -1,9 +1,9 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
 
@@ -33,7 +33,6 @@ public class GetEmployeeByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmployeeExists_ReturnsEmployeeResponse()
     {
-        // Arrange
         var employeeId = Guid.NewGuid();
         var position = new PositionModel
         {
@@ -76,9 +75,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
 
         var query = new GetEmployeeByIdQuery(employeeId);
 
-        // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
