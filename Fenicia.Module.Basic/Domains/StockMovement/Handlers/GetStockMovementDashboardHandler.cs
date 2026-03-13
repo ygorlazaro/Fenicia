@@ -167,8 +167,8 @@ public class GetStockMovementDashboardHandler(DefaultContext db)
                           m.Price ?? 0,
                           m.Type.ToString(),
                           m.Reason,
-                          c != null && c.Person != null ? c.Person.Name : string.Empty,
-                          s != null && s.Person != null ? s.Person.Name : string.Empty);
+                          c != null && c.Person != null ? c.Person.Name : null,
+                          s != null && s.Person != null ? s.Person.Name : null);
 
         return await request.ToListAsync(ct);
     }
