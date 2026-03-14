@@ -23,6 +23,10 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Order;
 
+/// <summary>
+/// Unit tests for the OrderController.
+/// Tests HTTP endpoints for order management including CRUD operations and analytics.
+/// </summary>
 public class OrderControllerTests : IDisposable
 {
     public OrderControllerTests()

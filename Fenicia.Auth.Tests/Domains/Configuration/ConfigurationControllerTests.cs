@@ -19,6 +19,10 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Configuration;
 
+/// <summary>
+/// Unit tests for the ConfigurationController.
+/// Tests HTTP endpoints behavior including retrieval, upsert operations, and request/response handling.
+/// </summary>
 public class ConfigurationControllerTests : IDisposable
 {
     private readonly ConfigurationController controller;
@@ -70,6 +74,9 @@ public class ConfigurationControllerTests : IDisposable
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
+    /// <summary>
+    /// Tests that when a user has no configurations, the endpoint returns an empty list.
+    /// </summary>
     [Fact]
     public async Task GetAsync_WhenUserHasNoConfigurations_ReturnsOkWithEmptyList()
     {
@@ -93,6 +100,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that when a user has configurations, the endpoint returns them in a list.
+    /// </summary>
     [Fact]
     public async Task GetAsync_WhenUserHasConfigurations_ReturnsOkWithList()
     {
@@ -139,6 +149,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that filtering by company ID returns only that company's configurations.
+    /// </summary>
     [Fact]
     public async Task GetAsync_WithCompanyIdFilter_ReturnsOnlyCompanyConfigurations()
     {
@@ -189,6 +202,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.Equal("pt-BR", returnedList[0].Value);
     }
 
+    /// <summary>
+    /// Tests that the WideEventContext UserId is set from the authenticated user claims.
+    /// </summary>
     [Fact]
     public async Task GetAsync_SetsWideEventContextUserId()
     {
@@ -203,6 +219,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that when a configuration doesn't exist, a new one is created.
+    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenConfigurationDoesNotExist_CreatesNewConfiguration()
     {
@@ -234,6 +253,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that when a configuration exists, it is updated with the new value.
+    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenConfigurationExists_UpdatesExistingConfiguration()
     {
@@ -281,6 +303,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that a company-scoped configuration can be created.
+    /// </summary>
     [Fact]
     public async Task PatchAsync_WithCompanyId_CreatesCompanyConfiguration()
     {
@@ -318,6 +343,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that the WideEventContext UserId is set when patching a configuration.
+    /// </summary>
     [Fact]
     public async Task PatchAsync_SetsWideEventContextUserId()
     {
@@ -344,6 +372,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that the ConfigurationController has the AuthorizeAttribute applied.
+    /// </summary>
     [Fact]
     public void ConfigurationController_HasAuthorizeAttribute()
     {
@@ -357,6 +388,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.NotNull(authorizeAttribute);
     }
 
+    /// <summary>
+    /// Tests that the ConfigurationController has the RouteAttribute with correct template.
+    /// </summary>
     [Fact]
     public void ConfigurationController_HasRouteAttribute()
     {
@@ -371,6 +405,9 @@ public class ConfigurationControllerTests : IDisposable
         Assert.Equal("[controller]", routeAttribute.Template);
     }
 
+    /// <summary>
+    /// Tests that the ConfigurationController has the ProducesAttribute with correct content type.
+    /// </summary>
     [Fact]
     public void ConfigurationController_HasProducesAttribute()
     {

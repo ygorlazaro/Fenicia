@@ -6,8 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving a specific supplier by its ID.
+/// </summary>
 public class GetSupplierByIdHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves a supplier by its ID.
+    /// </summary>
+    /// <param name="query">The query containing the supplier ID.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The supplier details if found, otherwise null.</returns>
     public async Task<GetSupplierByIdResponse?> Handle(GetSupplierByIdQuery query, CancellationToken ct)
     {
         var supplier = await db.BasicSuppliers

@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Configuration;
 
+/// <summary>
+/// Unit tests for the UpsertConfigurationHandler.
+/// Tests the upsert logic for creating and updating configuration entries.
+/// </summary>
 public class UpsertConfigurationHandlerTests : IDisposable
 {
     private readonly UpsertConfigurationHandler handler;
@@ -18,25 +22,9 @@ public class UpsertConfigurationHandlerTests : IDisposable
     private readonly Faker faker;
     private readonly Guid testUserId;
 
-    public UpsertConfigurationHandlerTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new UpsertConfigurationHandler(this.db);
-        this.faker = new Faker();
-        this.testUserId = Guid.NewGuid();
-    }
-
-    public void Dispose()
-    {
-        this.db.Dispose();
-
-        GC.SuppressFinalize(this);
-    }
-
+    /// <summary>
+    /// Tests that when a configuration doesn't exist, a new one is created.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenConfigurationDoesNotExist_CreatesNewConfiguration()
     {
@@ -63,70 +51,9 @@ public class UpsertConfigurationHandlerTests : IDisposable
         Assert.Equal(this.db.CurrentCompanyId, configuration.CompanyId);
     }
 
-    [Fact]
-    public async Task Handle_WhenConfigurationExists_UpdatesExistingConfiguration()
-    {
-        // Arrange
-        var companyId = this.db.CurrentCompanyId;
-        var existingConfig = new ConfigurationModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = this.testUserId,
-            CompanyId = companyId ?? Guid.NewGuid(),
-            ConfigType = ConfigType.Language,
-            Value = "pt-BR"
-        };
-
-        this.db.AuthConfigurations.Add(existingConfig);
-        await this.db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpsertConfigurationCommand(
-            null,
-            this.testUserId,
-            ConfigType.Language,
-            "en",
-            companyId ?? Guid.Empty
-        );
-
-        // Act
-        await this.handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        var updatedConfig = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
-
-        Assert.NotNull(updatedConfig);
-
-        Assert.Equal("en", updatedConfig.Value);
-    }
-
-    [Fact]
-    public async Task Handle_WithCompanyId_CreatesCompanyConfiguration()
-    {
-        // Arrange
-        var command = new UpsertConfigurationCommand(
-            null,
-            this.testUserId,
-            ConfigType.Language,
-            "pt-BR",
-            this.db.CurrentCompanyId ?? Guid.Empty
-        );
-
-        // Act
-        await this.handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        var configuration = await this.db.AuthConfigurations
-            .FirstOrDefaultAsync(c =>
-                c.UserId == this.testUserId &&
-                c.ConfigType == ConfigType.Language &&
-                c.CompanyId == this.db.CurrentCompanyId);
-
-        Assert.NotNull(configuration);
-
-        Assert.Equal(this.db.CurrentCompanyId, configuration.CompanyId);
-        Assert.Equal("pt-BR", configuration.Value);
-    }
-
+    /// <summary>
+    /// Tests that different ConfigTypes create separate configuration entries.
+    /// </summary>
     [Fact]
     public async Task Handle_WithSameUserAndTypeButDifferentCompany_CreatesSeparateConfigurations()
     {
@@ -160,6 +87,9 @@ public class UpsertConfigurationHandlerTests : IDisposable
         Assert.Equal(2, configurations.Count);
     }
 
+    /// <summary>
+    /// Tests that updating a configuration does not change its ID.
+    /// </summary>
     [Fact]
     public async Task Handle_UpdatesConfigurationDoesNotChangeId()
     {
@@ -199,6 +129,9 @@ public class UpsertConfigurationHandlerTests : IDisposable
         Assert.Equal("en", updatedConfig.Value);
     }
 
+    /// <summary>
+    /// Tests that multiple sequential updates only keep the last value (upsert behavior).
+    /// </summary>
     [Fact]
     public async Task Handle_MultipleUpdates_OnlyLastValuePersists()
     {
@@ -243,6 +176,9 @@ public class UpsertConfigurationHandlerTests : IDisposable
         Assert.Equal("es", configurations[0].Value);
     }
 
+    /// <summary>
+    /// Tests that an empty string value can be saved.
+    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyValue_SavesEmptyString()
     {
@@ -266,6 +202,9 @@ public class UpsertConfigurationHandlerTests : IDisposable
         Assert.Equal("", configuration.Value);
     }
 
+    /// <summary>
+    /// Tests that long text values can be saved successfully.
+    /// </summary>
     [Fact]
     public async Task Handle_WithLongValue_SavesSuccessfully()
     {

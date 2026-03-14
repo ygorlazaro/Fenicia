@@ -9,30 +9,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Configuration;
 
-public class GetConfigurationHandlerTests : IDisposable
+/// <summary>
+/// Unit tests for the GetConfigurationHandler.
+/// Tests configuration retrieval logic including filtering, ordering, and response mapping.
+/// </summary>
+public class GetConfigurationHandlerTests
 {
     private readonly GetConfigurationHandler handler;
     private readonly DefaultContext db;
     private readonly Guid testUserId;
 
-    public GetConfigurationHandlerTests()
-    {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetConfigurationHandler(this.db);
-        this.testUserId = Guid.NewGuid();
-    }
-
-    public void Dispose()
-    {
-        this.db.Dispose();
-
-        GC.SuppressFinalize(this);
-    }
-
+    /// <summary>
+    /// Tests that a user with no configurations returns empty list.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasNoConfigurations_ReturnsEmptyList()
     {
@@ -47,6 +36,9 @@ public class GetConfigurationHandlerTests : IDisposable
         Assert.Empty(result);
     }
 
+    /// <summary>
+    /// Tests that a user with configurations returns all of them.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasConfigurations_ReturnsAllConfigurations()
     {
@@ -86,6 +78,9 @@ public class GetConfigurationHandlerTests : IDisposable
         Assert.Equal(ConfigType.Timezone, result[1].ConfigType);
     }
 
+    /// <summary>
+    /// Tests that filtering by company ID returns only that company's configurations.
+    /// </summary>
     [Fact]
     public async Task Handle_WithCompanyIdFilter_ReturnsOnlyCompanyConfigurations()
     {
@@ -127,6 +122,9 @@ public class GetConfigurationHandlerTests : IDisposable
         Assert.Equal("en", result[0].Value);
     }
 
+    /// <summary>
+    /// Tests that querying with a non-existent company ID returns empty list.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNonExistentCompanyId_ReturnsEmptyList()
     {
@@ -155,6 +153,9 @@ public class GetConfigurationHandlerTests : IDisposable
         Assert.Empty(result);
     }
 
+    /// <summary>
+    /// Tests that configurations are ordered alphabetically by ConfigType.
+    /// </summary>
     [Fact]
     public async Task Handle_ConfigurationsAreOrderedByConfigType()
     {
@@ -204,6 +205,9 @@ public class GetConfigurationHandlerTests : IDisposable
         Assert.Equal(ConfigType.Timezone, result[2].ConfigType);
     }
 
+    /// <summary>
+    /// Tests that the response contains all correct data fields.
+    /// </summary>
     [Fact]
     public async Task Handle_ResponseContainsCorrectData()
     {

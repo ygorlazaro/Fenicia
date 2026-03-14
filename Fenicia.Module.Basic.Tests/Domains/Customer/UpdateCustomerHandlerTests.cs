@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
+/// <summary>
+/// Unit tests for the UpdateCustomerHandler.
+/// Tests customer update business logic including validation and data persistence.
+/// </summary>
 public class UpdateCustomerHandlerTests : IDisposable
 {
     public UpdateCustomerHandlerTests()
@@ -35,6 +39,9 @@ public class UpdateCustomerHandlerTests : IDisposable
     private readonly UpdateCustomerHandler handler;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that updating an existing customer successfully updates the data and returns response.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerExists_UpdatesCustomerAndReturnsResponse()
     {
@@ -87,6 +94,9 @@ public class UpdateCustomerHandlerTests : IDisposable
             result.Id);
     }
 
+    /// <summary>
+    /// Tests that updating a non-existent customer returns null.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerDoesNotExist_ReturnsNull()
     {
@@ -113,6 +123,9 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.Null(result);
     }
 
+    /// <summary>
+    /// Tests that updating with an empty database returns null.
+    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
@@ -139,6 +152,9 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.Null(result);
     }
 
+    /// <summary>
+    /// Tests that updating a customer with null phone number is handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullPhoneNumber_SetsEmptyString()
     {
@@ -188,6 +204,9 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
+    /// <summary>
+    /// Tests that updating a customer with null street is handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullStreet_SetsEmptyString()
     {
@@ -237,6 +256,9 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
+    /// <summary>
+    /// Tests that updating a customer with null zip code is handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullZipCode_SetsEmptyString()
     {
@@ -286,6 +308,9 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
+    /// <summary>
+    /// Tests that updating a customer with null address number is handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullNumber_SetsEmptyString()
     {
@@ -335,6 +360,9 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
+    /// <summary>
+    /// Tests that updating a customer with null complement preserves null value.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullComplement_KeepsNull()
     {
@@ -384,6 +412,9 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
+    /// <summary>
+    /// Tests that updating a customer with null neighborhood preserves null value.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullNeighborhood_KeepsNull()
     {
@@ -433,6 +464,9 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
+    /// <summary>
+    /// Tests that updating a customer with null city preserves null value.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullCity_KeepsNull()
     {
@@ -482,6 +516,9 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
+    /// <summary>
+    /// Tests that the customer update is actually persisted to the database.
+    /// </summary>
     [Fact]
     public async Task Handle_VerifiesCustomerWasUpdatedInDatabase()
     {

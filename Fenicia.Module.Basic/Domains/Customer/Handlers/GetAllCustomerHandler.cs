@@ -7,8 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving all customers with pagination.
+/// Returns a paginated list of customers including their associated person details.
+/// </summary>
 public class GetAllCustomerHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves a paginated list of all customers.
+    /// </summary>
+    /// <param name="query">The query containing pagination parameters (page number and items per page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A paginated response containing the list of customers.</returns>
     public async Task<Pagination<List<GetAllCustomerResponse>>> Handle(GetAllCustomerQuery query, CancellationToken ct)
     {
         var total = await db.BasicCustomers.CountAsync(ct);

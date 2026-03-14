@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Position;
 
+/// <summary>
+/// Controller for managing employee positions within a company.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -26,6 +29,9 @@ public class PositionController(
     DeletePositionHandler deletePositionHandler,
     GetEmployeesByPositionIdHandler getEmployeesByPositionIdHandler) : ControllerBase
 {
+    /// <summary>
+    /// Retrieves all positions with pagination.
+    /// </summary>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllPositionResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -44,6 +50,9 @@ public class PositionController(
         return Ok(positions);
     }
 
+    /// <summary>
+    /// Retrieves a position by its unique identifier.
+    /// </summary>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetPositionByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -61,6 +70,9 @@ public class PositionController(
         return position is null ? NotFound() : Ok(position);
     }
 
+    /// <summary>
+    /// Retrieves all employees belonging to a specific position.
+    /// </summary>
     [HttpGet("{id:guid}/employee")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetEmployeesByPositionIdResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -80,6 +92,9 @@ public class PositionController(
         return Ok(employees);
     }
 
+    /// <summary>
+    /// Creates a new position.
+    /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddPositionResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -99,6 +114,9 @@ public class PositionController(
             position);
     }
 
+    /// <summary>
+    /// Updates an existing position.
+    /// </summary>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdatePositionResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -122,6 +140,9 @@ public class PositionController(
         return position is null ? NotFound() : Ok(position);
     }
 
+    /// <summary>
+    /// Deletes a position (soft delete).
+    /// </summary>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

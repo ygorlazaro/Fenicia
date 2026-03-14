@@ -7,8 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard.Handlers;
 
+/// <summary>
+/// Handler responsible for generating financial dashboard data.
+/// Provides comprehensive business analytics including KPIs, revenue vs cost analysis, profit margins, and sales summaries.
+/// </summary>
 public class GetFinancialDashboardHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Generates comprehensive financial dashboard analytics.
+    /// </summary>
+    /// <param name="query">The query containing dashboard parameters (number of days to analyze).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Financial dashboard including KPIs, revenue analysis, and sales data.</returns>
     public async Task<FinancialDashboardResponse> Handle(GetFinancialDashboardQuery query, CancellationToken ct)
     {
         var kpi = await CalculateKpiSummaryAsync(ct);

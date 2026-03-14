@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
+/// <summary>
+/// Unit tests for the GetEmployeesByPositionIdHandler.
+/// Tests employee retrieval filtered by position ID.
+/// </summary>
 public class GetEmployeesByPositionIdHandlerTests : IDisposable
 {
     public GetEmployeesByPositionIdHandlerTests()

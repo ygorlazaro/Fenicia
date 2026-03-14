@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
+/// <summary>
+/// Unit tests for the GetInventoryHandler.
+/// Tests inventory retrieval with pagination logic.
+/// </summary>
 public class GetInventoryHandlerTests : IDisposable
 {
     public GetInventoryHandlerTests()

@@ -7,8 +7,19 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.ForgotPassword.Handlers;
 
+/// <summary>
+/// Handler responsible for initiating the forgot password process.
+/// Creates a unique reset code that is sent to the user's email for verification.
+/// </summary>
 public class AddForgotPasswordHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Handles the forgot password request by generating a reset code for the user.
+    /// </summary>
+    /// <param name="command">The command containing the user's email.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="ItemNotExistsException">Thrown when no user exists with the given email.</exception>
     public virtual async Task Handle(AddForgotPasswordCommand command, CancellationToken ct)
     {
         var user = await db.AuthUsers.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);

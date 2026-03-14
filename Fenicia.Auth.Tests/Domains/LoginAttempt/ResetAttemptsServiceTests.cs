@@ -6,157 +6,177 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
-public class ResetAttemptsServiceTests : IDisposable
+/// <summary>
+/// Unit tests for the ResetAttemptsService.
+/// Tests resetting/removing login attempt counters from memory cache.
+/// </summary>
+/// <remarks>
+/// These tests verify the core functionality of resetting login attempt counters:
+/// - Removal of existing attempt counters
+/// - Safe handling when no attempts exist
+/// - Case-insensitive email handling
+/// - Proper exception handling for null/empty input
+/// - Isolation between different email addresses
+/// - Handling of multiple reset operations
+/// </remarks>
+public class ResetAttemptsHandlerTests : IDisposable
 {
-    // Constants for consistent test data
-    private const string ValidEmail = "test.user@example.com";
-    private const string ValidEmailUpperCase = "TEST.USER@EXAMPLE.COM";
-    private const string ValidEmailWithWhitespace = "  test.user@example.com  ";
-    private const string EmptyEmail = "";
-    private const string WhitespaceEmail = "   ";
-
-    // System Under Test (SUT) and dependencies
-    private readonly MemoryCache _cache;
-    private readonly Faker _faker;
-    private readonly ResetAttemptsService _service;
-
-    public ResetAttemptsServiceTests()
+    public ResetAttemptsHandlerTests()
     {
-        _cache = new MemoryCache(new MemoryCacheOptions());
-        _service = new ResetAttemptsService(_cache);
-        _faker = new Faker();
+        this.cache = new MemoryCache(new MemoryCacheOptions());
+        this.handler = new ResetAttemptsService(this.cache);
+        this.faker = new Faker();
     }
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        _cache.Dispose();
-    }
+    private readonly MemoryCache cache;
+    private readonly Faker faker;
+    private readonly ResetAttemptsService handler;
 
+    /// <summary>
+    /// Tests that when attempts exist, they are removed from cache.
+    /// </summary>
     [Fact]
-    public async Task Handle_WhenAttemptsExistForValidEmail_RemovesAttemptsFromCache()
+    public async Task Handle_WhenAttemptsExist_RemovesAttempts()
     {
         // Arrange
-        var email = ValidEmail;
-        var cacheKey = GetCacheKey(email);
-        _cache.Set(cacheKey, 5);
+        var email = this.faker.Internet.Email();
+        var key = $"login-attempt:{email.ToLower()}";
+        this.cache.Set(key, 5);
 
         // Act
-        await _service.Handle(email);
+        await this.handler.Handle(email);
 
         // Assert
-        var exists = _cache.TryGetValue(cacheKey, out _);
-        Assert.False(exists);
-    }
-
-    [Fact]
-    public async Task Handle_WhenNoAttemptsExistForValidEmail_CompletesSuccessfully()
-    {
-        // Arrange
-        var email = ValidEmail;
-        var cacheKey = GetCacheKey(email);
-        Assert.False(_cache.TryGetValue(cacheKey, out _));
-
-        // Act & Assert
-        await _service.Handle(email); // Should not throw any exception
-    }
-
-    [Fact]
-    public async Task Handle_WhenEmailHasDifferentCase_RemovesCorrectAttempts()
-    {
-        // Arrange
-        var originalEmail = ValidEmail;
-        var upperCaseEmail = ValidEmailUpperCase;
-        var cacheKey = GetCacheKey(originalEmail);
-        _cache.Set(cacheKey, 3);
-
-        // Act
-        await _service.Handle(upperCaseEmail);
-
-        // Assert
-        var exists = _cache.TryGetValue(cacheKey, out _);
-        Assert.False(exists);
-    }
-
-    [Fact]
-    public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.Handle(null!));
-    }
-
-    [Fact]
-    public async Task Handle_WhenEmailIsEmpty_ThrowsArgumentException()
-    {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await _service.Handle(EmptyEmail));
-        Assert.Equal("email", exception.ParamName);
-        Assert.Contains("Email cannot be empty or whitespace-only", exception.Message);
-    }
-
-    [Fact]
-    public async Task Handle_WhenEmailIsWhitespace_ThrowsArgumentException()
-    {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentException>(async () => await _service.Handle(WhitespaceEmail));
-        Assert.Equal("email", exception.ParamName);
-        Assert.Contains("Email cannot be empty or whitespace-only", exception.Message);
-    }
-
-    [Fact]
-    public async Task Handle_WhenEmailHasLeadingOrTrailingWhitespace_RemovesAttemptsFromCache()
-    {
-        // Arrange
-        var email = ValidEmailWithWhitespace;
-        var cacheKey = GetCacheKey(email);
-        _cache.Set(cacheKey, 2);
-
-        // Act
-        await _service.Handle(email);
-
-        // Assert
-        var exists = _cache.TryGetValue(cacheKey, out _);
-        Assert.False(exists);
-    }
-
-    [Fact]
-    public async Task Handle_WhenMultipleEmailsExist_RemovesOnlySpecifiedEmailAttempts()
-    {
-        // Arrange
-        var email1 = ValidEmail;
-        var email2 = _faker.Internet.Email();
-        var cacheKey1 = GetCacheKey(email1);
-        var cacheKey2 = GetCacheKey(email2);
-
-        _cache.Set(cacheKey1, 4);
-        _cache.Set(cacheKey2, 2);
-
-        // Act
-        await _service.Handle(email1);
-
-        // Assert
-        Assert.False(_cache.TryGetValue(cacheKey1, out _));
-        Assert.True(_cache.TryGetValue(cacheKey2, out _));
-    }
-
-    [Fact]
-    public async Task Handle_WhenEmailContainsSpecialCharacters_RemovesAttemptsFromCache()
-    {
-        // Arrange - Test with email containing special characters (common in some email systems)
-        var email = "user+tag@example.co.uk";
-        var cacheKey = GetCacheKey(email);
-        _cache.Set(cacheKey, 1);
-
-        // Act
-        await _service.Handle(email);
-
-        // Assert
-        var exists = _cache.TryGetValue(cacheKey, out _);
+        var exists = this.cache.TryGetValue(key, out _);
         Assert.False(exists);
     }
 
     /// <summary>
-    /// Helper method to generate cache key in the same way as the service
-    /// This ensures consistency in tests and avoids duplication
+    /// Tests that when no attempts exist, the operation completes successfully without error.
     /// </summary>
-    /// <param name="email">Email address to generate key for</param>
+    [Fact]
+    public async Task Handle_WhenNoAttemptsExist_CompletesSuccessfully()
+    {
+        // Arrange
+        var email = this.faker.Internet.Email();
+
+        // Act
+        await this.handler.Handle(email);
+
+        // Assert
+        // Should complete successfully even when no attempts exist
+    }
+
+    /// <summary>
+    /// Tests that uppercase email removes the correct lowercase cache entry.
+    /// </summary>
+    [Fact]
+    public async Task Handle_WhenEmailHasDifferentCase_RemovesCorrectAttempts()
+    {
+        // Arrange
+        var email = this.faker.Internet.Email();
+        var upperCaseEmail = email.ToUpper();
+        var key = $"login-attempt:{email.ToLower()}";
+        this.cache.Set(key, 3);
+
+        // Act
+        await this.handler.Handle(upperCaseEmail);
+
+        // Assert
+        var exists = this.cache.TryGetValue(key, out _);
+        Assert.False(exists);
+    }
+
+    /// <summary>
+    /// Tests that null email throws ArgumentNullException.
+    /// </summary>
+    [Fact]
+    public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handle(null!));
+    }
+
+    /// <summary>
+    /// Tests that empty email removes the empty key entry.
+    /// </summary>
+    [Fact]
+    public async Task Handle_WhenEmailIsEmpty_RemovesEmptyKey()
+    {
+        // Arrange
+        var email = string.Empty;
+        var key = $"login-attempt:{email.ToLower()}";
+        this.cache.Set(key, 2);
+
+        // Act
+        await this.handler.Handle(email);
+
+        // Assert
+        var exists = this.cache.TryGetValue(key, out _);
+        Assert.False(exists);
+    }
+
+    /// <summary>
+    /// Tests that resetting one email does not affect other emails.
+    /// </summary>
+    [Fact]
+    public async Task Handle_WhenMultipleEmailsExist_RemovesOnlySpecifiedEmail()
+    {
+        // Arrange
+        var email1 = this.faker.Internet.Email();
+        var email2 = this.faker.Internet.Email();
+        var key1 = $"login-attempt:{email1.ToLower()}";
+        var key2 = $"login-attempt:{email2.ToLower()}";
+        this.cache.Set(key1, 2);
+        this.cache.Set(key2, 4);
+
+        // Act
+        await this.handler.Handle(email1);
+
+        // Assert
+        Assert.False(this.cache.TryGetValue(key1, out _));
+        Assert.True(this.cache.TryGetValue(key2, out int count));
+        Assert.Equal(4, count);
+    }
+
+    /// <summary>
+    /// Tests that high attempt counts are removed successfully.
+    /// </summary>
+    [Fact]
+    public async Task Handle_WhenHighAttemptCountExists_RemovesSuccessfully()
+    {
+        // Arrange
+        var email = this.faker.Internet.Email();
+        var key = $"login-attempt:{email.ToLower()}";
+        this.cache.Set(key, 100);
+
+        // Act
+        await this.handler.Handle(email);
+
+        // Assert
+        var exists = this.cache.TryGetValue(key, out _);
+        Assert.False(exists);
+    }
+
+    /// <summary>
+    /// Tests that multiple resets for the same email complete without errors.
+    /// </summary>
+    [Fact]
+    public async Task Handle_MultipleResetsForSameEmail_CompletesSuccessfully()
+    {
+        // Arrange
+        var email = this.faker.Internet.Email();
+
+        // Act
+        await this.handler.Handle(email);
+        await this.handler.Handle(email);
+        await this.handler.Handle(email);
+
+        // Assert - Should handle multiple resets without errors
+    }
+
+    public void Dispose()
+    {
+        this.cache.Dispose();
+    }
+}

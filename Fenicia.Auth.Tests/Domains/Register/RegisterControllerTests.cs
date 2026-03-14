@@ -17,6 +17,19 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Register;
 
+/// <summary>
+/// Unit tests for the RegisterController.
+/// Tests user registration with company creation.
+/// </summary>
+/// <remarks>
+/// These tests verify:
+/// - Duplicate email validation
+/// - Duplicate CNPJ validation
+/// - Admin role existence validation
+/// - Successful user and company creation
+/// - WideEventContext UserId setting
+/// - Controller attributes
+/// </remarks>
 public class RegisterControllerTests : IDisposable
 {
     public RegisterControllerTests()
@@ -58,6 +71,9 @@ public class RegisterControllerTests : IDisposable
     private readonly DefaultContext db;
     private readonly Guid adminRoleId;
 
+    /// <summary>
+    /// Tests that registering with an existing email throws exception.
+    /// </summary>
     [Fact]
     public async Task CreateNewUserAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
@@ -84,6 +100,9 @@ public class RegisterControllerTests : IDisposable
                 xrt));
     }
 
+    /// <summary>
+    /// Tests that registering with an existing company CNPJ throws exception.
+    /// </summary>
     [Fact]
     public async Task CreateNewUserAsync_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
@@ -110,6 +129,9 @@ public class RegisterControllerTests : IDisposable
                 ct));
     }
 
+    /// <summary>
+    /// Tests that registering when Admin role doesn't exist throws exception.
+    /// </summary>
     [Fact]
     public async Task CreateNewUserAsync_WhenAdminRoleDoesNotExist_ThrowsArgumentException()
     {
@@ -136,6 +158,9 @@ public class RegisterControllerTests : IDisposable
                 ct));
     }
 
+    /// <summary>
+    /// Tests that valid registration creates user, company, and role assignment.
+    /// </summary>
     [Fact]
     public async Task CreateNewUserAsync_WhenValidRequest_ReturnsOkWithUser()
     {

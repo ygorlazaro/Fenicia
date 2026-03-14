@@ -5,8 +5,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
 
+/// <summary>
+/// Handler responsible for generating inventory dashboard data.
+/// Provides overview metrics including low stock items, totals, and breakdowns.
+/// </summary>
 public class GetInventoryDashboardHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Generates inventory dashboard with key metrics and breakdowns.
+    /// </summary>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Inventory dashboard with metrics, low stock items, and breakdowns.</returns>
     public async Task<InventoryDashboardResponse> Handle(CancellationToken ct)
     {
         var lowStockItems = await GetInventoryDashboardItemAsync(ct);

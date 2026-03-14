@@ -1,5 +1,9 @@
 namespace Fenicia.Module.Basic.Domains.Employee.Responses;
 
+/// <summary>
+/// Response model for an employee in the list view.
+/// Contains employee information including person and position details.
+/// </summary>
 public record GetAllEmployeeResponse(
     Guid Id,
     Guid PositionId,

@@ -7,8 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving all suppliers with pagination.
+/// Returns a paginated list of suppliers including their contact information.
+/// </summary>
 public class GetAllSupplierHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves paginated suppliers.
+    /// </summary>
+    /// <param name="query">The query containing page number and items per page.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A paginated response containing suppliers.</returns>
     public async Task<Pagination<List<GetAllSupplierResponse>>> Handle(GetAllSupplierQuery query, CancellationToken ct)
     {
         var total = await db.BasicSuppliers.CountAsync(ct);

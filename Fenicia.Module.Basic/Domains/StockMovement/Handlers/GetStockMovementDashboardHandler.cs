@@ -8,8 +8,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving stock movement dashboard analytics.
+/// Provides comprehensive analytics including history, monthly trends, top products, and turnover rates.
+/// </summary>
 public class GetStockMovementDashboardHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves stock movement dashboard analytics.
+    /// </summary>
+    /// <param name="query">The query containing days to analyze and top limit.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Dashboard analytics including history, monthly data, top products, and turnover rates.</returns>
     public async Task<StockMovementDashboardResponse> Handle(GetStockMovementDashboardQuery query, CancellationToken ct)
     {
         var startDate = DateTime.UtcNow.AddDays(-query.Days);

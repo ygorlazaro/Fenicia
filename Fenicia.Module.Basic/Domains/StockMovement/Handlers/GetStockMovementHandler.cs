@@ -6,8 +6,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving stock movements filtered by date range.
+/// Returns a paginated list of movements with related entity information.
+/// </summary>
 public class GetStockMovementHandler(DefaultContext context)
 {
+    /// <summary>
+    /// Retrieves stock movements by date range with pagination.
+    /// </summary>
+    /// <param name="query">The query containing date range and pagination parameters.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A paginated list of stock movements.</returns>
     public async Task<List<GetStockMovementResponse>> Handle(GetStockMovementQuery query, CancellationToken ct)
     {
         var request = from m in context.BasicStockMovements

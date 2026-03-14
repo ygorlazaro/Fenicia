@@ -18,6 +18,10 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
+/// <summary>
+/// Unit tests for the InventoryController.
+/// Tests HTTP endpoints for inventory management, dashboards, and health checks.
+/// </summary>
 public class InventoryControllerTests : IDisposable
 {
     public InventoryControllerTests()

@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
+/// <summary>
+/// Unit tests for the GetAllCustomerHandler.
+/// Tests customer list retrieval with pagination logic.
+/// </summary>
 public class GetAllCustomerHandlerTests : IDisposable
 {
     public GetAllCustomerHandlerTests()
@@ -36,6 +40,9 @@ public class GetAllCustomerHandlerTests : IDisposable
     private readonly GetAllCustomerHandler handler;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that retrieving customers from an empty database returns an empty list.
+    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
@@ -53,6 +60,9 @@ public class GetAllCustomerHandlerTests : IDisposable
             result.Total);
     }
 
+    /// <summary>
+    /// Tests that retrieving customers returns all customers in the database.
+    /// </summary>
     [Fact]
     public async Task Handle_WithCustomers_ReturnsAllCustomers()
     {
@@ -135,6 +145,9 @@ public class GetAllCustomerHandlerTests : IDisposable
             result.Data[1].Email);
     }
 
+    /// <summary>
+    /// Tests that pagination returns the correct page of results.
+    /// </summary>
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
@@ -187,6 +200,9 @@ public class GetAllCustomerHandlerTests : IDisposable
             result.Total);
     }
 
+    /// <summary>
+    /// Tests that requesting a page beyond available data returns an empty list.
+    /// </summary>
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
@@ -238,6 +254,9 @@ public class GetAllCustomerHandlerTests : IDisposable
             result.Total);
     }
 
+    /// <summary>
+    /// Tests that default pagination returns the first page with 10 items.
+    /// </summary>
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {

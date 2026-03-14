@@ -23,6 +23,9 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;
 
+/// <summary>
+/// Unit tests for the PositionController.
+/// </summary>
 public class PositionControllerTests : IDisposable
 {
     public PositionControllerTests()

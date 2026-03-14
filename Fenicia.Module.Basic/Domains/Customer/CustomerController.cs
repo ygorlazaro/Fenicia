@@ -12,6 +12,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Customer;
 
+/// <summary>
+/// Controller responsible for handling customer-related HTTP endpoints.
+/// Provides CRUD operations and customer analytics.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -25,6 +29,14 @@ public class CustomerController(
     DeleteCustomerHandler deleteCustomerHandler,
     GetCustomerInsightsHandler getCustomerInsightsHandler) : ControllerBase
 {
+    /// <summary>
+    /// Retrieves a paginated list of all customers.
+    /// </summary>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="page">Page number (default: 1).</param>
+    /// <param name="perPage">Items per page (default: 10).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Paginated list of customers.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllCustomerResponse>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -43,6 +55,13 @@ public class CustomerController(
         return Ok(customers);
     }
 
+    /// <summary>
+    /// Retrieves a specific customer by ID.
+    /// </summary>
+    /// <param name="id">Customer's unique identifier.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Customer details or 404 if not found.</returns>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCustomerByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -60,6 +79,13 @@ public class CustomerController(
         return customer is null ? NotFound() : Ok(customer);
     }
 
+    /// <summary>
+    /// Creates a new customer.
+    /// </summary>
+    /// <param name="command">Customer creation command.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Created customer.</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddCustomerResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -79,6 +105,14 @@ public class CustomerController(
             customer);
     }
 
+    /// <summary>
+    /// Updates an existing customer.
+    /// </summary>
+    /// <param name="command">Customer update command.</param>
+    /// <param name="id">Customer's unique identifier.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Updated customer or 404 if not found.</returns>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateCustomerResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -102,6 +136,13 @@ public class CustomerController(
         return customer is null ? NotFound() : Ok(customer);
     }
 
+    /// <summary>
+    /// Deletes a customer (soft delete).
+    /// </summary>
+    /// <param name="id">Customer's unique identifier.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>No content on success.</returns>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -118,6 +159,15 @@ public class CustomerController(
         return NoContent();
     }
 
+    /// <summary>
+    /// Retrieves customer analytics and insights.
+    /// </summary>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="days">Number of days to analyze (default: 90).</param>
+    /// <param name="topLimit">Number of top customers to return (default: 10).</param>
+    /// <param name="riskThresholdDays">Days threshold for risk alerts (default: 60).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Customer insights including top customers and risk alerts.</returns>
     [HttpGet("insights")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerInsightsResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

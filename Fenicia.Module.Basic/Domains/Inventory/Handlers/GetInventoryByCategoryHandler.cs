@@ -6,8 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving inventory data for products in a specific category.
+/// </summary>
 public class GetInventoryByCategoryHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves inventory data for products in a specific category.
+    /// </summary>
+    /// <param name="query">The query containing the category ID.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Inventory response for products in the category.</returns>
     public async Task<InventoryResponse> Handle(GetInventoryByCategoryQuery query, CancellationToken ct)
     {
         var products = db.BasicProducts

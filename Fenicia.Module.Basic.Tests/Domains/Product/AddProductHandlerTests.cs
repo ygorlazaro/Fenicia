@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
+/// <summary>
+/// Unit tests for the AddProductHandler.
+/// Tests product creation logic including validation and database operations.
+/// </summary>
 public class AddProductHandlerTests : IDisposable
 {
     public AddProductHandlerTests()

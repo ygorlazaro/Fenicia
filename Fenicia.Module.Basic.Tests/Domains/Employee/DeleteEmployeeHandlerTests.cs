@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
+/// <summary>
+/// Unit tests for the DeleteEmployeeHandler.
+/// Tests employee deletion (soft delete) business logic.
+/// </summary>
 public class DeleteEmployeeHandlerTests : IDisposable
 {
     public DeleteEmployeeHandlerTests()

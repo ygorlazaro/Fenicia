@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
+/// <summary>
+/// Unit tests for the GetInventoryByCategoryHandler.
+/// Tests inventory retrieval filtered by category.
+/// </summary>
 public class GetInventoryByCategoryHandlerTests : IDisposable
 {
     public GetInventoryByCategoryHandlerTests()

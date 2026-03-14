@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
+/// <summary>
+/// Unit tests for the GetAllEmployeeHandler.
+/// Tests employee list retrieval with pagination logic.
+/// </summary>
 public class GetAllEmployeeHandlerTests : IDisposable
 {
     public GetAllEmployeeHandlerTests()

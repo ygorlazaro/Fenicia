@@ -6,8 +6,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving inventory data with pagination.
+/// Returns paginated list of products with their inventory details.
+/// </summary>
 public class GetInventoryHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves paginated inventory data for all products.
+    /// </summary>
+    /// <param name="query">The query containing pagination parameters.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Inventory response with product details and totals.</returns>
     public async Task<InventoryResponse> Handle(GetInventoryQuery query, CancellationToken ct)
     {
         var products = db.BasicProducts

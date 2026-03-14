@@ -11,6 +11,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
+/// <summary>
+/// Controller responsible for handling stock movement-related HTTP endpoints.
+/// Provides endpoints to retrieve, create, and update stock movements, as well as dashboard analytics.
+/// </summary>
+/// <remarks>
+/// Most endpoints require authentication. The Update endpoint requires Admin role.
+/// </remarks>
 [ApiController]
 [Authorize]
 [Route("[controller]")]
@@ -22,6 +29,15 @@ public class StockMovementController(
     UpdateStockMovementHandler updateStockMovementHandler,
     GetStockMovementDashboardHandler getStockMovementDashboardHandler) : ControllerBase
 {
+    /// <summary>
+    /// Retrieves a paginated list of stock movements filtered by date range.
+    /// </summary>
+    /// <param name="query">Query parameters including pagination and date range.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A paginated list of stock movements.</returns>
+    /// <response code="200">Returns the list of stock movements successfully.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetStockMovementResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -42,6 +58,16 @@ public class StockMovementController(
         return Ok(stockMovement);
     }
 
+    /// <summary>
+    /// Creates a new stock movement entry.
+    /// </summary>
+    /// <param name="command">The command containing stock movement details.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The created stock movement with its details.</returns>
+    /// <response code="201">Stock movement created successfully.</response>
+    /// <response code="400">Invalid request data.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddStockMovementResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,6 +87,19 @@ public class StockMovementController(
             stockMovement);
     }
 
+    /// <summary>
+    /// Updates an existing stock movement (Admin only).
+    /// </summary>
+    /// <param name="id">The unique identifier of the stock movement to update.</param>
+    /// <param name="command">The command containing updated stock movement details.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The updated stock movement if found, otherwise NotFound.</returns>
+    /// <response code="201">Stock movement updated successfully.</response>
+    /// <response code="400">Invalid request data.</response>
+    /// <response code="403">User does not have Admin permission.</response>
+    /// <response code="404">Stock movement not found.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpPatch("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UpdateStockMovementResponse))]
@@ -87,6 +126,16 @@ public class StockMovementController(
             stockMovement);
     }
 
+    /// <summary>
+    /// Retrieves stock movement dashboard analytics including totals, trends, and top products.
+    /// </summary>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="days">Number of days to analyze (default: 30).</param>
+    /// <param name="topLimit">Number of top products to return (default: 10).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Dashboard analytics including totals, monthly data, and top products.</returns>
+    /// <response code="200">Returns dashboard data successfully.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("dashboard")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StockMovementDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -105,6 +154,9 @@ public class StockMovementController(
         return Ok(dashboard);
     }
 
+    /// <summary>
+    /// Query parameters for stock movement retrieval.
+    /// </summary>
     public record StockMovementQuery(int Page, int PerPage)
     {
         public DateTime StartDate { get; set; }

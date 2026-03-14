@@ -19,6 +19,10 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.DataSource;
 
+/// <summary>
+/// Unit tests for the DataSourceController.
+/// Tests HTTP endpoints for retrieving datasource lists (positions, categories, suppliers, customers, products, employees).
+/// </summary>
 public class DataSourceControllerTests : IDisposable
 {
     public DataSourceControllerTests()
@@ -84,6 +88,9 @@ public class DataSourceControllerTests : IDisposable
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
+    /// <summary>
+    /// Tests that when no positions exist, the endpoint returns an empty list.
+    /// </summary>
     [Fact]
     public async Task GetPositionsAsync_WhenNoPositionsExist_ReturnsOkWithEmptyList()
     {
@@ -107,6 +114,9 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedPositions);
     }
 
+    /// <summary>
+    /// Tests that when positions exist, the endpoint returns them.
+    /// </summary>
     [Fact]
     public async Task GetPositionsAsync_WhenPositionsExist_ReturnsOkWithPositions()
     {
@@ -147,6 +157,9 @@ public class DataSourceControllerTests : IDisposable
             returnedPositions.Count);
     }
 
+    /// <summary>
+    /// Tests that positions are returned ordered alphabetically by name.
+    /// </summary>
     [Fact]
     public async Task GetPositionsAsync_WhenPositionsExist_ReturnsPositionsOrderedByName()
     {
@@ -202,6 +215,9 @@ public class DataSourceControllerTests : IDisposable
 
     #region Product Categories Tests
 
+    /// <summary>
+    /// Tests that when no product categories exist, the endpoint returns an empty list.
+    /// </summary>
     [Fact]
     public async Task GetProductCategoriesAsync_WhenNoCategoriesExist_ReturnsOkWithEmptyList()
     {
@@ -225,6 +241,9 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedCategories);
     }
 
+    /// <summary>
+    /// Tests that when product categories exist, the endpoint returns them.
+    /// </summary>
     [Fact]
     public async Task GetProductCategoriesAsync_WhenCategoriesExist_ReturnsOkWithCategories()
     {
@@ -269,6 +288,9 @@ public class DataSourceControllerTests : IDisposable
 
     #region Suppliers Tests
 
+    /// <summary>
+    /// Tests that when no suppliers exist, the endpoint returns an empty list.
+    /// </summary>
     [Fact]
     public async Task GetSuppliersAsync_WhenNoSuppliersExist_ReturnsOkWithEmptyList()
     {
@@ -292,6 +314,9 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedSuppliers);
     }
 
+    /// <summary>
+    /// Tests that when suppliers exist, the endpoint returns them.
+    /// </summary>
     [Fact]
     public async Task GetSuppliersAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
@@ -352,6 +377,9 @@ public class DataSourceControllerTests : IDisposable
 
     #region Customers Tests
 
+    /// <summary>
+    /// Tests that when no customers exist, the endpoint returns an empty list.
+    /// </summary>
     [Fact]
     public async Task GetCustomersAsync_WhenNoCustomersExist_ReturnsOkWithEmptyList()
     {
@@ -375,6 +403,9 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedCustomers);
     }
 
+    /// <summary>
+    /// Tests that when customers exist, the endpoint returns them.
+    /// </summary>
     [Fact]
     public async Task GetCustomersAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
@@ -435,6 +466,9 @@ public class DataSourceControllerTests : IDisposable
 
     #region Products Tests
 
+    /// <summary>
+    /// Tests that when no products exist, the endpoint returns an empty list.
+    /// </summary>
     [Fact]
     public async Task GetProductsAsync_WhenNoProductsExist_ReturnsOkWithEmptyList()
     {
@@ -458,6 +492,9 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedProducts);
     }
 
+    /// <summary>
+    /// Tests that when products exist, the endpoint returns them.
+    /// </summary>
     [Fact]
     public async Task GetProductsAsync_WhenProductsExist_ReturnsOkWithProducts()
     {
@@ -513,6 +550,9 @@ public class DataSourceControllerTests : IDisposable
 
     #region Employees Tests
 
+    /// <summary>
+    /// Tests that when no employees exist, the endpoint returns an empty list.
+    /// </summary>
     [Fact]
     public async Task GetEmployeesAsync_WhenNoEmployeesExist_ReturnsOkWithEmptyList()
     {
@@ -536,6 +576,9 @@ public class DataSourceControllerTests : IDisposable
         Assert.Empty(returnedEmployees);
     }
 
+    /// <summary>
+    /// Tests that when employees exist, the endpoint returns them.
+    /// </summary>
     [Fact]
     public async Task GetEmployeesAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
@@ -603,6 +646,9 @@ public class DataSourceControllerTests : IDisposable
 
     #endregion
 
+    /// <summary>
+    /// Tests that the DataSourceController has the AuthorizeAttribute applied.
+    /// </summary>
     [Fact]
     public void DataSourceController_HasAuthorizeAttribute()
     {
@@ -617,6 +663,9 @@ public class DataSourceControllerTests : IDisposable
         Assert.NotNull(authorizeAttribute);
     }
 
+    /// <summary>
+    /// Tests that the DataSourceController has the RouteAttribute with correct template.
+    /// </summary>
     [Fact]
     public void DataSourceController_HasRouteAttribute()
     {
@@ -634,6 +683,9 @@ public class DataSourceControllerTests : IDisposable
             routeAttribute.Template);
     }
 
+    /// <summary>
+    /// Tests that the DataSourceController has the ApiControllerAttribute applied.
+    /// </summary>
     [Fact]
     public void DataSourceController_HasApiControllerAttribute()
     {
