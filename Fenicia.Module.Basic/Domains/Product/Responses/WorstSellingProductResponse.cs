@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Product.Responses;
 
 /// <summary>
-/// Response record for a worst-selling product in performance metrics.
+///     Response record for a worst-selling product in performance metrics.
 /// </summary>
 public record WorstSellingProductResponse(
     /// <summary>

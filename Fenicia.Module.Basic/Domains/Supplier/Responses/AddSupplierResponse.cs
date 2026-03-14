@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 /// <summary>
-/// Response record for a newly created supplier.
+///     Response record for a newly created supplier.
 /// </summary>
 public record AddSupplierResponse(
     /// <summary>

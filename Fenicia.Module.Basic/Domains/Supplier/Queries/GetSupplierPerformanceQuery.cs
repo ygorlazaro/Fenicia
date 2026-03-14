@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Queries;
 
 /// <summary>
-/// Query record for retrieving supplier performance analytics.
+///     Query record for retrieving supplier performance analytics.
 /// </summary>
 public record GetSupplierPerformanceQuery(
     /// <summary>

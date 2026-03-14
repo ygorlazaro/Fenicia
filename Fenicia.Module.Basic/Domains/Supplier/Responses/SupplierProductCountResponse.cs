@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 /// <summary>
-/// Response record for supplier product count and value analysis.
+///     Response record for supplier product count and value analysis.
 /// </summary>
 public record SupplierProductCountResponse(
     /// <summary>

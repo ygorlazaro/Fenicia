@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Inventory.Responses;
 
 /// <summary>
-/// Response model for stock value by category.
+///     Response model for stock value by category.
 /// </summary>
 public record StockValueByCategoryResponse(
     /// <summary>Category ID.</summary>

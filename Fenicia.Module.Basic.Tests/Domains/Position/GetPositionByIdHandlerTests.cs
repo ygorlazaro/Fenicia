@@ -10,15 +10,15 @@ namespace Fenicia.Module.Basic.Tests.Domains.Position;
 
 public class GetPositionByIdHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly GetPositionByIdHandler handler;
+
     public GetPositionByIdHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetPositionByIdHandler(this.db);
     }
 
@@ -27,9 +27,6 @@ public class GetPositionByIdHandlerTests : IDisposable
         this.db.Dispose();
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly GetPositionByIdHandler handler;
 
     [Theory]
     [InlineData("Developer")]
@@ -40,11 +37,7 @@ public class GetPositionByIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = positionId,
-            Name = positionName
-        };
+        var position = new PositionModel { Id = positionId, Name = positionName };
 
         this.db.BasicPositions.Add(position);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -52,15 +45,12 @@ public class GetPositionByIdHandlerTests : IDisposable
         var query = new GetPositionByIdQuery(positionId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(positionId,
-            result.Id);
-        Assert.Equal(positionName,
-            result.Name);
+        Assert.Equal(positionId, result.Id);
+        Assert.Equal(positionName, result.Name);
     }
 
     [Fact]
@@ -70,8 +60,7 @@ public class GetPositionByIdHandlerTests : IDisposable
         var query = new GetPositionByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -84,8 +73,7 @@ public class GetPositionByIdHandlerTests : IDisposable
         var query = new GetPositionByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -101,23 +89,18 @@ public class GetPositionByIdHandlerTests : IDisposable
         var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
         var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
 
-        this.db.BasicPositions.AddRange(position1,
-            position2);
+        this.db.BasicPositions.AddRange(position1, position2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetPositionByIdQuery(position1Id);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(position1Id,
-            result.Id);
-        Assert.Equal("Developer",
-            result.Name);
-        Assert.NotEqual("Designer",
-            result.Name);
+        Assert.Equal(position1Id, result.Id);
+        Assert.Equal("Developer", result.Name);
+        Assert.NotEqual("Designer", result.Name);
     }
 }

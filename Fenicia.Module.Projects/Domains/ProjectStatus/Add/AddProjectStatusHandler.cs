@@ -21,13 +21,6 @@ public class AddProjectStatusHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new AddProjectStatusResponse(
-            status.Id,
-            status.ProjectId,
-            status.Name,
-            status.Color,
-            status.Order,
-            status.IsFinal,
-            status.CompanyId);
+        return new AddProjectStatusResponse(status.Id, status.ProjectId, status.Name, status.Color, status.Order, status.IsFinal, status.CompanyId);
     }
 }

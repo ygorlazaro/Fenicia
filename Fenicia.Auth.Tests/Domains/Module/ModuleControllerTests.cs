@@ -20,67 +20,55 @@ using Moq;
 namespace Fenicia.Auth.Tests.Domains.Module;
 
 /// <summary>
-/// Unit tests for the ModuleController.
-/// Tests the HTTP endpoint for retrieving modules.
+///     Unit tests for the ModuleController.
+///     Tests the HTTP endpoint for retrieving modules.
 /// </summary>
 /// <remarks>
-/// These tests verify the core functionality of the module endpoint:
-/// - Returns correct pagination responses
-/// - Excludes Auth type modules
-/// - Sets WideEventContext UserId to "Guest"
-/// - Controller has correct attributes (Authorize, Route, Produces)
-/// - Endpoint has AllowAnonymous attribute
+///     These tests verify the core functionality of the module endpoint:
+///     - Returns correct pagination responses
+///     - Excludes Auth type modules
+///     - Sets WideEventContext UserId to "Guest"
+///     - Controller has correct attributes (Authorize, Route, Produces)
+///     - Endpoint has AllowAnonymous attribute
 /// </remarks>
 public class ModuleControllerTests : IDisposable
 {
+    private readonly ModuleController controller;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+
     public ModuleControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         this.db = new DefaultContext(options, new TestCompanyContext());
         var getModulesHandler = new GetModulesHandler(this.db);
         var mockHttpContext = new Mock<HttpContext>();
         this.faker = new Faker();
 
-        this.controller = new ModuleController(getModulesHandler)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            }
-        };
+        this.controller = new ModuleController(getModulesHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
     }
 
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
 
-    private readonly ModuleController controller;
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-
     /// <summary>
-    /// Tests that when no modules exist, the endpoint returns OK with empty pagination.
+    ///     Tests that when no modules exist, the endpoint returns OK with empty pagination.
     /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsOkWithEmptyPagination()
     {
         // Arrange
-        var query = new PaginationQuery(1,
-            10);
+        var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllModulesAsync(
-            query,
-            wide,
-            ct);
+        var result = await this.controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -92,49 +80,30 @@ public class ModuleControllerTests : IDisposable
         var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.NotNull(returnedPagination);
         Assert.Empty(returnedPagination.Data);
-        Assert.Equal(0,
-            returnedPagination.Total);
-        Assert.Equal("Guest",
-            wide.UserId);
+        Assert.Equal(0, returnedPagination.Total);
+        Assert.Equal("Guest", wide.UserId);
     }
 
     /// <summary>
-    /// Tests that when modules exist, they are returned with correct pagination.
+    ///     Tests that when modules exist, they are returned with correct pagination.
     /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_WhenModulesExist_ReturnsOkWithPagination()
     {
         // Arrange
-        var module1 = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
-            Type = ModuleType.Basic,
-            Price = 10.0m
-        };
+        var module1 = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = 10.0m };
 
-        var module2 = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
-            Type = ModuleType.SocialNetwork,
-            Price = 20.0m
-        };
+        var module2 = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.SocialNetwork, Price = 20.0m };
 
-        this.db.AuthModules.AddRange(module1,
-            module2);
+        this.db.AuthModules.AddRange(module1, module2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(1,
-            10);
+        var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllModulesAsync(
-            query,
-            wide,
-            ct);
+        var result = await this.controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -145,51 +114,31 @@ public class ModuleControllerTests : IDisposable
 
         var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.NotNull(returnedPagination);
-        Assert.Equal(2,
-            returnedPagination.Data.Count);
-        Assert.Equal(2,
-            returnedPagination.Total);
-        Assert.Equal("Guest",
-            wide.UserId);
+        Assert.Equal(2, returnedPagination.Data.Count);
+        Assert.Equal(2, returnedPagination.Total);
+        Assert.Equal("Guest", wide.UserId);
     }
 
     /// <summary>
-    /// Tests that Auth module type is excluded from results.
+    ///     Tests that Auth module type is excluded from results.
     /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_ExcludesErpAndAuthModuleTypes()
     {
         // Arrange
-        var authModule = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
-            Type = ModuleType.Auth,
-            Price = 50.0m
-        };
+        var authModule = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Auth, Price = 50.0m };
 
-        var basicModule = new ModuleModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
-            Type = ModuleType.Basic,
-            Price = 10.0m
-        };
+        var basicModule = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = 10.0m };
 
-        this.db.AuthModules.AddRange(authModule,
-            basicModule);
+        this.db.AuthModules.AddRange(authModule, basicModule);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(1,
-            10);
+        var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllModulesAsync(
-            query,
-            wide,
-            ct);
+        var result = await this.controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -201,35 +150,29 @@ public class ModuleControllerTests : IDisposable
         var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.NotNull(returnedPagination);
         Assert.Single(returnedPagination.Data);
-        Assert.Equal(basicModule.Name,
-            returnedPagination.Data[0].Name);
+        Assert.Equal(basicModule.Name, returnedPagination.Data[0].Name);
     }
 
     /// <summary>
-    /// Tests that WideEventContext UserId is set to "Guest" for unauthenticated requests.
+    ///     Tests that WideEventContext UserId is set to "Guest" for unauthenticated requests.
     /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_SetsWideEventContextUserIdToGuest()
     {
         // Arrange
-        var query = new PaginationQuery(1,
-            10);
+        var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        await this.controller.GetAllModulesAsync(
-            query,
-            wide,
-            ct);
+        await this.controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
-        Assert.Equal("Guest",
-            wide.UserId);
+        Assert.Equal("Guest", wide.UserId);
     }
 
     /// <summary>
-    /// Tests that pagination parameters are applied correctly.
+    ///     Tests that pagination parameters are applied correctly.
     /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_WithPagination_ReturnsCorrectPage()
@@ -238,28 +181,18 @@ public class ModuleControllerTests : IDisposable
         var modules = new List<ModuleModel>();
         for (var i = 0; i < 25; i++)
         {
-            modules.Add(new ModuleModel
-            {
-                Id = Guid.NewGuid(),
-                Name = $"Module {this.faker.Commerce.ProductName()} {i}",
-                Type = (ModuleType)(i % 10 + 1),
-                Price = 10.0m
-            });
+            modules.Add(new ModuleModel { Id = Guid.NewGuid(), Name = $"Module {this.faker.Commerce.ProductName()} {i}", Type = (ModuleType)(i % 10 + 1), Price = 10.0m });
         }
 
         this.db.AuthModules.AddRange(modules);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new PaginationQuery(2,
-            10);
+        var query = new PaginationQuery(2, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllModulesAsync(
-            query,
-            wide,
-            ct);
+        var result = await this.controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -270,18 +203,14 @@ public class ModuleControllerTests : IDisposable
 
         var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
         Assert.NotNull(returnedPagination);
-        Assert.Equal(10,
-            returnedPagination.Data.Count);
-        Assert.Equal(25,
-            returnedPagination.Total);
-        Assert.Equal(2,
-            returnedPagination.Page);
-        Assert.Equal(10,
-            returnedPagination.PerPage);
+        Assert.Equal(10, returnedPagination.Data.Count);
+        Assert.Equal(25, returnedPagination.Total);
+        Assert.Equal(2, returnedPagination.Page);
+        Assert.Equal(10, returnedPagination.PerPage);
     }
 
     /// <summary>
-    /// Tests that the controller has the AuthorizeAttribute applied.
+    ///     Tests that the controller has the AuthorizeAttribute applied.
     /// </summary>
     [Fact]
     public void ModuleController_HasAuthorizeAttribute()
@@ -290,15 +219,14 @@ public class ModuleControllerTests : IDisposable
         var controllerType = typeof(ModuleController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     /// <summary>
-    /// Tests that the controller has the RouteAttribute with [controller] template.
+    ///     Tests that the controller has the RouteAttribute with [controller] template.
     /// </summary>
     [Fact]
     public void ModuleController_HasRouteAttribute()
@@ -307,18 +235,15 @@ public class ModuleControllerTests : IDisposable
         var controllerType = typeof(ModuleController);
 
         // Act
-        var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute),
-                false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]",
-            routeAttribute.Template);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
     /// <summary>
-    /// Tests that the controller has the ProducesAttribute with application/json content type.
+    ///     Tests that the controller has the ProducesAttribute with application/json content type.
     /// </summary>
     [Fact]
     public void ModuleController_HasProducesAttribute()
@@ -327,18 +252,15 @@ public class ModuleControllerTests : IDisposable
         var controllerType = typeof(ModuleController);
 
         // Act
-        var producesAttribute =
-            controllerType.GetCustomAttributes(typeof(ProducesAttribute),
-                false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.NotNull(producesAttribute);
-        Assert.Equal("application/json",
-            producesAttribute.ContentTypes.FirstOrDefault());
+        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
     }
 
     /// <summary>
-    /// Tests that the GetAllModulesAsync method has AllowAnonymousAttribute for public access.
+    ///     Tests that the GetAllModulesAsync method has AllowAnonymousAttribute for public access.
     /// </summary>
     [Fact]
     public void GetAllModulesAsync_HasAllowAnonymousAttribute()
@@ -348,9 +270,7 @@ public class ModuleControllerTests : IDisposable
         var methodInfo = controllerType.GetMethod(nameof(ModuleController.GetAllModulesAsync));
 
         // Act
-        var allowAnonymousAttribute =
-            methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute),
-                false).FirstOrDefault();
+        var allowAnonymousAttribute = methodInfo?.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(allowAnonymousAttribute);

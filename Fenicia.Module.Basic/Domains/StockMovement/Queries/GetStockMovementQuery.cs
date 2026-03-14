@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.StockMovement.Queries;
 
 /// <summary>
-/// Query record for retrieving stock movements with date range filtering.
+///     Query record for retrieving stock movements with date range filtering.
 /// </summary>
 public record GetStockMovementQuery(
     /// <summary>

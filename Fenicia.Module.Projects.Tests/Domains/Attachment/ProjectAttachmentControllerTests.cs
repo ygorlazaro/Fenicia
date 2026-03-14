@@ -24,15 +24,18 @@ namespace Fenicia.Module.Projects.Tests.Domains.Attachment;
 
 public class ProjectAttachmentControllerTests : IDisposable
 {
+    private readonly ProjectAttachmentController controller;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testProjectAttachmentId;
+
     public ProjectAttachmentControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectAttachmentId = Guid.NewGuid();
         var getAllProjectAttachmentHandler = new GetAllProjectAttachmentHandler(this.db);
         var getProjectAttachmentByIdHandler = new GetProjectAttachmentByIdHandler(this.db);
@@ -41,18 +44,7 @@ public class ProjectAttachmentControllerTests : IDisposable
         var deleteProjectAttachmentHandler = new DeleteProjectAttachmentHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ProjectAttachmentController(
-            getAllProjectAttachmentHandler,
-            getProjectAttachmentByIdHandler,
-            addProjectAttachmentHandler,
-            updateProjectAttachmentHandler,
-            deleteProjectAttachmentHandler)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = this.mockHttpContext.Object
-            }
-        };
+        this.controller = new ProjectAttachmentController(getAllProjectAttachmentHandler, getProjectAttachmentByIdHandler, addProjectAttachmentHandler, updateProjectAttachmentHandler, deleteProjectAttachmentHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
 
         SetupUserClaims();
         this.faker = new Faker();
@@ -61,27 +53,15 @@ public class ProjectAttachmentControllerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
 
-    private readonly ProjectAttachmentController controller;
-    private readonly DefaultContext db;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testProjectAttachmentId;
-    private readonly Faker faker;
-
     private void SetupUserClaims()
     {
-        var claims = new List<Claim>
-        {
-            new("userId",
-                Guid.NewGuid()
-                    .ToString())
-        };
+        var claims = new List<Claim> { new("userId", Guid.NewGuid().ToString()) };
 
-        var claimsIdentity = new ClaimsIdentity(claims,
-            "Test");
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -98,10 +78,7 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -125,8 +102,7 @@ public class ProjectAttachmentControllerTests : IDisposable
             TaskId = Guid.NewGuid(),
             FileName = this.faker.System.FileName(),
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000,
-                1000000),
+            FileSize = this.faker.Random.Long(1000, 1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
@@ -137,14 +113,12 @@ public class ProjectAttachmentControllerTests : IDisposable
             TaskId = Guid.NewGuid(),
             FileName = this.faker.System.FileName(),
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000,
-                1000000),
+            FileSize = this.faker.Random.Long(1000, 1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.AddRange(projectAttachment1,
-            projectAttachment2);
+        this.db.ProjectAttachments.AddRange(projectAttachment1, projectAttachment2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
@@ -153,10 +127,7 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -167,8 +138,7 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         var returnedAttachments = okResult.Value as List<GetAllProjectAttachmentResponse>;
         Assert.NotNull(returnedAttachments);
-        Assert.Equal(2,
-            returnedAttachments.Count);
+        Assert.Equal(2, returnedAttachments.Count);
     }
 
     [Fact]
@@ -181,8 +151,7 @@ public class ProjectAttachmentControllerTests : IDisposable
             TaskId = Guid.NewGuid(),
             FileName = this.faker.System.FileName(),
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000,
-                1000000),
+            FileSize = this.faker.Random.Long(1000, 1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
@@ -194,9 +163,7 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testProjectAttachmentId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(this.testProjectAttachmentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -207,10 +174,8 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         var returnedAttachment = okResult.Value as GetProjectAttachmentByIdResponse;
         Assert.NotNull(returnedAttachment);
-        Assert.Equal(this.testProjectAttachmentId,
-            returnedAttachment.Id);
-        Assert.Equal(projectAttachment.FileName,
-            returnedAttachment.FileName);
+        Assert.Equal(this.testProjectAttachmentId, returnedAttachment.Id);
+        Assert.Equal(projectAttachment.FileName, returnedAttachment.FileName);
     }
 
     [Fact]
@@ -222,9 +187,7 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -235,23 +198,13 @@ public class ProjectAttachmentControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithItem()
     {
         // Arrange
-        var command = new AddProjectAttachmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            this.faker.System.FileName(),
-            this.faker.Internet.Url(),
-            this.faker.Random.Long(1000,
-                1000000),
-            Guid.NewGuid(),
-            "application/json");
+        var command = new AddProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.System.FileName(), this.faker.Internet.Url(), this.faker.Random.Long(1000, 1000000), Guid.NewGuid(), "application/json");
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command,
-            wide,
-            ct);
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -259,15 +212,12 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201,
-            createdResult.StatusCode);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedAttachment = createdResult.Value as AddProjectAttachmentResponse;
         Assert.NotNull(returnedAttachment);
-        Assert.Equal(command.Id,
-            returnedAttachment.Id);
-        Assert.Equal(command.FileName,
-            returnedAttachment.FileName);
+        Assert.Equal(command.Id, returnedAttachment.Id);
+        Assert.Equal(command.FileName, returnedAttachment.FileName);
     }
 
     [Fact]
@@ -280,8 +230,7 @@ public class ProjectAttachmentControllerTests : IDisposable
             TaskId = Guid.NewGuid(),
             FileName = this.faker.System.FileName(),
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000,
-                1000000),
+            FileSize = this.faker.Random.Long(1000, 1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
@@ -289,22 +238,13 @@ public class ProjectAttachmentControllerTests : IDisposable
         this.db.ProjectAttachments.Add(projectAttachment);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProjectAttachmentCommand(
-            projectAttachment.Id,
-            projectAttachment.TaskId,
-            this.faker.System.FileName() + "_updated",
-            this.faker.Internet.Url(),
-            projectAttachment.FileSize,
-            projectAttachment.UploadedBy);
+        var command = new UpdateProjectAttachmentCommand(projectAttachment.Id, projectAttachment.TaskId, this.faker.System.FileName() + "_updated", this.faker.Internet.Url(), projectAttachment.FileSize, projectAttachment.UploadedBy);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            this.testProjectAttachmentId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, this.testProjectAttachmentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -315,8 +255,7 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         var returnedAttachment = okResult.Value as UpdateProjectAttachmentResponse;
         Assert.NotNull(returnedAttachment);
-        Assert.Contains("_updated",
-            returnedAttachment.FileName);
+        Assert.Contains("_updated", returnedAttachment.FileName);
     }
 
     [Fact]
@@ -324,23 +263,13 @@ public class ProjectAttachmentControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdateProjectAttachmentCommand(
-            nonExistentId,
-            Guid.NewGuid(),
-            this.faker.System.FileName(),
-            this.faker.Internet.Url(),
-            this.faker.Random.Long(1000,
-                1000000),
-            Guid.NewGuid());
+        var command = new UpdateProjectAttachmentCommand(nonExistentId, Guid.NewGuid(), this.faker.System.FileName(), this.faker.Internet.Url(), this.faker.Random.Long(1000, 1000000), Guid.NewGuid());
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -357,8 +286,7 @@ public class ProjectAttachmentControllerTests : IDisposable
             TaskId = Guid.NewGuid(),
             FileName = this.faker.System.FileName(),
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000,
-                1000000),
+            FileSize = this.faker.Random.Long(1000, 1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
@@ -370,17 +298,13 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testProjectAttachmentId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(this.testProjectAttachmentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify project attachment was deleted
-        var deletedAttachment = await this.db.ProjectAttachments.FirstOrDefaultAsync(
-            x => x.Id == this.testProjectAttachmentId && x.Deleted == null,
-            ct);
+        var deletedAttachment = await this.db.ProjectAttachments.FirstOrDefaultAsync(x => x.Id == this.testProjectAttachmentId && x.Deleted == null, ct);
         Assert.Null(deletedAttachment);
     }
 
@@ -393,9 +317,7 @@ public class ProjectAttachmentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -408,8 +330,7 @@ public class ProjectAttachmentControllerTests : IDisposable
         var controllerType = typeof(ProjectAttachmentController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -422,14 +343,11 @@ public class ProjectAttachmentControllerTests : IDisposable
         var controllerType = typeof(ProjectAttachmentController);
 
         // Act
-        var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute),
-                false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]",
-            routeAttribute.Template);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
     [Fact]
@@ -439,9 +357,7 @@ public class ProjectAttachmentControllerTests : IDisposable
         var controllerType = typeof(ProjectAttachmentController);
 
         // Act
-        var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
-                false).FirstOrDefault();
+        var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
@@ -455,13 +371,11 @@ public class ProjectAttachmentControllerTests : IDisposable
         var deleteMethod = controllerType.GetMethod(nameof(ProjectAttachmentController.DeleteAsync));
 
         // Act
-        var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
     [Fact]
@@ -472,13 +386,11 @@ public class ProjectAttachmentControllerTests : IDisposable
         var postMethod = controllerType.GetMethod(nameof(ProjectAttachmentController.PostAsync));
 
         // Act
-        var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
     [Fact]
@@ -489,12 +401,10 @@ public class ProjectAttachmentControllerTests : IDisposable
         var patchMethod = controllerType.GetMethod(nameof(ProjectAttachmentController.PatchAsync));
 
         // Act
-        var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 }

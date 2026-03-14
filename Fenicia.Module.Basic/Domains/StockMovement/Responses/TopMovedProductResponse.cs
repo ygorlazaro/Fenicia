@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.StockMovement.Responses;
 
 /// <summary>
-/// Response record for a top moved product in dashboard analytics.
+///     Response record for a top moved product in dashboard analytics.
 /// </summary>
 public record TopMovedProductResponse(
     /// <summary>

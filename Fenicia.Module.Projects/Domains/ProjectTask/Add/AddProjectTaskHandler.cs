@@ -15,10 +15,8 @@ public class AddProjectTaskHandler(DefaultContext context)
             StatusId = command.StatusId,
             Title = command.Title,
             Description = command.Description,
-            Priority = Enum.Parse<EnumTaskPriority>(command.Priority,
-                true),
-            Type = Enum.Parse<EnumTaskType>(command.Type,
-                true),
+            Priority = Enum.Parse<EnumTaskPriority>(command.Priority, true),
+            Type = Enum.Parse<EnumTaskType>(command.Type, true),
             Order = command.Order,
             EstimatePoints = command.EstimatePoints,
             DueDate = command.DueDate,
@@ -29,18 +27,6 @@ public class AddProjectTaskHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new AddProjectTaskResponse(
-            projectTask.Id,
-            projectTask.ProjectId,
-            projectTask.StatusId,
-            projectTask.Title,
-            projectTask.Description,
-            projectTask.Priority.ToString(),
-            projectTask.Type.ToString(),
-            projectTask.Order,
-            projectTask.EstimatePoints,
-            projectTask.DueDate,
-            projectTask.CreatedBy,
-            projectTask.CompanyId);
+        return new AddProjectTaskResponse(projectTask.Id, projectTask.ProjectId, projectTask.StatusId, projectTask.Title, projectTask.Description, projectTask.Priority.ToString(), projectTask.Type.ToString(), projectTask.Order, projectTask.EstimatePoints, projectTask.DueDate, projectTask.CreatedBy, projectTask.CompanyId);
     }
 }

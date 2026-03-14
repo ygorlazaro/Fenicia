@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 
 /// <summary>
-/// Query record for retrieving a product category by its ID.
+///     Query record for retrieving a product category by its ID.
 /// </summary>
 public record GetProductCategoryByIdQuery(
     /// <summary>

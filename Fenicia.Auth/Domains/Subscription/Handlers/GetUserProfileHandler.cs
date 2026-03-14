@@ -20,38 +20,19 @@ public class GetUserProfileHandler(DefaultContext db)
         var userCompanies = await GetUserCompaniesAsync(query.UserId, ct);
         var subscriptions = await GetUserSubscriptionsAsync(query, ct);
 
-        return new GetUserProfileResponse(
-            user.Id,
-            user.Name,
-            user.Email,
-            userCompanies,
-            subscriptions);
+        return new GetUserProfileResponse(user.Id, user.Name, user.Email, userCompanies, subscriptions);
     }
 
     private async Task<List<UserSubscriptionResponse>> GetUserSubscriptionsAsync(GetUserProfileQuery query, CancellationToken ct)
     {
-        var request = from s in db.AuthSubscriptions
-                      join c in db.AuthCompanies on s.CompanyId equals c.Id
-                      join ur in db.AuthUserRoles on c.Id equals ur.CompanyId
-                      where ur.UserId == query.UserId
-                      select new UserSubscriptionResponse(
-                          s.Id,
-                          c.Id,
-                          c.Name,
-                          s.Status,
-                          s.StartDate,
-                          s.EndDate
-                      );
-          
+        var request = from s in db.AuthSubscriptions join c in db.AuthCompanies on s.CompanyId equals c.Id join ur in db.AuthUserRoles on c.Id equals ur.CompanyId where ur.UserId == query.UserId select new UserSubscriptionResponse(s.Id, c.Id, c.Name, s.Status, s.StartDate, s.EndDate);
+
         return await request.ToListAsync(ct);
     }
 
     private async Task<List<UserCompanyResponse>> GetUserCompaniesAsync(Guid userId, CancellationToken ct)
     {
-        var request = from ur in db.AuthUserRoles
-                      join c in db.AuthCompanies on ur.CompanyId equals c.Id
-                      where ur.UserId == userId
-                      select new UserCompanyResponse(c.Id, c.Name, c.Cnpj);
+        var request = from ur in db.AuthUserRoles join c in db.AuthCompanies on ur.CompanyId equals c.Id where ur.UserId == userId select new UserCompanyResponse(c.Id, c.Name, c.Cnpj);
 
         var companies = await request.ToListAsync(ct);
 

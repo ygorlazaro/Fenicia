@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.StockMovement.Queries;
 
 /// <summary>
-/// Query record for retrieving stock movement dashboard analytics.
+///     Query record for retrieving stock movement dashboard analytics.
 /// </summary>
 public record GetStockMovementDashboardQuery(
     /// <summary>

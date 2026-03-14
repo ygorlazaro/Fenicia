@@ -24,16 +24,20 @@ using Moq;
 namespace Fenicia.Auth.Tests.Domains.Company;
 
 /// <summary>
-/// Unit tests for the CompanyController.
-/// Tests HTTP endpoints behavior including authorization, pagination, and request/response handling.
+///     Unit tests for the CompanyController.
+///     Tests HTTP endpoints behavior including authorization, pagination, and request/response handling.
 /// </summary>
 public class CompanyControllerTests : IDisposable
 {
+    private readonly CompanyController controller;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testUserId;
+
     public CompanyControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         this.db = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
@@ -41,13 +45,7 @@ public class CompanyControllerTests : IDisposable
         var updateCompanyHandler = new UpdateCompanyHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new CompanyController(getCompaniesByUserHandler, updateCompanyHandler)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = this.mockHttpContext.Object
-            }
-        };
+        this.controller = new CompanyController(getCompaniesByUserHandler, updateCompanyHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
 
         SetupUserClaims(this.testUserId);
         this.faker = new Faker();
@@ -59,18 +57,9 @@ public class CompanyControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private readonly CompanyController controller;
-    private readonly DefaultContext db;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testUserId;
-    private readonly Faker faker;
-
     private void SetupUserClaims(Guid userId)
     {
-        var claims = new List<Claim>
-        {
-            new("userId", userId.ToString())
-        };
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
 
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
@@ -80,7 +69,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when a user has no associated companies, the endpoint returns an empty paginated response.
+    ///     Tests that when a user has no associated companies, the endpoint returns an empty paginated response.
     /// </summary>
     [Fact]
     public async Task GetByLoggedUser_WhenUserHasNoCompanies_ReturnsOkWithEmptyPagination()
@@ -108,7 +97,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when a user has associated companies, the endpoint returns them in a paginated response.
+    ///     Tests that when a user has associated companies, the endpoint returns them in a paginated response.
     /// </summary>
     [Fact]
     public async Task GetByLoggedUser_WhenUserHasCompanies_ReturnsOkWithPagination()
@@ -117,35 +106,13 @@ public class CompanyControllerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Admin"
-        };
+        var role = new RoleModel { Id = roleId, Name = "Admin" };
 
-        var user = new UserModel
-        {
-            Id = this.testUserId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = this.testUserId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = roleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
@@ -176,7 +143,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the WideEventContext UserId is set from the authenticated user claims.
+    ///     Tests that the WideEventContext UserId is set from the authenticated user claims.
     /// </summary>
     [Fact]
     public async Task GetByLoggedUser_SetsWideEventContextUserId()
@@ -194,7 +161,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that an Admin user can successfully update a company and receives NoContent result.
+    ///     Tests that an Admin user can successfully update a company and receives NoContent result.
     /// </summary>
     [Fact]
     public async Task PatchAsync_WhenUserIsAdminAndCompanyExists_ReturnsNoContent()
@@ -205,35 +172,13 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var adminRole = new RoleModel
-        {
-            Id = adminRoleId,
-            Name = "Admin"
-        };
+        var adminRole = new RoleModel { Id = adminRoleId, Name = "Admin" };
 
-        var user = new UserModel
-        {
-            Id = this.testUserId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = this.testUserId,
-            RoleId = adminRoleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = adminRoleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(adminRole);
@@ -262,7 +207,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that attempting to update a non-existent company throws ItemNotExistsException.
+    ///     Tests that attempting to update a non-existent company throws ItemNotExistsException.
     /// </summary>
     [Fact]
     public async Task PatchAsync_WhenCompanyDoesNotExist_ThrowsItemNotExistsException()
@@ -279,7 +224,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that a non-Admin user cannot update a company and receives PermissionDeniedException.
+    ///     Tests that a non-Admin user cannot update a company and receives PermissionDeniedException.
     /// </summary>
     [Fact]
     public async Task PatchAsync_WhenUserIsNotAdmin_ThrowsPermissionDeniedException()
@@ -290,35 +235,13 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var userRole = new RoleModel
-        {
-            Id = userRoleId,
-            Name = "Contributor"
-        };
+        var userRole = new RoleModel { Id = userRoleId, Name = "Contributor" };
 
-        var user = new UserModel
-        {
-            Id = this.testUserId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRoleMapping = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = this.testUserId,
-            RoleId = userRoleId,
-            CompanyId = companyId
-        };
+        var userRoleMapping = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = userRoleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(userRole);
@@ -333,7 +256,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the WideEventContext UserId is set when patching a company.
+    ///     Tests that the WideEventContext UserId is set when patching a company.
     /// </summary>
     [Fact]
     public async Task PatchAsync_SetsWideEventContextUserId()
@@ -344,35 +267,13 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var adminRole = new RoleModel
-        {
-            Id = adminRoleId,
-            Name = "Admin"
-        };
+        var adminRole = new RoleModel { Id = adminRoleId, Name = "Admin" };
 
-        var user = new UserModel
-        {
-            Id = this.testUserId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = this.testUserId,
-            RoleId = adminRoleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = adminRoleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(adminRole);
@@ -390,7 +291,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the CompanyController has the AuthorizeAttribute applied.
+    ///     Tests that the CompanyController has the AuthorizeAttribute applied.
     /// </summary>
     [Fact]
     public void CompanyController_HasAuthorizeAttribute()
@@ -406,7 +307,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the CompanyController has the RouteAttribute with correct template.
+    ///     Tests that the CompanyController has the RouteAttribute with correct template.
     /// </summary>
     [Fact]
     public void CompanyController_HasRouteAttribute()
@@ -423,7 +324,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the CompanyController has the ProducesAttribute with correct content type.
+    ///     Tests that the CompanyController has the ProducesAttribute with correct content type.
     /// </summary>
     [Fact]
     public void CompanyController_HasProducesAttribute()
@@ -440,7 +341,7 @@ public class CompanyControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the PatchAsync method has the AuthorizeAttribute with Admin role.
+    ///     Tests that the PatchAsync method has the AuthorizeAttribute with Admin role.
     /// </summary>
     [Fact]
     public void PatchAsync_HasAuthorizeRolesAttribute()

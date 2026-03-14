@@ -22,19 +22,12 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);
 
-        builder.AddFeniciaLogging()
-            .AddFeniciaRateLimiting(configuration)
-            .AddFeniciaCors()
-            .AddFeniciaAuthentication(configuration)
-            .AddFeniciaControllers()
-            .AddFeniciaLocalization()
-            .AddFeniciaDependencyInjection(() =>
-            {
-                builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
-                builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
-                builder.Services.AddHttpContextAccessor();
-            })
-            .AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
+        builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
+        {
+            builder.Services.AddTransient<IBrevoProvider, BrevoProvider>();
+            builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
+            builder.Services.AddHttpContextAccessor();
+        }).AddFeniciaDbContext<DefaultContext>(configuration, "Fenicia.Auth", "Auth");
 
 
         builder.Start();

@@ -24,13 +24,7 @@ public class ExceptionMiddleware(RequestDelegate next)
                 SetCulture(acceptLanguage);
             }
 
-            var problem = new ProblemDetails
-            {
-                Title = ExceptionMessages.InternalError,
-                Status = context.Response.StatusCode,
-                Detail = ex.Message,
-                Instance = context.Request.Path
-            };
+            var problem = new ProblemDetails { Title = ExceptionMessages.InternalError, Status = context.Response.StatusCode, Detail = ex.Message, Instance = context.Request.Path };
 
             await context.Response.WriteAsJsonAsync(problem);
         }

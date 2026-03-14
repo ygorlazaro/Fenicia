@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Product.Responses;
 
 /// <summary>
-/// Response record for a product in a category list.
+///     Response record for a product in a category list.
 /// </summary>
 public record GetProductsByCategoryIdResponse(
     /// <summary>

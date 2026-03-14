@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Domains.Company;
 
 /// <summary>
-/// Extension methods for Company-related database operations.
-/// Provides convenient query methods for checking company existence by CNPJ or ID.
+///     Extension methods for Company-related database operations.
+///     Provides convenient query methods for checking company existence by CNPJ or ID.
 /// </summary>
 public static class CompanyExtensions
 {
     /// <summary>
-    /// Checks if any company exists with the given CNPJ.
+    ///     Checks if any company exists with the given CNPJ.
     /// </summary>
     /// <param name="db">The DbSet of CompanyModel.</param>
     /// <param name="cnpj">The CNPJ to search for.</param>
@@ -34,7 +34,7 @@ public static class CompanyExtensions
         }
 
         /// <summary>
-        /// Checks if any company exists with the given company ID.
+        ///     Checks if any company exists with the given company ID.
         /// </summary>
         /// <param name="db">The DbSet of CompanyModel.</param>
         /// <param name="companyId">The company ID to search for.</param>
@@ -48,7 +48,7 @@ public static class CompanyExtensions
         }
 
         /// <summary>
-        /// Checks if any active company exists with the given company ID.
+        ///     Checks if any active company exists with the given company ID.
         /// </summary>
         /// <param name="db">The DbSet of CompanyModel.</param>
         /// <param name="companyId">The company ID to search for.</param>

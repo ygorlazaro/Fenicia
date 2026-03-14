@@ -3,24 +3,21 @@ using Fenicia.Auth.Domains.Configuration.Queries;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
-using Fenicia.Common.Tests;
-
-using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Configuration;
 
 /// <summary>
-/// Unit tests for the GetConfigurationHandler.
-/// Tests configuration retrieval logic including filtering, ordering, and response mapping.
+///     Unit tests for the GetConfigurationHandler.
+///     Tests configuration retrieval logic including filtering, ordering, and response mapping.
 /// </summary>
 public class GetConfigurationHandlerTests
 {
-    private readonly GetConfigurationHandler handler;
     private readonly DefaultContext db;
+    private readonly GetConfigurationHandler handler;
     private readonly Guid testUserId;
 
     /// <summary>
-    /// Tests that a user with no configurations returns empty list.
+    ///     Tests that a user with no configurations returns empty list.
     /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasNoConfigurations_ReturnsEmptyList()
@@ -37,7 +34,7 @@ public class GetConfigurationHandlerTests
     }
 
     /// <summary>
-    /// Tests that a user with configurations returns all of them.
+    ///     Tests that a user with configurations returns all of them.
     /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasConfigurations_ReturnsAllConfigurations()
@@ -79,7 +76,7 @@ public class GetConfigurationHandlerTests
     }
 
     /// <summary>
-    /// Tests that filtering by company ID returns only that company's configurations.
+    ///     Tests that filtering by company ID returns only that company's configurations.
     /// </summary>
     [Fact]
     public async Task Handle_WithCompanyIdFilter_ReturnsOnlyCompanyConfigurations()
@@ -123,7 +120,7 @@ public class GetConfigurationHandlerTests
     }
 
     /// <summary>
-    /// Tests that querying with a non-existent company ID returns empty list.
+    ///     Tests that querying with a non-existent company ID returns empty list.
     /// </summary>
     [Fact]
     public async Task Handle_WithNonExistentCompanyId_ReturnsEmptyList()
@@ -154,7 +151,7 @@ public class GetConfigurationHandlerTests
     }
 
     /// <summary>
-    /// Tests that configurations are ordered alphabetically by ConfigType.
+    ///     Tests that configurations are ordered alphabetically by ConfigType.
     /// </summary>
     [Fact]
     public async Task Handle_ConfigurationsAreOrderedByConfigType()
@@ -206,7 +203,7 @@ public class GetConfigurationHandlerTests
     }
 
     /// <summary>
-    /// Tests that the response contains all correct data fields.
+    ///     Tests that the response contains all correct data fields.
     /// </summary>
     [Fact]
     public async Task Handle_ResponseContainsCorrectData()

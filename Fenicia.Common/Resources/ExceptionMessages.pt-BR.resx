@@ -1,150 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+        <xsd:element name="root" msdata:IsDataSet="true">
             <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="metadata">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="assembly">
+                        <xsd:complexType>
+                            <xsd:attribute name="alias" type="xsd:string"/>
+                            <xsd:attribute name="name" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
             </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  
-  <!-- Common Exception Messages - Brazilian Portuguese -->
-  <data name="InvalidRequest" xml:space="preserve">
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+
+    <!-- Common Exception Messages - Brazilian Portuguese -->
+    <data name="InvalidRequest" xml:space="preserve">
     <value>Requisição inválida</value>
   </data>
-  <data name="ItemNotFound" xml:space="preserve">
+    <data name="ItemNotFound" xml:space="preserve">
     <value>Item não encontrado</value>
   </data>
-  <data name="ItemNotExists" xml:space="preserve">
+    <data name="ItemNotExists" xml:space="preserve">
     <value>O item não existe</value>
   </data>
-  <data name="NotSaved" xml:space="preserve">
+    <data name="NotSaved" xml:space="preserve">
     <value>Falha ao salvar</value>
   </data>
-  <data name="PermissionDenied" xml:space="preserve">
+    <data name="PermissionDenied" xml:space="preserve">
     <value>Permissão negada</value>
   </data>
-  <data name="UserNotFound" xml:space="preserve">
+    <data name="UserNotFound" xml:space="preserve">
     <value>Usuário não encontrado</value>
   </data>
-  <data name="UserWithEmailNotFound" xml:space="preserve">
+    <data name="UserWithEmailNotFound" xml:space="preserve">
     <value>Usuário com o e-mail informado não existe.</value>
   </data>
-  <data name="UserWithIdNotFound" xml:space="preserve">
+    <data name="UserWithIdNotFound" xml:space="preserve">
     <value>Usuário com id {0} não encontrado.</value>
   </data>
-  <data name="EmailAlreadyExists" xml:space="preserve">
+    <data name="EmailAlreadyExists" xml:space="preserve">
     <value>Este e-mail já está em uso.</value>
   </data>
-  <data name="CompanyNotFound" xml:space="preserve">
+    <data name="CompanyNotFound" xml:space="preserve">
     <value>Empresa com ID {0} não encontrada.</value>
   </data>
-  <data name="RoleNotFound" xml:space="preserve">
+    <data name="RoleNotFound" xml:space="preserve">
     <value>Cargo com ID {0} não encontrado.</value>
   </data>
-  <data name="CompanyNotFoundWithCNPJ" xml:space="preserve">
+    <data name="CompanyNotFoundWithCNPJ" xml:space="preserve">
     <value>Já existe uma empresa com este CNPJ.</value>
   </data>
-  <data name="AdminRoleNotFound" xml:space="preserve">
+    <data name="AdminRoleNotFound" xml:space="preserve">
     <value>Cargo de administrador não encontrado. Verifique se o cargo de administrador existe no banco de dados.</value>
   </data>
-  <data name="TooManyLoginAttempts" xml:space="preserve">
+    <data name="TooManyLoginAttempts" xml:space="preserve">
     <value>Muitas tentativas de login. Por favor, tente novamente mais tarde.</value>
   </data>
-  <data name="InvalidUsernameOrPassword" xml:space="preserve">
+    <data name="InvalidUsernameOrPassword" xml:space="preserve">
     <value>Nome de usuário ou senha inválidos.</value>
   </data>
-  <data name="InvalidRefreshToken" xml:space="preserve">
+    <data name="InvalidRefreshToken" xml:space="preserve">
     <value>Token de atualização inválido</value>
   </data>
-  <data name="PasswordCannotBeNullOrEmpty" xml:space="preserve">
+    <data name="PasswordCannotBeNullOrEmpty" xml:space="preserve">
     <value>A senha não pode ser nula ou vazia</value>
   </data>
-  <data name="ErrorHashingPassword" xml:space="preserve">
+    <data name="ErrorHashingPassword" xml:space="preserve">
     <value>Erro ao criptografar senha</value>
   </data>
-  <data name="InvalidPassword" xml:space="preserve">
+    <data name="InvalidPassword" xml:space="preserve">
     <value>Senha inválida</value>
   </data>
-  <data name="InvalidForgotPasswordCode" xml:space="preserve">
+    <data name="InvalidForgotPasswordCode" xml:space="preserve">
     <value>Código de recuperação de senha inválido.</value>
   </data>
-  <data name="UserNotAssociatedWithActiveCompanies" xml:space="preserve">
+    <data name="UserNotAssociatedWithActiveCompanies" xml:space="preserve">
     <value>O usuário não está associado a nenhuma empresa ativa</value>
   </data>
-  <data name="UserDoesNotExistsAtCompany" xml:space="preserve">
+    <data name="UserDoesNotExistsAtCompany" xml:space="preserve">
     <value>Usuário não existe na empresa</value>
   </data>
-  <data name="ModulesNotFound" xml:space="preserve">
+    <data name="ModulesNotFound" xml:space="preserve">
     <value>Módulos não encontrados</value>
   </data>
-  <data name="OrderDetailsCannotBeEmpty" xml:space="preserve">
+    <data name="OrderDetailsCannotBeEmpty" xml:space="preserve">
     <value>Os detalhes do pedido não podem estar vazios</value>
   </data>
-  <data name="Unauthorized" xml:space="preserve">
+    <data name="Unauthorized" xml:space="preserve">
     <value>Não autorizado</value>
   </data>
-  <data name="InternalError" xml:space="preserve">
+    <data name="InternalError" xml:space="preserve">
     <value>Erro interno</value>
   </data>
-  <data name="CompanyNotFoundById" xml:space="preserve">
+    <data name="CompanyNotFoundById" xml:space="preserve">
     <value>Empresa não encontrada.</value>
   </data>
-  <data name="PermissionDeniedUpdateCompany" xml:space="preserve">
+    <data name="PermissionDeniedUpdateCompany" xml:space="preserve">
     <value>Você não está autorizado a atualizar esta empresa.</value>
   </data>
-  <data name="CompanyExists" xml:space="preserve">
+    <data name="CompanyExists" xml:space="preserve">
     <value>Já existe uma empresa com esse CNPJ.</value>
   </data>
 </root>

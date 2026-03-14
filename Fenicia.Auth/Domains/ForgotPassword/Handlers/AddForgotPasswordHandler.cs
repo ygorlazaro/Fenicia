@@ -8,13 +8,13 @@ using Fenicia.Common.Localization;
 namespace Fenicia.Auth.Domains.ForgotPassword.Handlers;
 
 /// <summary>
-/// Handler responsible for initiating the forgot password process.
-/// Creates a unique reset code that is sent to the user's email for verification.
+///     Handler responsible for initiating the forgot password process.
+///     Creates a unique reset code that is sent to the user's email for verification.
 /// </summary>
 public class AddForgotPasswordHandler(DefaultContext db)
 {
     /// <summary>
-    /// Handles the forgot password request by generating a reset code for the user.
+    ///     Handles the forgot password request by generating a reset code for the user.
     /// </summary>
     /// <param name="command">The command containing the user's email.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -25,12 +25,7 @@ public class AddForgotPasswordHandler(DefaultContext db)
         var user = await db.AuthUsers.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
 
-        var forgotPasswordModel = new ForgotPasswordModel
-        {
-            Code = code,
-            IsActive = true,
-            UserId = user.Id
-        };
+        var forgotPasswordModel = new ForgotPasswordModel { Code = code, IsActive = true, UserId = user.Id };
 
         await db.AuthForgottenPasswords.AddAsync(forgotPasswordModel, ct);
         await db.SaveChangesAsync(ct);

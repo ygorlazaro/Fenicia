@@ -8,37 +8,12 @@ public class GetProjectByIdHandler(DefaultContext context)
 {
     public async Task<GetProjectByIdResponse?> Handle(GetProjectByIdQuery query, CancellationToken ct)
     {
-        var project = await context.Projects
-            .Include(p => p.Statuses)
-            .Include(p => p.Tasks)
-            .FirstOrDefaultAsync(p => p.Id == query.Id,
-                ct);
+        var project = await context.Projects.Include(p => p.Statuses).Include(p => p.Tasks).FirstOrDefaultAsync(p => p.Id == query.Id, ct);
 
         return project switch
         {
             null => null,
-            _ => new GetProjectByIdResponse(project.Id,
-                project.Title,
-                project.Description,
-                project.Status.ToString(),
-                project.StartDate,
-                project.EndDate,
-                project.Owner,
-                project.CompanyId,
-                project.Statuses.Select(s => new ProjectStatusResponse(s.Id,
-                        s.Name,
-                        s.Color,
-                        s.Order,
-                        s.IsFinal))
-                    .ToList(),
-                project.Tasks.Select(t => new ProjectTaskResponse(t.Id,
-                        t.Title,
-                        t.Description,
-                        t.Priority.ToString(),
-                        t.Type.ToString(),
-                        t.EstimatePoints,
-                        t.DueDate))
-                    .ToList())
+            _ => new GetProjectByIdResponse(project.Id, project.Title, project.Description, project.Status.ToString(), project.StartDate, project.EndDate, project.Owner, project.CompanyId, project.Statuses.Select(s => new ProjectStatusResponse(s.Id, s.Name, s.Color, s.Order, s.IsFinal)).ToList(), project.Tasks.Select(t => new ProjectTaskResponse(t.Id, t.Title, t.Description, t.Priority.ToString(), t.Type.ToString(), t.EstimatePoints, t.DueDate)).ToList())
         };
 
     }

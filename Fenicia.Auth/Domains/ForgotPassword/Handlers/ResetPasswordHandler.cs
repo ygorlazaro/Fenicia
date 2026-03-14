@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Domains.ForgotPassword.Handlers;
 
 /// <summary>
-/// Handler responsible for completing the password reset process.
-/// Validates the reset code and updates the user's password.
+///     Handler responsible for completing the password reset process.
+///     Validates the reset code and updates the user's password.
 /// </summary>
 public class ResetPasswordHandler(DefaultContext db)
 {
     /// <summary>
-    /// Handles the password reset request.
-    /// Validates the code, updates the user's password, and invalidates the used code.
+    ///     Handles the password reset request.
+    ///     Validates the code, updates the user's password, and invalidates the used code.
     /// </summary>
     /// <param name="command">The command containing email, new password, and reset code.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -36,7 +36,7 @@ public class ResetPasswordHandler(DefaultContext db)
     }
 
     /// <summary>
-    /// Retrieves an active, non-expired forgot password code for the given user.
+    ///     Retrieves an active, non-expired forgot password code for the given user.
     /// </summary>
     /// <param name="userId">The user ID to search for.</param>
     /// <param name="code">The reset code to validate.</param>
@@ -45,17 +45,13 @@ public class ResetPasswordHandler(DefaultContext db)
     private async Task<ForgotPasswordModel?> GetFromUserIdAndCodeAsync(Guid userId, string code, CancellationToken ct)
     {
         var now = DateTime.UtcNow;
-        var query = db.AuthForgottenPasswords
-            .Where(fp => fp.UserId == userId 
-                         && fp.Code == code 
-                         && fp.IsActive 
-                         && fp.ExpirationDate >= now);
+        var query = db.AuthForgottenPasswords.Where(fp => fp.UserId == userId && fp.Code == code && fp.IsActive && fp.ExpirationDate >= now);
 
         return await query.FirstOrDefaultAsync(ct);
     }
 
     /// <summary>
-    /// Invalidates a forgot password code by setting IsActive to false.
+    ///     Invalidates a forgot password code by setting IsActive to false.
     /// </summary>
     /// <param name="id">The ID of the forgot password record to invalidate.</param>
     /// <param name="ct">Cancellation token.</param>

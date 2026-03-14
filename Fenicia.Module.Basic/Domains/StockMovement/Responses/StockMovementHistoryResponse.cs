@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.StockMovement.Responses;
 
 /// <summary>
-/// Response record for a stock movement history item.
+///     Response record for a stock movement history item.
 /// </summary>
 public record StockMovementHistoryResponse(
     /// <summary>

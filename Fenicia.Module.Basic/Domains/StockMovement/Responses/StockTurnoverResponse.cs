@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.StockMovement.Responses;
 
 /// <summary>
-/// Response record for stock turnover rate analysis.
+///     Response record for stock turnover rate analysis.
 /// </summary>
 public record StockTurnoverResponse(
     /// <summary>

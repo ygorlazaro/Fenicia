@@ -11,27 +11,31 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
 /// <summary>
-/// Unit tests for the UpdateEmployeeHandler.
-/// Tests employee update business logic including validation and data persistence.
+///     Unit tests for the UpdateEmployeeHandler.
+///     Tests employee update business logic including validation and data persistence.
 /// </summary>
 public class UpdateEmployeeHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly UpdateEmployeeHandler handler;
+
     public UpdateEmployeeHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new UpdateEmployeeHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext db;
-    private readonly UpdateEmployeeHandler handler;
-    private readonly Faker faker;
+    public void Dispose()
+    {
+        this.db.Dispose();
+
+        GC.SuppressFinalize(this);
+    }
 
     [Fact]
     public async Task Handle_WhenEmployeeExists_UpdatesEmployeeAndReturnsResponse()
@@ -40,20 +44,11 @@ public class UpdateEmployeeHandlerTests : IDisposable
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel
-        {
-            Id = position1Id,
-            Name = "Old Position"
-        };
+        var position1 = new PositionModel { Id = position1Id, Name = "Old Position" };
 
-        var position2 = new PositionModel
-        {
-            Id = position2Id,
-            Name = "New Position"
-        };
+        var position2 = new PositionModel { Id = position2Id, Name = "New Position" };
 
-        this.db.BasicPositions.AddRange(position1,
-            position2);
+        this.db.BasicPositions.AddRange(position1, position2);
 
         var employee = new EmployeeModel
         {
@@ -77,55 +72,25 @@ public class UpdateEmployeeHandlerTests : IDisposable
         this.db.BasicEmployees.Add(employee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(
-            employeeId,
-            position2Id,
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            "Apt 202",
-            "New Neighborhood",
-            "200",
-            Guid.NewGuid(),
-            "New Street",
-            "54321-000",
-            "(11) 98765-4321");
+        var command = new UpdateEmployeeCommand(employeeId, position2Id, "New Name", "new@email.com", "987.654.321-00", "New City", "Apt 202", "New Neighborhood", "200", Guid.NewGuid(), "New Street", "54321-000", "(11) 98765-4321");
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(employee.PersonId,
-            result.PersonId);
-        Assert.Equal(position2Id,
-            result.PositionId);
+        Assert.Equal(employee.PersonId, result.PersonId);
+        Assert.Equal(position2Id, result.PositionId);
     }
 
     [Fact]
     public async Task Handle_WhenEmployeeDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateEmployeeCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            null,
-            null,
-            null,
-            Guid.NewGuid(),
-            null,
-            null,
-            null);
+        var command = new UpdateEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -135,24 +100,10 @@ public class UpdateEmployeeHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateEmployeeCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            null,
-            null,
-            null,
-            Guid.NewGuid(),
-            null,
-            null,
-            null);
+        var command = new UpdateEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -163,11 +114,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
@@ -192,24 +139,10 @@ public class UpdateEmployeeHandlerTests : IDisposable
         this.db.BasicEmployees.Add(employee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(
-            employeeId,
-            position.Id,
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            null,
-            null,
-            null,
-            Guid.NewGuid(),
-            null,
-            null,
-            null);
+        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -220,11 +153,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
@@ -249,24 +178,10 @@ public class UpdateEmployeeHandlerTests : IDisposable
         this.db.BasicEmployees.Add(employee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(
-            employeeId,
-            position.Id,
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            null,
-            null,
-            null,
-            Guid.NewGuid(),
-            null,
-            null,
-            null);
+        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -277,11 +192,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
@@ -306,24 +217,10 @@ public class UpdateEmployeeHandlerTests : IDisposable
         this.db.BasicEmployees.Add(employee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(
-            employeeId,
-            position.Id,
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            null,
-            null,
-            null,
-            Guid.NewGuid(),
-            null,
-            null,
-            null);
+        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -334,11 +231,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
@@ -363,24 +256,10 @@ public class UpdateEmployeeHandlerTests : IDisposable
         this.db.BasicEmployees.Add(employee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(
-            employeeId,
-            position.Id,
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            null,
-            null,
-            null,
-            Guid.NewGuid(),
-            null,
-            null,
-            null);
+        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -391,11 +270,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
@@ -420,24 +295,10 @@ public class UpdateEmployeeHandlerTests : IDisposable
         this.db.BasicEmployees.Add(employee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(
-            employeeId,
-            position.Id,
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            null,
-            null,
-            null,
-            Guid.NewGuid(),
-            null,
-            null,
-            null);
+        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -448,11 +309,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
@@ -477,24 +334,10 @@ public class UpdateEmployeeHandlerTests : IDisposable
         this.db.BasicEmployees.Add(employee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(
-            employeeId,
-            position.Id,
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            null,
-            null,
-            null,
-            Guid.NewGuid(),
-            null,
-            null,
-            null);
+        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -505,11 +348,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
@@ -534,24 +373,10 @@ public class UpdateEmployeeHandlerTests : IDisposable
         this.db.BasicEmployees.Add(employee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(
-            employeeId,
-            position.Id,
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            null,
-            null,
-            null,
-            null,
-            Guid.NewGuid(),
-            null,
-            null,
-            null);
+        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", null, null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -565,20 +390,11 @@ public class UpdateEmployeeHandlerTests : IDisposable
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel
-        {
-            Id = position1Id,
-            Name = "Old Position"
-        };
+        var position1 = new PositionModel { Id = position1Id, Name = "Old Position" };
 
-        var position2 = new PositionModel
-        {
-            Id = position2Id,
-            Name = "New Position"
-        };
+        var position2 = new PositionModel { Id = position2Id, Name = "New Position" };
 
-        this.db.BasicPositions.AddRange(position1,
-            position2);
+        this.db.BasicPositions.AddRange(position1, position2);
 
         var employee = new EmployeeModel
         {
@@ -602,43 +418,17 @@ public class UpdateEmployeeHandlerTests : IDisposable
         this.db.BasicEmployees.Add(employee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(
-            employeeId,
-            position2Id,
-            "New Name",
-            "new@email.com",
-            "987.654.321-00",
-            "New City",
-            "Apt 202",
-            "New Neighborhood",
-            "200",
-            Guid.NewGuid(),
-            "New Street",
-            "54321-000",
-            "(11) 98765-4321");
+        var command = new UpdateEmployeeCommand(employeeId, position2Id, "New Name", "new@email.com", "987.654.321-00", "New City", "Apt 202", "New Neighborhood", "200", Guid.NewGuid(), "New Street", "54321-000", "(11) 98765-4321");
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedEmployee = await this.db.BasicEmployees
-            .Include(e => e.Person)
-            .FirstOrDefaultAsync(e => e.Id == employeeId);
+        var updatedEmployee = await this.db.BasicEmployees.Include(e => e.Person).FirstOrDefaultAsync(e => e.Id == employeeId);
 
         Assert.NotNull(updatedEmployee);
-        Assert.Equal("New Name",
-            updatedEmployee.Person.Name);
-        Assert.Equal("new@email.com",
-            updatedEmployee.Person.Email);
-        Assert.Equal(position2Id,
-            updatedEmployee.PositionId);
-    }
-
-    public void Dispose()
-    {
-        this.db.Dispose();
-        
-        GC.SuppressFinalize(this);
+        Assert.Equal("New Name", updatedEmployee.Person.Name);
+        Assert.Equal("new@email.com", updatedEmployee.Person.Email);
+        Assert.Equal(position2Id, updatedEmployee.PositionId);
     }
 }

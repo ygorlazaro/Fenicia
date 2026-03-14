@@ -6,13 +6,13 @@ using Fenicia.Module.Basic.Domains.Product.Responses;
 namespace Fenicia.Module.Basic.Domains.Product.Handlers;
 
 /// <summary>
-/// Handler responsible for creating a new product.
-/// Adds a new product to the database with the provided details.
+///     Handler responsible for creating a new product.
+///     Adds a new product to the database with the provided details.
 /// </summary>
 public class AddProductHandler(DefaultContext db)
 {
     /// <summary>
-    /// Creates a new product.
+    ///     Creates a new product.
     /// </summary>
     /// <param name="command">The command containing product details.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -34,15 +34,6 @@ public class AddProductHandler(DefaultContext db)
 
         await db.SaveChangesAsync(ct);
 
-        return new AddProductResponse(
-            product.Id,
-            product.Name,
-            product.CostPrice,
-            product.SalesPrice,
-            product.Quantity,
-            product.CategoryId,
-            string.Empty,
-            product.SupplierId,
-            string.Empty);
+        return new AddProductResponse(product.Id, product.Name, product.CostPrice, product.SalesPrice, product.Quantity, product.CategoryId, string.Empty, product.SupplierId, string.Empty);
     }
 }

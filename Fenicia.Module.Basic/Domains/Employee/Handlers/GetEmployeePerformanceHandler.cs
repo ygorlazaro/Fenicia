@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 
 /// <summary>
-/// Handler responsible for generating employee performance analytics.
-/// Provides business intelligence including sales by employee, order counts, and top performers.
+///     Handler responsible for generating employee performance analytics.
+///     Provides business intelligence including sales by employee, order counts, and top performers.
 /// </summary>
 public class GetEmployeePerformanceHandler(DefaultContext db)
 {
     /// <summary>
-    /// Generates comprehensive employee performance analytics.
+    ///     Generates comprehensive employee performance analytics.
     /// </summary>
     /// <param name="query">The query containing performance parameters (days, top limit).</param>
     /// <param name="ct">Cancellation token.</param>
@@ -24,87 +24,51 @@ public class GetEmployeePerformanceHandler(DefaultContext db)
         var endDate = DateTime.UtcNow;
         var startDate = endDate.AddDays(-query.Days);
 
-        var orders = await db.BasicOrders
-            .Include(o => o.Employee)
-                .ThenInclude(e => e!.Person)
-            .Include(o => o.Employee)
-                .ThenInclude(e => e!.Position)
-            .Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate)
-            .ToListAsync(ct);
-        
+        var orders = await db.BasicOrders.Include(o => o.Employee).ThenInclude(e => e!.Person).Include(o => o.Employee).ThenInclude(e => e!.Position).Where(o => o.SaleDate >= startDate && o.SaleDate <= endDate).ToListAsync(ct);
+
         var summary = await GetEmployeePerformanceSummaryAsync(orders, ct);
         var salesByEmployee = GetSalesByEmployeeAsync(orders);
         var ordersByEmployee = await GetOrdersByEmployeeAsync(orders, ct);
         var topPerformers = GetTopPerformerAsync(query, salesByEmployee, summary);
 
-        return new EmployeePerformanceResponse
-        {
-            Summary = summary,
-            SalesByEmployee = salesByEmployee,
-            OrdersByEmployee = ordersByEmployee,
-            TopPerformers = topPerformers
-        };
+        return new EmployeePerformanceResponse { Summary = summary, SalesByEmployee = salesByEmployee, OrdersByEmployee = ordersByEmployee, TopPerformers = topPerformers };
     }
 
-    private List<TopPerformerResponse> GetTopPerformerAsync(GetEmployeePerformanceQuery query, List<EmployeeSalesResponse> salesByEmployee,
-        EmployeePerformanceSummaryResponse summary)
+    private List<TopPerformerResponse> GetTopPerformerAsync(GetEmployeePerformanceQuery query, List<EmployeeSalesResponse> salesByEmployee, EmployeePerformanceSummaryResponse summary)
     {
-        var topPerformers = salesByEmployee
-            .Take(query.TopLimit)
-            .Select(e =>
+        var topPerformers = salesByEmployee.Take(query.TopLimit).Select(e =>
+        {
+            var performanceLevel = "Standard";
+            if (e.TotalSales >= summary.AverageSalesPerEmployee * 2)
             {
-                var performanceLevel = "Standard";
-                if (e.TotalSales >= summary.AverageSalesPerEmployee * 2)
-                {
-                    performanceLevel = "Excellent";
-                }
-                else if (e.TotalSales >= summary.AverageSalesPerEmployee * (decimal)1.5)
-                {
-                    performanceLevel = "Very Good";
-                }
-                else if (e.TotalSales >= summary.AverageSalesPerEmployee)
-                {
-                    performanceLevel = "Good";
-                }
+                performanceLevel = "Excellent";
+            }
+            else if (e.TotalSales >= summary.AverageSalesPerEmployee * (decimal)1.5)
+            {
+                performanceLevel = "Very Good";
+            }
+            else if (e.TotalSales >= summary.AverageSalesPerEmployee)
+            {
+                performanceLevel = "Good";
+            }
 
-                return new TopPerformerResponse(
-                    e.EmployeeId,
-                    e.EmployeeName,
-                    e.PositionName,
-                    e.TotalSales,
-                    e.TotalOrders,
-                    performanceLevel);
-            })
-            .ToList();
+            return new TopPerformerResponse(e.EmployeeId, e.EmployeeName, e.PositionName, e.TotalSales, e.TotalOrders, performanceLevel);
+        }).ToList();
         return topPerformers;
     }
 
     private async Task<List<EmployeeOrderCountResponse>> GetOrdersByEmployeeAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
-        var employees = await db.BasicEmployees
-            .Include(e => e.Person)
-            .Include(e => e.Position)
-            .ToListAsync(ct);
+        var employees = await db.BasicEmployees.Include(e => e.Person).Include(e => e.Position).ToListAsync(ct);
 
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
-        
-        var ordersByEmployee = ordersList
-            .GroupBy(o => o.EmployeeId!.Value)
-            .Select(g =>
-            {
-                var employee = employees.First(e => e.Id == g.Key);
-                return new EmployeeOrderCountResponse(
-                    g.Key,
-                    employee.Person.Name,
-                    employee.Position.Name,
-                    g.Count(),
-                    g.Sum(o => o.TotalAmount),
-                    g.Min(o => o.SaleDate),
-                    g.Max(o => o.SaleDate));
-            })
-            .OrderByDescending(e => e.OrderCount)
-            .ToList();
-        
+
+        var ordersByEmployee = ordersList.GroupBy(o => o.EmployeeId!.Value).Select(g =>
+        {
+            var employee = employees.First(e => e.Id == g.Key);
+            return new EmployeeOrderCountResponse(g.Key, employee.Person.Name, employee.Position.Name, g.Count(), g.Sum(o => o.TotalAmount), g.Min(o => o.SaleDate), g.Max(o => o.SaleDate));
+        }).OrderByDescending(e => e.OrderCount).ToList();
+
         return ordersByEmployee;
     }
 
@@ -112,22 +76,12 @@ public class GetEmployeePerformanceHandler(DefaultContext db)
     {
         var ordersList = orders.Where(o => o.Employee != null).ToList();
 
-        var data = ordersList
-            .GroupBy(o => o.Employee!.Id)
-            .Select(g =>
-            {
-                var employee = g.First().Employee!;
-                return new EmployeeSalesResponse(
-                    employee.Id,
-                    employee.Person.Name,
-                    employee.Position.Name,
-                    g.Sum(o => o.TotalAmount),
-                    g.Count(),
-                    g.Sum(o => o.TotalAmount),
-                    0);
-            })
-            .ToList();
-        
+        var data = ordersList.GroupBy(o => o.Employee!.Id).Select(g =>
+        {
+            var employee = g.First().Employee!;
+            return new EmployeeSalesResponse(employee.Id, employee.Person.Name, employee.Position.Name, g.Sum(o => o.TotalAmount), g.Count(), g.Sum(o => o.TotalAmount), 0);
+        }).ToList();
+
         for (var i = 0; i < data.Count; i++)
         {
             data[i] = data[i] with { Rank = i + 1 };
@@ -136,16 +90,11 @@ public class GetEmployeePerformanceHandler(DefaultContext db)
         return data;
     }
 
-    private async Task<EmployeePerformanceSummaryResponse> GetEmployeePerformanceSummaryAsync(
-        IEnumerable<OrderModel> orders,
-        CancellationToken ct)
+    private async Task<EmployeePerformanceSummaryResponse> GetEmployeePerformanceSummaryAsync(IEnumerable<OrderModel> orders, CancellationToken ct)
     {
         var ordersList = orders.Where(o => o.EmployeeId.HasValue).ToList();
-        
-        var employeesWithOrders = ordersList
-            .Select(o => o.EmployeeId!.Value)
-            .Distinct()
-            .Count();
+
+        var employeesWithOrders = ordersList.Select(o => o.EmployeeId!.Value).Distinct().Count();
 
         var totalSales = ordersList.Sum(o => o.TotalAmount);
         var totalOrders = ordersList.Count;

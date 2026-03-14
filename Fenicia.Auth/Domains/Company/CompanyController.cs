@@ -13,12 +13,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fenicia.Auth.Domains.Company;
 
 /// <summary>
-/// Controller responsible for handling company-related HTTP endpoints.
-/// Provides endpoints to retrieve companies associated with the logged-in user
-/// and to update company information.
+///     Controller responsible for handling company-related HTTP endpoints.
+///     Provides endpoints to retrieve companies associated with the logged-in user
+///     and to update company information.
 /// </summary>
 /// <remarks>
-/// All endpoints require authentication. The Update endpoint requires Admin role.
+///     All endpoints require authentication. The Update endpoint requires Admin role.
 /// </remarks>
 [Authorize]
 [ApiController]
@@ -28,7 +28,7 @@ namespace Fenicia.Auth.Domains.Company;
 public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandler, UpdateCompanyHandler updateCompanyCommand) : ControllerBase
 {
     /// <summary>
-    /// Retrieves a paginated list of companies associated with the currently logged-in user.
+    ///     Retrieves a paginated list of companies associated with the currently logged-in user.
     /// </summary>
     /// <param name="query">Pagination query parameters (page number and items per page).</param>
     /// <param name="wide">Wide event context for request tracking.</param>
@@ -40,10 +40,7 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetCompaniesByUserResponse>> GetByLoggedUser(
-        [FromQuery] PaginationQuery query,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<GetCompaniesByUserResponse>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
@@ -54,7 +51,7 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
     }
 
     /// <summary>
-    /// Updates company information.
+    ///     Updates company information.
     /// </summary>
     /// <param name="id">The unique identifier of the company to update.</param>
     /// <param name="request">The update command containing the new company name.</param>
@@ -73,11 +70,7 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> PatchAsync(
-        [FromRoute] Guid id,
-        [FromBody] UpdateCompanyCommand request,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyCommand request, WideEventContext wide, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();

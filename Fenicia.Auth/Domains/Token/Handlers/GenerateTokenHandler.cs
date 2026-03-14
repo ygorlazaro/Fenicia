@@ -11,27 +11,22 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Domains.Token.Handlers;
 
 /// <summary>
-/// Handler responsible for generating authentication tokens.
-/// Validates credentials, checks login attempts, and generates JWT tokens.
+///     Handler responsible for generating authentication tokens.
+///     Validates credentials, checks login attempts, and generates JWT tokens.
 /// </summary>
 /// <remarks>
-/// This handler:
-/// 1. Validates login attempt count (blocks after 5 attempts)
-/// 2. Verifies user exists
-/// 3. Validates password using BCrypt
-/// 4. Clears failed login attempts on success
-/// 5. Increments failed attempts on failure
-/// 6. Applies progressive delay to prevent brute force
-/// 
-/// Related documentation:
-/// - See <see cref="Fenicia.Auth.Domains.LoginAttempt.Services.LoginAttemptService"/> for attempt tracking
-/// - See <see cref="Fenicia.Auth.Domains.Security.Services.VerifyPasswordService"/> for password verification
+///     This handler:
+///     1. Validates login attempt count (blocks after 5 attempts)
+///     2. Verifies user exists
+///     3. Validates password using BCrypt
+///     4. Clears failed login attempts on success
+///     5. Increments failed attempts on failure
+///     6. Applies progressive delay to prevent brute force
+///     Related documentation:
+///     - See <see cref="Fenicia.Auth.Domains.LoginAttempt.Services.LoginAttemptService" /> for attempt tracking
+///     - See <see cref="Fenicia.Auth.Domains.Security.Services.VerifyPasswordService" /> for password verification
 /// </remarks>
-public class GenerateTokenHandler(
-    DefaultContext db,
-    LoginAttemptService loginAttemptService,
-    IncrementAttemptsService incrementAttemptsServiceHandler,
-    VerifyPasswordService verifyPasswordService)
+public class GenerateTokenHandler(DefaultContext db, LoginAttemptService loginAttemptService, IncrementAttemptsService incrementAttemptsServiceHandler, VerifyPasswordService verifyPasswordService)
 {
     public async Task<GenerateTokenResponse> Handle(GenerateTokenQuery query, CancellationToken ct)
     {
@@ -75,8 +70,7 @@ public class GenerateTokenHandler(
 
         var attempts = loginAttemptService.Handle(query.Email);
 
-        return attempts switch
-        {
+        return attempts switch {
             >= 5 => throw new PermissionDeniedException(ExceptionMessages.TooManyLoginAttempts),
             _ => attempts
         };

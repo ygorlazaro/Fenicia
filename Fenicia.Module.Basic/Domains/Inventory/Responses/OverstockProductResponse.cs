@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Inventory.Responses;
 
 /// <summary>
-/// Response model for overstock product details.
+///     Response model for overstock product details.
 /// </summary>
 public record OverstockProductResponse(
     /// <summary>Product ID.</summary>

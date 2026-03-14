@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Product.Commands;
 
 /// <summary>
-/// Command record for deleting a product.
+///     Command record for deleting a product.
 /// </summary>
 public record DeleteProductCommand(
     /// <summary>

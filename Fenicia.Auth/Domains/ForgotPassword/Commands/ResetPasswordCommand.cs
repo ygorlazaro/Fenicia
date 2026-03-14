@@ -1,7 +1,7 @@
 namespace Fenicia.Auth.Domains.ForgotPassword.Commands;
 
 /// <summary>
-/// Command to reset user password using a verification code.
+///     Command to reset user password using a verification code.
 /// </summary>
 public sealed record ResetPasswordCommand(
     /// <summary>

@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Queries;
 
 /// <summary>
-/// Query record for retrieving all suppliers with pagination.
+///     Query record for retrieving all suppliers with pagination.
 /// </summary>
 public record GetAllSupplierQuery(
     /// <summary>

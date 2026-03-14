@@ -12,16 +12,18 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
 /// <summary>
-/// Unit tests for the ResetPasswordHandler.
-/// Tests the password reset logic including code validation, password update, and code invalidation.
+///     Unit tests for the ResetPasswordHandler.
+///     Tests the password reset logic including code validation, password update, and code invalidation.
 /// </summary>
 public class ResetPasswordHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly ResetPasswordHandler handler;
+
     public ResetPasswordHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new ResetPasswordHandler(this.db);
@@ -34,12 +36,8 @@ public class ResetPasswordHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext db;
-    private readonly ResetPasswordHandler handler;
-    private readonly Faker faker;
-
     /// <summary>
-    /// Tests that a valid code successfully resets the user's password.
+    ///     Tests that a valid code successfully resets the user's password.
     /// </summary>
     [Fact]
     public async Task Handle_WhenValidCode_ResetsPasswordSuccessfully()
@@ -50,13 +48,7 @@ public class ResetPasswordHandlerTests : IDisposable
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -87,7 +79,7 @@ public class ResetPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when no user exists with the given email, ItemNotExistsException is thrown.
+    ///     Tests that when no user exists with the given email, ItemNotExistsException is thrown.
     /// </summary>
     [Fact]
     public async Task Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
@@ -105,7 +97,7 @@ public class ResetPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that an invalid code throws InvalidDataException.
+    ///     Tests that an invalid code throws InvalidDataException.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCodeDoesNotExist_ThrowsInvalidDataException()
@@ -117,13 +109,7 @@ public class ResetPasswordHandlerTests : IDisposable
         const string invalidCode = "INVALID";
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -146,7 +132,7 @@ public class ResetPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that an inactive code throws InvalidDataException.
+    ///     Tests that an inactive code throws InvalidDataException.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCodeIsInactive_ThrowsInvalidDataException()
@@ -157,13 +143,7 @@ public class ResetPasswordHandlerTests : IDisposable
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -186,7 +166,7 @@ public class ResetPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that an expired code throws InvalidDataException.
+    ///     Tests that an expired code throws InvalidDataException.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCodeIsExpired_ThrowsInvalidDataException()
@@ -197,13 +177,7 @@ public class ResetPasswordHandlerTests : IDisposable
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -226,7 +200,7 @@ public class ResetPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that a code belonging to a different user throws InvalidDataException.
+    ///     Tests that a code belonging to a different user throws InvalidDataException.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCodeBelongsToDifferentUser_ThrowsInvalidDataException()
@@ -239,21 +213,9 @@ public class ResetPasswordHandlerTests : IDisposable
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user1 = new UserModel
-        {
-            Id = userId1,
-            Email = email1,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user1 = new UserModel { Id = userId1, Email = email1, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var user2 = new UserModel
-        {
-            Id = userId2,
-            Email = email2,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user2 = new UserModel { Id = userId2, Email = email2, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -276,7 +238,7 @@ public class ResetPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that using a code a second time throws InvalidDataException.
+    ///     Tests that using a code a second time throws InvalidDataException.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCodeIsUsedSecondTime_ThrowsInvalidDataException()
@@ -287,13 +249,7 @@ public class ResetPasswordHandlerTests : IDisposable
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -319,7 +275,7 @@ public class ResetPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the password is actually changed after reset.
+    ///     Tests that the password is actually changed after reset.
     /// </summary>
     [Fact]
     public async Task Handle_VerifiesPasswordWasActuallyChanged()
@@ -330,13 +286,7 @@ public class ResetPasswordHandlerTests : IDisposable
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -366,7 +316,7 @@ public class ResetPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when the database is empty, ItemNotExistsException is thrown.
+    ///     Tests that when the database is empty, ItemNotExistsException is thrown.
     /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ThrowsItemNotExistsException()

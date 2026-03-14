@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Commands;
 
 /// <summary>
-/// Command record for deleting a supplier.
+///     Command record for deleting a supplier.
 /// </summary>
 public record DeleteSupplierCommand(
     /// <summary>

@@ -21,15 +21,13 @@ public class Program
         {
             var tenantId = tenantArg.Split("=")[1];
 
-            Environment.SetEnvironmentVariable("TENANT_ID",
-                tenantId);
+            Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
         }
 
         var builder = WebApplication.CreateBuilder(args);
         var configuration = builder.Configuration;
 
-        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]
-                                          ?? throw new InvalidOperationException("JWT secret key not found in configuration"));
+        var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT secret key not found in configuration"));
 
         builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
         builder.Services.AddHttpContextAccessor();
@@ -75,20 +73,13 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.MapScalarApiReference(o =>
-            {
-                o.Authentication = new ScalarAuthenticationOptions
-                {
-                    PreferredSecuritySchemes = ["Bearer "]
-                };
-            });
+            app.MapScalarApiReference(o => { o.Authentication = new ScalarAuthenticationOptions { PreferredSecuritySchemes = ["Bearer "] }; });
         }
 
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseWhen(o => o.Request.Path.StartsWithSegments("/contract"),
-            appBuilder => appBuilder.UseModuleRequirement("contract"));
+        app.UseWhen(o => o.Request.Path.StartsWithSegments("/contract"), appBuilder => appBuilder.UseModuleRequirement("contract"));
 
         app.MapControllers();
 

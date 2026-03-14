@@ -1,7 +1,7 @@
 namespace Fenicia.Auth.Domains.Configuration.Queries;
 
 /// <summary>
-/// Query to retrieve user configurations.
+///     Query to retrieve user configurations.
 /// </summary>
 public record GetConfigurationQuery(
     /// <summary>
@@ -11,5 +11,4 @@ public record GetConfigurationQuery(
     /// <summary>
     /// Optional company ID to filter configurations.
     /// </summary>
-    Guid? CompanyId = null
-);
+    Guid? CompanyId = null);

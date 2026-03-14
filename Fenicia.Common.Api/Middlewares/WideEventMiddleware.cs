@@ -5,13 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Fenicia.Common.API.Middlewares;
 
-public class WideEventMiddleware(
-    RequestDelegate next,
-    ILogger<WideEventMiddleware> logger)
+public class WideEventMiddleware(RequestDelegate next, ILogger<WideEventMiddleware> logger)
 {
-    public async Task InvokeAsync(
-        HttpContext context,
-        WideEventContext wide)
+    public async Task InvokeAsync(HttpContext context, WideEventContext wide)
     {
         var sw = Stopwatch.StartNew();
 
@@ -39,21 +35,19 @@ public class WideEventMiddleware(
             sw.Stop();
             wide.DurationMs = sw.ElapsedMilliseconds;
 
-            logger.LogInformation(
-                "wide_event{Args}",
-                new
-                {
-                    wide.TraceId,
-                    wide.Path,
-                    wide.Method,
-                    wide.StatusCode,
-                    wide.DurationMs,
-                    wide.Success,
-                    wide.UserId,
-                    wide.Operation,
-                    wide.ErrorCode,
-                    wide.ErrorMessage
-                });
+            logger.LogInformation("wide_event{Args}", new
+            {
+                wide.TraceId,
+                wide.Path,
+                wide.Method,
+                wide.StatusCode,
+                wide.DurationMs,
+                wide.Success,
+                wide.UserId,
+                wide.Operation,
+                wide.ErrorCode,
+                wide.ErrorMessage
+            });
         }
     }
 }

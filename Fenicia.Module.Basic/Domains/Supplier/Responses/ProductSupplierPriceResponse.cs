@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 /// <summary>
-/// Response record for a supplier's price for a specific product.
+///     Response record for a supplier's price for a specific product.
 /// </summary>
 public record ProductSupplierPriceResponse(
     /// <summary>

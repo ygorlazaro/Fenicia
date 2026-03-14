@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 
 /// <summary>
-/// Handler responsible for retrieving all product categories with pagination.
-/// Returns a paginated list of categories.
+///     Handler responsible for retrieving all product categories with pagination.
+///     Returns a paginated list of categories.
 /// </summary>
 public class GetAllProductCategoryHandler(DefaultContext db)
 {
     /// <summary>
-    /// Retrieves paginated product categories.
+    ///     Retrieves paginated product categories.
     /// </summary>
     /// <param name="query">The query containing page number and items per page.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -22,17 +22,9 @@ public class GetAllProductCategoryHandler(DefaultContext db)
     public async Task<Pagination<List<GetAllProductCategoryResponse>>> Handle(GetAllProductCategoryQuery query, CancellationToken ct)
     {
         var total = await db.BasicProductCategories.CountAsync(ct);
-    
-        var categories = await db.BasicProductCategories
-            .Select(pc => new GetAllProductCategoryResponse(pc.Id,
-                pc.Name))
-            .Skip((query.Page - 1) * query.PerPage)
-            .Take(query.PerPage)
-            .ToListAsync(ct);
 
-        return new Pagination<List<GetAllProductCategoryResponse>>(categories,
-            total,
-            query.Page,
-            query.PerPage);
+        var categories = await db.BasicProductCategories.Select(pc => new GetAllProductCategoryResponse(pc.Id, pc.Name)).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+
+        return new Pagination<List<GetAllProductCategoryResponse>>(categories, total, query.Page, query.PerPage);
     }
 }

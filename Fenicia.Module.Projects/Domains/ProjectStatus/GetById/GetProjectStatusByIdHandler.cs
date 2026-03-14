@@ -8,20 +8,12 @@ public class GetProjectStatusByIdHandler(DefaultContext context)
 {
     public async Task<GetProjectStatusByIdResponse?> Handle(GetProjectStatusByIdQuery query, CancellationToken ct)
     {
-        var status = await context.ProjectStatuses
-            .FirstOrDefaultAsync(s => s.Id == query.Id,
-                ct);
+        var status = await context.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == query.Id, ct);
 
         return status switch
         {
             null => null,
-            _ => new GetProjectStatusByIdResponse(status.Id,
-                status.ProjectId,
-                status.Name,
-                status.Color,
-                status.Order,
-                status.IsFinal,
-                status.CompanyId)
+            _ => new GetProjectStatusByIdResponse(status.Id, status.ProjectId, status.Name, status.Color, status.Order, status.IsFinal, status.CompanyId)
         };
 
     }

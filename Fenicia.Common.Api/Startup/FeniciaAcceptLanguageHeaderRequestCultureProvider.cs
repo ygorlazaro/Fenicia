@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Localization;
 namespace Fenicia.Common.API.Startup;
 
 /// <summary>
-/// Custom request culture provider that reads the Accept-Language header.
+///     Custom request culture provider that reads the Accept-Language header.
 /// </summary>
 public class AcceptLanguageHeaderRequestCultureProvider : RequestCultureProvider
 {

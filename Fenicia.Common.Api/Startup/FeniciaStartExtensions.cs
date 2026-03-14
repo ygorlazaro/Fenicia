@@ -27,13 +27,7 @@ public static class FeniciaStartExtensions
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.MapScalarApiReference(o =>
-            {
-                o.Authentication = new ScalarAuthenticationOptions
-                {
-                    PreferredSecuritySchemes = ["Bearer "]
-                };
-            });
+            app.MapScalarApiReference(o => { o.Authentication = new ScalarAuthenticationOptions { PreferredSecuritySchemes = ["Bearer "] }; });
         }
 
         app.UseHttpsRedirection();
@@ -47,11 +41,10 @@ public static class FeniciaStartExtensions
 
         app.UseAuthentication();
         app.UseAuthorization();
-    
+
         if (segment != null && moduleRequirement != null)
         {
-            app.UseWhen(o => o.Request.Path.StartsWithSegments(segment),
-                appBuilder => appBuilder.UseModuleRequirement(moduleRequirement));
+            app.UseWhen(o => o.Request.Path.StartsWithSegments(segment), appBuilder => appBuilder.UseModuleRequirement(moduleRequirement));
         }
 
         app.UseIpRateLimiting();

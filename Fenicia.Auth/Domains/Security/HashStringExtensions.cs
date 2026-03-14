@@ -4,12 +4,12 @@ using Fenicia.Common.Localization;
 namespace Fenicia.Auth.Domains.Security;
 
 /// <summary>
-/// Extension methods for secure string hashing.
+///     Extension methods for secure string hashing.
 /// </summary>
 public static class HashStringExtensions
 {
     /// <summary>
-    /// Hashes a string using BCrypt with a work factor of 12.
+    ///     Hashes a string using BCrypt with a work factor of 12.
     /// </summary>
     /// <param name="original">The string to hash (e.g., password).</param>
     /// <returns>BCrypt hashed string.</returns>

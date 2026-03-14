@@ -12,24 +12,23 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
 
 /// <summary>
-/// Handler responsible for creating new module subscription orders.
-/// Processes orders by validating user, populating modules, and creating subscriptions.
+///     Handler responsible for creating new module subscription orders.
+///     Processes orders by validating user, populating modules, and creating subscriptions.
 /// </summary>
 /// <remarks>
-/// This handler implements the business logic for module subscription orders:
-/// 1. Validates user has a role in the company
-/// 2. Populates requested modules (deduplicates, adds Basic if needed)
-/// 3. Creates order with Approved status
-/// 4. Creates 1-month subscription with active credits
-/// 
-/// Related documentation:
-/// - See <see cref="Fenicia.Auth.Domains.Module.Queries.GetModulesQuery"/> for module queries
-/// - See <see cref="Fenicia.Auth.Domains.UserRole.UserRoleExtensions"/> for user-company validation
+///     This handler implements the business logic for module subscription orders:
+///     1. Validates user has a role in the company
+///     2. Populates requested modules (deduplicates, adds Basic if needed)
+///     3. Creates order with Approved status
+///     4. Creates 1-month subscription with active credits
+///     Related documentation:
+///     - See <see cref="Fenicia.Auth.Domains.Module.Queries.GetModulesQuery" /> for module queries
+///     - See <see cref="Fenicia.Auth.Domains.UserRole.UserRoleExtensions" /> for user-company validation
 /// </remarks>
 public class CreateNewOrderHandler(DefaultContext db)
 {
     /// <summary>
-    /// Creates a new order and associated subscription for module subscriptions.
+    ///     Creates a new order and associated subscription for module subscriptions.
     /// </summary>
     /// <param name="command">The command containing user ID, company ID, and module IDs.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -57,7 +56,7 @@ public class CreateNewOrderHandler(DefaultContext db)
     }
 
     /// <summary>
-    /// Persists the order and its details to the database.
+    ///     Persists the order and its details to the database.
     /// </summary>
     /// <param name="command">The create order command.</param>
     /// <param name="modules">The list of modules to include in the order.</param>
@@ -65,12 +64,8 @@ public class CreateNewOrderHandler(DefaultContext db)
     private OrderModel PersistOrderAsync(CreateNewOrderCommand command, List<ModuleModel> modules)
     {
         var totalAmount = modules.Sum(m => m.Price);
-        
-        var details = modules.Select(m => new OrderDetailModel
-        {
-            ModuleId = m.Id,
-            Price = m.Price
-        });
+
+        var details = modules.Select(m => new OrderDetailModel { ModuleId = m.Id, Price = m.Price });
 
         var order = new OrderModel
         {
@@ -88,7 +83,7 @@ public class CreateNewOrderHandler(DefaultContext db)
     }
 
     /// <summary>
-    /// Validates that the user has a role in the specified company.
+    ///     Validates that the user has a role in the specified company.
     /// </summary>
     /// <param name="command">The create order command.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -104,15 +99,15 @@ public class CreateNewOrderHandler(DefaultContext db)
     }
 
     /// <summary>
-    /// Populates the list of modules to order, handling deduplication and automatic Basic module inclusion.
+    ///     Populates the list of modules to order, handling deduplication and automatic Basic module inclusion.
     /// </summary>
     /// <param name="request">List of module IDs requested.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of modules to order, or empty list if validation fails.</returns>
     /// <remarks>
-    /// If the requested modules don't include Basic, it will be automatically added.
-    /// If Basic module doesn't exist in the database, returns empty list.
-    /// Duplicates in the request are removed.
+    ///     If the requested modules don't include Basic, it will be automatically added.
+    ///     If Basic module doesn't exist in the database, returns empty list.
+    ///     Duplicates in the request are removed.
     /// </remarks>
     private async Task<List<ModuleModel>> PopulateModules(List<Guid> request, CancellationToken ct)
     {
@@ -140,20 +135,18 @@ public class CreateNewOrderHandler(DefaultContext db)
     }
 
     /// <summary>
-    /// Retrieves modules from the database based on requested IDs.
+    ///     Retrieves modules from the database based on requested IDs.
     /// </summary>
     /// <param name="request">List of module IDs.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of found modules ordered by type.</returns>
     private async Task<List<ModuleModel>> GetModulesToOrderAsync(IEnumerable<Guid> request, CancellationToken ct)
     {
-        return await db.AuthModules.Where(module => request.Any(r => r == module.Id))
-            .OrderBy(module => module.Type)
-            .ToListAsync(ct);
+        return await db.AuthModules.Where(module => request.Any(r => r == module.Id)).OrderBy(module => module.Type).ToListAsync(ct);
     }
 
     /// <summary>
-    /// Retrieves a module by its type.
+    ///     Retrieves a module by its type.
     /// </summary>
     /// <param name="moduleType">The module type to search for.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -164,13 +157,13 @@ public class CreateNewOrderHandler(DefaultContext db)
     }
 
     /// <summary>
-    /// Creates subscription credits for each ordered module and adds the subscription to the database.
+    ///     Creates subscription credits for each ordered module and adds the subscription to the database.
     /// </summary>
     /// <param name="companyId">The company ID.</param>
     /// <param name="order">The order to create credits for.</param>
     /// <remarks>
-    /// Creates a 1-month subscription starting from the current UTC time.
-    /// Each module gets an active credit with the same validity period.
+    ///     Creates a 1-month subscription starting from the current UTC time.
+    ///     Each module gets an active credit with the same validity period.
     /// </remarks>
     private void LoadCreditsAsync(Guid companyId, OrderModel order)
     {

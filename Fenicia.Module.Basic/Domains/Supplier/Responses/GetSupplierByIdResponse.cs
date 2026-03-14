@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 /// <summary>
-/// Response record for retrieving a single supplier by ID.
+///     Response record for retrieving a single supplier by ID.
 /// </summary>
 public record GetSupplierByIdResponse(
     /// <summary>

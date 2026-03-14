@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Commands;
 
 /// <summary>
-/// Command record for creating a new supplier.
+///     Command record for creating a new supplier.
 /// </summary>
 public record AddSupplierCommand(
     /// <summary>
