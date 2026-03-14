@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Enums.Project;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -8,8 +9,7 @@ public class UpdateProjectHandler(DefaultContext context)
 {
     public async Task<UpdateProjectResponse?> Handle(UpdateProjectCommand command, CancellationToken ct)
     {
-        var project = await context.Projects.FirstOrDefaultAsync(p => p.Id == command.Id,
-            ct);
+        var project = await context.Projects.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
         if (project is null)
         {
@@ -18,8 +18,7 @@ public class UpdateProjectHandler(DefaultContext context)
 
         project.Title = command.Title;
         project.Description = command.Description;
-        project.Status = Enum.Parse<Common.Enums.Project.EnumProjectStatus>(command.Status,
-            true);
+        project.Status = Enum.Parse<EnumProjectStatus>(command.Status, true);
         project.StartDate = command.StartDate;
         project.EndDate = command.EndDate;
         project.Owner = command.Owner;
@@ -28,14 +27,6 @@ public class UpdateProjectHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new UpdateProjectResponse(
-            project.Id,
-            project.Title,
-            project.Description,
-            project.Status.ToString(),
-            project.StartDate,
-            project.EndDate,
-            project.Owner,
-            project.CompanyId);
+        return new UpdateProjectResponse(project.Id, project.Title, project.Description, project.Status.ToString(), project.StartDate, project.EndDate, project.Owner, project.CompanyId);
     }
 }

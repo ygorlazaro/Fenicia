@@ -1,8 +1,8 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
 
@@ -10,24 +10,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
+/// <summary>
+///     Unit tests for the GetEmployeesByPositionIdHandler.
+///     Tests employee retrieval filtered by position ID.
+/// </summary>
 public class GetEmployeesByPositionIdHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly GetEmployeesByPositionIdHandler handler;
+
     public GetEmployeesByPositionIdHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetEmployeesByPositionIdHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext db;
-    private readonly GetEmployeesByPositionIdHandler handler;
-    private readonly Faker faker;
+    public void Dispose()
+    {
+        this.db.Dispose();
+
+        GC.SuppressFinalize(this);
+    }
 
     [Fact]
     public async Task Handle_WithNoEmployeesForPosition_ReturnsEmptyList()
@@ -37,8 +45,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -52,20 +59,11 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel
-        {
-            Id = position1Id,
-            Name = "Developer"
-        };
+        var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
 
-        var position2 = new PositionModel
-        {
-            Id = position2Id,
-            Name = "Designer"
-        };
+        var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
 
-        this.db.BasicPositions.AddRange(position1,
-            position2);
+        this.db.BasicPositions.AddRange(position1, position2);
 
         var employee1 = new EmployeeModel
         {
@@ -124,21 +122,17 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicEmployees.AddRange(employee1,
-            employee2,
-            employee3);
+        this.db.BasicEmployees.AddRange(employee1, employee2, employee3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(position1Id);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2,
-            result.Count);
+        Assert.Equal(2, result.Count);
         Assert.True(result.All(e => e.PositionId == position1Id));
     }
 
@@ -147,11 +141,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = positionId,
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = positionId, Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
@@ -179,17 +169,14 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
 
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetEmployeesByPositionIdQuery(positionId,
-            2);
+        var query = new GetEmployeesByPositionIdQuery(positionId, 2);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Count);
+        Assert.Equal(10, result.Count);
     }
 
     [Fact]
@@ -197,11 +184,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = positionId,
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = positionId, Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         for (var i = 0; i < 5; i++)
@@ -229,12 +212,10 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
 
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetEmployeesByPositionIdQuery(positionId,
-            10);
+        var query = new GetEmployeesByPositionIdQuery(positionId, 10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -246,11 +227,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = positionId,
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = positionId, Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
@@ -281,13 +258,11 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Count);
+        Assert.Equal(10, result.Count);
     }
 
     [Fact]
@@ -295,11 +270,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = positionId,
-            Name = "Developer"
-        };
+        var position = new PositionModel { Id = positionId, Name = "Developer" };
         this.db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
@@ -327,22 +298,12 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal(employee.PersonId,
-            result[0].PersonId);
-        Assert.Equal(positionId,
-            result[0].PositionId);
-    }
-
-    public void Dispose()
-    {
-        this.db.Dispose();
-        
-        GC.SuppressFinalize(this);
+        Assert.Equal(employee.PersonId, result[0].PersonId);
+        Assert.Equal(positionId, result[0].PositionId);
     }
 }

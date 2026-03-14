@@ -9,11 +9,6 @@ public class GetByEmailHandler(DefaultContext db)
 {
     public virtual async Task<GetByEmailResponse?> Handle(string email, CancellationToken ct)
     {
-        return await db.AuthUsers.Where(user => user.Email == email)
-            .Select(user => new GetByEmailResponse(user.Id,
-                user.Email,
-                user.Name,
-                user.Password))
-            .FirstOrDefaultAsync(ct);
+        return await db.AuthUsers.Where(user => user.Email == email).Select(user => new GetByEmailResponse(user.Id, user.Email, user.Name, user.Password)).FirstOrDefaultAsync(ct);
     }
 }

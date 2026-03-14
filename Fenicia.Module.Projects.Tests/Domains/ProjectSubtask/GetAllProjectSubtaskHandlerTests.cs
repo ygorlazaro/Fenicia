@@ -1,8 +1,8 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -11,15 +11,16 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
 
 public class GetAllProjectSubtaskHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly GetAllProjectSubtaskHandler handler;
+
     public GetAllProjectSubtaskHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetAllProjectSubtaskHandler(this.db);
         this.faker = new Faker();
     }
@@ -27,13 +28,9 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly GetAllProjectSubtaskHandler handler;
-    private readonly Faker faker;
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
@@ -42,8 +39,7 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var query = new GetAllProjectSubtaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -75,24 +71,19 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        this.db.ProjectSubtasks.AddRange(subtask1,
-            subtask2);
+        this.db.ProjectSubtasks.AddRange(subtask1, subtask2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2,
-            result.Count);
-        Assert.Equal(subtask1.Id,
-            result[0].Id);
-        Assert.Equal(subtask2.Id,
-            result[1].Id);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(subtask1.Id, result[0].Id);
+        Assert.Equal(subtask2.Id, result[1].Id);
     }
 
     [Fact]
@@ -119,13 +110,11 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var query = new GetAllProjectSubtaskQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Count);
+        Assert.Equal(10, result.Count);
     }
 
     [Fact]
@@ -152,8 +141,7 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var query = new GetAllProjectSubtaskQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -184,12 +172,10 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var query = new GetAllProjectSubtaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Count);
+        Assert.Equal(10, result.Count);
     }
 }

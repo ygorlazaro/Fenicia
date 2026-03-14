@@ -10,73 +10,70 @@ using Fenicia.Common.Localization;
 
 namespace Fenicia.Auth.Domains.User.Handlers;
 
-public class CreateNewUserHandler(
-    DefaultContext db)
+/// <summary>
+///     Handler responsible for creating new users with company registration.
+/// </summary>
+/// <remarks>
+///     This handler processes user registration requests:
+///     1. Validates email doesn't already exist
+///     2. Validates company CNPJ doesn't already exist
+///     3. Creates user with hashed password
+///     4. Creates new company
+///     5. Assigns Admin role to user for the company
+///     The registering user becomes the company Admin, allowing them to:
+///     - Invite other users
+///     - Assign roles
+///     - Configure company settings
+/// </remarks>
+public class CreateNewUserHandler(DefaultContext db)
 {
+    /// <summary>
+    ///     Creates a new user with company registration.
+    /// </summary>
+    /// <param name="command">The create user command with user and company details.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Created user response with company information.</returns>
+    /// <exception cref="InvalidRequestException">Thrown when email or CNPJ already exists.</exception>
     public async Task<CreateNewUserResponse> Handle(CreateNewUserCommand command, CancellationToken ct)
     {
-        await ValidateAsync(command,
-            ct);
+        await ValidateAsync(command, ct);
 
-        var (user, company) = await PersistAsync(command,
-            ct);
+        var (user, company) = await PersistAsync(command, ct);
+        var companyResponse = new CreateNewUserCompanyResponse(company.Id, company.Name, company.Cnpj);
 
-        var companyResponse =
-            new CreateNewUserCompanyResponse(company.Id,
-                company.Name,
-                company.Cnpj);
-
-        return new CreateNewUserResponse(user.Id,
-            user.Name,
-            user.Email,
-            companyResponse);
+        return new CreateNewUserResponse(user.Id, user.Name, user.Email, companyResponse);
     }
 
+    /// <summary>
+    ///     Persists the user, company, and role assignment to the database.
+    /// </summary>
     private async Task<(UserModel userRequest, CompanyModel companyRequest)> PersistAsync(CreateNewUserCommand command, CancellationToken ct)
     {
-        var existingUser = await db.AuthUsers.AnyEmailAsync(command.Email,
-            ct);
+        var existingUser = await db.AuthUsers.AnyEmailAsync(command.Email, ct);
 
         if (existingUser)
         {
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
-        
-        var existingCompany = await db.AuthCompanies.AnyCnpjAsync(command.Company.Cnpj,
-            ct);
+
+        var existingCompany = await db.AuthCompanies.AnyCnpjAsync(command.Company.Cnpj, ct);
 
         if (existingCompany)
         {
             throw new InvalidRequestException(ExceptionMessages.CompanyExists);
         }
-        
+
         var hashedPassword = command.Password.Hash();
-        var userRequest = new UserModel
-        {
-            Email = command.Email,
-            Password = hashedPassword,
-            Name = command.Name
-        };
+        var userRequest = new UserModel { Email = command.Email, Password = hashedPassword, Name = command.Name };
 
         db.AuthUsers.Add(userRequest);
 
-        var companyRequest = new CompanyModel
-        {
-            Name = command.Company.Name,
-            Cnpj = command.Company.Cnpj
-        };
+        var companyRequest = new CompanyModel { Name = command.Company.Name, Cnpj = command.Company.Cnpj };
 
         db.AuthCompanies.Add(companyRequest);
 
-        var adminRole = await db.AuthRoles.GetRoleAsync("Admin",
-                            ct)
-                        ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
-        var userRole = new UserRoleModel
-        {
-            UserId = userRequest.Id,
-            Company = companyRequest,
-            RoleId = adminRole.Id
-        };
+        var adminRole = await db.AuthRoles.GetRoleAsync("Admin", ct) ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
+        var userRole = new UserRoleModel { UserId = userRequest.Id, Company = companyRequest, RoleId = adminRole.Id };
 
         db.AuthUserRoles.Add(userRole);
 
@@ -84,13 +81,15 @@ public class CreateNewUserHandler(
         return (userRequest, companyRequest);
     }
 
+    /// <summary>
+    ///     Validates that email and company CNPJ don't already exist.
+    /// </summary>
+    /// <exception cref="InvalidRequestException">Thrown when email or CNPJ already exists.</exception>
     private async Task ValidateAsync(CreateNewUserCommand request, CancellationToken ct)
     {
-        var isExistingUser = await db.AuthUsers.AnyEmailAsync(request.Email,
-            ct);
-        var isExistingCompany = await db.AuthCompanies.AnyCnpjAsync(request.Company.Cnpj,
-            ct); 
-            
+        var isExistingUser = await db.AuthUsers.AnyEmailAsync(request.Email, ct);
+        var isExistingCompany = await db.AuthCompanies.AnyCnpjAsync(request.Company.Cnpj, ct);
+
         if (isExistingUser)
         {
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);

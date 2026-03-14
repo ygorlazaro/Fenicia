@@ -1,6 +1,6 @@
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 
@@ -10,31 +10,29 @@ namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
 public class GetProductCategoryByIdHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly GetProductCategoryByIdHandler handler;
+
     public GetProductCategoryByIdHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetProductCategoryByIdHandler(this.db);
     }
 
-    private readonly DefaultContext db;
-    private readonly GetProductCategoryByIdHandler handler;
+    public void Dispose()
+    {
+        this.db.Dispose();
+    }
 
     [Fact]
     public async Task Handle_WhenCategoryExists_ReturnsCategoryResponse()
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel
-        {
-            Id = categoryId,
-            Name = "Electronics"
-        };
+        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
 
         this.db.BasicProductCategories.Add(category);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -42,15 +40,12 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
         var query = new GetProductCategoryByIdQuery(categoryId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(categoryId,
-            result.Id);
-        Assert.Equal("Electronics",
-            result.Name);
+        Assert.Equal(categoryId, result.Id);
+        Assert.Equal("Electronics", result.Name);
     }
 
     [Fact]
@@ -60,8 +55,7 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
         var query = new GetProductCategoryByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -74,8 +68,7 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
         var query = new GetProductCategoryByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -88,38 +81,21 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new ProductCategoryModel
-        {
-            Id = category1Id,
-            Name = "Electronics"
-        };
+        var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
 
-        var category2 = new ProductCategoryModel
-        {
-            Id = category2Id,
-            Name = "Books"
-        };
+        var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
 
-        this.db.BasicProductCategories.AddRange(category1,
-            category2);
+        this.db.BasicProductCategories.AddRange(category1, category2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductCategoryByIdQuery(category1Id);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(category1Id,
-            result.Id);
-        Assert.Equal("Electronics",
-            result.Name);
-    }
-
-    public void Dispose()
-    {
-        this.db.Dispose();
+        Assert.Equal(category1Id, result.Id);
+        Assert.Equal("Electronics", result.Name);
     }
 }

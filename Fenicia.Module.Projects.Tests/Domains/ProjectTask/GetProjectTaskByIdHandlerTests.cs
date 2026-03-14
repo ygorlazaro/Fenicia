@@ -1,8 +1,9 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Enums.Project;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTask.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -11,15 +12,16 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectTask;
 
 public class GetProjectTaskByIdHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly GetProjectTaskByIdHandler handler;
+
     public GetProjectTaskByIdHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetProjectTaskByIdHandler(this.db);
         this.faker = new Faker();
     }
@@ -27,13 +29,9 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly GetProjectTaskByIdHandler handler;
-    private readonly Faker faker;
 
     [Fact]
     public async Task Handle_WhenProjectTaskExists_ReturnsProjectTaskResponse()
@@ -49,8 +47,8 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.EnumTaskPriority.High,
-            Type = Common.Enums.Project.EnumTaskType.Task,
+            Priority = EnumTaskPriority.High,
+            Type = EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
@@ -63,15 +61,12 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
         var query = new GetProjectTaskByIdQuery(taskId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(taskId,
-            result.Id);
-        Assert.Equal(task.Title,
-            result.Title);
+        Assert.Equal(taskId, result.Id);
+        Assert.Equal(task.Title, result.Title);
     }
 
     [Fact]
@@ -81,8 +76,7 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
         var query = new GetProjectTaskByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -95,8 +89,7 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
         var query = new GetProjectTaskByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -118,8 +111,8 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.EnumTaskPriority.High,
-            Type = Common.Enums.Project.EnumTaskType.Task,
+            Priority = EnumTaskPriority.High,
+            Type = EnumTaskType.Task,
             Order = 1,
             EstimatePoints = 5,
             DueDate = DateTime.UtcNow.AddDays(7),
@@ -133,30 +126,26 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
-            Type = Common.Enums.Project.EnumTaskType.Bug,
+            Priority = EnumTaskPriority.Medium,
+            Type = EnumTaskType.Bug,
             Order = 2,
             EstimatePoints = 3,
             DueDate = null,
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(task1,
-            task2);
+        this.db.ProjectTasks.AddRange(task1, task2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskByIdQuery(task1Id);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(task1Id,
-            result.Id);
-        Assert.Equal(task1.Title,
-            result.Title);
+        Assert.Equal(task1Id, result.Id);
+        Assert.Equal(task1.Title, result.Title);
     }
 
     [Fact]
@@ -173,8 +162,8 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             StatusId = statusId,
             Title = this.faker.Lorem.Sentence(5),
             Description = null,
-            Priority = Common.Enums.Project.EnumTaskPriority.Medium,
-            Type = Common.Enums.Project.EnumTaskType.Task,
+            Priority = EnumTaskPriority.Medium,
+            Type = EnumTaskType.Task,
             Order = 1,
             EstimatePoints = null,
             DueDate = null,
@@ -187,13 +176,11 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
         var query = new GetProjectTaskByIdQuery(taskId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(taskId,
-            result.Id);
+        Assert.Equal(taskId, result.Id);
         Assert.Null(result.Description);
     }
 }

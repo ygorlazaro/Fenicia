@@ -3,9 +3,9 @@ using System.Security.Claims;
 using Bogus;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectSubtask;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Add;
 using Fenicia.Module.Projects.Domains.ProjectSubtask.Delete;
@@ -24,15 +24,18 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectSubtask;
 
 public class ProjectSubtaskControllerTests : IDisposable
 {
+    private readonly ProjectSubtaskController controller;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testProjectSubtaskId;
+
     public ProjectSubtaskControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectSubtaskId = Guid.NewGuid();
         var getAllProjectSubtaskHandler = new GetAllProjectSubtaskHandler(this.db);
         var getProjectSubtaskByIdHandler = new GetProjectSubtaskByIdHandler(this.db);
@@ -41,18 +44,7 @@ public class ProjectSubtaskControllerTests : IDisposable
         var deleteProjectSubtaskHandler = new DeleteProjectSubtaskHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ProjectSubtaskController(
-            getAllProjectSubtaskHandler,
-            getProjectSubtaskByIdHandler,
-            addProjectSubtaskHandler,
-            updateProjectSubtaskHandler,
-            deleteProjectSubtaskHandler)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = this.mockHttpContext.Object
-            }
-        };
+        this.controller = new ProjectSubtaskController(getAllProjectSubtaskHandler, getProjectSubtaskByIdHandler, addProjectSubtaskHandler, updateProjectSubtaskHandler, deleteProjectSubtaskHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
 
         SetupUserClaims();
         this.faker = new Faker();
@@ -61,27 +53,15 @@ public class ProjectSubtaskControllerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
 
-    private readonly ProjectSubtaskController controller;
-    private readonly DefaultContext db;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testProjectSubtaskId;
-    private readonly Faker faker;
-
     private void SetupUserClaims()
     {
-        var claims = new List<Claim>
-        {
-            new("userId",
-                Guid.NewGuid()
-                    .ToString())
-        };
+        var claims = new List<Claim> { new("userId", Guid.NewGuid().ToString()) };
 
-        var claimsIdentity = new ClaimsIdentity(claims,
-            "Test");
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -98,10 +78,7 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -139,8 +116,7 @@ public class ProjectSubtaskControllerTests : IDisposable
             CompletedAt = DateTime.UtcNow
         };
 
-        this.db.ProjectSubtasks.AddRange(projectSubtask1,
-            projectSubtask2);
+        this.db.ProjectSubtasks.AddRange(projectSubtask1, projectSubtask2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
@@ -149,10 +125,7 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -163,8 +136,7 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         var returnedSubtasks = okResult.Value as List<GetAllProjectSubtaskResponse>;
         Assert.NotNull(returnedSubtasks);
-        Assert.Equal(2,
-            returnedSubtasks.Count);
+        Assert.Equal(2, returnedSubtasks.Count);
     }
 
     [Fact]
@@ -188,9 +160,7 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testProjectSubtaskId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(this.testProjectSubtaskId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -201,10 +171,8 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         var returnedSubtask = okResult.Value as GetProjectSubtaskByIdResponse;
         Assert.NotNull(returnedSubtask);
-        Assert.Equal(this.testProjectSubtaskId,
-            returnedSubtask.Id);
-        Assert.Equal(projectSubtask.Title,
-            returnedSubtask.Title);
+        Assert.Equal(this.testProjectSubtaskId, returnedSubtask.Id);
+        Assert.Equal(projectSubtask.Title, returnedSubtask.Title);
     }
 
     [Fact]
@@ -216,9 +184,7 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -229,24 +195,13 @@ public class ProjectSubtaskControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithItem()
     {
         // Arrange
-        var command = new AddProjectSubtaskCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            this.faker.Lorem.Sentence(5),
-            this.faker.PickRandom(true,
-                false),
-            this.faker.Random.Int(1,
-                10),
-            this.faker.PickRandom<DateTime?>(null,
-                DateTime.UtcNow));
+        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), this.faker.PickRandom(true, false), this.faker.Random.Int(1, 10), this.faker.PickRandom<DateTime?>(null, DateTime.UtcNow));
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command,
-            wide,
-            ct);
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -254,15 +209,12 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201,
-            createdResult.StatusCode);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedSubtask = createdResult.Value as AddProjectSubtaskResponse;
         Assert.NotNull(returnedSubtask);
-        Assert.Equal(command.Id,
-            returnedSubtask.Id);
-        Assert.Equal(command.Title,
-            returnedSubtask.Title);
+        Assert.Equal(command.Id, returnedSubtask.Id);
+        Assert.Equal(command.Title, returnedSubtask.Title);
     }
 
     [Fact]
@@ -282,22 +234,13 @@ public class ProjectSubtaskControllerTests : IDisposable
         this.db.ProjectSubtasks.Add(projectSubtask);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProjectSubtaskCommand(
-            projectSubtask.Id,
-            projectSubtask.TaskId,
-            this.faker.Lorem.Sentence(5) + " Updated",
-            true,
-            projectSubtask.Order,
-            DateTime.UtcNow);
+        var command = new UpdateProjectSubtaskCommand(projectSubtask.Id, projectSubtask.TaskId, this.faker.Lorem.Sentence(5) + " Updated", true, projectSubtask.Order, DateTime.UtcNow);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            this.testProjectSubtaskId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, this.testProjectSubtaskId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -308,8 +251,7 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         var returnedSubtask = okResult.Value as UpdateProjectSubtaskResponse;
         Assert.NotNull(returnedSubtask);
-        Assert.Contains("Updated",
-            returnedSubtask.Title);
+        Assert.Contains("Updated", returnedSubtask.Title);
     }
 
     [Fact]
@@ -317,25 +259,13 @@ public class ProjectSubtaskControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdateProjectSubtaskCommand(
-            nonExistentId,
-            Guid.NewGuid(),
-            this.faker.Lorem.Sentence(5),
-            this.faker.PickRandom(true,
-                false),
-            this.faker.Random.Int(1,
-                10),
-            this.faker.PickRandom<DateTime?>(null,
-                DateTime.UtcNow));
+        var command = new UpdateProjectSubtaskCommand(nonExistentId, Guid.NewGuid(), this.faker.Lorem.Sentence(5), this.faker.PickRandom(true, false), this.faker.Random.Int(1, 10), this.faker.PickRandom<DateTime?>(null, DateTime.UtcNow));
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -363,17 +293,13 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testProjectSubtaskId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(this.testProjectSubtaskId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify project subtask was deleted
-        var deletedSubtask = await this.db.ProjectSubtasks.FirstOrDefaultAsync(
-            x => x.Id == this.testProjectSubtaskId && x.Deleted == null,
-            ct);
+        var deletedSubtask = await this.db.ProjectSubtasks.FirstOrDefaultAsync(x => x.Id == this.testProjectSubtaskId && x.Deleted == null, ct);
         Assert.Null(deletedSubtask);
     }
 
@@ -386,9 +312,7 @@ public class ProjectSubtaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -401,8 +325,7 @@ public class ProjectSubtaskControllerTests : IDisposable
         var controllerType = typeof(ProjectSubtaskController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -415,14 +338,11 @@ public class ProjectSubtaskControllerTests : IDisposable
         var controllerType = typeof(ProjectSubtaskController);
 
         // Act
-        var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute),
-                false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]",
-            routeAttribute.Template);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
     [Fact]
@@ -432,9 +352,7 @@ public class ProjectSubtaskControllerTests : IDisposable
         var controllerType = typeof(ProjectSubtaskController);
 
         // Act
-        var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
-                false).FirstOrDefault();
+        var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
@@ -448,13 +366,11 @@ public class ProjectSubtaskControllerTests : IDisposable
         var deleteMethod = controllerType.GetMethod(nameof(ProjectSubtaskController.DeleteAsync));
 
         // Act
-        var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
     [Fact]
@@ -465,13 +381,11 @@ public class ProjectSubtaskControllerTests : IDisposable
         var postMethod = controllerType.GetMethod(nameof(ProjectSubtaskController.PostAsync));
 
         // Act
-        var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
     [Fact]
@@ -482,12 +396,10 @@ public class ProjectSubtaskControllerTests : IDisposable
         var patchMethod = controllerType.GetMethod(nameof(ProjectSubtaskController.PatchAsync));
 
         // Act
-        var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 }

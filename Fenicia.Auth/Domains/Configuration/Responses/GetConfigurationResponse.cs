@@ -2,10 +2,27 @@ using Fenicia.Common.Enums.Auth;
 
 namespace Fenicia.Auth.Domains.Configuration.Responses;
 
+/// <summary>
+///     Response model containing configuration information.
+/// </summary>
 public record GetConfigurationResponse(
+    /// <summary>
+    /// The configuration ID.
+    /// </summary>
     Guid Id,
+    /// <summary>
+    /// The user ID who owns this configuration.
+    /// </summary>
     Guid UserId,
+    /// <summary>
+    /// The company ID (nullable for user-level configurations).
+    /// </summary>
     Guid? CompanyId,
+    /// <summary>
+    /// The type of configuration.
+    /// </summary>
     ConfigType ConfigType,
-    string Value
-);
+    /// <summary>
+    /// The configuration value.
+    /// </summary>
+    string Value);

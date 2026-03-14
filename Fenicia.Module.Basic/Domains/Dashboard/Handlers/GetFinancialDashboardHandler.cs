@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Dashboard.Queries;
@@ -7,8 +9,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard.Handlers;
 
+/// <summary>
+///     Handler responsible for generating financial dashboard data.
+///     Provides comprehensive business analytics including KPIs, revenue vs cost analysis, profit margins, and sales summaries.
+/// </summary>
 public class GetFinancialDashboardHandler(DefaultContext db)
 {
+    /// <summary>
+    ///     Generates comprehensive financial dashboard analytics.
+    /// </summary>
+    /// <param name="query">The query containing dashboard parameters (number of days to analyze).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Financial dashboard including KPIs, revenue analysis, and sales data.</returns>
     public async Task<FinancialDashboardResponse> Handle(GetFinancialDashboardQuery query, CancellationToken ct)
     {
         var kpi = await CalculateKpiSummaryAsync(ct);
@@ -31,9 +43,7 @@ public class GetFinancialDashboardHandler(DefaultContext db)
     {
         var today = DateTime.UtcNow.Date;
         var weekStart = today.AddDays(-(int)today.DayOfWeek);
-        var monthStart = new DateTime(today.Year,
-            today.Month,
-            1);
+        var monthStart = new DateTime(today.Year, today.Month, 1);
         var lastMonthStart = monthStart.AddMonths(-1);
         var lastMonthEnd = monthStart.AddDays(-1);
 
@@ -56,7 +66,7 @@ public class GetFinancialDashboardHandler(DefaultContext db)
             MonthRevenue = monthRevenue,
             MonthOrders = await monthOrders.CountAsync(ct),
             PreviousMonthRevenue = lastMonthRevenue,
-            GrowthPercentage = lastMonthRevenue > 0 ? ((monthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0
+            GrowthPercentage = lastMonthRevenue > 0 ? (monthRevenue - lastMonthRevenue) / lastMonthRevenue * 100 : 0
         };
         return dailySales;
     }
@@ -66,92 +76,99 @@ public class GetFinancialDashboardHandler(DefaultContext db)
         var pendingOrders = db.BasicOrders.Where(o => o.Status == OrderStatus.Pending);
         var approvedOrders = db.BasicOrders.Where(o => o.Status == OrderStatus.Approved);
 
-        var accountsReceivable = new AccountsReceivableResponse
-        {
-            TotalPending = await pendingOrders.SumAsync(o => o.TotalAmount, ct),
-            PendingOrdersCount = await pendingOrders.CountAsync(ct),
-            TotalApproved = await approvedOrders.SumAsync(o => o.TotalAmount, ct),
-            ApprovedOrdersCount = await approvedOrders.CountAsync(ct)
-        };
-        
+        var accountsReceivable = new AccountsReceivableResponse { TotalPending = await pendingOrders.SumAsync(o => o.TotalAmount, ct), PendingOrdersCount = await pendingOrders.CountAsync(ct), TotalApproved = await approvedOrders.SumAsync(o => o.TotalAmount, ct), ApprovedOrdersCount = await approvedOrders.CountAsync(ct) };
+
         return accountsReceivable;
     }
 
     private async Task<List<ProfitMarginTrendResponse>> CalculateProfitMarginTrendAsync(CancellationToken ct)
     {
-        var request = from o in db.BasicOrders
-                        group o by GetWeekNumber(o.SaleDate)
-                        into g
-                        let Week = g.Min(o => o.SaleDate.Date)
-                        let Revenue = g.Sum(o => o.TotalAmount)
-                        let Cost = g.Sum(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m))
-                        orderby Week
-                        select new
-                        {
-                            Week,
-                            Revenue,
-                            Cost
-                        };
+        var weeks = await GetOrderWeeksAsync(ct);
 
-        var weeklyData = await request.ToListAsync(ct);
+        var orders = await db.BasicOrders.Select(o => new { o.SaleDate, o.TotalAmount, o.Details }).ToListAsync(ct);
 
-        var profitMarginTrend = new List<ProfitMarginTrendResponse>();
-        
-        for (var i = 0; i < weeklyData.Count; i++)
+        var response = new List<ProfitMarginTrendResponse>();
+
+        foreach (var week in weeks)
         {
-            var current = weeklyData[i];
-            var margin = current.Revenue > 0 ? ((current.Revenue - current.Cost) / current.Revenue) * 100 : 0;
-        
+            var weekNumber = GetWeekNumber(week);
+            var weekOrders = orders.Where(o => GetWeekNumber(o.SaleDate) == weekNumber).ToList();
+
+            var revenue = weekOrders.Sum(o => o.TotalAmount);
+            var cost = weekOrders.Sum(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m));
+
+            var margin = revenue > 0 ? (revenue - cost) / revenue * 100 : 0;
+
             var trend = "Stable";
-            if (i > 0)
+            if (response.Count > 0)
             {
-                var previous = weeklyData[i - 1];
-                var prevMargin = previous.Revenue > 0 ? ((previous.Revenue - previous.Cost) / previous.Revenue) * 100 : 0;
+                var previous = response[^1];
+                var prevMargin = previous.MarginPercentage;
                 trend = margin > prevMargin + 2 ? "Improving" : margin < prevMargin - 2 ? "Declining" : "Stable";
             }
 
-            profitMarginTrend.Add(new ProfitMarginTrendResponse(
-                $"Week {GetWeekNumber(current.Week)}",
-                current.Week,
-                margin,
-                trend));
+            response.Add(new ProfitMarginTrendResponse($"Week {weekNumber}", week, margin, trend));
         }
 
-        return profitMarginTrend;
+        return response;
     }
 
     private async Task<List<RevenueVsCostResponse>> CalculateRevenueVsCostAsync(CancellationToken ct)
     {
-        var request = from o in db.BasicOrders
-                      group o by o.SaleDate.Date
-                      into g
-                      orderby g.Key.Date descending
-                      let revenue = g.Sum(o => o.TotalAmount)
-                      let cost = g.Sum(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m))
-                      let profit = revenue - cost
-                      select new RevenueVsCostResponse(g.Key.ToString("yyyy-MM-dd"),
-                          g.Key,
-                          revenue,
-                          cost,
-                          profit);
-                      
-        return await request.ToListAsync(ct);
+        var dates = await GetOrderDatesAsync(ct);
+
+        var response = new List<RevenueVsCostResponse>();
+
+        foreach (var date in dates)
+        {
+            var key = date.ToString("yyyy MMMM dd");
+            var revenue = await db.BasicOrders.SumAsync(o => o.TotalAmount, ct);
+            var cost = await db.BasicOrders.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), ct);
+            var profit = revenue - cost;
+
+            response.Add(new RevenueVsCostResponse(key, date, revenue, cost, profit));
+        }
+
+        return response;
     }
 
-    private async Task <KpiSummaryResponse> CalculateKpiSummaryAsync(CancellationToken ct)
+    private async Task<List<DateTime>> GetOrderDatesAsync(CancellationToken ct)
+    {
+        var dates = await db.BasicOrders.OrderBy(o => o.SaleDate).Select(o => o.SaleDate.Date).Distinct().ToListAsync(ct);
+        return dates;
+    }
+
+    private async Task<List<DateTime>> GetOrderWeeksAsync(CancellationToken ct)
+    {
+        var weeks = await db.BasicOrders.OrderBy(o => o.SaleDate).Select(o => o.SaleDate.Date).Distinct().ToListAsync(ct);
+
+        var weekStarts = new List<DateTime>();
+        foreach (var date in weeks)
+        {
+            var weekStart = date.AddDays(-(int)date.DayOfWeek);
+            if (weekStarts.Count == 0 || weekStart > weekStarts[^1])
+            {
+                weekStarts.Add(weekStart);
+            }
+        }
+
+        return weekStarts;
+    }
+
+    private async Task<KpiSummaryResponse> CalculateKpiSummaryAsync(CancellationToken ct)
     {
         var orders = db.BasicOrders;
         var products = db.BasicProducts;
-        
-        var totalRevenue = await orders.SumAsync(o => o.TotalAmount, cancellationToken: ct);
-        var totalCost = await orders.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), cancellationToken: ct); // Estimate 70% cost
+
+        var totalRevenue = await orders.SumAsync(o => o.TotalAmount, ct);
+        var totalCost = await orders.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), ct); // Estimate 70% cost
         var grossProfit = totalRevenue - totalCost;
-        var profitMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
-        var totalOrders = await orders.CountAsync(cancellationToken: ct);
-        var totalProducts = await products.CountAsync(cancellationToken: ct);
+        var profitMargin = totalRevenue > 0 ? grossProfit / totalRevenue * 100 : 0;
+        var totalOrders = await orders.CountAsync(ct);
+        var totalProducts = await products.CountAsync(ct);
         var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
         var totalStockValue = products.Sum(p => (p.CostPrice ?? 0) * (decimal)p.Quantity);
-        
+
         var kpi = new KpiSummaryResponse
         {
             TotalRevenue = totalRevenue,
@@ -168,12 +185,10 @@ public class GetFinancialDashboardHandler(DefaultContext db)
 
     private static int GetWeekNumber(DateTime date)
     {
-        var culture = System.Globalization.CultureInfo.CurrentCulture;
+        var culture = CultureInfo.CurrentCulture;
         var calendar = culture.Calendar;
         var weekRule = culture.DateTimeFormat.CalendarWeekRule;
         var firstDay = culture.DateTimeFormat.FirstDayOfWeek;
-        return calendar.GetWeekOfYear(date,
-            weekRule,
-            firstDay);
+        return calendar.GetWeekOfYear(date, weekRule, firstDay);
     }
 }

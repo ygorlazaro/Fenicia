@@ -8,8 +8,7 @@ public class UpdateProjectAttachmentHandler(DefaultContext context)
 {
     public async Task<UpdateProjectAttachmentResponse?> Handle(UpdateProjectAttachmentCommand command, CancellationToken ct)
     {
-        var projectAttachment = await context.ProjectAttachments.FirstOrDefaultAsync(p => p.Id == command.Id,
-            ct);
+        var projectAttachment = await context.ProjectAttachments.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
         if (projectAttachment is null)
         {
@@ -26,13 +25,6 @@ public class UpdateProjectAttachmentHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new UpdateProjectAttachmentResponse(
-            projectAttachment.Id,
-            projectAttachment.TaskId,
-            projectAttachment.FileName,
-            projectAttachment.FileUrl,
-            projectAttachment.FileSize,
-            projectAttachment.UploadedBy,
-            projectAttachment.CompanyId);
+        return new UpdateProjectAttachmentResponse(projectAttachment.Id, projectAttachment.TaskId, projectAttachment.FileName, projectAttachment.FileUrl, projectAttachment.FileSize, projectAttachment.UploadedBy, projectAttachment.CompanyId);
     }
 }

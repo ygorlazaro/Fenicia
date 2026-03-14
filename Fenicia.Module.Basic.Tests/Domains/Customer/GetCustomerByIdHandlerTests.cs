@@ -1,9 +1,9 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Customer.Handlers;
 using Fenicia.Module.Basic.Domains.Customer.Queries;
 
@@ -11,17 +11,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
+/// <summary>
+///     Unit tests for the GetCustomerByIdHandler.
+///     Tests customer retrieval by ID logic.
+/// </summary>
 public class GetCustomerByIdHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly GetCustomerByIdHandler handler;
+
     public GetCustomerByIdHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetCustomerByIdHandler(this.db);
         this.faker = new Faker();
     }
@@ -32,21 +37,15 @@ public class GetCustomerByIdHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext db;
-    private readonly GetCustomerByIdHandler handler;
-    private readonly Faker faker;
-
+    /// <summary>
+    ///     Tests that retrieving a customer by ID returns the customer details when found.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerExists_ReturnsCustomerResponse()
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
+        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
         this.db.AuthStates.Add(state);
 
         var customer = new CustomerModel
@@ -75,39 +74,28 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(customerId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(customerId,
-            result.Id);
-        Assert.Equal(customer.Person.Id,
-            result.PersonId);
-        Assert.Equal(customer.Person.Name,
-            result.Name);
-        Assert.Equal(customer.Person.Email,
-            result.Email);
-        Assert.Equal(customer.Person.PhoneNumber,
-            result.PhoneNumber);
-        Assert.Equal(customer.Person.Document,
-            result.Document);
-        Assert.Equal(customer.Person.Street,
-            result.Street);
-        Assert.Equal(customer.Person.Number,
-            result.Number);
-        Assert.Equal(customer.Person.Complement,
-            result.Complement);
-        Assert.Equal(customer.Person.Neighborhood,
-            result.Neighborhood);
-        Assert.Equal(customer.Person.ZipCode,
-            result.ZipCode);
-        Assert.Equal(customer.Person.StateId,
-            result.StateId);
-        Assert.Equal(customer.Person.City,
-            result.City);
+        Assert.Equal(customerId, result.Id);
+        Assert.Equal(customer.Person.Id, result.PersonId);
+        Assert.Equal(customer.Person.Name, result.Name);
+        Assert.Equal(customer.Person.Email, result.Email);
+        Assert.Equal(customer.Person.PhoneNumber, result.PhoneNumber);
+        Assert.Equal(customer.Person.Document, result.Document);
+        Assert.Equal(customer.Person.Street, result.Street);
+        Assert.Equal(customer.Person.Number, result.Number);
+        Assert.Equal(customer.Person.Complement, result.Complement);
+        Assert.Equal(customer.Person.Neighborhood, result.Neighborhood);
+        Assert.Equal(customer.Person.ZipCode, result.ZipCode);
+        Assert.Equal(customer.Person.StateId, result.StateId);
+        Assert.Equal(customer.Person.City, result.City);
     }
 
+    /// <summary>
+    ///     Tests that retrieving a non-existent customer returns null.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerDoesNotExist_ReturnsNull()
     {
@@ -115,13 +103,15 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
     }
 
+    /// <summary>
+    ///     Tests that retrieving from an empty database returns null.
+    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
@@ -129,25 +119,22 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
     }
 
+    /// <summary>
+    ///     Tests that when multiple customers exist, only the requested customer is returned.
+    /// </summary>
     [Fact]
     public async Task Handle_WithMultipleCustomers_ReturnsOnlyRequestedCustomer()
     {
         // Arrange
         var customer1Id = Guid.NewGuid();
         var customer2Id = Guid.NewGuid();
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
+        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
         this.db.AuthStates.Add(state);
 
         var customer1 = new CustomerModel
@@ -190,37 +177,30 @@ public class GetCustomerByIdHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicCustomers.AddRange(customer1,
-            customer2);
+        this.db.BasicCustomers.AddRange(customer1, customer2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customer1Id);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(customer1Id,
-            result.Id);
-        Assert.Equal(customer1.Person.Id,
-            result.PersonId);
-        Assert.Equal(customer1.Person.Name,
-            result.Name);
+        Assert.Equal(customer1Id, result.Id);
+        Assert.Equal(customer1.Person.Id, result.PersonId);
+        Assert.Equal(customer1.Person.Name, result.Name);
     }
 
+    /// <summary>
+    ///     Tests that customers with null address fields are handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullAddressFields_ReturnsCorrectResponse()
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
+        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
         this.db.AuthStates.Add(state);
 
         var customer = new CustomerModel
@@ -251,14 +231,11 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(customerId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(customer.Person.Name,
-            result.Name);
-        Assert.Equal(customer.Person.Email,
-            result.Email);
+        Assert.Equal(customer.Person.Name, result.Name);
+        Assert.Equal(customer.Person.Email, result.Email);
     }
 }

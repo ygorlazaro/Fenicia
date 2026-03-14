@@ -8,8 +8,7 @@ public class UpdateProjectStatusHandler(DefaultContext context)
 {
     public async Task<UpdateProjectStatusResponse?> Handle(UpdateProjectStatusCommand command, CancellationToken ct)
     {
-        var status = await context.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == command.Id,
-            ct);
+        var status = await context.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
         if (status is null)
         {
@@ -26,13 +25,6 @@ public class UpdateProjectStatusHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new UpdateProjectStatusResponse(
-            status.Id,
-            status.ProjectId,
-            status.Name,
-            status.Color,
-            status.Order,
-            status.IsFinal,
-            status.CompanyId);
+        return new UpdateProjectStatusResponse(status.Id, status.ProjectId, status.Name, status.Color, status.Order, status.IsFinal, status.CompanyId);
     }
 }

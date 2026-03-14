@@ -17,27 +17,16 @@ namespace Fenicia.Module.Projects.Domains.ProjectStatus;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectStatusController(
-    GetAllProjectStatusHandler getAllProjectStatusHandler,
-    GetProjectStatusByIdHandler getProjectStatusByIdHandler,
-    AddProjectStatusHandler addProjectStatusHandler,
-    UpdateProjectStatusHandler updateProjectStatusHandler,
-    DeleteProjectStatusHandler deleteProjectStatusHandler) : ControllerBase
+public class ProjectStatusController(GetAllProjectStatusHandler getAllProjectStatusHandler, GetProjectStatusByIdHandler getProjectStatusByIdHandler, AddProjectStatusHandler addProjectStatusHandler, UpdateProjectStatusHandler updateProjectStatusHandler, DeleteProjectStatusHandler deleteProjectStatusHandler) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectStatusResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectStatusResponse>>> GetAsync(
-        WideEventContext wide,
-        [FromQuery] int page = 1, 
-        [FromQuery] int perPage = 10,
-        CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllProjectStatusResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var statuses = await getAllProjectStatusHandler.Handle(new GetAllProjectStatusQuery(page,
-                perPage),
-            ct);
+
+        var statuses = await getAllProjectStatusHandler.Handle(new GetAllProjectStatusQuery(page, perPage), ct);
 
         return Ok(statuses);
     }
@@ -46,15 +35,11 @@ public class ProjectStatusController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProjectStatusByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectStatusByIdResponse>> GetByIdAsync(
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<GetProjectStatusByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var status = await getProjectStatusByIdHandler.Handle(new GetProjectStatusByIdQuery(id),
-            ct);
+
+        var status = await getProjectStatusByIdHandler.Handle(new GetProjectStatusByIdQuery(id), ct);
 
         return status is null ? NotFound() : Ok(status);
     }
@@ -66,18 +51,13 @@ public class ProjectStatusController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectStatusResponse>> PostAsync(
-        [FromBody] AddProjectStatusCommand command,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<AddProjectStatusResponse>> PostAsync([FromBody] AddProjectStatusCommand command, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var status = await addProjectStatusHandler.Handle(command,
-            ct);
 
-        return new CreatedResult(string.Empty,
-            status);
+        var status = await addProjectStatusHandler.Handle(command, ct);
+
+        return new CreatedResult(string.Empty, status);
     }
 
     [HttpPatch("{id:guid}")]
@@ -88,19 +68,11 @@ public class ProjectStatusController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProjectStatusResponse>> PatchAsync(
-        [FromBody] UpdateProjectStatusCommand command,
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<UpdateProjectStatusResponse>> PatchAsync([FromBody] UpdateProjectStatusCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var status = await updateProjectStatusHandler.Handle(command with
-            {
-                Id = id
-            },
-            ct);
+
+        var status = await updateProjectStatusHandler.Handle(command with { Id = id }, ct);
 
         return status is null ? NotFound() : Ok(status);
     }
@@ -110,15 +82,11 @@ public class ProjectStatusController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync(
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        await deleteProjectStatusHandler.Handle(new DeleteProjectStatusCommand(id),
-            ct);
+
+        await deleteProjectStatusHandler.Handle(new DeleteProjectStatusCommand(id), ct);
 
         return NoContent();
     }

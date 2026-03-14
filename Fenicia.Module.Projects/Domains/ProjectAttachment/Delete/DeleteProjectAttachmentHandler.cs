@@ -8,8 +8,7 @@ public class DeleteProjectAttachmentHandler(DefaultContext context)
 {
     public async Task Handle(DeleteProjectAttachmentCommand command, CancellationToken ct)
     {
-        var projectAttachment = await context.ProjectAttachments.FirstOrDefaultAsync(p => p.Id == command.Id,
-            ct);
+        var projectAttachment = await context.ProjectAttachments.FirstOrDefaultAsync(p => p.Id == command.Id, ct);
 
         if (projectAttachment is null)
         {

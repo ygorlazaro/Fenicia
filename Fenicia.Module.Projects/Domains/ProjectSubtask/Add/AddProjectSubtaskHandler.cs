@@ -21,13 +21,6 @@ public class AddProjectSubtaskHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new AddProjectSubtaskResponse(
-            projectSubtask.Id,
-            projectSubtask.TaskId,
-            projectSubtask.Title,
-            projectSubtask.IsCompleted,
-            projectSubtask.Order,
-            projectSubtask.CompletedAt,
-            projectSubtask.CompanyId);
+        return new AddProjectSubtaskResponse(projectSubtask.Id, projectSubtask.TaskId, projectSubtask.Title, projectSubtask.IsCompleted, projectSubtask.Order, projectSubtask.CompletedAt, projectSubtask.CompanyId);
     }
 }

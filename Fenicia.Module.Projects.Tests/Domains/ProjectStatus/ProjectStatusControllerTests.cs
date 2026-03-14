@@ -3,9 +3,9 @@ using System.Security.Claims;
 using Bogus;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectStatus;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Add;
 using Fenicia.Module.Projects.Domains.ProjectStatus.Delete;
@@ -24,15 +24,18 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectStatus;
 
 public class ProjectStatusControllerTests : IDisposable
 {
+    private readonly ProjectStatusController controller;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testProjectStatusId;
+
     public ProjectStatusControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectStatusId = Guid.NewGuid();
         var getAllProjectStatusHandler = new GetAllProjectStatusHandler(this.db);
         var getProjectStatusByIdHandler = new GetProjectStatusByIdHandler(this.db);
@@ -41,18 +44,7 @@ public class ProjectStatusControllerTests : IDisposable
         var deleteProjectStatusHandler = new DeleteProjectStatusHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ProjectStatusController(
-            getAllProjectStatusHandler,
-            getProjectStatusByIdHandler,
-            addProjectStatusHandler,
-            updateProjectStatusHandler,
-            deleteProjectStatusHandler)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = this.mockHttpContext.Object
-            }
-        };
+        this.controller = new ProjectStatusController(getAllProjectStatusHandler, getProjectStatusByIdHandler, addProjectStatusHandler, updateProjectStatusHandler, deleteProjectStatusHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
 
         SetupUserClaims();
         this.faker = new Faker();
@@ -61,27 +53,15 @@ public class ProjectStatusControllerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
 
-    private readonly ProjectStatusController controller;
-    private readonly DefaultContext db;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testProjectStatusId;
-    private readonly Faker faker;
-
     private void SetupUserClaims()
     {
-        var claims = new List<Claim>
-        {
-            new("userId",
-                Guid.NewGuid()
-                    .ToString())
-        };
+        var claims = new List<Claim> { new("userId", Guid.NewGuid().ToString()) };
 
-        var claimsIdentity = new ClaimsIdentity(claims,
-            "Test");
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -98,10 +78,7 @@ public class ProjectStatusControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -139,8 +116,7 @@ public class ProjectStatusControllerTests : IDisposable
             IsFinal = true
         };
 
-        this.db.ProjectStatuses.AddRange(projectStatus1,
-            projectStatus2);
+        this.db.ProjectStatuses.AddRange(projectStatus1, projectStatus2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
@@ -149,10 +125,7 @@ public class ProjectStatusControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -163,8 +136,7 @@ public class ProjectStatusControllerTests : IDisposable
 
         var returnedStatuses = okResult.Value as List<GetAllProjectStatusResponse>;
         Assert.NotNull(returnedStatuses);
-        Assert.Equal(2,
-            returnedStatuses.Count);
+        Assert.Equal(2, returnedStatuses.Count);
     }
 
     [Fact]
@@ -188,9 +160,7 @@ public class ProjectStatusControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testProjectStatusId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(this.testProjectStatusId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -201,10 +171,8 @@ public class ProjectStatusControllerTests : IDisposable
 
         var returnedStatus = okResult.Value as GetProjectStatusByIdResponse;
         Assert.NotNull(returnedStatus);
-        Assert.Equal(this.testProjectStatusId,
-            returnedStatus.Id);
-        Assert.Equal(projectStatus.Name,
-            returnedStatus.Name);
+        Assert.Equal(this.testProjectStatusId, returnedStatus.Id);
+        Assert.Equal(projectStatus.Name, returnedStatus.Name);
     }
 
     [Fact]
@@ -216,9 +184,7 @@ public class ProjectStatusControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -229,23 +195,13 @@ public class ProjectStatusControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithItem()
     {
         // Arrange
-        var command = new AddProjectStatusCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            this.faker.Lorem.Word(),
-            this.faker.Internet.Color(),
-            this.faker.Random.Int(1,
-                10),
-            this.faker.PickRandom(true,
-                false));
+        var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Word(), this.faker.Internet.Color(), this.faker.Random.Int(1, 10), this.faker.PickRandom(true, false));
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command,
-            wide,
-            ct);
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -253,15 +209,12 @@ public class ProjectStatusControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201,
-            createdResult.StatusCode);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedStatus = createdResult.Value as AddProjectStatusResponse;
         Assert.NotNull(returnedStatus);
-        Assert.Equal(command.Id,
-            returnedStatus.Id);
-        Assert.Equal(command.Name,
-            returnedStatus.Name);
+        Assert.Equal(command.Id, returnedStatus.Id);
+        Assert.Equal(command.Name, returnedStatus.Name);
     }
 
     [Fact]
@@ -281,22 +234,13 @@ public class ProjectStatusControllerTests : IDisposable
         this.db.ProjectStatuses.Add(projectStatus);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProjectStatusCommand(
-            projectStatus.Id,
-            projectStatus.ProjectId,
-            this.faker.Lorem.Word() + " Updated",
-            this.faker.Internet.Color(),
-            projectStatus.Order,
-            projectStatus.IsFinal);
+        var command = new UpdateProjectStatusCommand(projectStatus.Id, projectStatus.ProjectId, this.faker.Lorem.Word() + " Updated", this.faker.Internet.Color(), projectStatus.Order, projectStatus.IsFinal);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            this.testProjectStatusId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, this.testProjectStatusId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -307,8 +251,7 @@ public class ProjectStatusControllerTests : IDisposable
 
         var returnedStatus = okResult.Value as UpdateProjectStatusResponse;
         Assert.NotNull(returnedStatus);
-        Assert.Contains("Updated",
-            returnedStatus.Name);
+        Assert.Contains("Updated", returnedStatus.Name);
     }
 
     [Fact]
@@ -316,24 +259,13 @@ public class ProjectStatusControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdateProjectStatusCommand(
-            nonExistentId,
-            Guid.NewGuid(),
-            this.faker.Lorem.Word(),
-            this.faker.Internet.Color(),
-            this.faker.Random.Int(1,
-                10),
-            this.faker.PickRandom(true,
-                false));
+        var command = new UpdateProjectStatusCommand(nonExistentId, Guid.NewGuid(), this.faker.Lorem.Word(), this.faker.Internet.Color(), this.faker.Random.Int(1, 10), this.faker.PickRandom(true, false));
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -361,17 +293,13 @@ public class ProjectStatusControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testProjectStatusId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(this.testProjectStatusId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify project status was deleted
-        var deletedStatus = await this.db.ProjectStatuses.FirstOrDefaultAsync(
-            x => x.Id == this.testProjectStatusId && x.Deleted == null,
-            ct);
+        var deletedStatus = await this.db.ProjectStatuses.FirstOrDefaultAsync(x => x.Id == this.testProjectStatusId && x.Deleted == null, ct);
         Assert.Null(deletedStatus);
     }
 
@@ -384,9 +312,7 @@ public class ProjectStatusControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -399,8 +325,7 @@ public class ProjectStatusControllerTests : IDisposable
         var controllerType = typeof(ProjectStatusController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -413,14 +338,11 @@ public class ProjectStatusControllerTests : IDisposable
         var controllerType = typeof(ProjectStatusController);
 
         // Act
-        var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute),
-                false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]",
-            routeAttribute.Template);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
     [Fact]
@@ -430,9 +352,7 @@ public class ProjectStatusControllerTests : IDisposable
         var controllerType = typeof(ProjectStatusController);
 
         // Act
-        var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
-                false).FirstOrDefault();
+        var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
@@ -446,13 +366,11 @@ public class ProjectStatusControllerTests : IDisposable
         var deleteMethod = controllerType.GetMethod(nameof(ProjectStatusController.DeleteAsync));
 
         // Act
-        var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
     [Fact]
@@ -463,13 +381,11 @@ public class ProjectStatusControllerTests : IDisposable
         var postMethod = controllerType.GetMethod(nameof(ProjectStatusController.PostAsync));
 
         // Act
-        var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
     [Fact]
@@ -480,12 +396,10 @@ public class ProjectStatusControllerTests : IDisposable
         var patchMethod = controllerType.GetMethod(nameof(ProjectStatusController.PatchAsync));
 
         // Act
-        var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 }

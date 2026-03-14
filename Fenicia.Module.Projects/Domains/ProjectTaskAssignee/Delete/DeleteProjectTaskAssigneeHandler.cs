@@ -8,8 +8,7 @@ public class DeleteProjectTaskAssigneeHandler(DefaultContext context)
 {
     public async Task Handle(DeleteProjectTaskAssigneeCommand command, CancellationToken ct)
     {
-        var assignee = await context.ProjectTaskAssignees.FirstOrDefaultAsync(a => a.Id == command.Id,
-            ct);
+        var assignee = await context.ProjectTaskAssignees.FirstOrDefaultAsync(a => a.Id == command.Id, ct);
 
         if (assignee is null)
         {
