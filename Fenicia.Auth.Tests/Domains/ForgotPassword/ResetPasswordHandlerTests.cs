@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
+/// <summary>
+/// Unit tests for the ResetPasswordHandler.
+/// Tests the password reset logic including code validation, password update, and code invalidation.
+/// </summary>
 public class ResetPasswordHandlerTests : IDisposable
 {
     public ResetPasswordHandlerTests()
@@ -34,6 +38,9 @@ public class ResetPasswordHandlerTests : IDisposable
     private readonly ResetPasswordHandler handler;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that a valid code successfully resets the user's password.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenValidCode_ResetsPasswordSuccessfully()
     {
@@ -79,6 +86,9 @@ public class ResetPasswordHandlerTests : IDisposable
         Assert.False(updatedCode.IsActive);
     }
 
+    /// <summary>
+    /// Tests that when no user exists with the given email, ItemNotExistsException is thrown.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
     {
@@ -94,6 +104,9 @@ public class ResetPasswordHandlerTests : IDisposable
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that an invalid code throws InvalidDataException.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCodeDoesNotExist_ThrowsInvalidDataException()
     {
@@ -132,6 +145,9 @@ public class ResetPasswordHandlerTests : IDisposable
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that an inactive code throws InvalidDataException.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCodeIsInactive_ThrowsInvalidDataException()
     {
@@ -169,6 +185,9 @@ public class ResetPasswordHandlerTests : IDisposable
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that an expired code throws InvalidDataException.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCodeIsExpired_ThrowsInvalidDataException()
     {
@@ -206,6 +225,9 @@ public class ResetPasswordHandlerTests : IDisposable
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that a code belonging to a different user throws InvalidDataException.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCodeBelongsToDifferentUser_ThrowsInvalidDataException()
     {
@@ -253,6 +275,9 @@ public class ResetPasswordHandlerTests : IDisposable
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that using a code a second time throws InvalidDataException.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCodeIsUsedSecondTime_ThrowsInvalidDataException()
     {
@@ -293,6 +318,9 @@ public class ResetPasswordHandlerTests : IDisposable
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that the password is actually changed after reset.
+    /// </summary>
     [Fact]
     public async Task Handle_VerifiesPasswordWasActuallyChanged()
     {
@@ -337,6 +365,9 @@ public class ResetPasswordHandlerTests : IDisposable
         Assert.Equal(user.Name, updatedUser.Name);
     }
 
+    /// <summary>
+    /// Tests that when the database is empty, ItemNotExistsException is thrown.
+    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
     {

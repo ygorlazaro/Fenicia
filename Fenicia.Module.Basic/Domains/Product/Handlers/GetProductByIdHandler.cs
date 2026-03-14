@@ -7,8 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving a specific product by its ID.
+/// Returns product details including category and supplier information.
+/// </summary>
 public class GetProductByIdHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves a product by its ID.
+    /// </summary>
+    /// <param name="query">The query containing the product ID.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The product details if found, otherwise null.</returns>
     public async Task<GetProductByIdResponse?> Handle(GetProductByIdQuery query, CancellationToken ct)
     {
         var product = await db.BasicProducts

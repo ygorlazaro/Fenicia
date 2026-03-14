@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
+/// <summary>
+/// Unit tests for the AddCustomerHandler.
+/// Tests customer creation business logic including validation and database operations.
+/// </summary>
 public class AddCustomerHandlerTests : IDisposable
 {
     public AddCustomerHandlerTests()
@@ -34,6 +38,9 @@ public class AddCustomerHandlerTests : IDisposable
     private readonly AddCustomerHandler handler;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that creating a customer with valid data successfully adds the customer and returns response.
+    /// </summary>
     [Fact]
     public async Task Handle_WithValidCommand_AddsCustomerAndReturnsResponse()
     {
@@ -63,6 +70,9 @@ public class AddCustomerHandlerTests : IDisposable
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
+    /// <summary>
+    /// Tests that creating a customer with null phone number is handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullPhoneNumber_SetsEmptyString()
     {
@@ -89,6 +99,9 @@ public class AddCustomerHandlerTests : IDisposable
         Assert.NotNull(result);
     }
 
+    /// <summary>
+    /// Tests that creating a customer with null street is handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullStreet_SetsEmptyString()
     {
@@ -115,6 +128,9 @@ public class AddCustomerHandlerTests : IDisposable
         Assert.NotNull(result);
     }
 
+    /// <summary>
+    /// Tests that creating a customer with null zip code is handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullZipCode_SetsEmptyString()
     {
@@ -141,6 +157,9 @@ public class AddCustomerHandlerTests : IDisposable
         Assert.NotNull(result);
     }
 
+    /// <summary>
+    /// Tests that creating a customer with null address number is handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullNumber_SetsEmptyString()
     {
@@ -167,6 +186,9 @@ public class AddCustomerHandlerTests : IDisposable
         Assert.NotNull(result);
     }
 
+    /// <summary>
+    /// Tests that creating a customer with null complement preserves null value.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullComplement_KeepsNull()
     {
@@ -193,6 +215,9 @@ public class AddCustomerHandlerTests : IDisposable
         Assert.NotNull(result);
     }
 
+    /// <summary>
+    /// Tests that creating a customer with null neighborhood preserves null value.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullNeighborhood_KeepsNull()
     {
@@ -219,6 +244,9 @@ public class AddCustomerHandlerTests : IDisposable
         Assert.NotNull(result);
     }
 
+    /// <summary>
+    /// Tests that creating a customer with null city preserves null value.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullCity_KeepsNull()
     {
@@ -245,6 +273,9 @@ public class AddCustomerHandlerTests : IDisposable
         Assert.NotNull(result);
     }
 
+    /// <summary>
+    /// Tests that the created customer is actually persisted to the database.
+    /// </summary>
     [Fact]
     public async Task Handle_VerifiesCustomerWasSavedToDatabase()
     {
@@ -279,6 +310,9 @@ public class AddCustomerHandlerTests : IDisposable
             customer.Person.Email);
     }
 
+    /// <summary>
+    /// Tests that creating multiple customers adds all of them to the database.
+    /// </summary>
     [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllCustomers()
     {

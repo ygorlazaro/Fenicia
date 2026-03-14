@@ -22,7 +22,4 @@
 
         <ProjectReference Include="..\Fenicia.Common\Fenicia.Common.csproj"/>
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Domains\Product\Update\" />
-    </ItemGroup>
 </Project>

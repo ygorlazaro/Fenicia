@@ -9,6 +9,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Inventory;
 
+/// <summary>
+/// Controller responsible for handling inventory-related HTTP endpoints.
+/// Provides endpoints for inventory management, dashboards, and health checks.
+/// </summary>
+/// <remarks>
+/// All endpoints require authentication.
+/// </remarks>
 [ApiController]
 [Route("[controller]")]
 [Authorize]
@@ -21,6 +28,12 @@ public class InventoryController(
     GetInventoryDashboardHandler getInventoryDashboardHandler,
     GetInventoryHealthHandler getInventoryHealthHandler) : ControllerBase
 {
+    /// <summary>
+    /// Retrieves inventory data for a specific product.
+    /// </summary>
+    /// <param name="productId">Product's unique identifier.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Inventory details for the specified product.</returns>
     [HttpGet("product/{productId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -32,6 +45,12 @@ public class InventoryController(
         return Ok(inventory);
     }
 
+    /// <summary>
+    /// Retrieves inventory data for products in a specific category.
+    /// </summary>
+    /// <param name="categoryId">Category's unique identifier.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Inventory details for products in the specified category.</returns>
     [HttpGet("category/{categoryId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -43,6 +62,13 @@ public class InventoryController(
         return Ok(inventory);
     }
 
+    /// <summary>
+    /// Retrieves paginated inventory data for all products.
+    /// </summary>
+    /// <param name="page">Page number (default: 1).</param>
+    /// <param name="perPage">Items per page (default: 10).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Paginated inventory list.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -55,6 +81,11 @@ public class InventoryController(
         return Ok(inventory);
     }
 
+    /// <summary>
+    /// Retrieves inventory dashboard with overview metrics.
+    /// </summary>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Inventory dashboard with key metrics.</returns>
     [HttpGet("dashboard")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -65,6 +96,13 @@ public class InventoryController(
         return Ok(dashboard);
     }
 
+    /// <summary>
+    /// Retrieves inventory health analysis including overstock and zero-movement alerts.
+    /// </summary>
+    /// <param name="zeroMovementDays">Days threshold for zero movement detection (default: 90).</param>
+    /// <param name="overstockMultiplier">Multiplier for overstock calculation (default: 3.0).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Inventory health analysis.</returns>
     [HttpGet("health")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryHealthResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

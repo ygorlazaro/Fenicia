@@ -18,6 +18,10 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
+/// <summary>
+/// Unit tests for the ForgotPasswordController.
+/// Tests HTTP endpoints behavior including forgot password initiation and password reset.
+/// </summary>
 public class ForgotPasswordControllerTests : IDisposable
 {
     public ForgotPasswordControllerTests()
@@ -54,6 +58,9 @@ public class ForgotPasswordControllerTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that when a user exists, the forgot password process completes successfully.
+    /// </summary>
     [Fact]
     public async Task ForgotPassword_WhenUserExists_CompletesSuccessfully()
     {
@@ -89,6 +96,9 @@ public class ForgotPasswordControllerTests : IDisposable
         Assert.NotEmpty(forgotPasswordRecord.Code);
     }
 
+    /// <summary>
+    /// Tests that when no user exists with the given email, ItemNotExistsException is thrown.
+    /// </summary>
     [Fact]
     public async Task ForgotPassword_WhenUserDoesNotExist_ThrowsItemNotExistsException()
     {
@@ -102,6 +112,9 @@ public class ForgotPasswordControllerTests : IDisposable
         await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.controller.ForgotPassword(command, wide, ct));
     }
 
+    /// <summary>
+    /// Tests that the WideEventContext UserId is set to the email for tracking.
+    /// </summary>
     [Fact]
     public async Task ForgotPassword_SetsWideEventContextUserId()
     {
@@ -130,6 +143,9 @@ public class ForgotPasswordControllerTests : IDisposable
         Assert.Equal(command.Email, wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that a valid code successfully resets the user's password.
+    /// </summary>
     [Fact]
     public async Task ResetPassword_WhenValidCode_ResetsPasswordSuccessfully()
     {
@@ -186,6 +202,9 @@ public class ForgotPasswordControllerTests : IDisposable
         Assert.False(updatedForgotPassword.IsActive);
     }
 
+    /// <summary>
+    /// Tests that an invalid code throws InvalidDataException.
+    /// </summary>
     [Fact]
     public async Task ResetPassword_WhenInvalidCode_ThrowsInvalidDataException()
     {
@@ -211,6 +230,9 @@ public class ForgotPasswordControllerTests : IDisposable
         await Assert.ThrowsAsync<InvalidDataException>(async () => await this.controller.ResetPassword(command, wide, ct));
     }
 
+    /// <summary>
+    /// Tests that when no user exists with the given email, ItemNotExistsException is thrown.
+    /// </summary>
     [Fact]
     public async Task ResetPassword_WhenUserDoesNotExist_ThrowsItemNotExistsException()
     {
@@ -227,6 +249,9 @@ public class ForgotPasswordControllerTests : IDisposable
         await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.controller.ResetPassword(command, wide, ct));
     }
 
+    /// <summary>
+    /// Tests that the WideEventContext UserId is set to the email when resetting password.
+    /// </summary>
     [Fact]
     public async Task ResetPassword_SetsWideEventContextUserId()
     {
@@ -268,6 +293,9 @@ public class ForgotPasswordControllerTests : IDisposable
         Assert.Equal(command.Email, wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that the ForgotPasswordController has the AllowAnonymousAttribute applied.
+    /// </summary>
     [Fact]
     public void ForgotPasswordController_HasAllowAnonymousAttribute()
     {
@@ -281,6 +309,9 @@ public class ForgotPasswordControllerTests : IDisposable
         Assert.NotNull(allowAnonymousAttribute);
     }
 
+    /// <summary>
+    /// Tests that the ForgotPasswordController has the RouteAttribute with correct template.
+    /// </summary>
     [Fact]
     public void ForgotPasswordController_HasRouteAttribute()
     {
@@ -295,6 +326,9 @@ public class ForgotPasswordControllerTests : IDisposable
         Assert.Equal("[controller]", routeAttribute.Template);
     }
 
+    /// <summary>
+    /// Tests that the ForgotPasswordController has the ProducesAttribute with correct content type.
+    /// </summary>
     [Fact]
     public void ForgotPasswordController_HasProducesAttribute()
     {

@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
+/// <summary>
+/// Unit tests for the AddEmployeeHandler.
+/// Tests employee creation business logic including validation and database operations.
+/// </summary>
 public class AddEmployeeHandlerTests : IDisposable
 {
     public AddEmployeeHandlerTests()

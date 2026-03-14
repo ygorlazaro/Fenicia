@@ -11,6 +11,20 @@ using StackExchange.Redis;
 
 namespace Fenicia.Auth.Tests.Domains.RefreshToken;
 
+/// <summary>
+/// Unit tests for the ValidateTokenHandler.
+/// Tests validation of refresh tokens stored in Redis.
+/// </summary>
+/// <remarks>
+/// These tests verify:
+/// - Valid tokens return true
+/// - Non-existent tokens return false
+/// - Inactive tokens return false
+/// - Expired tokens return false
+/// - Tokens for wrong user return false
+/// - Null/whitespace tokens throw exception
+/// - Edge cases (expiring soon, exact expiration, malformed JSON)
+/// </remarks>
 public class ValidateTokenHandlerTests
 {
     private readonly Mock<IDatabase> redisDbMock;
@@ -28,6 +42,9 @@ public class ValidateTokenHandlerTests
         this.handler = new ValidateTokenHandler(redisMock.Object);
     }
 
+    /// <summary>
+    /// Tests that a valid, active, non-expired token belonging to the user returns true.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenTokenIsValidAndActive_ReturnsTrue()
     {
@@ -60,6 +77,9 @@ public class ValidateTokenHandlerTests
         Assert.True(result);
     }
 
+    /// <summary>
+    /// Tests that a token that doesn't exist in Redis returns false.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenTokenDoesNotExistInRedis_ReturnsFalse()
     {
@@ -82,6 +102,9 @@ public class ValidateTokenHandlerTests
         Assert.False(result);
     }
 
+    /// <summary>
+    /// Tests that an inactive token returns false.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenTokenIsInactive_ReturnsFalse()
     {
@@ -114,6 +137,9 @@ public class ValidateTokenHandlerTests
         Assert.False(result);
     }
 
+    /// <summary>
+    /// Tests that an expired token returns false.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenTokenIsExpired_ReturnsFalse()
     {
@@ -146,6 +172,9 @@ public class ValidateTokenHandlerTests
         Assert.False(result);
     }
 
+    /// <summary>
+    /// Tests that a token belonging to a different user returns false.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenTokenBelongsToDifferentUser_ReturnsFalse()
     {
@@ -191,6 +220,9 @@ public class ValidateTokenHandlerTests
         await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query));
     }
 
+    /// <summary>
+    /// Tests that a token expiring soon (within 1 hour) still returns true.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenTokenIsExpiringSoon_ReturnsTrue()
     {
@@ -223,6 +255,9 @@ public class ValidateTokenHandlerTests
         Assert.True(result);
     }
 
+    /// <summary>
+    /// Tests that a token with expiration exactly equal to now returns false (expired).
+    /// </summary>
     [Fact]
     public async Task Handle_WhenTokenHasExactlyCurrentExpirationTime_ReturnsFalse()
     {
@@ -255,6 +290,9 @@ public class ValidateTokenHandlerTests
         Assert.False(result);
     }
 
+    /// <summary>
+    /// Tests that malformed JSON in Redis returns false gracefully.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenMalformedJsonInRedis_ReturnsFalse()
     {
@@ -291,6 +329,9 @@ public class ValidateTokenHandlerTests
         await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query));
     }
 
+    /// <summary>
+    /// Tests that when Redis throws an exception, returns false gracefully.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenRedisThrowsException_ReturnsFalse()
     {

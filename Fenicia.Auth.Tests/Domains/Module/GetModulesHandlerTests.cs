@@ -11,6 +11,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Module;
 
+/// <summary>
+/// Unit tests for the GetModulesHandler.
+/// Tests retrieval of paginated modules from database.
+/// </summary>
+/// <remarks>
+/// These tests verify the core functionality of module retrieval:
+/// - Pagination returns correct data and metadata
+/// - Auth type modules are excluded from results
+/// - Results are ordered by module type
+/// - Empty results are handled correctly
+/// - Response contains all required fields
+/// </remarks>
 public class GetModulesHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -35,6 +47,9 @@ public class GetModulesHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    /// Tests that when modules exist, they are returned with correct pagination metadata.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenModulesExist_ReturnsPaginatedModules()
     {
@@ -79,6 +94,9 @@ public class GetModulesHandlerTests : IDisposable
             result.PerPage);
     }
 
+    /// <summary>
+    /// Tests that Auth type modules are excluded from results while Basic modules are included.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenModulesExist_ExcludesErpAndAuthTypes()
     {
@@ -120,6 +138,9 @@ public class GetModulesHandlerTests : IDisposable
             result.Total);
     }
 
+    /// <summary>
+    /// Tests that pagination returns the correct page of results.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenPaginationIsApplied_ReturnsCorrectPage()
     {
@@ -161,6 +182,9 @@ public class GetModulesHandlerTests : IDisposable
             result.Pages);
     }
 
+    /// <summary>
+    /// Tests that when no modules exist, an empty pagination result is returned.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenNoModulesExist_ReturnsEmptyPagination()
     {
@@ -180,6 +204,9 @@ public class GetModulesHandlerTests : IDisposable
             result.Total);
     }
 
+    /// <summary>
+    /// Tests that when page number exceeds available pages, empty data is returned.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenPageExceedsTotalPages_ReturnsEmptyData()
     {
@@ -210,6 +237,9 @@ public class GetModulesHandlerTests : IDisposable
             result.Total);
     }
 
+    /// <summary>
+    /// Tests that results are ordered by module type in ascending order.
+    /// </summary>
     [Fact]
     public async Task Handle_ResultsAreOrderedByType()
     {
@@ -263,6 +293,9 @@ public class GetModulesHandlerTests : IDisposable
             result.Data[2].Type);
     }
 
+    /// <summary>
+    /// Tests that default request values (page 1, 20 items) are applied correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithDefaultRequest_ReturnsFirstPage()
     {
@@ -293,6 +326,9 @@ public class GetModulesHandlerTests : IDisposable
             result.PerPage);
     }
 
+    /// <summary>
+    /// Tests that the response contains all required fields (Id, Name, Type).
+    /// </summary>
     [Fact]
     public async Task Handle_VerifiesResponseContainsAllFields()
     {

@@ -6,6 +6,18 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
+/// <summary>
+/// Unit tests for the LoginAttemptService.
+/// Tests retrieval of login attempt counts from memory cache.
+/// </summary>
+/// <remarks>
+/// These tests verify the core functionality of reading login attempt counters:
+/// - Retrieval of existing attempt counts
+/// - Default value (0) when no attempts exist
+/// - Case-insensitive email handling
+/// - Proper exception handling for null input
+/// - Isolation between different email addresses
+/// </remarks>
 public class LoginAttemptServiceTests : IDisposable
 {
     public LoginAttemptServiceTests()
@@ -19,6 +31,9 @@ public class LoginAttemptServiceTests : IDisposable
     private readonly LoginAttemptService _service;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that when no attempts exist, zero is returned.
+    /// </summary>
     [Fact]
     public void Handle_WhenNoAttemptsExist_ReturnsZero()
     {
@@ -33,6 +48,9 @@ public class LoginAttemptServiceTests : IDisposable
             result);
     }
 
+    /// <summary>
+    /// Tests that when attempts exist, the correct count is returned.
+    /// </summary>
     [Fact]
     public void Handle_WhenAttemptsExist_ReturnsAttemptCount()
     {
@@ -50,6 +68,9 @@ public class LoginAttemptServiceTests : IDisposable
             result);
     }
 
+    /// <summary>
+    /// Tests that email case is normalized (uppercase returns correct count).
+    /// </summary>
     [Fact]
     public void Handle_WhenEmailHasDifferentCase_ReturnsCorrectCount()
     {
@@ -68,6 +89,9 @@ public class LoginAttemptServiceTests : IDisposable
             result);
     }
 
+    /// <summary>
+    /// Tests that null email throws ArgumentNullException.
+    /// </summary>
     [Fact]
     public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
@@ -75,6 +99,9 @@ public class LoginAttemptServiceTests : IDisposable
         Assert.Throws<ArgumentNullException>(() => this._service.Handle(null!));
     }
 
+    /// <summary>
+    /// Tests that empty email returns zero.
+    /// </summary>
     [Fact]
     public void Handle_WhenEmailIsEmpty_ReturnsZero()
     {
@@ -89,6 +116,9 @@ public class LoginAttemptServiceTests : IDisposable
             result);
     }
 
+    /// <summary>
+    /// Tests that email with spaces returns zero (no cache entry).
+    /// </summary>
     [Fact]
     public void Handle_WhenEmailContainsSpaces_ReturnsZero()
     {
@@ -103,6 +133,9 @@ public class LoginAttemptServiceTests : IDisposable
             result);
     }
 
+    /// <summary>
+    /// Tests that different emails track attempts independently.
+    /// </summary>
     [Fact]
     public void Handle_WithMultipleDifferentEmails_ReturnsCorrectCounts()
     {
@@ -127,6 +160,9 @@ public class LoginAttemptServiceTests : IDisposable
             result2);
     }
 
+    /// <summary>
+    /// Tests that high attempt counts are returned correctly.
+    /// </summary>
     [Fact]
     public void Handle_WhenAttemptCountIsHigh_ReturnsCorrectCount()
     {

@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
+/// <summary>
+/// Unit tests for the GetInventoryByProductHandler.
+/// Tests inventory retrieval by product ID.
+/// </summary>
 public class GetInventoryByProductHandlerTests : IDisposable
 {
     public GetInventoryByProductHandlerTests()

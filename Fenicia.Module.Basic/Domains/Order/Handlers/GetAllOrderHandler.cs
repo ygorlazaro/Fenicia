@@ -7,8 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving all orders with pagination.
+/// Returns orders with customer and employee information.
+/// </summary>
 public class GetAllOrderHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves paginated orders with related customer and employee data.
+    /// </summary>
+    /// <param name="query">Pagination query parameters.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Paginated list of orders.</returns>
     public async Task<Pagination<List<GetAllOrderResponse>>> Handle(GetAllOrderQuery query, CancellationToken ct)
     {
         var total = await db.BasicOrders.CountAsync(ct);

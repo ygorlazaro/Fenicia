@@ -8,8 +8,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 
+/// <summary>
+/// Handler responsible for generating order analytics.
+/// Provides comprehensive statistics including sales trends, top customers, and order values.
+/// </summary>
 public class GetOrderAnalyticsHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Generates comprehensive order analytics for a given time period.
+    /// </summary>
+    /// <param name="query">Query containing days to analyze and top customers limit.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Complete analytics response with multiple data sets.</returns>
     public async Task<OrderAnalyticsResponse> Handle(GetOrderAnalyticsQuery query, CancellationToken ct)
     {
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
@@ -37,6 +47,9 @@ public class GetOrderAnalyticsHandler(DefaultContext db)
         };
     }
 
+    /// <summary>
+    /// Retrieves recent cancelled orders.
+    /// </summary>
     private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
         var cancelledOrders = await orders
@@ -55,6 +68,9 @@ public class GetOrderAnalyticsHandler(DefaultContext db)
         return cancelledOrders;
     }
 
+    /// <summary>
+    /// Calculates average order value statistics.
+    /// </summary>
     private async Task<AverageOrderValueResponse> GetAverageOrderValueAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
         var orderValues = await orders.Select(o => o.TotalAmount).OrderBy(v => v).ToListAsync(ct);
@@ -69,6 +85,9 @@ public class GetOrderAnalyticsHandler(DefaultContext db)
         return averageOrderValue;
     }
 
+    /// <summary>
+    /// Retrieves top customers by total spending.
+    /// </summary>
     private async Task<List<TopCustomerResponse>> GetTopCustomerAsync(GetOrderAnalyticsQuery query, IQueryable<OrderModel> orders, CancellationToken ct)
     {
         var topCustomers = await orders
@@ -86,6 +105,9 @@ public class GetOrderAnalyticsHandler(DefaultContext db)
         return topCustomers;
     }
 
+    /// <summary>
+    /// Retrieves daily sales trends.
+    /// </summary>
     private async Task<List<SalesTrendResponse>> GetSalesTrendAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
         var salesTrend = await orders
@@ -101,6 +123,9 @@ public class GetOrderAnalyticsHandler(DefaultContext db)
         return salesTrend;
     }
 
+    /// <summary>
+    /// Groups orders by status and calculates counts and totals.
+    /// </summary>
     private async Task<List<OrderStatusCountResponse>> GetOrdersByStatusAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
         return await orders

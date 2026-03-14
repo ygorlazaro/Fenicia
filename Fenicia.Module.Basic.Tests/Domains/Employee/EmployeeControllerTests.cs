@@ -21,6 +21,10 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
+/// <summary>
+/// Unit tests for the EmployeeController.
+/// Tests HTTP endpoints behavior including CRUD operations, pagination, and request/response handling.
+/// </summary>
 public class EmployeeControllerTests : IDisposable
 {
     public EmployeeControllerTests()
@@ -83,6 +87,9 @@ public class EmployeeControllerTests : IDisposable
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
+    /// <summary>
+    /// Tests that when no employees exist, the endpoint returns an empty paginated response.
+    /// </summary>
     [Fact]
     public async Task GetAsync_WhenNoEmployeesExist_ReturnsOkWithEmptyList()
     {
@@ -112,6 +119,9 @@ public class EmployeeControllerTests : IDisposable
             returnedEmployees.Total);
     }
 
+    /// <summary>
+    /// Tests that when employees exist, the endpoint returns them in a paginated response.
+    /// </summary>
     [Fact]
     public async Task GetAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
@@ -183,6 +193,9 @@ public class EmployeeControllerTests : IDisposable
             returnedEmployees.Total);
     }
 
+    /// <summary>
+    /// Tests that when an employee exists, the endpoint returns the employee details.
+    /// </summary>
     [Fact]
     public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOkWithEmployee()
     {
@@ -235,6 +248,9 @@ public class EmployeeControllerTests : IDisposable
             returnedEmployee.PersonId);
     }
 
+    /// <summary>
+    /// Tests that when an employee does not exist, the endpoint returns NotFound.
+    /// </summary>
     [Fact]
     public async Task GetByIdAsync_WhenEmployeeDoesNotExist_ReturnsNotFound()
     {
@@ -253,6 +269,9 @@ public class EmployeeControllerTests : IDisposable
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
+    /// <summary>
+    /// Tests that creating an employee with valid data returns Created result with employee data.
+    /// </summary>
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithEmployee()
     {
@@ -302,6 +321,9 @@ public class EmployeeControllerTests : IDisposable
         Assert.NotNull(returnedEmployee);
     }
 
+    /// <summary>
+    /// Tests that updating an existing employee returns Ok with the updated employee.
+    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenEmployeeExists_ReturnsOkWithUpdatedEmployee()
     {
@@ -366,6 +388,9 @@ public class EmployeeControllerTests : IDisposable
         Assert.NotNull(returnedEmployee);
     }
 
+    /// <summary>
+    /// Tests that updating a non-existent employee returns NotFound.
+    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenEmployeeDoesNotExist_ReturnsNotFound()
     {
@@ -409,6 +434,9 @@ public class EmployeeControllerTests : IDisposable
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
+    /// <summary>
+    /// Tests that deleting an existing employee returns NoContent.
+    /// </summary>
     [Fact]
     public async Task DeleteAsync_WhenEmployeeExists_ReturnsNoContent()
     {
@@ -448,6 +476,9 @@ public class EmployeeControllerTests : IDisposable
         Assert.Null(deletedEmployee);
     }
 
+    /// <summary>
+    /// Tests that deleting a non-existent employee returns NoContent.
+    /// </summary>
     [Fact]
     public async Task DeleteAsync_WhenEmployeeDoesNotExist_ReturnsNoContent()
     {
@@ -465,6 +496,9 @@ public class EmployeeControllerTests : IDisposable
         Assert.NotNull(result);
     }
 
+    /// <summary>
+    /// Tests that the EmployeeController has the AuthorizeAttribute applied.
+    /// </summary>
     [Fact]
     public void EmployeeController_HasAuthorizeAttribute()
     {
@@ -479,6 +513,9 @@ public class EmployeeControllerTests : IDisposable
         Assert.NotNull(authorizeAttribute);
     }
 
+    /// <summary>
+    /// Tests that the EmployeeController has the RouteAttribute with correct template.
+    /// </summary>
     [Fact]
     public void EmployeeController_HasRouteAttribute()
     {
@@ -496,6 +533,9 @@ public class EmployeeControllerTests : IDisposable
             routeAttribute.Template);
     }
 
+    /// <summary>
+    /// Tests that the EmployeeController has the ApiControllerAttribute applied.
+    /// </summary>
     [Fact]
     public void EmployeeController_HasApiControllerAttribute()
     {

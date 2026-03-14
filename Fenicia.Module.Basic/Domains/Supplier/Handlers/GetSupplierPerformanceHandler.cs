@@ -6,8 +6,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving supplier performance analytics.
+/// Provides insights including product counts, stock movements, and cost comparisons.
+/// </summary>
 public class GetSupplierPerformanceHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves supplier performance analytics.
+    /// </summary>
+    /// <param name="query">The query containing days to analyze and top limit.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Performance analytics including summaries, product counts, cost comparisons, and recent movements.</returns>
     public async Task<SupplierPerformanceResponse> Handle(GetSupplierPerformanceQuery query, CancellationToken ct)
     {
         // Bulletproof split query - always translates

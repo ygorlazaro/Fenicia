@@ -10,6 +10,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard;
 
+/// <summary>
+/// Controller responsible for handling dashboard-related HTTP endpoints.
+/// Provides access to financial dashboard analytics and KPIs.
+/// </summary>
+/// <remarks>
+/// All endpoints require authentication.
+/// </remarks>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -18,6 +25,15 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 public class DashboardController(
     GetFinancialDashboardHandler getFinancialDashboardHandler) : ControllerBase
 {
+    /// <summary>
+    /// Retrieves the financial dashboard with KPIs, revenue analysis, and sales summaries.
+    /// </summary>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="days">Number of days to analyze (default: 90).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Comprehensive financial dashboard data.</returns>
+    /// <response code="200">Returns the financial dashboard successfully.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("financial")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FinancialDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

@@ -7,8 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving all employees with pagination.
+/// Returns a paginated list of employees including their associated person and position details.
+/// </summary>
 public class GetAllEmployeeHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves a paginated list of all employees.
+    /// </summary>
+    /// <param name="query">The query containing pagination parameters (page number and items per page).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A paginated response containing the list of employees.</returns>
     public async Task<Pagination<List<GetAllEmployeeResponse>>> Handle(GetAllEmployeeQuery query, CancellationToken ct)
     {
         var total = await db.BasicEmployees.CountAsync(ct);

@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
+/// <summary>
+/// Unit tests for the UpdateEmployeeHandler.
+/// Tests employee update business logic including validation and data persistence.
+/// </summary>
 public class UpdateEmployeeHandlerTests : IDisposable
 {
     public UpdateEmployeeHandlerTests()

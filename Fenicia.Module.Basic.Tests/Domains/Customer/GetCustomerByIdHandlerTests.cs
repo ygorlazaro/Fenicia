@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
+/// <summary>
+/// Unit tests for the GetCustomerByIdHandler.
+/// Tests customer retrieval by ID logic.
+/// </summary>
 public class GetCustomerByIdHandlerTests : IDisposable
 {
     public GetCustomerByIdHandlerTests()
@@ -36,6 +40,9 @@ public class GetCustomerByIdHandlerTests : IDisposable
     private readonly GetCustomerByIdHandler handler;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that retrieving a customer by ID returns the customer details when found.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerExists_ReturnsCustomerResponse()
     {
@@ -108,6 +115,9 @@ public class GetCustomerByIdHandlerTests : IDisposable
             result.City);
     }
 
+    /// <summary>
+    /// Tests that retrieving a non-existent customer returns null.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerDoesNotExist_ReturnsNull()
     {
@@ -122,6 +132,9 @@ public class GetCustomerByIdHandlerTests : IDisposable
         Assert.Null(result);
     }
 
+    /// <summary>
+    /// Tests that retrieving from an empty database returns null.
+    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
@@ -136,6 +149,9 @@ public class GetCustomerByIdHandlerTests : IDisposable
         Assert.Null(result);
     }
 
+    /// <summary>
+    /// Tests that when multiple customers exist, only the requested customer is returned.
+    /// </summary>
     [Fact]
     public async Task Handle_WithMultipleCustomers_ReturnsOnlyRequestedCustomer()
     {
@@ -210,6 +226,9 @@ public class GetCustomerByIdHandlerTests : IDisposable
             result.Name);
     }
 
+    /// <summary>
+    /// Tests that customers with null address fields are handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithNullAddressFields_ReturnsCorrectResponse()
     {

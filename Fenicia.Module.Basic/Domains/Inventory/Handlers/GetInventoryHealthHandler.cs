@@ -7,8 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
 
+/// <summary>
+/// Handler responsible for generating inventory health analysis.
+/// Identifies overstock products, zero-movement products, and provides health metrics.
+/// </summary>
 public class GetInventoryHealthHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Generates inventory health analysis with alerts and metrics.
+    /// </summary>
+    /// <param name="query">The query containing health analysis parameters.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Inventory health response with overstock and zero-movement alerts.</returns>
     public async Task<InventoryHealthResponse> Handle(GetInventoryHealthQuery query, CancellationToken ct)
     {
         var stockMovements = db.BasicStockMovements

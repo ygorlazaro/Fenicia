@@ -6,6 +6,19 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
+/// <summary>
+/// Unit tests for the IncrementAttemptsService.
+/// Tests incrementing login attempt counters in memory cache.
+/// </summary>
+/// <remarks>
+/// These tests verify the core functionality of incrementing login attempt counters:
+/// - Initial counter creation (sets to 1)
+/// - Proper increment of existing counters
+/// - Case-insensitive email handling
+/// - Proper exception handling for null input
+/// - Isolation between different email addresses
+/// - Handling of special characters in email addresses
+/// </remarks>
 public class IncrementAttemptsServiceTests : IDisposable
 {
     private readonly MemoryCache cache;
@@ -24,6 +37,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         this.cache.Dispose();
     }
 
+    /// <summary>
+    /// Tests that when no previous attempts exist, count is set to 1.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenNoPreviousAttempts_SetsCountToOne()
     {
@@ -40,6 +56,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         Assert.Equal(1, count);
     }
 
+    /// <summary>
+    /// Tests that existing attempt count is incremented correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenPreviousAttemptsExist_IncrementsCount()
     {
@@ -57,6 +76,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         Assert.Equal(4, count);
     }
 
+    /// <summary>
+    /// Tests that email case is normalized to lowercase.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_NormalizesToLowerCase()
     {
@@ -75,6 +97,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         Assert.Equal(3, count);
     }
 
+    /// <summary>
+    /// Tests that null email throws ArgumentNullException.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
@@ -82,6 +107,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         await Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.SetKey(null!));
     }
 
+    /// <summary>
+    /// Tests that empty email creates a cache entry with count of 1.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenEmailIsEmpty_SetsCountForEmptyKey()
     {
@@ -98,6 +126,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         Assert.Equal(1, count);
     }
 
+    /// <summary>
+    /// Tests that multiple increments for the same email accumulate correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_MultipleIncrementsForSameEmail_IncrementsCorrectly()
     {
@@ -116,6 +147,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         Assert.Equal(3, count);
     }
 
+    /// <summary>
+    /// Tests that different emails track attempts independently.
+    /// </summary>
     [Fact]
     public async Task Handle_MultipleDifferentEmails_TracksSeparately()
     {
@@ -138,6 +172,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         Assert.Equal(1, count2);
     }
 
+    /// <summary>
+    /// Tests that cache entries are created with expiration set.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenExpirationIsSet_ExpiresAfterTimeSpan()
     {
@@ -152,6 +189,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         Assert.True(this.cache.TryGetValue(key, out _));
     }
 
+    /// <summary>
+    /// Tests that high attempt counts are incremented correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WithHighAttemptCount_IncrementsCorrectly()
     {
@@ -169,6 +209,9 @@ public class IncrementAttemptsServiceTests : IDisposable
         Assert.Equal(100, count);
     }
 
+    /// <summary>
+    /// Tests that emails with special characters are handled correctly.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenEmailContainsSpecialCharacters_HandlesCorrectly()
     {

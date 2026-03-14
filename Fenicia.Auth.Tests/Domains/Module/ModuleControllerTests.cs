@@ -19,6 +19,18 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Module;
 
+/// <summary>
+/// Unit tests for the ModuleController.
+/// Tests the HTTP endpoint for retrieving modules.
+/// </summary>
+/// <remarks>
+/// These tests verify the core functionality of the module endpoint:
+/// - Returns correct pagination responses
+/// - Excludes Auth type modules
+/// - Sets WideEventContext UserId to "Guest"
+/// - Controller has correct attributes (Authorize, Route, Produces)
+/// - Endpoint has AllowAnonymous attribute
+/// </remarks>
 public class ModuleControllerTests : IDisposable
 {
     public ModuleControllerTests()
@@ -52,6 +64,9 @@ public class ModuleControllerTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that when no modules exist, the endpoint returns OK with empty pagination.
+    /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_WhenNoModulesExist_ReturnsOkWithEmptyPagination()
     {
@@ -83,6 +98,9 @@ public class ModuleControllerTests : IDisposable
             wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that when modules exist, they are returned with correct pagination.
+    /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_WhenModulesExist_ReturnsOkWithPagination()
     {
@@ -135,6 +153,9 @@ public class ModuleControllerTests : IDisposable
             wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that Auth module type is excluded from results.
+    /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_ExcludesErpAndAuthModuleTypes()
     {
@@ -184,6 +205,9 @@ public class ModuleControllerTests : IDisposable
             returnedPagination.Data[0].Name);
     }
 
+    /// <summary>
+    /// Tests that WideEventContext UserId is set to "Guest" for unauthenticated requests.
+    /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_SetsWideEventContextUserIdToGuest()
     {
@@ -204,6 +228,9 @@ public class ModuleControllerTests : IDisposable
             wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that pagination parameters are applied correctly.
+    /// </summary>
     [Fact]
     public async Task GetAllModulesAsync_WithPagination_ReturnsCorrectPage()
     {
@@ -253,6 +280,9 @@ public class ModuleControllerTests : IDisposable
             returnedPagination.PerPage);
     }
 
+    /// <summary>
+    /// Tests that the controller has the AuthorizeAttribute applied.
+    /// </summary>
     [Fact]
     public void ModuleController_HasAuthorizeAttribute()
     {
@@ -267,6 +297,9 @@ public class ModuleControllerTests : IDisposable
         Assert.NotNull(authorizeAttribute);
     }
 
+    /// <summary>
+    /// Tests that the controller has the RouteAttribute with [controller] template.
+    /// </summary>
     [Fact]
     public void ModuleController_HasRouteAttribute()
     {
@@ -284,6 +317,9 @@ public class ModuleControllerTests : IDisposable
             routeAttribute.Template);
     }
 
+    /// <summary>
+    /// Tests that the controller has the ProducesAttribute with application/json content type.
+    /// </summary>
     [Fact]
     public void ModuleController_HasProducesAttribute()
     {
@@ -301,6 +337,9 @@ public class ModuleControllerTests : IDisposable
             producesAttribute.ContentTypes.FirstOrDefault());
     }
 
+    /// <summary>
+    /// Tests that the GetAllModulesAsync method has AllowAnonymousAttribute for public access.
+    /// </summary>
     [Fact]
     public void GetAllModulesAsync_HasAllowAnonymousAttribute()
     {

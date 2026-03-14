@@ -11,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
+/// <summary>
+/// Unit tests for the AddForgotPasswordHandler.
+/// Tests the forgot password initiation logic including code generation and user validation.
+/// </summary>
 public class AddForgotPasswordHandlerTests : IDisposable
 {
     public AddForgotPasswordHandlerTests()
@@ -34,6 +38,9 @@ public class AddForgotPasswordHandlerTests : IDisposable
     private readonly AddForgotPasswordHandler handler;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that when an email exists, a forgot password code is created successfully.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenEmailExists_CreatesForgotPasswordCodeSuccessfully()
     {
@@ -66,6 +73,9 @@ public class AddForgotPasswordHandlerTests : IDisposable
         Assert.True(forgotPassword.ExpirationDate > DateTime.UtcNow);
     }
 
+    /// <summary>
+    /// Tests that when an email does not exist, ItemNotExistsException is thrown.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
     {
@@ -79,6 +89,9 @@ public class AddForgotPasswordHandlerTests : IDisposable
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that email matching is case-sensitive (different case throws exception).
+    /// </summary>
     [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_ThrowsItemNotExistsException()
     {
@@ -105,6 +118,9 @@ public class AddForgotPasswordHandlerTests : IDisposable
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that when multiple users exist, the code is created for the correct user.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_CreatesCodeForCorrectUser()
     {
@@ -148,6 +164,9 @@ public class AddForgotPasswordHandlerTests : IDisposable
         Assert.Null(forgotPasswordForUser2);
     }
 
+    /// <summary>
+    /// Tests that calling the handler multiple times creates multiple codes for the same user.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCalledMultipleTimesForSameUser_CreatesMultipleCodes()
     {
@@ -179,6 +198,9 @@ public class AddForgotPasswordHandlerTests : IDisposable
         Assert.True(codes.All(c => c.Code.Length == 6));
     }
 
+    /// <summary>
+    /// Tests that when the database is empty, ItemNotExistsException is thrown.
+    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
     {
@@ -191,6 +213,9 @@ public class AddForgotPasswordHandlerTests : IDisposable
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
+    /// <summary>
+    /// Tests that generated codes are unique across different users.
+    /// </summary>
     [Fact]
     public async Task Handle_VerifiesCodeIsUnique()
     {

@@ -6,8 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 
+/// <summary>
+/// Handler responsible for updating an existing stock movement.
+/// </summary>
 public class UpdateStockMovementHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Updates an existing stock movement.
+    /// </summary>
+    /// <param name="command">The command containing updated stock movement details.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The updated stock movement details if found, otherwise null.</returns>
     public async Task<UpdateStockMovementResponse?> Handle(UpdateStockMovementCommand command, CancellationToken ct)
     {
         var stockMovement = await db.BasicStockMovements

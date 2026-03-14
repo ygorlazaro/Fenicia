@@ -8,8 +8,18 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace Fenicia.Module.Basic.Domains.Product.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving product performance metrics.
+/// Provides analysis including best-selling, worst-selling, never sold products, and profit margins.
+/// </summary>
 public class GetProductPerformanceHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves product performance metrics for a given time period.
+    /// </summary>
+    /// <param name="query">The query containing days to analyze and top limit.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Performance metrics including best-selling, worst-selling, never sold products, and profit margins.</returns>
     public async Task<ProductPerformanceResponse> Handle(GetProductPerformanceQuery query, CancellationToken ct)
     {
         var startDate = DateTime.UtcNow.AddDays(-query.Days);

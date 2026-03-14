@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
+/// <summary>
+/// Unit tests for the DeleteCustomerHandler.
+/// Tests customer deletion (soft delete) business logic.
+/// </summary>
 public class DeleteCustomerHandlerTests : IDisposable
 {
     public DeleteCustomerHandlerTests()
@@ -35,6 +39,9 @@ public class DeleteCustomerHandlerTests : IDisposable
     private readonly DeleteCustomerHandler handler;
     private readonly Faker faker;
 
+    /// <summary>
+    /// Tests that deleting an existing customer sets the Deleted timestamp.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerExists_SetsDeletedDate()
     {
@@ -80,6 +87,9 @@ public class DeleteCustomerHandlerTests : IDisposable
             DateTime.Now.AddSeconds(1));
     }
 
+    /// <summary>
+    /// Tests that deleting a non-existent customer does nothing.
+    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerDoesNotExist_DoesNothing()
     {
@@ -95,6 +105,9 @@ public class DeleteCustomerHandlerTests : IDisposable
         Assert.Empty(customers);
     }
 
+    /// <summary>
+    /// Tests that deleting one customer does not affect other customers.
+    /// </summary>
     [Fact]
     public async Task Handle_WithMultipleCustomers_OnlyDeletesSpecified()
     {
@@ -164,6 +177,9 @@ public class DeleteCustomerHandlerTests : IDisposable
         Assert.Null(notDeletedCustomer.Deleted);
     }
 
+    /// <summary>
+    /// Tests that deleting from an empty database does nothing.
+    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {

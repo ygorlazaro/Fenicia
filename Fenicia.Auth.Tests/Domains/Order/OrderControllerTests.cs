@@ -23,6 +23,10 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Order;
 
+/// <summary>
+/// Unit tests for the OrderController in Auth module.
+/// Tests the HTTP endpoint for creating module subscription orders.
+/// </summary>
 public class OrderControllerTests : IDisposable
 {
     private readonly OrderController controller;
@@ -79,6 +83,9 @@ public class OrderControllerTests : IDisposable
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
+    /// <summary>
+    /// Tests that a user not belonging to the company throws PermissionDeniedException.
+    /// </summary>
     [Fact]
     public async Task CreateNewOrderAsync_WhenUserDoesNotBelongToCompany_ThrowsPermissionDeniedException()
     {
@@ -101,6 +108,9 @@ public class OrderControllerTests : IDisposable
                 ct));
     }
 
+    /// <summary>
+    /// Tests that requesting non-existent modules throws ItemNotExistsException.
+    /// </summary>
     [Fact]
     public async Task CreateNewOrderAsync_WhenModulesDoNotExist_ThrowsItemNotExistsException()
     {
@@ -152,6 +162,9 @@ public class OrderControllerTests : IDisposable
                 ct));
     }
 
+    /// <summary>
+    /// Tests that a valid request returns OK with the created order.
+    /// </summary>
     [Fact]
     public async Task CreateNewOrderAsync_WhenValidRequest_ReturnsOkWithOrder()
     {
@@ -241,6 +254,9 @@ public class OrderControllerTests : IDisposable
             createdOrder.CompanyId);
     }
 
+    /// <summary>
+    /// Tests that WideEventContext UserId is set from the authenticated user.
+    /// </summary>
     [Fact]
     public async Task CreateNewOrderAsync_SetsWideEventContextUserId()
     {
@@ -306,6 +322,9 @@ public class OrderControllerTests : IDisposable
             wide.UserId);
     }
 
+    /// <summary>
+    /// Tests that the controller has the AuthorizeAttribute applied.
+    /// </summary>
     [Fact]
     public void OrderController_HasAuthorizeAttribute()
     {
@@ -320,6 +339,9 @@ public class OrderControllerTests : IDisposable
         Assert.NotNull(authorizeAttribute);
     }
 
+    /// <summary>
+    /// Tests that the controller has the RouteAttribute with [controller] template.
+    /// </summary>
     [Fact]
     public void OrderController_HasRouteAttribute()
     {
@@ -337,6 +359,9 @@ public class OrderControllerTests : IDisposable
             routeAttribute.Template);
     }
 
+    /// <summary>
+    /// Tests that the controller has the ProducesAttribute with application/json content type.
+    /// </summary>
     [Fact]
     public void OrderController_HasProducesAttribute()
     {

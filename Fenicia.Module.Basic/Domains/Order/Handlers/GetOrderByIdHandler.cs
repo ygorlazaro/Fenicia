@@ -6,8 +6,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 
+/// <summary>
+/// Handler responsible for retrieving a specific order by ID with full details.
+/// </summary>
 public class GetOrderByIdHandler(DefaultContext db)
 {
+    /// <summary>
+    /// Retrieves an order by ID with all details and product information.
+    /// </summary>
+    /// <param name="query">Query containing the order ID.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The order with details, or null if not found.</returns>
     public async Task<GetOrderByIdResponse?> Handle(GetOrderByIdQuery query, CancellationToken ct)
     {
         var order = await db.BasicOrders

@@ -22,6 +22,10 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
+/// <summary>
+/// Unit tests for the CustomerController.
+/// Tests HTTP endpoints behavior including CRUD operations, pagination, and request/response handling.
+/// </summary>
 public class CustomerControllerTests : IDisposable
 {
     public CustomerControllerTests()
@@ -90,6 +94,9 @@ public class CustomerControllerTests : IDisposable
         this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
+    /// <summary>
+    /// Tests that when no customers exist in the database, the endpoint returns an empty paginated response.
+    /// </summary>
     [Fact]
     public async Task GetAsync_WhenNoCustomersExist_ReturnsOkWithEmptyList()
     {
@@ -119,6 +126,9 @@ public class CustomerControllerTests : IDisposable
             returnedCustomers.Total);
     }
 
+    /// <summary>
+    /// Tests that when customers exist in the database, the endpoint returns them in a paginated response.
+    /// </summary>
     [Fact]
     public async Task GetAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
@@ -213,6 +223,9 @@ public class CustomerControllerTests : IDisposable
             returnedCustomers.Data[1].Email);
     }
 
+    /// <summary>
+    /// Tests that when a customer exists, the endpoint returns the customer details.
+    /// </summary>
     [Fact]
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsOkWithCustomer()
     {
@@ -276,6 +289,9 @@ public class CustomerControllerTests : IDisposable
             returnedCustomer.Email);
     }
 
+    /// <summary>
+    /// Tests that when a customer does not exist, the endpoint returns NotFound.
+    /// </summary>
     [Fact]
     public async Task GetByIdAsync_WhenCustomerDoesNotExist_ReturnsNotFound()
     {
@@ -294,6 +310,9 @@ public class CustomerControllerTests : IDisposable
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
+    /// <summary>
+    /// Tests that creating a customer with valid data returns Created result with customer data.
+    /// </summary>
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithCustomer()
     {
@@ -336,6 +355,9 @@ public class CustomerControllerTests : IDisposable
         Assert.NotEmpty(new[] { returnedCustomer.PersonId });
     }
 
+    /// <summary>
+    /// Tests that updating an existing customer returns Ok with the updated customer.
+    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenCustomerExists_ReturnsOkWithUpdatedCustomer()
     {
@@ -400,6 +422,9 @@ public class CustomerControllerTests : IDisposable
             returnedCustomer.Id);
     }
 
+    /// <summary>
+    /// Tests that updating a non-existent customer returns NotFound.
+    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenCustomerDoesNotExist_ReturnsNotFound()
     {
@@ -433,6 +458,9 @@ public class CustomerControllerTests : IDisposable
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
+    /// <summary>
+    /// Tests that deleting an existing customer returns NoContent.
+    /// </summary>
     [Fact]
     public async Task DeleteAsync_WhenCustomerExists_ReturnsNoContent()
     {
@@ -471,6 +499,9 @@ public class CustomerControllerTests : IDisposable
         Assert.Null(deletedCustomer);
     }
 
+    /// <summary>
+    /// Tests that deleting a non-existent customer returns NoContent.
+    /// </summary>
     [Fact]
     public async Task DeleteAsync_WhenCustomerDoesNotExist_ReturnsNoContent()
     {
@@ -488,6 +519,9 @@ public class CustomerControllerTests : IDisposable
         Assert.NotNull(result);
     }
 
+    /// <summary>
+    /// Tests that the CustomerController has the AuthorizeAttribute applied.
+    /// </summary>
     [Fact]
     public void CustomerController_HasAuthorizeAttribute()
     {
@@ -502,6 +536,9 @@ public class CustomerControllerTests : IDisposable
         Assert.NotNull(authorizeAttribute);
     }
 
+    /// <summary>
+    /// Tests that the CustomerController has the RouteAttribute with correct template.
+    /// </summary>
     [Fact]
     public void CustomerController_HasRouteAttribute()
     {
@@ -519,6 +556,9 @@ public class CustomerControllerTests : IDisposable
             routeAttribute.Template);
     }
 
+    /// <summary>
+    /// Tests that the CustomerController has the ApiControllerAttribute applied.
+    /// </summary>
     [Fact]
     public void CustomerController_HasApiControllerAttribute()
     {
