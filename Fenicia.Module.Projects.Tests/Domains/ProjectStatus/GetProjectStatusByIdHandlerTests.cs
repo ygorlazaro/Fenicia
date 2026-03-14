@@ -1,8 +1,8 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectStatus.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -11,15 +11,16 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectStatus;
 
 public class GetProjectStatusByIdHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly GetProjectStatusByIdHandler handler;
+
     public GetProjectStatusByIdHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetProjectStatusByIdHandler(this.db);
         this.faker = new Faker();
     }
@@ -27,13 +28,9 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly GetProjectStatusByIdHandler handler;
-    private readonly Faker faker;
 
     [Fact]
     public async Task Handle_WhenProjectStatusExists_ReturnsProjectStatusResponse()
@@ -57,15 +54,12 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         var query = new GetProjectStatusByIdQuery(statusId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(statusId,
-            result.Id);
-        Assert.Equal(status.Name,
-            result.Name);
+        Assert.Equal(statusId, result.Id);
+        Assert.Equal(status.Name, result.Name);
     }
 
     [Fact]
@@ -75,8 +69,7 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         var query = new GetProjectStatusByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -89,8 +82,7 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         var query = new GetProjectStatusByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -124,22 +116,18 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
             IsFinal = true
         };
 
-        this.db.ProjectStatuses.AddRange(status1,
-            status2);
+        this.db.ProjectStatuses.AddRange(status1, status2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectStatusByIdQuery(status1Id);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(status1Id,
-            result.Id);
-        Assert.Equal(status1.Name,
-            result.Name);
+        Assert.Equal(status1Id, result.Id);
+        Assert.Equal(status1.Name, result.Name);
     }
 
     [Fact]
@@ -164,13 +152,11 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         var query = new GetProjectStatusByIdQuery(statusId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(statusId,
-            result.Id);
+        Assert.Equal(statusId, result.Id);
         Assert.True(result.IsFinal);
     }
 }

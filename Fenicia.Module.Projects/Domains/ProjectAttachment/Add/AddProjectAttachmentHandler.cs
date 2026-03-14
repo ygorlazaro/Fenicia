@@ -15,20 +15,13 @@ public class AddProjectAttachmentHandler(DefaultContext context)
             FileUrl = command.FileUrl,
             FileSize = command.FileSize,
             UploadedBy = command.UploadedBy,
-            ContentType = command.ContentType,
+            ContentType = command.ContentType
         };
 
         context.ProjectAttachments.Add(projectAttachment);
 
         await context.SaveChangesAsync(ct);
 
-        return new AddProjectAttachmentResponse(
-            projectAttachment.Id,
-            projectAttachment.TaskId,
-            projectAttachment.FileName,
-            projectAttachment.FileUrl,
-            projectAttachment.FileSize,
-            projectAttachment.UploadedBy,
-            projectAttachment.CompanyId);
+        return new AddProjectAttachmentResponse(projectAttachment.Id, projectAttachment.TaskId, projectAttachment.FileName, projectAttachment.FileUrl, projectAttachment.FileSize, projectAttachment.UploadedBy, projectAttachment.CompanyId);
     }
 }

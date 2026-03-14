@@ -32,6 +32,6 @@ public class CompanyModel : BaseModel
     public AddressModel? Address { get; set; }
 
     public List<OrderModel> Orders { get; set; } = [];
-    
+
     public List<ConfigurationModel> Configurations { get; set; } = [];
 }

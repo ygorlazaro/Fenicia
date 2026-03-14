@@ -13,29 +13,23 @@ public class CorrelationIdMiddleware(RequestDelegate next)
 
         try
         {
-            if (!context.Request.Headers.TryGetValue(correlationIdHeader,
-                    out var correlationId))
+            if (!context.Request.Headers.TryGetValue(correlationIdHeader, out var correlationId))
             {
                 correlationId = Guid.NewGuid().ToString();
-                context.Request.Headers.Append(correlationIdHeader,
-                    correlationId);
-                Log.Information("Generated new correlation ID: {CorrelationId}",
-                    correlationId);
+                context.Request.Headers.Append(correlationIdHeader, correlationId);
+                Log.Information("Generated new correlation ID: {CorrelationId}", correlationId);
             }
 
             context.Response.Headers[correlationIdHeader] = correlationId;
 
-            using (LogContext.PushProperty("CorrelationId",
-                       correlationId))
+            using (LogContext.PushProperty("CorrelationId", correlationId))
             {
                 await next(context).ConfigureAwait(false);
             }
         }
         catch (Exception ex)
         {
-            Log.Error(ex,
-                "Error processing request with correlation ID: {CorrelationId}",
-                context.Request.Headers[correlationIdHeader]);
+            Log.Error(ex, "Error processing request with correlation ID: {CorrelationId}", context.Request.Headers[correlationIdHeader]);
             throw;
         }
     }

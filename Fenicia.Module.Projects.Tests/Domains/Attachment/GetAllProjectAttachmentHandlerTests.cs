@@ -1,8 +1,8 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectAttachment.GetAll;
 
 using Microsoft.EntityFrameworkCore;
@@ -11,15 +11,16 @@ namespace Fenicia.Module.Projects.Tests.Domains.Attachment;
 
 public class GetAllProjectAttachmentHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly GetAllProjectAttachmentHandler handler;
+
     public GetAllProjectAttachmentHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetAllProjectAttachmentHandler(this.db);
         this.faker = new Faker();
     }
@@ -27,13 +28,9 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly GetAllProjectAttachmentHandler handler;
-    private readonly Faker faker;
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
@@ -42,8 +39,7 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
         var query = new GetAllProjectAttachmentQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -61,8 +57,7 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
             TaskId = taskId,
             FileName = $"{this.faker.System.FileName()}.pdf",
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000,
-                1000000),
+            FileSize = this.faker.Random.Long(1000, 1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
@@ -73,30 +68,24 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
             TaskId = taskId,
             FileName = $"{this.faker.System.FileName()}.docx",
             FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000,
-                1000000),
+            FileSize = this.faker.Random.Long(1000, 1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.AddRange(attachment1,
-            attachment2);
+        this.db.ProjectAttachments.AddRange(attachment1, attachment2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectAttachmentQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2,
-            result.Count);
-        Assert.Equal(attachment1.Id,
-            result[0].Id);
-        Assert.Equal(attachment2.Id,
-            result[1].Id);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(attachment1.Id, result[0].Id);
+        Assert.Equal(attachment2.Id, result[1].Id);
     }
 
     [Fact]
@@ -112,8 +101,7 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
                 TaskId = taskId,
                 FileName = $"{this.faker.System.FileName()}_{i}.pdf",
                 FileUrl = this.faker.Internet.Url(),
-                FileSize = this.faker.Random.Long(1000,
-                    1000000),
+                FileSize = this.faker.Random.Long(1000, 1000000),
                 UploadedBy = Guid.NewGuid(),
                 ContentType = "application/json"
             };
@@ -125,13 +113,11 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
         var query = new GetAllProjectAttachmentQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Count);
+        Assert.Equal(10, result.Count);
     }
 
     [Fact]
@@ -147,8 +133,7 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
                 TaskId = taskId,
                 FileName = $"{this.faker.System.FileName()}_{i}.pdf",
                 FileUrl = this.faker.Internet.Url(),
-                FileSize = this.faker.Random.Long(1000,
-                    1000000),
+                FileSize = this.faker.Random.Long(1000, 1000000),
                 UploadedBy = Guid.NewGuid(),
                 ContentType = "application/json"
             };
@@ -160,8 +145,7 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
         var query = new GetAllProjectAttachmentQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -181,8 +165,7 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
                 TaskId = taskId,
                 FileName = $"{this.faker.System.FileName()}_{i}.pdf",
                 FileUrl = this.faker.Internet.Url(),
-                FileSize = this.faker.Random.Long(1000,
-                    1000000),
+                FileSize = this.faker.Random.Long(1000, 1000000),
                 UploadedBy = Guid.NewGuid(),
                 ContentType = "application/json"
             };
@@ -194,12 +177,10 @@ public class GetAllProjectAttachmentHandlerTests : IDisposable
         var query = new GetAllProjectAttachmentQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Count);
+        Assert.Equal(10, result.Count);
     }
 }

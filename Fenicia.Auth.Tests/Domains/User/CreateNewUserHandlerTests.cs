@@ -3,10 +3,10 @@ using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.User.Commands;
 using Fenicia.Auth.Domains.User.Handlers;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -14,21 +14,29 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class CreateNewUserHandlerTests : IDisposable
 {
+    private readonly Guid adminRoleId;
+
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly CreateNewUserHandler handler;
+
     public CreateNewUserHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
-        this.handler = new CreateNewUserHandler(
-            this.db
-        );
+        this.db = new DefaultContext(options, new TestCompanyContext());
+        this.handler = new CreateNewUserHandler(this.db);
         this.faker = new Faker();
 
         this.adminRoleId = Guid.NewGuid();
         SeedAdminRole();
+    }
+
+    public void Dispose()
+    {
+        this.db.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 
     private void SeedAdminRole()
@@ -37,19 +45,6 @@ public class CreateNewUserHandlerTests : IDisposable
         this.db.AuthRoles.Add(adminRole);
         this.db.SaveChanges();
     }
-
-    private readonly Guid adminRoleId;
-
-    public void Dispose()
-    {
-        this.db.Dispose();
-        
-        GC.SuppressFinalize(this);
-    }
-
-    private readonly DefaultContext db;
-    private readonly CreateNewUserHandler handler;
-    private readonly Faker faker;
 
     [Fact]
     public async Task Handle_WhenValidRequest_CreatesUserAndCompanySuccessfully()
@@ -61,34 +56,24 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        var request = new CreateNewUserCommand(email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj,
-                companyName));
+        var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
-        var result = await this.handler.Handle(request,
-            CancellationToken.None);
+        var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
 
         var user = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
-        Assert.Equal(email,
-            user.Email);
-        Assert.Equal(name,
-            user.Name);
-        Assert.NotEqual(password,
-            user.Password);
+        Assert.Equal(email, user.Email);
+        Assert.Equal(name, user.Name);
+        Assert.NotEqual(password, user.Password);
 
         var company = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.NotNull(company);
-        Assert.Equal(companyName,
-            company.Name);
-        Assert.Equal(cnpj,
-            company.Cnpj);
+        Assert.Equal(companyName, company.Name);
+        Assert.Equal(cnpj, company.Cnpj);
     }
 
     [Fact]
@@ -105,19 +90,11 @@ public class CreateNewUserHandlerTests : IDisposable
         this.db.AuthUsers.Add(existingUser);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new CreateNewUserCommand(email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj,
-                companyName));
+        var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None)
-        );
-        Assert.Equal("This email already exists",
-            ex.Message);
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
+        Assert.Equal("This email already exists", ex.Message);
     }
 
     [Fact]
@@ -134,19 +111,11 @@ public class CreateNewUserHandlerTests : IDisposable
         this.db.AuthCompanies.Add(existingCompany);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new CreateNewUserCommand(email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj,
-                companyName));
+        var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None)
-        );
-        Assert.Equal("Company with this CNPJ already exists.",
-            ex.Message);
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
+        Assert.Equal("Company with this CNPJ already exists.", ex.Message);
     }
 
     [Fact]
@@ -159,24 +128,16 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        var request = new CreateNewUserCommand(email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj,
-                companyName));
+        var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
         var adminRole = this.db.AuthRoles.First();
         this.db.AuthRoles.Remove(adminRole);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None)
-        );
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.Equal("Admin role not found. Please ensure that the admin role exists in the database.",
-            ex.Message);
+        Assert.Equal("Admin role not found. Please ensure that the admin role exists in the database.", ex.Message);
     }
 
     [Fact]
@@ -189,23 +150,16 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        var request = new CreateNewUserCommand(email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj,
-                companyName));
+        var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
-        var result = await this.handler.Handle(request,
-            CancellationToken.None);
+        var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         var userRole = await this.db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
         Assert.NotNull(userRole);
-        Assert.Equal(this.adminRoleId,
-            userRole.RoleId);
-        Assert.NotEqual(Guid.Empty,
-            userRole.CompanyId);
+        Assert.Equal(this.adminRoleId, userRole.RoleId);
+        Assert.NotEqual(Guid.Empty, userRole.CompanyId);
     }
 
     [Fact]
@@ -218,29 +172,18 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        var request = new CreateNewUserCommand(email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj,
-                companyName));
+        var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
-        var result = await this.handler.Handle(request,
-            CancellationToken.None);
+        var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
-        Assert.NotEqual(Guid.Empty,
-            result.Id);
-        Assert.Equal(name,
-            result.Name);
-        Assert.Equal(email,
-            result.Email);
-        Assert.NotEqual(Guid.Empty,
-            result.Company.Id);
-        Assert.Equal(companyName,
-            result.Company.Name);
-        Assert.Equal(cnpj,
-            result.Company.Cnpj);
+        Assert.NotEqual(Guid.Empty, result.Id);
+        Assert.Equal(name, result.Name);
+        Assert.Equal(email, result.Email);
+        Assert.NotEqual(Guid.Empty, result.Company.Id);
+        Assert.Equal(companyName, result.Company.Name);
+        Assert.Equal(cnpj, result.Company.Cnpj);
     }
 
     [Fact]
@@ -253,21 +196,15 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        var request = new CreateNewUserCommand(email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj,
-                companyName));
+        var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
-        await this.handler.Handle(request,
-            CancellationToken.None);
+        await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         var user = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
-        Assert.NotEqual(password,
-            user.Password);
+        Assert.NotEqual(password, user.Password);
     }
 
     [Fact]
@@ -280,15 +217,10 @@ public class CreateNewUserHandlerTests : IDisposable
         var cnpj = this.faker.Company.Cnpj();
         var companyName = this.faker.Company.CompanyName();
 
-        var request = new CreateNewUserCommand(email,
-            password,
-            name,
-            new CreateNewUserCompanyCommand(cnpj,
-                companyName));
+        var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
         // Act
-        await this.handler.Handle(request,
-            CancellationToken.None);
+        await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         var company = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);

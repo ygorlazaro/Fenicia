@@ -23,41 +23,29 @@ public static class FeniciaControllersExtensions
         {
             o.InvalidModelStateResponseFactory = c =>
             {
-                var problemDetails = new ValidationProblemDetails(c.ModelState)
-                {
-                    Type = "https://tools.ietf.org/html/rfc7807",
-                    Title = ExceptionMessages.InvalidRequest,
-                    Status = StatusCodes.Status400BadRequest,
-                    Instance = c.HttpContext.Request.Path
-                };
+                var problemDetails = new ValidationProblemDetails(c.ModelState) { Type = "https://tools.ietf.org/html/rfc7807", Title = ExceptionMessages.InvalidRequest, Status = StatusCodes.Status400BadRequest, Instance = c.HttpContext.Request.Path };
 
-                return new BadRequestObjectResult(problemDetails)
-                {
-                    ContentTypes = { "application/problem+json" }
-                };
+                return new BadRequestObjectResult(problemDetails) { ContentTypes = { "application/problem+json" } };
             };
         });
 
         var targetAssembly = (assembly ?? Assembly.GetEntryAssembly()) ?? throw new InvalidOperationException("Could not determine the assembly to load controllers from.");
 
-        builder.Services.AddControllers()
-            .ConfigureApplicationPartManager(manager =>
-            {
-                manager.ApplicationParts.Clear();
-                manager.ApplicationParts.Add(new AssemblyPart(targetAssembly));
-            })
-            .AddJsonOptions(o =>
-            {
-                o.JsonSerializerOptions.AllowTrailingCommas = false;
-                o.JsonSerializerOptions.MaxDepth = 0;
-                o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-                o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            });
+        builder.Services.AddControllers().ConfigureApplicationPartManager(manager =>
+        {
+            manager.ApplicationParts.Clear();
+            manager.ApplicationParts.Add(new AssemblyPart(targetAssembly));
+        }).AddJsonOptions(o =>
+        {
+            o.JsonSerializerOptions.AllowTrailingCommas = false;
+            o.JsonSerializerOptions.MaxDepth = 0;
+            o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
 
         builder.Services.AddOpenApi();
 
-        builder.Services.AddFluentValidationAutoValidation()
-            .AddValidatorsFromAssemblyContaining<BaseModel>();
+        builder.Services.AddFluentValidationAutoValidation().AddValidatorsFromAssemblyContaining<BaseModel>();
 
         return builder;
     }

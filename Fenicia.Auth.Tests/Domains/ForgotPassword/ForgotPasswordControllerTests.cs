@@ -3,12 +3,11 @@ using Bogus;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.Commands;
 using Fenicia.Auth.Domains.ForgotPassword.Handlers;
-using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.API;
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Tests;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,29 +18,26 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
+/// <summary>
+///     Unit tests for the ForgotPasswordController.
+///     Tests HTTP endpoints behavior including forgot password initiation and password reset.
+/// </summary>
 public class ForgotPasswordControllerTests : IDisposable
 {
+    private readonly ForgotPasswordController controller;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+
     public ForgotPasswordControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options,
-            new TestCompanyContext());
+        this.db = new DefaultContext(options, new TestCompanyContext());
         var addForgotPasswordHandler = new AddForgotPasswordHandler(this.db);
         var resetPasswordHandler = new ResetPasswordHandler(this.db);
         var mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ForgotPasswordController(
-            addForgotPasswordHandler,
-            resetPasswordHandler)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = mockHttpContext.Object
-            }
-        };
+        this.controller = new ForgotPasswordController(addForgotPasswordHandler, resetPasswordHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         this.faker = new Faker();
     }
@@ -52,10 +48,9 @@ public class ForgotPasswordControllerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private readonly ForgotPasswordController controller;
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-
+    /// <summary>
+    ///     Tests that when a user exists, the forgot password process completes successfully.
+    /// </summary>
     [Fact]
     public async Task ForgotPassword_WhenUserExists_CompletesSuccessfully()
     {
@@ -64,13 +59,7 @@ public class ForgotPasswordControllerTests : IDisposable
         var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = Guid.NewGuid(), Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -78,25 +67,22 @@ public class ForgotPasswordControllerTests : IDisposable
         var command = new AddForgotPasswordCommand(email);
 
         // Act
-        await this.controller.ForgotPassword(
-            command,
-            wide,
-            ct);
+        await this.controller.ForgotPassword(command, wide, ct);
 
         // Assert
-        Assert.Equal(command.Email,
-            wide.UserId);
+        Assert.Equal(command.Email, wide.UserId);
 
         // Verify forgot password record was created
-        var forgotPasswordRecord =
-            await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id,
-                ct);
+        var forgotPasswordRecord = await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == user.Id, ct);
         Assert.NotNull(forgotPasswordRecord);
         Assert.True(forgotPasswordRecord.IsActive);
         Assert.NotNull(forgotPasswordRecord.Code);
         Assert.NotEmpty(forgotPasswordRecord.Code);
     }
 
+    /// <summary>
+    ///     Tests that when no user exists with the given email, ItemNotExistsException is thrown.
+    /// </summary>
     [Fact]
     public async Task ForgotPassword_WhenUserDoesNotExist_ThrowsItemNotExistsException()
     {
@@ -107,13 +93,12 @@ public class ForgotPasswordControllerTests : IDisposable
         var command = new AddForgotPasswordCommand(this.faker.Internet.Email());
 
         // Act & Assert
-        await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.controller.ForgotPassword(
-                command,
-                wide,
-                ct));
+        await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.controller.ForgotPassword(command, wide, ct));
     }
 
+    /// <summary>
+    ///     Tests that the WideEventContext UserId is set to the email for tracking.
+    /// </summary>
     [Fact]
     public async Task ForgotPassword_SetsWideEventContextUserId()
     {
@@ -122,13 +107,7 @@ public class ForgotPasswordControllerTests : IDisposable
         var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = Guid.NewGuid(), Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -136,16 +115,15 @@ public class ForgotPasswordControllerTests : IDisposable
         var command = new AddForgotPasswordCommand(email);
 
         // Act
-        await this.controller.ForgotPassword(
-            command,
-            wide,
-            ct);
+        await this.controller.ForgotPassword(command, wide, ct);
 
         // Assert
-        Assert.Equal(command.Email,
-            wide.UserId);
+        Assert.Equal(command.Email, wide.UserId);
     }
 
+    /// <summary>
+    ///     Tests that a valid code successfully resets the user's password.
+    /// </summary>
     [Fact]
     public async Task ResetPassword_WhenValidCode_ResetsPasswordSuccessfully()
     {
@@ -155,16 +133,9 @@ public class ForgotPasswordControllerTests : IDisposable
         var email = this.faker.Internet.Email();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = Guid.NewGuid(), Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var code = this.faker.Random.String2(6,
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        var code = this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -179,15 +150,10 @@ public class ForgotPasswordControllerTests : IDisposable
         this.db.AuthForgottenPasswords.Add(forgotPassword);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new ResetPasswordCommand(email,
-            newPassword,
-            code);
+        var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act
-        var result = await this.controller.ResetPassword(
-            command,
-            wide,
-            ct);
+        var result = await this.controller.ResetPassword(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -195,24 +161,22 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var okResult = result as OkResult;
         Assert.NotNull(okResult);
-        Assert.Equal(200,
-            okResult.StatusCode);
-        Assert.Equal(command.Email,
-            wide.UserId);
+        Assert.Equal(200, okResult.StatusCode);
+        Assert.Equal(command.Email, wide.UserId);
 
         // Verify password was changed
-        var updatedUser = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Id == user.Id,
-            ct);
+        var updatedUser = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Id == user.Id, ct);
         Assert.NotNull(updatedUser);
 
         // Verify forgot password record was deactivated
-        var updatedForgotPassword =
-            await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id,
-                ct);
+        var updatedForgotPassword = await this.db.AuthForgottenPasswords.FirstOrDefaultAsync(f => f.Id == forgotPassword.Id, ct);
         Assert.NotNull(updatedForgotPassword);
         Assert.False(updatedForgotPassword.IsActive);
     }
 
+    /// <summary>
+    ///     Tests that an invalid code throws InvalidDataException.
+    /// </summary>
     [Fact]
     public async Task ResetPassword_WhenInvalidCode_ThrowsInvalidDataException()
     {
@@ -221,29 +185,20 @@ public class ForgotPasswordControllerTests : IDisposable
         var ct = CancellationToken.None;
         var email = this.faker.Internet.Email();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = Guid.NewGuid(), Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new ResetPasswordCommand(email,
-            this.faker.Internet.Password(),
-            "INVALID");
+        var command = new ResetPasswordCommand(email, this.faker.Internet.Password(), "INVALID");
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidDataException>(async () =>
-            await this.controller.ResetPassword(
-                command,
-                wide,
-                ct));
+        await Assert.ThrowsAsync<InvalidDataException>(async () => await this.controller.ResetPassword(command, wide, ct));
     }
 
+    /// <summary>
+    ///     Tests that when no user exists with the given email, ItemNotExistsException is thrown.
+    /// </summary>
     [Fact]
     public async Task ResetPassword_WhenUserDoesNotExist_ThrowsItemNotExistsException()
     {
@@ -251,20 +206,15 @@ public class ForgotPasswordControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var command = new ResetPasswordCommand(
-            this.faker.Internet.Email(),
-            this.faker.Internet.Password(),
-            this.faker.Random.String2(6,
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
+        var command = new ResetPasswordCommand(this.faker.Internet.Email(), this.faker.Internet.Password(), this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
 
         // Act & Assert
-        await Assert.ThrowsAsync<ItemNotExistsException>(async () =>
-            await this.controller.ResetPassword(
-                command,
-                wide,
-                ct));
+        await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.controller.ResetPassword(command, wide, ct));
     }
 
+    /// <summary>
+    ///     Tests that the WideEventContext UserId is set to the email when resetting password.
+    /// </summary>
     [Fact]
     public async Task ResetPassword_SetsWideEventContextUserId()
     {
@@ -274,16 +224,9 @@ public class ForgotPasswordControllerTests : IDisposable
         var email = this.faker.Internet.Email();
         var newPassword = this.faker.Internet.Password();
 
-        var user = new UserModel
-        {
-            Id = Guid.NewGuid(),
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = Guid.NewGuid(), Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var code = this.faker.Random.String2(6,
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+        var code = this.faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -298,21 +241,18 @@ public class ForgotPasswordControllerTests : IDisposable
         this.db.AuthForgottenPasswords.Add(forgotPassword);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new ResetPasswordCommand(email,
-            newPassword,
-            code);
+        var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act
-        await this.controller.ResetPassword(
-            command,
-            wide,
-            ct);
+        await this.controller.ResetPassword(command, wide, ct);
 
         // Assert
-        Assert.Equal(command.Email,
-            wide.UserId);
+        Assert.Equal(command.Email, wide.UserId);
     }
 
+    /// <summary>
+    ///     Tests that the ForgotPasswordController has the AllowAnonymousAttribute applied.
+    /// </summary>
     [Fact]
     public void ForgotPasswordController_HasAllowAnonymousAttribute()
     {
@@ -320,14 +260,15 @@ public class ForgotPasswordControllerTests : IDisposable
         var controllerType = typeof(ForgotPasswordController);
 
         // Act
-        var allowAnonymousAttribute =
-            controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute),
-                false).FirstOrDefault();
+        var allowAnonymousAttribute = controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(allowAnonymousAttribute);
     }
 
+    /// <summary>
+    ///     Tests that the ForgotPasswordController has the RouteAttribute with correct template.
+    /// </summary>
     [Fact]
     public void ForgotPasswordController_HasRouteAttribute()
     {
@@ -335,16 +276,16 @@ public class ForgotPasswordControllerTests : IDisposable
         var controllerType = typeof(ForgotPasswordController);
 
         // Act
-        var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute),
-                false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]",
-            routeAttribute.Template);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
+    /// <summary>
+    ///     Tests that the ForgotPasswordController has the ProducesAttribute with correct content type.
+    /// </summary>
     [Fact]
     public void ForgotPasswordController_HasProducesAttribute()
     {
@@ -352,13 +293,10 @@ public class ForgotPasswordControllerTests : IDisposable
         var controllerType = typeof(ForgotPasswordController);
 
         // Act
-        var producesAttribute =
-            controllerType.GetCustomAttributes(typeof(ProducesAttribute),
-                false).FirstOrDefault() as ProducesAttribute;
+        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
         // Assert
         Assert.NotNull(producesAttribute);
-        Assert.Equal("application/json",
-            producesAttribute.ContentTypes.FirstOrDefault());
+        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
     }
 }

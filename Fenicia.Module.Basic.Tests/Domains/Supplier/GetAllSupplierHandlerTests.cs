@@ -1,9 +1,9 @@
 using Bogus;
 
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Supplier.Handlers;
 using Fenicia.Module.Basic.Domains.Supplier.Queries;
 
@@ -13,22 +13,24 @@ namespace Fenicia.Module.Basic.Tests.Domains.Supplier;
 
 public class GetAllSupplierHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly GetAllSupplierHandler handler;
+
     public GetAllSupplierHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetAllSupplierHandler(this.db);
         this.faker = new Faker();
     }
 
-    private readonly DefaultContext db;
-    private readonly GetAllSupplierHandler handler;
-    private readonly Faker faker;
+    public void Dispose()
+    {
+        this.db.Dispose();
+    }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
@@ -37,26 +39,19 @@ public class GetAllSupplierHandlerTests : IDisposable
         var query = new GetAllSupplierQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
-        Assert.Equal(0,
-            result.Total);
+        Assert.Equal(0, result.Total);
     }
 
     [Fact]
     public async Task Handle_WithSuppliers_ReturnsAllSuppliers()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
+        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
         this.db.AuthStates.Add(state);
 
         var supplier1 = new SupplierModel
@@ -99,47 +94,32 @@ public class GetAllSupplierHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicSuppliers.AddRange(supplier1,
-            supplier2);
+        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllSupplierQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2,
-            result.Data.Count);
-        Assert.Equal(2,
-            result.Total);
-        Assert.Equal(supplier1.Person.Id,
-            result.Data[0].PersonId);
-        Assert.Equal(supplier1.Person.Name,
-            result.Data[0].Name);
-        Assert.Equal(supplier1.Person.Email,
-            result.Data[0].Email);
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(2, result.Total);
+        Assert.Equal(supplier1.Person.Id, result.Data[0].PersonId);
+        Assert.Equal(supplier1.Person.Name, result.Data[0].Name);
+        Assert.Equal(supplier1.Person.Email, result.Data[0].Email);
 
-        Assert.Equal(supplier2.Person.Id,
-            result.Data[1].PersonId);
-        Assert.Equal(supplier2.Person.Name,
-            result.Data[1].Name);
-        Assert.Equal(supplier2.Person.Email,
-            result.Data[1].Email);
+        Assert.Equal(supplier2.Person.Id, result.Data[1].PersonId);
+        Assert.Equal(supplier2.Person.Name, result.Data[1].Name);
+        Assert.Equal(supplier2.Person.Email, result.Data[1].Email);
     }
 
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
+        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
         this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
@@ -171,27 +151,19 @@ public class GetAllSupplierHandlerTests : IDisposable
         var query = new GetAllSupplierQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Data.Count);
-        Assert.Equal(25,
-            result.Total);
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
     }
 
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
+        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
         this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 5; i++)
@@ -223,26 +195,19 @@ public class GetAllSupplierHandlerTests : IDisposable
         var query = new GetAllSupplierQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
-        Assert.Equal(5,
-            result.Total);
+        Assert.Equal(5, result.Total);
     }
 
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
+        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
         this.db.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
@@ -274,19 +239,11 @@ public class GetAllSupplierHandlerTests : IDisposable
         var query = new GetAllSupplierQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Data.Count);
-        Assert.Equal(25,
-            result.Total);
-    }
-
-    public void Dispose()
-    {
-        this.db.Dispose();
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
     }
 }

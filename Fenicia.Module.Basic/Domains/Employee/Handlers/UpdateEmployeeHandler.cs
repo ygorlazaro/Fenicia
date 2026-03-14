@@ -6,14 +6,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 
+/// <summary>
+///     Handler responsible for updating existing employee information.
+///     Updates both the employee and associated person records.
+/// </summary>
 public class UpdateEmployeeHandler(DefaultContext db)
 {
+    /// <summary>
+    ///     Updates an existing employee's information.
+    /// </summary>
+    /// <param name="command">The update command containing the new employee data.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The updated employee response if found, null if employee does not exist.</returns>
     public async Task<UpdateEmployeeResponse?> Handle(UpdateEmployeeCommand command, CancellationToken ct)
     {
-        var employee = await db.BasicEmployees
-            .Include(employeeModel => employeeModel.Person)
-            .FirstOrDefaultAsync(e => e.Id == command.Id,
-                ct);
+        var employee = await db.BasicEmployees.Include(employeeModel => employeeModel.Person).FirstOrDefaultAsync(e => e.Id == command.Id, ct);
 
         if (employee is null)
         {
@@ -37,9 +44,6 @@ public class UpdateEmployeeHandler(DefaultContext db)
 
         await db.SaveChangesAsync(ct);
 
-        return new UpdateEmployeeResponse(
-            employee.Id,
-            employee.PositionId,
-            employee.PersonId);
+        return new UpdateEmployeeResponse(employee.Id, employee.PositionId, employee.PersonId);
     }
 }

@@ -1,6 +1,7 @@
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Enums.Project;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.GetById;
 
 using Microsoft.EntityFrameworkCore;
@@ -9,27 +10,24 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;
 
 public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly GetProjectTaskAssigneeByIdHandler handler;
+
     public GetProjectTaskAssigneeByIdHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetProjectTaskAssigneeByIdHandler(this.db);
     }
 
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly GetProjectTaskAssigneeByIdHandler handler;
 
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeExists_ReturnsProjectTaskAssigneeResponse()
@@ -44,7 +42,7 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             Id = assigneeId,
             TaskId = taskId,
             UserId = userId,
-            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
+            Role = EnumAssigneeRole.Owner,
             AssignedAt = assignedAt
         };
 
@@ -54,15 +52,12 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
         var query = new GetProjectTaskAssigneeByIdQuery(assigneeId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assigneeId,
-            result.Id);
-        Assert.Equal(userId,
-            result.UserId);
+        Assert.Equal(assigneeId, result.Id);
+        Assert.Equal(userId, result.UserId);
     }
 
     [Fact]
@@ -72,8 +67,7 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
         var query = new GetProjectTaskAssigneeByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -86,8 +80,7 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
         var query = new GetProjectTaskAssigneeByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -108,7 +101,7 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             Id = assignee1Id,
             TaskId = taskId,
             UserId = userId1,
-            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
+            Role = EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
@@ -117,26 +110,22 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             Id = assignee2Id,
             TaskId = taskId,
             UserId = userId2,
-            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+            Role = EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1,
-            assignee2);
+        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskAssigneeByIdQuery(assignee1Id);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assignee1Id,
-            result.Id);
-        Assert.Equal(userId1,
-            result.UserId);
+        Assert.Equal(assignee1Id, result.Id);
+        Assert.Equal(userId1, result.UserId);
     }
 
     [Fact]
@@ -152,7 +141,7 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
             Id = assigneeId,
             TaskId = taskId,
             UserId = userId,
-            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+            Role = EnumAssigneeRole.Contributor,
             AssignedAt = assignedAt
         };
 
@@ -162,14 +151,11 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
         var query = new GetProjectTaskAssigneeByIdQuery(assigneeId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assigneeId,
-            result.Id);
-        Assert.Equal("Contributor",
-            result.Role);
+        Assert.Equal(assigneeId, result.Id);
+        Assert.Equal("Contributor", result.Role);
     }
 }

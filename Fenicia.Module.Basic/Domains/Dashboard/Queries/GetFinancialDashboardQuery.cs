@@ -1,4 +1,6 @@
 namespace Fenicia.Module.Basic.Domains.Dashboard.Queries;
 
-public record GetFinancialDashboardQuery(
-    int Days = 90);
+/// <summary>
+///     Query record for retrieving the financial dashboard.
+/// </summary>
+public record GetFinancialDashboardQuery(int Days = 90);

@@ -10,55 +10,35 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.Handlers;
 
-public class CreateUserHandler(
-    DefaultContext db)
+public class CreateUserHandler(DefaultContext db)
 {
     public virtual async Task<CreateUserResponse> Handle(CreateUserCommand command, CancellationToken ct)
     {
-        var userExists = await db.AuthUsers.AnyEmailAsync(command.Email,
-            ct);
+        var userExists = await db.AuthUsers.AnyEmailAsync(command.Email, ct);
 
         if (userExists)
         {
             throw new InvalidRequestException(ExceptionMessages.EmailAlreadyExists);
         }
 
-        var hashedPassword =  command.Password.Hash();
+        var hashedPassword = command.Password.Hash();
 
-        var user = new UserModel
-        {
-            Email = command.Email,
-            Password = hashedPassword,
-            Name = command.Name
-        };
+        var user = new UserModel { Email = command.Email, Password = hashedPassword, Name = command.Name };
 
         db.AuthUsers.Add(user);
-        await RelateRolesAsync(user.Id,
-            command.Roles,
-            ct);
+        await RelateRolesAsync(user.Id, command.Roles, ct);
         await db.SaveChangesAsync(ct);
 
-        return new CreateUserResponse(
-            user.Id,
-            user.Name,
-            user.Email
-        );
+        return new CreateUserResponse(user.Id, user.Name, user.Email);
     }
 
     private async Task RelateRolesAsync(Guid userId, List<CreateUserRoleCommand>? command, CancellationToken ct)
     {
         var roles = command ?? [];
-        await ValidateCompanies(roles.Select(r => r.CompanyId),
-            ct);
-        await ValidateRoles(roles.Select(r => r.RoleId),
-            ct);
+        await ValidateCompanies(roles.Select(r => r.CompanyId), ct);
+        await ValidateRoles(roles.Select(r => r.RoleId), ct);
 
-        var userRoles = roles.Select(r => new UserRoleModel
-        {
-            UserId = userId,
-            RoleId = r.RoleId,
-            CompanyId = r.CompanyId
-        });
+        var userRoles = roles.Select(r => new UserRoleModel { UserId = userId, RoleId = r.RoleId, CompanyId = r.CompanyId });
 
         db.AuthUserRoles.AddRange(userRoles);
     }
@@ -66,26 +46,22 @@ public class CreateUserHandler(
     private async Task ValidateCompanies(IEnumerable<Guid> companies, CancellationToken ct)
     {
         var distinct = companies.Distinct();
-        
-        var query = from c in  db.AuthCompanies
-                    where  distinct.Contains(c.Id)
-                    select c;
 
-        if (distinct.Count() != await query.CountAsync(cancellationToken: ct))
+        var query = db.AuthCompanies.Where(c => distinct.Contains(c.Id));
+
+        if (distinct.Count() != await query.CountAsync(ct))
         {
             throw new InvalidRequestException(ExceptionMessages.CompanyNotFoundMessage);
         }
     }
-    
+
     private async Task ValidateRoles(IEnumerable<Guid> roles, CancellationToken ct)
     {
         var distinct = roles.Distinct();
-        
-        var query = from r in  db.AuthRoles
-                    where  distinct.Contains(r.Id)
-                    select r;
 
-        if (distinct.Count() != await query.CountAsync(cancellationToken: ct))
+        var query = db.AuthRoles.Where(r => distinct.Contains(r.Id));
+
+        if (distinct.Count() != await query.CountAsync(ct))
         {
             throw new InvalidRequestException(ExceptionMessages.RoleNotFound);
         }

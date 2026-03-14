@@ -13,8 +13,7 @@ public class AddProjectTaskAssigneeHandler(DefaultContext context)
             Id = command.Id,
             TaskId = command.TaskId,
             UserId = command.UserId,
-            Role = Enum.Parse<EnumAssigneeRole>(command.Role,
-                true),
+            Role = Enum.Parse<EnumAssigneeRole>(command.Role, true),
             AssignedAt = command.AssignedAt
         };
 
@@ -22,12 +21,6 @@ public class AddProjectTaskAssigneeHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new AddProjectTaskAssigneeResponse(
-            assignee.Id,
-            assignee.TaskId,
-            assignee.UserId,
-            assignee.Role.ToString(),
-            assignee.AssignedAt,
-            assignee.CompanyId);
+        return new AddProjectTaskAssigneeResponse(assignee.Id, assignee.TaskId, assignee.UserId, assignee.Role.ToString(), assignee.AssignedAt, assignee.CompanyId);
     }
 }

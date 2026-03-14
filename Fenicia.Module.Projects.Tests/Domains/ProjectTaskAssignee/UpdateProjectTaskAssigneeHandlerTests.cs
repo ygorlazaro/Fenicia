@@ -1,6 +1,7 @@
-using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Enums.Project;
+using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Update;
 
 using Microsoft.EntityFrameworkCore;
@@ -9,27 +10,24 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;
 
 public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly UpdateProjectTaskAssigneeHandler handler;
+
     public UpdateProjectTaskAssigneeHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new UpdateProjectTaskAssigneeHandler(this.db);
     }
 
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly UpdateProjectTaskAssigneeHandler handler;
 
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeExists_UpdatesProjectTaskAssigneeAndReturnsResponse()
@@ -43,7 +41,7 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             Id = assigneeId,
             TaskId = taskId,
             UserId = userId,
-            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+            Role = EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-10)
         };
 
@@ -51,39 +49,25 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var newUserId = Guid.NewGuid();
-        var command = new UpdateProjectTaskAssigneeCommand(
-            assigneeId,
-            taskId,
-            newUserId,
-            "Owner",
-            DateTime.UtcNow);
+        var command = new UpdateProjectTaskAssigneeCommand(assigneeId, taskId, newUserId, "Owner", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assigneeId,
-            result.Id);
-        Assert.Equal("Owner",
-            result.Role);
+        Assert.Equal(assigneeId, result.Id);
+        Assert.Equal("Owner", result.Role);
     }
 
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateProjectTaskAssigneeCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            "Owner",
-            DateTime.UtcNow);
+        var command = new UpdateProjectTaskAssigneeCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Owner", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -93,16 +77,10 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateProjectTaskAssigneeCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            "Owner",
-            DateTime.UtcNow);
+        var command = new UpdateProjectTaskAssigneeCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Owner", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -123,7 +101,7 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             Id = assignee1Id,
             TaskId = taskId,
             UserId = userId1,
-            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
+            Role = EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
@@ -132,48 +110,31 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             Id = assignee2Id,
             TaskId = taskId,
             UserId = userId2,
-            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+            Role = EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1,
-            assignee2);
+        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var newUserId = Guid.NewGuid();
-        var command = new UpdateProjectTaskAssigneeCommand(
-            assignee1Id,
-            taskId,
-            newUserId,
-            "Contributor",
-            DateTime.UtcNow);
+        var command = new UpdateProjectTaskAssigneeCommand(assignee1Id, taskId, newUserId, "Contributor", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assignee1Id,
-            result.Id);
-        Assert.Equal("Contributor",
-            result.Role);
+        Assert.Equal(assignee1Id, result.Id);
+        Assert.Equal("Contributor", result.Role);
 
-        var updatedAssignee1 = await this.db.ProjectTaskAssignees.FindAsync([
-                assignee1Id
-            ],
-            CancellationToken.None);
-        var assignee2InDb = await this.db.ProjectTaskAssignees.FindAsync([
-                assignee2Id
-            ],
-            CancellationToken.None);
+        var updatedAssignee1 = await this.db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
+        var assignee2InDb = await this.db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
 
         Assert.NotNull(updatedAssignee1);
         Assert.NotNull(assignee2InDb);
-        Assert.Equal(Common.Enums.Project.EnumAssigneeRole.Contributor,
-            updatedAssignee1.Role);
-        Assert.Equal(Common.Enums.Project.EnumAssigneeRole.Contributor,
-            assignee2InDb.Role);
+        Assert.Equal(EnumAssigneeRole.Contributor, updatedAssignee1.Role);
+        Assert.Equal(EnumAssigneeRole.Contributor, assignee2InDb.Role);
     }
 
     [Fact]
@@ -188,29 +149,21 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             Id = assigneeId,
             TaskId = taskId,
             UserId = userId,
-            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+            Role = EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-10)
         };
 
         this.db.ProjectTaskAssignees.Add(assignee);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProjectTaskAssigneeCommand(
-            assigneeId,
-            taskId,
-            userId,
-            "Owner",
-            DateTime.UtcNow);
+        var command = new UpdateProjectTaskAssigneeCommand(assigneeId, taskId, userId, "Owner", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command,
-            CancellationToken.None);
+        var result = await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(assigneeId,
-            result.Id);
-        Assert.Equal("Owner",
-            result.Role);
+        Assert.Equal(assigneeId, result.Id);
+        Assert.Equal("Owner", result.Role);
     }
 }

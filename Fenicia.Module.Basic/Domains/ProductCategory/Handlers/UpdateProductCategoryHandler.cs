@@ -6,12 +6,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 
+/// <summary>
+///     Handler responsible for updating an existing product category.
+/// </summary>
 public class UpdateProductCategoryHandler(DefaultContext db)
 {
+    /// <summary>
+    ///     Updates a product category.
+    /// </summary>
+    /// <param name="command">The command containing updated category details.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The updated category details if found, otherwise null.</returns>
     public async Task<UpdateProductCategoryResponse?> Handle(UpdateProductCategoryCommand command, CancellationToken ct)
     {
-        var category = await db.BasicProductCategories.FirstOrDefaultAsync(c => c.Id == command.Id,
-            ct);
+        var category = await db.BasicProductCategories.FirstOrDefaultAsync(c => c.Id == command.Id, ct);
 
         if (category is null)
         {
@@ -24,7 +32,6 @@ public class UpdateProductCategoryHandler(DefaultContext db)
 
         await db.SaveChangesAsync(ct);
 
-        return new UpdateProductCategoryResponse(category.Id,
-            category.Name);
+        return new UpdateProductCategoryResponse(category.Id, category.Name);
     }
 }

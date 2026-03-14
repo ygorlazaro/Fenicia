@@ -1,3 +1,10 @@
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 
-public record GetProductCategoryByIdQuery(Guid Id);
+/// <summary>
+///     Query record for retrieving a product category by its ID.
+/// </summary>
+public record GetProductCategoryByIdQuery(
+    /// <summary>
+    /// Unique identifier of the category.
+    /// </summary>
+    Guid Id);

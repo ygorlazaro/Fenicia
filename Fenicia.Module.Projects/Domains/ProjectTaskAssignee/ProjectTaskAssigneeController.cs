@@ -17,27 +17,16 @@ namespace Fenicia.Module.Projects.Domains.ProjectTaskAssignee;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectTaskAssigneeController(
-    GetAllProjectTaskAssigneeHandler getAllProjectTaskAssigneeHandler,
-    GetProjectTaskAssigneeByIdHandler getProjectTaskAssigneeByIdHandler,
-    AddProjectTaskAssigneeHandler addProjectTaskAssigneeHandler,
-    UpdateProjectTaskAssigneeHandler updateProjectTaskAssigneeHandler,
-    DeleteProjectTaskAssigneeHandler deleteProjectTaskAssigneeHandler) : ControllerBase
+public class ProjectTaskAssigneeController(GetAllProjectTaskAssigneeHandler getAllProjectTaskAssigneeHandler, GetProjectTaskAssigneeByIdHandler getProjectTaskAssigneeByIdHandler, AddProjectTaskAssigneeHandler addProjectTaskAssigneeHandler, UpdateProjectTaskAssigneeHandler updateProjectTaskAssigneeHandler, DeleteProjectTaskAssigneeHandler deleteProjectTaskAssigneeHandler) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectTaskAssigneeResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectTaskAssigneeResponse>>> GetAsync(
-        WideEventContext wide,
-        [FromQuery] int page = 1, 
-        [FromQuery] int perPage = 10,
-        CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllProjectTaskAssigneeResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var assignees = await getAllProjectTaskAssigneeHandler.Handle(new GetAllProjectTaskAssigneeQuery(page,
-                perPage),
-            ct);
+
+        var assignees = await getAllProjectTaskAssigneeHandler.Handle(new GetAllProjectTaskAssigneeQuery(page, perPage), ct);
 
         return Ok(assignees);
     }
@@ -46,15 +35,11 @@ public class ProjectTaskAssigneeController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProjectTaskAssigneeByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectTaskAssigneeByIdResponse>> GetByIdAsync(
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<GetProjectTaskAssigneeByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var assignee = await getProjectTaskAssigneeByIdHandler.Handle(new GetProjectTaskAssigneeByIdQuery(id),
-            ct);
+
+        var assignee = await getProjectTaskAssigneeByIdHandler.Handle(new GetProjectTaskAssigneeByIdQuery(id), ct);
 
         return assignee is null ? NotFound() : Ok(assignee);
     }
@@ -66,18 +51,13 @@ public class ProjectTaskAssigneeController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectTaskAssigneeResponse>> PostAsync(
-        [FromBody] AddProjectTaskAssigneeCommand command,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<AddProjectTaskAssigneeResponse>> PostAsync([FromBody] AddProjectTaskAssigneeCommand command, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var assignee = await addProjectTaskAssigneeHandler.Handle(command,
-            ct);
 
-        return new CreatedResult(string.Empty,
-            assignee);
+        var assignee = await addProjectTaskAssigneeHandler.Handle(command, ct);
+
+        return new CreatedResult(string.Empty, assignee);
     }
 
     [HttpPatch("{id:guid}")]
@@ -88,19 +68,11 @@ public class ProjectTaskAssigneeController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProjectTaskAssigneeResponse>> PatchAsync(
-        [FromBody] UpdateProjectTaskAssigneeCommand command,
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<UpdateProjectTaskAssigneeResponse>> PatchAsync([FromBody] UpdateProjectTaskAssigneeCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var assignee = await updateProjectTaskAssigneeHandler.Handle(command with
-            {
-                Id = id
-            },
-            ct);
+
+        var assignee = await updateProjectTaskAssigneeHandler.Handle(command with { Id = id }, ct);
 
         return assignee is null ? NotFound() : Ok(assignee);
     }
@@ -110,15 +82,11 @@ public class ProjectTaskAssigneeController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync(
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        await deleteProjectTaskAssigneeHandler.Handle(new DeleteProjectTaskAssigneeCommand(id),
-            ct);
+
+        await deleteProjectTaskAssigneeHandler.Handle(new DeleteProjectTaskAssigneeCommand(id), ct);
 
         return NoContent();
     }

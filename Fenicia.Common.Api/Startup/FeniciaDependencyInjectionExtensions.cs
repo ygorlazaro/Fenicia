@@ -13,8 +13,7 @@ public static class FeniciaDependencyInjectionExtensions
     {
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
-            var config = ConfigurationOptions.Parse("localhost",
-                true);
+            var config = ConfigurationOptions.Parse("localhost", true);
 
             config.ConnectRetry = 3;
             config.ConnectTimeout = 5000;
@@ -33,17 +32,14 @@ public static class FeniciaDependencyInjectionExtensions
     }
 
     /// <summary>
-    /// Registers all public non-abstract classes ending with "Handler" from the entry assembly as Transient.
-    /// Call this after registering all dependencies to ensure handler dependencies are resolved.
+    ///     Registers all public non-abstract classes ending with "Handler" from the entry assembly as Transient.
+    ///     Call this after registering all dependencies to ensure handler dependencies are resolved.
     /// </summary>
     private static void RegisterAllHandlers(this IServiceCollection services)
     {
         var assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Could not determine the entry assembly for handler registration.");
 
-        var handlerTypes = assembly.GetTypes()
-            .Where(t => t is { IsClass: true, IsAbstract: false, IsPublic: true }
-                        && t.Name.EndsWith("Handler",
-                            StringComparison.Ordinal));
+        var handlerTypes = assembly.GetTypes().Where(t => t is { IsClass: true, IsAbstract: false, IsPublic: true } && (t.Name.EndsWith("Handler", StringComparison.Ordinal) || t.Name.EndsWith("Service", StringComparison.Ordinal)));
 
         foreach (var handlerType in handlerTypes)
         {

@@ -8,17 +8,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 
+/// <summary>
+///     Handler responsible for creating new orders.
+///     Creates order with details and manages inventory through stock movements.
+/// </summary>
+/// <remarks>
+///     This handler:
+///     1. Creates order with all details
+///     2. Creates stock movement records for each item (type: Out)
+///     3. Decreases product quantities in inventory
+///     Related documentation:
+///     - See <see cref="Fenicia.Module.Basic.Domains.Stock.StockMovementHandler" /> for stock management
+/// </remarks>
 public class CreateOrderHandler(DefaultContext db)
 {
+    /// <summary>
+    ///     Creates a new order with details and updates inventory.
+    /// </summary>
+    /// <param name="command">The order creation command.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The created order response.</returns>
     public async Task<CreateOrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)
     {
-        var details = command.Details.Select(d => new OrderDetailModel
-        {
-            Id = Guid.NewGuid(),
-            ProductId = d.ProductId,
-            Price = d.Price,
-            Quantity = d.Quantity
-        }).ToList();
+        var details = command.Details.Select(d => new OrderDetailModel { Id = Guid.NewGuid(), ProductId = d.ProductId, Price = d.Price, Quantity = d.Quantity }).ToList();
 
         var order = new OrderModel
         {
@@ -52,8 +64,7 @@ public class CreateOrderHandler(DefaultContext db)
 
             db.BasicStockMovements.Add(stockMovement);
 
-            var product = await db.BasicProducts.FirstOrDefaultAsync(p => p.Id == detail.ProductId,
-                ct);
+            var product = await db.BasicProducts.FirstOrDefaultAsync(p => p.Id == detail.ProductId, ct);
 
             if (product is null)
             {
@@ -66,12 +77,6 @@ public class CreateOrderHandler(DefaultContext db)
 
         await db.SaveChangesAsync(ct);
 
-        return new CreateOrderResponse(order.Id,
-            order.UserId,
-            order.CustomerId,
-            order.TotalAmount,
-            order.SaleDate,
-            order.Status,
-            order.EmployeeId);
+        return new CreateOrderResponse(order.Id, order.UserId, order.CustomerId, order.TotalAmount, order.SaleDate, order.Status, order.EmployeeId);
     }
 }

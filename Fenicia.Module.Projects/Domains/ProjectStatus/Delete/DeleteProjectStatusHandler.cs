@@ -8,8 +8,7 @@ public class DeleteProjectStatusHandler(DefaultContext context)
 {
     public async Task Handle(DeleteProjectStatusCommand command, CancellationToken ct)
     {
-        var status = await context.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == command.Id,
-            ct);
+        var status = await context.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
         if (status is null)
         {

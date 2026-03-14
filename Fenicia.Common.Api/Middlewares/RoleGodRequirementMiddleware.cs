@@ -23,8 +23,7 @@ public class RoleGodRequirementMiddleware(RequestDelegate next)
             var roles = JsonSerializer.Deserialize<List<string>>(roleClaim.Value);
             const string requiredRole = "Admin";
 
-            if (roles is null || !roles.Contains(requiredRole,
-                    StringComparer.OrdinalIgnoreCase))
+            if (roles is null || !roles.Contains(requiredRole, StringComparer.OrdinalIgnoreCase))
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsync($"Access to role'{requiredRole}' is forbidden.");
