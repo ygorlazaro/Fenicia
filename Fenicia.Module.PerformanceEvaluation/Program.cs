@@ -21,28 +21,22 @@ public class Program
         {
             var tenantId = tenantArg.Split("=")[1];
 
-            Environment.SetEnvironmentVariable("TENANT_ID",
-                tenantId);
+            Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
         }
 
         var configBuilder = new ConfigurationManager();
-        var commonApiSettingsPath =
-            Path.Combine(Directory.GetCurrentDirectory(),
-                "../Fenicia.Common.Api/appsettings.json");
+        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
         if (!File.Exists(commonApiSettingsPath))
         {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
 
-        configBuilder.AddJsonFile(commonApiSettingsPath,
-            false,
-            true);
+        configBuilder.AddJsonFile(commonApiSettingsPath, false, true);
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configBuilder);
 
-        var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"]
-                                          ?? throw new InvalidOperationException("JWT secret key not found in configuration"));
+        var key = Encoding.ASCII.GetBytes(configBuilder["Jwt:Secret"] ?? throw new InvalidOperationException("JWT secret key not found in configuration"));
 
         builder.Services.AddSingleton<ICompanyContext, CompanyContext>();
         builder.Services.AddHttpContextAccessor();
@@ -87,20 +81,13 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            app.MapScalarApiReference(o =>
-            {
-                o.Authentication = new ScalarAuthenticationOptions
-                {
-                    PreferredSecuritySchemes = ["Bearer "]
-                };
-            });
+            app.MapScalarApiReference(o => { o.Authentication = new ScalarAuthenticationOptions { PreferredSecuritySchemes = ["Bearer "] }; });
         }
 
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseWhen(o => o.Request.Path.StartsWithSegments("/performanceevaluation"),
-            appBuilder => appBuilder.UseModuleRequirement("performanceevaluation"));
+        app.UseWhen(o => o.Request.Path.StartsWithSegments("/performanceevaluation"), appBuilder => appBuilder.UseModuleRequirement("performanceevaluation"));
 
         app.MapControllers();
 

@@ -14,23 +14,22 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class UpdateUserHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+
+    private readonly UpdateUserHandler handler;
+    private readonly UserModel testUser;
+
     public UpdateUserHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new UpdateUserHandler(this.db);
         this.faker = new Faker();
 
         // Create test user
-        this.testUser = new UserModel
-        {
-            Email = this.faker.Internet.Email(),
-            Password = this.faker.Internet.Password().Hash(),
-            Name = this.faker.Person.FullName
-        };
+        this.testUser = new UserModel { Email = this.faker.Internet.Email(), Password = this.faker.Internet.Password().Hash(), Name = this.faker.Person.FullName };
 
         this.db.AuthUsers.Add(this.testUser);
         this.db.SaveChanges();
@@ -42,33 +41,24 @@ public class UpdateUserHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private readonly UpdateUserHandler handler;
-    private readonly DefaultContext db;
-    private readonly Faker faker;
-    private readonly UserModel testUser;
-
     [Fact]
     public async Task Handle_WhenValidRequest_UpdatesUserNameSuccessfully()
     {
         // Arrange
         var newName = this.faker.Person.FullName;
-        var request = new UpdateUserCommand(this.testUser.Id,
-            Name: newName);
+        var request = new UpdateUserCommand(this.testUser.Id, newName);
 
         // Act
-        var result = await this.handler.Handle(request,
-            CancellationToken.None);
+        var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(newName,
-            result.Name);
+        Assert.Equal(newName, result.Name);
 
         // Verify user was updated in database
         var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(updatedUser);
-        Assert.Equal(newName,
-            updatedUser.Name);
+        Assert.Equal(newName, updatedUser.Name);
     }
 
     [Fact]
@@ -76,23 +66,19 @@ public class UpdateUserHandlerTests : IDisposable
     {
         // Arrange
         var newEmail = this.faker.Internet.Email();
-        var request = new UpdateUserCommand(this.testUser.Id,
-            Email: newEmail);
+        var request = new UpdateUserCommand(this.testUser.Id, Email: newEmail);
 
         // Act
-        var result = await this.handler.Handle(request,
-            CancellationToken.None);
+        var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(newEmail,
-            result.Email);
+        Assert.Equal(newEmail, result.Email);
 
         // Verify user was updated in database
         var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
         Assert.NotNull(updatedUser);
-        Assert.Equal(newEmail,
-            updatedUser.Email);
+        Assert.Equal(newEmail, updatedUser.Email);
     }
 
     [Fact]
@@ -100,16 +86,12 @@ public class UpdateUserHandlerTests : IDisposable
     {
         // Arrange
         var nonExistentUserId = Guid.NewGuid();
-        var request = new UpdateUserCommand(nonExistentUserId,
-            Name: "Test");
+        var request = new UpdateUserCommand(nonExistentUserId, "Test");
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.Equal("User not found",
-            exception.Message);
+        Assert.Equal("User not found", exception.Message);
     }
 
     [Fact]
@@ -119,26 +101,17 @@ public class UpdateUserHandlerTests : IDisposable
         var existingEmail = this.faker.Internet.Email();
 
         // Create another user with the email
-        var anotherUser = new UserModel
-        {
-            Email = existingEmail,
-            Password = this.faker.Internet.Password().Hash(),
-            Name = this.faker.Person.FullName
-        };
+        var anotherUser = new UserModel { Email = existingEmail, Password = this.faker.Internet.Password().Hash(), Name = this.faker.Person.FullName };
 
         this.db.AuthUsers.Add(anotherUser);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateUserCommand(this.testUser.Id,
-            Email: existingEmail);
+        var request = new UpdateUserCommand(this.testUser.Id, Email: existingEmail);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.Equal("This email already exists",
-            exception.Message);
+        Assert.Equal("This email already exists", exception.Message);
     }
 
     [Fact]
@@ -151,49 +124,35 @@ public class UpdateUserHandlerTests : IDisposable
 
         var companiesRoles = new List<UpdateUserRoleCommand>
         {
-            new(Guid.NewGuid(),
-                role.Id) // Non-existent company
+            new(Guid.NewGuid(), role.Id) // Non-existent company
         };
 
-        var request = new UpdateUserCommand(this.testUser.Id,
-            CompaniesRoles: companiesRoles);
+        var request = new UpdateUserCommand(this.testUser.Id, CompaniesRoles: companiesRoles);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.Contains("not found",
-            exception.Message);
+        Assert.Contains("not found", exception.Message);
     }
 
     [Fact]
     public async Task Handle_WhenRoleNotFound_ThrowsArgumentException()
     {
         // Arrange
-        var company = new CompanyModel
-        {
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = string.Empty
-        };
+        var company = new CompanyModel { Name = this.faker.Company.CompanyName(), Cnpj = string.Empty };
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<UpdateUserRoleCommand>
         {
-            new(company.Id,
-                Guid.NewGuid()) // Non-existent role
+            new(company.Id, Guid.NewGuid()) // Non-existent role
         };
 
-        var request = new UpdateUserCommand(this.testUser.Id,
-            CompaniesRoles: companiesRoles);
+        var request = new UpdateUserCommand(this.testUser.Id, CompaniesRoles: companiesRoles);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.Contains("not found",
-            exception.Message);
+        Assert.Contains("not found", exception.Message);
     }
 }

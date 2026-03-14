@@ -10,24 +10,21 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fenicia.Auth.Domains.ForgotPassword;
 
 /// <summary>
-/// Controller responsible for handling forgot password-related HTTP endpoints.
-/// Provides endpoints to initiate password reset and complete password reset.
+///     Controller responsible for handling forgot password-related HTTP endpoints.
+///     Provides endpoints to initiate password reset and complete password reset.
 /// </summary>
 /// <remarks>
-/// These endpoints are publicly accessible (AllowAnonymous) to allow users to recover their accounts.
+///     These endpoints are publicly accessible (AllowAnonymous) to allow users to recover their accounts.
 /// </remarks>
 [ApiController]
 [AllowAnonymous]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ForgotPasswordController(
-    AddForgotPasswordHandler addForgotPasswordHandler,
-    ResetPasswordHandler resetPasswordHandler
-    ) : ControllerBase
+public class ForgotPasswordController(AddForgotPasswordHandler addForgotPasswordHandler, ResetPasswordHandler resetPasswordHandler) : ControllerBase
 {
     /// <summary>
-    /// Initiates the forgot password process by generating a reset code for the user.
+    ///     Initiates the forgot password process by generating a reset code for the user.
     /// </summary>
     /// <param name="reset">The command containing the user's email address.</param>
     /// <param name="wide">Wide event context for request tracking.</param>
@@ -38,10 +35,7 @@ public class ForgotPasswordController(
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ForgotPassword(
-        [FromBody] AddForgotPasswordCommand reset,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<IActionResult> ForgotPassword([FromBody] AddForgotPasswordCommand reset, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = reset.Email;
 
@@ -51,7 +45,7 @@ public class ForgotPasswordController(
     }
 
     /// <summary>
-    /// Completes the password reset process using the provided code.
+    ///     Completes the password reset process using the provided code.
     /// </summary>
     /// <param name="request">The command containing email, new password, and reset code.</param>
     /// <param name="wide">Wide event context for request tracking.</param>
@@ -62,10 +56,7 @@ public class ForgotPasswordController(
     [HttpPost("reset")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ResetPassword(
-        [FromBody] ResetPasswordCommand request,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand request, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = request.Email;
 

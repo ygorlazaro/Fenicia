@@ -1,5 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Enums.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.Delete;
 
@@ -9,27 +10,24 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;
 
 public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly DeleteProjectTaskAssigneeHandler handler;
+
     public DeleteProjectTaskAssigneeHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new DeleteProjectTaskAssigneeHandler(this.db);
     }
 
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly DeleteProjectTaskAssigneeHandler handler;
 
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeExists_SetsDeletedDate()
@@ -43,7 +41,7 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
             Id = assigneeId,
             TaskId = taskId,
             UserId = userId,
-            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
+            Role = EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
@@ -54,19 +52,13 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
         var beforeDelete = DateTime.UtcNow;
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([
-                assigneeId
-            ],
-            CancellationToken.None);
+        var deletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([assigneeId], CancellationToken.None);
         Assert.NotNull(deletedAssignee);
         Assert.NotNull(deletedAssignee.Deleted);
-        Assert.InRange(deletedAssignee.Deleted.Value,
-            beforeDelete.AddSeconds(-1),
-            DateTime.UtcNow.AddSeconds(1));
+        Assert.InRange(deletedAssignee.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
     }
 
     [Fact]
@@ -76,8 +68,7 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
         var command = new DeleteProjectTaskAssigneeCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         var assignees = await this.db.ProjectTaskAssignees.ToListAsync();
@@ -91,8 +82,7 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
         var command = new DeleteProjectTaskAssigneeCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
         var assignees = await this.db.ProjectTaskAssignees.ToListAsync();
@@ -114,7 +104,7 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
             Id = assignee1Id,
             TaskId = taskId,
             UserId = userId1,
-            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
+            Role = EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
@@ -123,29 +113,21 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
             Id = assignee2Id,
             TaskId = taskId,
             UserId = userId2,
-            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+            Role = EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1,
-            assignee2);
+        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskAssigneeCommand(assignee1Id);
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([
-                assignee1Id
-            ],
-            CancellationToken.None);
-        var notDeletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([
-                assignee2Id
-            ],
-            CancellationToken.None);
+        var deletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
+        var notDeletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
 
         Assert.NotNull(deletedAssignee);
         Assert.NotNull(deletedAssignee.Deleted);
@@ -170,7 +152,7 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
             Id = assignee1Id,
             TaskId = taskId,
             UserId = userId1,
-            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
+            Role = EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
@@ -179,7 +161,7 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
             Id = assignee2Id,
             TaskId = taskId,
             UserId = userId2,
-            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+            Role = EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
@@ -188,34 +170,22 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
             Id = assignee3Id,
             TaskId = taskId,
             UserId = userId3,
-            Role = Common.Enums.Project.EnumAssigneeRole.Reviewer,
+            Role = EnumAssigneeRole.Reviewer,
             AssignedAt = DateTime.UtcNow.AddDays(-1)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1,
-            assignee2,
-            assignee3);
+        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2, assignee3);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskAssigneeCommand(assignee2Id);
 
         // Act
-        await this.handler.Handle(command,
-            CancellationToken.None);
+        await this.handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var assignee1InDb = await this.db.ProjectTaskAssignees.FindAsync([
-                assignee1Id
-            ],
-            CancellationToken.None);
-        var deletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([
-                assignee2Id
-            ],
-            CancellationToken.None);
-        var assignee3InDb = await this.db.ProjectTaskAssignees.FindAsync([
-                assignee3Id
-            ],
-            CancellationToken.None);
+        var assignee1InDb = await this.db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
+        var deletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
+        var assignee3InDb = await this.db.ProjectTaskAssignees.FindAsync([assignee3Id], CancellationToken.None);
 
         Assert.NotNull(assignee1InDb);
         Assert.NotNull(deletedAssignee);

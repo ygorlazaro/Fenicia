@@ -13,16 +13,18 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Tests.Domains.Company;
 
 /// <summary>
-/// Unit tests for the UpdateCompanyHandler.
-/// Tests business logic for updating company information including authorization, validation, and data integrity.
+///     Unit tests for the UpdateCompanyHandler.
+///     Tests business logic for updating company information including authorization, validation, and data integrity.
 /// </summary>
 public class UpdateCompanyHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly UpdateCompanyHandler handler;
+
     public UpdateCompanyHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new UpdateCompanyHandler(this.db);
@@ -36,12 +38,8 @@ public class UpdateCompanyHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext db;
-    private readonly UpdateCompanyHandler handler;
-    private readonly Faker faker;
-
     /// <summary>
-    /// Tests that an Admin user can successfully update a company's name.
+    ///     Tests that an Admin user can successfully update a company's name.
     /// </summary>
     [Fact]
     public async Task Handle_WhenUserIsAdmin_CompanyIsUpdatedSuccessfully()
@@ -51,35 +49,13 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Admin"
-        };
+        var role = new RoleModel { Id = roleId, Name = "Admin" };
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Name.FullName(),
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Name.FullName(), Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
@@ -100,7 +76,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that updating a non-existent company throws ItemNotExistsException.
+    ///     Tests that updating a non-existent company throws ItemNotExistsException.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCompanyDoesNotExist_ThrowsItemNotExistsException()
@@ -110,19 +86,12 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var nonExistentCompanyId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateCompanyCommand(nonExistentCompanyId, userId, "Updated Name"
-        );
+        var command = new UpdateCompanyCommand(nonExistentCompanyId, userId, "Updated Name");
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.handler.Handle(command, CancellationToken.None));
@@ -130,7 +99,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that updating an inactive company throws ItemNotExistsException.
+    ///     Tests that updating an inactive company throws ItemNotExistsException.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCompanyIsInactive_ThrowsItemNotExistsException()
@@ -140,35 +109,13 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = false
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = false };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Admin"
-        };
+        var role = new RoleModel { Id = roleId, Name = "Admin" };
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FirstName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FirstName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
@@ -183,7 +130,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that a non-Admin user cannot update a company.
+    ///     Tests that a non-Admin user cannot update a company.
     /// </summary>
     [Fact]
     public async Task Handle_WhenUserIsNotAdmin_ThrowsPermissionDeniedException()
@@ -193,35 +140,13 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "User"
-        };
+        var role = new RoleModel { Id = roleId, Name = "User" };
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
@@ -237,7 +162,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that a user without any role in the company cannot update it.
+    ///     Tests that a user without any role in the company cannot update it.
     /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasNoRoleInCompany_ThrowsPermissionDeniedException()
@@ -248,35 +173,13 @@ public class UpdateCompanyHandlerTests : IDisposable
         var otherUserId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Admin"
-        };
+        var role = new RoleModel { Id = roleId, Name = "Admin" };
 
-        var otherUser = new UserModel
-        {
-            Id = otherUserId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var otherUser = new UserModel { Id = otherUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = otherUserId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = otherUserId, RoleId = roleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
@@ -292,7 +195,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that a user with Admin role in one company cannot update a different company.
+    ///     Tests that a user with Admin role in one company cannot update a different company.
     /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasAdminRoleInDifferentCompany_ThrowsPermissionDeniedException()
@@ -303,43 +206,15 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId2 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company1 = new CompanyModel
-        {
-            Id = companyId1,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company1 = new CompanyModel { Id = companyId1, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var company2 = new CompanyModel
-        {
-            Id = companyId2,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company2 = new CompanyModel { Id = companyId2, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Admin"
-        };
+        var role = new RoleModel { Id = roleId, Name = "Admin" };
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            RoleId = roleId,
-            CompanyId = companyId1
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId1 };
 
         this.db.AuthCompanies.AddRange(company1, company2);
         this.db.AuthRoles.Add(role);
@@ -355,7 +230,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that a user with multiple roles including Admin can update the company.
+    ///     Tests that a user with multiple roles including Admin can update the company.
     /// </summary>
     [Fact]
     public async Task Handle_WhenUserHasMultipleRolesIncludingAdmin_CompanyIsUpdated()
@@ -366,51 +241,15 @@ public class UpdateCompanyHandlerTests : IDisposable
         var adminRoleId = Guid.NewGuid();
         var memberRoleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var adminRole = new RoleModel
-        {
-            Id = adminRoleId,
-            Name = "Admin"
-        };
+        var adminRole = new RoleModel { Id = adminRoleId, Name = "Admin" };
 
-        var memberRole = new RoleModel
-        {
-            Id = memberRoleId,
-            Name = "User"
-        };
+        var memberRole = new RoleModel { Id = memberRoleId, Name = "User" };
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRoles = new List<UserRoleModel>
-        {
-            new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = adminRoleId,
-                CompanyId = companyId
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = userId,
-                RoleId = memberRoleId,
-                CompanyId = companyId
-            }
-        };
+        var userRoles = new List<UserRoleModel> { new() { Id = Guid.NewGuid(), UserId = userId, RoleId = adminRoleId, CompanyId = companyId }, new() { Id = Guid.NewGuid(), UserId = userId, RoleId = memberRoleId, CompanyId = companyId } };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.AddRange(adminRole, memberRole);
@@ -430,7 +269,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that any Admin user can update a company when multiple Admins exist.
+    ///     Tests that any Admin user can update a company when multiple Admins exist.
     /// </summary>
     [Fact]
     public async Task Handle_WhenMultipleAdminsExist_AnyAdminCanUpdate()
@@ -441,53 +280,15 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Admin"
-        };
+        var role = new RoleModel { Id = roleId, Name = "Admin" };
 
-        var admin1 = new UserModel
-        {
-            Id = admin1Id,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var admin1 = new UserModel { Id = admin1Id, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var admin2 = new UserModel
-        {
-            Id = admin2Id,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var admin2 = new UserModel { Id = admin2Id, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRoles = new List<UserRoleModel>
-        {
-            new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = admin1Id,
-                RoleId = roleId,
-                CompanyId = companyId
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                UserId = admin2Id,
-                RoleId = roleId,
-                CompanyId = companyId
-            }
-        };
+        var userRoles = new List<UserRoleModel> { new() { Id = Guid.NewGuid(), UserId = admin1Id, RoleId = roleId, CompanyId = companyId }, new() { Id = Guid.NewGuid(), UserId = admin2Id, RoleId = roleId, CompanyId = companyId } };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
@@ -507,7 +308,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that a user without any role in the company cannot update it.
+    ///     Tests that a user without any role in the company cannot update it.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCompanyExistsButUserHasNoRoles_ThrowsPermissionDeniedException()
@@ -516,21 +317,9 @@ public class UpdateCompanyHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthUsers.Add(user);
@@ -544,7 +333,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the handler requires exact "Admin" role name for authorization.
+    ///     Tests that the handler requires exact "Admin" role name for authorization.
     /// </summary>
     [Fact]
     public async Task Handle_WhenRoleNameIsNotExactlyAdmin_ThrowsPermissionDeniedException()
@@ -554,35 +343,13 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Admin"
-        };
+        var role = new RoleModel { Id = roleId, Name = "Admin" };
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
@@ -598,7 +365,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that role name matching is case-sensitive (admin != Admin).
+    ///     Tests that role name matching is case-sensitive (admin != Admin).
     /// </summary>
     [Fact]
     public async Task Handle_WhenRoleNameIsAdminWithDifferentCase_ThrowsPermissionDeniedException()
@@ -608,35 +375,13 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "admin"
-        };
+        var role = new RoleModel { Id = roleId, Name = "admin" };
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
@@ -652,7 +397,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that updating a company preserves the IsActive flag and CNPJ.
+    ///     Tests that updating a company preserves the IsActive flag and CNPJ.
     /// </summary>
     [Fact]
     public async Task Handle_VerifiesCompanyIsActiveFlagIsPreserved()
@@ -662,35 +407,13 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel
-        {
-            Id = companyId,
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = this.faker.Company.Cnpj(),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
 
-        var role = new RoleModel
-        {
-            Id = roleId,
-            Name = "Admin"
-        };
+        var role = new RoleModel { Id = roleId, Name = "Admin" };
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = this.faker.Internet.Email(),
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var userRole = new UserRoleModel
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            RoleId = roleId,
-            CompanyId = companyId
-        };
+        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
@@ -711,7 +434,7 @@ public class UpdateCompanyHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that updating a company when no companies exist throws ItemNotExistsException.
+    ///     Tests that updating a company when no companies exist throws ItemNotExistsException.
     /// </summary>
     [Fact]
     public async Task Handle_WhenDatabaseIsEmpty_ThrowsItemNotExistsException()

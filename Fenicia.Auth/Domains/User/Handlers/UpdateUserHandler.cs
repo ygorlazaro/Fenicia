@@ -10,8 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.Handlers;
 
-public class UpdateUserHandler(
-    DefaultContext db)
+public class UpdateUserHandler(DefaultContext db)
 {
     public virtual async Task<UpdateUserResponse> Handle(UpdateUserCommand command, CancellationToken ct)
     {
@@ -25,8 +24,7 @@ public class UpdateUserHandler(
         await RelateRolesAsync(command, user, ct);
         await db.SaveChangesAsync(ct);
 
-        return new UpdateUserResponse(user.Id, user.Name, user.Email
-        );
+        return new UpdateUserResponse(user.Id, user.Name, user.Email);
     }
 
     private async Task ValidateCompanies(IEnumerable<Guid> companies, CancellationToken ct)
@@ -43,23 +41,15 @@ public class UpdateUserHandler(
 
         if (requestedRoles.Count == 0)
         {
-            var existing = await db.AuthUserRoles
-                .Where(x => x.UserId == user.Id)
-                .ToListAsync(ct);
+            var existing = await db.AuthUserRoles.Where(x => x.UserId == user.Id).ToListAsync(ct);
 
             db.AuthUserRoles.RemoveRange(existing);
             return;
         }
 
-        var requestedRoleIds = requestedRoles
-            .Select(r => r.RoleId)
-            .Distinct()
-            .ToList();
+        var requestedRoleIds = requestedRoles.Select(r => r.RoleId).Distinct().ToList();
 
-        var validRoleIds = await db.AuthRoles
-            .Where(r => requestedRoleIds.Contains(r.Id))
-            .Select(r => r.Id)
-            .ToListAsync(ct);
+        var validRoleIds = await db.AuthRoles.Where(r => requestedRoleIds.Contains(r.Id)).Select(r => r.Id).ToListAsync(ct);
 
         if (validRoleIds.Count != requestedRoleIds.Count)
         {
@@ -68,31 +58,15 @@ public class UpdateUserHandler(
             throw new InvalidRequestException($"Role(s) not found: {string.Join(", ", missingRoles)}");
         }
 
-        var requestedSet = requestedRoles
-            .Select(r => (r.CompanyId, r.RoleId))
-            .ToHashSet();
+        var requestedSet = requestedRoles.Select(r => (r.CompanyId, r.RoleId)).ToHashSet();
 
-        var existingRoles = await db.AuthUserRoles
-            .Where(x => x.UserId == user.Id)
-            .ToListAsync(ct);
+        var existingRoles = await db.AuthUserRoles.Where(x => x.UserId == user.Id).ToListAsync(ct);
 
-        var existingSet = existingRoles
-            .Select(r => (r.CompanyId, r.RoleId))
-            .ToHashSet();
+        var existingSet = existingRoles.Select(r => (r.CompanyId, r.RoleId)).ToHashSet();
 
-        var toRemove = existingRoles
-            .Where(r => !requestedSet.Contains((r.CompanyId, r.RoleId)))
-            .ToList();
+        var toRemove = existingRoles.Where(r => !requestedSet.Contains((r.CompanyId, r.RoleId))).ToList();
 
-        var toInsert = requestedRoles
-            .Where(r => !existingSet.Contains((r.CompanyId, r.RoleId)))
-            .Select(r => new UserRoleModel
-            {
-                UserId = user.Id,
-                CompanyId = r.CompanyId,
-                RoleId = r.RoleId
-            })
-            .ToList();
+        var toInsert = requestedRoles.Where(r => !existingSet.Contains((r.CompanyId, r.RoleId))).Select(r => new UserRoleModel { UserId = user.Id, CompanyId = r.CompanyId, RoleId = r.RoleId }).ToList();
 
         if (toRemove.Count > 0)
         {

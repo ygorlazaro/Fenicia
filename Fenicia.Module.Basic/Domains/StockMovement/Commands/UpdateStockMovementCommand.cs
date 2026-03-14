@@ -3,7 +3,7 @@ using Fenicia.Common.Enums.Basic;
 namespace Fenicia.Module.Basic.Domains.StockMovement.Commands;
 
 /// <summary>
-/// Command record for updating an existing stock movement.
+///     Command record for updating an existing stock movement.
 /// </summary>
 public record UpdateStockMovementCommand(
     /// <summary>

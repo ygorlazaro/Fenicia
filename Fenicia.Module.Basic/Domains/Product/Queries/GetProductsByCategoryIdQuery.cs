@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Product.Queries;
 
 /// <summary>
-/// Query record for retrieving products by category ID with pagination.
+///     Query record for retrieving products by category ID with pagination.
 /// </summary>
 public record GetProductsByCategoryIdQuery(
     /// <summary>

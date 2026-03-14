@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Responses;
 
 /// <summary>
-/// Response record for an updated product category.
+///     Response record for an updated product category.
 /// </summary>
 public record UpdateProductCategoryResponse(
     /// <summary>

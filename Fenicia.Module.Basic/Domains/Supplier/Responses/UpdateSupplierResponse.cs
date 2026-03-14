@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 /// <summary>
-/// Response record for an updated supplier.
+///     Response record for an updated supplier.
 /// </summary>
 public record UpdateSupplierResponse(
     /// <summary>

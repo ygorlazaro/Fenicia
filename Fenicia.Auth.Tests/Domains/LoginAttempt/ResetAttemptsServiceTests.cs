@@ -7,20 +7,24 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 
 /// <summary>
-/// Unit tests for the ResetAttemptsService.
-/// Tests resetting/removing login attempt counters from memory cache.
+///     Unit tests for the ResetAttemptsService.
+///     Tests resetting/removing login attempt counters from memory cache.
 /// </summary>
 /// <remarks>
-/// These tests verify the core functionality of resetting login attempt counters:
-/// - Removal of existing attempt counters
-/// - Safe handling when no attempts exist
-/// - Case-insensitive email handling
-/// - Proper exception handling for null/empty input
-/// - Isolation between different email addresses
-/// - Handling of multiple reset operations
+///     These tests verify the core functionality of resetting login attempt counters:
+///     - Removal of existing attempt counters
+///     - Safe handling when no attempts exist
+///     - Case-insensitive email handling
+///     - Proper exception handling for null/empty input
+///     - Isolation between different email addresses
+///     - Handling of multiple reset operations
 /// </remarks>
 public class ResetAttemptsHandlerTests : IDisposable
 {
+    private readonly MemoryCache cache;
+    private readonly Faker faker;
+    private readonly ResetAttemptsService handler;
+
     public ResetAttemptsHandlerTests()
     {
         this.cache = new MemoryCache(new MemoryCacheOptions());
@@ -28,12 +32,13 @@ public class ResetAttemptsHandlerTests : IDisposable
         this.faker = new Faker();
     }
 
-    private readonly MemoryCache cache;
-    private readonly Faker faker;
-    private readonly ResetAttemptsService handler;
+    public void Dispose()
+    {
+        this.cache.Dispose();
+    }
 
     /// <summary>
-    /// Tests that when attempts exist, they are removed from cache.
+    ///     Tests that when attempts exist, they are removed from cache.
     /// </summary>
     [Fact]
     public async Task Handle_WhenAttemptsExist_RemovesAttempts()
@@ -52,7 +57,7 @@ public class ResetAttemptsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when no attempts exist, the operation completes successfully without error.
+    ///     Tests that when no attempts exist, the operation completes successfully without error.
     /// </summary>
     [Fact]
     public async Task Handle_WhenNoAttemptsExist_CompletesSuccessfully()
@@ -68,7 +73,7 @@ public class ResetAttemptsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that uppercase email removes the correct lowercase cache entry.
+    ///     Tests that uppercase email removes the correct lowercase cache entry.
     /// </summary>
     [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_RemovesCorrectAttempts()
@@ -88,7 +93,7 @@ public class ResetAttemptsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that null email throws ArgumentNullException.
+    ///     Tests that null email throws ArgumentNullException.
     /// </summary>
     [Fact]
     public async Task Handle_WhenEmailIsNull_ThrowsArgumentNullException()
@@ -98,7 +103,7 @@ public class ResetAttemptsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that empty email removes the empty key entry.
+    ///     Tests that empty email removes the empty key entry.
     /// </summary>
     [Fact]
     public async Task Handle_WhenEmailIsEmpty_RemovesEmptyKey()
@@ -117,7 +122,7 @@ public class ResetAttemptsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that resetting one email does not affect other emails.
+    ///     Tests that resetting one email does not affect other emails.
     /// </summary>
     [Fact]
     public async Task Handle_WhenMultipleEmailsExist_RemovesOnlySpecifiedEmail()
@@ -140,7 +145,7 @@ public class ResetAttemptsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that high attempt counts are removed successfully.
+    ///     Tests that high attempt counts are removed successfully.
     /// </summary>
     [Fact]
     public async Task Handle_WhenHighAttemptCountExists_RemovesSuccessfully()
@@ -159,7 +164,7 @@ public class ResetAttemptsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that multiple resets for the same email complete without errors.
+    ///     Tests that multiple resets for the same email complete without errors.
     /// </summary>
     [Fact]
     public async Task Handle_MultipleResetsForSameEmail_CompletesSuccessfully()
@@ -173,10 +178,5 @@ public class ResetAttemptsHandlerTests : IDisposable
         await this.handler.Handle(email);
 
         // Assert - Should handle multiple resets without errors
-    }
-
-    public void Dispose()
-    {
-        this.cache.Dispose();
     }
 }

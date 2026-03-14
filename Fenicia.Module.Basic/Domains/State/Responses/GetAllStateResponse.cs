@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.State.Responses;
 
 /// <summary>
-/// Response record for a Brazilian state.
+///     Response record for a Brazilian state.
 /// </summary>
 public record GetAllStateResponse(
     /// <summary>

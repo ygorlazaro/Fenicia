@@ -12,23 +12,21 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fenicia.Auth.Domains.Configuration;
 
 /// <summary>
-/// Controller responsible for handling configuration-related HTTP endpoints.
-/// Provides endpoints to retrieve and update user/company configurations such as language and timezone.
+///     Controller responsible for handling configuration-related HTTP endpoints.
+///     Provides endpoints to retrieve and update user/company configurations such as language and timezone.
 /// </summary>
 /// <remarks>
-/// All endpoints require authentication. Configurations are scoped by user and optionally by company.
+///     All endpoints require authentication. Configurations are scoped by user and optionally by company.
 /// </remarks>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ConfigurationController(
-    GetConfigurationHandler getConfigurationHandler,
-    UpsertConfigurationHandler upsertConfigurationHandler) : ControllerBase
+public class ConfigurationController(GetConfigurationHandler getConfigurationHandler, UpsertConfigurationHandler upsertConfigurationHandler) : ControllerBase
 {
     /// <summary>
-    /// Retrieves configurations for the authenticated user, optionally filtered by company.
+    ///     Retrieves configurations for the authenticated user, optionally filtered by company.
     /// </summary>
     /// <param name="companyId">Optional company ID to filter configurations.</param>
     /// <param name="wide">Wide event context for request tracking.</param>
@@ -37,10 +35,7 @@ public class ConfigurationController(
     /// <response code="200">Returns the list of configurations successfully.</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync(
-        [FromQuery] Guid? companyId,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync([FromQuery] Guid? companyId, WideEventContext wide, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();
@@ -52,8 +47,8 @@ public class ConfigurationController(
     }
 
     /// <summary>
-    /// Creates or updates a configuration entry.
-    /// Uses upsert pattern: creates new if doesn't exist, updates existing otherwise.
+    ///     Creates or updates a configuration entry.
+    ///     Uses upsert pattern: creates new if doesn't exist, updates existing otherwise.
     /// </summary>
     /// <param name="id">The configuration ID (used for routing).</param>
     /// <param name="request">The upsert command containing configuration details.</param>
@@ -66,11 +61,7 @@ public class ConfigurationController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult> PatchAsync(
-        [FromRoute] Guid id,
-        [FromBody] UpsertConfigurationCommand request,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpsertConfigurationCommand request, WideEventContext wide, CancellationToken ct)
     {
         var userId = ClaimReader.UserId(this.User);
         wide.UserId = userId.ToString();

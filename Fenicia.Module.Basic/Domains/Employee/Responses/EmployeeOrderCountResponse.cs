@@ -1,8 +1,8 @@
 namespace Fenicia.Module.Basic.Domains.Employee.Responses;
 
 /// <summary>
-/// Response model for employee order count data.
-/// Contains order statistics for a specific employee.
+///     Response model for employee order count data.
+///     Contains order statistics for a specific employee.
 /// </summary>
 public record EmployeeOrderCountResponse(
     /// <summary>Employee ID.</summary>

@@ -12,16 +12,18 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Tests.Domains.ForgotPassword;
 
 /// <summary>
-/// Unit tests for the AddForgotPasswordHandler.
-/// Tests the forgot password initiation logic including code generation and user validation.
+///     Unit tests for the AddForgotPasswordHandler.
+///     Tests the forgot password initiation logic including code generation and user validation.
 /// </summary>
 public class AddForgotPasswordHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly AddForgotPasswordHandler handler;
+
     public AddForgotPasswordHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new AddForgotPasswordHandler(this.db);
@@ -34,12 +36,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext db;
-    private readonly AddForgotPasswordHandler handler;
-    private readonly Faker faker;
-
     /// <summary>
-    /// Tests that when an email exists, a forgot password code is created successfully.
+    ///     Tests that when an email exists, a forgot password code is created successfully.
     /// </summary>
     [Fact]
     public async Task Handle_WhenEmailExists_CreatesForgotPasswordCodeSuccessfully()
@@ -48,13 +46,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var email = this.faker.Internet.Email();
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -74,7 +66,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when an email does not exist, ItemNotExistsException is thrown.
+    ///     Tests that when an email does not exist, ItemNotExistsException is thrown.
     /// </summary>
     [Fact]
     public async Task Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
@@ -84,13 +76,12 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var command = new AddForgotPasswordCommand(email);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.handler.Handle(command, CancellationToken.None)
-        );
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.handler.Handle(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
     /// <summary>
-    /// Tests that email matching is case-sensitive (different case throws exception).
+    ///     Tests that email matching is case-sensitive (different case throws exception).
     /// </summary>
     [Fact]
     public async Task Handle_WhenEmailHasDifferentCase_ThrowsItemNotExistsException()
@@ -100,13 +91,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var email = this.faker.Internet.Email();
         var upperCaseEmail = email.ToUpper();
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -119,7 +104,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when multiple users exist, the code is created for the correct user.
+    ///     Tests that when multiple users exist, the code is created for the correct user.
     /// </summary>
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_CreatesCodeForCorrectUser()
@@ -130,21 +115,9 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var email1 = this.faker.Internet.Email();
         var email2 = this.faker.Internet.Email();
 
-        var user1 = new UserModel
-        {
-            Id = userId1,
-            Email = email1,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user1 = new UserModel { Id = userId1, Email = email1, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var user2 = new UserModel
-        {
-            Id = userId2,
-            Email = email2,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user2 = new UserModel { Id = userId2, Email = email2, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         this.db.AuthUsers.AddRange(user1, user2);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -165,7 +138,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that calling the handler multiple times creates multiple codes for the same user.
+    ///     Tests that calling the handler multiple times creates multiple codes for the same user.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCalledMultipleTimesForSameUser_CreatesMultipleCodes()
@@ -174,13 +147,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var email = this.faker.Internet.Email();
 
-        var user = new UserModel
-        {
-            Id = userId,
-            Email = email,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         this.db.AuthUsers.Add(user);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -199,7 +166,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when the database is empty, ItemNotExistsException is thrown.
+    ///     Tests that when the database is empty, ItemNotExistsException is thrown.
     /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
@@ -214,7 +181,7 @@ public class AddForgotPasswordHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that generated codes are unique across different users.
+    ///     Tests that generated codes are unique across different users.
     /// </summary>
     [Fact]
     public async Task Handle_VerifiesCodeIsUnique()
@@ -225,21 +192,9 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var email1 = this.faker.Internet.Email();
         var email2 = this.faker.Internet.Email();
 
-        var user1 = new UserModel
-        {
-            Id = userId1,
-            Email = email1,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user1 = new UserModel { Id = userId1, Email = email1, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
-        var user2 = new UserModel
-        {
-            Id = userId2,
-            Email = email2,
-            Name = this.faker.Person.FullName,
-            Password = this.faker.Internet.Password()
-        };
+        var user2 = new UserModel { Id = userId2, Email = email2, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
 
         this.db.AuthUsers.AddRange(user1, user2);
         await this.db.SaveChangesAsync(CancellationToken.None);

@@ -2,6 +2,7 @@ using Bogus;
 
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Enums.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.Project.GetById;
 
@@ -11,15 +12,16 @@ namespace Fenicia.Module.Projects.Tests.Domains.Project;
 
 public class GetProjectByIdHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly GetProjectByIdHandler handler;
+
     public GetProjectByIdHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetProjectByIdHandler(this.db);
         this.faker = new Faker();
     }
@@ -27,13 +29,9 @@ public class GetProjectByIdHandlerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly GetProjectByIdHandler handler;
-    private readonly Faker faker;
 
     [Fact]
     public async Task Handle_WhenProjectExists_ReturnsProjectResponse()
@@ -45,7 +43,7 @@ public class GetProjectByIdHandlerTests : IDisposable
             Id = projectId,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.EnumProjectStatus.Active,
+            Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
@@ -57,15 +55,12 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(projectId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(projectId,
-            result.Id);
-        Assert.Equal(project.Title,
-            result.Title);
+        Assert.Equal(projectId, result.Id);
+        Assert.Equal(project.Title, result.Title);
     }
 
     [Fact]
@@ -75,8 +70,7 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -89,8 +83,7 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -108,7 +101,7 @@ public class GetProjectByIdHandlerTests : IDisposable
             Id = project1Id,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.EnumProjectStatus.Active,
+            Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
@@ -119,28 +112,24 @@ public class GetProjectByIdHandlerTests : IDisposable
             Id = project2Id,
             Title = this.faker.Lorem.Sentence(5),
             Description = this.faker.Lorem.Paragraph(),
-            Status = Common.Enums.Project.EnumProjectStatus.Completed,
+            Status = EnumProjectStatus.Completed,
             StartDate = DateTime.UtcNow.AddDays(-10),
             EndDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.AddRange(project1,
-            project2);
+        this.db.Projects.AddRange(project1, project2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectByIdQuery(project1Id);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(project1Id,
-            result.Id);
-        Assert.Equal(project1.Title,
-            result.Title);
+        Assert.Equal(project1Id, result.Id);
+        Assert.Equal(project1.Title, result.Title);
     }
 
     [Fact]
@@ -153,7 +142,7 @@ public class GetProjectByIdHandlerTests : IDisposable
             Id = projectId,
             Title = this.faker.Lorem.Sentence(5),
             Description = null,
-            Status = Common.Enums.Project.EnumProjectStatus.Active,
+            Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
@@ -165,13 +154,11 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(projectId);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(projectId,
-            result.Id);
+        Assert.Equal(projectId, result.Id);
         Assert.Null(result.Description);
     }
 }

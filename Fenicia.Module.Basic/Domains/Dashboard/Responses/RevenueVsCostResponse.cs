@@ -1,8 +1,8 @@
 namespace Fenicia.Module.Basic.Domains.Dashboard.Responses;
 
 /// <summary>
-/// Response model for revenue vs cost analysis.
-/// Compares revenue, cost, and profit for a specific period.
+///     Response model for revenue vs cost analysis.
+///     Compares revenue, cost, and profit for a specific period.
 /// </summary>
 public record RevenueVsCostResponse(
     /// <summary>Period name (e.g., "2024 March 15").</summary>

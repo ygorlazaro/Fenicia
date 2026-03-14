@@ -11,26 +11,24 @@ using Fenicia.Common.Localization;
 namespace Fenicia.Auth.Domains.User.Handlers;
 
 /// <summary>
-/// Handler responsible for creating new users with company registration.
+///     Handler responsible for creating new users with company registration.
 /// </summary>
 /// <remarks>
-/// This handler processes user registration requests:
-/// 1. Validates email doesn't already exist
-/// 2. Validates company CNPJ doesn't already exist
-/// 3. Creates user with hashed password
-/// 4. Creates new company
-/// 5. Assigns Admin role to user for the company
-/// 
-/// The registering user becomes the company Admin, allowing them to:
-/// - Invite other users
-/// - Assign roles
-/// - Configure company settings
+///     This handler processes user registration requests:
+///     1. Validates email doesn't already exist
+///     2. Validates company CNPJ doesn't already exist
+///     3. Creates user with hashed password
+///     4. Creates new company
+///     5. Assigns Admin role to user for the company
+///     The registering user becomes the company Admin, allowing them to:
+///     - Invite other users
+///     - Assign roles
+///     - Configure company settings
 /// </remarks>
-public class CreateNewUserHandler(
-    DefaultContext db)
+public class CreateNewUserHandler(DefaultContext db)
 {
     /// <summary>
-    /// Creates a new user with company registration.
+    ///     Creates a new user with company registration.
     /// </summary>
     /// <param name="command">The create user command with user and company details.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -47,7 +45,7 @@ public class CreateNewUserHandler(
     }
 
     /// <summary>
-    /// Persists the user, company, and role assignment to the database.
+    ///     Persists the user, company, and role assignment to the database.
     /// </summary>
     private async Task<(UserModel userRequest, CompanyModel companyRequest)> PersistAsync(CreateNewUserCommand command, CancellationToken ct)
     {
@@ -66,30 +64,16 @@ public class CreateNewUserHandler(
         }
 
         var hashedPassword = command.Password.Hash();
-        var userRequest = new UserModel
-        {
-            Email = command.Email,
-            Password = hashedPassword,
-            Name = command.Name
-        };
+        var userRequest = new UserModel { Email = command.Email, Password = hashedPassword, Name = command.Name };
 
         db.AuthUsers.Add(userRequest);
 
-        var companyRequest = new CompanyModel
-        {
-            Name = command.Company.Name,
-            Cnpj = command.Company.Cnpj
-        };
+        var companyRequest = new CompanyModel { Name = command.Company.Name, Cnpj = command.Company.Cnpj };
 
         db.AuthCompanies.Add(companyRequest);
 
         var adminRole = await db.AuthRoles.GetRoleAsync("Admin", ct) ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
-        var userRole = new UserRoleModel
-        {
-            UserId = userRequest.Id,
-            Company = companyRequest,
-            RoleId = adminRole.Id
-        };
+        var userRole = new UserRoleModel { UserId = userRequest.Id, Company = companyRequest, RoleId = adminRole.Id };
 
         db.AuthUserRoles.Add(userRole);
 
@@ -98,7 +82,7 @@ public class CreateNewUserHandler(
     }
 
     /// <summary>
-    /// Validates that email and company CNPJ don't already exist.
+    ///     Validates that email and company CNPJ don't already exist.
     /// </summary>
     /// <exception cref="InvalidRequestException">Thrown when email or CNPJ already exists.</exception>
     private async Task ValidateAsync(CreateNewUserCommand request, CancellationToken ct)

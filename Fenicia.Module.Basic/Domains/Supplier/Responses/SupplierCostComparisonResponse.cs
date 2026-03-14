@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 /// <summary>
-/// Response record for cost comparison of products with multiple suppliers.
+///     Response record for cost comparison of products with multiple suppliers.
 /// </summary>
 public record SupplierCostComparisonResponse(
     /// <summary>

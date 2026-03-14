@@ -8,8 +8,7 @@ public class UpdateProjectSubtaskHandler(DefaultContext context)
 {
     public async Task<UpdateProjectSubtaskResponse?> Handle(UpdateProjectSubtaskCommand command, CancellationToken ct)
     {
-        var projectSubtask = await context.ProjectSubtasks.FirstOrDefaultAsync(ps => ps.Id == command.Id,
-            ct);
+        var projectSubtask = await context.ProjectSubtasks.FirstOrDefaultAsync(ps => ps.Id == command.Id, ct);
 
         if (projectSubtask is null)
         {
@@ -26,13 +25,6 @@ public class UpdateProjectSubtaskHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new UpdateProjectSubtaskResponse(
-            projectSubtask.Id,
-            projectSubtask.TaskId,
-            projectSubtask.Title,
-            projectSubtask.IsCompleted,
-            projectSubtask.Order,
-            projectSubtask.CompletedAt,
-            projectSubtask.CompanyId);
+        return new UpdateProjectSubtaskResponse(projectSubtask.Id, projectSubtask.TaskId, projectSubtask.Title, projectSubtask.IsCompleted, projectSubtask.Order, projectSubtask.CompletedAt, projectSubtask.CompanyId);
     }
 }

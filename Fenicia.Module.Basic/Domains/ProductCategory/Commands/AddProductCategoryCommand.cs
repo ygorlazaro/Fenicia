@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Commands;
 
 /// <summary>
-/// Command record for creating a new product category.
+///     Command record for creating a new product category.
 /// </summary>
 public record AddProductCategoryCommand(
     /// <summary>

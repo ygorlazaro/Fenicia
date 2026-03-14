@@ -12,16 +12,18 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Tests.Domains.Company;
 
 /// <summary>
-/// Unit tests for the CheckCompanyExistsHandler.
-/// Tests CNPJ uniqueness validation logic including active/inactive filtering and exact matching.
+///     Unit tests for the CheckCompanyExistsHandler.
+///     Tests CNPJ uniqueness validation logic including active/inactive filtering and exact matching.
 /// </summary>
 public class CheckCompanyExistsHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly CheckCompanyExistsHandler handler;
+
     public CheckCompanyExistsHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         this.db = new DefaultContext(options, new TestCompanyContext());
         this.handler = new CheckCompanyExistsHandler(this.db);
@@ -35,25 +37,15 @@ public class CheckCompanyExistsHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private readonly DefaultContext db;
-    private readonly CheckCompanyExistsHandler handler;
-    private readonly Faker faker;
-
     /// <summary>
-    /// Tests that a company with matching CNPJ returns true.
+    ///     Tests that a company with matching CNPJ returns true.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCompanyExistsWithMatchingCnpj_ReturnsTrue()
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = cnpj,
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = true };
 
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -68,7 +60,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that a non-existent CNPJ returns false.
+    ///     Tests that a non-existent CNPJ returns false.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCompanyDoesNotExist_ReturnsFalse()
@@ -85,20 +77,14 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that OnlyActive=true returns true for active companies.
+    ///     Tests that OnlyActive=true returns true for active companies.
     /// </summary>
     [Fact]
     public async Task Handle_WhenOnlyActiveIsTrueAndCompanyIsActive_ReturnsTrue()
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = cnpj,
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = true };
 
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -113,20 +99,14 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that OnlyActive=true returns false for inactive companies.
+    ///     Tests that OnlyActive=true returns false for inactive companies.
     /// </summary>
     [Fact]
     public async Task Handle_WhenOnlyActiveIsTrueAndCompanyIsInactive_ReturnsFalse()
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = cnpj,
-            IsActive = false
-        };
+        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = false };
 
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -141,20 +121,14 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that OnlyActive=false returns true for inactive companies.
+    ///     Tests that OnlyActive=false returns true for inactive companies.
     /// </summary>
     [Fact]
     public async Task Handle_WhenOnlyActiveIsFalseAndCompanyIsInactive_ReturnsTrue()
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = cnpj,
-            IsActive = false
-        };
+        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = false };
 
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -169,7 +143,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that only exact CNPJ matches are considered (partial matches return false).
+    ///     Tests that only exact CNPJ matches are considered (partial matches return false).
     /// </summary>
     [Fact]
     public async Task Handle_WhenMultipleCompaniesExist_OnlyMatchesExactCnpj()
@@ -178,21 +152,9 @@ public class CheckCompanyExistsHandlerTests : IDisposable
         var cnpj1 = this.faker.Company.Cnpj();
         var cnpj2 = this.faker.Company.Cnpj();
 
-        var company1 = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = cnpj1,
-            IsActive = true
-        };
+        var company1 = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj1, IsActive = true };
 
-        var company2 = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = cnpj2,
-            IsActive = true
-        };
+        var company2 = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj2, IsActive = true };
 
         this.db.AuthCompanies.AddRange(company1, company2);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -207,7 +169,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that active/inactive filtering works correctly with mixed companies.
+    ///     Tests that active/inactive filtering works correctly with mixed companies.
     /// </summary>
     [Fact]
     public async Task Handle_WhenMixedActiveAndInactiveCompanies_OnlyActiveFilterWorksCorrectly()
@@ -215,21 +177,9 @@ public class CheckCompanyExistsHandlerTests : IDisposable
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
 
-        var activeCompany = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = cnpj,
-            IsActive = true
-        };
+        var activeCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = true };
 
-        var inactiveCompany = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = cnpj,
-            IsActive = false
-        };
+        var inactiveCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = false };
 
         this.db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -247,7 +197,7 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that an empty database returns false for any CNPJ query.
+    ///     Tests that an empty database returns false for any CNPJ query.
     /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsFalse()
@@ -263,20 +213,14 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that CNPJ with special characters does not match a valid CNPJ.
+    ///     Tests that CNPJ with special characters does not match a valid CNPJ.
     /// </summary>
     [Fact]
     public async Task Handle_WhenCnpjContainsSpecialCharacters_NoMatch()
     {
         // Arrange
         var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = string.Concat(this.faker.Company.Cnpj(), "./"),
-            IsActive = true
-        };
+        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = string.Concat(this.faker.Company.Cnpj(), "./"), IsActive = true };
 
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);

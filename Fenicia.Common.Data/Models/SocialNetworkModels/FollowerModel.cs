@@ -18,8 +18,7 @@ public class FollowerModel : BaseCompanyModel
     public DateTime FollowDate { get; set; }
 
     [Required]
-    public bool IsActive { get; set; }
-        = true;
+    public bool IsActive { get; set; } = true;
 
     [ForeignKey(nameof(UserId))]
     public UserModel UserModel { get; set; } = null!;

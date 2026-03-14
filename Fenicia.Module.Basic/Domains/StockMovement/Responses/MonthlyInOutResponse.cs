@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.StockMovement.Responses;
 
 /// <summary>
-/// Response record for monthly stock in/out totals.
+///     Response record for monthly stock in/out totals.
 /// </summary>
 public record MonthlyInOutResponse(
     /// <summary>

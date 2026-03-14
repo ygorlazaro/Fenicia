@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Inventory.Responses;
 
 /// <summary>
-/// Response model for inventory breakdown by supplier.
+///     Response model for inventory breakdown by supplier.
 /// </summary>
 public record SupplierBreakdownResponse(
     /// <summary>Supplier ID.</summary>

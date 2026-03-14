@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Product.Queries;
 
 /// <summary>
-/// Query record for retrieving product performance metrics.
+///     Query record for retrieving product performance metrics.
 /// </summary>
 public record GetProductPerformanceQuery(
     /// <summary>

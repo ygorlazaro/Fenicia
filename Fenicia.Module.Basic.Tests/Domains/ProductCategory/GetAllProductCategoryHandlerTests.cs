@@ -10,20 +10,22 @@ namespace Fenicia.Module.Basic.Tests.Domains.ProductCategory;
 
 public class GetAllProductCategoryHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly GetAllProductCategoryHandler handler;
+
     public GetAllProductCategoryHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetAllProductCategoryHandler(this.db);
     }
 
-    private readonly DefaultContext db;
-    private readonly GetAllProductCategoryHandler handler;
+    public void Dispose()
+    {
+        this.db.Dispose();
+    }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
@@ -32,14 +34,12 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var query = new GetAllProductCategoryQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
-        Assert.Equal(0,
-            result.Total);
+        Assert.Equal(0, result.Total);
     }
 
     [Fact]
@@ -49,26 +49,20 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var category1 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
         var category2 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
 
-        this.db.BasicProductCategories.AddRange(category1,
-            category2);
+        this.db.BasicProductCategories.AddRange(category1, category2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2,
-            result.Data.Count);
-        Assert.Equal(2,
-            result.Total);
-        Assert.Contains(result.Data,
-            c => c.Id == category1.Id);
-        Assert.Contains(result.Data,
-            c => c.Id == category2.Id);
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(2, result.Total);
+        Assert.Contains(result.Data, c => c.Id == category1.Id);
+        Assert.Contains(result.Data, c => c.Id == category2.Id);
     }
 
     [Fact]
@@ -77,11 +71,7 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var category = new ProductCategoryModel
-            {
-                Id = Guid.NewGuid(),
-                Name = $"Category {i}"
-            };
+            var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = $"Category {i}" };
             this.db.BasicProductCategories.Add(category);
         }
 
@@ -90,15 +80,12 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var query = new GetAllProductCategoryQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Data.Count);
-        Assert.Equal(25,
-            result.Total);
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
     }
 
     [Fact]
@@ -107,11 +94,7 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var category = new ProductCategoryModel
-            {
-                Id = Guid.NewGuid(),
-                Name = $"Category {i}"
-            };
+            var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = $"Category {i}" };
             this.db.BasicProductCategories.Add(category);
         }
 
@@ -120,14 +103,12 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var query = new GetAllProductCategoryQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
-        Assert.Equal(5,
-            result.Total);
+        Assert.Equal(5, result.Total);
     }
 
     [Fact]
@@ -136,11 +117,7 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var category = new ProductCategoryModel
-            {
-                Id = Guid.NewGuid(),
-                Name = $"Category {i}"
-            };
+            var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = $"Category {i}" };
             this.db.BasicProductCategories.Add(category);
         }
 
@@ -149,19 +126,11 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var query = new GetAllProductCategoryQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Data.Count);
-        Assert.Equal(25,
-            result.Total);
-    }
-
-    public void Dispose()
-    {
-        this.db.Dispose();
+        Assert.Equal(10, result.Data.Count);
+        Assert.Equal(25, result.Total);
     }
 }

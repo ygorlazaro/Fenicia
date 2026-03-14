@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 /// <summary>
-/// Response record for a stock movement associated with a supplier.
+///     Response record for a stock movement associated with a supplier.
 /// </summary>
 public record SupplierStockMovementResponse(
     /// <summary>

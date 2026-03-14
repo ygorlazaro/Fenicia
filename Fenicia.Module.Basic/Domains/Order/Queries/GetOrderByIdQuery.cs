@@ -1,6 +1,6 @@
 namespace Fenicia.Module.Basic.Domains.Order.Queries;
 
 /// <summary>
-/// Query to retrieve a specific order by ID.
+///     Query to retrieve a specific order by ID.
 /// </summary>
 public record GetOrderByIdQuery(Guid Id);

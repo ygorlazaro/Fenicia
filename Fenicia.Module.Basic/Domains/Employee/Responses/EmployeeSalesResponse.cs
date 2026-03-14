@@ -1,8 +1,8 @@
 namespace Fenicia.Module.Basic.Domains.Employee.Responses;
 
 /// <summary>
-/// Response model for employee sales data.
-/// Contains sales metrics for a specific employee.
+///     Response model for employee sales data.
+///     Contains sales metrics for a specific employee.
 /// </summary>
 public record EmployeeSalesResponse(
     /// <summary>Employee ID.</summary>

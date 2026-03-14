@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Inventory.Responses;
 
 /// <summary>
-/// Response model for products with zero movement.
+///     Response model for products with zero movement.
 /// </summary>
 public record ZeroMovementProductResponse(
     /// <summary>Product ID.</summary>

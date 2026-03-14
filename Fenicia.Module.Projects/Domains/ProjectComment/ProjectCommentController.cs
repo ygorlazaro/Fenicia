@@ -17,27 +17,16 @@ namespace Fenicia.Module.Projects.Domains.ProjectComment;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProjectCommentController(
-    GetAllProjectCommentHandler getAllProjectCommentHandler,
-    GetProjectCommentByIdHandler getProjectCommentByIdHandler,
-    AddProjectCommentHandler addProjectCommentHandler,
-    UpdateProjectCommentHandler updateProjectCommentHandler,
-    DeleteProjectCommentHandler deleteProjectCommentHandler) : ControllerBase
+public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectCommentHandler, GetProjectCommentByIdHandler getProjectCommentByIdHandler, AddProjectCommentHandler addProjectCommentHandler, UpdateProjectCommentHandler updateProjectCommentHandler, DeleteProjectCommentHandler deleteProjectCommentHandler) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProjectCommentResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllProjectCommentResponse>>> GetAsync(
-        WideEventContext wide,
-        [FromQuery] int page = 1, 
-        [FromQuery] int perPage = 10,
-        CancellationToken ct = default)
+    public async Task<ActionResult<List<GetAllProjectCommentResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var projectComments = await getAllProjectCommentHandler.Handle(new GetAllProjectCommentQuery(page,
-                perPage),
-            ct);
+
+        var projectComments = await getAllProjectCommentHandler.Handle(new GetAllProjectCommentQuery(page, perPage), ct);
 
         return Ok(projectComments);
     }
@@ -46,15 +35,11 @@ public class ProjectCommentController(
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProjectCommentByIdResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetProjectCommentByIdResponse>> GetByIdAsync(
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<GetProjectCommentByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var projectComment = await getProjectCommentByIdHandler.Handle(new GetProjectCommentByIdQuery(id),
-            ct);
+
+        var projectComment = await getProjectCommentByIdHandler.Handle(new GetProjectCommentByIdQuery(id), ct);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }
@@ -66,18 +51,13 @@ public class ProjectCommentController(
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddProjectCommentResponse>> PostAsync(
-        [FromBody] AddProjectCommentCommand command,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<AddProjectCommentResponse>> PostAsync([FromBody] AddProjectCommentCommand command, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var projectComment = await addProjectCommentHandler.Handle(command,
-            ct);
 
-        return new CreatedResult(string.Empty,
-            projectComment);
+        var projectComment = await addProjectCommentHandler.Handle(command, ct);
+
+        return new CreatedResult(string.Empty, projectComment);
     }
 
     [HttpPatch("{id:guid}")]
@@ -88,19 +68,11 @@ public class ProjectCommentController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateProjectCommentResponse>> PatchAsync(
-        [FromBody] UpdateProjectCommentCommand command,
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<UpdateProjectCommentResponse>> PatchAsync([FromBody] UpdateProjectCommentCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var projectComment = await updateProjectCommentHandler.Handle(command with
-            {
-                Id = id
-            },
-            ct);
+
+        var projectComment = await updateProjectCommentHandler.Handle(command with { Id = id }, ct);
 
         return projectComment is null ? NotFound() : Ok(projectComment);
     }
@@ -110,15 +82,11 @@ public class ProjectCommentController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> DeleteAsync(
-        [FromRoute] Guid id,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        await deleteProjectCommentHandler.Handle(new DeleteProjectCommentCommand(id),
-            ct);
+
+        await deleteProjectCommentHandler.Handle(new DeleteProjectCommentCommand(id), ct);
 
         return NoContent();
     }

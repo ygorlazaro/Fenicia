@@ -3,7 +3,7 @@ using Fenicia.Common.Enums.Auth;
 namespace Fenicia.Auth.Domains.Configuration.Responses;
 
 /// <summary>
-/// Response model containing configuration information.
+///     Response model containing configuration information.
 /// </summary>
 public record GetConfigurationResponse(
     /// <summary>
@@ -25,5 +25,4 @@ public record GetConfigurationResponse(
     /// <summary>
     /// The configuration value.
     /// </summary>
-    string Value
-);
+    string Value);

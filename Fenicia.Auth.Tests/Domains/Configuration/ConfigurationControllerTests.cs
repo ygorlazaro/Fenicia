@@ -20,8 +20,8 @@ using Moq;
 namespace Fenicia.Auth.Tests.Domains.Configuration;
 
 /// <summary>
-/// Unit tests for the ConfigurationController.
-/// Tests HTTP endpoints behavior including retrieval, upsert operations, and request/response handling.
+///     Unit tests for the ConfigurationController.
+///     Tests HTTP endpoints behavior including retrieval, upsert operations, and request/response handling.
 /// </summary>
 public class ConfigurationControllerTests : IDisposable
 {
@@ -32,9 +32,7 @@ public class ConfigurationControllerTests : IDisposable
 
     public ConfigurationControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         this.db = new DefaultContext(options, new TestCompanyContext());
         this.testUserId = Guid.NewGuid();
@@ -42,13 +40,7 @@ public class ConfigurationControllerTests : IDisposable
         var upsertConfigurationHandler = new UpsertConfigurationHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ConfigurationController(getConfigurationHandler, upsertConfigurationHandler)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = this.mockHttpContext.Object
-            }
-        };
+        this.controller = new ConfigurationController(getConfigurationHandler, upsertConfigurationHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
 
         SetupUserClaims(this.testUserId);
     }
@@ -62,10 +54,7 @@ public class ConfigurationControllerTests : IDisposable
 
     private void SetupUserClaims(Guid userId)
     {
-        var claims = new List<Claim>
-        {
-            new("userId",                userId.ToString())
-        };
+        var claims = new List<Claim> { new("userId", userId.ToString()) };
 
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
@@ -75,7 +64,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when a user has no configurations, the endpoint returns an empty list.
+    ///     Tests that when a user has no configurations, the endpoint returns an empty list.
     /// </summary>
     [Fact]
     public async Task GetAsync_WhenUserHasNoConfigurations_ReturnsOkWithEmptyList()
@@ -101,7 +90,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when a user has configurations, the endpoint returns them in a list.
+    ///     Tests that when a user has configurations, the endpoint returns them in a list.
     /// </summary>
     [Fact]
     public async Task GetAsync_WhenUserHasConfigurations_ReturnsOkWithList()
@@ -150,7 +139,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that filtering by company ID returns only that company's configurations.
+    ///     Tests that filtering by company ID returns only that company's configurations.
     /// </summary>
     [Fact]
     public async Task GetAsync_WithCompanyIdFilter_ReturnsOnlyCompanyConfigurations()
@@ -203,7 +192,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the WideEventContext UserId is set from the authenticated user claims.
+    ///     Tests that the WideEventContext UserId is set from the authenticated user claims.
     /// </summary>
     [Fact]
     public async Task GetAsync_SetsWideEventContextUserId()
@@ -220,7 +209,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when a configuration doesn't exist, a new one is created.
+    ///     Tests that when a configuration doesn't exist, a new one is created.
     /// </summary>
     [Fact]
     public async Task PatchAsync_WhenConfigurationDoesNotExist_CreatesNewConfiguration()
@@ -229,13 +218,7 @@ public class ConfigurationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(
-            null,
-            this.testUserId,
-            ConfigType.Language,
-            "pt-BR",
-            this.db.CurrentCompanyId ?? Guid.Empty
-        );
+        var request = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "pt-BR", this.db.CurrentCompanyId ?? Guid.Empty);
 
         // Act
         var result = await this.controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
@@ -244,9 +227,7 @@ public class ConfigurationControllerTests : IDisposable
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
-        var configuration = await this.db.AuthConfigurations
-            .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language,
-                CancellationToken.None);
+        var configuration = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
 
         Assert.NotNull(configuration);
         Assert.Equal("pt-BR", configuration.Value);
@@ -254,7 +235,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that when a configuration exists, it is updated with the new value.
+    ///     Tests that when a configuration exists, it is updated with the new value.
     /// </summary>
     [Fact]
     public async Task PatchAsync_WhenConfigurationExists_UpdatesExistingConfiguration()
@@ -276,27 +257,16 @@ public class ConfigurationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(
-            null,
-            this.testUserId,
-            ConfigType.Language,
-            "pt-BR",
-            companyId
-        );
+        var request = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "pt-BR", companyId);
 
         // Act
-        var result = await this.controller.PatchAsync(
-            Guid.NewGuid(),
-            request,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
 
         // Assert
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
-        var updatedConfig = await this.db.AuthConfigurations
-            .FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
+        var updatedConfig = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language, CancellationToken.None);
 
         Assert.NotNull(updatedConfig);
         Assert.Equal("pt-BR", updatedConfig.Value);
@@ -304,7 +274,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that a company-scoped configuration can be created.
+    ///     Tests that a company-scoped configuration can be created.
     /// </summary>
     [Fact]
     public async Task PatchAsync_WithCompanyId_CreatesCompanyConfiguration()
@@ -314,28 +284,16 @@ public class ConfigurationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(
-            null,
-            this.testUserId,
-            ConfigType.Language,
-            "pt-BR",
-            companyId
-        );
+        var request = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "pt-BR", companyId);
 
         // Act
-        var result = await this.controller.PatchAsync(
-            Guid.NewGuid(),
-            request,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
 
         // Assert
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
-        var configuration = await this.db.AuthConfigurations
-            .FirstOrDefaultAsync(c =>
-                    c.UserId == this.testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId, CancellationToken.None);
+        var configuration = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId, CancellationToken.None);
 
         Assert.NotNull(configuration);
 
@@ -344,7 +302,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the WideEventContext UserId is set when patching a configuration.
+    ///     Tests that the WideEventContext UserId is set when patching a configuration.
     /// </summary>
     [Fact]
     public async Task PatchAsync_SetsWideEventContextUserId()
@@ -353,27 +311,17 @@ public class ConfigurationControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpsertConfigurationCommand(
-            null,
-            this.testUserId,
-            ConfigType.Language,
-            "pt-BR",
-            this.db.CurrentCompanyId ?? Guid.Empty
-        );
+        var request = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "pt-BR", this.db.CurrentCompanyId ?? Guid.Empty);
 
         // Act
-        await this.controller.PatchAsync(
-            Guid.NewGuid(),
-            request,
-            wide,
-            ct);
+        await this.controller.PatchAsync(Guid.NewGuid(), request, wide, ct);
 
         // Assert
         Assert.Equal(this.testUserId.ToString(), wide.UserId);
     }
 
     /// <summary>
-    /// Tests that the ConfigurationController has the AuthorizeAttribute applied.
+    ///     Tests that the ConfigurationController has the AuthorizeAttribute applied.
     /// </summary>
     [Fact]
     public void ConfigurationController_HasAuthorizeAttribute()
@@ -389,7 +337,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the ConfigurationController has the RouteAttribute with correct template.
+    ///     Tests that the ConfigurationController has the RouteAttribute with correct template.
     /// </summary>
     [Fact]
     public void ConfigurationController_HasRouteAttribute()
@@ -406,7 +354,7 @@ public class ConfigurationControllerTests : IDisposable
     }
 
     /// <summary>
-    /// Tests that the ConfigurationController has the ProducesAttribute with correct content type.
+    ///     Tests that the ConfigurationController has the ProducesAttribute with correct content type.
     /// </summary>
     [Fact]
     public void ConfigurationController_HasProducesAttribute()

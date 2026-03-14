@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Product.Responses;
 
 /// <summary>
-/// Response record for a newly created product.
+///     Response record for a newly created product.
 /// </summary>
 public record AddProductResponse(
     /// <summary>

@@ -4,13 +4,13 @@ using Fenicia.Common.Data.Contexts;
 namespace Fenicia.Auth.Domains.Company.Handlers;
 
 /// <summary>
-/// Handler responsible for checking if a company exists based on CNPJ.
-/// Used during company registration to prevent duplicate CNPJs.
+///     Handler responsible for checking if a company exists based on CNPJ.
+///     Used during company registration to prevent duplicate CNPJs.
 /// </summary>
 public class CheckCompanyExistsHandler(DefaultContext db)
 {
     /// <summary>
-    /// Checks if a company exists with the given CNPJ.
+    ///     Checks if a company exists with the given CNPJ.
     /// </summary>
     /// <param name="query">The query containing the CNPJ to check and whether to consider only active companies.</param>
     /// <param name="ct">Cancellation token.</param>

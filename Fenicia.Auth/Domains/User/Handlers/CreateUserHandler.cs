@@ -10,8 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.Handlers;
 
-public class CreateUserHandler(
-    DefaultContext db)
+public class CreateUserHandler(DefaultContext db)
 {
     public virtual async Task<CreateUserResponse> Handle(CreateUserCommand command, CancellationToken ct)
     {
@@ -24,19 +23,13 @@ public class CreateUserHandler(
 
         var hashedPassword = command.Password.Hash();
 
-        var user = new UserModel
-        {
-            Email = command.Email,
-            Password = hashedPassword,
-            Name = command.Name
-        };
+        var user = new UserModel { Email = command.Email, Password = hashedPassword, Name = command.Name };
 
         db.AuthUsers.Add(user);
         await RelateRolesAsync(user.Id, command.Roles, ct);
         await db.SaveChangesAsync(ct);
 
-        return new CreateUserResponse(user.Id, user.Name, user.Email
-        );
+        return new CreateUserResponse(user.Id, user.Name, user.Email);
     }
 
     private async Task RelateRolesAsync(Guid userId, List<CreateUserRoleCommand>? command, CancellationToken ct)
@@ -45,12 +38,7 @@ public class CreateUserHandler(
         await ValidateCompanies(roles.Select(r => r.CompanyId), ct);
         await ValidateRoles(roles.Select(r => r.RoleId), ct);
 
-        var userRoles = roles.Select(r => new UserRoleModel
-        {
-            UserId = userId,
-            RoleId = r.RoleId,
-            CompanyId = r.CompanyId
-        });
+        var userRoles = roles.Select(r => new UserRoleModel { UserId = userId, RoleId = r.RoleId, CompanyId = r.CompanyId });
 
         db.AuthUserRoles.AddRange(userRoles);
     }

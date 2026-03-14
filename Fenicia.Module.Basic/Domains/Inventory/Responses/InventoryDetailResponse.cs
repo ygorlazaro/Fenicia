@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Inventory.Responses;
 
 /// <summary>
-/// Response model for inventory item details.
+///     Response model for inventory item details.
 /// </summary>
 public record InventoryDetailResponse(
     /// <summary>Product ID.</summary>

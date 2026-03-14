@@ -6,13 +6,13 @@ using Fenicia.Module.Basic.Domains.Supplier.Responses;
 namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
 /// <summary>
-/// Handler responsible for creating a new supplier.
-/// Creates a new supplier along with their contact and address information.
+///     Handler responsible for creating a new supplier.
+///     Creates a new supplier along with their contact and address information.
 /// </summary>
 public class AddSupplierHandler(DefaultContext db)
 {
     /// <summary>
-    /// Creates a new supplier.
+    ///     Creates a new supplier.
     /// </summary>
     /// <param name="command">The command containing supplier details.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -35,21 +35,12 @@ public class AddSupplierHandler(DefaultContext db)
             City = command.City
         };
 
-        var supplier = new SupplierModel
-        {
-            Id = command.Id,
-            Person = person,
-            PersonId = person.Id,
-            Cnpj = command.Cnpj,
-        };
+        var supplier = new SupplierModel { Id = command.Id, Person = person, PersonId = person.Id, Cnpj = command.Cnpj };
 
         db.BasicSuppliers.Add(supplier);
 
         await db.SaveChangesAsync(ct);
 
-        return new AddSupplierResponse(
-            supplier.Id,
-            supplier.Cnpj
-        );
+        return new AddSupplierResponse(supplier.Id, supplier.Cnpj);
     }
 }

@@ -8,8 +8,7 @@ public class UpdateProjectCommentHandler(DefaultContext context)
 {
     public async Task<UpdateProjectCommentResponse?> Handle(UpdateProjectCommentCommand command, CancellationToken ct)
     {
-        var projectComment = await context.ProjectComments.FirstOrDefaultAsync(pc => pc.Id == command.Id,
-            ct);
+        var projectComment = await context.ProjectComments.FirstOrDefaultAsync(pc => pc.Id == command.Id, ct);
 
         if (projectComment is null)
         {
@@ -22,11 +21,6 @@ public class UpdateProjectCommentHandler(DefaultContext context)
 
         await context.SaveChangesAsync(ct);
 
-        return new UpdateProjectCommentResponse(
-            projectComment.Id,
-            projectComment.TaskId,
-            projectComment.UserId,
-            projectComment.Content,
-            projectComment.CompanyId);
+        return new UpdateProjectCommentResponse(projectComment.Id, projectComment.TaskId, projectComment.UserId, projectComment.Content, projectComment.CompanyId);
     }
 }

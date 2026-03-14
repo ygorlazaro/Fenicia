@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Inventory.Responses;
 
 /// <summary>
-/// Response model for inventory breakdown by category.
+///     Response model for inventory breakdown by category.
 /// </summary>
 public record CategoryBreakdownResponse(
     /// <summary>Category ID.</summary>

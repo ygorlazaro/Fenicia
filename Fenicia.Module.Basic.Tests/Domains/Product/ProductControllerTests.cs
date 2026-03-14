@@ -23,15 +23,18 @@ namespace Fenicia.Module.Basic.Tests.Domains.Product;
 
 public class ProductControllerTests : IDisposable
 {
+    private readonly ProductController controller;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testProductId;
+
     public ProductControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProductId = Guid.NewGuid();
         var getAllProductHandler = new GetAllProductHandler(this.db);
         var getProductByIdHandler = new GetProductByIdHandler(this.db);
@@ -41,41 +44,22 @@ public class ProductControllerTests : IDisposable
         var getProductPerformanceHandler = new GetProductPerformanceHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ProductController(
-            getAllProductHandler,
-            getProductByIdHandler,
-            addProductHandler,
-            updateProductHandler,
-            deleteProductHandler,
-            getProductPerformanceHandler)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = this.mockHttpContext.Object
-            }
-        };
+        this.controller = new ProductController(getAllProductHandler, getProductByIdHandler, addProductHandler, updateProductHandler, deleteProductHandler, getProductPerformanceHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
 
         SetupUserClaims();
         this.faker = new Faker();
     }
 
-    private readonly ProductController controller;
-    private readonly DefaultContext db;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testProductId;
-    private readonly Faker faker;
+    public void Dispose()
+    {
+        this.db.Dispose();
+    }
 
     private void SetupUserClaims()
     {
-        var claims = new List<Claim>
-        {
-            new("userId",
-                Guid.NewGuid()
-                    .ToString())
-        };
+        var claims = new List<Claim> { new("userId", Guid.NewGuid().ToString()) };
 
-        var claimsIdentity = new ClaimsIdentity(claims,
-            "Test");
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -92,10 +76,7 @@ public class ProductControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -113,11 +94,7 @@ public class ProductControllerTests : IDisposable
     public async Task GetAsync_WhenProductsExist_ReturnsOkWithProducts()
     {
         // Arrange
-        var category = new ProductCategoryModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.Categories(1)[0]
-        };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Categories(1)[0] };
 
         var product1 = new ProductModel
         {
@@ -140,8 +117,7 @@ public class ProductControllerTests : IDisposable
         };
 
         this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.AddRange(product1,
-            product2);
+        this.db.BasicProducts.AddRange(product1, product2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var page = 1;
@@ -150,10 +126,7 @@ public class ProductControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -164,19 +137,14 @@ public class ProductControllerTests : IDisposable
 
         var returnedProducts = okResult.Value as Pagination<List<GetAllProductResponse>>;
         Assert.NotNull(returnedProducts);
-        Assert.Equal(2,
-            returnedProducts.Data.Count);
+        Assert.Equal(2, returnedProducts.Data.Count);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenProductExists_ReturnsOkWithProduct()
     {
         // Arrange
-        var category = new ProductCategoryModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.Categories(1)[0]
-        };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Categories(1)[0] };
 
         var product = new ProductModel
         {
@@ -196,9 +164,7 @@ public class ProductControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testProductId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(this.testProductId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -209,10 +175,8 @@ public class ProductControllerTests : IDisposable
 
         var returnedProduct = okResult.Value as GetProductByIdResponse;
         Assert.NotNull(returnedProduct);
-        Assert.Equal(this.testProductId,
-            returnedProduct.Id);
-        Assert.Equal(product.Name,
-            returnedProduct.Name);
+        Assert.Equal(this.testProductId, returnedProduct.Id);
+        Assert.Equal(product.Name, returnedProduct.Name);
     }
 
     [Fact]
@@ -224,9 +188,7 @@ public class ProductControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -237,31 +199,18 @@ public class ProductControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithProduct()
     {
         // Arrange
-        var category = new ProductCategoryModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.Categories(1)[0]
-        };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Categories(1)[0] };
 
         this.db.BasicProductCategories.Add(category);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new AddProductCommand(
-            category.Id,
-            this.faker.Commerce.ProductName(),
-            10.00m,
-            20.00m,
-            100,
-            category.Id,
-            null);
+        var command = new AddProductCommand(category.Id, this.faker.Commerce.ProductName(), 10.00m, 20.00m, 100, category.Id, null);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command,
-            wide,
-            ct);
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -269,28 +218,20 @@ public class ProductControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201,
-            createdResult.StatusCode);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedProduct = createdResult.Value as AddProductResponse;
         Assert.NotNull(returnedProduct);
-        Assert.Equal(command.Name,
-            returnedProduct.Name);
-        Assert.Equal(command.CostPrice,
-            returnedProduct.CostPrice);
-        Assert.Equal(command.SalesPrice,
-            returnedProduct.SalesPrice);
+        Assert.Equal(command.Name, returnedProduct.Name);
+        Assert.Equal(command.CostPrice, returnedProduct.CostPrice);
+        Assert.Equal(command.SalesPrice, returnedProduct.SalesPrice);
     }
 
     [Fact]
     public async Task PatchAsync_WhenProductExists_ReturnsOkWithUpdatedProduct()
     {
         // Arrange
-        var category = new ProductCategoryModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.Categories(1)[0]
-        };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Categories(1)[0] };
 
         var product = new ProductModel
         {
@@ -306,23 +247,13 @@ public class ProductControllerTests : IDisposable
         this.db.BasicProducts.Add(product);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProductCommand(
-            product.Id,
-            this.faker.Commerce.ProductName() + " Updated",
-            15.00m,
-            25.00m,
-            150,
-            category.Id,
-            null);
+        var command = new UpdateProductCommand(product.Id, this.faker.Commerce.ProductName() + " Updated", 15.00m, 25.00m, 150, category.Id, null);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            this.testProductId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, this.testProductId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -333,8 +264,7 @@ public class ProductControllerTests : IDisposable
 
         var returnedProduct = okResult.Value as UpdateProductResponse;
         Assert.NotNull(returnedProduct);
-        Assert.Contains("Updated",
-            returnedProduct.Name);
+        Assert.Contains("Updated", returnedProduct.Name);
     }
 
     [Fact]
@@ -342,32 +272,18 @@ public class ProductControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var category = new ProductCategoryModel
-        {
-            Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.Categories(1)[0]
-        };
+        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Categories(1)[0] };
 
         this.db.BasicProductCategories.Add(category);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProductCommand(
-            nonExistentId,
-            this.faker.Commerce.ProductName(),
-            10.00m,
-            20.00m,
-            100,
-            category.Id,
-            null);
+        var command = new UpdateProductCommand(nonExistentId, this.faker.Commerce.ProductName(), 10.00m, 20.00m, 100, category.Id, null);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -395,17 +311,13 @@ public class ProductControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testProductId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(this.testProductId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify product was deleted
-        var deletedProduct = await this.db.BasicProducts.FirstOrDefaultAsync(
-            x => x.Id == this.testProductId && x.Deleted == null,
-            ct);
+        var deletedProduct = await this.db.BasicProducts.FirstOrDefaultAsync(x => x.Id == this.testProductId && x.Deleted == null, ct);
         Assert.Null(deletedProduct);
     }
 
@@ -418,9 +330,7 @@ public class ProductControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -433,8 +343,7 @@ public class ProductControllerTests : IDisposable
         var controllerType = typeof(ProductController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -447,14 +356,11 @@ public class ProductControllerTests : IDisposable
         var controllerType = typeof(ProductController);
 
         // Act
-        var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute),
-                false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]",
-            routeAttribute.Template);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
     [Fact]
@@ -464,16 +370,9 @@ public class ProductControllerTests : IDisposable
         var controllerType = typeof(ProductController);
 
         // Act
-        var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
-                false).FirstOrDefault();
+        var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
-    }
-
-    public void Dispose()
-    {
-        this.db.Dispose();
     }
 }

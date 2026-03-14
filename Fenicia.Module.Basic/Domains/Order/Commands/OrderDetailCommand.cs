@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Order.Commands;
 
 /// <summary>
-/// Command to specify an item in an order.
+///     Command to specify an item in an order.
 /// </summary>
 public record OrderDetailCommand(
     /// <summary>Product ID.</summary>

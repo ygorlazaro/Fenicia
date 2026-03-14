@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Commands;
 
 /// <summary>
-/// Command record for updating an existing supplier.
+///     Command record for updating an existing supplier.
 /// </summary>
 public record UpdateSupplierCommand(
     /// <summary>

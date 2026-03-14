@@ -5,9 +5,9 @@ using Fenicia.Common.Enums.Auth;
 namespace Fenicia.Auth.Domains.Configuration.Commands;
 
 /// <summary>
-/// Command to create or update a configuration entry.
-/// Uses upsert pattern: creates new if the combination of UserId, CompanyId, and ConfigType doesn't exist,
-/// otherwise updates the existing value.
+///     Command to create or update a configuration entry.
+///     Uses upsert pattern: creates new if the combination of UserId, CompanyId, and ConfigType doesn't exist,
+///     otherwise updates the existing value.
 /// </summary>
 public record UpsertConfigurationCommand(
     /// <summary>
@@ -29,5 +29,4 @@ public record UpsertConfigurationCommand(
     /// <summary>
     /// The company ID (optional, for company-scoped configurations).
     /// </summary>
-    [Required] Guid CompanyId
-);
+    [Required] Guid CompanyId);

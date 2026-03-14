@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Product.Responses;
 
 /// <summary>
-/// Response record for products that have never been sold.
+///     Response record for products that have never been sold.
 /// </summary>
 public record NeverSoldProductResponse(
     /// <summary>

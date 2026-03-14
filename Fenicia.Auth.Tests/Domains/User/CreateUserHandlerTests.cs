@@ -14,11 +14,14 @@ namespace Fenicia.Auth.Tests.Domains.User;
 
 public class CreateUserHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+
+    private readonly CreateUserHandler handler;
+
     public CreateUserHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         this.db = new DefaultContext(options, new TestCompanyContext());
 
@@ -26,9 +29,12 @@ public class CreateUserHandlerTests : IDisposable
         this.faker = new Faker();
     }
 
-    private readonly CreateUserHandler handler;
-    private readonly DefaultContext db;
-    private readonly Faker faker;
+    public void Dispose()
+    {
+        this.db.Dispose();
+
+        GC.SuppressFinalize(this);
+    }
 
     [Fact]
     public async Task Handle_WhenValidRequest_CreatesUserSuccessfully()
@@ -38,30 +44,22 @@ public class CreateUserHandlerTests : IDisposable
         var password = this.faker.Internet.Password();
         var name = this.faker.Person.FullName;
 
-        var request = new CreateUserCommand(email,
-            password,
-            name);
+        var request = new CreateUserCommand(email, password, name);
 
         // Act
-        var result = await this.handler.Handle(request,
-            CancellationToken.None);
+        var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(email,
-            result.Email);
-        Assert.Equal(name,
-            result.Name);
-        Assert.NotEqual(Guid.Empty,
-            result.Id);
+        Assert.Equal(email, result.Email);
+        Assert.Equal(name, result.Name);
+        Assert.NotEqual(Guid.Empty, result.Id);
 
         // Verify user was saved to database
         var user = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
-        Assert.Equal(email,
-            user.Email);
-        Assert.Equal(name,
-            user.Name);
+        Assert.Equal(email, user.Email);
+        Assert.Equal(name, user.Name);
     }
 
     [Fact]
@@ -73,27 +71,17 @@ public class CreateUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
 
         // Create existing user
-        var existingUser = new UserModel
-        {
-            Email = email,
-            Password = password.Hash(),
-            Name = name
-        };
+        var existingUser = new UserModel { Email = email, Password = password.Hash(), Name = name };
 
         this.db.AuthUsers.Add(existingUser);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new CreateUserCommand(email,
-            password,
-            "Another " + name);
+        var request = new CreateUserCommand(email, password, "Another " + name);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.Equal("This email already exists",
-            exception.Message);
+        Assert.Equal("This email already exists", exception.Message);
     }
 
     [Fact]
@@ -105,44 +93,29 @@ public class CreateUserHandlerTests : IDisposable
         var name = this.faker.Person.FullName;
 
         // Create company and role
-        var company = new CompanyModel
-        {
-            Name = this.faker.Company.CompanyName(),
-            Cnpj = string.Empty
-        };
+        var company = new CompanyModel { Name = this.faker.Company.CompanyName(), Cnpj = string.Empty };
         var role = new RoleModel { Name = "Admin" };
 
         this.db.AuthCompanies.Add(company);
         this.db.AuthRoles.Add(role);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var companiesRoles = new List<CreateUserRoleCommand>
-        {
-            new(company.Id,
-                role.Id)
-        };
+        var companiesRoles = new List<CreateUserRoleCommand> { new(company.Id, role.Id) };
 
-        var request = new CreateUserCommand(email,
-            password,
-            name,
-            companiesRoles);
+        var request = new CreateUserCommand(email, password, name, companiesRoles);
 
         // Act
-        var result = await this.handler.Handle(request,
-            CancellationToken.None);
+        var result = await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify user role was saved to database
-        var userRole = await this.db.AuthUserRoles
-            .FirstOrDefaultAsync(ur => ur.UserId == result.Id);
+        var userRole = await this.db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
 
         Assert.NotNull(userRole);
-        Assert.Equal(company.Id,
-            userRole.CompanyId);
-        Assert.Equal(role.Id,
-            userRole.RoleId);
+        Assert.Equal(company.Id, userRole.CompanyId);
+        Assert.Equal(role.Id, userRole.RoleId);
     }
 
     [Fact]
@@ -159,22 +132,15 @@ public class CreateUserHandlerTests : IDisposable
 
         var companiesRoles = new List<CreateUserRoleCommand>
         {
-            new(Guid.NewGuid(),
-                role.Id) // Non-existent company
+            new(Guid.NewGuid(), role.Id) // Non-existent company
         };
 
-        var request = new CreateUserCommand(email,
-            password,
-            name,
-            companiesRoles);
+        var request = new CreateUserCommand(email, password, name, companiesRoles);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.Contains("not found",
-            exception.Message);
+        Assert.Contains("not found", exception.Message);
     }
 
     [Fact]
@@ -185,32 +151,21 @@ public class CreateUserHandlerTests : IDisposable
         var password = this.faker.Internet.Password();
         var name = this.faker.Person.FullName;
 
-        var company = new CompanyModel
-        {
-            Name = this.faker.Company.CompanyName(),
-            Cnpj =string.Empty
-        };
+        var company = new CompanyModel { Name = this.faker.Company.CompanyName(), Cnpj = string.Empty };
         this.db.AuthCompanies.Add(company);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var companiesRoles = new List<CreateUserRoleCommand>
         {
-            new(company.Id,
-                Guid.NewGuid()) // Non-existent role
+            new(company.Id, Guid.NewGuid()) // Non-existent role
         };
 
-        var request = new CreateUserCommand(email,
-            password,
-            name,
-            companiesRoles);
+        var request = new CreateUserCommand(email, password, name, companiesRoles);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () =>
-            await this.handler.Handle(request,
-                CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
 
-        Assert.Contains("not found",
-            exception.Message);
+        Assert.Contains("not found", exception.Message);
     }
 
     [Fact]
@@ -221,27 +176,15 @@ public class CreateUserHandlerTests : IDisposable
         var password = this.faker.Internet.Password();
         var name = this.faker.Person.FullName;
 
-        var request = new CreateUserCommand(email,
-            password,
-            name);
+        var request = new CreateUserCommand(email, password, name);
 
         // Act
-        await this.handler.Handle(request,
-            CancellationToken.None);
+        await this.handler.Handle(request, CancellationToken.None);
 
         // Assert
         var user = this.db.AuthUsers.Local.FirstOrDefault(u => u.Email == email);
         Assert.NotNull(user);
-        Assert.NotEqual(password,
-            user.Password); // Password should be hashed
-        Assert.StartsWith("$2",
-            user.Password); // BCrypt hashes start with $2
-    }
-
-    public void Dispose()
-    {
-        this.db.Dispose();
-        
-        GC.SuppressFinalize(this);
+        Assert.NotEqual(password, user.Password); // Password should be hashed
+        Assert.StartsWith("$2", user.Password); // BCrypt hashes start with $2
     }
 }

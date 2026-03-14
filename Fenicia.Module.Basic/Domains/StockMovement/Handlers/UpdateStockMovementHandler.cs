@@ -7,22 +7,19 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 
 /// <summary>
-/// Handler responsible for updating an existing stock movement.
+///     Handler responsible for updating an existing stock movement.
 /// </summary>
 public class UpdateStockMovementHandler(DefaultContext db)
 {
     /// <summary>
-    /// Updates an existing stock movement.
+    ///     Updates an existing stock movement.
     /// </summary>
     /// <param name="command">The command containing updated stock movement details.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The updated stock movement details if found, otherwise null.</returns>
     public async Task<UpdateStockMovementResponse?> Handle(UpdateStockMovementCommand command, CancellationToken ct)
     {
-        var stockMovement = await db.BasicStockMovements
-            .Include(s => s.Product)
-            .FirstOrDefaultAsync(s => s.Id == command.Id,
-                ct);
+        var stockMovement = await db.BasicStockMovements.Include(s => s.Product).FirstOrDefaultAsync(s => s.Id == command.Id, ct);
 
         if (stockMovement is null)
         {
@@ -44,16 +41,6 @@ public class UpdateStockMovementHandler(DefaultContext db)
 
         await db.SaveChangesAsync(ct);
 
-        return new UpdateStockMovementResponse(stockMovement.Id,
-            stockMovement.ProductId,
-            stockMovement.Quantity,
-            stockMovement.Date,
-            stockMovement.Price,
-            stockMovement.Type,
-            stockMovement.CustomerId,
-            stockMovement.SupplierId,
-            stockMovement.EmployeeId,
-            stockMovement.OrderId,
-            stockMovement.Reason);
+        return new UpdateStockMovementResponse(stockMovement.Id, stockMovement.ProductId, stockMovement.Quantity, stockMovement.Date, stockMovement.Price, stockMovement.Type, stockMovement.CustomerId, stockMovement.SupplierId, stockMovement.EmployeeId, stockMovement.OrderId, stockMovement.Reason);
     }
 }

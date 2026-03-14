@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Queries;
 
 /// <summary>
-/// Query record for retrieving a supplier by its ID.
+///     Query record for retrieving a supplier by its ID.
 /// </summary>
 public record GetSupplierByIdQuery(
     /// <summary>

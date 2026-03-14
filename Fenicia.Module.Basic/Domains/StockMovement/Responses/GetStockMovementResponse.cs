@@ -3,7 +3,7 @@ using Fenicia.Common.Enums.Basic;
 namespace Fenicia.Module.Basic.Domains.StockMovement.Responses;
 
 /// <summary>
-/// Response record for a stock movement in a list.
+///     Response record for a stock movement in a list.
 /// </summary>
 public record GetStockMovementResponse(
     /// <summary>

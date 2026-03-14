@@ -1,5 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.ProjectModels;
+using Fenicia.Common.Enums.Project;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Projects.Domains.ProjectTaskAssignee.GetAll;
 
@@ -9,27 +10,24 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectTaskAssignee;
 
 public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
 {
+    private readonly DefaultContext db;
+    private readonly GetAllProjectTaskAssigneeHandler handler;
+
     public GetAllProjectTaskAssigneeHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.handler = new GetAllProjectTaskAssigneeHandler(this.db);
     }
 
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
-
-    private readonly DefaultContext db;
-    private readonly GetAllProjectTaskAssigneeHandler handler;
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
@@ -38,8 +36,7 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
         var query = new GetAllProjectTaskAssigneeQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -58,7 +55,7 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             TaskId = taskId,
             UserId = userId1,
-            Role = Common.Enums.Project.EnumAssigneeRole.Owner,
+            Role = EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
@@ -67,28 +64,23 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             TaskId = taskId,
             UserId = userId2,
-            Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+            Role = EnumAssigneeRole.Contributor,
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1,
-            assignee2);
+        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskAssigneeQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(2,
-            result.Count);
-        Assert.Equal(assignee1.Id,
-            result[0].Id);
-        Assert.Equal(assignee2.Id,
-            result[1].Id);
+        Assert.Equal(2, result.Count);
+        Assert.Equal(assignee1.Id, result[0].Id);
+        Assert.Equal(assignee2.Id, result[1].Id);
     }
 
     [Fact]
@@ -103,7 +95,7 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
                 UserId = Guid.NewGuid(),
-                Role = i % 2 == 0 ? Common.Enums.Project.EnumAssigneeRole.Owner : Common.Enums.Project.EnumAssigneeRole.Contributor,
+                Role = i % 2 == 0 ? EnumAssigneeRole.Owner : EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
             this.db.ProjectTaskAssignees.Add(assignee);
@@ -114,13 +106,11 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
         var query = new GetAllProjectTaskAssigneeQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Count);
+        Assert.Equal(10, result.Count);
     }
 
     [Fact]
@@ -135,7 +125,7 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
                 UserId = Guid.NewGuid(),
-                Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+                Role = EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
             this.db.ProjectTaskAssignees.Add(assignee);
@@ -146,8 +136,7 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
         var query = new GetAllProjectTaskAssigneeQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -166,7 +155,7 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
                 UserId = Guid.NewGuid(),
-                Role = Common.Enums.Project.EnumAssigneeRole.Contributor,
+                Role = EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
             this.db.ProjectTaskAssignees.Add(assignee);
@@ -177,12 +166,10 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
         var query = new GetAllProjectTaskAssigneeQuery();
 
         // Act
-        var result = await this.handler.Handle(query,
-            CancellationToken.None);
+        var result = await this.handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(10,
-            result.Count);
+        Assert.Equal(10, result.Count);
     }
 }

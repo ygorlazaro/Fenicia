@@ -5,8 +5,7 @@ namespace Fenicia.Common.API;
 
 public static class FeniciaModuleLoader
 {
-    public static string Load(string[] args, out ConfigurationManager configuration,
-        out WebApplicationBuilder builder)
+    public static string Load(string[] args, out ConfigurationManager configuration, out WebApplicationBuilder builder)
     {
         var tenantArg = args.FirstOrDefault(x => x.StartsWith("--tenant="));
         var tenantId = string.Empty;
@@ -15,23 +14,18 @@ public static class FeniciaModuleLoader
         {
             tenantId = tenantArg.Split("=")[1];
 
-            Environment.SetEnvironmentVariable("TENANT_ID",
-                tenantId);
+            Environment.SetEnvironmentVariable("TENANT_ID", tenantId);
         }
 
         configuration = new ConfigurationManager();
-        var commonApiSettingsPath =
-            Path.Combine(Directory.GetCurrentDirectory(),
-                "../Fenicia.Common.Api/appsettings.json");
+        var commonApiSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "../Fenicia.Common.Api/appsettings.json");
 
         if (!File.Exists(commonApiSettingsPath))
         {
             throw new FileNotFoundException($"Could not find shared appsettings.json at {commonApiSettingsPath}");
         }
 
-        configuration.AddJsonFile(commonApiSettingsPath,
-            false,
-            true);
+        configuration.AddJsonFile(commonApiSettingsPath, false, true);
 
         builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);

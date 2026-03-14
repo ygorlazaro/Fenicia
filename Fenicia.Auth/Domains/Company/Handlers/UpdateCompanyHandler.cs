@@ -7,14 +7,14 @@ using Fenicia.Common.Localization;
 namespace Fenicia.Auth.Domains.Company.Handlers;
 
 /// <summary>
-/// Handler responsible for processing company update requests.
-/// Validates that the company exists, is active, and that the user has Admin permissions
-/// before applying the update.
+///     Handler responsible for processing company update requests.
+///     Validates that the company exists, is active, and that the user has Admin permissions
+///     before applying the update.
 /// </summary>
 public sealed class UpdateCompanyHandler(DefaultContext db)
 {
     /// <summary>
-    /// Handles the company update operation.
+    ///     Handles the company update operation.
     /// </summary>
     /// <param name="command">The update command containing company ID, user ID, and new name.</param>
     /// <param name="ct">Cancellation token.</param>

@@ -9,15 +9,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bogus" Version="35.6.5" />
+        <PackageReference Include="Bogus" Version="35.6.5"/>
         <PackageReference Include="coverlet.collector" Version="6.0.4"/>
-        <PackageReference Include="FluentValidation" Version="12.1.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
-        <PackageReference Include="Moq" Version="4.20.72" />
-        <PackageReference Include="xunit" Version="2.9.3" />
+        <PackageReference Include="FluentValidation" Version="12.1.1"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0"/>
+        <PackageReference Include="Moq" Version="4.20.72"/>
+        <PackageReference Include="xunit" Version="2.9.3"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -25,13 +25,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Using Include="Xunit" />
+        <Using Include="Xunit"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Fenicia.Common.Tests\Fenicia.Common.Tests.csproj" />
-      <ProjectReference Include="..\Fenicia.Module.Basic\Fenicia.Module.Basic.csproj" />
-<ProjectReference Include="..\..\Fenicia.Common.Tests\Fenicia.Common.Tests.csproj" />
+        <ProjectReference Include="..\Fenicia.Common.Tests\Fenicia.Common.Tests.csproj"/>
+        <ProjectReference Include="..\Fenicia.Module.Basic\Fenicia.Module.Basic.csproj"/>
+        <ProjectReference Include="..\..\Fenicia.Common.Tests\Fenicia.Common.Tests.csproj"/>
 
     </ItemGroup>
 

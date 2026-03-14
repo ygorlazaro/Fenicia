@@ -7,15 +7,15 @@ using Microsoft.EntityFrameworkCore;
 namespace Fenicia.Auth.Domains.Configuration.Handlers;
 
 /// <summary>
-/// Handler responsible for creating or updating configuration entries.
-/// Uses upsert pattern: creates new configuration if combination of UserId, CompanyId, and ConfigType doesn't exist,
-/// otherwise updates the existing configuration value.
+///     Handler responsible for creating or updating configuration entries.
+///     Uses upsert pattern: creates new configuration if combination of UserId, CompanyId, and ConfigType doesn't exist,
+///     otherwise updates the existing configuration value.
 /// </summary>
 public class UpsertConfigurationHandler(DefaultContext db)
 {
     /// <summary>
-    /// Handles the upsert configuration operation.
-    /// Creates a new configuration if it doesn't exist, or updates the existing one.
+    ///     Handles the upsert configuration operation.
+    ///     Creates a new configuration if it doesn't exist, or updates the existing one.
     /// </summary>
     /// <param name="command">The upsert command containing configuration details.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -37,7 +37,7 @@ public class UpsertConfigurationHandler(DefaultContext db)
     }
 
     /// <summary>
-    /// Updates an existing configuration's value.
+    ///     Updates an existing configuration's value.
     /// </summary>
     /// <param name="command">The upsert command with new value.</param>
     /// <param name="configuration">The existing configuration to update.</param>
@@ -48,7 +48,7 @@ public class UpsertConfigurationHandler(DefaultContext db)
     }
 
     /// <summary>
-    /// Creates a new configuration entry.
+    ///     Creates a new configuration entry.
     /// </summary>
     /// <param name="command">The upsert command with configuration details.</param>
     private void AddConfiguration(UpsertConfigurationCommand command)
@@ -66,17 +66,13 @@ public class UpsertConfigurationHandler(DefaultContext db)
     }
 
     /// <summary>
-    /// Retrieves an existing configuration matching the UserId, ConfigType, and CompanyId.
+    ///     Retrieves an existing configuration matching the UserId, ConfigType, and CompanyId.
     /// </summary>
     /// <param name="command">The command to match against.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The existing configuration or null if not found.</returns>
     private async Task<ConfigurationModel?> GetCurrentConfigurationAsync(UpsertConfigurationCommand command, CancellationToken ct)
     {
-        return await db.AuthConfigurations.FirstOrDefaultAsync(c =>
-                    c.UserId == command.UserId && 
-                    c.ConfigType == command.ConfigType &&
-                    c.CompanyId == command.CompanyId, 
-                ct);
+        return await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == command.UserId && c.ConfigType == command.ConfigType && c.CompanyId == command.CompanyId, ct);
     }
 }

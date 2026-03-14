@@ -8,20 +8,12 @@ public class GetProjectAttachmentByIdHandler(DefaultContext context)
 {
     public async Task<GetProjectAttachmentByIdResponse?> Handle(GetProjectAttachmentByIdQuery query, CancellationToken ct)
     {
-        var projectAttachment = await context.ProjectAttachments
-            .FirstOrDefaultAsync(p => p.Id == query.Id,
-                ct);
+        var projectAttachment = await context.ProjectAttachments.FirstOrDefaultAsync(p => p.Id == query.Id, ct);
 
         return projectAttachment switch
         {
             null => null,
-            _ => new GetProjectAttachmentByIdResponse(projectAttachment.Id,
-                projectAttachment.TaskId,
-                projectAttachment.FileName,
-                projectAttachment.FileUrl,
-                projectAttachment.FileSize,
-                projectAttachment.UploadedBy,
-                projectAttachment.CompanyId)
+            _ => new GetProjectAttachmentByIdResponse(projectAttachment.Id, projectAttachment.TaskId, projectAttachment.FileName, projectAttachment.FileUrl, projectAttachment.FileSize, projectAttachment.UploadedBy, projectAttachment.CompanyId)
         };
 
     }

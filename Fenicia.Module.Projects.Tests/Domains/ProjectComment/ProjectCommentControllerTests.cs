@@ -24,15 +24,18 @@ namespace Fenicia.Module.Projects.Tests.Domains.ProjectComment;
 
 public class ProjectCommentControllerTests : IDisposable
 {
+    private readonly ProjectCommentController controller;
+    private readonly DefaultContext db;
+    private readonly Faker faker;
+    private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Guid testProjectCommentId;
+
     public ProjectCommentControllerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options,
-            companyContext);
+        this.db = new DefaultContext(options, companyContext);
         this.testProjectCommentId = Guid.NewGuid();
         var getAllProjectCommentHandler = new GetAllProjectCommentHandler(this.db);
         var getProjectCommentByIdHandler = new GetProjectCommentByIdHandler(this.db);
@@ -41,18 +44,7 @@ public class ProjectCommentControllerTests : IDisposable
         var deleteProjectCommentHandler = new DeleteProjectCommentHandler(this.db);
         this.mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ProjectCommentController(
-            getAllProjectCommentHandler,
-            getProjectCommentByIdHandler,
-            addProjectCommentHandler,
-            updateProjectCommentHandler,
-            deleteProjectCommentHandler)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = this.mockHttpContext.Object
-            }
-        };
+        this.controller = new ProjectCommentController(getAllProjectCommentHandler, getProjectCommentByIdHandler, addProjectCommentHandler, updateProjectCommentHandler, deleteProjectCommentHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
 
         SetupUserClaims();
         this.faker = new Faker();
@@ -61,27 +53,15 @@ public class ProjectCommentControllerTests : IDisposable
     public void Dispose()
     {
         this.db.Dispose();
-        
+
         GC.SuppressFinalize(this);
     }
 
-    private readonly ProjectCommentController controller;
-    private readonly DefaultContext db;
-    private readonly Mock<HttpContext> mockHttpContext;
-    private readonly Guid testProjectCommentId;
-    private readonly Faker faker;
-
     private void SetupUserClaims()
     {
-        var claims = new List<Claim>
-        {
-            new("userId",
-                Guid.NewGuid()
-                    .ToString())
-        };
+        var claims = new List<Claim> { new("userId", Guid.NewGuid().ToString()) };
 
-        var claimsIdentity = new ClaimsIdentity(claims,
-            "Test");
+        var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
@@ -98,10 +78,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -119,24 +96,11 @@ public class ProjectCommentControllerTests : IDisposable
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectComment1 = new ProjectCommentModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Content = this.faker.Lorem.Paragraph()
-        };
+        var projectComment1 = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
 
-        var projectComment2 = new ProjectCommentModel
-        {
-            Id = Guid.NewGuid(),
-            TaskId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Content = this.faker.Lorem.Paragraph()
-        };
+        var projectComment2 = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
 
-        this.db.ProjectComments.AddRange(projectComment1,
-            projectComment2);
+        this.db.ProjectComments.AddRange(projectComment1, projectComment2);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
@@ -145,10 +109,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide,
-            page,
-            perPage,
-            ct);
+        var result = await this.controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -159,21 +120,14 @@ public class ProjectCommentControllerTests : IDisposable
 
         var returnedComments = okResult.Value as List<GetAllProjectCommentResponse>;
         Assert.NotNull(returnedComments);
-        Assert.Equal(2,
-            returnedComments.Count);
+        Assert.Equal(2, returnedComments.Count);
     }
 
     [Fact]
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectComment = new ProjectCommentModel
-        {
-            Id = this.testProjectCommentId,
-            TaskId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Content = this.faker.Lorem.Paragraph()
-        };
+        var projectComment = new ProjectCommentModel { Id = this.testProjectCommentId, TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
 
         this.db.ProjectComments.Add(projectComment);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -182,9 +136,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testProjectCommentId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(this.testProjectCommentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -195,10 +147,8 @@ public class ProjectCommentControllerTests : IDisposable
 
         var returnedComment = okResult.Value as GetProjectCommentByIdResponse;
         Assert.NotNull(returnedComment);
-        Assert.Equal(this.testProjectCommentId,
-            returnedComment.Id);
-        Assert.Equal(projectComment.Content,
-            returnedComment.Content);
+        Assert.Equal(this.testProjectCommentId, returnedComment.Id);
+        Assert.Equal(projectComment.Content, returnedComment.Content);
     }
 
     [Fact]
@@ -210,9 +160,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -223,19 +171,13 @@ public class ProjectCommentControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithItem()
     {
         // Arrange
-        var command = new AddProjectCommentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            this.faker.Lorem.Paragraph());
+        var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Paragraph());
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command,
-            wide,
-            ct);
+        var result = await this.controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -243,44 +185,30 @@ public class ProjectCommentControllerTests : IDisposable
 
         var createdResult = result.Result as CreatedResult;
         Assert.NotNull(createdResult);
-        Assert.Equal(201,
-            createdResult.StatusCode);
+        Assert.Equal(201, createdResult.StatusCode);
 
         var returnedComment = createdResult.Value as AddProjectCommentResponse;
         Assert.NotNull(returnedComment);
-        Assert.Equal(command.Id,
-            returnedComment.Id);
-        Assert.Equal(command.Content,
-            returnedComment.Content);
+        Assert.Equal(command.Id, returnedComment.Id);
+        Assert.Equal(command.Content, returnedComment.Content);
     }
 
     [Fact]
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectComment = new ProjectCommentModel
-        {
-            Id = this.testProjectCommentId,
-            TaskId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Content = this.faker.Lorem.Paragraph()
-        };
+        var projectComment = new ProjectCommentModel { Id = this.testProjectCommentId, TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
 
         this.db.ProjectComments.Add(projectComment);
         await this.db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProjectCommentCommand(
-            projectComment.Id,
-            this.faker.Lorem.Paragraph() + " Updated");
+        var command = new UpdateProjectCommentCommand(projectComment.Id, this.faker.Lorem.Paragraph() + " Updated");
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            this.testProjectCommentId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, this.testProjectCommentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -291,8 +219,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         var returnedComment = okResult.Value as UpdateProjectCommentResponse;
         Assert.NotNull(returnedComment);
-        Assert.Contains("Updated",
-            returnedComment.Content);
+        Assert.Contains("Updated", returnedComment.Content);
     }
 
     [Fact]
@@ -300,18 +227,13 @@ public class ProjectCommentControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdateProjectCommentCommand(
-            nonExistentId,
-            this.faker.Lorem.Paragraph());
+        var command = new UpdateProjectCommentCommand(nonExistentId, this.faker.Lorem.Paragraph());
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command,
-            nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -322,13 +244,7 @@ public class ProjectCommentControllerTests : IDisposable
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectComment = new ProjectCommentModel
-        {
-            Id = this.testProjectCommentId,
-            TaskId = Guid.NewGuid(),
-            UserId = Guid.NewGuid(),
-            Content = this.faker.Lorem.Paragraph()
-        };
+        var projectComment = new ProjectCommentModel { Id = this.testProjectCommentId, TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
 
         this.db.ProjectComments.Add(projectComment);
         await this.db.SaveChangesAsync(CancellationToken.None);
@@ -337,17 +253,13 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testProjectCommentId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(this.testProjectCommentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify project comment was deleted
-        var deletedComment = await this.db.ProjectComments.FirstOrDefaultAsync(
-            x => x.Id == this.testProjectCommentId && x.Deleted == null,
-            ct);
+        var deletedComment = await this.db.ProjectComments.FirstOrDefaultAsync(x => x.Id == this.testProjectCommentId && x.Deleted == null, ct);
         Assert.Null(deletedComment);
     }
 
@@ -360,9 +272,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId,
-            wide,
-            ct);
+        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -375,8 +285,7 @@ public class ProjectCommentControllerTests : IDisposable
         var controllerType = typeof(ProjectCommentController);
 
         // Act
-        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault();
+        var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(authorizeAttribute);
@@ -389,14 +298,11 @@ public class ProjectCommentControllerTests : IDisposable
         var controllerType = typeof(ProjectCommentController);
 
         // Act
-        var routeAttribute =
-            controllerType.GetCustomAttributes(typeof(RouteAttribute),
-                false).FirstOrDefault() as RouteAttribute;
+        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
         // Assert
         Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]",
-            routeAttribute.Template);
+        Assert.Equal("[controller]", routeAttribute.Template);
     }
 
     [Fact]
@@ -406,9 +312,7 @@ public class ProjectCommentControllerTests : IDisposable
         var controllerType = typeof(ProjectCommentController);
 
         // Act
-        var apiControllerAttribute =
-            controllerType.GetCustomAttributes(typeof(ApiControllerAttribute),
-                false).FirstOrDefault();
+        var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
         // Assert
         Assert.NotNull(apiControllerAttribute);
@@ -422,13 +326,11 @@ public class ProjectCommentControllerTests : IDisposable
         var deleteMethod = controllerType.GetMethod(nameof(ProjectCommentController.DeleteAsync));
 
         // Act
-        var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
     [Fact]
@@ -439,13 +341,11 @@ public class ProjectCommentControllerTests : IDisposable
         var postMethod = controllerType.GetMethod(nameof(ProjectCommentController.PostAsync));
 
         // Act
-        var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 
     [Fact]
@@ -456,12 +356,10 @@ public class ProjectCommentControllerTests : IDisposable
         var patchMethod = controllerType.GetMethod(nameof(ProjectCommentController.PatchAsync));
 
         // Act
-        var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute),
-            false).FirstOrDefault() as AuthorizeAttribute;
+        var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
         // Assert
         Assert.NotNull(authorizeAttribute);
-        Assert.Equal("Admin",
-            authorizeAttribute.Roles);
+        Assert.Equal("Admin", authorizeAttribute.Roles);
     }
 }

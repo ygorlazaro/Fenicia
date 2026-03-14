@@ -1,8 +1,8 @@
 namespace Fenicia.Module.Basic.Domains.Employee.Responses;
 
 /// <summary>
-/// Response model for top performing employees.
-/// Contains performance metrics and performance level rating.
+///     Response model for top performing employees.
+///     Contains performance metrics and performance level rating.
 /// </summary>
 public record TopPerformerResponse(
     /// <summary>Employee ID.</summary>

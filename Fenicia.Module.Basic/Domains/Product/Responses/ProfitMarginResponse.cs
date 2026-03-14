@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Product.Responses;
 
 /// <summary>
-/// Response record for profit margin analysis.
+///     Response record for profit margin analysis.
 /// </summary>
 public record ProfitMarginResponse(
     /// <summary>

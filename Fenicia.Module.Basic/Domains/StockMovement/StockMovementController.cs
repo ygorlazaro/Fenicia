@@ -12,25 +12,21 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fenicia.Module.Basic.Domains.StockMovement;
 
 /// <summary>
-/// Controller responsible for handling stock movement-related HTTP endpoints.
-/// Provides endpoints to retrieve, create, and update stock movements, as well as dashboard analytics.
+///     Controller responsible for handling stock movement-related HTTP endpoints.
+///     Provides endpoints to retrieve, create, and update stock movements, as well as dashboard analytics.
 /// </summary>
 /// <remarks>
-/// Most endpoints require authentication. The Update endpoint requires Admin role.
+///     Most endpoints require authentication. The Update endpoint requires Admin role.
 /// </remarks>
 [ApiController]
 [Authorize]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class StockMovementController(
-    GetStockMovementHandler getStockMovementHandler,
-    AddStockMovementHandler addStockMovementHandler,
-    UpdateStockMovementHandler updateStockMovementHandler,
-    GetStockMovementDashboardHandler getStockMovementDashboardHandler) : ControllerBase
+public class StockMovementController(GetStockMovementHandler getStockMovementHandler, AddStockMovementHandler addStockMovementHandler, UpdateStockMovementHandler updateStockMovementHandler, GetStockMovementDashboardHandler getStockMovementDashboardHandler) : ControllerBase
 {
     /// <summary>
-    /// Retrieves a paginated list of stock movements filtered by date range.
+    ///     Retrieves a paginated list of stock movements filtered by date range.
     /// </summary>
     /// <param name="query">Query parameters including pagination and date range.</param>
     /// <param name="wide">Wide event context for request tracking.</param>
@@ -41,25 +37,17 @@ public class StockMovementController(
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetStockMovementResponse>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetStockMovementResponse>>> GetAsync(
-        [FromQuery] StockMovementQuery query,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<List<GetStockMovementResponse>>> GetAsync([FromQuery] StockMovementQuery query, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var stockMovement =
-            await getStockMovementHandler.Handle(new GetStockMovementQuery(query.StartDate,
-                    query.EndDate,
-                    query.Page,
-                    query.PerPage),
-                ct);
+
+        var stockMovement = await getStockMovementHandler.Handle(new GetStockMovementQuery(query.StartDate, query.EndDate, query.Page, query.PerPage), ct);
 
         return Ok(stockMovement);
     }
 
     /// <summary>
-    /// Creates a new stock movement entry.
+    ///     Creates a new stock movement entry.
     /// </summary>
     /// <param name="command">The command containing stock movement details.</param>
     /// <param name="wide">Wide event context for request tracking.</param>
@@ -73,22 +61,17 @@ public class StockMovementController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<AddStockMovementResponse>> PostAsync(
-        [FromBody] AddStockMovementCommand command,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<AddStockMovementResponse>> PostAsync([FromBody] AddStockMovementCommand command, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var stockMovement = await addStockMovementHandler.Handle(command,
-            ct);
 
-        return new CreatedResult(string.Empty,
-            stockMovement);
+        var stockMovement = await addStockMovementHandler.Handle(command, ct);
+
+        return new CreatedResult(string.Empty, stockMovement);
     }
 
     /// <summary>
-    /// Updates an existing stock movement (Admin only).
+    ///     Updates an existing stock movement (Admin only).
     /// </summary>
     /// <param name="id">The unique identifier of the stock movement to update.</param>
     /// <param name="command">The command containing updated stock movement details.</param>
@@ -108,26 +91,17 @@ public class StockMovementController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<UpdateStockMovementResponse>> PatchAsync(
-        [FromRoute] Guid id,
-        [FromBody] UpdateStockMovementCommand command,
-        WideEventContext wide,
-        CancellationToken ct)
+    public async Task<ActionResult<UpdateStockMovementResponse>> PatchAsync([FromRoute] Guid id, [FromBody] UpdateStockMovementCommand command, WideEventContext wide, CancellationToken ct)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var stockMovement = await updateStockMovementHandler.Handle(command with
-            {
-                Id = id
-            },
-            ct);
 
-        return stockMovement is null ? NotFound() : new CreatedResult(string.Empty,
-            stockMovement);
+        var stockMovement = await updateStockMovementHandler.Handle(command with { Id = id }, ct);
+
+        return stockMovement is null ? NotFound() : new CreatedResult(string.Empty, stockMovement);
     }
 
     /// <summary>
-    /// Retrieves stock movement dashboard analytics including totals, trends, and top products.
+    ///     Retrieves stock movement dashboard analytics including totals, trends, and top products.
     /// </summary>
     /// <param name="wide">Wide event context for request tracking.</param>
     /// <param name="days">Number of days to analyze (default: 30).</param>
@@ -139,23 +113,17 @@ public class StockMovementController(
     [HttpGet("dashboard")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StockMovementDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<StockMovementDashboardResponse>> GetDashboardAsync(
-        WideEventContext wide,
-        [FromQuery] int days = 30,
-        [FromQuery] int topLimit = 10,
-        CancellationToken ct = default)
+    public async Task<ActionResult<StockMovementDashboardResponse>> GetDashboardAsync(WideEventContext wide, [FromQuery] int days = 30, [FromQuery] int topLimit = 10, CancellationToken ct = default)
     {
         wide.UserId = ClaimReader.UserId(this.User).ToString();
-        
-        var dashboard = await getStockMovementDashboardHandler.Handle(new GetStockMovementDashboardQuery(days,
-                topLimit),
-            ct);
+
+        var dashboard = await getStockMovementDashboardHandler.Handle(new GetStockMovementDashboardQuery(days, topLimit), ct);
 
         return Ok(dashboard);
     }
 
     /// <summary>
-    /// Query parameters for stock movement retrieval.
+    ///     Query parameters for stock movement retrieval.
     /// </summary>
     public record StockMovementQuery(int Page, int PerPage)
     {

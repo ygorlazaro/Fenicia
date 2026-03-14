@@ -1,7 +1,7 @@
 namespace Fenicia.Module.Basic.Domains.Product.Commands;
 
 /// <summary>
-/// Command record for updating an existing product.
+///     Command record for updating an existing product.
 /// </summary>
 public record UpdateProductCommand(
     /// <summary>

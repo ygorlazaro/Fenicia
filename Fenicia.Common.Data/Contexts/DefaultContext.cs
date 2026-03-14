@@ -1,15 +1,15 @@
 using System.Reflection;
 
+using Fenicia.Common.Data.Models.Basic;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Common.Data.Contexts;
 
-public partial class DefaultContext: DbContext
+public partial class DefaultContext : DbContext
 {
     private readonly ICompanyContext companyContext;
-
-    public Guid? CurrentCompanyId => this.companyContext.CompanyId;
 
     public DefaultContext(DbContextOptions<DefaultContext> options, ICompanyContext companyContext) : base(options)
     {
@@ -20,6 +20,8 @@ public partial class DefaultContext: DbContext
     {
         this.companyContext = new CompanyContext(new HttpContextAccessor());
     }
+
+    public Guid? CurrentCompanyId => this.companyContext.CompanyId;
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -52,9 +54,7 @@ public partial class DefaultContext: DbContext
 
     private void ApplyCompanyId()
     {
-        var entries = this.ChangeTracker
-            .Entries<BaseCompanyModel>()
-            .Where(e => e.State == EntityState.Added);
+        var entries = this.ChangeTracker.Entries<BaseCompanyModel>().Where(e => e.State == EntityState.Added);
 
         foreach (var entry in entries)
         {
@@ -72,17 +72,9 @@ public partial class DefaultContext: DbContext
         PostgresDateTimeOffsetSupport.Init(modelBuilder);
         ApplyFilters(modelBuilder);
 
-        modelBuilder.Entity<Models.Basic.CustomerModel>()
-            .HasOne(c => c.Person)
-            .WithOne(p => p.Customer)
-            .HasForeignKey<Models.Basic.CustomerModel>(c => c.PersonId)
-            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CustomerModel>().HasOne(c => c.Person).WithOne(p => p.Customer).HasForeignKey<CustomerModel>(c => c.PersonId).OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<Models.Basic.EmployeeModel>()
-            .HasOne(e => e.Person)
-            .WithOne(p => p.Employee)
-            .HasForeignKey<Models.Basic.EmployeeModel>(e => e.PersonId)
-            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<EmployeeModel>().HasOne(e => e.Person).WithOne(p => p.Employee).HasForeignKey<EmployeeModel>(e => e.PersonId).OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -93,44 +85,26 @@ public partial class DefaultContext: DbContext
         {
             if (typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
             {
-                var method = typeof(DefaultContext)
-                    .GetMethod(nameof(SetFilter),
-                        BindingFlags.NonPublic | BindingFlags.Instance)!
-                    .MakeGenericMethod(entityType.ClrType);
+                var method = typeof(DefaultContext).GetMethod(nameof(SetFilter), BindingFlags.NonPublic | BindingFlags.Instance)!.MakeGenericMethod(entityType.ClrType);
 
-                method.Invoke(this,
-                [
-                    modelBuilder
-                ]);
+                method.Invoke(this, [modelBuilder]);
             }
-            else if (typeof(BaseModel).IsAssignableFrom(entityType.ClrType) &&
-                     !typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
+            else if (typeof(BaseModel).IsAssignableFrom(entityType.ClrType) && !typeof(BaseCompanyModel).IsAssignableFrom(entityType.ClrType))
             {
-                var method = typeof(DefaultContext)
-                    .GetMethod(nameof(SetSoftDeleteFilter),
-                        BindingFlags.NonPublic | BindingFlags.Instance)!
-                    .MakeGenericMethod(entityType.ClrType);
+                var method = typeof(DefaultContext).GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Instance)!.MakeGenericMethod(entityType.ClrType);
 
-                method.Invoke(this,
-                [
-                    modelBuilder
-                ]);
+                method.Invoke(this, [modelBuilder]);
             }
         }
     }
 
-    private void SetFilter<TEntity>(ModelBuilder modelBuilder)
-        where TEntity : BaseCompanyModel
+    private void SetFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : BaseCompanyModel
     {
-        modelBuilder.Entity<TEntity>()
-            .HasQueryFilter(e => (this.CurrentCompanyId == null || e.CompanyId == this.CurrentCompanyId)
-                              && e.Deleted == null);
+        modelBuilder.Entity<TEntity>().HasQueryFilter(e => (this.CurrentCompanyId == null || e.CompanyId == this.CurrentCompanyId) && e.Deleted == null);
     }
 
-    private void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder)
-        where TEntity : BaseModel
+    private void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : BaseModel
     {
-        modelBuilder.Entity<TEntity>()
-            .HasQueryFilter(e => e.Deleted == null);
+        modelBuilder.Entity<TEntity>().HasQueryFilter(e => e.Deleted == null);
     }
 }
