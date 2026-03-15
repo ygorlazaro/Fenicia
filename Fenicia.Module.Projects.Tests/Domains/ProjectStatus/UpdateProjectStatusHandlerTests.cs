@@ -20,14 +20,14 @@ public class UpdateProjectStatusHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectStatusHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateProjectStatusHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -48,13 +48,13 @@ public class UpdateProjectStatusHandlerTests : IDisposable
             IsFinal = false
         };
 
-        this.db.ProjectStatuses.Add(status);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectStatuses.Add(status);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectStatusCommand(statusId, projectId, "New Status", "#000000", 5, true);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -69,7 +69,7 @@ public class UpdateProjectStatusHandlerTests : IDisposable
         var command = new UpdateProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), "New Status", "#000000", 5, true);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -82,7 +82,7 @@ public class UpdateProjectStatusHandlerTests : IDisposable
         var command = new UpdateProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), "New Status", "#000000", 5, true);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -116,21 +116,21 @@ public class UpdateProjectStatusHandlerTests : IDisposable
             IsFinal = true
         };
 
-        this.db.ProjectStatuses.AddRange(status1, status2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectStatuses.AddRange(status1, status2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectStatusCommand(status1Id, projectId, "Updated Status 1", "#0000FF", 10, true);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(status1Id, result.Id);
         Assert.Equal("Updated Status 1", result.Name);
 
-        var updatedStatus1 = await this.db.ProjectStatuses.FindAsync([status1Id], CancellationToken.None);
-        var status2InDb = await this.db.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
+        var updatedStatus1 = await db.ProjectStatuses.FindAsync([status1Id], CancellationToken.None);
+        var status2InDb = await db.ProjectStatuses.FindAsync([status2Id], CancellationToken.None);
 
         Assert.NotNull(updatedStatus1);
         Assert.NotNull(status2InDb);
@@ -148,19 +148,19 @@ public class UpdateProjectStatusHandlerTests : IDisposable
         {
             Id = statusId,
             ProjectId = projectId,
-            Name = this.faker.Lorem.Word(),
-            Color = this.faker.Internet.Color(),
+            Name = faker.Lorem.Word(),
+            Color = faker.Internet.Color(),
             Order = 1,
             IsFinal = false
         };
 
-        this.db.ProjectStatuses.Add(status);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectStatuses.Add(status);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectStatusCommand(statusId, projectId, "Updated Status", "#123456", 3, true);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

@@ -19,14 +19,14 @@ public class AddProjectStatusHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new AddProjectStatusHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new AddProjectStatusHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -35,10 +35,10 @@ public class AddProjectStatusHandlerTests : IDisposable
     public async Task Handle_WithValidCommand_AddsProjectStatusAndReturnsResponse()
     {
         // Arrange
-        var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Word(), this.faker.Internet.Color(), this.faker.Random.Number(0, 100), this.faker.Random.Bool());
+        var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Word(), faker.Internet.Color(), faker.Random.Number(0, 100), faker.Random.Bool());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -50,13 +50,13 @@ public class AddProjectStatusHandlerTests : IDisposable
     public async Task Handle_VerifiesProjectStatusWasSaved()
     {
         // Arrange
-        var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Word(), this.faker.Internet.Color(), this.faker.Random.Number(0, 100), this.faker.Random.Bool());
+        var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Word(), faker.Internet.Color(), faker.Random.Number(0, 100), faker.Random.Bool());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var status = await this.db.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == command.Id);
+        var status = await db.ProjectStatuses.FirstOrDefaultAsync(s => s.Id == command.Id);
 
         Assert.NotNull(status);
         Assert.Equal(command.Name, status.Name);
@@ -68,16 +68,16 @@ public class AddProjectStatusHandlerTests : IDisposable
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var command1 = new AddProjectStatusCommand(Guid.NewGuid(), projectId, this.faker.Lorem.Word(), this.faker.Internet.Color(), 1, false);
+        var command1 = new AddProjectStatusCommand(Guid.NewGuid(), projectId, faker.Lorem.Word(), faker.Internet.Color(), 1, false);
 
-        var command2 = new AddProjectStatusCommand(Guid.NewGuid(), projectId, this.faker.Lorem.Word(), this.faker.Internet.Color(), 2, true);
+        var command2 = new AddProjectStatusCommand(Guid.NewGuid(), projectId, faker.Lorem.Word(), faker.Internet.Color(), 2, true);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await handler.Handle(command1, CancellationToken.None);
+        await handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var statuses = await this.db.ProjectStatuses.ToListAsync();
+        var statuses = await db.ProjectStatuses.ToListAsync();
         Assert.Equal(2, statuses.Count);
     }
 
@@ -85,10 +85,10 @@ public class AddProjectStatusHandlerTests : IDisposable
     public async Task Handle_WithIsFinalTrue_AddsProjectStatusSuccessfully()
     {
         // Arrange
-        var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Word(), this.faker.Internet.Color(), 10, true);
+        var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Word(), faker.Internet.Color(), 10, true);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -100,10 +100,10 @@ public class AddProjectStatusHandlerTests : IDisposable
     public async Task Handle_WithOrderZero_AddsProjectStatusSuccessfully()
     {
         // Arrange
-        var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Word(), this.faker.Internet.Color(), 0, false);
+        var command = new AddProjectStatusCommand(Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Word(), faker.Internet.Color(), 0, false);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

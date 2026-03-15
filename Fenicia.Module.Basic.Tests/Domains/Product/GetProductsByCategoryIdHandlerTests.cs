@@ -18,13 +18,13 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetProductsByCategoryIdHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new GetProductsByCategoryIdHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -35,7 +35,7 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
         var query = new GetProductsByCategoryIdQuery(categoryId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -49,9 +49,17 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
-        var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
-        this.db.BasicProductCategories.AddRange(category1, category2);
+        var category1 = new ProductCategoryModel
+        {
+            Id = category1Id,
+            Name = "Electronics"
+        };
+        var category2 = new ProductCategoryModel
+        {
+            Id = category2Id,
+            Name = "Books"
+        };
+        db.BasicProductCategories.AddRange(category1, category2);
 
         var product1 = new ProductModel
         {
@@ -83,13 +91,13 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
             CategoryId = category2Id
         };
 
-        this.db.BasicProducts.AddRange(product1, product2, product3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.AddRange(product1, product2, product3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductsByCategoryIdQuery(category1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -102,8 +110,12 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
-        this.db.BasicProductCategories.Add(category);
+        var category = new ProductCategoryModel
+        {
+            Id = categoryId,
+            Name = "Electronics"
+        };
+        db.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
@@ -116,15 +128,15 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
                 Quantity = 100,
                 CategoryId = categoryId
             };
-            this.db.BasicProducts.Add(product);
+            db.BasicProducts.Add(product);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductsByCategoryIdQuery(categoryId, 2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -136,8 +148,12 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
-        this.db.BasicProductCategories.Add(category);
+        var category = new ProductCategoryModel
+        {
+            Id = categoryId,
+            Name = "Electronics"
+        };
+        db.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 5; i++)
         {
@@ -150,15 +166,15 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
                 Quantity = 100,
                 CategoryId = categoryId
             };
-            this.db.BasicProducts.Add(product);
+            db.BasicProducts.Add(product);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductsByCategoryIdQuery(categoryId, 10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -170,8 +186,12 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
-        this.db.BasicProductCategories.Add(category);
+        var category = new ProductCategoryModel
+        {
+            Id = categoryId,
+            Name = "Electronics"
+        };
+        db.BasicProductCategories.Add(category);
 
         var product = new ProductModel
         {
@@ -183,13 +203,13 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
             CategoryId = categoryId
         };
 
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProductsByCategoryIdQuery(categoryId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

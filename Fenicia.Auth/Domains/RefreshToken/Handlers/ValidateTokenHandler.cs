@@ -47,7 +47,7 @@ public class ValidateTokenHandler(IConnectionMultiplexer redis)
         try
         {
             var key = RedisPrefix + query.RefreshToken;
-            var value = await this.redisDb.StringGetAsync(key);
+            var value = await redisDb.StringGetAsync(key);
 
             if (value.IsNullOrEmpty)
             {

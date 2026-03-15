@@ -20,14 +20,14 @@ public class UpdateProjectCommentHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectCommentHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateProjectCommentHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -39,15 +39,21 @@ public class UpdateProjectCommentHandlerTests : IDisposable
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment = new ProjectCommentModel { Id = commentId, TaskId = taskId, UserId = userId, Content = "Old comment content" };
+        var comment = new ProjectCommentModel
+        {
+            Id = commentId,
+            TaskId = taskId,
+            UserId = userId,
+            Content = "Old comment content"
+        };
 
-        this.db.ProjectComments.Add(comment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.Add(comment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommentCommand(commentId, "New comment content");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -62,7 +68,7 @@ public class UpdateProjectCommentHandlerTests : IDisposable
         var command = new UpdateProjectCommentCommand(Guid.NewGuid(), "New comment content");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -75,7 +81,7 @@ public class UpdateProjectCommentHandlerTests : IDisposable
         var command = new UpdateProjectCommentCommand(Guid.NewGuid(), "New comment content");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -90,25 +96,37 @@ public class UpdateProjectCommentHandlerTests : IDisposable
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var comment1 = new ProjectCommentModel { Id = comment1Id, TaskId = taskId, UserId = userId, Content = "Comment 1 content" };
+        var comment1 = new ProjectCommentModel
+        {
+            Id = comment1Id,
+            TaskId = taskId,
+            UserId = userId,
+            Content = "Comment 1 content"
+        };
 
-        var comment2 = new ProjectCommentModel { Id = comment2Id, TaskId = taskId, UserId = userId, Content = "Comment 2 content" };
+        var comment2 = new ProjectCommentModel
+        {
+            Id = comment2Id,
+            TaskId = taskId,
+            UserId = userId,
+            Content = "Comment 2 content"
+        };
 
-        this.db.ProjectComments.AddRange(comment1, comment2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.AddRange(comment1, comment2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommentCommand(comment1Id, "Updated Comment 1 content");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(comment1Id, result.Id);
         Assert.Equal("Updated Comment 1 content", result.Content);
 
-        var updatedComment1 = await this.db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
-        var comment2InDb = await this.db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
+        var updatedComment1 = await db.ProjectComments.FindAsync([comment1Id], CancellationToken.None);
+        var comment2InDb = await db.ProjectComments.FindAsync([comment2Id], CancellationToken.None);
 
         Assert.NotNull(updatedComment1);
         Assert.NotNull(comment2InDb);
@@ -123,16 +141,22 @@ public class UpdateProjectCommentHandlerTests : IDisposable
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment = new ProjectCommentModel { Id = commentId, TaskId = taskId, UserId = userId, Content = this.faker.Lorem.Paragraph() };
+        var comment = new ProjectCommentModel
+        {
+            Id = commentId,
+            TaskId = taskId,
+            UserId = userId,
+            Content = faker.Lorem.Paragraph()
+        };
 
-        this.db.ProjectComments.Add(comment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.Add(comment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var longContent = this.faker.Lorem.Paragraphs(5);
+        var longContent = faker.Lorem.Paragraphs(5);
         var command = new UpdateProjectCommentCommand(commentId, longContent);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

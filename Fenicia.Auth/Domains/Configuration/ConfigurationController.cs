@@ -5,7 +5,6 @@ using Fenicia.Auth.Domains.Configuration.Handlers;
 using Fenicia.Auth.Domains.Configuration.Queries;
 using Fenicia.Auth.Domains.Configuration.Responses;
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,9 +26,9 @@ namespace Fenicia.Auth.Domains.Configuration;
 public class ConfigurationController(GetConfigurationHandler getConfigurationHandler, UpsertConfigurationHandler upsertConfigurationHandler) : ControllerBase
 {
     /// <summary>
-    ///     Retrieves configurations for the authenticated user, optionally filtered by company.
+    ///     Retrieves configurations for the authenticated user, filtered by company.
     /// </summary>
-    /// <param name="companyId">Optional company ID to filter configurations.</param>
+    /// <param name="companyId">Company ID to filter configurations (required).</param>
     /// <param name="wide">Wide event context for request tracking.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A list of configuration responses.</returns>
@@ -39,11 +38,11 @@ public class ConfigurationController(GetConfigurationHandler getConfigurationHan
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync([FromQuery] Guid? companyId, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync([FromQuery] Guid companyId, WideEventContext wide, CancellationToken ct)
     {
         try
         {
-            var userId = ClaimReader.UserId(this.User);
+            var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
             var query = new GetConfigurationQuery(userId, companyId);
@@ -79,7 +78,7 @@ public class ConfigurationController(GetConfigurationHandler getConfigurationHan
     {
         try
         {
-            var userId = ClaimReader.UserId(this.User);
+            var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
             var command = request with { UserId = userId, Id = id };

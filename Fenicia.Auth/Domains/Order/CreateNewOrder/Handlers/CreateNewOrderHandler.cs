@@ -65,7 +65,11 @@ public class CreateNewOrderHandler(DefaultContext db)
     {
         var totalAmount = modules.Sum(m => m.Price);
 
-        var details = modules.Select(m => new OrderDetailModel { ModuleId = m.Id, Price = m.Price });
+        var details = modules.Select(m => new OrderDetailModel
+        {
+            ModuleId = m.Id,
+            Price = m.Price
+        });
 
         var order = new OrderModel
         {

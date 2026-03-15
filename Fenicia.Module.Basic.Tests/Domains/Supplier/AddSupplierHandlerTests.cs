@@ -20,24 +20,24 @@ public class AddSupplierHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new AddSupplierHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new AddSupplierHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
     public async Task Handle_WithValidCommand_AddsSupplierAndReturnsResponse()
     {
         // Arrange
-        var command = new AddSupplierCommand(Guid.NewGuid(), this.faker.Company.CompanyName(), this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), "Suite 100", this.faker.Address.CityPrefix(), this.faker.Random.Replace("####"), Guid.NewGuid(), this.faker.Address.StreetName(), this.faker.Address.ZipCode(), this.faker.Random.Replace("(##) #####-####"), this.faker.Random.Replace("##.###.###/####-##"));
+        var command = new AddSupplierCommand(Guid.NewGuid(), faker.Company.CompanyName(), faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), "Suite 100", faker.Address.CityPrefix(), faker.Random.Replace("####"), Guid.NewGuid(), faker.Address.StreetName(), faker.Address.ZipCode(), faker.Random.Replace("(##) #####-####"), faker.Random.Replace("##.###.###/####-##"));
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -49,13 +49,13 @@ public class AddSupplierHandlerTests : IDisposable
     public async Task Handle_VerifiesSupplierWasSavedToDatabase()
     {
         // Arrange
-        var command = new AddSupplierCommand(Guid.NewGuid(), this.faker.Company.CompanyName(), this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), null, null, null, null, Guid.NewGuid(), null, null, null, null);
+        var command = new AddSupplierCommand(Guid.NewGuid(), faker.Company.CompanyName(), faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), null, null, null, null, Guid.NewGuid(), null, null, null, null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var supplier = await this.db.BasicSuppliers.Include(s => s.Person).FirstOrDefaultAsync(s => s.Id == command.Id);
+        var supplier = await db.BasicSuppliers.Include(s => s.Person).FirstOrDefaultAsync(s => s.Id == command.Id);
 
         Assert.NotNull(supplier);
         Assert.Equal(command.Name, supplier.Person.Name);
@@ -65,10 +65,10 @@ public class AddSupplierHandlerTests : IDisposable
     public async Task Handle_WithNullCnpj_HandlesCorrectly()
     {
         // Arrange
-        var command = new AddSupplierCommand(Guid.NewGuid(), this.faker.Company.CompanyName(), this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), null, null, null, null, Guid.NewGuid(), null, null, null, null);
+        var command = new AddSupplierCommand(Guid.NewGuid(), faker.Company.CompanyName(), faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), null, null, null, null, Guid.NewGuid(), null, null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

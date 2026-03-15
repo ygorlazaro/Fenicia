@@ -33,11 +33,11 @@ public class ValidateTokenHandlerTests
     public ValidateTokenHandlerTests()
     {
         var redisMock = new Mock<IConnectionMultiplexer>();
-        this.redisDbMock = new Mock<IDatabase>();
+        redisDbMock = new Mock<IDatabase>();
 
-        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(this.redisDbMock.Object);
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(redisDbMock.Object);
 
-        this.handler = new ValidateTokenHandler(redisMock.Object);
+        handler = new ValidateTokenHandler(redisMock.Object);
     }
 
     /// <summary>
@@ -56,12 +56,12 @@ public class ValidateTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.True(result);
@@ -78,12 +78,12 @@ public class ValidateTokenHandlerTests
         const string refreshToken = "non_existent_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.False(result);
@@ -105,12 +105,12 @@ public class ValidateTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.False(result);
@@ -132,12 +132,12 @@ public class ValidateTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.False(result);
@@ -160,12 +160,12 @@ public class ValidateTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.False(result);
@@ -179,7 +179,7 @@ public class ValidateTokenHandlerTests
         var query = new ValidateTokenQuery(userId, null!);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query));
     }
 
     /// <summary>
@@ -198,12 +198,12 @@ public class ValidateTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.True(result);
@@ -225,12 +225,12 @@ public class ValidateTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.False(result);
@@ -249,12 +249,12 @@ public class ValidateTokenHandlerTests
 
         var redisResult = new RedisValue("invalid_json");
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.False(result);
@@ -268,7 +268,7 @@ public class ValidateTokenHandlerTests
         var query = new ValidateTokenQuery(userId, "   ");
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query));
     }
 
     /// <summary>
@@ -282,12 +282,12 @@ public class ValidateTokenHandlerTests
         const string refreshToken = "redis_error_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ThrowsAsync(new RedisConnectionException(ConnectionFailureType.None, "Connection failed"));
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ThrowsAsync(new RedisConnectionException(ConnectionFailureType.None, "Connection failed"));
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.False(result);
@@ -303,12 +303,12 @@ public class ValidateTokenHandlerTests
 
         var redisResult = new RedisValue("null");
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         var query = new ValidateTokenQuery(userId, refreshToken);
 
         // Act
-        var result = await this.handler.Handle(query);
+        var result = await handler.Handle(query);
 
         // Assert
         Assert.False(result);

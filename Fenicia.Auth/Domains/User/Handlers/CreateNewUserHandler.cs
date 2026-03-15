@@ -64,16 +64,30 @@ public class CreateNewUserHandler(DefaultContext db)
         }
 
         var hashedPassword = command.Password.Hash();
-        var userRequest = new UserModel { Email = command.Email, Password = hashedPassword, Name = command.Name };
+        var userRequest = new UserModel
+        {
+            Email = command.Email,
+            Password = hashedPassword,
+            Name = command.Name
+        };
 
         db.AuthUsers.Add(userRequest);
 
-        var companyRequest = new CompanyModel { Name = command.Company.Name, Cnpj = command.Company.Cnpj };
+        var companyRequest = new CompanyModel
+        {
+            Name = command.Company.Name,
+            Cnpj = command.Company.Cnpj
+        };
 
         db.AuthCompanies.Add(companyRequest);
 
         var adminRole = await db.AuthRoles.GetRoleAsync("Admin", ct) ?? throw new InvalidRequestException(ExceptionMessages.AdminRoleNotFound);
-        var userRole = new UserRoleModel { UserId = userRequest.Id, Company = companyRequest, RoleId = adminRole.Id };
+        var userRole = new UserRoleModel
+        {
+            UserId = userRequest.Id,
+            Company = companyRequest,
+            RoleId = adminRole.Id
+        };
 
         db.AuthUserRoles.Add(userRole);
 

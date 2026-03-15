@@ -1,7 +1,6 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Inventory.Handlers;
 using Fenicia.Module.Basic.Domains.Inventory.Queries;
 using Fenicia.Module.Basic.Domains.Inventory.Responses;
@@ -30,6 +29,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
     /// </summary>
     /// <param name="productId">Product's unique identifier.</param>
     /// <param name="ct">Cancellation token.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
     /// <returns>Inventory details for the specified product.</returns>
     /// <response code="200">Inventory retrieved successfully.</response>
     /// <response code="401">Unauthorized</response>
@@ -41,7 +41,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var inventory = await getInventoryByProductHandler.Handle(new GetInventoryByProductQuery(productId), ct);
 
@@ -57,6 +57,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
     ///     Retrieves inventory data for products in a specific category.
     /// </summary>
     /// <param name="categoryId">Category's unique identifier.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Inventory details for products in the specified category.</returns>
     /// <response code="200">Inventory retrieved successfully.</response>
@@ -69,7 +70,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var inventory = await getInventoryByCategoryHandler.Handle(new GetInventoryByCategoryQuery(categoryId), ct);
 
@@ -99,7 +100,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var inventory = await getInventoryHandler.Handle(new GetInventoryQuery(page, perPage), ct);
 
@@ -127,7 +128,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var dashboard = await getInventoryDashboardHandler.Handle(ct);
 
@@ -157,7 +158,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var health = await getInventoryHealthHandler.Handle(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), ct);
 

@@ -30,7 +30,13 @@ public class CreateOrderHandler(DefaultContext db)
     /// <returns>The created order response.</returns>
     public async Task<CreateOrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)
     {
-        var details = command.Details.Select(d => new OrderDetailModel { Id = Guid.NewGuid(), ProductId = d.ProductId, Price = d.Price, Quantity = d.Quantity }).ToList();
+        var details = command.Details.Select(d => new OrderDetailModel
+        {
+            Id = Guid.NewGuid(),
+            ProductId = d.ProductId,
+            Price = d.Price,
+            Quantity = d.Quantity
+        }).ToList();
 
         var order = new OrderModel
         {

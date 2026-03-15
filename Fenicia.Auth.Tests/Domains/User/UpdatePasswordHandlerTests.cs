@@ -22,14 +22,14 @@ public class UpdatePasswordHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new UpdatePasswordHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new UpdatePasswordHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -39,18 +39,24 @@ public class UpdatePasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
         const string oldPassword = "old_hashed_password";
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = oldPassword };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = oldPassword
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -59,7 +65,7 @@ public class UpdatePasswordHandlerTests : IDisposable
         Assert.Equal(user.Name, result.Name);
         Assert.Equal(user.Email, result.Email);
 
-        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
+        var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
         Assert.NotEqual(oldPassword, updatedUser.Password);
     }
@@ -69,11 +75,11 @@ public class UpdatePasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
         var query = new UpdatePasswordCommand(userId, newPassword);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
 
@@ -82,20 +88,26 @@ public class UpdatePasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = "old_password" };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = "old_password"
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
         // Act
-        await this.handler.Handle(query, CancellationToken.None);
+        await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
+        var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
 
         Assert.NotEqual(newPassword, updatedUser.Password);
@@ -107,20 +119,26 @@ public class UpdatePasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = "old_password" };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = "old_password"
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
         // Act
-        await this.handler.Handle(query, CancellationToken.None);
+        await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
+        var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
 
         var verifyHandler = new VerifyPasswordService();
@@ -134,25 +152,37 @@ public class UpdatePasswordHandlerTests : IDisposable
         // Arrange
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
         const string oldPassword1 = "old_password_1";
         const string oldPassword2 = "old_password_2";
 
-        var user1 = new UserModel { Id = userId1, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = oldPassword1 };
+        var user1 = new UserModel
+        {
+            Id = userId1,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = oldPassword1
+        };
 
-        var user2 = new UserModel { Id = userId2, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = oldPassword2 };
+        var user2 = new UserModel
+        {
+            Id = userId2,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = oldPassword2
+        };
 
-        this.db.AuthUsers.AddRange(user1, user2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.AddRange(user1, user2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId1, newPassword);
 
         // Act
-        await this.handler.Handle(query, CancellationToken.None);
+        await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser1 = await this.db.AuthUsers.FindAsync(userId1);
-        var updatedUser2 = await this.db.AuthUsers.FindAsync(userId2);
+        var updatedUser1 = await db.AuthUsers.FindAsync(userId1);
+        var updatedUser2 = await db.AuthUsers.FindAsync(userId2);
 
         Assert.NotEqual(oldPassword1, updatedUser1!.Password);
         Assert.Equal(oldPassword2, updatedUser2!.Password);
@@ -163,22 +193,28 @@ public class UpdatePasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var newPassword = this.faker.Internet.Password();
-        var email = this.faker.Internet.Email();
-        var name = this.faker.Person.FullName;
+        var newPassword = faker.Internet.Password();
+        var email = faker.Internet.Email();
+        var name = faker.Person.FullName;
 
-        var user = new UserModel { Id = userId, Email = email, Name = name, Password = "old_password" };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = name,
+            Password = "old_password"
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
         // Act
-        await this.handler.Handle(query, CancellationToken.None);
+        await handler.Handle(query, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
+        var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
 
         Assert.Equal(email, updatedUser.Email);
@@ -191,11 +227,11 @@ public class UpdatePasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
         var query = new UpdatePasswordCommand(userId, newPassword);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
 
@@ -206,15 +242,21 @@ public class UpdatePasswordHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var newPassword = string.Empty;
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = "old_password" };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = "old_password"
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
         Assert.Equal("Password cannot be null or empty", ex.Message);
     }
 
@@ -223,19 +265,25 @@ public class UpdatePasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var newPassword = this.faker.Internet.Password();
-        var email = this.faker.Internet.Email();
-        var name = this.faker.Person.FullName;
+        var newPassword = faker.Internet.Password();
+        var email = faker.Internet.Email();
+        var name = faker.Person.FullName;
 
-        var user = new UserModel { Id = userId, Email = email, Name = name, Password = "old_password" };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = name,
+            Password = "old_password"
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
 

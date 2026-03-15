@@ -9,6 +9,6 @@ public record GetConfigurationQuery(
     /// </summary>
     Guid UserId,
     /// <summary>
-    /// Optional company ID to filter configurations.
+    /// The company ID to filter configurations (now required).
     /// </summary>
-    Guid? CompanyId = null);
+    Guid CompanyId);

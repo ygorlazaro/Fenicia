@@ -16,13 +16,13 @@ public class GetAdminRoleHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetAdminRoleHandler(this.db);
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new GetAdminRoleHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -32,13 +32,17 @@ public class GetAdminRoleHandlerTests : IDisposable
         // Arrange
         var adminRoleId = Guid.NewGuid();
 
-        var adminRole = new RoleModel { Id = adminRoleId, Name = "Admin" };
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
 
-        this.db.AuthRoles.Add(adminRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthRoles.Add(adminRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -50,13 +54,17 @@ public class GetAdminRoleHandlerTests : IDisposable
     public async Task Handle_WhenAdminRoleDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var role = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
+        var role = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "User"
+        };
 
-        this.db.AuthRoles.Add(role);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthRoles.Add(role);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -68,17 +76,29 @@ public class GetAdminRoleHandlerTests : IDisposable
         // Arrange
         var adminRoleId = Guid.NewGuid();
 
-        var adminRole = new RoleModel { Id = adminRoleId, Name = "Admin" };
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
 
-        var userRole = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
+        var userRole = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "User"
+        };
 
-        var managerRole = new RoleModel { Id = Guid.NewGuid(), Name = "Manager" };
+        var managerRole = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Manager"
+        };
 
-        this.db.AuthRoles.AddRange(adminRole, userRole, managerRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthRoles.AddRange(adminRole, userRole, managerRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -90,13 +110,17 @@ public class GetAdminRoleHandlerTests : IDisposable
     public async Task Handle_WhenAdminRoleNameHasDifferentCase_ReturnsNull()
     {
         // Arrange
-        var role = new RoleModel { Id = Guid.NewGuid(), Name = "admin" };
+        var role = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "admin"
+        };
 
-        this.db.AuthRoles.Add(role);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthRoles.Add(role);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -106,7 +130,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -116,13 +140,17 @@ public class GetAdminRoleHandlerTests : IDisposable
     public async Task Handle_WhenAdminRoleNameHasExtraSpaces_ReturnsNull()
     {
         // Arrange
-        var role = new RoleModel { Id = Guid.NewGuid(), Name = " Admin " };
+        var role = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = " Admin "
+        };
 
-        this.db.AuthRoles.Add(role);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthRoles.Add(role);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -135,15 +163,23 @@ public class GetAdminRoleHandlerTests : IDisposable
         var adminRoleId1 = Guid.NewGuid();
         var adminRoleId2 = Guid.NewGuid();
 
-        var adminRole1 = new RoleModel { Id = adminRoleId1, Name = "Admin" };
+        var adminRole1 = new RoleModel
+        {
+            Id = adminRoleId1,
+            Name = "Admin"
+        };
 
-        var adminRole2 = new RoleModel { Id = adminRoleId2, Name = "Admin" };
+        var adminRole2 = new RoleModel
+        {
+            Id = adminRoleId2,
+            Name = "Admin"
+        };
 
-        this.db.AuthRoles.AddRange(adminRole1, adminRole2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthRoles.AddRange(adminRole1, adminRole2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

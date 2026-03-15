@@ -1,7 +1,6 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.StockMovement.Commands;
 using Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 using Fenicia.Module.Basic.Domains.StockMovement.Queries;
@@ -43,7 +42,7 @@ public class StockMovementController(GetStockMovementHandler getStockMovementHan
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var stockMovement = await getStockMovementHandler.Handle(new GetStockMovementQuery(query.StartDate, query.EndDate, query.Page, query.PerPage), ct);
 
@@ -74,7 +73,7 @@ public class StockMovementController(GetStockMovementHandler getStockMovementHan
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var stockMovement = await addStockMovementHandler.Handle(command, ct);
 
@@ -112,7 +111,7 @@ public class StockMovementController(GetStockMovementHandler getStockMovementHan
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var stockMovement = await updateStockMovementHandler.Handle(command with { Id = id }, ct);
 
@@ -142,7 +141,7 @@ public class StockMovementController(GetStockMovementHandler getStockMovementHan
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var dashboard = await getStockMovementDashboardHandler.Handle(new GetStockMovementDashboardQuery(days, topLimit), ct);
 

@@ -48,11 +48,19 @@ public class TokenController(GenerateTokenHandler generateTokenHandler, Generate
         }
         catch (PermissionDeniedException ex)
         {
-            return BadRequest(new ProblemDetails { Title = ex.Message, Status = StatusCodes.Status400BadRequest });
+            return BadRequest(new ProblemDetails
+            {
+                Title = ex.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
         }
         catch (InvalidRequestException ex)
         {
-            return BadRequest(new ProblemDetails { Title = ex.Message, Status = StatusCodes.Status400BadRequest });
+            return BadRequest(new ProblemDetails
+            {
+                Title = ex.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
         }
     }
 
@@ -92,7 +100,11 @@ public class TokenController(GenerateTokenHandler generateTokenHandler, Generate
         }
         catch (InvalidRequestException ex)
         {
-            return BadRequest(new ProblemDetails { Title = ex.Message, Status = StatusCodes.Status400BadRequest });
+            return BadRequest(new ProblemDetails
+            {
+                Title = ex.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
         }
     }
 

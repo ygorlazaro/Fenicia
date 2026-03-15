@@ -22,14 +22,14 @@ public class GetSupplierByIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetSupplierByIdHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetSupplierByIdHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -37,8 +37,13 @@ public class GetSupplierByIdHandlerTests : IDisposable
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
+        var state = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        db.AuthStates.Add(state);
 
         var supplier = new SupplierModel
         {
@@ -47,26 +52,26 @@ public class GetSupplierByIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = this.faker.Phone.PhoneNumber(),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Company.CompanyName(),
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Phone.PhoneNumber(),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = state.Id,
                 State = state,
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicSuppliers.Add(supplier);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicSuppliers.Add(supplier);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetSupplierByIdQuery(supplierId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -92,7 +97,7 @@ public class GetSupplierByIdHandlerTests : IDisposable
         var query = new GetSupplierByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -105,7 +110,7 @@ public class GetSupplierByIdHandlerTests : IDisposable
         var query = new GetSupplierByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -117,8 +122,13 @@ public class GetSupplierByIdHandlerTests : IDisposable
         // Arrange
         var supplier1Id = Guid.NewGuid();
         var supplier2Id = Guid.NewGuid();
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
+        var state = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        db.AuthStates.Add(state);
 
         var supplier1 = new SupplierModel
         {
@@ -127,16 +137,16 @@ public class GetSupplierByIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = this.faker.Phone.PhoneNumber(),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Company.CompanyName(),
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Phone.PhoneNumber(),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = state.Id,
                 State = state,
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
@@ -147,26 +157,26 @@ public class GetSupplierByIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = this.faker.Phone.PhoneNumber(),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Company.CompanyName(),
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Phone.PhoneNumber(),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = state.Id,
                 State = state,
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicSuppliers.AddRange(supplier1, supplier2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetSupplierByIdQuery(supplier1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -179,8 +189,13 @@ public class GetSupplierByIdHandlerTests : IDisposable
     {
         // Arrange
         var supplierId = Guid.NewGuid();
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
+        var state = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        db.AuthStates.Add(state);
 
         var supplier = new SupplierModel
         {
@@ -189,9 +204,9 @@ public class GetSupplierByIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
+                Name = faker.Company.CompanyName(),
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
                 Street = string.Empty,
                 Number = string.Empty,
                 Complement = null,
@@ -200,17 +215,17 @@ public class GetSupplierByIdHandlerTests : IDisposable
                 StateId = state.Id,
                 State = state,
                 City = null,
-                PhoneNumber = this.faker.Phone.PhoneNumber()
+                PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
 
-        this.db.BasicSuppliers.Add(supplier);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicSuppliers.Add(supplier);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetSupplierByIdQuery(supplierId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

@@ -25,14 +25,14 @@ public class UpdateCustomerHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdateCustomerHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateCustomerHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -62,13 +62,13 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(customerId, "New Name", "new@email.com", "987.654.321-00", "New City", "Apt 202", "New Neighborhood", "200", Guid.NewGuid(), "New Street", "54321-000", "(11) 98765-4321");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -86,7 +86,7 @@ public class UpdateCustomerHandlerTests : IDisposable
         var command = new UpdateCustomerCommand(Guid.NewGuid(), "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -102,7 +102,7 @@ public class UpdateCustomerHandlerTests : IDisposable
         var command = new UpdateCustomerCommand(Guid.NewGuid(), "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -123,24 +123,24 @@ public class UpdateCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(customerId, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -162,24 +162,24 @@ public class UpdateCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(customerId, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -201,24 +201,24 @@ public class UpdateCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(customerId, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -240,24 +240,24 @@ public class UpdateCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(customerId, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -279,24 +279,24 @@ public class UpdateCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(customerId, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -318,24 +318,24 @@ public class UpdateCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(customerId, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -357,24 +357,24 @@ public class UpdateCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(customerId, "New Name", "new@email.com", "987.654.321-00", null, null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -407,16 +407,16 @@ public class UpdateCustomerHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(customerId, "New Name", "new@email.com", "987.654.321-00", "New City", "Apt 202", "New Neighborhood", "200", Guid.NewGuid(), "New Street", "54321-000", "(11) 98765-4321");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCustomer = await this.db.BasicCustomers.Include(c => c.Person).FirstOrDefaultAsync(c => c.Id == customerId);
+        var updatedCustomer = await db.BasicCustomers.Include(c => c.Person).FirstOrDefaultAsync(c => c.Id == customerId);
 
         Assert.NotNull(updatedCustomer);
         Assert.Equal("New Name", updatedCustomer.Person.Name);

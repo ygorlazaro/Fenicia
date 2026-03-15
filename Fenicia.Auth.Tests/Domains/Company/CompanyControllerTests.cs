@@ -39,21 +39,21 @@ public class CompanyControllerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.testUserId = Guid.NewGuid();
-        var getCompaniesByUserHandler = new GetCompaniesByUserHandler(this.db);
-        var updateCompanyHandler = new UpdateCompanyHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, new TestCompanyContext());
+        testUserId = Guid.NewGuid();
+        var getCompaniesByUserHandler = new GetCompaniesByUserHandler(db);
+        var updateCompanyHandler = new UpdateCompanyHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new CompanyController(getCompaniesByUserHandler, updateCompanyHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new CompanyController(getCompaniesByUserHandler, updateCompanyHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
-        SetupUserClaims(this.testUserId);
-        this.faker = new Faker();
+        SetupUserClaims(testUserId);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -64,8 +64,8 @@ public class CompanyControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ public class CompanyControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByLoggedUser(query, wide, ct);
+        var result = await controller.GetByLoggedUser(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -93,7 +93,7 @@ public class CompanyControllerTests : IDisposable
         Assert.NotNull(returnedPagination);
         Assert.Empty(returnedPagination.Data);
         Assert.Equal(0, returnedPagination.Total);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     /// <summary>
@@ -106,26 +106,48 @@ public class CompanyControllerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = testUserId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetByLoggedUser(query, wide, ct);
+        var result = await controller.GetByLoggedUser(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -139,7 +161,7 @@ public class CompanyControllerTests : IDisposable
         Assert.Single(returnedPagination.Data);
         Assert.Equal(1, returnedPagination.Total);
         Assert.Equal(company.Name, returnedPagination.Data.First().Name);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     /// <summary>
@@ -154,10 +176,10 @@ public class CompanyControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        await this.controller.GetByLoggedUser(query, wide, ct);
+        await controller.GetByLoggedUser(query, wide, ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     /// <summary>
@@ -172,24 +194,46 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var adminRole = new RoleModel { Id = adminRoleId, Name = "Admin" };
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = adminRoleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = testUserId,
+            RoleId = adminRoleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(adminRole);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(adminRole);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
+        var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
 
         // Act
-        var result = await this.controller.PatchAsync(companyId, request, wide, ct);
+        var result = await controller.PatchAsync(companyId, request, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -198,36 +242,40 @@ public class CompanyControllerTests : IDisposable
         var noContentResult = result as NoContentResult;
         Assert.NotNull(noContentResult);
         Assert.Equal(204, noContentResult.StatusCode);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
 
         // Verify company was updated
-        var updatedCompany = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
+        var updatedCompany = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
         Assert.NotNull(updatedCompany);
         Assert.Equal(request.Name, updatedCompany.Name);
     }
 
     /// <summary>
-    ///     Tests that attempting to update a non-existent company throws ItemNotExistsException.
+    ///     Tests that attempting to update a non-existent company returns 404 NotFound.
     /// </summary>
     [Fact]
-    public async Task PatchAsync_WhenCompanyDoesNotExist_ThrowsItemNotExistsException()
+    public async Task PatchAsync_WhenCompanyDoesNotExist_ReturnsNotFound()
     {
         // Arrange
         var companyId = Guid.NewGuid();
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
+        var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
 
-        // Act & Assert
-        await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.controller.PatchAsync(companyId, request, wide, ct));
+        // Act
+        var result = await controller.PatchAsync(companyId, request, wide, ct);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     /// <summary>
-    ///     Tests that a non-Admin user cannot update a company and receives PermissionDeniedException.
+    ///     Tests that a non-Admin user cannot update a company and receives 403 Forbidden.
     /// </summary>
     [Fact]
-    public async Task PatchAsync_WhenUserIsNotAdmin_ThrowsPermissionDeniedException()
+    public async Task PatchAsync_WhenUserIsNotAdmin_ReturnsForbidden()
     {
         // Arrange
         var companyId = Guid.NewGuid();
@@ -235,24 +283,50 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var userRole = new RoleModel { Id = userRoleId, Name = "Contributor" };
+        var userRole = new RoleModel
+        {
+            Id = userRoleId,
+            Name = "Contributor"
+        };
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRoleMapping = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = userRoleId, CompanyId = companyId };
+        var userRoleMapping = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = testUserId,
+            RoleId = userRoleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(userRole);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRoleMapping);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(userRole);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRoleMapping);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
+        var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
 
-        // Act & Assert
-        await Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.controller.PatchAsync(companyId, request, wide, ct));
+        // Act
+        var result = await controller.PatchAsync(companyId, request, wide, ct);
+
+        // Assert
+        Assert.IsType<ForbidResult>(result);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     /// <summary>
@@ -267,27 +341,49 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var adminRole = new RoleModel { Id = adminRoleId, Name = "Admin" };
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = adminRoleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = testUserId,
+            RoleId = adminRoleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(adminRole);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(adminRole);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var request = new UpdateCompanyCommand(companyId, this.testUserId, this.faker.Company.CompanyName());
+        var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
 
         // Act
-        await this.controller.PatchAsync(companyId, request, wide, ct);
+        await controller.PatchAsync(companyId, request, wide, ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     /// <summary>

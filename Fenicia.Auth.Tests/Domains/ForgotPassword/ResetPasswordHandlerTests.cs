@@ -25,14 +25,14 @@ public class ResetPasswordHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new ResetPasswordHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new ResetPasswordHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -44,11 +44,17 @@ public class ResetPasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
-        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -59,21 +65,21 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthForgottenPasswords.Add(forgotPassword);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthForgottenPasswords.Add(forgotPassword);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
+        var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
-        Assert.NotEqual(this.faker.Internet.Password(), updatedUser.Password);
+        Assert.NotEqual(faker.Internet.Password(), updatedUser.Password);
 
-        var updatedCode = await this.db.AuthForgottenPasswords.FindAsync(forgotPassword.Id);
+        var updatedCode = await db.AuthForgottenPasswords.FindAsync(forgotPassword.Id);
         Assert.NotNull(updatedCode);
         Assert.False(updatedCode.IsActive);
     }
@@ -85,14 +91,14 @@ public class ResetPasswordHandlerTests : IDisposable
     public async Task Handle_WhenEmailDoesNotExist_ThrowsItemNotExistsException()
     {
         // Arrange
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 
@@ -104,12 +110,18 @@ public class ResetPasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var validCode = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
         const string invalidCode = "INVALID";
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
-        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -120,14 +132,14 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthForgottenPasswords.Add(forgotPassword);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthForgottenPasswords.Add(forgotPassword);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, invalidCode);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -139,11 +151,17 @@ public class ResetPasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
-        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -154,14 +172,14 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthForgottenPasswords.Add(forgotPassword);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthForgottenPasswords.Add(forgotPassword);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -173,11 +191,17 @@ public class ResetPasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
-        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -188,14 +212,14 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(-10)
         };
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthForgottenPasswords.Add(forgotPassword);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthForgottenPasswords.Add(forgotPassword);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -208,14 +232,26 @@ public class ResetPasswordHandlerTests : IDisposable
         // Arrange
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
-        var email1 = this.faker.Internet.Email();
-        var email2 = this.faker.Internet.Email();
+        var email1 = faker.Internet.Email();
+        var email2 = faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
-        var user1 = new UserModel { Id = userId1, Email = email1, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user1 = new UserModel
+        {
+            Id = userId1,
+            Email = email1,
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var user2 = new UserModel { Id = userId2, Email = email2, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user2 = new UserModel
+        {
+            Id = userId2,
+            Email = email2,
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -226,14 +262,14 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.db.AuthUsers.AddRange(user1, user2);
-        this.db.AuthForgottenPasswords.Add(forgotPassword);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.AddRange(user1, user2);
+        db.AuthForgottenPasswords.Add(forgotPassword);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email2, newPassword, code);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -245,11 +281,17 @@ public class ResetPasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
-        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -260,17 +302,17 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthForgottenPasswords.Add(forgotPassword);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthForgottenPasswords.Add(forgotPassword);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act - First use
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Act & Assert - Second use
-        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<InvalidDataException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Invalid forgot password code.", ex.Message);
     }
 
@@ -282,11 +324,17 @@ public class ResetPasswordHandlerTests : IDisposable
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
-        var user = new UserModel { Id = userId, Email = email, Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
         var forgotPassword = new ForgotPasswordModel
         {
@@ -297,17 +345,17 @@ public class ResetPasswordHandlerTests : IDisposable
             ExpirationDate = DateTime.UtcNow.AddMinutes(10)
         };
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthForgottenPasswords.Add(forgotPassword);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthForgottenPasswords.Add(forgotPassword);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.db.AuthUsers.FindAsync(userId);
+        var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
         Assert.NotEqual(user.Password, updatedUser.Password);
         Assert.NotEqual(newPassword, updatedUser.Password);
@@ -322,14 +370,14 @@ public class ResetPasswordHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ThrowsItemNotExistsException()
     {
         // Arrange
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
 
         var command = new ResetPasswordCommand(email, newPassword, code);
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("User with given email does not exist.", ex.Message);
     }
 }

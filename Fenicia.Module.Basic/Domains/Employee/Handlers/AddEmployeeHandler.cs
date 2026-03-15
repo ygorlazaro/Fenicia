@@ -35,7 +35,13 @@ public class AddEmployeeHandler(DefaultContext db)
             City = command.City
         };
 
-        var employee = new EmployeeModel { Id = command.Id, PositionId = command.PositionId, Person = person, PersonId = person.Id };
+        var employee = new EmployeeModel
+        {
+            Id = command.Id,
+            PositionId = command.PositionId,
+            Person = person,
+            PersonId = person.Id
+        };
 
         db.BasicEmployees.Add(employee);
 

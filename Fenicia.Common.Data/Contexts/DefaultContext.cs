@@ -18,14 +18,14 @@ public partial class DefaultContext : DbContext
 
     public DefaultContext() : base(new DbContextOptions<DefaultContext>())
     {
-        this.companyContext = new CompanyContext(new HttpContextAccessor());
+        companyContext = new CompanyContext(new HttpContextAccessor());
     }
 
-    public Guid? CurrentCompanyId => this.companyContext.CompanyId;
+    public Guid? CurrentCompanyId => companyContext.CompanyId;
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
-        foreach (var item in this.ChangeTracker.Entries())
+        foreach (var item in ChangeTracker.Entries())
         {
             if (item.Entity is not BaseModel model)
             {
@@ -54,14 +54,14 @@ public partial class DefaultContext : DbContext
 
     private void ApplyCompanyId()
     {
-        var entries = this.ChangeTracker.Entries<BaseCompanyModel>().Where(e => e.State == EntityState.Added);
+        var entries = ChangeTracker.Entries<BaseCompanyModel>().Where(e => e.State == EntityState.Added);
 
         foreach (var entry in entries)
         {
-            entry.Entity.CompanyId = this.CurrentCompanyId switch
+            entry.Entity.CompanyId = CurrentCompanyId switch
             {
                 null => throw new InvalidOperationException("CompanyId is required"),
-                _ => this.CurrentCompanyId.Value
+                _ => CurrentCompanyId.Value
             };
 
         }
@@ -100,7 +100,7 @@ public partial class DefaultContext : DbContext
 
     private void SetFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : BaseCompanyModel
     {
-        modelBuilder.Entity<TEntity>().HasQueryFilter(e => (this.CurrentCompanyId == null || e.CompanyId == this.CurrentCompanyId) && e.Deleted == null);
+        modelBuilder.Entity<TEntity>().HasQueryFilter(e => (CurrentCompanyId == null || e.CompanyId == CurrentCompanyId) && e.Deleted == null);
     }
 
     private void SetSoftDeleteFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : BaseModel

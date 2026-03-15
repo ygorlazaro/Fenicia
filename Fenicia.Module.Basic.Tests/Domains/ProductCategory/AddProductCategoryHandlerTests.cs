@@ -17,13 +17,13 @@ public class AddProductCategoryHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new AddProductCategoryHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new AddProductCategoryHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public class AddProductCategoryHandlerTests : IDisposable
         var command = new AddProductCategoryCommand(Guid.NewGuid(), "Electronics");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -48,10 +48,10 @@ public class AddProductCategoryHandlerTests : IDisposable
         var command = new AddProductCategoryCommand(Guid.NewGuid(), "Books");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var category = await this.db.BasicProductCategories.FindAsync([command.Id], CancellationToken.None);
+        var category = await db.BasicProductCategories.FindAsync([command.Id], CancellationToken.None);
         Assert.NotNull(category);
         Assert.Equal(command.Name, category.Name);
     }
@@ -64,11 +64,11 @@ public class AddProductCategoryHandlerTests : IDisposable
         var command2 = new AddProductCategoryCommand(Guid.NewGuid(), "Books");
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await handler.Handle(command1, CancellationToken.None);
+        await handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var categories = await this.db.BasicProductCategories.ToListAsync();
+        var categories = await db.BasicProductCategories.ToListAsync();
         Assert.Equal(2, categories.Count);
     }
 }

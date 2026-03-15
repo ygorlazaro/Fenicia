@@ -32,20 +32,20 @@ public class StateControllerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
-        this.getAllStateHandler = new GetAllStateHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        companyContext = new TestCompanyContext();
+        db = new DefaultContext(options, companyContext);
+        getAllStateHandler = new GetAllStateHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new StateController(this.getAllStateHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new StateController(getAllStateHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
-        this.faker = new Faker();
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -56,8 +56,8 @@ public class StateControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public class StateControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAllAsync(wide, ct);
+        var result = await controller.GetAllAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -86,18 +86,28 @@ public class StateControllerTests : IDisposable
     public async Task GetAllAsync_WhenStatesExist_ReturnsOkWithStates()
     {
         // Arrange
-        var state1 = new StateModel { Id = Guid.NewGuid(), Name = this.faker.Address.State(), Uf = this.faker.Address.StateAbbr() };
+        var state1 = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Address.State(),
+            Uf = faker.Address.StateAbbr()
+        };
 
-        var state2 = new StateModel { Id = Guid.NewGuid(), Name = this.faker.Address.State(), Uf = this.faker.Address.StateAbbr() };
+        var state2 = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Address.State(),
+            Uf = faker.Address.StateAbbr()
+        };
 
-        this.db.AuthStates.AddRange(state1, state2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthStates.AddRange(state1, state2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAllAsync(wide, ct);
+        var result = await controller.GetAllAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -115,20 +125,35 @@ public class StateControllerTests : IDisposable
     public async Task GetAllAsync_WhenStatesExist_ReturnsStatesOrderedByUf()
     {
         // Arrange
-        var state1 = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
+        var state1 = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
 
-        var state2 = new StateModel { Id = Guid.NewGuid(), Name = "Acre", Uf = "AC" };
+        var state2 = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Acre",
+            Uf = "AC"
+        };
 
-        var state3 = new StateModel { Id = Guid.NewGuid(), Name = "Rio de Janeiro", Uf = "RJ" };
+        var state3 = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Rio de Janeiro",
+            Uf = "RJ"
+        };
 
-        this.db.AuthStates.AddRange(state1, state2, state3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthStates.AddRange(state1, state2, state3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAllAsync(wide, ct);
+        var result = await controller.GetAllAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);

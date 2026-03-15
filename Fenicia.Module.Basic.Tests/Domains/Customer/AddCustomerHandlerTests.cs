@@ -24,14 +24,14 @@ public class AddCustomerHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new AddCustomerHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new AddCustomerHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -42,10 +42,10 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_WithValidCommand_AddsCustomerAndReturnsResponse()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), "Apt 101", this.faker.Address.CityPrefix(), this.faker.Random.Replace("####"), Guid.NewGuid(), this.faker.Address.StreetName(), this.faker.Address.ZipCode(), this.faker.Random.Replace("(##) #####-####"));
+        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), "Apt 101", faker.Address.CityPrefix(), faker.Random.Replace("####"), Guid.NewGuid(), faker.Address.StreetName(), faker.Address.ZipCode(), faker.Random.Replace("(##) #####-####"));
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -60,10 +60,10 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_WithNullPhoneNumber_SetsEmptyString()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -76,10 +76,10 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_WithNullStreet_SetsEmptyString()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -92,10 +92,10 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_WithNullZipCode_SetsEmptyString()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -108,10 +108,10 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_WithNullNumber_SetsEmptyString()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -124,10 +124,10 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_WithNullComplement_KeepsNull()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -140,10 +140,10 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_WithNullNeighborhood_KeepsNull()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -156,10 +156,10 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_WithNullCity_KeepsNull()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), null, null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), null, null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -172,13 +172,13 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_VerifiesCustomerWasSavedToDatabase()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), "Apt 101", this.faker.Address.CityPrefix(), this.faker.Random.Replace("####"), Guid.NewGuid(), this.faker.Address.StreetName(), this.faker.Address.ZipCode(), this.faker.Random.Replace("(##) #####-####"));
+        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), "Apt 101", faker.Address.CityPrefix(), faker.Random.Replace("####"), Guid.NewGuid(), faker.Address.StreetName(), faker.Address.ZipCode(), faker.Random.Replace("(##) #####-####"));
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var customer = await this.db.BasicCustomers.Include(c => c.Person).FirstOrDefaultAsync(c => c.Id == command.Id);
+        var customer = await db.BasicCustomers.Include(c => c.Person).FirstOrDefaultAsync(c => c.Id == command.Id);
 
         Assert.NotNull(customer);
         Assert.Equal(command.Name, customer.Person.Name);
@@ -192,16 +192,16 @@ public class AddCustomerHandlerTests : IDisposable
     public async Task Handle_WithMultipleCommands_AddsAllCustomers()
     {
         // Arrange
-        var command1 = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
+        var command1 = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
 
-        var command2 = new AddCustomerCommand(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
+        var command2 = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await handler.Handle(command1, CancellationToken.None);
+        await handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var customers = await this.db.BasicCustomers.ToListAsync();
+        var customers = await db.BasicCustomers.ToListAsync();
         Assert.Equal(2, customers.Count);
     }
 }

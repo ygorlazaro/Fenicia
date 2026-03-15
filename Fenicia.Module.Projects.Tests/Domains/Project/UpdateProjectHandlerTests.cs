@@ -21,14 +21,14 @@ public class UpdateProjectHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateProjectHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -49,13 +49,13 @@ public class UpdateProjectHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.Add(project);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.Projects.Add(project);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommand(projectId, "New Title", "New Description", "Completed", DateTime.UtcNow.AddDays(-20), DateTime.UtcNow, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -70,7 +70,7 @@ public class UpdateProjectHandlerTests : IDisposable
         var command = new UpdateProjectCommand(Guid.NewGuid(), "New Title", "New Description", "Active", DateTime.UtcNow, null, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -83,7 +83,7 @@ public class UpdateProjectHandlerTests : IDisposable
         var command = new UpdateProjectCommand(Guid.NewGuid(), "New Title", "New Description", "Active", DateTime.UtcNow, null, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -118,21 +118,21 @@ public class UpdateProjectHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.AddRange(project1, project2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.Projects.AddRange(project1, project2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommand(project1Id, "Updated Project 1 Title", "Updated Project 1 Description", "Completed", project1.StartDate, DateTime.UtcNow, project1.Owner);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(project1Id, result.Id);
         Assert.Equal("Updated Project 1 Title", result.Title);
 
-        var updatedProject1 = await this.db.Projects.FindAsync([project1Id], CancellationToken.None);
-        var project2InDb = await this.db.Projects.FindAsync([project2Id], CancellationToken.None);
+        var updatedProject1 = await db.Projects.FindAsync([project1Id], CancellationToken.None);
+        var project2InDb = await db.Projects.FindAsync([project2Id], CancellationToken.None);
 
         Assert.NotNull(updatedProject1);
         Assert.NotNull(project2InDb);
@@ -148,21 +148,21 @@ public class UpdateProjectHandlerTests : IDisposable
         var project = new ProjectModel
         {
             Id = projectId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.Add(project);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.Projects.Add(project);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectCommand(projectId, "Updated Title", null, "Active", DateTime.UtcNow, null, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

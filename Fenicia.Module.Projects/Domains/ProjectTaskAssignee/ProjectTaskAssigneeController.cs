@@ -24,7 +24,7 @@ public class ProjectTaskAssigneeController(GetAllProjectTaskAssigneeHandler getA
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllProjectTaskAssigneeResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var assignees = await getAllProjectTaskAssigneeHandler.Handle(new GetAllProjectTaskAssigneeQuery(page, perPage), ct);
 
@@ -37,7 +37,7 @@ public class ProjectTaskAssigneeController(GetAllProjectTaskAssigneeHandler getA
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetProjectTaskAssigneeByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var assignee = await getProjectTaskAssigneeByIdHandler.Handle(new GetProjectTaskAssigneeByIdQuery(id), ct);
 
@@ -53,7 +53,7 @@ public class ProjectTaskAssigneeController(GetAllProjectTaskAssigneeHandler getA
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProjectTaskAssigneeResponse>> PostAsync([FromBody] AddProjectTaskAssigneeCommand command, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var assignee = await addProjectTaskAssigneeHandler.Handle(command, ct);
 
@@ -70,7 +70,7 @@ public class ProjectTaskAssigneeController(GetAllProjectTaskAssigneeHandler getA
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProjectTaskAssigneeResponse>> PatchAsync([FromBody] UpdateProjectTaskAssigneeCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var assignee = await updateProjectTaskAssigneeHandler.Handle(command with { Id = id }, ct);
 
@@ -84,7 +84,7 @@ public class ProjectTaskAssigneeController(GetAllProjectTaskAssigneeHandler getA
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         await deleteProjectTaskAssigneeHandler.Handle(new DeleteProjectTaskAssigneeCommand(id), ct);
 

@@ -25,14 +25,14 @@ public class DeleteEmployeeHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new DeleteEmployeeHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new DeleteEmployeeHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -49,27 +49,27 @@ public class DeleteEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteEmployeeCommand(employeeId);
         var beforeDelete = DateTime.Now;
 
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedEmployee = await this.db.BasicEmployees.FindAsync([employeeId], CancellationToken.None);
+        var deletedEmployee = await db.BasicEmployees.FindAsync([employeeId], CancellationToken.None);
         Assert.NotNull(deletedEmployee);
         Assert.NotNull(deletedEmployee.Deleted);
         Assert.True(deletedEmployee.Deleted >= beforeDelete.AddSeconds(-1));
@@ -83,10 +83,10 @@ public class DeleteEmployeeHandlerTests : IDisposable
         var command = new DeleteEmployeeCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var employees = await this.db.BasicEmployees.ToListAsync();
+        var employees = await db.BasicEmployees.ToListAsync();
         Assert.Empty(employees);
     }
 
@@ -105,14 +105,14 @@ public class DeleteEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
@@ -124,28 +124,28 @@ public class DeleteEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.AddRange(employee1, employee2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.AddRange(employee1, employee2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteEmployeeCommand(employee1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedEmployee = await this.db.BasicEmployees.FindAsync([employee1Id], CancellationToken.None);
-        var notDeletedEmployee = await this.db.BasicEmployees.FindAsync([employee2Id], CancellationToken.None);
+        var deletedEmployee = await db.BasicEmployees.FindAsync([employee1Id], CancellationToken.None);
+        var notDeletedEmployee = await db.BasicEmployees.FindAsync([employee2Id], CancellationToken.None);
 
         Assert.NotNull(deletedEmployee);
         Assert.NotNull(deletedEmployee.Deleted);
@@ -160,10 +160,10 @@ public class DeleteEmployeeHandlerTests : IDisposable
         var command = new DeleteEmployeeCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var employees = await this.db.BasicEmployees.ToListAsync();
+        var employees = await db.BasicEmployees.ToListAsync();
         Assert.Empty(employees);
     }
 }

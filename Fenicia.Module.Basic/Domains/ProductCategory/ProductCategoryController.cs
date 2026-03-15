@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Product.Handlers;
 using Fenicia.Module.Basic.Domains.Product.Queries;
 using Fenicia.Module.Basic.Domains.Product.Responses;
@@ -48,7 +47,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(page, perPage), ct);
 
@@ -79,7 +78,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id), ct);
 
@@ -110,7 +109,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var productCategory = await addProductCategoryHandler.Handle(command, ct);
 
@@ -145,7 +144,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var productCategory = await updateProductCategoryHandler.Handle(command with { Id = id }, ct);
 
@@ -174,7 +173,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id), ct);
 
@@ -204,7 +203,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var products = await getProductsByCategoryIdHandler.Handle(new GetProductsByCategoryIdQuery(categoryId, query.Page, query.PerPage), ct);
 

@@ -1,7 +1,6 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.State.Handlers;
 using Fenicia.Module.Basic.Domains.State.Responses;
 
@@ -40,7 +39,7 @@ public class StateController(GetAllStateHandler getAllStateHandler) : Controller
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var states = await getAllStateHandler.Handle(ct);
 

@@ -25,14 +25,14 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetEmployeesByPositionIdHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetEmployeesByPositionIdHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -45,7 +45,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -59,11 +59,19 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
+        var position1 = new PositionModel
+        {
+            Id = position1Id,
+            Name = "Developer"
+        };
 
-        var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
+        var position2 = new PositionModel
+        {
+            Id = position2Id,
+            Name = "Designer"
+        };
 
-        this.db.BasicPositions.AddRange(position1, position2);
+        db.BasicPositions.AddRange(position1, position2);
 
         var employee1 = new EmployeeModel
         {
@@ -73,14 +81,14 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
@@ -92,14 +100,14 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
@@ -111,24 +119,24 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.AddRange(employee1, employee2, employee3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.AddRange(employee1, employee2, employee3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(position1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -141,8 +149,12 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel { Id = positionId, Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = positionId,
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
         {
@@ -154,25 +166,25 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
                 Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
-                    Name = $"{this.faker.Person.FullName} {i}",
-                    Email = this.faker.Internet.Email(),
-                    Document = this.faker.Random.Replace("###.###.###-##"),
-                    Street = this.faker.Address.StreetName(),
-                    Number = this.faker.Random.Replace("####"),
-                    ZipCode = this.faker.Address.ZipCode(),
+                    Name = $"{faker.Person.FullName} {i}",
+                    Email = faker.Internet.Email(),
+                    Document = faker.Random.Replace("###.###.###-##"),
+                    Street = faker.Address.StreetName(),
+                    Number = faker.Random.Replace("####"),
+                    ZipCode = faker.Address.ZipCode(),
                     StateId = Guid.NewGuid(),
-                    City = this.faker.Address.City()
+                    City = faker.Address.City()
                 }
             };
-            this.db.BasicEmployees.Add(employee);
+            db.BasicEmployees.Add(employee);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(positionId, 2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -184,8 +196,12 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel { Id = positionId, Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = positionId,
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         for (var i = 0; i < 5; i++)
         {
@@ -197,25 +213,25 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
                 Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
-                    Name = $"{this.faker.Person.FullName} {i}",
-                    Email = this.faker.Internet.Email(),
-                    Document = this.faker.Random.Replace("###.###.###-##"),
-                    Street = this.faker.Address.StreetName(),
-                    Number = this.faker.Random.Replace("####"),
-                    ZipCode = this.faker.Address.ZipCode(),
+                    Name = $"{faker.Person.FullName} {i}",
+                    Email = faker.Internet.Email(),
+                    Document = faker.Random.Replace("###.###.###-##"),
+                    Street = faker.Address.StreetName(),
+                    Number = faker.Random.Replace("####"),
+                    ZipCode = faker.Address.ZipCode(),
                     StateId = Guid.NewGuid(),
-                    City = this.faker.Address.City()
+                    City = faker.Address.City()
                 }
             };
-            this.db.BasicEmployees.Add(employee);
+            db.BasicEmployees.Add(employee);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(positionId, 10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -227,8 +243,12 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel { Id = positionId, Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = positionId,
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         for (var i = 0; i < 25; i++)
         {
@@ -240,25 +260,25 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
                 Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
-                    Name = $"{this.faker.Person.FullName} {i}",
-                    Email = this.faker.Internet.Email(),
-                    Document = this.faker.Random.Replace("###.###.###-##"),
-                    Street = this.faker.Address.StreetName(),
-                    Number = this.faker.Random.Replace("####"),
-                    ZipCode = this.faker.Address.ZipCode(),
+                    Name = $"{faker.Person.FullName} {i}",
+                    Email = faker.Internet.Email(),
+                    Document = faker.Random.Replace("###.###.###-##"),
+                    Street = faker.Address.StreetName(),
+                    Number = faker.Random.Replace("####"),
+                    ZipCode = faker.Address.ZipCode(),
                     StateId = Guid.NewGuid(),
-                    City = this.faker.Address.City()
+                    City = faker.Address.City()
                 }
             };
-            this.db.BasicEmployees.Add(employee);
+            db.BasicEmployees.Add(employee);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -270,8 +290,12 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel { Id = positionId, Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = positionId,
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -281,24 +305,24 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

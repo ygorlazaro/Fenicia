@@ -19,14 +19,14 @@ public class AddProjectTaskHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new AddProjectTaskHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new AddProjectTaskHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -35,10 +35,10 @@ public class AddProjectTaskHandlerTests : IDisposable
     public async Task Handle_WithValidCommand_AddsProjectTaskAndReturnsResponse()
     {
         // Arrange
-        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), this.faker.Lorem.Paragraph(), "Medium", "Task", this.faker.Random.Number(0, 100), this.faker.Random.Number(1, 10), DateTime.UtcNow.AddDays(7), Guid.NewGuid());
+        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), faker.Lorem.Paragraph(), "Medium", "Task", faker.Random.Number(0, 100), faker.Random.Number(1, 10), DateTime.UtcNow.AddDays(7), Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -50,13 +50,13 @@ public class AddProjectTaskHandlerTests : IDisposable
     public async Task Handle_VerifiesProjectTaskWasSaved()
     {
         // Arrange
-        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), this.faker.Lorem.Paragraph(), "Medium", "Task", 1, 5, DateTime.UtcNow.AddDays(7), Guid.NewGuid());
+        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), faker.Lorem.Paragraph(), "Medium", "Task", 1, 5, DateTime.UtcNow.AddDays(7), Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var task = await this.db.ProjectTasks.FirstOrDefaultAsync(t => t.Id == command.Id);
+        var task = await db.ProjectTasks.FirstOrDefaultAsync(t => t.Id == command.Id);
 
         Assert.NotNull(task);
         Assert.Equal(command.Title, task.Title);
@@ -69,16 +69,16 @@ public class AddProjectTaskHandlerTests : IDisposable
         // Arrange
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
-        var command1 = new AddProjectTaskCommand(Guid.NewGuid(), projectId, statusId, this.faker.Lorem.Sentence(5), this.faker.Lorem.Paragraph(), "High", "Task", 1, 5, DateTime.UtcNow.AddDays(7), Guid.NewGuid());
+        var command1 = new AddProjectTaskCommand(Guid.NewGuid(), projectId, statusId, faker.Lorem.Sentence(5), faker.Lorem.Paragraph(), "High", "Task", 1, 5, DateTime.UtcNow.AddDays(7), Guid.NewGuid());
 
-        var command2 = new AddProjectTaskCommand(Guid.NewGuid(), projectId, statusId, this.faker.Lorem.Sentence(5), this.faker.Lorem.Paragraph(), "Low", "Bug", 2, 3, null, Guid.NewGuid());
+        var command2 = new AddProjectTaskCommand(Guid.NewGuid(), projectId, statusId, faker.Lorem.Sentence(5), faker.Lorem.Paragraph(), "Low", "Bug", 2, 3, null, Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await handler.Handle(command1, CancellationToken.None);
+        await handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var tasks = await this.db.ProjectTasks.ToListAsync();
+        var tasks = await db.ProjectTasks.ToListAsync();
         Assert.Equal(2, tasks.Count);
     }
 
@@ -86,10 +86,10 @@ public class AddProjectTaskHandlerTests : IDisposable
     public async Task Handle_WithNullDescription_AddsProjectTaskSuccessfully()
     {
         // Arrange
-        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), null, "Medium", "Task", 1, null, null, Guid.NewGuid());
+        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), null, "Medium", "Task", 1, null, null, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -101,10 +101,10 @@ public class AddProjectTaskHandlerTests : IDisposable
     public async Task Handle_WithNullDueDate_AddsProjectTaskSuccessfully()
     {
         // Arrange
-        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), this.faker.Lorem.Paragraph(), "Medium", "Task", 1, 5, null, Guid.NewGuid());
+        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), faker.Lorem.Paragraph(), "Medium", "Task", 1, 5, null, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

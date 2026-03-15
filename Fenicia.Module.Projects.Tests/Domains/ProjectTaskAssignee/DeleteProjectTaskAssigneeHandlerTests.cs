@@ -18,13 +18,13 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new DeleteProjectTaskAssigneeHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new DeleteProjectTaskAssigneeHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -45,17 +45,17 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-5)
         };
 
-        this.db.ProjectTaskAssignees.Add(assignee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.Add(assignee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskAssigneeCommand(assigneeId);
         var beforeDelete = DateTime.UtcNow;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([assigneeId], CancellationToken.None);
+        var deletedAssignee = await db.ProjectTaskAssignees.FindAsync([assigneeId], CancellationToken.None);
         Assert.NotNull(deletedAssignee);
         Assert.NotNull(deletedAssignee.Deleted);
         Assert.InRange(deletedAssignee.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
@@ -68,10 +68,10 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
         var command = new DeleteProjectTaskAssigneeCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var assignees = await this.db.ProjectTaskAssignees.ToListAsync();
+        var assignees = await db.ProjectTaskAssignees.ToListAsync();
         Assert.Empty(assignees);
     }
 
@@ -82,10 +82,10 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
         var command = new DeleteProjectTaskAssigneeCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var assignees = await this.db.ProjectTaskAssignees.ToListAsync();
+        var assignees = await db.ProjectTaskAssignees.ToListAsync();
         Assert.Empty(assignees);
     }
 
@@ -117,17 +117,17 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskAssigneeCommand(assignee1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
-        var notDeletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
+        var deletedAssignee = await db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
+        var notDeletedAssignee = await db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
 
         Assert.NotNull(deletedAssignee);
         Assert.NotNull(deletedAssignee.Deleted);
@@ -174,18 +174,18 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-1)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2, assignee3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.AddRange(assignee1, assignee2, assignee3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskAssigneeCommand(assignee2Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var assignee1InDb = await this.db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
-        var deletedAssignee = await this.db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
-        var assignee3InDb = await this.db.ProjectTaskAssignees.FindAsync([assignee3Id], CancellationToken.None);
+        var assignee1InDb = await db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
+        var deletedAssignee = await db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
+        var assignee3InDb = await db.ProjectTaskAssignees.FindAsync([assignee3Id], CancellationToken.None);
 
         Assert.NotNull(assignee1InDb);
         Assert.NotNull(deletedAssignee);

@@ -35,7 +35,13 @@ public class AddSupplierHandler(DefaultContext db)
             City = command.City
         };
 
-        var supplier = new SupplierModel { Id = command.Id, Person = person, PersonId = person.Id, Cnpj = command.Cnpj };
+        var supplier = new SupplierModel
+        {
+            Id = command.Id,
+            Person = person,
+            PersonId = person.Id,
+            Cnpj = command.Cnpj
+        };
 
         db.BasicSuppliers.Add(supplier);
 

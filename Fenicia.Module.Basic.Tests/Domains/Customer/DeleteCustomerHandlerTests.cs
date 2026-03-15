@@ -25,14 +25,14 @@ public class DeleteCustomerHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new DeleteCustomerHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new DeleteCustomerHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -51,28 +51,28 @@ public class DeleteCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteCustomerCommand(customerId);
         var beforeDelete = DateTime.Now;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedCustomer = await this.db.BasicCustomers.FindAsync([customerId], CancellationToken.None);
+        var deletedCustomer = await db.BasicCustomers.FindAsync([customerId], CancellationToken.None);
         Assert.NotNull(deletedCustomer);
         Assert.NotNull(deletedCustomer.Deleted);
         Assert.InRange(deletedCustomer.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.Now.AddSeconds(1));
@@ -88,10 +88,10 @@ public class DeleteCustomerHandlerTests : IDisposable
         var command = new DeleteCustomerCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var customers = await this.db.BasicCustomers.ToListAsync();
+        var customers = await db.BasicCustomers.ToListAsync();
         Assert.Empty(customers);
     }
 
@@ -112,14 +112,14 @@ public class DeleteCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
@@ -130,28 +130,28 @@ public class DeleteCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicCustomers.AddRange(customer1, customer2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.AddRange(customer1, customer2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteCustomerCommand(customer1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedCustomer = await this.db.BasicCustomers.FindAsync([customer1Id], CancellationToken.None);
-        var notDeletedCustomer = await this.db.BasicCustomers.FindAsync([customer2Id], CancellationToken.None);
+        var deletedCustomer = await db.BasicCustomers.FindAsync([customer1Id], CancellationToken.None);
+        var notDeletedCustomer = await db.BasicCustomers.FindAsync([customer2Id], CancellationToken.None);
 
         Assert.NotNull(deletedCustomer);
         Assert.NotNull(deletedCustomer.Deleted);
@@ -169,10 +169,10 @@ public class DeleteCustomerHandlerTests : IDisposable
         var command = new DeleteCustomerCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var customers = await this.db.BasicCustomers.ToListAsync();
+        var customers = await db.BasicCustomers.ToListAsync();
         Assert.Empty(customers);
     }
 }

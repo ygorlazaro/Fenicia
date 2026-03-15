@@ -35,7 +35,13 @@ public class GenerateTokenStringHandler(IConfiguration configuration)
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());
         var authClaims = GenerateClaims(user);
         var authSigningKey = new SymmetricSecurityKey(key);
-        var tokenDescriptor = new SecurityTokenDescriptor { Expires = DateTime.UtcNow.AddHours(3), SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256), Subject = new ClaimsIdentity(authClaims) };
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Expires = DateTime.UtcNow.AddHours(3),
+            SigningCredentials = new SigningCredentials(authSigningKey,
+                SecurityAlgorithms.HmacSha256),
+            Subject = new ClaimsIdentity(authClaims)
+        };
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var finalToken = tokenHandler.WriteToken(token);

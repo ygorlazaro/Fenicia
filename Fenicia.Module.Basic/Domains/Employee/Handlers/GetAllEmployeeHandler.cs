@@ -25,7 +25,7 @@ public class GetAllEmployeeHandler(DefaultContext db)
 
         var employees = await db.BasicEmployees.Include(e => e.Person).ThenInclude(p => p.State).Include(e => e.Position).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
 
-        var response = employees.Select(e => new GetAllEmployeeResponse(e.Id, e.PositionId, e.PersonId, e.Person.Name, e.Person.Email, e.Person.PhoneNumber, e.Person.Document, e.Person.Street, e.Person.Number, e.Person.Complement, e.Person.Neighborhood, e.Person.ZipCode, e.Person.StateId, e.Person.City, e.Position.Name, e.Person.State != null ? e.Person.State.Name : null)).ToList();
+        var response = employees.Select(e => new GetAllEmployeeResponse(e.Id, e.PositionId, e.PersonId, e.Person.Name, e.Person.Email, e.Person.PhoneNumber, e.Person.Document, e.Person.Street, e.Person.Number, e.Person.Complement, e.Person.Neighborhood, e.Person.ZipCode, e.Person.StateId, e.Person.City, e.Position.Name, e.Person.State.Name)).ToList();
 
         return new Pagination<List<GetAllEmployeeResponse>>(response, total, query.Page, query.PerPage);
     }

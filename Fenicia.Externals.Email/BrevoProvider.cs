@@ -14,7 +14,16 @@ public class BrevoProvider : IBrevoProvider
         var config = new Configuration { ApiKey = { ["api-key"] = Environment.GetEnvironmentVariable("BREVO_API_KEY") } };
 
         var client = new TransactionalEmailsApi(config);
-        var sendSmtpEmail = new SendSmtpEmail { To = [new SendSmtpEmailTo(email, name)], TemplateId = (int)template, Params = parameters };
+        var sendSmtpEmail = new SendSmtpEmail
+        {
+            To =
+            [
+                new SendSmtpEmailTo(email,
+                    name)
+            ],
+            TemplateId = (int)template,
+            Params = parameters
+        };
 
         client.SendTransacEmail(sendSmtpEmail);
     }

@@ -41,17 +41,17 @@ public class ModuleControllerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        var getModulesHandler = new GetModulesHandler(this.db);
+        db = new DefaultContext(options, new TestCompanyContext());
+        var getModulesHandler = new GetModulesHandler(db);
         var mockHttpContext = new Mock<HttpContext>();
-        this.faker = new Faker();
+        faker = new Faker();
 
-        this.controller = new ModuleController(getModulesHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new ModuleController(getModulesHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -68,7 +68,7 @@ public class ModuleControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllModulesAsync(query, wide, ct);
+        var result = await controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -91,19 +91,31 @@ public class ModuleControllerTests : IDisposable
     public async Task GetAllModulesAsync_WhenModulesExist_ReturnsOkWithPagination()
     {
         // Arrange
-        var module1 = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = 10.0m };
+        var module1 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m
+        };
 
-        var module2 = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.SocialNetwork, Price = 20.0m };
+        var module2 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.SocialNetwork,
+            Price = 20.0m
+        };
 
-        this.db.AuthModules.AddRange(module1, module2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.AddRange(module1, module2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllModulesAsync(query, wide, ct);
+        var result = await controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -126,19 +138,31 @@ public class ModuleControllerTests : IDisposable
     public async Task GetAllModulesAsync_ExcludesErpAndAuthModuleTypes()
     {
         // Arrange
-        var authModule = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Auth, Price = 50.0m };
+        var authModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Auth,
+            Price = 50.0m
+        };
 
-        var basicModule = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = 10.0m };
+        var basicModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m
+        };
 
-        this.db.AuthModules.AddRange(authModule, basicModule);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.AddRange(authModule, basicModule);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllModulesAsync(query, wide, ct);
+        var result = await controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -165,7 +189,7 @@ public class ModuleControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        await this.controller.GetAllModulesAsync(query, wide, ct);
+        await controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
         Assert.Equal("Guest", wide.UserId);
@@ -181,18 +205,24 @@ public class ModuleControllerTests : IDisposable
         var modules = new List<ModuleModel>();
         for (var i = 0; i < 25; i++)
         {
-            modules.Add(new ModuleModel { Id = Guid.NewGuid(), Name = $"Module {this.faker.Commerce.ProductName()} {i}", Type = (ModuleType)(i % 10 + 1), Price = 10.0m });
+            modules.Add(new ModuleModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Module {faker.Commerce.ProductName()} {i}",
+                Type = (ModuleType)(i % 10 + 1),
+                Price = 10.0m
+            });
         }
 
-        this.db.AuthModules.AddRange(modules);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.AddRange(modules);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new PaginationQuery(2, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetAllModulesAsync(query, wide, ct);
+        var result = await controller.GetAllModulesAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);

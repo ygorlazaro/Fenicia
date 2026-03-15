@@ -18,13 +18,13 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectTaskAssigneeHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new GetAllProjectTaskAssigneeHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -36,7 +36,7 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
         var query = new GetAllProjectTaskAssigneeQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -68,13 +68,13 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskAssigneeQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -98,15 +98,15 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
                 Role = i % 2 == 0 ? EnumAssigneeRole.Owner : EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
-            this.db.ProjectTaskAssignees.Add(assignee);
+            db.ProjectTaskAssignees.Add(assignee);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskAssigneeQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -128,15 +128,15 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
                 Role = EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
-            this.db.ProjectTaskAssignees.Add(assignee);
+            db.ProjectTaskAssignees.Add(assignee);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskAssigneeQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -158,15 +158,15 @@ public class GetAllProjectTaskAssigneeHandlerTests : IDisposable
                 Role = EnumAssigneeRole.Contributor,
                 AssignedAt = DateTime.UtcNow.AddDays(-i)
             };
-            this.db.ProjectTaskAssignees.Add(assignee);
+            db.ProjectTaskAssignees.Add(assignee);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskAssigneeQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

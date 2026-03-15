@@ -45,37 +45,37 @@ public class TokenControllerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.testUserId = Guid.NewGuid();
+        db = new DefaultContext(options, new TestCompanyContext());
+        testUserId = Guid.NewGuid();
         var cache = new MemoryCache(new MemoryCacheOptions());
 
-        this.mockLoginAttemptHandler = new Mock<LoginAttemptService>(cache);
+        mockLoginAttemptHandler = new Mock<LoginAttemptService>(cache);
         var mockIncrementAttempts = new Mock<IncrementAttemptsService>(cache);
-        this.mockVerifyPasswordHandler = new Mock<VerifyPasswordService>();
+        mockVerifyPasswordHandler = new Mock<VerifyPasswordService>();
         var mockConfiguration = new Mock<IConfiguration>();
         mockConfiguration.Setup(c => c["Jwt:Secret"]).Returns("ThisIsASecretKeyForJwtSigning123456");
         var mockRedis = new Mock<IConnectionMultiplexer>();
-        this.mockDatabase = new Mock<IDatabase>();
-        mockRedis.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(this.mockDatabase.Object);
+        mockDatabase = new Mock<IDatabase>();
+        mockRedis.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(mockDatabase.Object);
 
-        var generateTokenHandler1 = new GenerateTokenHandler(this.db, this.mockLoginAttemptHandler.Object, mockIncrementAttempts.Object, this.mockVerifyPasswordHandler.Object);
+        var generateTokenHandler1 = new GenerateTokenHandler(db, mockLoginAttemptHandler.Object, mockIncrementAttempts.Object, mockVerifyPasswordHandler.Object);
 
         var generateTokenStringHandler1 = new GenerateTokenStringHandler(mockConfiguration.Object);
         var generateRefreshTokenHandler1 = new GenerateRefreshTokenHandler(mockRedis.Object);
         var validateTokenHandler1 = new ValidateTokenHandler(mockRedis.Object);
         var invalidateRefreshTokenHandler1 = new InvalidateRefreshTokenHandler(mockRedis.Object);
-        var getUserForRefreshHandler1 = new GetUserForRefreshHandler(this.db);
+        var getUserForRefreshHandler1 = new GetUserForRefreshHandler(db);
 
         var mockHttpContext1 = new Mock<HttpContext>();
 
-        this.controller = new TokenController(generateTokenHandler1, generateRefreshTokenHandler1, generateTokenStringHandler1, validateTokenHandler1, invalidateRefreshTokenHandler1, getUserForRefreshHandler1) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext1.Object } };
+        controller = new TokenController(generateTokenHandler1, generateRefreshTokenHandler1, generateTokenStringHandler1, validateTokenHandler1, invalidateRefreshTokenHandler1, getUserForRefreshHandler1) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext1.Object } };
 
-        this.faker = new Faker();
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -87,12 +87,12 @@ public class TokenControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var query = new GenerateTokenQuery(this.faker.Internet.Email(), this.faker.Internet.Password());
+        var query = new GenerateTokenQuery(faker.Internet.Email(), faker.Internet.Password());
 
-        this.mockLoginAttemptHandler.Setup(h => h.Handle(query.Email)).Returns(0);
+        mockLoginAttemptHandler.Setup(h => h.Handle(query.Email)).Returns(0);
 
         // Act
-        var result = await this.controller.PostAsync(query, wide, ct);
+        var result = await controller.PostAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -110,12 +110,12 @@ public class TokenControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var query = new GenerateTokenQuery(this.faker.Internet.Email(), this.faker.Internet.Password());
+        var query = new GenerateTokenQuery(faker.Internet.Email(), faker.Internet.Password());
 
-        this.mockLoginAttemptHandler.Setup(h => h.Handle(query.Email)).Returns(5);
+        mockLoginAttemptHandler.Setup(h => h.Handle(query.Email)).Returns(5);
 
         // Act
-        var result = await this.controller.PostAsync(query, wide, ct);
+        var result = await controller.PostAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -132,24 +132,30 @@ public class TokenControllerTests : IDisposable
         // Arrange
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
-        var email = this.faker.Internet.Email();
-        var name = this.faker.Person.FullName;
-        var password = this.faker.Internet.Password();
-        var hashedPassword = "$2a$12$" + this.faker.Random.String2(53);
+        var email = faker.Internet.Email();
+        var name = faker.Person.FullName;
+        var password = faker.Internet.Password();
+        var hashedPassword = "$2a$12$" + faker.Random.String2(53);
 
-        var user = new UserModel { Id = this.testUserId, Email = email, Name = name, Password = hashedPassword };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = email,
+            Name = name,
+            Password = hashedPassword
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GenerateTokenQuery(email, password);
 
-        this.mockLoginAttemptHandler.Setup(h => h.Handle(query.Email)).Returns(0);
+        mockLoginAttemptHandler.Setup(h => h.Handle(query.Email)).Returns(0);
 
-        this.mockVerifyPasswordHandler.Setup(h => h.Handle(query.Password, hashedPassword)).Returns(true);
+        mockVerifyPasswordHandler.Setup(h => h.Handle(query.Password, hashedPassword)).Returns(true);
 
         // Act
-        var result = await this.controller.PostAsync(query, wide, ct);
+        var result = await controller.PostAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -165,7 +171,7 @@ public class TokenControllerTests : IDisposable
         Assert.NotEmpty(tokenResponse.AccessToken);
         Assert.NotNull(tokenResponse.RefreshToken);
         Assert.NotEmpty(tokenResponse.RefreshToken);
-        Assert.Equal(this.testUserId, tokenResponse.User.Id);
+        Assert.Equal(testUserId, tokenResponse.User.Id);
         Assert.Equal(email, tokenResponse.User.Email);
         Assert.Equal(name, tokenResponse.User.Name);
         Assert.Equal(query.Email, wide.UserId);
@@ -178,10 +184,10 @@ public class TokenControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var query = new GenerateTokenQuery(string.Empty, this.faker.Internet.Password());
+        var query = new GenerateTokenQuery(string.Empty, faker.Internet.Password());
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.controller.PostAsync(query, wide, ct));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await controller.PostAsync(query, wide, ct));
     }
 
     [Fact]
@@ -190,24 +196,30 @@ public class TokenControllerTests : IDisposable
         // Arrange
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
-        var email = this.faker.Internet.Email();
-        var name = this.faker.Person.FullName;
-        var password = this.faker.Internet.Password();
-        var hashedPassword = "$2a$12$" + this.faker.Random.String2(53);
+        var email = faker.Internet.Email();
+        var name = faker.Person.FullName;
+        var password = faker.Internet.Password();
+        var hashedPassword = "$2a$12$" + faker.Random.String2(53);
 
-        var user = new UserModel { Id = this.testUserId, Email = email, Name = name, Password = hashedPassword };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = email,
+            Name = name,
+            Password = hashedPassword
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GenerateTokenQuery(email, password);
 
-        this.mockLoginAttemptHandler.Setup(h => h.Handle(query.Email)).Returns(0);
+        mockLoginAttemptHandler.Setup(h => h.Handle(query.Email)).Returns(0);
 
-        this.mockVerifyPasswordHandler.Setup(h => h.Handle(query.Password, hashedPassword)).Returns(true);
+        mockVerifyPasswordHandler.Setup(h => h.Handle(query.Password, hashedPassword)).Returns(true);
 
         // Act
-        await this.controller.PostAsync(query, wide, ct);
+        await controller.PostAsync(query, wide, ct);
 
         // Assert
         Assert.Equal(query.Email, wide.UserId);
@@ -221,10 +233,10 @@ public class TokenControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         const string refreshToken = "invalid_refresh_token";
-        var query = new ValidateTokenQuery(this.testUserId, refreshToken);
+        var query = new ValidateTokenQuery(testUserId, refreshToken);
 
         // Act
-        var result = await this.controller.Refresh(query, wide, ct);
+        var result = await controller.Refresh(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -244,20 +256,26 @@ public class TokenControllerTests : IDisposable
 
         var refreshToken = Guid.NewGuid().ToString();
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new ValidateTokenQuery(this.testUserId, refreshToken);
+        var query = new ValidateTokenQuery(testUserId, refreshToken);
 
         // Mock Redis to return valid token
-        var refreshTokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(7), this.testUserId, true);
+        var refreshTokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(7), testUserId, true);
         var serializedToken = JsonSerializer.Serialize(refreshTokenResponse);
-        this.mockDatabase.Setup(db => db.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).ReturnsAsync(new RedisValue(serializedToken));
+        mockDatabase.Setup(db => db.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).ReturnsAsync(new RedisValue(serializedToken));
 
         // Act
-        var result = await this.controller.Refresh(query, wide, ct);
+        var result = await controller.Refresh(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -273,8 +291,8 @@ public class TokenControllerTests : IDisposable
         Assert.NotEmpty(tokenResponse.AccessToken);
         Assert.NotNull(tokenResponse.RefreshToken);
         Assert.NotEmpty(tokenResponse.RefreshToken);
-        Assert.Equal(this.testUserId, tokenResponse.User.Id);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId, tokenResponse.User.Id);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -286,23 +304,29 @@ public class TokenControllerTests : IDisposable
 
         var refreshToken = Guid.NewGuid().ToString();
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new ValidateTokenQuery(this.testUserId, refreshToken);
+        var query = new ValidateTokenQuery(testUserId, refreshToken);
 
         // Mock Redis to return valid token
-        var refreshTokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(7), this.testUserId, true);
+        var refreshTokenResponse = new ValidateTokenResponse(refreshToken, DateTime.UtcNow.AddDays(7), testUserId, true);
         var serializedToken = JsonSerializer.Serialize(refreshTokenResponse);
-        this.mockDatabase.Setup(db => db.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).ReturnsAsync(new RedisValue(serializedToken));
+        mockDatabase.Setup(db => db.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).ReturnsAsync(new RedisValue(serializedToken));
 
         // Act
-        await this.controller.Refresh(query, wide, ct);
+        await controller.Refresh(query, wide, ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     [Fact]

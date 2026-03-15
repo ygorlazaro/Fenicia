@@ -21,14 +21,14 @@ public class GetProjectByIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectByIdHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetProjectByIdHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -41,21 +41,21 @@ public class GetProjectByIdHandlerTests : IDisposable
         var project = new ProjectModel
         {
             Id = projectId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.Add(project);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.Projects.Add(project);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectByIdQuery(projectId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -70,7 +70,7 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -83,7 +83,7 @@ public class GetProjectByIdHandlerTests : IDisposable
         var query = new GetProjectByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -99,8 +99,8 @@ public class GetProjectByIdHandlerTests : IDisposable
         var project1 = new ProjectModel
         {
             Id = project1Id,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
@@ -110,21 +110,21 @@ public class GetProjectByIdHandlerTests : IDisposable
         var project2 = new ProjectModel
         {
             Id = project2Id,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Completed,
             StartDate = DateTime.UtcNow.AddDays(-10),
             EndDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.AddRange(project1, project2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.Projects.AddRange(project1, project2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectByIdQuery(project1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -140,7 +140,7 @@ public class GetProjectByIdHandlerTests : IDisposable
         var project = new ProjectModel
         {
             Id = projectId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             Description = null,
             Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
@@ -148,13 +148,13 @@ public class GetProjectByIdHandlerTests : IDisposable
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.Add(project);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.Projects.Add(project);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectByIdQuery(projectId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

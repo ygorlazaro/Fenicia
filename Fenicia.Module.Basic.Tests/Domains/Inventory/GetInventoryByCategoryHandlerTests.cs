@@ -25,14 +25,14 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetInventoryByCategoryHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetInventoryByCategoryHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
         var query = new GetInventoryByCategoryQuery(categoryId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -60,14 +60,22 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
-        var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
-        this.db.BasicProductCategories.AddRange(category1, category2);
+        var category1 = new ProductCategoryModel
+        {
+            Id = category1Id,
+            Name = "Electronics"
+        };
+        var category2 = new ProductCategoryModel
+        {
+            Id = category2Id,
+            Name = "Books"
+        };
+        db.BasicProductCategories.AddRange(category1, category2);
 
         var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
@@ -77,7 +85,7 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
         var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 15.00m,
             SalesPrice = 25.00m,
             Quantity = 50,
@@ -87,20 +95,20 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
         var product3 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 20.00m,
             SalesPrice = 30.00m,
             Quantity = 75,
             CategoryId = category2Id
         };
 
-        this.db.BasicProducts.AddRange(product1, product2, product3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.AddRange(product1, product2, product3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryByCategoryQuery(category1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -113,13 +121,17 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
-        this.db.BasicProductCategories.Add(category);
+        var category = new ProductCategoryModel
+        {
+            Id = categoryId,
+            Name = "Electronics"
+        };
+        db.BasicProductCategories.Add(category);
 
         var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
@@ -129,20 +141,20 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
         var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 15.00m,
             SalesPrice = 25.00m,
             Quantity = 50,
             CategoryId = categoryId
         };
 
-        this.db.BasicProducts.AddRange(product1, product2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.AddRange(product1, product2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryByCategoryQuery(categoryId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -156,29 +168,33 @@ public class GetInventoryByCategoryHandlerTests : IDisposable
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = categoryId, Name = "Electronics" };
-        this.db.BasicProductCategories.Add(category);
+        var category = new ProductCategoryModel
+        {
+            Id = categoryId,
+            Name = "Electronics"
+        };
+        db.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
             var product = new ProductModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Commerce.ProductName(),
+                Name = faker.Commerce.ProductName(),
                 CostPrice = 10.00m,
                 SalesPrice = 20.00m,
                 Quantity = 100,
                 CategoryId = categoryId
             };
-            this.db.BasicProducts.Add(product);
+            db.BasicProducts.Add(product);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetInventoryByCategoryQuery(categoryId, 2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
