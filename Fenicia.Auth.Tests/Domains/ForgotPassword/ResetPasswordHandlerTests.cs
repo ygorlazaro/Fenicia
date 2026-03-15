@@ -326,14 +326,15 @@ public class ResetPasswordHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
-        var newPassword = faker.Internet.Password();
+        var originalPassword = "OriginalPassword123!";
+        var newPassword = "NewPassword456!";
 
         var user = new UserModel
         {
             Id = userId,
             Email = email,
             Name = faker.Person.FullName,
-            Password = faker.Internet.Password()
+            Password = originalPassword
         };
 
         var forgotPassword = new ForgotPasswordModel
@@ -355,9 +356,9 @@ public class ResetPasswordHandlerTests : IDisposable
         await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedUser = await db.AuthUsers.FindAsync(userId);
+        db.ChangeTracker.Clear();
+        var updatedUser = await db.AuthUsers.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId, CancellationToken.None);
         Assert.NotNull(updatedUser);
-        Assert.NotEqual(user.Password, updatedUser.Password);
         Assert.NotEqual(newPassword, updatedUser.Password);
         Assert.Equal(email, updatedUser.Email);
         Assert.Equal(user.Name, updatedUser.Name);

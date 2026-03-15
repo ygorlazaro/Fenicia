@@ -87,10 +87,10 @@ public class ForgotPasswordControllerTests : IDisposable
     }
 
     /// <summary>
-    ///     Tests that when no user exists with the given email, ItemNotExistsException is thrown.
+    ///     Tests that when no user exists with the given email, BadRequest is returned.
     /// </summary>
     [Fact]
-    public async Task ForgotPassword_WhenUserDoesNotExist_ThrowsItemNotExistsException()
+    public async Task ForgotPassword_WhenUserDoesNotExist_ReturnsBadRequest()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -98,8 +98,11 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var command = new AddForgotPasswordCommand(faker.Internet.Email());
 
-        // Act & Assert
-        await Assert.ThrowsAsync<ItemNotExistsException>(async () => await controller.ForgotPassword(command, wide, ct));
+        // Act
+        var result = await controller.ForgotPassword(command, wide, ct);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     /// <summary>
@@ -179,7 +182,7 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var okResult = result as CreatedResult;
         Assert.NotNull(okResult);
-        Assert.Equal(200, okResult.StatusCode);
+        Assert.Equal(201, okResult.StatusCode);
         Assert.Equal(command.Email, wide.UserId);
 
         // Verify password was changed
@@ -216,15 +219,18 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var command = new ResetPasswordCommand(email, faker.Internet.Password(), "INVALID");
 
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidDataException>(async () => await controller.ResetPassword(command, wide, ct));
+        // Act
+        var result = await controller.ResetPassword(command, wide, ct);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     /// <summary>
-    ///     Tests that when no user exists with the given email, ItemNotExistsException is thrown.
+    ///     Tests that when no user exists with the given email, BadRequest is returned.
     /// </summary>
     [Fact]
-    public async Task ResetPassword_WhenUserDoesNotExist_ThrowsItemNotExistsException()
+    public async Task ResetPassword_WhenUserDoesNotExist_ReturnsBadRequest()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -232,8 +238,11 @@ public class ForgotPasswordControllerTests : IDisposable
 
         var command = new ResetPasswordCommand(faker.Internet.Email(), faker.Internet.Password(), faker.Random.String2(6, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"));
 
-        // Act & Assert
-        await Assert.ThrowsAsync<ItemNotExistsException>(async () => await controller.ResetPassword(command, wide, ct));
+        // Act
+        var result = await controller.ResetPassword(command, wide, ct);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     /// <summary>
