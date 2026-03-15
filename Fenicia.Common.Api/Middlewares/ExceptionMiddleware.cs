@@ -68,21 +68,15 @@ public class ExceptionMiddleware(RequestDelegate next)
     private static Guid? GetUserId(HttpContext context)
     {
         var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
-        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
-        {
-            return userId;
-        }
-        return null;
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId) ? userId : null;
     }
 
     private static Guid? GetCompanyId(HttpContext context)
     {
-        if (context.Request.Headers.TryGetValue("x-company", out var companyHeader) &&
-            Guid.TryParse(companyHeader, out var companyId))
-        {
-            return companyId;
-        }
-        return null;
+        return context.Request.Headers.TryGetValue("x-company", out var companyHeader) &&
+            Guid.TryParse(companyHeader, out var companyId)
+            ? companyId
+            : null;
     }
 
     private static void SetCulture(string acceptLanguage)

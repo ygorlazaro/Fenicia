@@ -50,10 +50,11 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
     {
         try
         {
-            var userId = ClaimReader.UserId(this.User);
+            var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            var result = await getCompaniesByUserHandler.Handle(new GetCompaniesByUserQuery(userId, query.Page, query.PerPage), ct);
+            var getCompaniesByUserQuery = new GetCompaniesByUserQuery(userId, query.Page, query.PerPage);
+            var result = await getCompaniesByUserHandler.Handle(getCompaniesByUserQuery, ct);
 
             return Ok(result);
         }
@@ -92,11 +93,11 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyCommand request, WideEventContext wide, CancellationToken ct)
+    public async Task<IActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyCommand request, WideEventContext wide, CancellationToken ct)
     {
         try
         {
-            var userId = ClaimReader.UserId(this.User);
+            var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
             var company = request with { CompanyId = id };

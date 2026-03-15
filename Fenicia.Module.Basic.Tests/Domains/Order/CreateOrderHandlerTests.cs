@@ -20,13 +20,13 @@ public class CreateOrderHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new CreateOrderHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new CreateOrderHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public class CreateOrderHandlerTests : IDisposable
         var command = new CreateOrderCommand(userId, customerId, DateTime.Now, OrderStatus.Pending, details, employeeId);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -62,7 +62,7 @@ public class CreateOrderHandlerTests : IDisposable
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -87,18 +87,18 @@ public class CreateOrderHandlerTests : IDisposable
             SalesPrice = 10.00m,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var details = new List<OrderDetailCommand> { new(productId, 10.00m, 5) };
 
         var command = new CreateOrderCommand(Guid.NewGuid(), customerId, DateTime.Now, OrderStatus.Pending, details, employeeId);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var stockMovements = await this.db.BasicStockMovements.ToListAsync();
+        var stockMovements = await db.BasicStockMovements.ToListAsync();
         Assert.Single(stockMovements);
         Assert.Equal(productId, stockMovements[0].ProductId);
         Assert.Equal(customerId, stockMovements[0].CustomerId);
@@ -108,7 +108,7 @@ public class CreateOrderHandlerTests : IDisposable
         Assert.Contains("Sale order", stockMovements[0].Reason);
 
         // Verify product quantity was reduced
-        var updatedProduct = await this.db.BasicProducts.FindAsync(productId);
+        var updatedProduct = await db.BasicProducts.FindAsync(productId);
         Assert.NotNull(updatedProduct);
         Assert.Equal(95, updatedProduct.Quantity); // 100 - 5
     }
@@ -137,19 +137,19 @@ public class CreateOrderHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        this.db.BasicProducts.AddRange(product1, product2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.AddRange(product1, product2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var details = new List<OrderDetailCommand> { new(product1.Id, 10.00m, 5), new(product2.Id, 15.00m, 3) };
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedProduct1 = await this.db.BasicProducts.FindAsync(product1.Id);
-        var updatedProduct2 = await this.db.BasicProducts.FindAsync(product2.Id);
+        var updatedProduct1 = await db.BasicProducts.FindAsync(product1.Id);
+        var updatedProduct2 = await db.BasicProducts.FindAsync(product2.Id);
         Assert.Equal(45, updatedProduct1?.Quantity); // 50 - 5
         Assert.Equal(27, updatedProduct2?.Quantity); // 30 - 3
     }
@@ -163,10 +163,10 @@ public class CreateOrderHandlerTests : IDisposable
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var orders = await this.db.BasicOrders.ToListAsync();
+        var orders = await db.BasicOrders.ToListAsync();
         Assert.Single(orders);
         Assert.Equal(command.CustomerId, orders[0].CustomerId);
         Assert.Equal(OrderStatus.Pending, orders[0].Status);
@@ -181,10 +181,10 @@ public class CreateOrderHandlerTests : IDisposable
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var orderDetails = await this.db.BasicOrderDetails.ToListAsync();
+        var orderDetails = await db.BasicOrderDetails.ToListAsync();
         Assert.Equal(2, orderDetails.Count);
     }
 
@@ -197,12 +197,12 @@ public class CreateOrderHandlerTests : IDisposable
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result.EmployeeId);
 
-        var orders = await this.db.BasicOrders.ToListAsync();
+        var orders = await db.BasicOrders.ToListAsync();
         Assert.Null(orders[0].EmployeeId);
     }
 }

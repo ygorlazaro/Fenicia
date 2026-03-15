@@ -20,14 +20,14 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectCommentByIdHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetProjectCommentByIdHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -39,15 +39,21 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment = new ProjectCommentModel { Id = commentId, TaskId = taskId, UserId = userId, Content = this.faker.Lorem.Paragraph() };
+        var comment = new ProjectCommentModel
+        {
+            Id = commentId,
+            TaskId = taskId,
+            UserId = userId,
+            Content = faker.Lorem.Paragraph()
+        };
 
-        this.db.ProjectComments.Add(comment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.Add(comment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectCommentByIdQuery(commentId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -62,7 +68,7 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var query = new GetProjectCommentByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -75,7 +81,7 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var query = new GetProjectCommentByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -90,17 +96,29 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        var comment1 = new ProjectCommentModel { Id = comment1Id, TaskId = taskId, UserId = userId, Content = this.faker.Lorem.Paragraph() };
+        var comment1 = new ProjectCommentModel
+        {
+            Id = comment1Id,
+            TaskId = taskId,
+            UserId = userId,
+            Content = faker.Lorem.Paragraph()
+        };
 
-        var comment2 = new ProjectCommentModel { Id = comment2Id, TaskId = taskId, UserId = userId, Content = this.faker.Lorem.Paragraph() };
+        var comment2 = new ProjectCommentModel
+        {
+            Id = comment2Id,
+            TaskId = taskId,
+            UserId = userId,
+            Content = faker.Lorem.Paragraph()
+        };
 
-        this.db.ProjectComments.AddRange(comment1, comment2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.AddRange(comment1, comment2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectCommentByIdQuery(comment1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -115,16 +133,22 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var longContent = this.faker.Lorem.Paragraphs(5);
-        var comment = new ProjectCommentModel { Id = commentId, TaskId = taskId, UserId = userId, Content = longContent };
+        var longContent = faker.Lorem.Paragraphs(5);
+        var comment = new ProjectCommentModel
+        {
+            Id = commentId,
+            TaskId = taskId,
+            UserId = userId,
+            Content = longContent
+        };
 
-        this.db.ProjectComments.Add(comment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.Add(comment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectCommentByIdQuery(commentId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

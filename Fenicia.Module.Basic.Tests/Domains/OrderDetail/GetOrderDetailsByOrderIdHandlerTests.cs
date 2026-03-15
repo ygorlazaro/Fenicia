@@ -18,13 +18,13 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetOrderDetailsByOrderIdHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new GetOrderDetailsByOrderIdHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -36,7 +36,7 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
         var query = new GetOrderDetailsByOrderIdQuery(orderId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -77,13 +77,13 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             Quantity = 2
         };
 
-        this.db.BasicOrderDetails.AddRange(detail1, detail2, detail3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicOrderDetails.AddRange(detail1, detail2, detail3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetOrderDetailsByOrderIdQuery(order1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -105,13 +105,13 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             Quantity = 10
         };
 
-        this.db.BasicOrderDetails.Add(detail);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicOrderDetails.Add(detail);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetOrderDetailsByOrderIdQuery(orderId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -127,7 +127,7 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
         var query = new GetOrderDetailsByOrderIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

@@ -1,14 +1,14 @@
 {
   "CodeGPT.apiKey": "Ollama",
-  "csharp.referencesCodeLens.enabled": false,
   "csharp.suppressDotnetInstallWarning": true,
   "dotnet.enableTelemetry": false,
   "dotnet.showReferencesCodeLens.optOut": false,
   "dotnet.testExplorer.enableTelemetry": false,
-  "omnisharp.defaultLaunchSolution": "Fenicia.sln",
   // ... previous exclusions ...
   "omnisharp.enableEditorConfigSupport": true,
   "omnisharp.enableRoslynAnalyzers": true,
   "omnisharp.sdkIncludePrereleases": true,
-  "testing.defaultTestAdapter": "xUnit"
+  "testing.defaultTestAdapter": "xUnit",
+  "dotnet.defaultSolution": "Fenicia.sln",
+  "dotnet.codeLens.enableReferencesCodeLens": false
 }

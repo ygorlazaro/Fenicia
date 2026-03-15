@@ -41,27 +41,31 @@ public class RegisterControllerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        var createNewUserHandler = new CreateNewUserHandler(this.db);
+        db = new DefaultContext(options, new TestCompanyContext());
+        var createNewUserHandler = new CreateNewUserHandler(db);
 
         var mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new RegisterController(createNewUserHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
-        this.adminRoleId = Guid.NewGuid();
+        controller = new RegisterController(createNewUserHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        adminRoleId = Guid.NewGuid();
         SeedAdminRole();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
     private void SeedAdminRole()
     {
-        var adminRole = new RoleModel { Id = this.adminRoleId, Name = "Admin" };
-        this.db.AuthRoles.Add(adminRole);
-        this.db.SaveChanges();
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
+        db.AuthRoles.Add(adminRole);
+        db.SaveChanges();
     }
 
     /// <summary>
@@ -77,12 +81,17 @@ public class RegisterControllerTests : IDisposable
         var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var query = new CreateNewUserCommand("existing@example.com", "password123", "Test User", companyQuery);
 
-        var existingUser = new UserModel { Email = query.Email, Name = "Existing User", Password = "password" };
-        this.db.AuthUsers.Add(existingUser);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        var existingUser = new UserModel
+        {
+            Email = query.Email,
+            Name = "Existing User",
+            Password = "password"
+        };
+        db.AuthUsers.Add(existingUser);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.controller.CreateNewUserAsync(query, wide, xrt));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await controller.CreateNewUserAsync(query, wide, xrt));
     }
 
     /// <summary>
@@ -98,12 +107,16 @@ public class RegisterControllerTests : IDisposable
         var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Existing Company");
         var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
 
-        var existingCompany = new CompanyModel { Cnpj = companyQuery.Cnpj, Name = "Existing Company" };
-        this.db.AuthCompanies.Add(existingCompany);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        var existingCompany = new CompanyModel
+        {
+            Cnpj = companyQuery.Cnpj,
+            Name = "Existing Company"
+        };
+        db.AuthCompanies.Add(existingCompany);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.controller.CreateNewUserAsync(query, wide, ct));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await controller.CreateNewUserAsync(query, wide, ct));
     }
 
     /// <summary>
@@ -119,12 +132,12 @@ public class RegisterControllerTests : IDisposable
         var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
 
-        var adminRole = this.db.AuthRoles.First();
-        this.db.AuthRoles.Remove(adminRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        var adminRole = db.AuthRoles.First();
+        db.AuthRoles.Remove(adminRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.controller.CreateNewUserAsync(query, wide, ct));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await controller.CreateNewUserAsync(query, wide, ct));
     }
 
     /// <summary>
@@ -141,7 +154,7 @@ public class RegisterControllerTests : IDisposable
         var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
 
         // Act
-        var result = await this.controller.CreateNewUserAsync(query, wide, ct);
+        var result = await controller.CreateNewUserAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -159,20 +172,20 @@ public class RegisterControllerTests : IDisposable
         Assert.Equal(query.Email, wide.UserId);
 
         // Verify user was created
-        var createdUser = await this.db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
+        var createdUser = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
         Assert.NotNull(createdUser);
         Assert.NotEqual(query.Password, createdUser.Password);
         Assert.StartsWith("$2a$", createdUser.Password);
 
         // Verify company was created
-        var createdCompany = await this.db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
+        var createdCompany = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
         Assert.NotNull(createdCompany);
         Assert.Equal(companyQuery.Name, createdCompany.Name);
 
         // Verify user role was created
-        var userRole = await this.db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
+        var userRole = await db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
         Assert.NotNull(userRole);
-        Assert.Equal(this.adminRoleId, userRole.RoleId);
+        Assert.Equal(adminRoleId, userRole.RoleId);
     }
 
     [Fact]
@@ -186,7 +199,7 @@ public class RegisterControllerTests : IDisposable
         var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
 
         // Act
-        await this.controller.CreateNewUserAsync(query, wide, ct);
+        await controller.CreateNewUserAsync(query, wide, ct);
 
         // Assert
         Assert.Equal(query.Email, wide.UserId);

@@ -18,13 +18,13 @@ public class UpdatePositionHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdatePositionHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdatePositionHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -37,15 +37,19 @@ public class UpdatePositionHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel { Id = positionId, Name = oldName };
+        var position = new PositionModel
+        {
+            Id = positionId,
+            Name = oldName
+        };
 
-        this.db.BasicPositions.Add(position);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdatePositionCommand(positionId, newName);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -60,7 +64,7 @@ public class UpdatePositionHandlerTests : IDisposable
         var command = new UpdatePositionCommand(Guid.NewGuid(), "New Position");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -73,7 +77,7 @@ public class UpdatePositionHandlerTests : IDisposable
         var command = new UpdatePositionCommand(Guid.NewGuid(), "New Position");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -84,18 +88,22 @@ public class UpdatePositionHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel { Id = positionId, Name = "Old Position" };
+        var position = new PositionModel
+        {
+            Id = positionId,
+            Name = "Old Position"
+        };
 
-        this.db.BasicPositions.Add(position);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdatePositionCommand(positionId, "New Position");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedPosition = await this.db.BasicPositions.FindAsync([positionId], CancellationToken.None);
+        var updatedPosition = await db.BasicPositions.FindAsync([positionId], CancellationToken.None);
         Assert.NotNull(updatedPosition);
         Assert.Equal("New Position", updatedPosition.Name);
     }
@@ -107,20 +115,28 @@ public class UpdatePositionHandlerTests : IDisposable
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
-        var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
+        var position1 = new PositionModel
+        {
+            Id = position1Id,
+            Name = "Developer"
+        };
+        var position2 = new PositionModel
+        {
+            Id = position2Id,
+            Name = "Designer"
+        };
 
-        this.db.BasicPositions.AddRange(position1, position2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.AddRange(position1, position2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdatePositionCommand(position1Id, "Senior Developer");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedPosition1 = await this.db.BasicPositions.FindAsync([position1Id], CancellationToken.None);
-        var notUpdatedPosition2 = await this.db.BasicPositions.FindAsync([position2Id], CancellationToken.None);
+        var updatedPosition1 = await db.BasicPositions.FindAsync([position1Id], CancellationToken.None);
+        var notUpdatedPosition2 = await db.BasicPositions.FindAsync([position2Id], CancellationToken.None);
 
         Assert.NotNull(updatedPosition1);
         Assert.Equal("Senior Developer", updatedPosition1.Name);

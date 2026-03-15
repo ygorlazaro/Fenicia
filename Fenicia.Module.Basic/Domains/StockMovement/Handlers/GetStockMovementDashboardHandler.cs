@@ -32,7 +32,13 @@ public class GetStockMovementDashboardHandler(DefaultContext db)
         var topMovedProducts = await GetTopMovedProductAsync(query, movements, ct);
         var turnoverRates = await GetStockTurnoverAsync(query, movements, ct);
 
-        return new StockMovementDashboardResponse { History = history, MonthlyInOut = monthlyInOut, TopMovedProducts = topMovedProducts, TurnoverRates = turnoverRates };
+        return new StockMovementDashboardResponse
+        {
+            History = history,
+            MonthlyInOut = monthlyInOut,
+            TopMovedProducts = topMovedProducts,
+            TurnoverRates = turnoverRates
+        };
     }
 
     private async Task<List<StockTurnoverResponse>> GetStockTurnoverAsync(GetStockMovementDashboardQuery query, IQueryable<StockMovementModel> movements, CancellationToken ct)

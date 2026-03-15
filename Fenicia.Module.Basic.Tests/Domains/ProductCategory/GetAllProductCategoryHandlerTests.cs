@@ -18,13 +18,13 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProductCategoryHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new GetAllProductCategoryHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         var query = new GetAllProductCategoryQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -46,16 +46,24 @@ public class GetAllProductCategoryHandlerTests : IDisposable
     public async Task Handle_WithCategories_ReturnsAllCategories()
     {
         // Arrange
-        var category1 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        var category2 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Books" };
+        var category1 = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Electronics"
+        };
+        var category2 = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Books"
+        };
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.AddRange(category1, category2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -71,16 +79,20 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = $"Category {i}" };
-            this.db.BasicProductCategories.Add(category);
+            var category = new ProductCategoryModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Category {i}"
+            };
+            db.BasicProductCategories.Add(category);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -94,16 +106,20 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = $"Category {i}" };
-            this.db.BasicProductCategories.Add(category);
+            var category = new ProductCategoryModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Category {i}"
+            };
+            db.BasicProductCategories.Add(category);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -117,16 +133,20 @@ public class GetAllProductCategoryHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = $"Category {i}" };
-            this.db.BasicProductCategories.Add(category);
+            var category = new ProductCategoryModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Category {i}"
+            };
+            db.BasicProductCategories.Add(category);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductCategoryQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

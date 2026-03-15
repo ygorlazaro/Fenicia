@@ -38,25 +38,25 @@ public class EmployeeControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.testEmployeeId = Guid.NewGuid();
-        var getAllEmployeeHandler = new GetAllEmployeeHandler(this.db);
-        var getEmployeeByIdHandler = new GetEmployeeByIdHandler(this.db);
-        var addEmployeeHandler = new AddEmployeeHandler(this.db);
-        var updateEmployeeHandler = new UpdateEmployeeHandler(this.db);
-        var deleteEmployeeHandler = new DeleteEmployeeHandler(this.db);
-        var getEmployeePerformanceHandler = new GetEmployeePerformanceHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, companyContext);
+        testEmployeeId = Guid.NewGuid();
+        var getAllEmployeeHandler = new GetAllEmployeeHandler(db);
+        var getEmployeeByIdHandler = new GetEmployeeByIdHandler(db);
+        var addEmployeeHandler = new AddEmployeeHandler(db);
+        var updateEmployeeHandler = new UpdateEmployeeHandler(db);
+        var deleteEmployeeHandler = new DeleteEmployeeHandler(db);
+        var getEmployeePerformanceHandler = new GetEmployeePerformanceHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new EmployeeController(getAllEmployeeHandler, getEmployeeByIdHandler, addEmployeeHandler, updateEmployeeHandler, deleteEmployeeHandler, getEmployeePerformanceHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new EmployeeController(getAllEmployeeHandler, getEmployeeByIdHandler, addEmployeeHandler, updateEmployeeHandler, deleteEmployeeHandler, getEmployeePerformanceHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
-        this.faker = new Faker();
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -68,8 +68,8 @@ public class EmployeeControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -107,7 +107,11 @@ public class EmployeeControllerTests : IDisposable
     public async Task GetAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Department() };
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Department()
+        };
 
         var employee1 = new EmployeeModel
         {
@@ -117,10 +121,10 @@ public class EmployeeControllerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = this.faker.Random.Replace("(##) #####-####")
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Random.Replace("(##) #####-####")
             }
         };
 
@@ -132,16 +136,16 @@ public class EmployeeControllerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = this.faker.Random.Replace("(##) #####-####")
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Random.Replace("(##) #####-####")
             }
         };
 
-        this.db.BasicPositions.Add(position);
-        this.db.BasicEmployees.AddRange(employee1, employee2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        db.BasicEmployees.AddRange(employee1, employee2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -149,7 +153,7 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -171,32 +175,36 @@ public class EmployeeControllerTests : IDisposable
     public async Task GetByIdAsync_WhenEmployeeExists_ReturnsOkWithEmployee()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Department() };
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Department()
+        };
 
         var employee = new EmployeeModel
         {
-            Id = this.testEmployeeId,
+            Id = testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = this.faker.Random.Replace("(##) #####-####")
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Random.Replace("(##) #####-####")
             }
         };
 
-        this.db.BasicPositions.Add(position);
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testEmployeeId, wide, ct);
+        var result = await controller.GetByIdAsync(testEmployeeId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -207,7 +215,7 @@ public class EmployeeControllerTests : IDisposable
 
         var returnedEmployee = okResult.Value as GetEmployeeByIdResponse;
         Assert.NotNull(returnedEmployee);
-        Assert.Equal(this.testEmployeeId, returnedEmployee.Id);
+        Assert.Equal(testEmployeeId, returnedEmployee.Id);
         Assert.Equal(employee.Person.Id, returnedEmployee.PersonId);
     }
 
@@ -223,7 +231,7 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
+        var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -237,18 +245,22 @@ public class EmployeeControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithEmployee()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Department() };
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Department()
+        };
 
-        this.db.BasicPositions.Add(position);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new AddEmployeeCommand(Guid.NewGuid(), position.Id, this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Random.Replace("(##) #####-####"), "Apt 101", this.faker.Address.CityPrefix(), this.faker.Random.Replace("####"), Guid.NewGuid(), this.faker.Address.StreetName(), this.faker.Address.ZipCode(), this.faker.Random.Replace("(##) #####-####"));
+        var command = new AddEmployeeCommand(Guid.NewGuid(), position.Id, faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Random.Replace("(##) #####-####"), "Apt 101", faker.Address.CityPrefix(), faker.Random.Replace("####"), Guid.NewGuid(), faker.Address.StreetName(), faker.Address.ZipCode(), faker.Random.Replace("(##) #####-####"));
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -269,34 +281,38 @@ public class EmployeeControllerTests : IDisposable
     public async Task PatchAsync_WhenEmployeeExists_ReturnsOkWithUpdatedEmployee()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Department() };
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Department()
+        };
 
         var employee = new EmployeeModel
         {
-            Id = this.testEmployeeId,
+            Id = testEmployeeId,
             PersonId = Guid.NewGuid(),
             PositionId = position.Id,
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = this.faker.Random.Replace("(##) #####-####")
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Random.Replace("(##) #####-####")
             }
         };
 
-        this.db.BasicPositions.Add(position);
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(employee.Id, position.Id, this.faker.Person.FullName + " Updated", this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.Empty, null, null, null);
+        var command = new UpdateEmployeeCommand(employee.Id, position.Id, faker.Person.FullName + " Updated", faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.Empty, null, null, null);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, this.testEmployeeId, wide, ct);
+        var result = await controller.PatchAsync(command, testEmployeeId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -317,18 +333,22 @@ public class EmployeeControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Department() };
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Department()
+        };
 
-        this.db.BasicPositions.Add(position);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(nonExistentId, position.Id, this.faker.Person.FullName, this.faker.Internet.Email(), this.faker.Random.Replace("###.###.###-##"), this.faker.Address.City(), null, null, null, Guid.Empty, null, null, null);
+        var command = new UpdateEmployeeCommand(nonExistentId, position.Id, faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.Empty, null, null, null);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
+        var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -342,22 +362,34 @@ public class EmployeeControllerTests : IDisposable
     public async Task DeleteAsync_WhenEmployeeExists_ReturnsNoContent()
     {
         // Arrange
-        var employee = new EmployeeModel { Id = this.testEmployeeId, PersonId = Guid.NewGuid(), PositionId = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Person.FullName, Email = this.faker.Internet.Email(), Document = this.faker.Random.Replace("###.###.###-##") } };
+        var employee = new EmployeeModel
+        {
+            Id = testEmployeeId,
+            PersonId = Guid.NewGuid(),
+            PositionId = Guid.NewGuid(),
+            Person = new PersonModel
+            {
+                Id = Guid.NewGuid(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##")
+            }
+        };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testEmployeeId, wide, ct);
+        var result = await controller.DeleteAsync(testEmployeeId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify employee was deleted
-        var deletedEmployee = await this.db.BasicEmployees.FirstOrDefaultAsync(x => x.Id == this.testEmployeeId && x.Deleted == null, ct);
+        var deletedEmployee = await db.BasicEmployees.FirstOrDefaultAsync(x => x.Id == testEmployeeId && x.Deleted == null, ct);
         Assert.Null(deletedEmployee);
     }
 
@@ -373,7 +405,7 @@ public class EmployeeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
+        var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);

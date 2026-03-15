@@ -33,14 +33,14 @@ public class GetModulesHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetModulesHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new GetModulesHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -52,17 +52,29 @@ public class GetModulesHandlerTests : IDisposable
     public async Task Handle_WhenModulesExist_ReturnsPaginatedModules()
     {
         // Arrange
-        var module1 = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = 10.0m };
+        var module1 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m
+        };
 
-        var module2 = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.SocialNetwork, Price = 20.0m };
+        var module2 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.SocialNetwork,
+            Price = 20.0m
+        };
 
-        this.db.AuthModules.AddRange(module1, module2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.AddRange(module1, module2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(1, 10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -80,17 +92,29 @@ public class GetModulesHandlerTests : IDisposable
     public async Task Handle_WhenModulesExist_ExcludesErpAndAuthTypes()
     {
         // Arrange
-        var authModule = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Auth, Price = 50.0m };
+        var authModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Auth,
+            Price = 50.0m
+        };
 
-        var basicModule = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = 10.0m };
+        var basicModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m
+        };
 
-        this.db.AuthModules.AddRange(authModule, basicModule);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.AddRange(authModule, basicModule);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(1, 10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -110,16 +134,22 @@ public class GetModulesHandlerTests : IDisposable
         var modules = new List<ModuleModel>();
         for (var i = 0; i < 25; i++)
         {
-            modules.Add(new ModuleModel { Id = Guid.NewGuid(), Name = $"Module {this.faker.Commerce.ProductName()} {i}", Type = (ModuleType)(i % 10 + 1), Price = 10.0m });
+            modules.Add(new ModuleModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Module {faker.Commerce.ProductName()} {i}",
+                Type = (ModuleType)(i % 10 + 1),
+                Price = 10.0m
+            });
         }
 
-        this.db.AuthModules.AddRange(modules);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.AddRange(modules);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(2, 10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -141,7 +171,7 @@ public class GetModulesHandlerTests : IDisposable
         var request = new GetModulesQuery(1, 10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -157,15 +187,21 @@ public class GetModulesHandlerTests : IDisposable
     public async Task Handle_WhenPageExceedsTotalPages_ReturnsEmptyData()
     {
         // Arrange
-        var module = new ModuleModel { Id = Guid.NewGuid(), Name = "Basic Module", Type = ModuleType.Basic, Price = 10.0m };
+        var module = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Basic Module",
+            Type = ModuleType.Basic,
+            Price = 10.0m
+        };
 
-        this.db.AuthModules.Add(module);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(10, 10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -181,19 +217,37 @@ public class GetModulesHandlerTests : IDisposable
     public async Task Handle_ResultsAreOrderedByType()
     {
         // Arrange
-        var module1 = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.SocialNetwork, Price = 20.0m };
+        var module1 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.SocialNetwork,
+            Price = 20.0m
+        };
 
-        var module2 = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = 10.0m };
+        var module2 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m
+        };
 
-        var module3 = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Hr, Price = 30.0m };
+        var module3 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Hr,
+            Price = 30.0m
+        };
 
-        this.db.AuthModules.AddRange(module1, module2, module3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.AddRange(module1, module2, module3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(1, 10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -211,15 +265,21 @@ public class GetModulesHandlerTests : IDisposable
     public async Task Handle_WithDefaultRequest_ReturnsFirstPage()
     {
         // Arrange
-        var module = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = 10.0m };
+        var module = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m
+        };
 
-        this.db.AuthModules.Add(module);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery();
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -236,15 +296,21 @@ public class GetModulesHandlerTests : IDisposable
     {
         // Arrange
         var moduleId = Guid.NewGuid();
-        var module = new ModuleModel { Id = moduleId, Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = 10.0m };
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = 10.0m
+        };
 
-        this.db.AuthModules.Add(module);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var request = new GetModulesQuery(1, 10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

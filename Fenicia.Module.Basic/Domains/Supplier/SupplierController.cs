@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Supplier.Commands;
 using Fenicia.Module.Basic.Domains.Supplier.Handlers;
 using Fenicia.Module.Basic.Domains.Supplier.Queries;
@@ -45,7 +44,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var suppliers = await getAllSupplierHandler.Handle(new GetAllSupplierQuery(page, perPage), ct);
 
@@ -76,7 +75,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var supplier = await getSupplierByIdHandler.Handle(new GetSupplierByIdQuery(id), ct);
 
@@ -107,7 +106,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var supplier = await addSupplierHandler.Handle(command, ct);
 
@@ -142,7 +141,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var supplier = await updateSupplierHandler.Handle(command with { Id = id }, ct);
 
@@ -171,7 +170,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             await deleteSupplierHandler.Handle(new DeleteSupplierCommand(id), ct);
 
@@ -201,7 +200,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var performance = await getSupplierPerformanceHandler.Handle(new GetSupplierPerformanceQuery(days, topLimit), ct);
 

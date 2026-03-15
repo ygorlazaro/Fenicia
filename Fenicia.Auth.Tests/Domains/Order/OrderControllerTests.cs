@@ -40,21 +40,21 @@ public class OrderControllerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.testUserId = Guid.NewGuid();
-        this.testCompanyId = Guid.NewGuid();
-        var createNewOrderHandler = new CreateNewOrderHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, new TestCompanyContext());
+        testUserId = Guid.NewGuid();
+        testCompanyId = Guid.NewGuid();
+        var createNewOrderHandler = new CreateNewOrderHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new OrderController(createNewOrderHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new OrderController(createNewOrderHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
-        SetupUserClaims(this.testUserId);
-        this.faker = new Faker();
+        SetupUserClaims(testUserId);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -66,8 +66,8 @@ public class OrderControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     /// <summary>
@@ -81,11 +81,11 @@ public class OrderControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         var modules = new List<Guid> { Guid.NewGuid() };
-        var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
-        var headers = new Headers { CompanyId = this.testCompanyId };
+        var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
+        var headers = new Headers { CompanyId = testCompanyId };
 
         // Act & Assert
-        await Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.controller.CreateNewOrderAsync(command, headers, wide, ct));
+        await Assert.ThrowsAsync<PermissionDeniedException>(async () => await controller.CreateNewOrderAsync(command, headers, wide, ct));
     }
 
     /// <summary>
@@ -98,23 +98,41 @@ public class OrderControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var company = new CompanyModel { Id = this.testCompanyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = testCompanyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = Guid.NewGuid(), CompanyId = this.testCompanyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = testUserId,
+            RoleId = Guid.NewGuid(),
+            CompanyId = testCompanyId
+        };
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthCompanies.Add(company);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { Guid.NewGuid() };
-        var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
-        var headers = new Headers { CompanyId = this.testCompanyId };
+        var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
+        var headers = new Headers { CompanyId = testCompanyId };
 
         // Act & Assert
-        await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.controller.CreateNewOrderAsync(command, headers, wide, ct));
+        await Assert.ThrowsAsync<ItemNotExistsException>(async () => await controller.CreateNewOrderAsync(command, headers, wide, ct));
     }
 
     /// <summary>
@@ -128,26 +146,51 @@ public class OrderControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new ModuleModel { Id = moduleId, Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = this.faker.Finance.Amount(10, 100) };
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = faker.Finance.Amount(10,
+                100)
+        };
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var company = new CompanyModel { Id = this.testCompanyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = testCompanyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = Guid.NewGuid(), CompanyId = this.testCompanyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = testUserId,
+            RoleId = Guid.NewGuid(),
+            CompanyId = testCompanyId
+        };
 
-        this.db.AuthModules.Add(module);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        db.AuthUsers.Add(user);
+        db.AuthCompanies.Add(company);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { moduleId };
-        var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
-        var headers = new Headers { CompanyId = this.testCompanyId };
+        var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
+        var headers = new Headers { CompanyId = testCompanyId };
 
         // Act
-        var result = await this.controller.CreateNewOrderAsync(command, headers, wide, ct);
+        var result = await controller.CreateNewOrderAsync(command, headers, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -161,14 +204,14 @@ public class OrderControllerTests : IDisposable
         Assert.NotNull(returnedResponse);
 
         Assert.NotEqual(Guid.Empty, returnedResponse.OrderId);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
 
         // Verify order was created
-        var createdOrder = await this.db.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
+        var createdOrder = await db.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
         Assert.NotNull(createdOrder);
 
-        Assert.Equal(this.testUserId, createdOrder.UserId);
-        Assert.Equal(this.testCompanyId, createdOrder.CompanyId);
+        Assert.Equal(testUserId, createdOrder.UserId);
+        Assert.Equal(testCompanyId, createdOrder.CompanyId);
     }
 
     /// <summary>
@@ -182,29 +225,54 @@ public class OrderControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         var moduleId = Guid.NewGuid();
-        var module = new ModuleModel { Id = moduleId, Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = this.faker.Finance.Amount(10, 100) };
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = faker.Finance.Amount(10,
+                100)
+        };
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var company = new CompanyModel { Id = this.testCompanyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = testCompanyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = this.testUserId, RoleId = Guid.NewGuid(), CompanyId = this.testCompanyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = testUserId,
+            RoleId = Guid.NewGuid(),
+            CompanyId = testCompanyId
+        };
 
-        this.db.AuthModules.Add(module);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        db.AuthUsers.Add(user);
+        db.AuthCompanies.Add(company);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var modules = new List<Guid> { moduleId };
-        var command = new CreateNewOrderCommand(this.testUserId, this.testCompanyId, modules);
-        var headers = new Headers { CompanyId = this.testCompanyId };
+        var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
+        var headers = new Headers { CompanyId = testCompanyId };
 
         // Act
-        await this.controller.CreateNewOrderAsync(command, headers, wide, ct);
+        await controller.CreateNewOrderAsync(command, headers, wide, ct);
 
         // Assert
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     /// <summary>

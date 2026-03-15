@@ -30,7 +30,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Fenicia.Common.Tests\Fenicia.Common.Tests.csproj"/>
         <ProjectReference Include="..\Fenicia.Module.Projects\Fenicia.Module.Projects.csproj"/>
-        <ProjectReference Include="..\..\Fenicia.Common.Tests\Fenicia.Common.Tests.csproj"/>
 
     </ItemGroup>
 

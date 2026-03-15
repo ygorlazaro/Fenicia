@@ -1,7 +1,6 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.DataSource.Handlers;
 using Fenicia.Module.Basic.Domains.DataSource.Responses;
 
@@ -40,7 +39,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var positions = await getAllPositionForDataSourceHandler.Handle(ct);
 
@@ -68,7 +67,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var categories = await getAllProductCategoryForDataSourceHandler.Handle(ct);
 
@@ -96,7 +95,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var suppliers = await getAllSupplierForDataSourceHandler.Handle(ct);
 
@@ -124,7 +123,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var customers = await getAllCustomerForDataSourceHandler.Handle(ct);
 
@@ -152,7 +151,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var products = await getAllProductForDataSourceHandler.Handle(ct);
 
@@ -180,7 +179,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var employees = await getAllEmployeeForDataSourceHandler.Handle(ct);
 

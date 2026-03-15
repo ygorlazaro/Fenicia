@@ -66,7 +66,12 @@ public class UpdateUserHandler(DefaultContext db)
 
         var toRemove = existingRoles.Where(r => !requestedSet.Contains((r.CompanyId, r.RoleId))).ToList();
 
-        var toInsert = requestedRoles.Where(r => !existingSet.Contains((r.CompanyId, r.RoleId))).Select(r => new UserRoleModel { UserId = user.Id, CompanyId = r.CompanyId, RoleId = r.RoleId }).ToList();
+        var toInsert = requestedRoles.Where(r => !existingSet.Contains((r.CompanyId, r.RoleId))).Select(r => new UserRoleModel
+        {
+            UserId = user.Id,
+            CompanyId = r.CompanyId,
+            RoleId = r.RoleId
+        }).ToList();
 
         if (toRemove.Count > 0)
         {

@@ -23,7 +23,12 @@ public class CreateUserHandler(DefaultContext db)
 
         var hashedPassword = command.Password.Hash();
 
-        var user = new UserModel { Email = command.Email, Password = hashedPassword, Name = command.Name };
+        var user = new UserModel
+        {
+            Email = command.Email,
+            Password = hashedPassword,
+            Name = command.Name
+        };
 
         db.AuthUsers.Add(user);
         await RelateRolesAsync(user.Id, command.Roles, ct);
@@ -38,7 +43,12 @@ public class CreateUserHandler(DefaultContext db)
         await ValidateCompanies(roles.Select(r => r.CompanyId), ct);
         await ValidateRoles(roles.Select(r => r.RoleId), ct);
 
-        var userRoles = roles.Select(r => new UserRoleModel { UserId = userId, RoleId = r.RoleId, CompanyId = r.CompanyId });
+        var userRoles = roles.Select(r => new UserRoleModel
+        {
+            UserId = userId,
+            RoleId = r.RoleId,
+            CompanyId = r.CompanyId
+        });
 
         db.AuthUserRoles.AddRange(userRoles);
     }

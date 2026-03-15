@@ -9,13 +9,11 @@ public class ConfigurationModel : BaseCompanyModel
 {
     public ConfigType ConfigType { get; set; }
 
-    public string Value { get; set; }
-
-    public Guid CompanyId { get; set; }
+    public string Value { get; set; } = null!;
 
     public Guid UserId { get; set; }
 
-    public virtual UserModel User { get; set; }
+    public virtual UserModel User { get; set; } = null!;
 
-    public virtual CompanyModel Company { get; set; }
+    public virtual CompanyModel Company { get; set; } = null!;
 }

@@ -28,6 +28,12 @@ public class GetInventoryHandler(DefaultContext db)
 
         var inventoryDetailResponses = products.Select(p => new InventoryDetailResponse(p.Id, p.Name, p.Quantity, p.CostPrice, p.SalesPrice, p.CategoryId, p.Category.Name)).ToList();
 
-        return new InventoryResponse { Items = inventoryDetailResponses, TotalCostPrice = totalCostPrice, TotalSalesPrice = totalSalesPrice, TotalQuantity = totalQuantity };
+        return new InventoryResponse
+        {
+            Items = inventoryDetailResponses,
+            TotalCostPrice = totalCostPrice,
+            TotalSalesPrice = totalSalesPrice,
+            TotalQuantity = totalQuantity
+        };
     }
 }

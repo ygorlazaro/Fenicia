@@ -32,19 +32,19 @@ public class SubscriptionControllerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        var getUserProfileHandler = new GetUserProfileHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, new TestCompanyContext());
+        var getUserProfileHandler = new GetUserProfileHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new SubscriptionController(getUserProfileHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new SubscriptionController(getUserProfileHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
-        SetupUserClaims(this.testUserId);
-        this.faker = new Faker();
+        SetupUserClaims(testUserId);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -55,8 +55,8 @@ public class SubscriptionControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
@@ -66,16 +66,32 @@ public class SubscriptionControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
+        var role = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "User"
+        };
 
         var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = this.testUserId,
+            UserId = testUserId,
             CompanyId = company.Id,
             RoleId = role.Id,
             User = user,
@@ -93,7 +109,14 @@ public class SubscriptionControllerTests : IDisposable
             Company = company
         };
 
-        var module = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = this.faker.Finance.Amount(10, 100) };
+        var module = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = faker.Finance.Amount(10,
+                100)
+        };
 
         var subscriptionCredit = new SubscriptionCreditModel
         {
@@ -110,17 +133,17 @@ public class SubscriptionControllerTests : IDisposable
         company.UsersRoles = [userRole];
         company.Subscriptions = [subscription];
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUserRoles.Add(userRole);
-        this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthModules.Add(module);
-        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUserRoles.Add(userRole);
+        db.AuthSubscriptions.Add(subscription);
+        db.AuthModules.Add(module);
+        db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await controller.GetUserProfile(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -130,7 +153,7 @@ public class SubscriptionControllerTests : IDisposable
         Assert.NotNull(okResult);
 
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
-        Assert.Equal(this.testUserId, profile.Id);
+        Assert.Equal(testUserId, profile.Id);
         Assert.Equal(user.Email, profile.Email);
         Assert.Equal(user.Name, profile.Name);
         Assert.Single(profile.Companies);
@@ -143,7 +166,7 @@ public class SubscriptionControllerTests : IDisposable
         Assert.Equal(company.Name, companies[0].Name);
         Assert.Equal(subscription.Id, subscriptions[0].Id);
         Assert.Equal(SubscriptionStatus.Active, subscriptions[0].Status);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -157,7 +180,7 @@ public class SubscriptionControllerTests : IDisposable
         SetupUserClaims(nonExistentUserId);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await controller.GetUserProfile(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -172,13 +195,19 @@ public class SubscriptionControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await controller.GetUserProfile(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -186,10 +215,10 @@ public class SubscriptionControllerTests : IDisposable
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
-        Assert.Equal(this.testUserId, profile.Id);
+        Assert.Equal(testUserId, profile.Id);
         Assert.Empty(profile.Companies);
         Assert.Empty(profile.Subscriptions);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -199,16 +228,32 @@ public class SubscriptionControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
+        var role = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "User"
+        };
 
         var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = this.testUserId,
+            UserId = testUserId,
             CompanyId = company.Id,
             RoleId = role.Id,
             User = user,
@@ -218,14 +263,14 @@ public class SubscriptionControllerTests : IDisposable
 
         company.UsersRoles = [userRole];
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await controller.GetUserProfile(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -233,10 +278,10 @@ public class SubscriptionControllerTests : IDisposable
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
-        Assert.Equal(this.testUserId, profile.Id);
+        Assert.Equal(testUserId, profile.Id);
         Assert.Single(profile.Companies);
         Assert.Empty(profile.Subscriptions);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -246,18 +291,40 @@ public class SubscriptionControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var company1 = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company1 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var company2 = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company2 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
+        var role = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "User"
+        };
 
         var userRole1 = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = this.testUserId,
+            UserId = testUserId,
             CompanyId = company1.Id,
             RoleId = role.Id,
             User = user,
@@ -268,7 +335,7 @@ public class SubscriptionControllerTests : IDisposable
         var userRole2 = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = this.testUserId,
+            UserId = testUserId,
             CompanyId = company2.Id,
             RoleId = role.Id,
             User = user,
@@ -296,7 +363,14 @@ public class SubscriptionControllerTests : IDisposable
             Company = company2
         };
 
-        var module = new ModuleModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), Type = ModuleType.Basic, Price = this.faker.Finance.Amount(10, 100) };
+        var module = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            Type = ModuleType.Basic,
+            Price = faker.Finance.Amount(10,
+                100)
+        };
 
         var subscriptionCredit1 = new SubscriptionCreditModel
         {
@@ -326,20 +400,20 @@ public class SubscriptionControllerTests : IDisposable
         company1.Subscriptions = [subscription1];
         company2.Subscriptions = [subscription2];
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthCompanies.Add(company1);
-        this.db.AuthCompanies.Add(company2);
-        this.db.AuthUserRoles.Add(userRole1);
-        this.db.AuthUserRoles.Add(userRole2);
-        this.db.AuthSubscriptions.Add(subscription1);
-        this.db.AuthSubscriptions.Add(subscription2);
-        this.db.AuthModules.Add(module);
-        this.db.AuthSubscriptionCredits.Add(subscriptionCredit1);
-        this.db.AuthSubscriptionCredits.Add(subscriptionCredit2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthCompanies.Add(company1);
+        db.AuthCompanies.Add(company2);
+        db.AuthUserRoles.Add(userRole1);
+        db.AuthUserRoles.Add(userRole2);
+        db.AuthSubscriptions.Add(subscription1);
+        db.AuthSubscriptions.Add(subscription2);
+        db.AuthModules.Add(module);
+        db.AuthSubscriptionCredits.Add(subscriptionCredit1);
+        db.AuthSubscriptionCredits.Add(subscriptionCredit2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await controller.GetUserProfile(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -347,10 +421,10 @@ public class SubscriptionControllerTests : IDisposable
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
-        Assert.Equal(this.testUserId, profile.Id);
+        Assert.Equal(testUserId, profile.Id);
         Assert.Equal(2, profile.Companies.Count());
         Assert.Equal(2, profile.Subscriptions.Count());
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
     [Fact]
@@ -360,17 +434,23 @@ public class SubscriptionControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await controller.GetUserProfile(wide, ct);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
         Assert.NotNull(wide.TraceId);
     }
 
@@ -381,16 +461,32 @@ public class SubscriptionControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        var user = new UserModel { Id = this.testUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = testUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
+        var role = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "User"
+        };
 
         var userRole = new UserRoleModel
         {
             Id = Guid.NewGuid(),
-            UserId = this.testUserId,
+            UserId = testUserId,
             CompanyId = company.Id,
             RoleId = role.Id,
             User = user,
@@ -408,9 +504,23 @@ public class SubscriptionControllerTests : IDisposable
             Company = company
         };
 
-        var module1 = new ModuleModel { Id = Guid.NewGuid(), Name = "Active Module", Type = ModuleType.Basic, Price = this.faker.Finance.Amount(10, 100) };
+        var module1 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Active Module",
+            Type = ModuleType.Basic,
+            Price = faker.Finance.Amount(10,
+                100)
+        };
 
-        var module2 = new ModuleModel { Id = Guid.NewGuid(), Name = "Inactive Module", Type = ModuleType.Basic, Price = this.faker.Finance.Amount(10, 100) };
+        var module2 = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Inactive Module",
+            Type = ModuleType.Basic,
+            Price = faker.Finance.Amount(10,
+                100)
+        };
 
         var activeCredit = new SubscriptionCreditModel
         {
@@ -438,19 +548,19 @@ public class SubscriptionControllerTests : IDisposable
         company.UsersRoles = [userRole];
         company.Subscriptions = [subscription];
 
-        this.db.AuthUsers.Add(user);
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUserRoles.Add(userRole);
-        this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthModules.Add(module1);
-        this.db.AuthModules.Add(module2);
-        this.db.AuthSubscriptionCredits.Add(activeCredit);
-        this.db.AuthSubscriptionCredits.Add(inactiveCredit);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUsers.Add(user);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUserRoles.Add(userRole);
+        db.AuthSubscriptions.Add(subscription);
+        db.AuthModules.Add(module1);
+        db.AuthModules.Add(module2);
+        db.AuthSubscriptionCredits.Add(activeCredit);
+        db.AuthSubscriptionCredits.Add(inactiveCredit);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.controller.GetUserProfile(wide, ct);
+        var result = await controller.GetUserProfile(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -459,6 +569,6 @@ public class SubscriptionControllerTests : IDisposable
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var profile = Assert.IsType<GetUserProfileResponse>(okResult.Value);
         Assert.Single(profile.Subscriptions);
-        Assert.Equal(this.testUserId.ToString(), wide.UserId);
+        Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 }

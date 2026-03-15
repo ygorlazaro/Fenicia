@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
@@ -44,7 +43,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page, perPage), ct);
 
@@ -75,7 +74,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var position = await getPositionByIdHandler.Handle(new GetPositionByIdQuery(id), ct);
 
@@ -105,7 +104,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var employees = await getEmployeesByPositionIdHandler.Handle(new GetEmployeesByPositionIdQuery(id, query.Page, query.PerPage), ct);
 
@@ -136,7 +135,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var position = await addPositionHandler.Handle(command, ct);
 
@@ -171,7 +170,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var position = await updatePositionHandler.Handle(command with { Id = id }, ct);
 
@@ -200,7 +199,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             await deletePositionHandler.Handle(new DeletePositionCommand(id), ct);
 

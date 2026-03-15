@@ -41,7 +41,7 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
         try
         {
             var key = RedisPrefix + refreshToken;
-            var value = await this.redisDb.StringGetAsync(key);
+            var value = await redisDb.StringGetAsync(key);
 
             if (value.IsNullOrEmpty)
             {
@@ -52,7 +52,7 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis)
 
             tokenObj?.IsActive = false;
 
-            await this.redisDb.StringSetAsync(key, JsonSerializer.Serialize(tokenObj), TimeSpan.FromDays(7), When.Always, CommandFlags.None);
+            await redisDb.StringSetAsync(key, JsonSerializer.Serialize(tokenObj), TimeSpan.FromDays(7), When.Always, CommandFlags.None);
         }
         catch
         {

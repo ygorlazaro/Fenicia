@@ -40,7 +40,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
     {
         try
         {
-            var userId = ClaimReader.UserId(this.User);
+            var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
             var companyId = headers.CompanyId;
@@ -71,7 +71,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
     {
         try
         {
-            var userId = ClaimReader.UserId(this.User);
+            var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
             var response = await getUserCompaniesHandler.Handle(userId, ct);

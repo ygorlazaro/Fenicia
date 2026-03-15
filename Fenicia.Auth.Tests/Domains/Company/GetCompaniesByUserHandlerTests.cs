@@ -26,14 +26,14 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetCompaniesByUserHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new GetCompaniesByUserHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -48,7 +48,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -71,24 +71,46 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Internet.UserName(), Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Internet.UserName(),
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -107,24 +129,46 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Internet.UserName(), Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Internet.UserName(),
+            Password = faker.Internet.Password()
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "User" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "User"
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = company.Id };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = company.Id
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCompaniesByUserQuery(userId, 5, 10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Empty(result.Data);
@@ -145,26 +189,59 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var roleId1 = Guid.NewGuid();
         var roleId2 = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role1 = new RoleModel { Id = roleId1, Name = "Admin" };
+        var role1 = new RoleModel
+        {
+            Id = roleId1,
+            Name = "Admin"
+        };
 
-        var role2 = new RoleModel { Id = roleId2, Name = "User" };
+        var role2 = new RoleModel
+        {
+            Id = roleId2,
+            Name = "User"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Internet.UserName(), Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Internet.UserName(),
+            Password = faker.Internet.Password()
+        };
 
-        var userRoles = new List<UserRoleModel> { new() { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId1, CompanyId = companyId }, new() { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId2, CompanyId = companyId } };
+        var userRoles = new List<UserRoleModel> { new()
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId1,
+            CompanyId = companyId
+        }, new()
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                RoleId = roleId2,
+                CompanyId = companyId
+            }
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.AddRange(role1, role2);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.AddRange(userRoles);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.AddRange(role1, role2);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.AddRange(userRoles);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Equal(2, result.Data.Count());
@@ -186,30 +263,70 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var userId2 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company1 = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company1 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var company2 = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company2 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var user1 = new UserModel { Id = userId1, Email = this.faker.Internet.Email(), Name = this.faker.Internet.UserName(), Password = this.faker.Internet.Password() };
+        var user1 = new UserModel
+        {
+            Id = userId1,
+            Email = faker.Internet.Email(),
+            Name = faker.Internet.UserName(),
+            Password = faker.Internet.Password()
+        };
 
-        var user2 = new UserModel { Id = userId2, Email = this.faker.Internet.Email(), Name = this.faker.Internet.UserName(), Password = this.faker.Internet.Password() };
+        var user2 = new UserModel
+        {
+            Id = userId2,
+            Email = faker.Internet.Email(),
+            Name = faker.Internet.UserName(),
+            Password = faker.Internet.Password()
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "User" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "User"
+        };
 
-        var userRole1 = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId1, RoleId = roleId, CompanyId = company1.Id };
+        var userRole1 = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId1,
+            RoleId = roleId,
+            CompanyId = company1.Id
+        };
 
-        var userRole2 = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId2, RoleId = roleId, CompanyId = company2.Id };
+        var userRole2 = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId2,
+            RoleId = roleId,
+            CompanyId = company2.Id
+        };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.AddRange(user1, user2);
-        this.db.AuthUserRoles.AddRange(userRole1, userRole2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.AddRange(company1, company2);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.AddRange(user1, user2);
+        db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCompaniesByUserQuery(userId1, 1, 10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Single(result.Data);
@@ -227,26 +344,61 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var activeCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var activeCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var inactiveCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = false };
+        var inactiveCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = false
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Internet.UserName(), Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Internet.UserName(),
+            Password = faker.Internet.Password()
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "User" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "User"
+        };
 
-        var userRoles = new List<UserRoleModel> { new() { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = activeCompany.Id }, new() { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = inactiveCompany.Id } };
+        var userRoles = new List<UserRoleModel> { new()
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = activeCompany.Id
+        }, new()
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                RoleId = roleId,
+                CompanyId = inactiveCompany.Id
+            }
+        };
 
-        this.db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.AddRange(userRoles);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.AddRange(userRoles);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCompaniesByUserQuery(userId, 1, 10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Single(result.Data);
@@ -265,23 +417,45 @@ public class GetCompaniesByUserHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Internet.UserName(), Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Internet.UserName(),
+            Password = faker.Internet.Password()
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "User" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "User"
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCompaniesByUserQuery(userId, 1, 0);
 
         // Act
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(query, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
     }
 }

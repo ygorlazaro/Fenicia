@@ -20,14 +20,14 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectCommentHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetAllProjectCommentHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -39,7 +39,7 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         var query = new GetAllProjectCommentQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -52,17 +52,29 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         // Arrange
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        var comment1 = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = taskId, UserId = userId, Content = this.faker.Lorem.Paragraph() };
+        var comment1 = new ProjectCommentModel
+        {
+            Id = Guid.NewGuid(),
+            TaskId = taskId,
+            UserId = userId,
+            Content = faker.Lorem.Paragraph()
+        };
 
-        var comment2 = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = taskId, UserId = userId, Content = this.faker.Lorem.Paragraph() };
+        var comment2 = new ProjectCommentModel
+        {
+            Id = Guid.NewGuid(),
+            TaskId = taskId,
+            UserId = userId,
+            Content = faker.Lorem.Paragraph()
+        };
 
-        this.db.ProjectComments.AddRange(comment1, comment2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.AddRange(comment1, comment2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectCommentQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -79,16 +91,22 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var comment = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = taskId, UserId = userId, Content = $"{this.faker.Lorem.Paragraph()} {i}" };
-            this.db.ProjectComments.Add(comment);
+            var comment = new ProjectCommentModel
+            {
+                Id = Guid.NewGuid(),
+                TaskId = taskId,
+                UserId = userId,
+                Content = $"{faker.Lorem.Paragraph()} {i}"
+            };
+            db.ProjectComments.Add(comment);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectCommentQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -103,16 +121,22 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         for (var i = 0; i < 5; i++)
         {
-            var comment = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = taskId, UserId = userId, Content = $"{this.faker.Lorem.Paragraph()} {i}" };
-            this.db.ProjectComments.Add(comment);
+            var comment = new ProjectCommentModel
+            {
+                Id = Guid.NewGuid(),
+                TaskId = taskId,
+                UserId = userId,
+                Content = $"{faker.Lorem.Paragraph()} {i}"
+            };
+            db.ProjectComments.Add(comment);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectCommentQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -127,16 +151,22 @@ public class GetAllProjectCommentHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         for (var i = 0; i < 25; i++)
         {
-            var comment = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = taskId, UserId = userId, Content = $"{this.faker.Lorem.Paragraph()} {i}" };
-            this.db.ProjectComments.Add(comment);
+            var comment = new ProjectCommentModel
+            {
+                Id = Guid.NewGuid(),
+                TaskId = taskId,
+                UserId = userId,
+                Content = $"{faker.Lorem.Paragraph()} {i}"
+            };
+            db.ProjectComments.Add(comment);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectCommentQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

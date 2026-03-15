@@ -18,13 +18,13 @@ public class GetAllProductHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProductHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new GetAllProductHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class GetAllProductHandlerTests : IDisposable
         var query = new GetAllProductQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -45,8 +45,12 @@ public class GetAllProductHandlerTests : IDisposable
     public async Task Handle_WithProducts_ReturnsAllProducts()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.db.BasicProductCategories.Add(category);
+        var category = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Electronics"
+        };
+        db.BasicProductCategories.Add(category);
 
         var product1 = new ProductModel
         {
@@ -68,13 +72,13 @@ public class GetAllProductHandlerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.db.BasicProducts.AddRange(product1, product2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.AddRange(product1, product2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -87,8 +91,12 @@ public class GetAllProductHandlerTests : IDisposable
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.db.BasicProductCategories.Add(category);
+        var category = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Electronics"
+        };
+        db.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 25; i++)
         {
@@ -101,15 +109,15 @@ public class GetAllProductHandlerTests : IDisposable
                 Quantity = 100,
                 CategoryId = category.Id
             };
-            this.db.BasicProducts.Add(product);
+            db.BasicProducts.Add(product);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -120,8 +128,12 @@ public class GetAllProductHandlerTests : IDisposable
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.db.BasicProductCategories.Add(category);
+        var category = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Electronics"
+        };
+        db.BasicProductCategories.Add(category);
 
         for (var i = 0; i < 5; i++)
         {
@@ -134,15 +146,15 @@ public class GetAllProductHandlerTests : IDisposable
                 Quantity = 100,
                 CategoryId = category.Id
             };
-            this.db.BasicProducts.Add(product);
+            db.BasicProducts.Add(product);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -153,8 +165,12 @@ public class GetAllProductHandlerTests : IDisposable
     public async Task Handle_VerifiesCategoryDataIsIncluded()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Electronics" };
-        this.db.BasicProductCategories.Add(category);
+        var category = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Electronics"
+        };
+        db.BasicProductCategories.Add(category);
 
         var product = new ProductModel
         {
@@ -166,13 +182,13 @@ public class GetAllProductHandlerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProductQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

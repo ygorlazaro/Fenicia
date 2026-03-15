@@ -21,14 +21,14 @@ public class UpdateProjectTaskHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectTaskHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateProjectTaskHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -55,13 +55,13 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.Add(task);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.Add(task);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskCommand(taskId, projectId, statusId, "New Task Title", "New Description", "High", "Bug", 10, 8, DateTime.UtcNow.AddDays(14), Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -76,7 +76,7 @@ public class UpdateProjectTaskHandlerTests : IDisposable
         var command = new UpdateProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "New Task Title", "New Description", "High", "Bug", 1, 5, null, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -89,7 +89,7 @@ public class UpdateProjectTaskHandlerTests : IDisposable
         var command = new UpdateProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "New Task Title", "New Description", "High", "Bug", 1, 5, null, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -134,21 +134,21 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(task1, task2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.AddRange(task1, task2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskCommand(task1Id, projectId, statusId, "Updated Task 1 Title", "Updated Task 1 Description", "High", "Task", 5, 10, DateTime.UtcNow.AddDays(21), task1.CreatedBy);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(task1Id, result.Id);
         Assert.Equal("Updated Task 1 Title", result.Title);
 
-        var updatedTask1 = await this.db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
-        var task2InDb = await this.db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
+        var updatedTask1 = await db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
+        var task2InDb = await db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
 
         Assert.NotNull(updatedTask1);
         Assert.NotNull(task2InDb);
@@ -168,8 +168,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             Id = taskId,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -178,13 +178,13 @@ public class UpdateProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.Add(task);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.Add(task);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskCommand(taskId, projectId, statusId, "Updated Title", null, "Medium", "Task", 1, 5, null, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

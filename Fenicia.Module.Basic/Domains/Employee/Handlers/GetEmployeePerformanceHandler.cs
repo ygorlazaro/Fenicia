@@ -31,7 +31,13 @@ public class GetEmployeePerformanceHandler(DefaultContext db)
         var ordersByEmployee = await GetOrdersByEmployeeAsync(orders, ct);
         var topPerformers = GetTopPerformerAsync(query, salesByEmployee, summary);
 
-        return new EmployeePerformanceResponse { Summary = summary, SalesByEmployee = salesByEmployee, OrdersByEmployee = ordersByEmployee, TopPerformers = topPerformers };
+        return new EmployeePerformanceResponse
+        {
+            Summary = summary,
+            SalesByEmployee = salesByEmployee,
+            OrdersByEmployee = ordersByEmployee,
+            TopPerformers = topPerformers
+        };
     }
 
     private List<TopPerformerResponse> GetTopPerformerAsync(GetEmployeePerformanceQuery query, List<EmployeeSalesResponse> salesByEmployee, EmployeePerformanceSummaryResponse summary)

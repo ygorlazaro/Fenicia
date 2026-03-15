@@ -18,13 +18,13 @@ public class GetPositionByIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetPositionByIdHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new GetPositionByIdHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -37,15 +37,19 @@ public class GetPositionByIdHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel { Id = positionId, Name = positionName };
+        var position = new PositionModel
+        {
+            Id = positionId,
+            Name = positionName
+        };
 
-        this.db.BasicPositions.Add(position);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetPositionByIdQuery(positionId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -60,7 +64,7 @@ public class GetPositionByIdHandlerTests : IDisposable
         var query = new GetPositionByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -73,7 +77,7 @@ public class GetPositionByIdHandlerTests : IDisposable
         var query = new GetPositionByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -86,16 +90,24 @@ public class GetPositionByIdHandlerTests : IDisposable
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
-        var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
+        var position1 = new PositionModel
+        {
+            Id = position1Id,
+            Name = "Developer"
+        };
+        var position2 = new PositionModel
+        {
+            Id = position2Id,
+            Name = "Designer"
+        };
 
-        this.db.BasicPositions.AddRange(position1, position2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.AddRange(position1, position2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetPositionByIdQuery(position1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

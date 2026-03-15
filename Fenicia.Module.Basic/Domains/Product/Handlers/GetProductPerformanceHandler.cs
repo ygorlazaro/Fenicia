@@ -35,7 +35,13 @@ public class GetProductPerformanceHandler(DefaultContext db)
         var profitMargins = await GetProfitMarginsListAsync(products, ct);
         var neverSoldProducts = await GetNeverSoldProductAsync(query, orderDetails, products, stockMovements, ct);
 
-        return new ProductPerformanceResponse { BestSellingProducts = bestSellingProducts, WorstSellingProducts = worstSellingProducts, ProfitMargins = profitMargins, NeverSoldProducts = neverSoldProducts };
+        return new ProductPerformanceResponse
+        {
+            BestSellingProducts = bestSellingProducts,
+            WorstSellingProducts = worstSellingProducts,
+            ProfitMargins = profitMargins,
+            NeverSoldProducts = neverSoldProducts
+        };
     }
 
     private async Task<List<NeverSoldProductResponse>> GetNeverSoldProductAsync(GetProductPerformanceQuery query, IQueryable<OrderDetailModel> orderDetails, IIncludableQueryable<ProductModel, PersonModel?> products, IQueryable<StockMovementModel> stockMovements, CancellationToken ct)

@@ -25,14 +25,14 @@ public class UpdateEmployeeHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdateEmployeeHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateEmployeeHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -44,11 +44,19 @@ public class UpdateEmployeeHandlerTests : IDisposable
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel { Id = position1Id, Name = "Old Position" };
+        var position1 = new PositionModel
+        {
+            Id = position1Id,
+            Name = "Old Position"
+        };
 
-        var position2 = new PositionModel { Id = position2Id, Name = "New Position" };
+        var position2 = new PositionModel
+        {
+            Id = position2Id,
+            Name = "New Position"
+        };
 
-        this.db.BasicPositions.AddRange(position1, position2);
+        db.BasicPositions.AddRange(position1, position2);
 
         var employee = new EmployeeModel
         {
@@ -69,13 +77,13 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(employeeId, position2Id, "New Name", "new@email.com", "987.654.321-00", "New City", "Apt 202", "New Neighborhood", "200", Guid.NewGuid(), "New Street", "54321-000", "(11) 98765-4321");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -90,7 +98,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
         var command = new UpdateEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -103,7 +111,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
         var command = new UpdateEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -114,8 +122,12 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -125,24 +137,24 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -153,8 +165,12 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -164,24 +180,24 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -192,8 +208,12 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -203,24 +223,24 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -231,8 +251,12 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -242,24 +266,24 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -270,8 +294,12 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -281,24 +309,24 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -309,8 +337,12 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -320,24 +352,24 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -348,8 +380,12 @@ public class UpdateEmployeeHandlerTests : IDisposable
     {
         // Arrange
         var employeeId = Guid.NewGuid();
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        this.db.BasicPositions.Add(position);
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Developer"
+        };
+        db.BasicPositions.Add(position);
 
         var employee = new EmployeeModel
         {
@@ -359,24 +395,24 @@ public class UpdateEmployeeHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                Street = faker.Address.StreetName(),
+                Number = faker.Random.Replace("####"),
+                ZipCode = faker.Address.ZipCode(),
                 StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                City = faker.Address.City()
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", null, null, null, null, Guid.NewGuid(), null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -390,11 +426,19 @@ public class UpdateEmployeeHandlerTests : IDisposable
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel { Id = position1Id, Name = "Old Position" };
+        var position1 = new PositionModel
+        {
+            Id = position1Id,
+            Name = "Old Position"
+        };
 
-        var position2 = new PositionModel { Id = position2Id, Name = "New Position" };
+        var position2 = new PositionModel
+        {
+            Id = position2Id,
+            Name = "New Position"
+        };
 
-        this.db.BasicPositions.AddRange(position1, position2);
+        db.BasicPositions.AddRange(position1, position2);
 
         var employee = new EmployeeModel
         {
@@ -415,16 +459,16 @@ public class UpdateEmployeeHandlerTests : IDisposable
             }
         };
 
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(employeeId, position2Id, "New Name", "new@email.com", "987.654.321-00", "New City", "Apt 202", "New Neighborhood", "200", Guid.NewGuid(), "New Street", "54321-000", "(11) 98765-4321");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedEmployee = await this.db.BasicEmployees.Include(e => e.Person).FirstOrDefaultAsync(e => e.Id == employeeId);
+        var updatedEmployee = await db.BasicEmployees.Include(e => e.Person).FirstOrDefaultAsync(e => e.Id == employeeId);
 
         Assert.NotNull(updatedEmployee);
         Assert.Equal("New Name", updatedEmployee.Person.Name);

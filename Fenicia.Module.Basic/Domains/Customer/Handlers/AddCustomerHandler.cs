@@ -35,7 +35,12 @@ public class AddCustomerHandler(DefaultContext db)
             City = command.City
         };
 
-        var customer = new CustomerModel { Id = command.Id, Person = person, PersonId = person.Id };
+        var customer = new CustomerModel
+        {
+            Id = command.Id,
+            Person = person,
+            PersonId = person.Id
+        };
 
         db.BasicCustomers.Add(customer);
 

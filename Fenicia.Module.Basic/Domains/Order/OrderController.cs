@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Order.Commands;
 using Fenicia.Module.Basic.Domains.Order.Handlers;
 using Fenicia.Module.Basic.Domains.Order.Queries;
@@ -58,7 +57,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var orders = await getAllOrderHandler.Handle(new GetAllOrderQuery(page, perPage), ct);
 
@@ -89,7 +88,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var order = await getOrderByIdHandler.Handle(new GetOrderByIdQuery(id), ct);
 
@@ -126,9 +125,9 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var userId = ClaimReader.UserId(this.User);
+            var userId = ClaimReader.UserId(User);
             var order = await createOrderHandler.Handle(command with { UserId = userId }, ct);
 
             return new CreatedResult(string.Empty, order);
@@ -163,7 +162,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             await deleteOrderHandler.Handle(new DeleteOrderCommand(id), ct);
 
@@ -192,7 +191,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);
 
@@ -230,7 +229,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var analytics = await getOrderAnalyticsHandler.Handle(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
 

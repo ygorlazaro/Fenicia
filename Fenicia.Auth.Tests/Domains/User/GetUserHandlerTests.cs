@@ -20,23 +20,29 @@ public class GetUserHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetUserHandler(this.db);
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new GetUserHandler(db);
 
         var faker = new Faker();
 
         for (var i = 0; i < 15; i++)
         {
-            var user = new UserModel { Email = faker.Internet.Email(), Password = faker.Internet.Password().Hash(), Name = faker.Person.FullName };
-            this.db.AuthUsers.Add(user);
+            var user = new UserModel
+            {
+                Email = faker.Internet.Email(),
+                Password = faker.Internet.Password()
+                    .Hash(),
+                Name = faker.Person.FullName
+            };
+            db.AuthUsers.Add(user);
         }
 
-        this.db.SaveChanges();
+        db.SaveChanges();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -47,7 +53,7 @@ public class GetUserHandlerTests : IDisposable
         var request = new GetUsersQuery();
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -66,7 +72,7 @@ public class GetUserHandlerTests : IDisposable
         var request = new GetUsersQuery(2, 5);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -83,7 +89,7 @@ public class GetUserHandlerTests : IDisposable
         var request = new GetUsersQuery(1, 15);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -98,7 +104,7 @@ public class GetUserHandlerTests : IDisposable
         var request = new GetUsersQuery(2, 10);
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

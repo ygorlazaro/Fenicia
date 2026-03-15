@@ -16,13 +16,13 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new AddProjectTaskAssigneeHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new AddProjectTaskAssigneeHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -34,7 +34,7 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
         var command = new AddProjectTaskAssigneeCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Owner", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -52,10 +52,10 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
         var command = new AddProjectTaskAssigneeCommand(Guid.NewGuid(), taskId, userId, "Owner", assignedAt);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var assignee = await this.db.ProjectTaskAssignees.FirstOrDefaultAsync(a => a.Id == command.Id);
+        var assignee = await db.ProjectTaskAssignees.FirstOrDefaultAsync(a => a.Id == command.Id);
 
         Assert.NotNull(assignee);
         Assert.Equal(taskId, assignee.TaskId);
@@ -72,11 +72,11 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
         var command2 = new AddProjectTaskAssigneeCommand(Guid.NewGuid(), taskId, Guid.NewGuid(), "Contributor", DateTime.UtcNow.AddDays(-3));
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await handler.Handle(command1, CancellationToken.None);
+        await handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var assignees = await this.db.ProjectTaskAssignees.ToListAsync();
+        var assignees = await db.ProjectTaskAssignees.ToListAsync();
         Assert.Equal(2, assignees.Count);
     }
 
@@ -87,7 +87,7 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
         var command = new AddProjectTaskAssigneeCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Contributor", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -103,7 +103,7 @@ public class AddProjectTaskAssigneeHandlerTests : IDisposable
         var command = new AddProjectTaskAssigneeCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Owner", pastDate);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
