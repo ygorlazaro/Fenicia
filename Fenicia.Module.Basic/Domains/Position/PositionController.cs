@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
@@ -21,101 +22,193 @@ namespace Fenicia.Module.Basic.Domains.Position;
 [Authorize]
 [ApiController]
 [Route("[controller]")]
+[Produces(MediaTypeNames.Application.Json)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class PositionController(GetAllPositionHandler getAllPositionHandler, GetPositionByIdHandler getPositionByIdHandler, AddPositionHandler addPositionHandler, UpdatePositionHandler updatePositionHandler, DeletePositionHandler deletePositionHandler, GetEmployeesByPositionIdHandler getEmployeesByPositionIdHandler) : ControllerBase
 {
     /// <summary>
     ///     Retrieves all positions with pagination.
     /// </summary>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="page">Page number (default: 1).</param>
+    /// <param name="perPage">Items per page (default: 10).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Paginated list of positions.</returns>
+    /// <response code="200">Positions retrieved successfully.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllPositionResponse>>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<Pagination<List<GetAllPositionResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page, perPage), ct);
+            var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page, perPage), ct);
 
-        return Ok(positions);
+            return Ok(positions);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
     ///     Retrieves a position by its unique identifier.
     /// </summary>
+    /// <param name="id">Position's unique identifier.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Position details or 404 if not found.</returns>
+    /// <response code="200">Position found.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="404">Position not found.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetPositionByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetPositionByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var position = await getPositionByIdHandler.Handle(new GetPositionByIdQuery(id), ct);
+            var position = await getPositionByIdHandler.Handle(new GetPositionByIdQuery(id), ct);
 
-        return position is null ? NotFound() : Ok(position);
+            return position is null ? NotFound() : Ok(position);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
     ///     Retrieves all employees belonging to a specific position.
     /// </summary>
+    /// <param name="id">Position's unique identifier.</param>
+    /// <param name="query">Pagination query parameters.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>List of employees in the position.</returns>
+    /// <response code="200">Employees retrieved successfully.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}/employee")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetEmployeesByPositionIdResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetEmployeesByPositionIdResponse>>> GetEmployeesByPositionIdAsync([FromRoute] Guid id, [FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var employees = await getEmployeesByPositionIdHandler.Handle(new GetEmployeesByPositionIdQuery(id, query.Page, query.PerPage), ct);
+            var employees = await getEmployeesByPositionIdHandler.Handle(new GetEmployeesByPositionIdQuery(id, query.Page, query.PerPage), ct);
 
-        return Ok(employees);
+            return Ok(employees);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
     ///     Creates a new position.
     /// </summary>
+    /// <param name="command">Position creation command.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Created position.</returns>
+    /// <response code="201">Position created successfully.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddPositionResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddPositionResponse>> PostAsync([FromBody] AddPositionCommand command, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var position = await addPositionHandler.Handle(command, ct);
+            var position = await addPositionHandler.Handle(command, ct);
 
-        return new CreatedResult(string.Empty, position);
+            return new CreatedResult(string.Empty, position);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
     ///     Updates an existing position.
     /// </summary>
+    /// <param name="command">Position update command.</param>
+    /// <param name="id">Position's unique identifier.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Updated position or 404 if not found.</returns>
+    /// <response code="200">Position updated successfully.</response>
+    /// <response code="400">Invalid request.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="404">Position not found.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdatePositionResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdatePositionResponse>> PatchAsync([FromBody] UpdatePositionCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var position = await updatePositionHandler.Handle(command with { Id = id }, ct);
+            var position = await updatePositionHandler.Handle(command with { Id = id }, ct);
 
-        return position is null ? NotFound() : Ok(position);
+            return position is null ? NotFound() : Ok(position);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
     ///     Deletes a position (soft delete).
     /// </summary>
+    /// <param name="id">Position's unique identifier.</param>
+    /// <param name="wide">Wide event context for request tracking.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>No content on success.</returns>
+    /// <response code="204">Position deleted successfully.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        await deletePositionHandler.Handle(new DeletePositionCommand(id), ct);
+            await deletePositionHandler.Handle(new DeletePositionCommand(id), ct);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 }

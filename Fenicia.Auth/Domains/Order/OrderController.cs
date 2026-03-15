@@ -4,6 +4,7 @@ using Fenicia.Auth.Domains.Order.CreateNewOrder.Commands;
 using Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
 using Fenicia.Auth.Domains.Order.CreateNewOrder.Responses;
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,23 +45,49 @@ public class OrderController(CreateNewOrderHandler createNewOrderHandler) : Cont
     /// </remarks>
     /// <response code="201">Order created successfully.</response>
     /// <response code="400">Invalid request or modules not found.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="403">User does not belong to the company.</response>
+    /// <response code="404">Module not found.</response>
     /// <response code="500">Internal server error.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+    /// <exception cref="PermissionDeniedException">User does not belong to the company.</exception>
+    /// <exception cref="ItemNotExistsException">Requested modules or Basic module not found.</exception>
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CreateNewOrderResponse>> CreateNewOrderAsync(CreateNewOrderCommand request, [FromHeader] Headers headers, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
-
-        var userId = ClaimReader.UserId(this.User);
-        var companyId = headers.CompanyId;
-        var command = new CreateNewOrderCommand(userId, companyId, request.Modules);
-        var order = await createNewOrderHandler.Handle(command, ct);
-
-        return order switch
+        try
         {
-            null => BadRequest(),
-            _ => Created(string.Empty, order)
-        };
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
+
+            var userId = ClaimReader.UserId(this.User);
+            var companyId = headers.CompanyId;
+            var command = new CreateNewOrderCommand(userId, companyId, request.Modules);
+            var order = await createNewOrderHandler.Handle(command, ct);
+
+            return order switch
+            {
+                null => BadRequest(),
+                _ => Created(string.Empty, order)
+            };
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (PermissionDeniedException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (ItemNotExistsException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 }

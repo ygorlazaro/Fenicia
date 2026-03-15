@@ -6,6 +6,7 @@ using Fenicia.Auth.Domains.Company.Queries;
 using Fenicia.Auth.Domains.Company.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,19 +36,35 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A paginated response containing companies the user is associated with.</returns>
     /// <response code="200">Returns the list of companies successfully.</response>
-    /// <response code="404">No companies found for the user.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="400">Invalid request - perPage must be greater than zero.</response>
     /// <response code="500">Internal server error.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+    /// <exception cref="InvalidRequestException">Invalid request - perPage must be greater than zero.</exception>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<GetCompaniesByUserResponse>> GetByLoggedUser([FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(this.User);
-        wide.UserId = userId.ToString();
+        try
+        {
+            var userId = ClaimReader.UserId(this.User);
+            wide.UserId = userId.ToString();
 
-        var result = await getCompaniesByUserHandler.Handle(new GetCompaniesByUserQuery(userId, query.Page, query.PerPage), ct);
+            var result = await getCompaniesByUserHandler.Handle(new GetCompaniesByUserQuery(userId, query.Page, query.PerPage), ct);
 
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (InvalidRequestException ex)
+        {
+            return  BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -60,11 +77,16 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
     /// <returns>No content on successful update.</returns>
     /// <response code="204">Company updated successfully.</response>
     /// <response code="400">Invalid request data.</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="403">User does not have Admin permission for this company.</response>
     /// <response code="404">Company not found.</response>
     /// <response code="500">Internal server error.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+    /// <exception cref="ItemNotExistsException">Company not found or inactive.</exception>
+    /// <exception cref="PermissionDeniedException">User does not have Admin permission for this company.</exception>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -72,13 +94,28 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpdateCompanyCommand request, WideEventContext wide, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(this.User);
-        wide.UserId = userId.ToString();
+        try
+        {
+            var userId = ClaimReader.UserId(this.User);
+            wide.UserId = userId.ToString();
 
-        var company = request with { CompanyId = id };
+            var company = request with { CompanyId = id };
 
-        await updateCompanyCommand.Handle(company, ct);
+            await updateCompanyCommand.Handle(company, ct);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (ItemNotExistsException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (PermissionDeniedException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 }

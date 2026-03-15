@@ -1,6 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.DataSource.Handlers;
 using Fenicia.Module.Basic.Domains.DataSource.Responses;
 
@@ -30,17 +31,25 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of positions.</returns>
     /// <response code="200">Returns the list of positions successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("position")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllPositionForDataSourceResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetAllPositionForDataSourceResponse>>> GetPositionsAsync(WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var positions = await getAllPositionForDataSourceHandler.Handle(ct);
+            var positions = await getAllPositionForDataSourceHandler.Handle(ct);
 
-        return Ok(positions);
+            return Ok(positions);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -50,17 +59,25 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of product categories.</returns>
     /// <response code="200">Returns the list of product categories successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("productcategory")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductCategoryForDataSourceResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetAllProductCategoryForDataSourceResponse>>> GetProductCategoriesAsync(WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var categories = await getAllProductCategoryForDataSourceHandler.Handle(ct);
+            var categories = await getAllProductCategoryForDataSourceHandler.Handle(ct);
 
-        return Ok(categories);
+            return Ok(categories);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -70,17 +87,25 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of suppliers.</returns>
     /// <response code="200">Returns the list of suppliers successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("supplier")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllSupplierForDataSourceResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetAllSupplierForDataSourceResponse>>> GetSuppliersAsync(WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var suppliers = await getAllSupplierForDataSourceHandler.Handle(ct);
+            var suppliers = await getAllSupplierForDataSourceHandler.Handle(ct);
 
-        return Ok(suppliers);
+            return Ok(suppliers);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -90,17 +115,25 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of customers.</returns>
     /// <response code="200">Returns the list of customers successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("customer")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllCustomerForDataSourceResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetAllCustomerForDataSourceResponse>>> GetCustomersAsync(WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var customers = await getAllCustomerForDataSourceHandler.Handle(ct);
+            var customers = await getAllCustomerForDataSourceHandler.Handle(ct);
 
-        return Ok(customers);
+            return Ok(customers);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -110,17 +143,25 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of products.</returns>
     /// <response code="200">Returns the list of products successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("product")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllProductForDataSourceResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetAllProductForDataSourceResponse>>> GetProductsAsync(WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var products = await getAllProductForDataSourceHandler.Handle(ct);
+            var products = await getAllProductForDataSourceHandler.Handle(ct);
 
-        return Ok(products);
+            return Ok(products);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -130,16 +171,24 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of employees.</returns>
     /// <response code="200">Returns the list of employees successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("employee")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllEmployeeForDataSourceResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetAllEmployeeForDataSourceResponse>>> GetEmployeesAsync(WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var employees = await getAllEmployeeForDataSourceHandler.Handle(ct);
+            var employees = await getAllEmployeeForDataSourceHandler.Handle(ct);
 
-        return Ok(employees);
+            return Ok(employees);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 }

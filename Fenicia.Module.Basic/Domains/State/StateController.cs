@@ -1,6 +1,7 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.State.Handlers;
 using Fenicia.Module.Basic.Domains.State.Responses;
 
@@ -30,16 +31,24 @@ public class StateController(GetAllStateHandler getAllStateHandler) : Controller
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A list of all states.</returns>
     /// <response code="200">Returns the list of states successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetAllStateResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetAllStateResponse>>> GetAllAsync(WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var states = await getAllStateHandler.Handle(ct);
+            var states = await getAllStateHandler.Handle(ct);
 
-        return Ok(states);
+            return Ok(states);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 }

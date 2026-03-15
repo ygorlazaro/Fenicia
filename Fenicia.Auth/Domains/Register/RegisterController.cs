@@ -4,6 +4,7 @@ using Fenicia.Auth.Domains.User.Commands;
 using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Auth.Domains.User.Responses;
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -50,15 +51,24 @@ public class RegisterController(CreateNewUserHandler createNewUserHandler) : Con
     /// </remarks>
     /// <response code="201">User created successfully.</response>
     /// <response code="400">Invalid request (duplicate email, duplicate CNPJ, or missing Admin role).</response>
+    /// <exception cref="InvalidRequestException">Email already exists, CNPJ already exists, or Admin role not found.</exception>
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CreateNewUserResponse>> CreateNewUserAsync(CreateNewUserCommand request, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = request.Email;
+        try
+        {
+            wide.UserId = request.Email;
 
-        var userResponse = await createNewUserHandler.Handle(request, ct);
+            var userResponse = await createNewUserHandler.Handle(request, ct);
 
-        return Created(string.Empty, userResponse);
+            return Created(string.Empty, userResponse);
+        }
+        catch (InvalidRequestException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }
