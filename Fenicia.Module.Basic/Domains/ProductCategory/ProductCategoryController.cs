@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Product.Handlers;
 using Fenicia.Module.Basic.Domains.Product.Queries;
 using Fenicia.Module.Basic.Domains.Product.Responses;
@@ -38,17 +39,25 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A paginated response containing the list of product categories.</returns>
     /// <response code="200">Returns the list of categories successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductCategoryResponse>>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<Pagination<List<GetAllProductCategoryResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(page, perPage), ct);
+            var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(page, perPage), ct);
 
-        return Ok(productCategory);
+            return Ok(productCategory);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -59,19 +68,27 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The product category details if found, otherwise NotFound.</returns>
     /// <response code="200">Returns the category successfully.</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="404">Category not found.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductCategoryByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetProductCategoryByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id), ct);
+            var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id), ct);
 
-        return productCategory is null ? NotFound() : Ok(productCategory);
+            return productCategory is null ? NotFound() : Ok(productCategory);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -82,20 +99,27 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The created category with its details.</returns>
     /// <response code="201">Category created successfully.</response>
-    /// <response code="400">Invalid request data.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProductCategoryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProductCategoryResponse>> PostAsync([FromBody] AddProductCategoryCommand command, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var productCategory = await addProductCategoryHandler.Handle(command, ct);
+            var productCategory = await addProductCategoryHandler.Handle(command, ct);
 
-        return new CreatedResult(string.Empty, productCategory);
+            return new CreatedResult(string.Empty, productCategory);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -107,22 +131,30 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The updated category if found, otherwise NotFound.</returns>
     /// <response code="200">Category updated successfully.</response>
-    /// <response code="400">Invalid request data.</response>
+    /// <response code="400">Invalid request.</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="404">Category not found.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProductCategoryResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProductCategoryResponse>> PatchAsync([FromBody] UpdateProductCategoryCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var productCategory = await updateProductCategoryHandler.Handle(command with { Id = id }, ct);
+            var productCategory = await updateProductCategoryHandler.Handle(command with { Id = id }, ct);
 
-        return productCategory is null ? NotFound() : Ok(productCategory);
+            return productCategory is null ? NotFound() : Ok(productCategory);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -133,17 +165,25 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     /// <param name="ct">Cancellation token.</param>
     /// <returns>No content on successful deletion.</returns>
     /// <response code="204">Category deleted successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id), ct);
+            await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id), ct);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -155,16 +195,24 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A list of products in the specified category.</returns>
     /// <response code="200">Returns the products successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}/product")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetProductsByCategoryIdResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetProductsByCategoryIdResponse>>> GetProductsByCategoryAsync([FromRoute] Guid categoryId, [FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var products = await getProductsByCategoryIdHandler.Handle(new GetProductsByCategoryIdQuery(categoryId, query.Page, query.PerPage), ct);
+            var products = await getProductsByCategoryIdHandler.Handle(new GetProductsByCategoryIdQuery(categoryId, query.Page, query.PerPage), ct);
 
-        return Ok(products);
+            return Ok(products);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 }

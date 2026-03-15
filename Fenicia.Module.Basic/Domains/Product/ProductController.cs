@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Product.Commands;
 using Fenicia.Module.Basic.Domains.Product.Handlers;
 using Fenicia.Module.Basic.Domains.Product.Queries;
@@ -35,17 +36,25 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A paginated response containing the list of products.</returns>
     /// <response code="200">Returns the list of products successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductResponse>>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<Pagination<List<GetAllProductResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var products = await getAllProductHandler.Handle(new GetAllProductQuery(page, perPage), ct);
+            var products = await getAllProductHandler.Handle(new GetAllProductQuery(page, perPage), ct);
 
-        return Ok(products);
+            return Ok(products);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -56,19 +65,27 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The product details if found, otherwise NotFound.</returns>
     /// <response code="200">Returns the product successfully.</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="404">Product not found.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetProductByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var product = await getProductByIdHandler.Handle(new GetProductByIdQuery(id), ct);
+            var product = await getProductByIdHandler.Handle(new GetProductByIdQuery(id), ct);
 
-        return product is null ? NotFound() : Ok(product);
+            return product is null ? NotFound() : Ok(product);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -79,20 +96,27 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The created product with its details.</returns>
     /// <response code="201">Product created successfully.</response>
-    /// <response code="400">Invalid request data.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProductResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProductResponse>> PostAsync([FromBody] AddProductCommand command, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var product = await addProductHandler.Handle(command, ct);
+            var product = await addProductHandler.Handle(command, ct);
 
-        return new CreatedResult(string.Empty, product);
+            return new CreatedResult(string.Empty, product);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -104,22 +128,30 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The updated product if found, otherwise NotFound.</returns>
     /// <response code="200">Product updated successfully.</response>
-    /// <response code="400">Invalid request data.</response>
+    /// <response code="400">Invalid request.</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="404">Product not found.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProductResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProductResponse>> PatchAsync([FromBody] UpdateProductCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var product = await updateProductHandler.Handle(command with { Id = id }, ct);
+            var product = await updateProductHandler.Handle(command with { Id = id }, ct);
 
-        return product is null ? NotFound() : Ok(product);
+            return product is null ? NotFound() : Ok(product);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -130,17 +162,25 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     /// <param name="ct">Cancellation token.</param>
     /// <returns>No content on successful deletion.</returns>
     /// <response code="204">Product deleted successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        await deleteProductHandler.Handle(new DeleteProductCommand(id), ct);
+            await deleteProductHandler.Handle(new DeleteProductCommand(id), ct);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -152,16 +192,24 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Performance metrics including best-selling, worst-selling, and never sold products.</returns>
     /// <response code="200">Returns product performance data successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("performance")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductPerformanceResponse))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<ProductPerformanceResponse>> GetPerformanceAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topLimit = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var performance = await getProductPerformanceHandler.Handle(new GetProductPerformanceQuery(days, topLimit), ct);
+            var performance = await getProductPerformanceHandler.Handle(new GetProductPerformanceQuery(days, topLimit), ct);
 
-        return Ok(performance);
+            return Ok(performance);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 }

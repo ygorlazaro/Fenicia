@@ -3,6 +3,7 @@ using System.Net.Mime;
 using Fenicia.Auth.Domains.ForgotPassword.Commands;
 using Fenicia.Auth.Domains.ForgotPassword.Handlers;
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,16 +33,24 @@ public class ForgotPasswordController(AddForgotPasswordHandler addForgotPassword
     /// <returns>Created result on successful initiation.</returns>
     /// <response code="201">Password reset code created successfully.</response>
     /// <response code="400">Invalid request or user not found.</response>
+    /// <exception cref="ItemNotExistsException">User not found with the given email.</exception>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ForgotPassword([FromBody] AddForgotPasswordCommand reset, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = reset.Email;
+        try
+        {
+            wide.UserId = reset.Email;
 
-        await addForgotPasswordHandler.Handle(reset, ct);
+            await addForgotPasswordHandler.Handle(reset, ct);
 
-        return Created();
+            return Created();
+        }
+        catch (ItemNotExistsException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -53,15 +62,28 @@ public class ForgotPasswordController(AddForgotPasswordHandler addForgotPassword
     /// <returns>Created result on successful password reset.</returns>
     /// <response code="201">Password reset successfully.</response>
     /// <response code="400">Invalid code, expired code, or user not found.</response>
+    /// <exception cref="ItemNotExistsException">User not found with the given email.</exception>
+    /// <exception cref="InvalidDataException">The code is invalid, expired, or already used.</exception>
     [HttpPost("reset")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand request, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = request.Email;
+        try
+        {
+            wide.UserId = request.Email;
 
-        await resetPasswordHandler.Handle(request, ct);
+            await resetPasswordHandler.Handle(request, ct);
 
-        return Created();
+            return Created();
+        }
+        catch (ItemNotExistsException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidDataException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

@@ -1,9 +1,9 @@
 using System.Globalization;
+using System.Diagnostics;
 
-using Fenicia.Common.Localization;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Common.API.Middlewares;
 
@@ -11,45 +11,100 @@ public class ExceptionMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(HttpContext context)
     {
+        var sw = Stopwatch.StartNew();
+
         try
         {
             await next(context);
         }
         catch (Exception ex)
         {
-            // Set culture based on Accept-Language header
+            sw.Stop();
+
             var acceptLanguage = context.Request.Headers.AcceptLanguage.FirstOrDefault();
             if (!string.IsNullOrEmpty(acceptLanguage))
             {
                 SetCulture(acceptLanguage);
             }
 
-            var problem = new ProblemDetails { Title = ExceptionMessages.InternalError, Status = context.Response.StatusCode, Detail = ex.Message, Instance = context.Request.Path };
+            var (statusCode, errorCode) = GetStatusCodeAndErrorCode(ex);
 
-            await context.Response.WriteAsJsonAsync(problem);
+            context.Response.StatusCode = statusCode;
+            context.Response.ContentType = "application/json";
+
+            var userId = GetUserId(context);
+            var companyId = GetCompanyId(context);
+
+            var response = new
+            {
+                message = ex.Message,
+                route = context.Request.Path.Value,
+                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                ms = sw.ElapsedMilliseconds,
+                statusCode,
+                errorCode,
+                userId,
+                companyId
+            };
+
+            await context.Response.WriteAsJsonAsync(response);
         }
+    }
+
+    private static (int statusCode, string errorCode) GetStatusCodeAndErrorCode(Exception ex)
+    {
+        return ex switch
+        {
+            UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
+            InvalidRequestException => (StatusCodes.Status400BadRequest, "InvalidRequest"),
+            ItemNotExistsException => (StatusCodes.Status404NotFound, "ItemNotFound"),
+            PermissionDeniedException => (StatusCodes.Status403Forbidden, "PermissionDenied"),
+            InvalidDataException => (StatusCodes.Status400BadRequest, "InvalidData"),
+            NotSavedException => (StatusCodes.Status500InternalServerError, "NotSaved"),
+            _ => (StatusCodes.Status500InternalServerError, "InternalError")
+        };
+    }
+
+    private static Guid? GetUserId(HttpContext context)
+    {
+        var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            return userId;
+        }
+        return null;
+    }
+
+    private static Guid? GetCompanyId(HttpContext context)
+    {
+        if (context.Request.Headers.TryGetValue("x-company", out var companyHeader) &&
+            Guid.TryParse(companyHeader, out var companyId))
+        {
+            return companyId;
+        }
+        return null;
     }
 
     private static void SetCulture(string acceptLanguage)
     {
-        // Parse Accept-Language header (e.g., "pt-BR,pt;q=0.9,en;q=0.8")
         var primaryLanguage = acceptLanguage.Split(',').FirstOrDefault()?.Split(';').FirstOrDefault()?.Trim();
 
-        if (!string.IsNullOrEmpty(primaryLanguage))
+        if (string.IsNullOrEmpty(primaryLanguage))
         {
-            try
-            {
-                var culture = new CultureInfo(primaryLanguage);
-                CultureInfo.CurrentCulture = culture;
-                CultureInfo.CurrentUICulture = culture;
-            }
-            catch (CultureNotFoundException)
-            {
-                // If the culture is not supported, fall back to default (English)
-                var culture = new CultureInfo("en-US");
-                CultureInfo.CurrentCulture = culture;
-                CultureInfo.CurrentUICulture = culture;
-            }
+            return;
+        }
+
+        try
+        {
+            var culture = new CultureInfo(primaryLanguage);
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
+        }
+        catch (CultureNotFoundException)
+        {
+            var culture = new CultureInfo("en-US");
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
         }
     }
 }

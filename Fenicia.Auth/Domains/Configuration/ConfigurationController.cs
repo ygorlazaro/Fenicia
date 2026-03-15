@@ -5,6 +5,7 @@ using Fenicia.Auth.Domains.Configuration.Handlers;
 using Fenicia.Auth.Domains.Configuration.Queries;
 using Fenicia.Auth.Domains.Configuration.Responses;
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,17 +34,27 @@ public class ConfigurationController(GetConfigurationHandler getConfigurationHan
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A list of configuration responses.</returns>
     /// <response code="200">Returns the list of configurations successfully.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetConfigurationResponse>>> GetAsync([FromQuery] Guid? companyId, WideEventContext wide, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(this.User);
-        wide.UserId = userId.ToString();
+        try
+        {
+            var userId = ClaimReader.UserId(this.User);
+            wide.UserId = userId.ToString();
 
-        var query = new GetConfigurationQuery(userId, companyId);
-        var result = await getConfigurationHandler.Handle(query, ct);
+            var query = new GetConfigurationQuery(userId, companyId);
+            var result = await getConfigurationHandler.Handle(query, ct);
 
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -57,18 +68,28 @@ public class ConfigurationController(GetConfigurationHandler getConfigurationHan
     /// <returns>No content on successful upsert.</returns>
     /// <response code="204">Configuration created or updated successfully.</response>
     /// <response code="400">Invalid request data.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult> PatchAsync([FromRoute] Guid id, [FromBody] UpsertConfigurationCommand request, WideEventContext wide, CancellationToken ct)
     {
-        var userId = ClaimReader.UserId(this.User);
-        wide.UserId = userId.ToString();
+        try
+        {
+            var userId = ClaimReader.UserId(this.User);
+            wide.UserId = userId.ToString();
 
-        var command = request with { UserId = userId, Id = id };
-        await upsertConfigurationHandler.Handle(command, ct);
+            var command = request with { UserId = userId, Id = id };
+            await upsertConfigurationHandler.Handle(command, ct);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 }

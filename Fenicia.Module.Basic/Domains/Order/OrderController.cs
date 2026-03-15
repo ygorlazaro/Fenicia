@@ -2,6 +2,7 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
+using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Order.Commands;
 using Fenicia.Module.Basic.Domains.Order.Handlers;
 using Fenicia.Module.Basic.Domains.Order.Queries;
@@ -48,17 +49,25 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Paginated list of orders.</returns>
     /// <response code="200">Returns the list of orders successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllOrderResponse>>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<Pagination<List<GetAllOrderResponse>>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var orders = await getAllOrderHandler.Handle(new GetAllOrderQuery(page, perPage), ct);
+            var orders = await getAllOrderHandler.Handle(new GetAllOrderQuery(page, perPage), ct);
 
-        return Ok(orders);
+            return Ok(orders);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -69,19 +78,27 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The order details or 404 if not found.</returns>
     /// <response code="200">Returns the order successfully.</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="404">Order not found.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetOrderByIdResponse))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetOrderByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var order = await getOrderByIdHandler.Handle(new GetOrderByIdQuery(id), ct);
+            var order = await getOrderByIdHandler.Handle(new GetOrderByIdQuery(id), ct);
 
-        return order is null ? NotFound() : Ok(order);
+            return order is null ? NotFound() : Ok(order);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -98,20 +115,28 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     /// </remarks>
     /// <response code="201">Order created successfully.</response>
     /// <response code="400">Invalid request data.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CreateOrderResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<CreateOrderResponse>> PostAsync([FromBody] CreateOrderCommand command, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var userId = ClaimReader.UserId(this.User);
-        var order = await createOrderHandler.Handle(command with { UserId = userId }, ct);
+            var userId = ClaimReader.UserId(this.User);
+            var order = await createOrderHandler.Handle(command with { UserId = userId }, ct);
 
-        return new CreatedResult(string.Empty, order);
+            return new CreatedResult(string.Empty, order);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -126,20 +151,28 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     ///     Requires Admin role to execute.
     /// </remarks>
     /// <response code="204">Order deleted successfully.</response>
+    /// <response code="401">Unauthorized</response>
     /// <response code="403">User does not have Admin permission.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpDelete("{id:guid}")]
     [Authorize("Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        await deleteOrderHandler.Handle(new DeleteOrderCommand(id), ct);
+            await deleteOrderHandler.Handle(new DeleteOrderCommand(id), ct);
 
-        return NoContent();
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -150,17 +183,25 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of order details including products, quantities, and prices.</returns>
     /// <response code="200">Returns the order details successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}/detail")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetOrderDetailsByOrderIdResponse>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<List<GetOrderDetailsByOrderIdResponse>>> GetDetailsAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);
+            var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);
 
-        return Ok(details);
+            return Ok(details);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 
     /// <summary>
@@ -180,16 +221,24 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
     ///     - Recent cancelled orders
     /// </remarks>
     /// <response code="200">Returns analytics data successfully.</response>
-    /// <response code="500">Internal server error.</response>
+    /// <response code="401">Unauthorized</response>
+    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("analytics")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderAnalyticsResponse))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<OrderAnalyticsResponse>> GetAnalyticsAsync(WideEventContext wide, [FromQuery] int days = 90, [FromQuery] int topCustomersLimit = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        try
+        {
+            wide.UserId = ClaimReader.UserId(this.User).ToString();
 
-        var analytics = await getOrderAnalyticsHandler.Handle(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
+            var analytics = await getOrderAnalyticsHandler.Handle(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
 
-        return Ok(analytics);
+            return Ok(analytics);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
     }
 }
