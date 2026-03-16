@@ -90,8 +90,11 @@ public class RegisterControllerTests : IDisposable
         db.AuthUsers.Add(existingUser);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await controller.CreateNewUserAsync(query, wide, xrt));
+        // Act
+        var result = await controller.CreateNewUserAsync(query, wide, xrt);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 
     /// <summary>
@@ -115,15 +118,18 @@ public class RegisterControllerTests : IDisposable
         db.AuthCompanies.Add(existingCompany);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await controller.CreateNewUserAsync(query, wide, ct));
+        // Act
+        var result = await controller.CreateNewUserAsync(query, wide, ct);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 
     /// <summary>
     ///     Tests that registering when Admin role doesn't exist throws exception.
     /// </summary>
     [Fact]
-    public async Task CreateNewUserAsync_WhenAdminRoleDoesNotExist_ThrowsArgumentException()
+    public async Task CreateNewUserAsync_WhenAdminRoleDoesNotExist_ReturnsBadRequest()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -136,15 +142,18 @@ public class RegisterControllerTests : IDisposable
         db.AuthRoles.Remove(adminRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await controller.CreateNewUserAsync(query, wide, ct));
+        // Act
+        var result = await controller.CreateNewUserAsync(query, wide, ct);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 
     /// <summary>
     ///     Tests that valid registration creates user, company, and role assignment.
     /// </summary>
     [Fact]
-    public async Task CreateNewUserAsync_WhenValidRequest_ReturnsOkWithUser()
+    public async Task CreateNewUserAsync_WhenValidRequest_ReturnsCreatedWithUser()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -158,13 +167,13 @@ public class RegisterControllerTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.IsType<CreatedResult>(result.Result);
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.NotNull(okResult);
-        Assert.Equal(200, okResult.StatusCode);
+        var createdResult = result.Result as CreatedResult;
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
-        var returnedResponse = okResult.Value as CreateNewUserResponse;
+        var returnedResponse = createdResult.Value as CreateNewUserResponse;
         Assert.NotNull(returnedResponse);
         Assert.Equal(query.Email, returnedResponse.Email);
         Assert.Equal(query.Name, returnedResponse.Name);
