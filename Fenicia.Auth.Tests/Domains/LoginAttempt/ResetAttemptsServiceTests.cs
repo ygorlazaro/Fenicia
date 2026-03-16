@@ -103,22 +103,17 @@ public class ResetAttemptsHandlerTests : IDisposable
     }
 
     /// <summary>
-    ///     Tests that empty email removes the empty key entry.
+    ///     Tests that empty email throws ArgumentException.
     /// </summary>
     [Fact]
-    public async Task Handle_WhenEmailIsEmpty_RemovesEmptyKey()
+    public async Task Handle_WhenEmailIsEmpty_ThrowsArgumentException()
     {
         // Arrange
         var email = string.Empty;
-        var key = $"login-attempt:{email.ToLower()}";
-        cache.Set(key, 2);
 
-        // Act
-        await handler.Handle(email);
-
-        // Assert
-        var exists = cache.TryGetValue(key, out _);
-        Assert.False(exists);
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<ArgumentException>(async () => await handler.Handle(email));
+        Assert.Equal("Email cannot be empty or whitespace-only", ex.Message);
     }
 
     /// <summary>

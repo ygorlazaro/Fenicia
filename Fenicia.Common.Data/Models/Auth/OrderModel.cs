@@ -29,7 +29,7 @@ public class OrderModel : BaseModel
 
     public virtual SubscriptionModel? Subscription { get; set; }
 
-    public virtual IEnumerable<OrderDetailModel> Details { get; set; } = null!;
+    public virtual ICollection<OrderDetailModel> Details { get; set; } = null!;
 
     [ForeignKey(nameof(UserId))]
     public virtual UserModel User { get; set; } = null!;

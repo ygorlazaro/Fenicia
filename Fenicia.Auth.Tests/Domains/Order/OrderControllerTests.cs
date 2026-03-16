@@ -74,7 +74,7 @@ public class OrderControllerTests : IDisposable
     ///     Tests that a user not belonging to the company throws PermissionDeniedException.
     /// </summary>
     [Fact]
-    public async Task CreateNewOrderAsync_WhenUserDoesNotBelongToCompany_ThrowsPermissionDeniedException()
+    public async Task CreateNewOrderAsync_WhenUserDoesNotBelongToCompany_ReturnsForbid()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -84,8 +84,11 @@ public class OrderControllerTests : IDisposable
         var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
         var headers = new Headers { CompanyId = testCompanyId };
 
-        // Act & Assert
-        await Assert.ThrowsAsync<PermissionDeniedException>(async () => await controller.CreateNewOrderAsync(command, headers, wide, ct));
+        // Act
+        var result = await controller.CreateNewOrderAsync(command, headers, wide, ct);
+
+        // Assert
+        Assert.IsType<ForbidResult>(result.Result);
     }
 
     /// <summary>
@@ -131,8 +134,11 @@ public class OrderControllerTests : IDisposable
         var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
         var headers = new Headers { CompanyId = testCompanyId };
 
-        // Act & Assert
-        await Assert.ThrowsAsync<ItemNotExistsException>(async () => await controller.CreateNewOrderAsync(command, headers, wide, ct));
+        // Act
+        var result = await controller.CreateNewOrderAsync(command, headers, wide, ct);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result.Result);
     }
 
     /// <summary>
@@ -194,13 +200,13 @@ public class OrderControllerTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.IsType<CreatedResult>(result.Result);
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.NotNull(okResult);
-        Assert.Equal(200, okResult.StatusCode);
+        var createdResult = result.Result as CreatedResult;
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
-        var returnedResponse = okResult.Value as CreateNewOrderResponse;
+        var returnedResponse = createdResult.Value as CreateNewOrderResponse;
         Assert.NotNull(returnedResponse);
 
         Assert.NotEqual(Guid.Empty, returnedResponse.OrderId);
