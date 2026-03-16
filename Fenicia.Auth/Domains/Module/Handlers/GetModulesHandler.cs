@@ -27,7 +27,11 @@ public class GetModulesHandler(DefaultContext db)
     /// <returns>A paginated response containing available modules.</returns>
     public async Task<Pagination<List<GetModuleResponse>>> Handle(GetModulesQuery query, CancellationToken ct)
     {
-        var request = db.AuthModules.Where(m => m.Type != ModuleType.Auth).OrderBy(m => m.Type).Select(m => new GetModuleResponse(m.Id, m.Name, m.Type));
+        var request = db.AuthModules.Where(m => m.Type != ModuleType.Auth)
+            .OrderBy(m => m.Type)
+            .Select(m => new GetModuleResponse(m.Id,
+                m.Name,
+                m.Type));
 
         var modules = await request.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
 
