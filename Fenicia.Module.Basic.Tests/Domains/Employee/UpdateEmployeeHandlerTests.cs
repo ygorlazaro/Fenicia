@@ -1,9 +1,11 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
+using Fenicia.Module.Basic.Domains.Employee.Common;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
 
 using Microsoft.EntityFrameworkCore;
@@ -68,19 +70,22 @@ public class UpdateEmployeeHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
                 Email = "old@email.com",
-                Document = "123.456.789-00",
-                Street = "Old Street",
-                Number = "100",
-                ZipCode = "12345-000",
-                StateId = Guid.NewGuid(),
-                City = "Old City"
+                Document = "12345678900",
+                PhoneNumber = "11999999999",
             }
         };
 
         db.BasicEmployees.Add(employee);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(employeeId, position2Id, "New Name", "new@email.com", "987.654.321-00", "New City", "Apt 202", "New Neighborhood", "200", Guid.NewGuid(), "New Street", "54321-000", "(11) 98765-4321");
+        var command = new UpdateEmployeeCommand(
+            employeeId, 
+            position2Id, 
+            "New Name", 
+            "new@email.com", 
+            "98765432100", 
+            "11988887777", 
+            null);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -95,7 +100,14 @@ public class UpdateEmployeeHandlerTests : IDisposable
     public async Task Handle_WhenEmployeeDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new UpdateEmployeeCommand(
+            Guid.NewGuid(), 
+            Guid.NewGuid(), 
+            "New Name", 
+            "new@email.com", 
+            "98765432100", 
+            "11988887777", 
+            null);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -108,7 +120,14 @@ public class UpdateEmployeeHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateEmployeeCommand(Guid.NewGuid(), Guid.NewGuid(), "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new UpdateEmployeeCommand(
+            Guid.NewGuid(), 
+            Guid.NewGuid(), 
+            "New Name", 
+            "new@email.com", 
+            "98765432100", 
+            "11988887777", 
+            null);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -139,277 +158,22 @@ public class UpdateEmployeeHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
+                Document = faker.Random.Replace("###########"),
+                PhoneNumber = faker.Phone.PhoneNumber(),
             }
         };
 
         db.BasicEmployees.Add(employee);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
-
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task Handle_WithNullStreet_SetsEmptyString()
-    {
-        // Arrange
-        var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
-        db.BasicPositions.Add(position);
-
-        var employee = new EmployeeModel
-        {
-            Id = employeeId,
-            PositionId = position.Id,
-            PersonId = Guid.NewGuid(),
-            Person = new PersonModel
-            {
-                Id = Guid.NewGuid(),
-                Name = faker.Person.FullName,
-                Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
-            }
-        };
-
-        db.BasicEmployees.Add(employee);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
-
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task Handle_WithNullZipCode_SetsEmptyString()
-    {
-        // Arrange
-        var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
-        db.BasicPositions.Add(position);
-
-        var employee = new EmployeeModel
-        {
-            Id = employeeId,
-            PositionId = position.Id,
-            PersonId = Guid.NewGuid(),
-            Person = new PersonModel
-            {
-                Id = Guid.NewGuid(),
-                Name = faker.Person.FullName,
-                Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
-            }
-        };
-
-        db.BasicEmployees.Add(employee);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
-
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task Handle_WithNullNumber_SetsEmptyString()
-    {
-        // Arrange
-        var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
-        db.BasicPositions.Add(position);
-
-        var employee = new EmployeeModel
-        {
-            Id = employeeId,
-            PositionId = position.Id,
-            PersonId = Guid.NewGuid(),
-            Person = new PersonModel
-            {
-                Id = Guid.NewGuid(),
-                Name = faker.Person.FullName,
-                Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
-            }
-        };
-
-        db.BasicEmployees.Add(employee);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
-
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task Handle_WithNullComplement_KeepsNull()
-    {
-        // Arrange
-        var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
-        db.BasicPositions.Add(position);
-
-        var employee = new EmployeeModel
-        {
-            Id = employeeId,
-            PositionId = position.Id,
-            PersonId = Guid.NewGuid(),
-            Person = new PersonModel
-            {
-                Id = Guid.NewGuid(),
-                Name = faker.Person.FullName,
-                Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
-            }
-        };
-
-        db.BasicEmployees.Add(employee);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
-
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task Handle_WithNullNeighborhood_KeepsNull()
-    {
-        // Arrange
-        var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
-        db.BasicPositions.Add(position);
-
-        var employee = new EmployeeModel
-        {
-            Id = employeeId,
-            PositionId = position.Id,
-            PersonId = Guid.NewGuid(),
-            Person = new PersonModel
-            {
-                Id = Guid.NewGuid(),
-                Name = faker.Person.FullName,
-                Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
-            }
-        };
-
-        db.BasicEmployees.Add(employee);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", "New City", null, null, null, Guid.NewGuid(), null, null, null);
-
-        // Act
-        var result = await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-    }
-
-    [Fact]
-    public async Task Handle_WithNullCity_KeepsNull()
-    {
-        // Arrange
-        var employeeId = Guid.NewGuid();
-        var position = new PositionModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "Developer"
-        };
-        db.BasicPositions.Add(position);
-
-        var employee = new EmployeeModel
-        {
-            Id = employeeId,
-            PositionId = position.Id,
-            PersonId = Guid.NewGuid(),
-            Person = new PersonModel
-            {
-                Id = Guid.NewGuid(),
-                Name = faker.Person.FullName,
-                Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
-            }
-        };
-
-        db.BasicEmployees.Add(employee);
-        await db.SaveChangesAsync(CancellationToken.None);
-
-        var command = new UpdateEmployeeCommand(employeeId, position.Id, "New Name", "new@email.com", "987.654.321-00", null, null, null, null, Guid.NewGuid(), null, null, null);
+        var command = new UpdateEmployeeCommand(
+            employeeId, 
+            position.Id, 
+            "New Name", 
+            "new@email.com", 
+            "98765432100", 
+            null, 
+            null);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -450,19 +214,22 @@ public class UpdateEmployeeHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = "Old Name",
                 Email = "old@email.com",
-                Document = "123.456.789-00",
-                Street = "Old Street",
-                Number = "100",
-                ZipCode = "12345-000",
-                StateId = Guid.NewGuid(),
-                City = "Old City"
+                Document = "12345678900",
+                PhoneNumber = "11999999999",
             }
         };
 
         db.BasicEmployees.Add(employee);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(employeeId, position2Id, "New Name", "new@email.com", "987.654.321-00", "New City", "Apt 202", "New Neighborhood", "200", Guid.NewGuid(), "New Street", "54321-000", "(11) 98765-4321");
+        var command = new UpdateEmployeeCommand(
+            employeeId, 
+            position2Id, 
+            "New Name", 
+            "new@email.com", 
+            "98765432100", 
+            "11988887777", 
+            null);
 
         // Act
         await handler.Handle(command, CancellationToken.None);
@@ -474,5 +241,69 @@ public class UpdateEmployeeHandlerTests : IDisposable
         Assert.Equal("New Name", updatedEmployee.Person.Name);
         Assert.Equal("new@email.com", updatedEmployee.Person.Email);
         Assert.Equal(position2Id, updatedEmployee.PositionId);
+    }
+
+    [Fact]
+    public async Task Handle_WithAddress_CreatesOrUpdatesAddress()
+    {
+        // Arrange
+        var stateId = Guid.NewGuid();
+        var state = new StateModel
+        {
+            Id = stateId,
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        db.AuthStates.Add(state);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var employeeId = Guid.NewGuid();
+        var employee = new EmployeeModel
+        {
+            Id = employeeId,
+            PositionId = Guid.NewGuid(),
+            PersonId = Guid.NewGuid(),
+            Person = new PersonModel
+            {
+                Id = Guid.NewGuid(),
+                Name = "Old Name",
+                Email = "old@email.com",
+                Document = "12345678900",
+                PhoneNumber = "11999999999",
+            }
+        };
+
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var addressDto = new AddressDTO(
+            faker.Address.StreetName(),
+            faker.Random.Replace("####"),
+            "Apt 202",
+            faker.Address.CityPrefix(),
+            faker.Address.ZipCode(),
+            stateId,
+            faker.Address.City(),
+            "Brasil"
+        );
+
+        var command = new UpdateEmployeeCommand(
+            employeeId, 
+            employee.PositionId, 
+            "New Name", 
+            "new@email.com", 
+            "98765432100", 
+            "11988887777", 
+            addressDto);
+
+        // Act
+        await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        var address = await db.AuthAddresses.FirstOrDefaultAsync(a => a.Street == addressDto.Street);
+        var personAddress = await db.BasicPersonAddresses.FirstOrDefaultAsync(pa => pa.AddressId == address!.Id);
+
+        Assert.NotNull(address);
+        Assert.NotNull(personAddress);
     }
 }

@@ -1,7 +1,6 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Customer.Handlers;
@@ -62,14 +61,6 @@ public class GetAllCustomerHandlerTests : IDisposable
     public async Task Handle_WithCustomers_ReturnsAllCustomers()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         var customer1 = new CustomerModel
         {
             Id = Guid.NewGuid(),
@@ -80,12 +71,6 @@ public class GetAllCustomerHandlerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City(),
                 PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
@@ -100,12 +85,6 @@ public class GetAllCustomerHandlerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City(),
                 PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
@@ -137,14 +116,6 @@ public class GetAllCustomerHandlerTests : IDisposable
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         for (var i = 0; i < 25; i++)
         {
             var customer = new CustomerModel
@@ -157,12 +128,6 @@ public class GetAllCustomerHandlerTests : IDisposable
                     Name = $"{faker.Person.FullName} {i}",
                     Email = faker.Internet.Email(),
                     Document = faker.Random.Replace("###.###.###-##"),
-                    Street = faker.Address.StreetName(),
-                    Number = faker.Random.Replace("####"),
-                    ZipCode = faker.Address.ZipCode(),
-                    StateId = state.Id,
-                    State = state,
-                    City = faker.Address.City(),
                     PhoneNumber = faker.Phone.PhoneNumber()
                 }
             };
@@ -189,14 +154,6 @@ public class GetAllCustomerHandlerTests : IDisposable
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         for (var i = 0; i < 5; i++)
         {
             var customer = new CustomerModel
@@ -209,12 +166,6 @@ public class GetAllCustomerHandlerTests : IDisposable
                     Name = $"{faker.Person.FullName} {i}",
                     Email = faker.Internet.Email(),
                     Document = faker.Random.Replace("###.###.###-##"),
-                    Street = faker.Address.StreetName(),
-                    Number = faker.Random.Replace("####"),
-                    ZipCode = faker.Address.ZipCode(),
-                    StateId = state.Id,
-                    State = state,
-                    City = faker.Address.City(),
                     PhoneNumber = faker.Phone.PhoneNumber()
                 }
             };
@@ -241,14 +192,6 @@ public class GetAllCustomerHandlerTests : IDisposable
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         for (var i = 0; i < 25; i++)
         {
             var customer = new CustomerModel
@@ -261,12 +204,6 @@ public class GetAllCustomerHandlerTests : IDisposable
                     Name = $"{faker.Person.FullName} {i}",
                     Email = faker.Internet.Email(),
                     Document = faker.Random.Replace("###.###.###-##"),
-                    Street = faker.Address.StreetName(),
-                    Number = faker.Random.Replace("####"),
-                    ZipCode = faker.Address.ZipCode(),
-                    StateId = state.Id,
-                    State = state,
-                    City = faker.Address.City(),
                     PhoneNumber = faker.Phone.PhoneNumber()
                 }
             };

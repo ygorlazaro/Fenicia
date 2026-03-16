@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 using Fenicia.Common.Data.Models.Auth;
 
 namespace Fenicia.Common.Data.Models.Basic;
@@ -19,34 +18,6 @@ public class PersonModel : BaseCompanyModel
         set => field = value != null ? new string([.. value.Where(char.IsDigit)]) : null;
     }
 
-    [MaxLength(100)]
-    public string? Street { get; set; }
-
-    [MaxLength(20)]
-    public string? Number
-    {
-        get;
-        set => field = value != null ? new string([.. value.Where(char.IsDigit)]) : null;
-    }
-
-    [MaxLength(20)]
-    public string? Complement { get; set; }
-
-    [MaxLength(50)]
-    public string? Neighborhood { get; set; }
-
-    [MaxLength(8)]
-    public string? ZipCode
-    {
-        get;
-        set => field = value != null ? new string([.. value.Where(char.IsDigit)]) : null;
-    }
-
-    public Guid? StateId { get; set; }
-
-    [MaxLength(50)]
-    public string? City { get; set; }
-
     [MaxLength(50)]
     [EmailAddress]
     public string? Email { get; set; }
@@ -58,8 +29,7 @@ public class PersonModel : BaseCompanyModel
         set => field = value != null ? new string([.. value.Where(char.IsDigit)]) : null;
     }
 
-    [ForeignKey(nameof(StateId))]
-    public virtual StateModel State { get; set; } = null!;
+    public virtual ICollection<PersonAddressModel> PersonAddresses { get; set; } = new List<PersonAddressModel>();
 
     public virtual CustomerModel? Customer { get; set; }
 

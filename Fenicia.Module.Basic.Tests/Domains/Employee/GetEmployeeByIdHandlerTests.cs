@@ -49,14 +49,6 @@ public class GetEmployeeByIdHandlerTests : IDisposable
         };
         db.BasicPositions.Add(position);
 
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         var employee = new EmployeeModel
         {
             Id = employeeId,
@@ -68,13 +60,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City(),
-                PhoneNumber = faker.Phone.PhoneNumber()
+                PhoneNumber = faker.Phone.PhoneNumber(),
             }
         };
 
@@ -94,13 +80,6 @@ public class GetEmployeeByIdHandlerTests : IDisposable
         Assert.Equal(employee.Person.Email, result.Email);
         Assert.Equal(employee.Person.PhoneNumber, result.PhoneNumber);
         Assert.Equal(employee.Person.Document, result.Document);
-        Assert.Equal(employee.Person.Street, result.Street);
-        Assert.Equal(employee.Person.Number, result.Number);
-        Assert.Equal(employee.Person.Complement, result.Complement);
-        Assert.Equal(employee.Person.Neighborhood, result.Neighborhood);
-        Assert.Equal(employee.Person.ZipCode, result.ZipCode);
-        Assert.Equal(employee.Person.StateId, result.StateId);
-        Assert.Equal(employee.Person.City, result.City);
     }
 
     [Fact]
@@ -141,14 +120,6 @@ public class GetEmployeeByIdHandlerTests : IDisposable
         };
         db.BasicPositions.Add(position);
 
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         var employee = new EmployeeModel
         {
             Id = employeeId,
@@ -160,13 +131,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City(),
-                PhoneNumber = faker.Phone.PhoneNumber()
+                PhoneNumber = faker.Phone.PhoneNumber(),
             }
         };
 
@@ -197,14 +162,6 @@ public class GetEmployeeByIdHandlerTests : IDisposable
         };
         db.BasicPositions.Add(position);
 
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         var employee1 = new EmployeeModel
         {
             Id = employee1Id,
@@ -216,13 +173,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City(),
-                PhoneNumber = faker.Phone.PhoneNumber()
+                PhoneNumber = faker.Phone.PhoneNumber(),
             }
         };
 
@@ -237,13 +188,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
                 Name = faker.Person.FirstName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City(),
-                PhoneNumber = faker.Phone.PhoneNumber()
+                PhoneNumber = faker.Phone.PhoneNumber(),
             }
         };
 
@@ -262,10 +207,12 @@ public class GetEmployeeByIdHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_WithNullAddressFields_ReturnsCorrectResponse()
+    public async Task Handle_WithAddress_ReturnsAddressId()
     {
         // Arrange
         var employeeId = Guid.NewGuid();
+        var addressId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -281,26 +228,38 @@ public class GetEmployeeByIdHandlerTests : IDisposable
         };
         db.AuthStates.Add(state);
 
+        var address = new AddressModel
+        {
+            Id = addressId,
+            Street = faker.Address.StreetName(),
+            Number = faker.Random.Replace("####"),
+            ZipCode = faker.Address.ZipCode(),
+            StateId = state.Id,
+            City = faker.Address.City()
+        };
+        db.AuthAddresses.Add(address);
+
         var employee = new EmployeeModel
         {
             Id = employeeId,
             PositionId = position.Id,
-            PersonId = Guid.NewGuid(),
+            PersonId = personId,
             Person = new PersonModel
             {
-                Id = Guid.NewGuid(),
+                Id = personId,
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = string.Empty,
-                Number = string.Empty,
-                Complement = null,
-                Neighborhood = null,
-                ZipCode = string.Empty,
-                StateId = state.Id,
-                State = state,
-                City = null,
-                PhoneNumber = faker.Phone.PhoneNumber()
+                PhoneNumber = faker.Phone.PhoneNumber(),
+                PersonAddresses = new List<PersonAddressModel>
+                {
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        PersonId = personId,
+                        AddressId = addressId,
+                    }
+                }
             }
         };
 
@@ -314,7 +273,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(employee.Person.Name, result.Name);
-        Assert.Equal(employee.Person.Email, result.Email);
+        Assert.NotNull(result.Address);
+        Assert.Equal(addressId, result.Address.Id);
     }
 }

@@ -35,22 +35,20 @@ public class DeleteSupplierHandlerTests : IDisposable
     public async Task Handle_WhenSupplierExists_SetsDeletedDate()
     {
         // Arrange
+        var companyId = Guid.NewGuid();
         var supplierId = Guid.NewGuid();
         var supplier = new SupplierModel
         {
             Id = supplierId,
+            CompanyId = companyId,
             PersonId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
+                CompanyId = companyId,
                 Name = faker.Company.CompanyName(),
                 Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
+                Document = faker.Random.Replace("###.###.###-##")
             }
         };
 
@@ -89,16 +87,19 @@ public class DeleteSupplierHandlerTests : IDisposable
     public async Task Handle_WithMultipleSuppliers_OnlyDeletesSpecified()
     {
         // Arrange
+        var companyId = Guid.NewGuid();
         var supplier1Id = Guid.NewGuid();
         var supplier2Id = Guid.NewGuid();
 
         var supplier1 = new SupplierModel
         {
             Id = supplier1Id,
+            CompanyId = companyId,
             PersonId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
+                CompanyId = companyId,
                 Name = faker.Company.CompanyName()
             }
         };
@@ -106,10 +107,12 @@ public class DeleteSupplierHandlerTests : IDisposable
         var supplier2 = new SupplierModel
         {
             Id = supplier2Id,
+            CompanyId = companyId,
             PersonId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
+                CompanyId = companyId,
                 Name = faker.Company.CompanyName()
             }
         };

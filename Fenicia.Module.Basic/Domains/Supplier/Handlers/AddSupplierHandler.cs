@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Supplier.Commands;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
@@ -25,15 +26,27 @@ public class AddSupplierHandler(DefaultContext db)
             Name = command.Name,
             Email = command.Email,
             Document = command.Document,
-            PhoneNumber = command.PhoneNumber,
-            Street = command.Street,
-            Number = command.Number,
-            Complement = command.Complement,
-            Neighborhood = command.Neighborhood,
-            ZipCode = command.ZipCode,
-            StateId = command.StateId,
-            City = command.City
+            PhoneNumber = command.PhoneNumber
         };
+
+        AddressModel? address = null;
+
+        if (command.Address != null)
+        {
+            address = new AddressModel
+            {
+                Id = Guid.NewGuid(),
+                Street = command.Address.Street,
+                Number = command.Address.Number,
+                Complement = command.Address.Complement,
+                Neighborhood = command.Address.Neighborhood,
+                ZipCode = command.Address.ZipCode,
+                StateId = command.Address.StateId,
+                City = command.Address.City,
+                Country = command.Address.Country
+            };
+            db.AuthAddresses.Add(address);
+        }
 
         var supplier = new SupplierModel
         {
@@ -42,6 +55,17 @@ public class AddSupplierHandler(DefaultContext db)
             PersonId = person.Id,
             Cnpj = command.Cnpj
         };
+
+        if (address != null)
+        {
+            var personAddress = new PersonAddressModel
+            {
+                Id = Guid.NewGuid(),
+                PersonId = person.Id,
+                AddressId = address.Id
+            };
+            db.BasicPersonAddresses.Add(personAddress);
+        }
 
         db.BasicSuppliers.Add(supplier);
 
