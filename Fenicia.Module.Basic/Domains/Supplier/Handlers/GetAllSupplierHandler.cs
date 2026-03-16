@@ -1,5 +1,6 @@
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Module.Basic.Domains.Customer.Responses;
 using Fenicia.Module.Basic.Domains.Supplier.Queries;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
 
@@ -23,9 +24,41 @@ public class GetAllSupplierHandler(DefaultContext db)
     {
         var total = await db.BasicSuppliers.CountAsync(ct);
 
-        var suppliers = await db.BasicSuppliers.Include(s => s.Person).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+        var suppliers = await db.BasicSuppliers
+            .Include(s => s.Person)
+            .Include(s => s.Person.PersonAddresses)
+                .ThenInclude(pa => pa.Address)
+                    .ThenInclude(a => a.State)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .ToListAsync(ct);
 
-        var response = suppliers.Select(s => new GetAllSupplierResponse(s.Id, s.PersonId, s.Person.Name, s.Person.Email, s.Person.PhoneNumber, s.Person.Document, s.Person.Street, s.Person.Number, s.Person.Complement, s.Person.Neighborhood, s.Person.ZipCode, s.Person.StateId, s.Person.City)).ToList();
+        var response = suppliers.Select(s =>
+        {
+            var personAddress = s.Person.PersonAddresses.FirstOrDefault();
+            var address = personAddress?.Address;
+
+            return new GetAllSupplierResponse(
+                s.Id,
+                s.PersonId,
+                s.Person.Name,
+                s.Person.Email,
+                s.Person.PhoneNumber,
+                s.Person.Document,
+                address != null ? new AddressResponse(
+                    address.Id,
+                    address.Street,
+                    address.Number,
+                    address.Complement,
+                    address.Neighborhood,
+                    address.ZipCode,
+                    address.StateId,
+                    address.State?.Name,
+                    address.City,
+                    address.Country
+                ) : null
+            );
+        }).ToList();
 
         return new Pagination<List<GetAllSupplierResponse>>(response, total, query.Page, query.PerPage);
     }

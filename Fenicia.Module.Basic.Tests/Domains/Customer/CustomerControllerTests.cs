@@ -5,7 +5,6 @@ using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Customer;
@@ -63,7 +62,7 @@ public class CustomerControllerTests : IDisposable
 
     private void SetupUserClaims()
     {
-        var claims = new List<Claim> { new("userId", Guid.NewGuid().ToString()) };
+        var claims = new List<Claim> { new("userId", Guid.NewGuid().ToString()) };;
 
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
@@ -107,18 +106,11 @@ public class CustomerControllerTests : IDisposable
     public async Task GetAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         var customer1 = new CustomerModel
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
@@ -126,14 +118,7 @@ public class CustomerControllerTests : IDisposable
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = faker.Random.Replace("(##) #####-####"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("###"),
-                Complement = "Apt 101",
-                Neighborhood = faker.Address.CityPrefix(),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City()
+                CompanyId = Guid.NewGuid()
             }
         };
 
@@ -141,6 +126,7 @@ public class CustomerControllerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             PersonId = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
@@ -148,14 +134,7 @@ public class CustomerControllerTests : IDisposable
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = faker.Random.Replace("(##) #####-####"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("###"),
-                Complement = "Apt 202",
-                Neighborhood = faker.Address.CityPrefix(),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City()
+                CompanyId = Guid.NewGuid()
             }
         };
 
@@ -194,18 +173,11 @@ public class CustomerControllerTests : IDisposable
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsOkWithCustomer()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         var customer = new CustomerModel
         {
             Id = testCustomerId,
             PersonId = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
@@ -213,14 +185,7 @@ public class CustomerControllerTests : IDisposable
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = faker.Random.Replace("(##) #####-####"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("###"),
-                Complement = "Apt 101",
-                Neighborhood = faker.Address.CityPrefix(),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City()
+                CompanyId = Guid.NewGuid()
             }
         };
 
@@ -274,7 +239,13 @@ public class CustomerControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithCustomer()
     {
         // Arrange
-        var command = new AddCustomerCommand(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), "Apt 101", faker.Address.CityPrefix(), faker.Random.Replace("####"), Guid.NewGuid(), faker.Address.StreetName(), faker.Address.ZipCode(), faker.Random.Replace("(##) #####-####"));
+        var command = new AddCustomerCommand(
+            Guid.NewGuid(), 
+            faker.Person.FullName, 
+            faker.Internet.Email(), 
+            faker.Random.Replace("###.###.###-##"), 
+            faker.Random.Replace("(##) #####-####"),
+            null);
 
         var ct = CancellationToken.None;
 
@@ -307,6 +278,7 @@ public class CustomerControllerTests : IDisposable
         {
             Id = testCustomerId,
             PersonId = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
@@ -314,20 +286,20 @@ public class CustomerControllerTests : IDisposable
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = faker.Random.Replace("(##) #####-####"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("###"),
-                Complement = "Apt 101",
-                Neighborhood = faker.Address.CityPrefix(),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
+                CompanyId = Guid.NewGuid()
             }
         };
 
         db.BasicCustomers.Add(customer);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateCustomerCommand(customer.Id, faker.Person.FullName + " Updated", faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), "Apt 101", faker.Address.CityPrefix(), faker.Random.Replace("####"), Guid.NewGuid(), faker.Address.StreetName(), faker.Address.ZipCode(), faker.Random.Replace("(##) #####-####"));
+        var command = new UpdateCustomerCommand(
+            customer.Id, 
+            faker.Person.FullName + " Updated", 
+            faker.Internet.Email(), 
+            faker.Random.Replace("###.###.###-##"), 
+            faker.Random.Replace("(##) #####-####"),
+            null);
 
         var ct = CancellationToken.None;
 
@@ -355,7 +327,13 @@ public class CustomerControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdateCustomerCommand(nonExistentId, faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.Empty, null, null, null);
+        var command = new UpdateCustomerCommand(
+            nonExistentId, 
+            faker.Person.FullName, 
+            faker.Internet.Email(), 
+            faker.Random.Replace("###.###.###-##"), 
+            faker.Random.Replace("(##) #####-####"),
+            null);
 
         var ct = CancellationToken.None;
 
@@ -379,12 +357,14 @@ public class CustomerControllerTests : IDisposable
         {
             Id = testCustomerId,
             PersonId = Guid.NewGuid(),
+            CompanyId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##")
+                Document = faker.Random.Replace("###.###.###-##"),
+                CompanyId = Guid.NewGuid()
             }
         };
 

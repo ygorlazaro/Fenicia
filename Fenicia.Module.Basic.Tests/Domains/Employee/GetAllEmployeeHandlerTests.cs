@@ -1,7 +1,6 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
@@ -63,14 +62,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
         };
         db.BasicPositions.Add(position);
 
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         var employee1 = new EmployeeModel
         {
             Id = Guid.NewGuid(),
@@ -82,12 +73,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City(),
                 PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
@@ -103,12 +88,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City(),
                 PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
@@ -126,15 +105,11 @@ public class GetAllEmployeeHandlerTests : IDisposable
         Assert.Equal(2, result.Data.Count);
         Assert.Equal(employee1.Person.Id, result.Data[0].PersonId);
         Assert.Equal(employee1.Person.Name, result.Data[0].Name);
-        Assert.Equal(employee1.Person.Email, result.Data[0].Email);
         Assert.Equal(position.Name, result.Data[0].PositionName);
-        Assert.Equal(state.Name, result.Data[0].StateName);
 
         Assert.Equal(employee2.Person.Id, result.Data[1].PersonId);
         Assert.Equal(employee2.Person.Name, result.Data[1].Name);
-        Assert.Equal(employee2.Person.Email, result.Data[1].Email);
         Assert.Equal(position.Name, result.Data[1].PositionName);
-        Assert.Equal(state.Name, result.Data[1].StateName);
     }
 
     [Fact]
@@ -147,14 +122,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
             Name = "Developer"
         };
         db.BasicPositions.Add(position);
-
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
 
         for (var i = 0; i < 25; i++)
         {
@@ -169,12 +136,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
                     Name = $"{faker.Person.FullName} {i}",
                     Email = faker.Internet.Email(),
                     Document = faker.Random.Replace("###.###.###-##"),
-                    Street = faker.Address.StreetName(),
-                    Number = faker.Random.Replace("####"),
-                    ZipCode = faker.Address.ZipCode(),
-                    StateId = state.Id,
-                    State = state,
-                    City = faker.Address.City(),
                     PhoneNumber = faker.Phone.PhoneNumber()
                 }
             };
@@ -204,14 +165,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
         };
         db.BasicPositions.Add(position);
 
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         for (var i = 0; i < 5; i++)
         {
             var employee = new EmployeeModel
@@ -225,12 +178,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
                     Name = $"{faker.Person.FullName} {i}",
                     Email = faker.Internet.Email(),
                     Document = faker.Random.Replace("###.###.###-##"),
-                    Street = faker.Address.StreetName(),
-                    Number = faker.Random.Replace("####"),
-                    ZipCode = faker.Address.ZipCode(),
-                    StateId = state.Id,
-                    State = state,
-                    City = faker.Address.City(),
                     PhoneNumber = faker.Phone.PhoneNumber()
                 }
             };
@@ -260,14 +207,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
         };
         db.BasicPositions.Add(position);
 
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         for (var i = 0; i < 25; i++)
         {
             var employee = new EmployeeModel
@@ -281,12 +220,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
                     Name = $"{faker.Person.FullName} {i}",
                     Email = faker.Internet.Email(),
                     Document = faker.Random.Replace("###.###.###-##"),
-                    Street = faker.Address.StreetName(),
-                    Number = faker.Random.Replace("####"),
-                    ZipCode = faker.Address.ZipCode(),
-                    StateId = state.Id,
-                    State = state,
-                    City = faker.Address.City(),
                     PhoneNumber = faker.Phone.PhoneNumber()
                 }
             };
@@ -316,14 +249,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
         };
         db.BasicPositions.Add(position);
 
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
-
         var employee = new EmployeeModel
         {
             Id = Guid.NewGuid(),
@@ -335,12 +260,6 @@ public class GetAllEmployeeHandlerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City(),
                 PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
@@ -360,6 +279,5 @@ public class GetAllEmployeeHandlerTests : IDisposable
         Assert.Equal(position.Id, result.Data[0].PositionId);
         Assert.Equal(employee.Person.Name, result.Data[0].Name);
         Assert.Equal(position.Name, result.Data[0].PositionName);
-        Assert.Equal(state.Name, result.Data[0].StateName);
     }
 }

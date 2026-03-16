@@ -11,6 +11,7 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.Commands;
+using Fenicia.Module.Basic.Domains.Supplier.Common;
 using Fenicia.Module.Basic.Domains.Supplier.Handlers;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
 
@@ -99,57 +100,39 @@ public class SupplierControllerTests : IDisposable
     public async Task GetAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
+        var companyId = Guid.NewGuid();
 
         var supplier1 = new SupplierModel
         {
             Id = Guid.NewGuid(),
+            CompanyId = companyId,
             Cnpj = faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
+                CompanyId = companyId,
                 Name = faker.Company.CompanyName(),
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = faker.Random.Replace("(##) #####-####"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("###"),
-                Complement = "Suite 100",
-                Neighborhood = faker.Address.CityPrefix(),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City()
+                PhoneNumber = faker.Random.Replace("(##) #####-####")
             }
         };
 
         var supplier2 = new SupplierModel
         {
             Id = Guid.NewGuid(),
+            CompanyId = companyId,
             Cnpj = faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
+                CompanyId = companyId,
                 Name = faker.Company.CompanyName(),
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = faker.Random.Replace("(##) #####-####"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("###"),
-                Complement = "Suite 200",
-                Neighborhood = faker.Address.CityPrefix(),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City()
+                PhoneNumber = faker.Random.Replace("(##) #####-####")
             }
         };
 
@@ -185,34 +168,22 @@ public class SupplierControllerTests : IDisposable
     public async Task GetByIdAsync_WhenSupplierExists_ReturnsOkWithSupplier()
     {
         // Arrange
-        var state = new StateModel
-        {
-            Id = Guid.NewGuid(),
-            Name = "São Paulo",
-            Uf = "SP"
-        };
-        db.AuthStates.Add(state);
+        var companyId = Guid.NewGuid();
 
         var supplier = new SupplierModel
         {
             Id = testSupplierId,
+            CompanyId = companyId,
             Cnpj = faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
+                CompanyId = companyId,
                 Name = faker.Company.CompanyName(),
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = faker.Random.Replace("(##) #####-####"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("###"),
-                Complement = "Suite 100",
-                Neighborhood = faker.Address.CityPrefix(),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = faker.Address.City()
+                PhoneNumber = faker.Random.Replace("(##) #####-####")
             }
         };
 
@@ -260,7 +231,14 @@ public class SupplierControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithSupplier()
     {
         // Arrange
-        var command = new AddSupplierCommand(Guid.NewGuid(), faker.Company.CompanyName(), faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), "Suite 100", faker.Address.CityPrefix(), faker.Random.Replace("####"), Guid.NewGuid(), faker.Address.StreetName(), faker.Address.ZipCode(), faker.Random.Replace("(##) #####-####"), faker.Company.Cnpj());
+        var command = new AddSupplierCommand(
+            Guid.NewGuid(), 
+            faker.Company.CompanyName(), 
+            faker.Internet.Email(), 
+            faker.Random.Replace("###.###.###-##"), 
+            faker.Random.Replace("(##) #####-####"), 
+            faker.Company.Cnpj(), 
+            null);
 
         var ct = CancellationToken.None;
 
@@ -285,14 +263,18 @@ public class SupplierControllerTests : IDisposable
     public async Task PatchAsync_WhenSupplierExists_ReturnsOkWithUpdatedSupplier()
     {
         // Arrange
+        var companyId = Guid.NewGuid();
+
         var supplier = new SupplierModel
         {
             Id = testSupplierId,
+            CompanyId = companyId,
             Cnpj = faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
+                CompanyId = companyId,
                 Name = faker.Company.CompanyName(),
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
@@ -303,7 +285,14 @@ public class SupplierControllerTests : IDisposable
         db.BasicSuppliers.Add(supplier);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateSupplierCommand(testSupplierId, faker.Company.CompanyName() + " Updated", faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.Empty, null, null, null, faker.Company.Cnpj());
+        var command = new UpdateSupplierCommand(
+            testSupplierId, 
+            faker.Company.CompanyName() + " Updated", 
+            faker.Internet.Email(), 
+            faker.Random.Replace("###.###.###-##"), 
+            faker.Random.Replace("(##) #####-####"), 
+            faker.Company.Cnpj(), 
+            null);
 
         var ct = CancellationToken.None;
 
@@ -327,7 +316,14 @@ public class SupplierControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdateSupplierCommand(nonExistentId, faker.Company.CompanyName(), faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.Empty, null, null, null, faker.Company.Cnpj());
+        var command = new UpdateSupplierCommand(
+            nonExistentId, 
+            faker.Company.CompanyName(), 
+            faker.Internet.Email(), 
+            faker.Random.Replace("###.###.###-##"), 
+            faker.Random.Replace("(##) #####-####"), 
+            faker.Company.Cnpj(), 
+            null);
 
         var ct = CancellationToken.None;
 
@@ -344,14 +340,18 @@ public class SupplierControllerTests : IDisposable
     public async Task DeleteAsync_WhenSupplierExists_ReturnsNoContent()
     {
         // Arrange
+        var companyId = Guid.NewGuid();
+
         var supplier = new SupplierModel
         {
             Id = testSupplierId,
+            CompanyId = companyId,
             Cnpj = faker.Company.Cnpj(),
             PersonId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
+                CompanyId = companyId,
                 Name = faker.Company.CompanyName(),
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##")

@@ -51,12 +51,7 @@ public class DeleteEmployeeHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
+                Document = faker.Random.Replace("###.###.###-##")
             }
         };
 
@@ -107,12 +102,7 @@ public class DeleteEmployeeHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
+                Document = faker.Random.Replace("###.###.###-##")
             }
         };
 
@@ -126,12 +116,7 @@ public class DeleteEmployeeHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##"),
-                Street = faker.Address.StreetName(),
-                Number = faker.Random.Replace("####"),
-                ZipCode = faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = faker.Address.City()
+                Document = faker.Random.Replace("###.###.###-##")
             }
         };
 

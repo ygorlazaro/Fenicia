@@ -5,7 +5,6 @@ using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee;
@@ -108,7 +107,6 @@ public class EmployeeControllerTests : IDisposable
     public async Task GetAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
-        var state = new StateModel { Id = Guid.NewGuid(), Name = faker.Address.State(), Uf = faker.Address.StateAbbr() };
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -127,8 +125,6 @@ public class EmployeeControllerTests : IDisposable
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = faker.Random.Replace("(##) #####-####"),
-                StateId = state.Id,
-                State = state
             }
         };
 
@@ -144,13 +140,10 @@ public class EmployeeControllerTests : IDisposable
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
                 PhoneNumber = faker.Random.Replace("(##) #####-####"),
-                StateId = state.Id,
-                State = state
             }
         };
 
         db.BasicPositions.Add(position);
-        db.AuthStates.Add(state);
         db.BasicEmployees.AddRange(employee1, employee2);
         await db.SaveChangesAsync(CancellationToken.None);
 
@@ -199,7 +192,7 @@ public class EmployeeControllerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = faker.Random.Replace("(##) #####-####")
+                PhoneNumber = faker.Random.Replace("(##) #####-####"),
             }
         };
 
@@ -261,7 +254,14 @@ public class EmployeeControllerTests : IDisposable
         db.BasicPositions.Add(position);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new AddEmployeeCommand(Guid.NewGuid(), position.Id, faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Random.Replace("(##) #####-####"), "Apt 101", faker.Address.CityPrefix(), faker.Random.Replace("####"), Guid.NewGuid(), faker.Address.StreetName(), faker.Address.ZipCode(), faker.Random.Replace("(##) #####-####"));
+        var command = new AddEmployeeCommand(
+            Guid.NewGuid(), 
+            position.Id, 
+            faker.Person.FullName, 
+            faker.Internet.Email(), 
+            faker.Random.Replace("###.###.###-##"), 
+            faker.Random.Replace("(##) #####-####"), 
+            null);
 
         var ct = CancellationToken.None;
 
@@ -305,7 +305,7 @@ public class EmployeeControllerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = faker.Random.Replace("(##) #####-####")
+                PhoneNumber = faker.Random.Replace("(##) #####-####"),
             }
         };
 
@@ -313,7 +313,14 @@ public class EmployeeControllerTests : IDisposable
         db.BasicEmployees.Add(employee);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(employee.Id, position.Id, faker.Person.FullName + " Updated", faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.Empty, null, null, null);
+        var command = new UpdateEmployeeCommand(
+            employee.Id, 
+            position.Id, 
+            faker.Person.FullName + " Updated", 
+            faker.Internet.Email(), 
+            faker.Random.Replace("###.###.###-##"), 
+            faker.Random.Replace("(##) #####-####"), 
+            null);
 
         var ct = CancellationToken.None;
 
@@ -349,7 +356,14 @@ public class EmployeeControllerTests : IDisposable
         db.BasicPositions.Add(position);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateEmployeeCommand(nonExistentId, position.Id, faker.Person.FullName, faker.Internet.Email(), faker.Random.Replace("###.###.###-##"), faker.Address.City(), null, null, null, Guid.Empty, null, null, null);
+        var command = new UpdateEmployeeCommand(
+            nonExistentId, 
+            position.Id, 
+            faker.Person.FullName, 
+            faker.Internet.Email(), 
+            faker.Random.Replace("###.###.###-##"), 
+            faker.Random.Replace("(##) #####-####"), 
+            null);
 
         var ct = CancellationToken.None;
 
@@ -379,7 +393,7 @@ public class EmployeeControllerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
-                Document = faker.Random.Replace("###.###.###-##")
+                Document = faker.Random.Replace("###.###.###-##"),
             }
         };
 
