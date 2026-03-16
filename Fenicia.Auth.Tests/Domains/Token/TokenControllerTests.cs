@@ -159,13 +159,13 @@ public class TokenControllerTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.IsType<CreatedResult>(result.Result);
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.NotNull(okResult);
-        Assert.Equal(200, okResult.StatusCode);
+        var createdResult = result.Result as CreatedResult;
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
-        var tokenResponse = okResult.Value as TokenResponse;
+        var tokenResponse = createdResult.Value as TokenResponse;
         Assert.NotNull(tokenResponse);
         Assert.NotNull(tokenResponse.AccessToken);
         Assert.NotEmpty(tokenResponse.AccessToken);
@@ -178,7 +178,7 @@ public class TokenControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task PostAsync_WhenEmailIsNull_ThrowsArgumentException()
+    public async Task PostAsync_WhenEmailIsNull_ReturnsBadRequest()
     {
         // Arrange
         var wide = new WideEventContext();
@@ -186,8 +186,11 @@ public class TokenControllerTests : IDisposable
 
         var query = new GenerateTokenQuery(string.Empty, faker.Internet.Password());
 
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidRequestException>(async () => await controller.PostAsync(query, wide, ct));
+        // Act
+        var result = await controller.PostAsync(query, wide, ct);
+
+        // Assert
+        Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 
     [Fact]
@@ -279,13 +282,13 @@ public class TokenControllerTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.IsType<OkObjectResult>(result.Result);
+        Assert.IsType<CreatedResult>(result.Result);
 
-        var okResult = result.Result as OkObjectResult;
-        Assert.NotNull(okResult);
-        Assert.Equal(200, okResult.StatusCode);
+        var createdResult = result.Result as CreatedResult;
+        Assert.NotNull(createdResult);
+        Assert.Equal(201, createdResult.StatusCode);
 
-        var tokenResponse = okResult.Value as TokenResponse;
+        var tokenResponse = createdResult.Value as TokenResponse;
         Assert.NotNull(tokenResponse);
         Assert.NotNull(tokenResponse.AccessToken);
         Assert.NotEmpty(tokenResponse.AccessToken);

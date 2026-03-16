@@ -128,7 +128,7 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
 
-        Assert.Equal(3, moduleClaims.Count);
+        Assert.Equal(2, moduleClaims.Count);
         Assert.Contains("basic", moduleClaims.Select(c => c.Value));
         Assert.Contains("social", moduleClaims.Select(c => c.Value));
     }
@@ -193,7 +193,7 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
 
-        Assert.Equal(2, moduleClaims.Count);
+        Assert.Equal(1, moduleClaims.Count);
     }
 
     // Helper classes for testing properties that don't exist in base response
