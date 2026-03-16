@@ -5,6 +5,7 @@ using Bogus;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee;
@@ -107,6 +108,7 @@ public class EmployeeControllerTests : IDisposable
     public async Task GetAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
+        var state = new StateModel { Id = Guid.NewGuid(), Name = faker.Address.State(), Uf = faker.Address.StateAbbr() };
         var position = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -124,7 +126,9 @@ public class EmployeeControllerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = faker.Random.Replace("(##) #####-####")
+                PhoneNumber = faker.Random.Replace("(##) #####-####"),
+                StateId = state.Id,
+                State = state
             }
         };
 
@@ -139,11 +143,14 @@ public class EmployeeControllerTests : IDisposable
                 Name = faker.Person.FullName,
                 Email = faker.Internet.Email(),
                 Document = faker.Random.Replace("###.###.###-##"),
-                PhoneNumber = faker.Random.Replace("(##) #####-####")
+                PhoneNumber = faker.Random.Replace("(##) #####-####"),
+                StateId = state.Id,
+                State = state
             }
         };
 
         db.BasicPositions.Add(position);
+        db.AuthStates.Add(state);
         db.BasicEmployees.AddRange(employee1, employee2);
         await db.SaveChangesAsync(CancellationToken.None);
 

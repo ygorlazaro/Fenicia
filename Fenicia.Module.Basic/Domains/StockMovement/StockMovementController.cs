@@ -115,7 +115,7 @@ public class StockMovementController(GetStockMovementHandler getStockMovementHan
 
             var stockMovement = await updateStockMovementHandler.Handle(command with { Id = id }, ct);
 
-            return stockMovement is null ? NotFound() : Ok(stockMovement);
+            return stockMovement is null ? NotFound() : new CreatedResult(string.Empty, stockMovement);
         }
         catch (UnauthorizedAccessException ex)
         {
