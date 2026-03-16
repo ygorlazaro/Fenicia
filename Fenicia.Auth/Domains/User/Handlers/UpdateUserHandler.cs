@@ -31,7 +31,11 @@ public class UpdateUserHandler(DefaultContext db)
     {
         foreach (var companyId in companies)
         {
-            await db.AuthCompanies.AnyAsync(companyId, ct);
+            var exists = await db.AuthCompanies.AnyAsync(companyId, ct);
+            if (!exists)
+            {
+                throw new InvalidRequestException($"Company not found: {companyId}");
+            }
         }
     }
 
