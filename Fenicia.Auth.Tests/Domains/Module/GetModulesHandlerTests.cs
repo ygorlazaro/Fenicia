@@ -57,7 +57,9 @@ public class GetModulesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
         };
 
         var module2 = new ModuleModel
@@ -65,7 +67,9 @@ public class GetModulesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.SocialNetwork,
-            Price = 20.0m
+            Price = 20.0m,
+            IsActive = true,
+            SortOrder = 2
         };
 
         db.AuthModules.AddRange(module1, module2);
@@ -97,7 +101,9 @@ public class GetModulesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.Auth,
-            Price = 50.0m
+            Price = 50.0m,
+            IsActive = true,
+            SortOrder = 1
         };
 
         var basicModule = new ModuleModel
@@ -105,7 +111,9 @@ public class GetModulesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 2
         };
 
         db.AuthModules.AddRange(authModule, basicModule);
@@ -124,6 +132,45 @@ public class GetModulesHandlerTests : IDisposable
         Assert.Equal(1, result.Total);
     }
 
+    [Fact]
+    public async Task Handle_WhenInactiveModulesExist_ExcludesInactiveModules()
+    {
+        // Arrange
+        var activeModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Active Module",
+            Type = ModuleType.Basic,
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
+        };
+
+        var inactiveModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Inactive Module",
+            Type = ModuleType.SocialNetwork,
+            Price = 20.0m,
+            IsActive = false,
+            SortOrder = 2
+        };
+
+        db.AuthModules.AddRange(activeModule, inactiveModule);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var request = new GetModulesQuery(1, 10);
+
+        // Act
+        var result = await handler.Handle(request, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+
+        Assert.Single(result.Data);
+        Assert.Equal(activeModule.Name, result.Data[0].Name);
+    }
+
     /// <summary>
     ///     Tests that pagination returns the correct page of results.
     /// </summary>
@@ -139,7 +186,9 @@ public class GetModulesHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = $"Module {faker.Commerce.ProductName()} {i}",
                 Type = (ModuleType)(i % 10 + 1),
-                Price = 10.0m
+                Price = 10.0m,
+                IsActive = true,
+                SortOrder = i
             });
         }
 
@@ -192,7 +241,9 @@ public class GetModulesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Basic Module",
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
         };
 
         db.AuthModules.Add(module);
@@ -214,31 +265,37 @@ public class GetModulesHandlerTests : IDisposable
     ///     Tests that results are ordered by module type in ascending order.
     /// </summary>
     [Fact]
-    public async Task Handle_ResultsAreOrderedByType()
+    public async Task Handle_ResultsAreOrderedBySortOrder()
     {
         // Arrange
         var module1 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = "Social Network Module",
             Type = ModuleType.SocialNetwork,
-            Price = 20.0m
+            Price = 20.0m,
+            IsActive = true,
+            SortOrder = 3
         };
 
         var module2 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = "Basic Module",
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
         };
 
         var module3 = new ModuleModel
         {
             Id = Guid.NewGuid(),
-            Name = faker.Commerce.ProductName(),
+            Name = "HR Module",
             Type = ModuleType.Hr,
-            Price = 30.0m
+            Price = 30.0m,
+            IsActive = true,
+            SortOrder = 2
         };
 
         db.AuthModules.AddRange(module1, module2, module3);
@@ -253,9 +310,12 @@ public class GetModulesHandlerTests : IDisposable
         Assert.NotNull(result);
 
         Assert.Equal(3, result.Data.Count);
-        Assert.Equal(ModuleType.Basic, result.Data[0].Type);
-        Assert.Equal(ModuleType.SocialNetwork, result.Data[1].Type);
-        Assert.Equal(ModuleType.Hr, result.Data[2].Type);
+        Assert.Equal("Basic Module", result.Data[0].Name);
+        Assert.Equal(1, result.Data[0].SortOrder);
+        Assert.Equal("HR Module", result.Data[1].Name);
+        Assert.Equal(2, result.Data[1].SortOrder);
+        Assert.Equal("Social Network Module", result.Data[2].Name);
+        Assert.Equal(3, result.Data[2].SortOrder);
     }
 
     /// <summary>
@@ -270,7 +330,9 @@ public class GetModulesHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
         };
 
         db.AuthModules.Add(module);
@@ -296,12 +358,20 @@ public class GetModulesHandlerTests : IDisposable
     {
         // Arrange
         var moduleId = Guid.NewGuid();
+        var description = "Test module description";
+        var icon = "icon-test";
+        var sortOrder = 5;
+
         var module = new ModuleModel
         {
             Id = moduleId,
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = 10.0m,
+            Description = description,
+            Icon = icon,
+            IsActive = true,
+            SortOrder = sortOrder
         };
 
         db.AuthModules.Add(module);
@@ -320,5 +390,9 @@ public class GetModulesHandlerTests : IDisposable
         Assert.Equal(moduleId, moduleResponse.Id);
         Assert.Equal(module.Name, moduleResponse.Name);
         Assert.Equal(ModuleType.Basic, moduleResponse.Type);
+        Assert.Equal(description, moduleResponse.Description);
+        Assert.Equal(icon, moduleResponse.Icon);
+        Assert.True(moduleResponse.IsActive);
+        Assert.Equal(sortOrder, moduleResponse.SortOrder);
     }
 }

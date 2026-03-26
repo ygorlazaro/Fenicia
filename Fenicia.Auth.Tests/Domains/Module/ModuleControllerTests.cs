@@ -96,7 +96,9 @@ public class ModuleControllerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
         };
 
         var module2 = new ModuleModel
@@ -104,7 +106,9 @@ public class ModuleControllerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.SocialNetwork,
-            Price = 20.0m
+            Price = 20.0m,
+            IsActive = true,
+            SortOrder = 2
         };
 
         db.AuthModules.AddRange(module1, module2);
@@ -143,7 +147,9 @@ public class ModuleControllerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.Auth,
-            Price = 50.0m
+            Price = 50.0m,
+            IsActive = true,
+            SortOrder = 1
         };
 
         var basicModule = new ModuleModel
@@ -151,7 +157,9 @@ public class ModuleControllerTests : IDisposable
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
             Type = ModuleType.Basic,
-            Price = 10.0m
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 2
         };
 
         db.AuthModules.AddRange(authModule, basicModule);
@@ -175,6 +183,53 @@ public class ModuleControllerTests : IDisposable
         Assert.NotNull(returnedPagination);
         Assert.Single(returnedPagination.Data);
         Assert.Equal(basicModule.Name, returnedPagination.Data[0].Name);
+    }
+
+    [Fact]
+    public async Task GetAllModulesAsync_ExcludesInactiveModules()
+    {
+        // Arrange
+        var activeModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Active Module",
+            Type = ModuleType.Basic,
+            Price = 10.0m,
+            IsActive = true,
+            SortOrder = 1
+        };
+
+        var inactiveModule = new ModuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Inactive Module",
+            Type = ModuleType.SocialNetwork,
+            Price = 20.0m,
+            IsActive = false,
+            SortOrder = 2
+        };
+
+        db.AuthModules.AddRange(activeModule, inactiveModule);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var query = new PaginationQuery(1, 10);
+        var wide = new WideEventContext();
+        var ct = CancellationToken.None;
+
+        // Act
+        var result = await controller.GetAllModulesAsync(query, wide, ct);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result.Result);
+
+        var okResult = result.Result as OkObjectResult;
+        Assert.NotNull(okResult);
+
+        var returnedPagination = okResult.Value as Pagination<List<GetModuleResponse>>;
+        Assert.NotNull(returnedPagination);
+        Assert.Single(returnedPagination.Data);
+        Assert.Equal(activeModule.Name, returnedPagination.Data[0].Name);
     }
 
     /// <summary>
@@ -210,7 +265,9 @@ public class ModuleControllerTests : IDisposable
                 Id = Guid.NewGuid(),
                 Name = $"Module {faker.Commerce.ProductName()} {i}",
                 Type = (ModuleType)(i % 10 + 1),
-                Price = 10.0m
+                Price = 10.0m,
+                IsActive = true,
+                SortOrder = i
             });
         }
 

@@ -69,6 +69,8 @@ public class AddForgotPasswordHandlerTests : IDisposable
         Assert.True(forgotPassword.IsActive);
         Assert.Equal(userId, forgotPassword.UserId);
         Assert.True(forgotPassword.ExpirationDate > DateTime.UtcNow);
+        Assert.Null(forgotPassword.IpAddress);
+        Assert.Null(forgotPassword.UserAgent);
     }
 
     /// <summary>
@@ -252,5 +254,37 @@ public class AddForgotPasswordHandlerTests : IDisposable
         var codes = await db.AuthForgottenPasswords.ToListAsync();
         var distinctCodes = codes.Select(c => c.Code).Distinct().ToList();
         Assert.Equal(2, distinctCodes.Count);
+    }
+
+    [Fact]
+    public async Task Handle_WhenIpAddressAndUserAgentProvided_StoresThemCorrectly()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var email = faker.Internet.Email();
+        var ipAddress = "192.168.1.1";
+        var userAgent = "Mozilla/5.0 (Test Browser)";
+
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = email,
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
+
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        var command = new AddForgotPasswordCommand(email, ipAddress, userAgent);
+
+        // Act
+        await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        var forgotPassword = await db.AuthForgottenPasswords.FirstOrDefaultAsync(fp => fp.UserId == userId);
+        Assert.NotNull(forgotPassword);
+        Assert.Equal(ipAddress, forgotPassword.IpAddress);
+        Assert.Equal(userAgent, forgotPassword.UserAgent);
     }
 }

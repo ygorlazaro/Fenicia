@@ -56,7 +56,9 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             OrderId = order1Id,
             ProductId = Guid.NewGuid(),
             Price = 10.00m,
-            Quantity = 5
+            Quantity = 5,
+            DiscountAmount = 5.00m,
+            Subtotal = 45.00m
         };
 
         var detail2 = new OrderDetailModel
@@ -65,7 +67,9 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             OrderId = order1Id,
             ProductId = Guid.NewGuid(),
             Price = 20.00m,
-            Quantity = 3
+            Quantity = 3,
+            DiscountAmount = 0,
+            Subtotal = 60.00m
         };
 
         var detail3 = new OrderDetailModel
@@ -74,7 +78,9 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
             OrderId = order2Id,
             ProductId = Guid.NewGuid(),
             Price = 30.00m,
-            Quantity = 2
+            Quantity = 2,
+            DiscountAmount = 0,
+            Subtotal = 60.00m
         };
 
         db.BasicOrderDetails.AddRange(detail1, detail2, detail3);
@@ -96,13 +102,19 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
     {
         // Arrange
         var orderId = Guid.NewGuid();
+        var discountAmount = 10.00m;
+        var quantity = 10;
+        var subtotal = (15.00m * quantity) - discountAmount;
+
         var detail = new OrderDetailModel
         {
             Id = Guid.NewGuid(),
             OrderId = orderId,
             ProductId = Guid.NewGuid(),
             Price = 15.00m,
-            Quantity = 10
+            Quantity = quantity,
+            DiscountAmount = discountAmount,
+            Subtotal = subtotal
         };
 
         db.BasicOrderDetails.Add(detail);
@@ -118,6 +130,8 @@ public class GetOrderDetailsByOrderIdHandlerTests : IDisposable
         Assert.Single(result);
         Assert.Equal(15.00m, result[0].Price);
         Assert.Equal(10, result[0].Quantity);
+        Assert.Equal(discountAmount, result[0].DiscountAmount);
+        Assert.Equal(subtotal, result[0].Subtotal);
     }
 
     [Fact]

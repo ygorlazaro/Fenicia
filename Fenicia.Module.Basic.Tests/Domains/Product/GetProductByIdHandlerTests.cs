@@ -43,10 +43,20 @@ public class GetProductByIdHandlerTests : IDisposable
         {
             Id = productId,
             Name = "Product",
+            SKU = "SKU001",
+            Barcode = "123456789",
+            Description = "Test product",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category.Id
+            MinStockLevel = 10,
+            MaxStockLevel = 500,
+            ImageUrl = "http://test.com/image.jpg",
+            Weight = 1.5m,
+            Dimensions = "10x10x10",
+            UnitOfMeasure = "un",
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         db.BasicProducts.Add(product);
@@ -61,6 +71,12 @@ public class GetProductByIdHandlerTests : IDisposable
         Assert.NotNull(result);
         Assert.Equal(productId, result.Id);
         Assert.Equal("Product", result.Name);
+        Assert.Equal("SKU001", result.SKU);
+        Assert.Equal("123456789", result.Barcode);
+        Assert.Equal("Test product", result.Description);
+        Assert.Equal(10, result.MinStockLevel);
+        Assert.Equal(500, result.MaxStockLevel);
+        Assert.True(result.IsActive);
         Assert.Equal("Electronics", result.CategoryName);
     }
 
@@ -107,20 +123,24 @@ public class GetProductByIdHandlerTests : IDisposable
         {
             Id = product1Id,
             Name = "Product 1",
+            SKU = "SKU001",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category.Id
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         var product2 = new ProductModel
         {
             Id = product2Id,
             Name = "Product 2",
+            SKU = "SKU002",
             CostPrice = 15.00m,
             SalesPrice = 25.00m,
             Quantity = 50,
-            CategoryId = category.Id
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         db.BasicProducts.AddRange(product1, product2);

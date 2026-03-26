@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { cilLockLocked } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
-  CModal,
-  CModalBody,
-  CModalHeader,
-  CModalTitle,
-  CModalFooter,
+  CAlert,
   CButton,
   CForm,
   CFormInput,
   CFormLabel,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
   CSpinner,
-  CAlert,
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilLockLocked } from '@coreui/icons';
 import axios from 'axios';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -63,10 +63,9 @@ const UserPasswordModal = ({ visible, onClose, onSave, userId }) => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'x-company': getCompanyId(),
-          },
-        }
-      );
+            },
+          }
+        );
 
       onSave();
       setFormData({ newPassword: '', confirmPassword: '' });

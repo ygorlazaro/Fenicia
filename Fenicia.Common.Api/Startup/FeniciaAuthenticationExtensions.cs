@@ -26,14 +26,14 @@ public static class FeniciaAuthenticationExtensions
             o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(o =>
         {
-            o.RequireHttpsMetadata = false;
+            o.RequireHttpsMetadata = true;
             o.SaveToken = true;
             o.ClaimsIssuer = "AuthService";
             o.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
+                ValidateIssuer = true,
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero

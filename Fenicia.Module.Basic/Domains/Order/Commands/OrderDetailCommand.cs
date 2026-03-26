@@ -9,4 +9,6 @@ public record OrderDetailCommand(
     /// <summary>Unit price.</summary>
     decimal Price,
     /// <summary>Quantity ordered.</summary>
-    double Quantity);
+    double Quantity,
+    /// <summary>Discount amount.</summary>
+    decimal DiscountAmount = 0);

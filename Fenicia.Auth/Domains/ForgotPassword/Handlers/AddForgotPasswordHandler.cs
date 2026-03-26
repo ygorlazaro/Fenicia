@@ -29,7 +29,9 @@ public class AddForgotPasswordHandler(DefaultContext db)
         {
             Code = code,
             IsActive = true,
-            UserId = user.Id
+            UserId = user.Id,
+            IpAddress = command.IpAddress,
+            UserAgent = command.UserAgent
         };
 
         await db.AuthForgottenPasswords.AddAsync(forgotPasswordModel, ct);

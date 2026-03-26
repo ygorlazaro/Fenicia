@@ -193,7 +193,7 @@ public class GenerateTokenStringHandlerTests
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
 
-        Assert.Equal(1, moduleClaims.Count);
+        Assert.Single(moduleClaims);
     }
 
     // Helper classes for testing properties that don't exist in base response

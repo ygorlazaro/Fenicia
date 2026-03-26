@@ -1,0 +1,16 @@
+namespace Fenicia.Module.Basic.Domains.Customer.Responses;
+
+/// <summary>
+///     Response record for address information.
+/// </summary>
+public record AddressResponse(
+    Guid Id,
+    string Street,
+    string Number,
+    string? Complement,
+    string? Neighborhood,
+    string ZipCode,
+    Guid StateId,
+    string? StateName,
+    string City,
+    string? Country);

@@ -6,7 +6,6 @@ namespace Fenicia.Common.API;
 
 public class Headers
 {
-    [FromHeader(Name = "x-company")]
-    [Required]
+    // x-company header deprecated - use JWT company_id claim
     public Guid CompanyId { get; set; }
 }
