@@ -18,13 +18,13 @@ public class UpdateProductCategoryHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProductCategoryHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateProductCategoryHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -32,15 +32,19 @@ public class UpdateProductCategoryHandlerTests : IDisposable
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = categoryId, Name = "Old Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = categoryId,
+            Name = "Old Category"
+        };
 
-        this.db.BasicProductCategories.Add(category);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(categoryId, "New Category");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -55,7 +59,7 @@ public class UpdateProductCategoryHandlerTests : IDisposable
         var command = new UpdateProductCategoryCommand(Guid.NewGuid(), "New Category");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -68,7 +72,7 @@ public class UpdateProductCategoryHandlerTests : IDisposable
         var command = new UpdateProductCategoryCommand(Guid.NewGuid(), "New Category");
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -79,18 +83,22 @@ public class UpdateProductCategoryHandlerTests : IDisposable
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var category = new ProductCategoryModel { Id = categoryId, Name = "Old Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = categoryId,
+            Name = "Old Category"
+        };
 
-        this.db.BasicProductCategories.Add(category);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(categoryId, "New Category");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCategory = await this.db.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
+        var updatedCategory = await db.BasicProductCategories.FindAsync([categoryId], CancellationToken.None);
         Assert.NotNull(updatedCategory);
         Assert.Equal("New Category", updatedCategory.Name);
     }
@@ -102,20 +110,28 @@ public class UpdateProductCategoryHandlerTests : IDisposable
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
-        var category1 = new ProductCategoryModel { Id = category1Id, Name = "Electronics" };
-        var category2 = new ProductCategoryModel { Id = category2Id, Name = "Books" };
+        var category1 = new ProductCategoryModel
+        {
+            Id = category1Id,
+            Name = "Electronics"
+        };
+        var category2 = new ProductCategoryModel
+        {
+            Id = category2Id,
+            Name = "Books"
+        };
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.AddRange(category1, category2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProductCategoryCommand(category1Id, "Home Appliances");
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCategory1 = await this.db.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
-        var notUpdatedCategory2 = await this.db.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
+        var updatedCategory1 = await db.BasicProductCategories.FindAsync([category1Id], CancellationToken.None);
+        var notUpdatedCategory2 = await db.BasicProductCategories.FindAsync([category2Id], CancellationToken.None);
 
         Assert.NotNull(updatedCategory1);
         Assert.Equal("Home Appliances", updatedCategory1.Name);

@@ -18,13 +18,13 @@ public class GetUserModuleHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetUserModuleHandler(this.db);
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new GetUserModuleHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -42,7 +42,13 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel { Id = moduleId, Name = "Test Module", Type = ModuleType.Accounting, Price = 100.00m };
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = "Test Module",
+            Type = ModuleType.Accounting,
+            Price = 100.00m
+        };
 
         var subscription = new SubscriptionModel
         {
@@ -65,18 +71,24 @@ public class GetUserModuleHandlerTests : IDisposable
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel { Id = userRoleId, UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() };
+        var userRole = new UserRoleModel
+        {
+            Id = userRoleId,
+            UserId = userId,
+            CompanyId = companyId,
+            RoleId = Guid.NewGuid()
+        };
 
-        this.db.AuthModules.Add(module);
-        this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        db.AuthSubscriptions.Add(subscription);
+        db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -97,7 +109,7 @@ public class GetUserModuleHandlerTests : IDisposable
         var query = new GetUserModulesQuery(companyId, userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -117,7 +129,13 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel { Id = moduleId, Name = "Test Module", Type = ModuleType.Accounting, Price = 100.00m };
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = "Test Module",
+            Type = ModuleType.Accounting,
+            Price = 100.00m
+        };
 
         var subscription = new SubscriptionModel
         {
@@ -140,18 +158,24 @@ public class GetUserModuleHandlerTests : IDisposable
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel { Id = userRoleId, UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() };
+        var userRole = new UserRoleModel
+        {
+            Id = userRoleId,
+            UserId = userId,
+            CompanyId = companyId,
+            RoleId = Guid.NewGuid()
+        };
 
-        this.db.AuthModules.Add(module);
-        this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        db.AuthSubscriptions.Add(subscription);
+        db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -171,7 +195,13 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel { Id = moduleId, Name = "Test Module", Type = ModuleType.Accounting, Price = 100.00m };
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = "Test Module",
+            Type = ModuleType.Accounting,
+            Price = 100.00m
+        };
 
         var subscription = new SubscriptionModel
         {
@@ -194,18 +224,24 @@ public class GetUserModuleHandlerTests : IDisposable
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel { Id = userRoleId, UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() };
+        var userRole = new UserRoleModel
+        {
+            Id = userRoleId,
+            UserId = userId,
+            CompanyId = companyId,
+            RoleId = Guid.NewGuid()
+        };
 
-        this.db.AuthModules.Add(module);
-        this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        db.AuthSubscriptions.Add(subscription);
+        db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -225,7 +261,13 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel { Id = moduleId, Name = "Test Module", Type = ModuleType.Accounting, Price = 100.00m };
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = "Test Module",
+            Type = ModuleType.Accounting,
+            Price = 100.00m
+        };
 
         var subscription = new SubscriptionModel
         {
@@ -248,18 +290,24 @@ public class GetUserModuleHandlerTests : IDisposable
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel { Id = userRoleId, UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() };
+        var userRole = new UserRoleModel
+        {
+            Id = userRoleId,
+            UserId = userId,
+            CompanyId = companyId,
+            RoleId = Guid.NewGuid()
+        };
 
-        this.db.AuthModules.Add(module);
-        this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        db.AuthSubscriptions.Add(subscription);
+        db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -279,9 +327,21 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var now = DateTime.UtcNow;
 
-        var module1 = new ModuleModel { Id = module1Id, Name = "Module 1", Type = ModuleType.Accounting, Price = 100.00m };
+        var module1 = new ModuleModel
+        {
+            Id = module1Id,
+            Name = "Module 1",
+            Type = ModuleType.Accounting,
+            Price = 100.00m
+        };
 
-        var module2 = new ModuleModel { Id = module2Id, Name = "Module 2", Type = ModuleType.Contracts, Price = 150.00m };
+        var module2 = new ModuleModel
+        {
+            Id = module2Id,
+            Name = "Module 2",
+            Type = ModuleType.Contracts,
+            Price = 150.00m
+        };
 
         var subscription = new SubscriptionModel
         {
@@ -313,18 +373,24 @@ public class GetUserModuleHandlerTests : IDisposable
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel { Id = userRoleId, UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() };
+        var userRole = new UserRoleModel
+        {
+            Id = userRoleId,
+            UserId = userId,
+            CompanyId = companyId,
+            RoleId = Guid.NewGuid()
+        };
 
-        this.db.AuthModules.AddRange(module1, module2);
-        this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthSubscriptionCredits.AddRange(credit1, credit2);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.AddRange(module1, module2);
+        db.AuthSubscriptions.Add(subscription);
+        db.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -344,7 +410,13 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel { Id = moduleId, Name = "Test Module", Type = ModuleType.Accounting, Price = 100.00m };
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = "Test Module",
+            Type = ModuleType.Accounting,
+            Price = 100.00m
+        };
 
         var subscription = new SubscriptionModel
         {
@@ -366,18 +438,24 @@ public class GetUserModuleHandlerTests : IDisposable
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel { Id = userRoleId, UserId = userId, CompanyId = differentCompanyId, RoleId = Guid.NewGuid() };
+        var userRole = new UserRoleModel
+        {
+            Id = userRoleId,
+            UserId = userId,
+            CompanyId = differentCompanyId,
+            RoleId = Guid.NewGuid()
+        };
 
-        this.db.AuthModules.Add(module);
-        this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthSubscriptionCredits.Add(subscriptionCredit);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        db.AuthSubscriptions.Add(subscription);
+        db.AuthSubscriptionCredits.Add(subscriptionCredit);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -396,7 +474,13 @@ public class GetUserModuleHandlerTests : IDisposable
 
         var now = DateTime.UtcNow;
 
-        var module = new ModuleModel { Id = moduleId, Name = "Test Module", Type = ModuleType.Accounting, Price = 100.00m };
+        var module = new ModuleModel
+        {
+            Id = moduleId,
+            Name = "Test Module",
+            Type = ModuleType.Accounting,
+            Price = 100.00m
+        };
 
         var subscription = new SubscriptionModel
         {
@@ -428,18 +512,24 @@ public class GetUserModuleHandlerTests : IDisposable
             OrderDetailId = Guid.NewGuid()
         };
 
-        var userRole = new UserRoleModel { Id = userRoleId, UserId = userId, CompanyId = companyId, RoleId = Guid.NewGuid() };
+        var userRole = new UserRoleModel
+        {
+            Id = userRoleId,
+            UserId = userId,
+            CompanyId = companyId,
+            RoleId = Guid.NewGuid()
+        };
 
-        this.db.AuthModules.Add(module);
-        this.db.AuthSubscriptions.Add(subscription);
-        this.db.AuthSubscriptionCredits.AddRange(credit1, credit2);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthModules.Add(module);
+        db.AuthSubscriptions.Add(subscription);
+        db.AuthSubscriptionCredits.AddRange(credit1, credit2);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetUserModulesQuery(companyId, userId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

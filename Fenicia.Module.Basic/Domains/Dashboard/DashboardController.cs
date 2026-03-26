@@ -1,7 +1,6 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Dashboard.Handlers;
 using Fenicia.Module.Basic.Domains.Dashboard.Queries;
 using Fenicia.Module.Basic.Domains.Dashboard.Responses;
@@ -42,7 +41,7 @@ public class DashboardController(GetFinancialDashboardHandler getFinancialDashbo
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var dashboard = await getFinancialDashboardHandler.Handle(new GetFinancialDashboardQuery(days), ct);
 

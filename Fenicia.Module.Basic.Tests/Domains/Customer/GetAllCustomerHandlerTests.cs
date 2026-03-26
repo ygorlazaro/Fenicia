@@ -1,7 +1,6 @@
 using Bogus;
 
 using Fenicia.Common.Data.Contexts;
-using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Customer.Handlers;
@@ -26,14 +25,14 @@ public class GetAllCustomerHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetAllCustomerHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetAllCustomerHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -47,7 +46,7 @@ public class GetAllCustomerHandlerTests : IDisposable
         var query = new GetAllCustomerQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -62,9 +61,6 @@ public class GetAllCustomerHandlerTests : IDisposable
     public async Task Handle_WithCustomers_ReturnsAllCustomers()
     {
         // Arrange
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
-
         var customer1 = new CustomerModel
         {
             Id = Guid.NewGuid(),
@@ -72,16 +68,10 @@ public class GetAllCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = this.faker.Address.City(),
-                PhoneNumber = this.faker.Phone.PhoneNumber()
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
 
@@ -92,26 +82,20 @@ public class GetAllCustomerHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = this.faker.Address.City(),
-                PhoneNumber = this.faker.Phone.PhoneNumber()
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
 
-        this.db.BasicCustomers.AddRange(customer1, customer2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.AddRange(customer1, customer2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -132,9 +116,6 @@ public class GetAllCustomerHandlerTests : IDisposable
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
         // Arrange
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
-
         for (var i = 0; i < 25; i++)
         {
             var customer = new CustomerModel
@@ -144,27 +125,21 @@ public class GetAllCustomerHandlerTests : IDisposable
                 Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
-                    Name = $"{this.faker.Person.FullName} {i}",
-                    Email = this.faker.Internet.Email(),
-                    Document = this.faker.Random.Replace("###.###.###-##"),
-                    Street = this.faker.Address.StreetName(),
-                    Number = this.faker.Random.Replace("####"),
-                    ZipCode = this.faker.Address.ZipCode(),
-                    StateId = state.Id,
-                    State = state,
-                    City = this.faker.Address.City(),
-                    PhoneNumber = this.faker.Phone.PhoneNumber()
+                    Name = $"{faker.Person.FullName} {i}",
+                    Email = faker.Internet.Email(),
+                    Document = faker.Random.Replace("###.###.###-##"),
+                    PhoneNumber = faker.Phone.PhoneNumber()
                 }
             };
-            this.db.BasicCustomers.Add(customer);
+            db.BasicCustomers.Add(customer);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -179,9 +154,6 @@ public class GetAllCustomerHandlerTests : IDisposable
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
         // Arrange
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
-
         for (var i = 0; i < 5; i++)
         {
             var customer = new CustomerModel
@@ -191,27 +163,21 @@ public class GetAllCustomerHandlerTests : IDisposable
                 Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
-                    Name = $"{this.faker.Person.FullName} {i}",
-                    Email = this.faker.Internet.Email(),
-                    Document = this.faker.Random.Replace("###.###.###-##"),
-                    Street = this.faker.Address.StreetName(),
-                    Number = this.faker.Random.Replace("####"),
-                    ZipCode = this.faker.Address.ZipCode(),
-                    StateId = state.Id,
-                    State = state,
-                    City = this.faker.Address.City(),
-                    PhoneNumber = this.faker.Phone.PhoneNumber()
+                    Name = $"{faker.Person.FullName} {i}",
+                    Email = faker.Internet.Email(),
+                    Document = faker.Random.Replace("###.###.###-##"),
+                    PhoneNumber = faker.Phone.PhoneNumber()
                 }
             };
-            this.db.BasicCustomers.Add(customer);
+            db.BasicCustomers.Add(customer);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -226,9 +192,6 @@ public class GetAllCustomerHandlerTests : IDisposable
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
         // Arrange
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
-
         for (var i = 0; i < 25; i++)
         {
             var customer = new CustomerModel
@@ -238,27 +201,21 @@ public class GetAllCustomerHandlerTests : IDisposable
                 Person = new PersonModel
                 {
                     Id = Guid.NewGuid(),
-                    Name = $"{this.faker.Person.FullName} {i}",
-                    Email = this.faker.Internet.Email(),
-                    Document = this.faker.Random.Replace("###.###.###-##"),
-                    Street = this.faker.Address.StreetName(),
-                    Number = this.faker.Random.Replace("####"),
-                    ZipCode = this.faker.Address.ZipCode(),
-                    StateId = state.Id,
-                    State = state,
-                    City = this.faker.Address.City(),
-                    PhoneNumber = this.faker.Phone.PhoneNumber()
+                    Name = $"{faker.Person.FullName} {i}",
+                    Email = faker.Internet.Email(),
+                    Document = faker.Random.Replace("###.###.###-##"),
+                    PhoneNumber = faker.Phone.PhoneNumber()
                 }
             };
-            this.db.BasicCustomers.Add(customer);
+            db.BasicCustomers.Add(customer);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllCustomerQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

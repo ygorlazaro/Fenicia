@@ -76,7 +76,15 @@ public class GetFinancialDashboardHandler(DefaultContext db)
         var pendingOrders = db.BasicOrders.Where(o => o.Status == OrderStatus.Pending);
         var approvedOrders = db.BasicOrders.Where(o => o.Status == OrderStatus.Approved);
 
-        var accountsReceivable = new AccountsReceivableResponse { TotalPending = await pendingOrders.SumAsync(o => o.TotalAmount, ct), PendingOrdersCount = await pendingOrders.CountAsync(ct), TotalApproved = await approvedOrders.SumAsync(o => o.TotalAmount, ct), ApprovedOrdersCount = await approvedOrders.CountAsync(ct) };
+        var accountsReceivable = new AccountsReceivableResponse
+        {
+            TotalPending = await pendingOrders.SumAsync(o => o.TotalAmount,
+                ct),
+            PendingOrdersCount = await pendingOrders.CountAsync(ct),
+            TotalApproved = await approvedOrders.SumAsync(o => o.TotalAmount,
+                ct),
+            ApprovedOrdersCount = await approvedOrders.CountAsync(ct)
+        };
 
         return accountsReceivable;
     }

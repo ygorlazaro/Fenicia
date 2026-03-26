@@ -26,14 +26,14 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetCustomerByIdHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetCustomerByIdHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -45,8 +45,6 @@ public class GetCustomerByIdHandlerTests : IDisposable
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
 
         var customer = new CustomerModel
         {
@@ -55,26 +53,20 @@ public class GetCustomerByIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = this.faker.Address.City(),
-                PhoneNumber = this.faker.Phone.PhoneNumber()
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customerId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -84,13 +76,6 @@ public class GetCustomerByIdHandlerTests : IDisposable
         Assert.Equal(customer.Person.Email, result.Email);
         Assert.Equal(customer.Person.PhoneNumber, result.PhoneNumber);
         Assert.Equal(customer.Person.Document, result.Document);
-        Assert.Equal(customer.Person.Street, result.Street);
-        Assert.Equal(customer.Person.Number, result.Number);
-        Assert.Equal(customer.Person.Complement, result.Complement);
-        Assert.Equal(customer.Person.Neighborhood, result.Neighborhood);
-        Assert.Equal(customer.Person.ZipCode, result.ZipCode);
-        Assert.Equal(customer.Person.StateId, result.StateId);
-        Assert.Equal(customer.Person.City, result.City);
     }
 
     /// <summary>
@@ -103,7 +88,7 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -119,7 +104,7 @@ public class GetCustomerByIdHandlerTests : IDisposable
         var query = new GetCustomerByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -134,8 +119,6 @@ public class GetCustomerByIdHandlerTests : IDisposable
         // Arrange
         var customer1Id = Guid.NewGuid();
         var customer2Id = Guid.NewGuid();
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
 
         var customer1 = new CustomerModel
         {
@@ -144,16 +127,10 @@ public class GetCustomerByIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = this.faker.Address.City(),
-                PhoneNumber = this.faker.Phone.PhoneNumber()
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
 
@@ -164,26 +141,20 @@ public class GetCustomerByIdHandlerTests : IDisposable
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Person.FirstName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
-                StateId = state.Id,
-                State = state,
-                City = this.faker.Address.City(),
-                PhoneNumber = this.faker.Phone.PhoneNumber()
+                Name = faker.Person.FirstName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Phone.PhoneNumber()
             }
         };
 
-        this.db.BasicCustomers.AddRange(customer1, customer2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.AddRange(customer1, customer2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customer1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -193,49 +164,70 @@ public class GetCustomerByIdHandlerTests : IDisposable
     }
 
     /// <summary>
-    ///     Tests that customers with null address fields are handled correctly.
+    ///     Tests that customers with an address return the full address details correctly.
     /// </summary>
     [Fact]
-    public async Task Handle_WithNullAddressFields_ReturnsCorrectResponse()
+    public async Task Handle_WithAddress_ReturnsFullAddressDetails()
     {
         // Arrange
         var customerId = Guid.NewGuid();
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
-        this.db.AuthStates.Add(state);
+        var addressId = Guid.NewGuid();
+        var personId = Guid.NewGuid();
+
+        var state = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
+        db.AuthStates.Add(state);
+
+        var address = new AddressModel
+        {
+            Id = addressId,
+            Street = faker.Address.StreetName(),
+            Number = faker.Random.Replace("####"),
+            ZipCode = faker.Address.ZipCode(),
+            StateId = state.Id,
+            City = faker.Address.City()
+        };
+        db.AuthAddresses.Add(address);
 
         var customer = new CustomerModel
         {
             Id = customerId,
-            PersonId = Guid.NewGuid(),
+            PersonId = personId,
             Person = new PersonModel
             {
-                Id = Guid.NewGuid(),
-                Name = this.faker.Person.FullName,
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = string.Empty,
-                Number = string.Empty,
-                Complement = null,
-                Neighborhood = null,
-                ZipCode = string.Empty,
-                StateId = state.Id,
-                State = state,
-                City = null,
-                PhoneNumber = this.faker.Phone.PhoneNumber()
+                Id = personId,
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##"),
+                PhoneNumber = faker.Phone.PhoneNumber(),
+                PersonAddresses = new List<PersonAddressModel>
+                {
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        PersonId = personId,
+                        AddressId = addressId
+                    }
+                }
             }
         };
 
-        this.db.BasicCustomers.Add(customer);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetCustomerByIdQuery(customerId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(customer.Person.Name, result.Name);
-        Assert.Equal(customer.Person.Email, result.Email);
+        Assert.NotNull(result.Address);
+        Assert.Equal(addressId, result.Address.Id);
+        Assert.Equal(address.Street, result.Address.Street);
     }
 }

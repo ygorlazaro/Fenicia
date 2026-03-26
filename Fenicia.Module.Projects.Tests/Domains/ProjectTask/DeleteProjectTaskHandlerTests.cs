@@ -21,14 +21,14 @@ public class DeleteProjectTaskHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new DeleteProjectTaskHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new DeleteProjectTaskHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -45,8 +45,8 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             Id = taskId,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -55,17 +55,17 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.Add(task);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.Add(task);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskCommand(taskId);
         var beforeDelete = DateTime.UtcNow;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedTask = await this.db.ProjectTasks.FindAsync([taskId], CancellationToken.None);
+        var deletedTask = await db.ProjectTasks.FindAsync([taskId], CancellationToken.None);
         Assert.NotNull(deletedTask);
         Assert.NotNull(deletedTask.Deleted);
         Assert.InRange(deletedTask.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
@@ -78,10 +78,10 @@ public class DeleteProjectTaskHandlerTests : IDisposable
         var command = new DeleteProjectTaskCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var tasks = await this.db.ProjectTasks.ToListAsync();
+        var tasks = await db.ProjectTasks.ToListAsync();
         Assert.Empty(tasks);
     }
 
@@ -92,10 +92,10 @@ public class DeleteProjectTaskHandlerTests : IDisposable
         var command = new DeleteProjectTaskCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var tasks = await this.db.ProjectTasks.ToListAsync();
+        var tasks = await db.ProjectTasks.ToListAsync();
         Assert.Empty(tasks);
     }
 
@@ -113,8 +113,8 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             Id = task1Id,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -128,8 +128,8 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             Id = task2Id,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Low,
             Type = EnumTaskType.Bug,
             Order = 2,
@@ -138,17 +138,17 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(task1, task2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.AddRange(task1, task2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskCommand(task1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedTask = await this.db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
-        var notDeletedTask = await this.db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
+        var deletedTask = await db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
+        var notDeletedTask = await db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
 
         Assert.NotNull(deletedTask);
         Assert.NotNull(deletedTask.Deleted);
@@ -171,8 +171,8 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             Id = task1Id,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -186,8 +186,8 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             Id = task2Id,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Low,
             Type = EnumTaskType.Bug,
             Order = 2,
@@ -201,8 +201,8 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             Id = task3Id,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.High,
             Type = EnumTaskType.Task,
             Order = 3,
@@ -211,18 +211,18 @@ public class DeleteProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(task1, task2, task3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.AddRange(task1, task2, task3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectTaskCommand(task2Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var task1InDb = await this.db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
-        var deletedTask = await this.db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
-        var task3InDb = await this.db.ProjectTasks.FindAsync([task3Id], CancellationToken.None);
+        var task1InDb = await db.ProjectTasks.FindAsync([task1Id], CancellationToken.None);
+        var deletedTask = await db.ProjectTasks.FindAsync([task2Id], CancellationToken.None);
+        var task3InDb = await db.ProjectTasks.FindAsync([task3Id], CancellationToken.None);
 
         Assert.NotNull(task1InDb);
         Assert.NotNull(deletedTask);

@@ -21,50 +21,48 @@ public class DeleteSupplierHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new DeleteSupplierHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new DeleteSupplierHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
     public async Task Handle_WhenSupplierExists_SetsDeletedDate()
     {
         // Arrange
+        var companyId = Guid.NewGuid();
         var supplierId = Guid.NewGuid();
         var supplier = new SupplierModel
         {
             Id = supplierId,
+            CompanyId = companyId,
             PersonId = Guid.NewGuid(),
             Person = new PersonModel
             {
                 Id = Guid.NewGuid(),
-                Name = this.faker.Company.CompanyName(),
-                Email = this.faker.Internet.Email(),
-                Document = this.faker.Random.Replace("###.###.###-##"),
-                Street = this.faker.Address.StreetName(),
-                Number = this.faker.Random.Replace("####"),
-                ZipCode = this.faker.Address.ZipCode(),
-                StateId = Guid.NewGuid(),
-                City = this.faker.Address.City()
+                CompanyId = companyId,
+                Name = faker.Company.CompanyName(),
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##")
             }
         };
 
-        this.db.BasicSuppliers.Add(supplier);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicSuppliers.Add(supplier);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteSupplierCommand(supplierId);
         var beforeDelete = DateTime.Now;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedSupplier = await this.db.BasicSuppliers.FindAsync([supplierId], CancellationToken.None);
+        var deletedSupplier = await db.BasicSuppliers.FindAsync([supplierId], CancellationToken.None);
         Assert.NotNull(deletedSupplier);
         Assert.NotNull(deletedSupplier.Deleted);
         Assert.True(deletedSupplier.Deleted >= beforeDelete.AddSeconds(-1));
@@ -78,10 +76,10 @@ public class DeleteSupplierHandlerTests : IDisposable
         var command = new DeleteSupplierCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var suppliers = await this.db.BasicSuppliers.ToListAsync();
+        var suppliers = await db.BasicSuppliers.ToListAsync();
         Assert.Empty(suppliers);
     }
 
@@ -89,24 +87,47 @@ public class DeleteSupplierHandlerTests : IDisposable
     public async Task Handle_WithMultipleSuppliers_OnlyDeletesSpecified()
     {
         // Arrange
+        var companyId = Guid.NewGuid();
         var supplier1Id = Guid.NewGuid();
         var supplier2Id = Guid.NewGuid();
 
-        var supplier1 = new SupplierModel { Id = supplier1Id, PersonId = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName() } };
+        var supplier1 = new SupplierModel
+        {
+            Id = supplier1Id,
+            CompanyId = companyId,
+            PersonId = Guid.NewGuid(),
+            Person = new PersonModel
+            {
+                Id = Guid.NewGuid(),
+                CompanyId = companyId,
+                Name = faker.Company.CompanyName()
+            }
+        };
 
-        var supplier2 = new SupplierModel { Id = supplier2Id, PersonId = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName() } };
+        var supplier2 = new SupplierModel
+        {
+            Id = supplier2Id,
+            CompanyId = companyId,
+            PersonId = Guid.NewGuid(),
+            Person = new PersonModel
+            {
+                Id = Guid.NewGuid(),
+                CompanyId = companyId,
+                Name = faker.Company.CompanyName()
+            }
+        };
 
-        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicSuppliers.AddRange(supplier1, supplier2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteSupplierCommand(supplier1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedSupplier = await this.db.BasicSuppliers.FindAsync([supplier1Id], CancellationToken.None);
-        var notDeletedSupplier = await this.db.BasicSuppliers.FindAsync([supplier2Id], CancellationToken.None);
+        var deletedSupplier = await db.BasicSuppliers.FindAsync([supplier1Id], CancellationToken.None);
+        var notDeletedSupplier = await db.BasicSuppliers.FindAsync([supplier2Id], CancellationToken.None);
 
         Assert.NotNull(deletedSupplier);
         Assert.NotNull(deletedSupplier.Deleted);

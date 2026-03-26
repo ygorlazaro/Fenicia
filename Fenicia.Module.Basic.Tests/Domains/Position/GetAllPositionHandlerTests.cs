@@ -21,14 +21,14 @@ public class GetAllPositionHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetAllPositionHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetAllPositionHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -39,7 +39,7 @@ public class GetAllPositionHandlerTests : IDisposable
         var query = new GetAllPositionQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -50,16 +50,24 @@ public class GetAllPositionHandlerTests : IDisposable
     public async Task Handle_WithPositions_ReturnsAllPositions()
     {
         // Arrange
-        var position1 = new PositionModel { Id = Guid.NewGuid(), Name = "Developer" };
-        var position2 = new PositionModel { Id = Guid.NewGuid(), Name = "Designer" };
+        var position1 = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Developer"
+        };
+        var position2 = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Designer"
+        };
 
-        this.db.BasicPositions.AddRange(position1, position2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.AddRange(position1, position2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -74,16 +82,20 @@ public class GetAllPositionHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var position = new PositionModel { Id = Guid.NewGuid(), Name = $"{this.faker.Commerce.Department()} {i}" };
-            this.db.BasicPositions.Add(position);
+            var position = new PositionModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"{faker.Commerce.Department()} {i}"
+            };
+            db.BasicPositions.Add(position);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -96,16 +108,20 @@ public class GetAllPositionHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 5; i++)
         {
-            var position = new PositionModel { Id = Guid.NewGuid(), Name = $"{this.faker.Commerce.Department()} {i}" };
-            this.db.BasicPositions.Add(position);
+            var position = new PositionModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"{faker.Commerce.Department()} {i}"
+            };
+            db.BasicPositions.Add(position);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -118,16 +134,20 @@ public class GetAllPositionHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 25; i++)
         {
-            var position = new PositionModel { Id = Guid.NewGuid(), Name = $"{this.faker.Commerce.Department()} {i}" };
-            this.db.BasicPositions.Add(position);
+            var position = new PositionModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"{faker.Commerce.Department()} {i}"
+            };
+            db.BasicPositions.Add(position);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllPositionQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

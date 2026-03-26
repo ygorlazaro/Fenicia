@@ -21,18 +21,18 @@ public class GenerateTokenStringHandlerTests
 
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
 
-        this.handler = new GenerateTokenStringHandler(configuration);
-        this.faker = new Faker();
+        handler = new GenerateTokenStringHandler(configuration);
+        faker = new Faker();
     }
 
     [Fact]
     public void Handle_WhenValidUser_ReturnsValidToken()
     {
         // Arrange
-        var user = new GenerateTokenResponse(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email());
+        var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email());
 
         // Act
-        var token = this.handler.Handle(user);
+        var token = handler.Handle(user);
 
         // Assert
         Assert.NotNull(token);
@@ -44,10 +44,10 @@ public class GenerateTokenStringHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var user = new GenerateTokenResponse(userId, this.faker.Person.FullName, this.faker.Internet.Email());
+        var user = new GenerateTokenResponse(userId, faker.Person.FullName, faker.Internet.Email());
 
         // Act
-        var token = this.handler.Handle(user);
+        var token = handler.Handle(user);
 
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -60,12 +60,12 @@ public class GenerateTokenStringHandlerTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var email = this.faker.Internet.Email();
-        var name = this.faker.Person.FullName;
+        var email = faker.Internet.Email();
+        var name = faker.Person.FullName;
         var user = new GenerateTokenResponse(userId, name, email);
 
         // Act
-        var token = this.handler.Handle(user);
+        var token = handler.Handle(user);
 
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -81,10 +81,10 @@ public class GenerateTokenStringHandlerTests
     public void Handle_WhenUserHasCompanyId_TokenContainsCompanyIdClaim()
     {
         // Arrange
-        var userWithCompany = new GenerateTokenResponseWithCompany(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), Guid.NewGuid());
+        var userWithCompany = new GenerateTokenResponseWithCompany(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), Guid.NewGuid());
 
         // Act
-        var token = this.handler.Handle(userWithCompany);
+        var token = handler.Handle(userWithCompany);
 
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -98,10 +98,10 @@ public class GenerateTokenStringHandlerTests
     public void Handle_WhenUserHasRoles_TokenContainsRoleClaims()
     {
         // Arrange
-        var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), ["Admin", "User", "Manager"]);
+        var userWithRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["Admin", "User", "Manager"]);
 
         // Act
-        var token = this.handler.Handle(userWithRoles);
+        var token = handler.Handle(userWithRoles);
 
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -118,17 +118,17 @@ public class GenerateTokenStringHandlerTests
     public void Handle_WhenUserHasModules_TokenContainsModuleClaims()
     {
         // Arrange
-        var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), ["basic", "social"]);
+        var userWithModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["basic", "social"]);
 
         // Act
-        var token = this.handler.Handle(userWithModules);
+        var token = handler.Handle(userWithModules);
 
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
 
-        Assert.Equal(3, moduleClaims.Count);
+        Assert.Equal(2, moduleClaims.Count);
         Assert.Contains("basic", moduleClaims.Select(c => c.Value));
         Assert.Contains("social", moduleClaims.Select(c => c.Value));
     }
@@ -137,10 +137,10 @@ public class GenerateTokenStringHandlerTests
     public void Handle_WhenTokenIsGenerated_HasExpiration()
     {
         // Arrange
-        var user = new GenerateTokenResponse(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email());
+        var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email());
 
         // Act
-        var token = this.handler.Handle(user);
+        var token = handler.Handle(user);
 
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -156,7 +156,7 @@ public class GenerateTokenStringHandlerTests
         var badConfig = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
 
         var badHandler = new GenerateTokenStringHandler(badConfig);
-        var user = new GenerateTokenResponse(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email());
+        var user = new GenerateTokenResponse(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email());
 
         // Act & Assert
         Assert.Throws<InvalidOperationException>(() => badHandler.Handle(user));
@@ -166,10 +166,10 @@ public class GenerateTokenStringHandlerTests
     public void Handle_WhenUserHasEmptyRoles_DoesNotAddEmptyClaims()
     {
         // Arrange
-        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), ["Admin", "", null!, "User"]);
+        var userWithEmptyRoles = new GenerateTokenResponseWithRoles(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["Admin", "", null!, "User"]);
 
         // Act
-        var token = this.handler.Handle(userWithEmptyRoles);
+        var token = handler.Handle(userWithEmptyRoles);
 
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -183,17 +183,17 @@ public class GenerateTokenStringHandlerTests
     public void Handle_WhenUserHasEmptyModules_DoesNotAddEmptyClaims()
     {
         // Arrange
-        var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), this.faker.Person.FullName, this.faker.Internet.Email(), ["", null!, "basic"]);
+        var userWithEmptyModules = new GenerateTokenResponseWithModules(Guid.NewGuid(), faker.Person.FullName, faker.Internet.Email(), ["", null!, "basic"]);
 
         // Act
-        var token = this.handler.Handle(userWithEmptyModules);
+        var token = handler.Handle(userWithEmptyModules);
 
         // Assert
         var tokenHandler = new JwtSecurityTokenHandler();
         var jwtToken = tokenHandler.ReadJwtToken(token);
         var moduleClaims = jwtToken.Claims.Where(c => c.Type == "module").ToList();
 
-        Assert.Equal(2, moduleClaims.Count);
+        Assert.Single(moduleClaims);
     }
 
     // Helper classes for testing properties that don't exist in base response

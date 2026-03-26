@@ -19,6 +19,14 @@ public class OrderDetailModel : BaseModel
     [Range(0.01, double.MaxValue)]
     public decimal Price { get; set; }
 
+    [Column("discount_amount", TypeName = "decimal(18,2)")]
+    [Range(0, double.MaxValue)]
+    public decimal DiscountAmount { get; set; }
+
+    [Column("subtotal", TypeName = "decimal(18,2)")]
+    [Range(0, double.MaxValue)]
+    public decimal Subtotal { get; set; }
+
     [ForeignKey(nameof(OrderId))]
     public OrderModel Order { get; set; } = null!;
 

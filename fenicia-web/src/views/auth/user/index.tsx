@@ -1,40 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { cilLockLocked, cilPencil, cilPlus, cilTrash } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+  CAlert,
+  CBadge,
+  CButton,
   CCard,
   CCardBody,
   CCardHeader,
-  CRow,
   CCol,
-  CButton,
-  CFormInput,
-  CFormLabel,
   CForm,
-  CModal,
-  CModalBody,
-  CModalHeader,
-  CModalTitle,
-  CModalFooter,
+  CFormInput,
+  CRow,
+  CSpinner,
   CTable,
-  CTableHead,
-  CTableRow,
-  CTableHeaderCell,
   CTableBody,
   CTableDataCell,
-  CPagination,
-  CPaginationItem,
-  CBadge,
-  CSpinner,
-  CAlert,
-  CFormSelect,
+  CTableHead,
+  CTableHeaderCell,
+  CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning, cilLockLocked } from '@coreui/icons';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DocsComponents } from 'src/components';
 import Pagination from 'src/components/Pagination';
 import UserModal from 'src/components/UserModal';
 import UserPasswordModal from 'src/components/UserPasswordModal';
-import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:5144';
 
@@ -71,7 +62,6 @@ const UserList = () => {
       const response = await axios.get(`${API_BASE_URL}/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'x-company': companyId,
         },
         params: {
           page,
@@ -129,7 +119,6 @@ const UserList = () => {
         await axios.delete(`${API_BASE_URL}/user/${user.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            'x-company': companyId,
           },
         });
         setSuccessMessage(t('users.deletedSuccessfully') || 'User deleted successfully');

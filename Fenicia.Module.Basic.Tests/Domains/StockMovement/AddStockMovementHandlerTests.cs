@@ -19,14 +19,14 @@ public class AddStockMovementHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
-        this.handler = new AddStockMovementHandler(this.db);
+        companyContext = new TestCompanyContext();
+        db = new DefaultContext(options, companyContext);
+        handler = new AddStockMovementHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -42,13 +42,13 @@ public class AddStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 15.00m, StockMovementType.In, product.Id, null, null, null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -71,16 +71,16 @@ public class AddStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 15.00m, StockMovementType.In, product.Id, null, null, null, null, null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedProduct = await this.db.BasicProducts.FindAsync([product.Id], CancellationToken.None);
+        var updatedProduct = await db.BasicProducts.FindAsync([product.Id], CancellationToken.None);
         Assert.NotNull(updatedProduct);
         Assert.Equal(110, updatedProduct.Quantity);
     }
@@ -98,16 +98,16 @@ public class AddStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 15.00m, StockMovementType.Out, product.Id, null, null, null, null, null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedProduct = await this.db.BasicProducts.FindAsync([product.Id], CancellationToken.None);
+        var updatedProduct = await db.BasicProducts.FindAsync([product.Id], CancellationToken.None);
         Assert.NotNull(updatedProduct);
         Assert.Equal(90, updatedProduct.Quantity);
     }
@@ -119,11 +119,11 @@ public class AddStockMovementHandlerTests : IDisposable
         var command = new AddStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 15.00m, StockMovementType.In, Guid.NewGuid(), null, null, null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        var movement = await this.db.BasicStockMovements.FindAsync([command.Id], CancellationToken.None);
+        var movement = await db.BasicStockMovements.FindAsync([command.Id], CancellationToken.None);
         Assert.NotNull(movement);
     }
 
@@ -140,16 +140,16 @@ public class AddStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 15.00m, StockMovementType.In, product.Id, null, null, null, null, null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var movement = await this.db.BasicStockMovements.FindAsync([command.Id], CancellationToken.None);
+        var movement = await db.BasicStockMovements.FindAsync([command.Id], CancellationToken.None);
         Assert.NotNull(movement);
         Assert.Equal(command.Quantity, movement.Quantity);
         Assert.Equal(command.Type, movement.Type);

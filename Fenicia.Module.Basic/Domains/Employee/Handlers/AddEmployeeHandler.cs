@@ -1,4 +1,5 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
@@ -26,16 +27,45 @@ public class AddEmployeeHandler(DefaultContext db)
             Email = command.Email,
             Document = command.Document,
             PhoneNumber = command.PhoneNumber,
-            Street = command.Street,
-            Number = command.Number,
-            Complement = command.Complement,
-            Neighborhood = command.Neighborhood,
-            ZipCode = command.ZipCode,
-            StateId = command.StateId,
-            City = command.City
         };
 
-        var employee = new EmployeeModel { Id = command.Id, PositionId = command.PositionId, Person = person, PersonId = person.Id };
+        AddressModel? address = null;
+
+        if (command.Address != null)
+        {
+            address = new AddressModel
+            {
+                Id = Guid.NewGuid(),
+                Street = command.Address.Street,
+                Number = command.Address.Number,
+                Complement = command.Address.Complement,
+                Neighborhood = command.Address.Neighborhood,
+                ZipCode = command.Address.ZipCode,
+                StateId = command.Address.StateId,
+                City = command.Address.City,
+                Country = command.Address.Country
+            };
+            db.AuthAddresses.Add(address);
+        }
+
+        var employee = new EmployeeModel
+        {
+            Id = command.Id,
+            PositionId = command.PositionId,
+            Person = person,
+            PersonId = person.Id,
+        };
+
+        if (address != null)
+        {
+            var personAddress = new PersonAddressModel
+            {
+                Id = Guid.NewGuid(),
+                PersonId = person.Id,
+                AddressId = address.Id,
+            };
+            db.BasicPersonAddresses.Add(personAddress);
+        }
 
         db.BasicEmployees.Add(employee);
 

@@ -17,11 +17,11 @@ public class InvalidateRefreshTokenHandlerTests
     public InvalidateRefreshTokenHandlerTests()
     {
         var redisMock = new Mock<IConnectionMultiplexer>();
-        this.redisDbMock = new Mock<IDatabase>();
+        redisDbMock = new Mock<IDatabase>();
 
-        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(this.redisDbMock.Object);
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(redisDbMock.Object);
 
-        this.handler = new InvalidateRefreshTokenHandler(redisMock.Object);
+        handler = new InvalidateRefreshTokenHandler(redisMock.Object);
     }
 
     [Fact]
@@ -38,13 +38,13 @@ public class InvalidateRefreshTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         // Act
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.Is<RedisValue>(v => JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.Is<RedisValue>(v => JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     [Fact]
@@ -54,13 +54,13 @@ public class InvalidateRefreshTokenHandlerTests
         const string refreshToken = "non_existent_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
 
         // Act
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<bool>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Never);
+        redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<bool>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Never);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class InvalidateRefreshTokenHandlerTests
         string? refreshToken = null;
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await this.handler.Handler(refreshToken!));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await handler.Handler(refreshToken!));
     }
 
     [Fact]
@@ -80,13 +80,13 @@ public class InvalidateRefreshTokenHandlerTests
         var refreshToken = string.Empty;
         var key = $"refresh_token:{refreshToken}";
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(RedisValue.Null);
 
         // Act
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<When>()), Times.Never);
+        redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<When>()), Times.Never);
     }
 
     [Fact]
@@ -103,13 +103,13 @@ public class InvalidateRefreshTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         // Act
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.Is<RedisValue>(v => JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.Is<RedisValue>(v => JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     [Fact]
@@ -126,13 +126,13 @@ public class InvalidateRefreshTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         // Act
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.Is<RedisValue>(v => JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.Is<RedisValue>(v => JsonSerializer.Deserialize<InvalidateRefreshTokenResponse>((string)v!)!.IsActive == false), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     [Fact]
@@ -149,13 +149,13 @@ public class InvalidateRefreshTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         // Act
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.Is<RedisValue>(v => IsValidToken(v, refreshToken, userId, expirationDate)), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.Is<RedisValue>(v => IsValidToken(v, refreshToken, userId, expirationDate)), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     private static bool IsValidToken(RedisValue v, string refreshToken, Guid userId, DateTime expirationDate)
@@ -174,13 +174,13 @@ public class InvalidateRefreshTokenHandlerTests
 
         var redisResult = new RedisValue("invalid_json");
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         // Act
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<When>()), Times.Never);
+        redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<When>()), Times.Never);
     }
 
     [Fact]
@@ -197,14 +197,14 @@ public class InvalidateRefreshTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.SetupSequence(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult).ReturnsAsync(RedisValue.Null);
+        redisDbMock.SetupSequence(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult).ReturnsAsync(RedisValue.Null);
 
         // Act
-        await this.handler.Handler(refreshToken);
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert - First call should update, second call should do nothing
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     [Fact]
@@ -221,13 +221,13 @@ public class InvalidateRefreshTokenHandlerTests
         var redisValue = JsonSerializer.Serialize(tokenResponse);
         var redisResult = new RedisValue(redisValue);
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         // Act
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.Is<TimeSpan?>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     [Fact]
@@ -237,10 +237,10 @@ public class InvalidateRefreshTokenHandlerTests
         const string refreshToken = "redis_error_token";
         const string key = $"refresh_token:{refreshToken}";
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ThrowsAsync(new RedisConnectionException(ConnectionFailureType.None, "Connection failed"));
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ThrowsAsync(new RedisConnectionException(ConnectionFailureType.None, "Connection failed"));
 
         // Act & Assert - Should not throw
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
     }
 
     [Fact]
@@ -252,12 +252,12 @@ public class InvalidateRefreshTokenHandlerTests
 
         var redisResult = new RedisValue("not_valid_json{{{");
 
-        this.redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
+        redisDbMock.Setup(x => x.StringGetAsync(It.Is<RedisKey>(k => k == key), It.IsAny<CommandFlags>())).ReturnsAsync(redisResult);
 
         // Act
-        await this.handler.Handler(refreshToken);
+        await handler.Handler(refreshToken);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Never);
+        redisDbMock.Verify(x => x.StringSetAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Never);
     }
 }

@@ -23,16 +23,18 @@ public class CheckCompanyExistsHandlerTests : IDisposable
 
     public CheckCompanyExistsHandlerTests()
     {
-        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid()
+                .ToString())
+            .Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new CheckCompanyExistsHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new CheckCompanyExistsHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -44,16 +46,22 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WhenCompanyExistsWithMatchingCnpj_ReturnsTrue()
     {
         // Arrange
-        var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = true };
+        var cnpj = faker.Company.Cnpj();
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = cnpj,
+            IsActive = true
+        };
 
-        this.db.AuthCompanies.Add(company);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -66,11 +74,11 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WhenCompanyDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        var cnpj = this.faker.Company.Cnpj();
+        var cnpj = faker.Company.Cnpj();
         var query = new CheckCompanyExistsQuery(cnpj, false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.False(result);
@@ -83,16 +91,22 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WhenOnlyActiveIsTrueAndCompanyIsActive_ReturnsTrue()
     {
         // Arrange
-        var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = true };
+        var cnpj = faker.Company.Cnpj();
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = cnpj,
+            IsActive = true
+        };
 
-        this.db.AuthCompanies.Add(company);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, true);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -105,16 +119,22 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WhenOnlyActiveIsTrueAndCompanyIsInactive_ReturnsFalse()
     {
         // Arrange
-        var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = false };
+        var cnpj = faker.Company.Cnpj();
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = cnpj,
+            IsActive = false
+        };
 
-        this.db.AuthCompanies.Add(company);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, true);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.False(result);
@@ -127,16 +147,22 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WhenOnlyActiveIsFalseAndCompanyIsInactive_ReturnsTrue()
     {
         // Arrange
-        var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = false };
+        var cnpj = faker.Company.Cnpj();
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = cnpj,
+            IsActive = false
+        };
 
-        this.db.AuthCompanies.Add(company);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -149,20 +175,32 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WhenMultipleCompaniesExist_OnlyMatchesExactCnpj()
     {
         // Arrange
-        var cnpj1 = this.faker.Company.Cnpj();
-        var cnpj2 = this.faker.Company.Cnpj();
+        var cnpj1 = faker.Company.Cnpj();
+        var cnpj2 = faker.Company.Cnpj();
 
-        var company1 = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj1, IsActive = true };
+        var company1 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = cnpj1,
+            IsActive = true
+        };
 
-        var company2 = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj2, IsActive = true };
+        var company2 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = cnpj2,
+            IsActive = true
+        };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.AddRange(company1, company2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj1, false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -175,21 +213,33 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WhenMixedActiveAndInactiveCompanies_OnlyActiveFilterWorksCorrectly()
     {
         // Arrange
-        var cnpj = this.faker.Company.Cnpj();
+        var cnpj = faker.Company.Cnpj();
 
-        var activeCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = true };
+        var activeCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = cnpj,
+            IsActive = true
+        };
 
-        var inactiveCompany = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = cnpj, IsActive = false };
+        var inactiveCompany = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = cnpj,
+            IsActive = false
+        };
 
-        this.db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.AddRange(activeCompany, inactiveCompany);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var activeQuery = new CheckCompanyExistsQuery(cnpj, true);
         var inactiveQuery = new CheckCompanyExistsQuery(cnpj, false);
 
         // Act
-        var activeResult = await this.handler.Handle(activeQuery, CancellationToken.None);
-        var inactiveResult = await this.handler.Handle(inactiveQuery, CancellationToken.None);
+        var activeResult = await handler.Handle(activeQuery, CancellationToken.None);
+        var inactiveResult = await handler.Handle(inactiveQuery, CancellationToken.None);
 
         // Assert
         Assert.True(activeResult);
@@ -203,10 +253,10 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsFalse()
     {
         // Arrange
-        var query = new CheckCompanyExistsQuery(this.faker.Company.Cnpj(), false);
+        var query = new CheckCompanyExistsQuery(faker.Company.Cnpj(), false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.False(result);
@@ -219,16 +269,23 @@ public class CheckCompanyExistsHandlerTests : IDisposable
     public async Task Handle_WhenCnpjContainsSpecialCharacters_NoMatch()
     {
         // Arrange
-        var cnpj = this.faker.Company.Cnpj();
-        var company = new CompanyModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName(), Cnpj = string.Concat(this.faker.Company.Cnpj(), "./"), IsActive = true };
+        var cnpj = faker.Company.Cnpj();
+        var company = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName(),
+            Cnpj = string.Concat(faker.Company.Cnpj(),
+                "./"),
+            IsActive = true
+        };
 
-        this.db.AuthCompanies.Add(company);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new CheckCompanyExistsQuery(cnpj, false);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.False(result);

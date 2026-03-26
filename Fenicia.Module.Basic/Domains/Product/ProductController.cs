@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Product.Commands;
 using Fenicia.Module.Basic.Domains.Product.Handlers;
 using Fenicia.Module.Basic.Domains.Product.Queries;
@@ -45,7 +44,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var products = await getAllProductHandler.Handle(new GetAllProductQuery(page, perPage), ct);
 
@@ -76,7 +75,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var product = await getProductByIdHandler.Handle(new GetProductByIdQuery(id), ct);
 
@@ -107,7 +106,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var product = await addProductHandler.Handle(command, ct);
 
@@ -142,7 +141,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var product = await updateProductHandler.Handle(command with { Id = id }, ct);
 
@@ -171,7 +170,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             await deleteProductHandler.Handle(new DeleteProductCommand(id), ct);
 
@@ -201,7 +200,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var performance = await getProductPerformanceHandler.Handle(new GetProductPerformanceQuery(days, topLimit), ct);
 

@@ -16,7 +16,7 @@ public class WideEventContext
 
     public string? UserId { get; set; }
 
-    public string Operation => $"{this.Path} {this.Method}";
+    public string Operation => $"{Path} {Method}";
 
     public bool Success { get; set; }
 

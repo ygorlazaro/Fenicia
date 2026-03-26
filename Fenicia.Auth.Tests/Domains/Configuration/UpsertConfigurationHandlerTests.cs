@@ -5,6 +5,7 @@ using Fenicia.Auth.Domains.Configuration.Handlers;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;
+using Fenicia.Common.Tests;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,16 @@ public class UpsertConfigurationHandlerTests : IDisposable
     private readonly UpsertConfigurationHandler handler;
     private readonly Guid testUserId;
 
+    public UpsertConfigurationHandlerTests()
+    {
+        var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new UpsertConfigurationHandler(db);
+        faker = new Faker();
+        testUserId = Guid.NewGuid();
+    }
+
     /// <summary>
     ///     Tests that when a configuration doesn't exist, a new one is created.
     /// </summary>
@@ -28,20 +39,20 @@ public class UpsertConfigurationHandlerTests : IDisposable
     public async Task Handle_WhenConfigurationDoesNotExist_CreatesNewConfiguration()
     {
         // Arrange
-        var command = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "pt-BR", this.db.CurrentCompanyId ?? Guid.Empty);
+        var command = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "pt-BR", db.CurrentCompanyId ?? Guid.Empty);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var configuration = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
+        var configuration = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language);
 
         Assert.NotNull(configuration);
 
-        Assert.Equal(this.testUserId, configuration.UserId);
+        Assert.Equal(testUserId, configuration.UserId);
         Assert.Equal(ConfigType.Language, configuration.ConfigType);
         Assert.Equal("pt-BR", configuration.Value);
-        Assert.Equal(this.db.CurrentCompanyId, configuration.CompanyId);
+        Assert.Equal(db.CurrentCompanyId, configuration.CompanyId);
     }
 
     /// <summary>
@@ -52,16 +63,16 @@ public class UpsertConfigurationHandlerTests : IDisposable
     {
         // Arrange - Note: Due to how DefaultContext works, all entities get the same CompanyId
         // from TestCompanyContext, so this test verifies multiple configurations for same user/type
-        var config1 = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "pt-BR", this.db.CurrentCompanyId ?? Guid.NewGuid());
+        var config1 = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "pt-BR", db.CurrentCompanyId ?? Guid.NewGuid());
 
-        var config2 = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Timezone, "dark", this.db.CurrentCompanyId ?? Guid.NewGuid());
+        var config2 = new UpsertConfigurationCommand(null, testUserId, ConfigType.Timezone, "dark", db.CurrentCompanyId ?? Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(config1, CancellationToken.None);
-        await this.handler.Handle(config2, CancellationToken.None);
+        await handler.Handle(config1, CancellationToken.None);
+        await handler.Handle(config2, CancellationToken.None);
 
         // Assert
-        var configurations = await this.db.AuthConfigurations.Where(c => c.UserId == this.testUserId).ToListAsync(CancellationToken.None);
+        var configurations = await db.AuthConfigurations.Where(c => c.UserId == testUserId).ToListAsync(CancellationToken.None);
 
         Assert.Equal(2, configurations.Count);
     }
@@ -74,26 +85,26 @@ public class UpsertConfigurationHandlerTests : IDisposable
     {
         // Arrange
         var originalId = Guid.NewGuid();
-        var companyId = this.db.CurrentCompanyId ?? Guid.NewGuid();
+        var companyId = db.CurrentCompanyId ?? Guid.NewGuid();
         var existingConfig = new ConfigurationModel
         {
             Id = originalId,
-            UserId = this.testUserId,
+            UserId = testUserId,
             CompanyId = companyId,
             ConfigType = ConfigType.Language,
             Value = "pt-BR"
         };
 
-        this.db.AuthConfigurations.Add(existingConfig);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthConfigurations.Add(existingConfig);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "en", companyId);
+        var command = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "en", companyId);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedConfig = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.Id == originalId);
+        var updatedConfig = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.Id == originalId);
 
         Assert.NotNull(updatedConfig);
 
@@ -108,21 +119,21 @@ public class UpsertConfigurationHandlerTests : IDisposable
     public async Task Handle_MultipleUpdates_OnlyLastValuePersists()
     {
         // Arrange
-        var companyId = this.db.CurrentCompanyId ?? Guid.NewGuid();
+        var companyId = db.CurrentCompanyId ?? Guid.NewGuid();
 
-        var command1 = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "pt-BR", companyId);
+        var command1 = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "pt-BR", companyId);
 
-        var command2 = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "en", companyId);
+        var command2 = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "en", companyId);
 
-        var command3 = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "es", companyId);
+        var command3 = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "es", companyId);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
-        await this.handler.Handle(command3, CancellationToken.None);
+        await handler.Handle(command1, CancellationToken.None);
+        await handler.Handle(command2, CancellationToken.None);
+        await handler.Handle(command3, CancellationToken.None);
 
         // Assert
-        var configurations = await this.db.AuthConfigurations.Where(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId).ToListAsync(CancellationToken.None);
+        var configurations = await db.AuthConfigurations.Where(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language && c.CompanyId == companyId).ToListAsync(CancellationToken.None);
 
         Assert.Single(configurations);
         Assert.Equal("es", configurations[0].Value);
@@ -135,13 +146,13 @@ public class UpsertConfigurationHandlerTests : IDisposable
     public async Task Handle_WithEmptyValue_SavesEmptyString()
     {
         // Arrange
-        var command = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, "", this.db.CurrentCompanyId ?? Guid.Empty);
+        var command = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, "", db.CurrentCompanyId ?? Guid.Empty);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var configuration = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
+        var configuration = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language);
 
         Assert.NotNull(configuration);
         Assert.Equal("", configuration.Value);
@@ -154,16 +165,23 @@ public class UpsertConfigurationHandlerTests : IDisposable
     public async Task Handle_WithLongValue_SavesSuccessfully()
     {
         // Arrange
-        var longValue = this.faker.Lorem.Paragraphs(10);
-        var command = new UpsertConfigurationCommand(null, this.testUserId, ConfigType.Language, longValue, this.db.CurrentCompanyId ?? Guid.Empty);
+        var longValue = faker.Lorem.Paragraphs(10);
+        var command = new UpsertConfigurationCommand(null, testUserId, ConfigType.Language, longValue, db.CurrentCompanyId ?? Guid.Empty);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var configuration = await this.db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == this.testUserId && c.ConfigType == ConfigType.Language);
+        var configuration = await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == testUserId && c.ConfigType == ConfigType.Language);
 
         Assert.NotNull(configuration);
         Assert.Equal(longValue, configuration.Value);
+    }
+
+    public void Dispose()
+    {
+        db.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 }

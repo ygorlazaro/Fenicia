@@ -19,14 +19,14 @@ public class UpdateStockMovementHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
-        this.handler = new UpdateStockMovementHandler(this.db);
+        companyContext = new TestCompanyContext();
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateStockMovementHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class UpdateStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
+        db.BasicProducts.Add(product);
 
         var movement = new StockMovementModel
         {
@@ -54,13 +54,13 @@ public class UpdateStockMovementHandlerTests : IDisposable
             Type = StockMovementType.In,
             ProductId = product.Id
         };
-        this.db.BasicStockMovements.Add(movement);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicStockMovements.Add(movement);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateStockMovementCommand(movementId, 20, DateTime.Now.AddDays(1), 25.00m, StockMovementType.Out, product.Id, null, null, null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -76,7 +76,7 @@ public class UpdateStockMovementHandlerTests : IDisposable
         var command = new UpdateStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 15.00m, StockMovementType.In, Guid.NewGuid(), null, null, null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -89,7 +89,7 @@ public class UpdateStockMovementHandlerTests : IDisposable
         var command = new UpdateStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 15.00m, StockMovementType.In, Guid.NewGuid(), null, null, null, null, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -109,7 +109,7 @@ public class UpdateStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
+        db.BasicProducts.Add(product);
 
         var movement = new StockMovementModel
         {
@@ -120,16 +120,16 @@ public class UpdateStockMovementHandlerTests : IDisposable
             Type = StockMovementType.In,
             ProductId = product.Id
         };
-        this.db.BasicStockMovements.Add(movement);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicStockMovements.Add(movement);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateStockMovementCommand(movementId, 20, DateTime.Now.AddDays(1), 25.00m, StockMovementType.Out, product.Id, null, null, null, null, null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedMovement = await this.db.BasicStockMovements.FindAsync([movementId], CancellationToken.None);
+        var updatedMovement = await db.BasicStockMovements.FindAsync([movementId], CancellationToken.None);
         Assert.NotNull(updatedMovement);
         Assert.Equal(20, updatedMovement.Quantity);
         Assert.Equal(StockMovementType.Out, updatedMovement.Type);

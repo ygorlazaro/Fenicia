@@ -23,7 +23,13 @@ public static class FeniciaControllersExtensions
         {
             o.InvalidModelStateResponseFactory = c =>
             {
-                var problemDetails = new ValidationProblemDetails(c.ModelState) { Type = "https://tools.ietf.org/html/rfc7807", Title = ExceptionMessages.InvalidRequest, Status = StatusCodes.Status400BadRequest, Instance = c.HttpContext.Request.Path };
+                var problemDetails = new ValidationProblemDetails(c.ModelState)
+                {
+                    Type = "https://tools.ietf.org/html/rfc7807",
+                    Title = ExceptionMessages.InvalidRequest,
+                    Status = StatusCodes.Status400BadRequest,
+                    Instance = c.HttpContext.Request.Path
+                };
 
                 return new BadRequestObjectResult(problemDetails) { ContentTypes = { "application/problem+json" } };
             };

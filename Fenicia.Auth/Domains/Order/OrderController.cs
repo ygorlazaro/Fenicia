@@ -64,9 +64,9 @@ public class OrderController(CreateNewOrderHandler createNewOrderHandler) : Cont
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var userId = ClaimReader.UserId(this.User);
+            var userId = ClaimReader.UserId(User);
             var companyId = headers.CompanyId;
             var command = new CreateNewOrderCommand(userId, companyId, request.Modules);
             var order = await createNewOrderHandler.Handle(command, ct);

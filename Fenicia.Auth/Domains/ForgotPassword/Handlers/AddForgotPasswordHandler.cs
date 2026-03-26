@@ -25,7 +25,14 @@ public class AddForgotPasswordHandler(DefaultContext db)
         var user = await db.AuthUsers.FirstByEmailOrDefaultAsync(command.Email, ct) ?? throw new ItemNotExistsException(ExceptionMessages.UserWithEmailNotFound);
         var code = Guid.NewGuid().ToString().Replace("-", string.Empty)[..6];
 
-        var forgotPasswordModel = new ForgotPasswordModel { Code = code, IsActive = true, UserId = user.Id };
+        var forgotPasswordModel = new ForgotPasswordModel
+        {
+            Code = code,
+            IsActive = true,
+            UserId = user.Id,
+            IpAddress = command.IpAddress,
+            UserAgent = command.UserAgent
+        };
 
         await db.AuthForgottenPasswords.AddAsync(forgotPasswordModel, ct);
         await db.SaveChangesAsync(ct);

@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Customer.Commands;
 using Fenicia.Module.Basic.Domains.Customer.Handlers;
 using Fenicia.Module.Basic.Domains.Customer.Queries;
@@ -43,7 +42,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var customers = await getAllCustomerHandler.Handle(new GetAllCustomerQuery(page, perPage), ct);
 
@@ -75,7 +74,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var customer = await getCustomerByIdHandler.Handle(new GetCustomerByIdQuery(id), ct);
 
@@ -105,7 +104,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var customer = await addCustomerHandler.Handle(command, ct);
 
@@ -140,7 +139,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var customer = await updateCustomerHandler.Handle(command with { Id = id }, ct);
 
@@ -173,7 +172,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             await deleteCustomerHandler.Handle(new DeleteCustomerCommand(id), ct);
 
@@ -204,7 +203,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var insights = await getCustomerInsightsHandler.Handle(new GetCustomerInsightsQuery(days, topLimit, riskThresholdDays), ct);
 

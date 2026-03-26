@@ -19,7 +19,11 @@ public class AddProductCategoryHandler(DefaultContext db)
     /// <returns>The created category with its details.</returns>
     public async Task<AddProductCategoryResponse> Handle(AddProductCategoryCommand command, CancellationToken ct)
     {
-        var category = new ProductCategoryModel { Id = command.Id, Name = command.Name };
+        var category = new ProductCategoryModel
+        {
+            Id = command.Id,
+            Name = command.Name
+        };
 
         db.BasicProductCategories.Add(category);
 

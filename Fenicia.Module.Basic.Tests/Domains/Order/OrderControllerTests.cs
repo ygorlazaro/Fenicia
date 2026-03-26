@@ -6,6 +6,7 @@ using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
+using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.Commands;
@@ -42,27 +43,27 @@ public class OrderControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.testOrderId = Guid.NewGuid();
-        this.testUserId = Guid.NewGuid();
-        this.testCustomerId = Guid.NewGuid();
-        var createOrderHandler = new CreateOrderHandler(this.db);
-        var getOrderDetailsByOrderIdHandler = new GetOrderDetailsByOrderIdHandler(this.db);
-        var getAllOrderHandler = new GetAllOrderHandler(this.db);
-        var getOrderByIdHandler = new GetOrderByIdHandler(this.db);
-        var deleteOrderHandler = new DeleteOrderHandler(this.db);
-        var getOrderAnalyticsHandler = new GetOrderAnalyticsHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, companyContext);
+        testOrderId = Guid.NewGuid();
+        testUserId = Guid.NewGuid();
+        testCustomerId = Guid.NewGuid();
+        var createOrderHandler = new CreateOrderHandler(db);
+        var getOrderDetailsByOrderIdHandler = new GetOrderDetailsByOrderIdHandler(db);
+        var getAllOrderHandler = new GetAllOrderHandler(db);
+        var getOrderByIdHandler = new GetOrderByIdHandler(db);
+        var deleteOrderHandler = new DeleteOrderHandler(db);
+        var getOrderAnalyticsHandler = new GetOrderAnalyticsHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new OrderController(getAllOrderHandler, getOrderByIdHandler, createOrderHandler, deleteOrderHandler, getOrderDetailsByOrderIdHandler, getOrderAnalyticsHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new OrderController(getAllOrderHandler, getOrderByIdHandler, createOrderHandler, deleteOrderHandler, getOrderDetailsByOrderIdHandler, getOrderAnalyticsHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
-        SetupUserClaims(this.testUserId);
-        this.faker = new Faker();
+        SetupUserClaims(testUserId);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     private void SetupUserClaims(Guid userId)
@@ -72,37 +73,48 @@ public class OrderControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
     public async Task CreateOrderAsync_WithValidCommand_ReturnsCreatedWithOrder()
     {
         // Arrange
-        var customer = new CustomerModel { Id = this.testCustomerId, PersonId = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Person.FullName, Email = this.faker.Internet.Email(), Document = this.faker.Random.Replace("###.###.###-##") } };
+        var customer = new CustomerModel
+        {
+            Id = testCustomerId,
+            PersonId = Guid.NewGuid(),
+            Person = new PersonModel
+            {
+                Id = Guid.NewGuid(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##")
+            }
+        };
 
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
 
-        this.db.BasicCustomers.Add(customer);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new CreateOrderCommand(this.testUserId, this.testCustomerId, DateTime.Now, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 20.00m, 2), new OrderDetailCommand(product.Id, 20.00m, 3)]);
+        var command = new CreateOrderCommand(testUserId, testCustomerId, DateTime.Now, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 20.00m, 2), new OrderDetailCommand(product.Id, 20.00m, 3)], PaymentMethod.CreditCard);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -114,8 +126,8 @@ public class OrderControllerTests : IDisposable
 
         var returnedOrder = createdResult.Value as CreateOrderResponse;
         Assert.NotNull(returnedOrder);
-        Assert.Equal(this.testCustomerId, returnedOrder.CustomerId);
-        Assert.Equal(this.testUserId, returnedOrder.UserId);
+        Assert.Equal(testCustomerId, returnedOrder.CustomerId);
+        Assert.Equal(testUserId, returnedOrder.UserId);
         Assert.True(returnedOrder.TotalAmount > 0);
     }
 
@@ -125,41 +137,48 @@ public class OrderControllerTests : IDisposable
         // Arrange
         var order = new OrderModel
         {
-            Id = this.testOrderId,
-            UserId = this.testUserId,
-            CustomerId = this.testCustomerId,
+            Id = testOrderId,
+            OrderNumber = "ORD-20260101-TEST001",
+            UserId = testUserId,
+            CustomerId = testCustomerId,
             SaleDate = DateTime.Now,
             Status = OrderStatus.Pending,
-            TotalAmount = 100.00m
+            TotalAmount = 100.00m,
+            TotalQuantity = 5,
+            PaymentMethod = PaymentMethod.CreditCard
         };
 
         var orderDetail1 = new OrderDetailModel
         {
             Id = Guid.NewGuid(),
-            OrderId = this.testOrderId,
+            OrderId = testOrderId,
             ProductId = Guid.NewGuid(),
             Price = 20.00m,
-            Quantity = 2
+            Quantity = 2,
+            DiscountAmount = 0,
+            Subtotal = 40.00m
         };
 
         var orderDetail2 = new OrderDetailModel
         {
             Id = Guid.NewGuid(),
-            OrderId = this.testOrderId,
+            OrderId = testOrderId,
             ProductId = Guid.NewGuid(),
             Price = 30.00m,
-            Quantity = 3
+            Quantity = 3,
+            DiscountAmount = 0,
+            Subtotal = 90.00m
         };
 
-        this.db.BasicOrders.Add(order);
-        this.db.BasicOrderDetails.AddRange(orderDetail1, orderDetail2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicOrders.Add(order);
+        db.BasicOrderDetails.AddRange(orderDetail1, orderDetail2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetDetailsAsync(this.testOrderId, wide, ct);
+        var result = await controller.GetDetailsAsync(testOrderId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -182,7 +201,7 @@ public class OrderControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetDetailsAsync(nonExistentId, wide, ct);
+        var result = await controller.GetDetailsAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -200,30 +219,41 @@ public class OrderControllerTests : IDisposable
     public async Task CreateOrderAsync_SetsUserIdFromClaims()
     {
         // Arrange
-        var customer = new CustomerModel { Id = this.testCustomerId, PersonId = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Person.FullName, Email = this.faker.Internet.Email(), Document = this.faker.Random.Replace("###.###.###-##") } };
+        var customer = new CustomerModel
+        {
+            Id = testCustomerId,
+            PersonId = Guid.NewGuid(),
+            Person = new PersonModel
+            {
+                Id = Guid.NewGuid(),
+                Name = faker.Person.FullName,
+                Email = faker.Internet.Email(),
+                Document = faker.Random.Replace("###.###.###-##")
+            }
+        };
 
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
 
-        this.db.BasicCustomers.Add(customer);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicCustomers.Add(customer);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateOrderCommand(Guid.Empty, // Will be overridden by claims
-            this.testCustomerId, DateTime.Now, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 20.00m, 2)]);
+            testCustomerId, DateTime.Now, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 20.00m, 2)], PaymentMethod.CreditCard);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -234,7 +264,7 @@ public class OrderControllerTests : IDisposable
 
         var returnedOrder = createdResult.Value as CreateOrderResponse;
         Assert.NotNull(returnedOrder);
-        Assert.Equal(this.testUserId, returnedOrder.UserId);
+        Assert.Equal(testUserId, returnedOrder.UserId);
     }
 
     [Fact]

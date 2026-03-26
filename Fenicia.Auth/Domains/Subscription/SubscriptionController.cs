@@ -4,7 +4,6 @@ using Fenicia.Auth.Domains.Subscription.Handlers;
 using Fenicia.Auth.Domains.Subscription.Queries;
 using Fenicia.Auth.Domains.Subscription.Responses;
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +35,7 @@ public class SubscriptionController(GetUserProfileHandler getUserProfileHandler)
     {
         try
         {
-            var userId = ClaimReader.UserId(this.User);
+            var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
             var profile = await getUserProfileHandler.Handle(new GetUserProfileQuery(userId), ct);

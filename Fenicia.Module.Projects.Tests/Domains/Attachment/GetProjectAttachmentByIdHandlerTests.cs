@@ -20,14 +20,14 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectAttachmentByIdHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetProjectAttachmentByIdHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -38,9 +38,9 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
         // Arrange
         var attachmentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
-        var fileName = $"{this.faker.System.FileName()}.pdf";
-        var fileUrl = this.faker.Internet.Url();
-        var fileSize = this.faker.Random.Long(1000, 1000000);
+        var fileName = $"{faker.System.FileName()}.pdf";
+        var fileUrl = faker.Internet.Url();
+        var fileSize = faker.Random.Long(1000, 1000000);
         var uploadedBy = Guid.NewGuid();
         var attachment = new AttachmentModel
         {
@@ -53,13 +53,13 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.Add(attachment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectAttachments.Add(attachment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectAttachmentByIdQuery(attachmentId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -74,7 +74,7 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
         var query = new GetProjectAttachmentByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -87,7 +87,7 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
         var query = new GetProjectAttachmentByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -105,9 +105,9 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
         {
             Id = attachment1Id,
             TaskId = taskId,
-            FileName = $"{this.faker.System.FileName()}.pdf",
-            FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000, 1000000),
+            FileName = $"{faker.System.FileName()}.pdf",
+            FileUrl = faker.Internet.Url(),
+            FileSize = faker.Random.Long(1000, 1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
@@ -116,20 +116,20 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
         {
             Id = attachment2Id,
             TaskId = taskId,
-            FileName = $"{this.faker.System.FileName()}.docx",
-            FileUrl = this.faker.Internet.Url(),
-            FileSize = this.faker.Random.Long(1000, 1000000),
+            FileName = $"{faker.System.FileName()}.docx",
+            FileUrl = faker.Internet.Url(),
+            FileSize = faker.Random.Long(1000, 1000000),
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.AddRange(attachment1, attachment2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectAttachments.AddRange(attachment1, attachment2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectAttachmentByIdQuery(attachment1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -148,20 +148,20 @@ public class GetProjectAttachmentByIdHandlerTests : IDisposable
         {
             Id = attachmentId,
             TaskId = taskId,
-            FileName = $"{this.faker.System.FileName()}.zip",
-            FileUrl = this.faker.Internet.Url(),
+            FileName = $"{faker.System.FileName()}.zip",
+            FileUrl = faker.Internet.Url(),
             FileSize = largeFileSize,
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.Add(attachment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectAttachments.Add(attachment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectAttachmentByIdQuery(attachmentId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

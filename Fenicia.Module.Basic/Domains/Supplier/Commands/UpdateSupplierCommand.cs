@@ -1,3 +1,5 @@
+using Fenicia.Module.Basic.Domains.Supplier.Common;
+
 namespace Fenicia.Module.Basic.Domains.Supplier.Commands;
 
 /// <summary>
@@ -5,54 +7,30 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Commands;
 /// </summary>
 public record UpdateSupplierCommand(
     /// <summary>
-    /// Unique identifier of the supplier to update.
-    /// </summary>
-    Guid Id,
+/// Unique identifier of the supplier to update.
+/// </summary>
+Guid Id,
     /// <summary>
-    /// Updated name of the supplier.
-    /// </summary>
-    string Name,
+/// Updated name of the supplier.
+/// </summary>
+string Name,
     /// <summary>
-    /// Updated email address.
-    /// </summary>
-    string? Email,
+/// Updated email address.
+/// </summary>
+string? Email,
     /// <summary>
-    /// Updated document number.
-    /// </summary>
-    string? Document,
+/// Updated document number.
+/// </summary>
+string? Document,
     /// <summary>
-    /// Updated city name.
-    /// </summary>
-    string? City,
+/// Updated phone number.
+/// </summary>
+string? PhoneNumber,
     /// <summary>
-    /// Updated address complement.
-    /// </summary>
-    string? Complement,
+/// Updated CNPJ number.
+/// </summary>
+string? Cnpj,
     /// <summary>
-    /// Updated neighborhood name.
-    /// </summary>
-    string? Neighborhood,
-    /// <summary>
-    /// Updated address number.
-    /// </summary>
-    string? Number,
-    /// <summary>
-    /// Updated state ID.
-    /// </summary>
-    Guid StateId,
-    /// <summary>
-    /// Updated street address.
-    /// </summary>
-    string? Street,
-    /// <summary>
-    /// Updated zip code.
-    /// </summary>
-    string? ZipCode,
-    /// <summary>
-    /// Updated phone number.
-    /// </summary>
-    string? PhoneNumber,
-    /// <summary>
-    /// Updated CNPJ number.
-    /// </summary>
-    string? Cnpj);
+/// Updated address.
+/// </summary>
+AddressDTO? Address);

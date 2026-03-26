@@ -22,25 +22,40 @@ namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 /// </remarks>
 public class CreateOrderHandler(DefaultContext db)
 {
-    /// <summary>
-    ///     Creates a new order with details and updates inventory.
-    /// </summary>
-    /// <param name="command">The order creation command.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The created order response.</returns>
     public async Task<CreateOrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)
     {
-        var details = command.Details.Select(d => new OrderDetailModel { Id = Guid.NewGuid(), ProductId = d.ProductId, Price = d.Price, Quantity = d.Quantity }).ToList();
+        var details = command.Details.Select(d =>
+        {
+            var subtotal = (d.Price * (decimal)d.Quantity) - d.DiscountAmount;
+            return new OrderDetailModel
+            {
+                Id = Guid.NewGuid(),
+                ProductId = d.ProductId,
+                Price = d.Price,
+                Quantity = d.Quantity,
+                DiscountAmount = d.DiscountAmount,
+                Subtotal = subtotal
+            };
+        }).ToList();
+
+        var totalQuantity = details.Sum(d => (int)d.Quantity);
+        var totalAmount = details.Sum(d => d.Subtotal);
+        var orderNumber = GenerateOrderNumber();
 
         var order = new OrderModel
         {
             Id = Guid.NewGuid(),
+            OrderNumber = orderNumber,
             UserId = command.UserId,
             CustomerId = command.CustomerId,
             SaleDate = command.SaleDate,
             Status = command.Status,
             Details = details,
-            TotalAmount = details.Select(d => d.Price * (decimal)d.Quantity).Sum(),
+            TotalAmount = totalAmount,
+            DiscountAmount = command.DiscountAmount,
+            TotalQuantity = totalQuantity,
+            PaymentMethod = command.PaymentMethod,
+            Notes = command.Notes,
             EmployeeId = command.EmployeeId
         };
 
@@ -77,6 +92,23 @@ public class CreateOrderHandler(DefaultContext db)
 
         await db.SaveChangesAsync(ct);
 
-        return new CreateOrderResponse(order.Id, order.UserId, order.CustomerId, order.TotalAmount, order.SaleDate, order.Status, order.EmployeeId);
+        return new CreateOrderResponse(
+            order.Id,
+            order.OrderNumber,
+            order.UserId,
+            order.CustomerId,
+            order.TotalAmount,
+            order.DiscountAmount,
+            order.TotalQuantity,
+            order.SaleDate,
+            order.Status,
+            order.PaymentMethod,
+            order.Notes,
+            order.EmployeeId);
+    }
+
+    private static string GenerateOrderNumber()
+    {
+        return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8].ToUpper()}";
     }
 }

@@ -19,14 +19,14 @@ public class GetStockMovementHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
-        this.handler = new GetStockMovementHandler(this.db);
+        companyContext = new TestCompanyContext();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetStockMovementHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class GetStockMovementHandlerTests : IDisposable
         var query = new GetStockMovementQuery(startDate, endDate);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -58,7 +58,7 @@ public class GetStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
+        db.BasicProducts.Add(product);
 
         var movement1 = new StockMovementModel
         {
@@ -93,15 +93,15 @@ public class GetStockMovementHandlerTests : IDisposable
             Reason = null
         };
 
-        this.db.BasicStockMovements.AddRange(movement1, movement2, movement3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicStockMovements.AddRange(movement1, movement2, movement3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var startDate = DateTime.Now.AddDays(-10);
         var endDate = DateTime.Now;
         var query = new GetStockMovementQuery(startDate, endDate);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -122,7 +122,7 @@ public class GetStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
+        db.BasicProducts.Add(product);
 
         for (var i = 0; i < 25; i++)
         {
@@ -135,17 +135,17 @@ public class GetStockMovementHandlerTests : IDisposable
                 Type = StockMovementType.In,
                 ProductId = product.Id
             };
-            this.db.BasicStockMovements.Add(movement);
+            db.BasicStockMovements.Add(movement);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var startDate = DateTime.Now.AddDays(-30);
         var endDate = DateTime.Now;
         var query = new GetStockMovementQuery(startDate, endDate, 2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -165,7 +165,7 @@ public class GetStockMovementHandlerTests : IDisposable
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
-        this.db.BasicProducts.Add(product);
+        db.BasicProducts.Add(product);
 
         for (var i = 0; i < 5; i++)
         {
@@ -178,17 +178,17 @@ public class GetStockMovementHandlerTests : IDisposable
                 Type = StockMovementType.In,
                 ProductId = product.Id
             };
-            this.db.BasicStockMovements.Add(movement);
+            db.BasicStockMovements.Add(movement);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var startDate = DateTime.Now.AddDays(-30);
         var endDate = DateTime.Now;
         var query = new GetStockMovementQuery(startDate, endDate, 10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

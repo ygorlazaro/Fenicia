@@ -16,13 +16,13 @@ public class GetUserCompaniesHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new GetUserCompaniesHandler(this.db);
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new GetUserCompaniesHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -35,19 +35,35 @@ public class GetUserCompaniesHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = "Test Company", Cnpj = "12345678000190", IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = "Test Company",
+            Cnpj = "12345678000190",
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, CompanyId = companyId, RoleId = roleId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            CompanyId = companyId,
+            RoleId = roleId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await handler.Handle(userId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -61,7 +77,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
         var userId = Guid.NewGuid();
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await handler.Handle(userId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -79,19 +95,35 @@ public class GetUserCompaniesHandlerTests : IDisposable
         const string cnpj = "12.345.678/0001-90";
         const string roleName = "Admin";
 
-        var company = new CompanyModel { Id = companyId, Name = companyName, Cnpj = cnpj, IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = companyName,
+            Cnpj = cnpj,
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = roleName };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = roleName
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, CompanyId = companyId, RoleId = roleId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            CompanyId = companyId,
+            RoleId = roleId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await handler.Handle(userId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -112,27 +144,43 @@ public class GetUserCompaniesHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
-        this.db.AuthRoles.Add(role);
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
+        db.AuthRoles.Add(role);
 
         var companies = new List<CompanyModel>();
         var userRoles = new List<UserRoleModel>();
 
         for (var i = 0; i < 3; i++)
         {
-            var company = new CompanyModel { Id = Guid.NewGuid(), Name = $"Company {i}", Cnpj = $"0000000{i}000100", IsActive = true };
+            var company = new CompanyModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Company {i}",
+                Cnpj = $"0000000{i}000100",
+                IsActive = true
+            };
             companies.Add(company);
 
-            var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, CompanyId = company.Id, RoleId = roleId };
+            var userRole = new UserRoleModel
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                CompanyId = company.Id,
+                RoleId = roleId
+            };
             userRoles.Add(userRole);
         }
 
-        this.db.AuthCompanies.AddRange(companies);
-        this.db.AuthUserRoles.AddRange(userRoles);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.AddRange(companies);
+        db.AuthUserRoles.AddRange(userRoles);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await handler.Handle(userId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -147,25 +195,53 @@ public class GetUserCompaniesHandlerTests : IDisposable
         var userId2 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
-        this.db.AuthRoles.Add(role);
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
+        db.AuthRoles.Add(role);
 
-        var company1 = new CompanyModel { Id = Guid.NewGuid(), Name = "Company 1", Cnpj = "00000001000100", IsActive = true };
+        var company1 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Company 1",
+            Cnpj = "00000001000100",
+            IsActive = true
+        };
 
-        var company2 = new CompanyModel { Id = Guid.NewGuid(), Name = "Company 2", Cnpj = "00000002000100", IsActive = true };
+        var company2 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Company 2",
+            Cnpj = "00000002000100",
+            IsActive = true
+        };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
+        db.AuthCompanies.AddRange(company1, company2);
 
-        var userRole1 = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId1, CompanyId = company1.Id, RoleId = roleId };
+        var userRole1 = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId1,
+            CompanyId = company1.Id,
+            RoleId = roleId
+        };
 
-        var userRole2 = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId2, CompanyId = company2.Id, RoleId = roleId };
+        var userRole2 = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId2,
+            CompanyId = company2.Id,
+            RoleId = roleId
+        };
 
-        this.db.AuthUserRoles.AddRange(userRole1, userRole2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result1 = await this.handler.Handle(userId1, CancellationToken.None);
-        var result2 = await this.handler.Handle(userId2, CancellationToken.None);
+        var result1 = await handler.Handle(userId1, CancellationToken.None);
+        var result2 = await handler.Handle(userId2, CancellationToken.None);
 
         // Assert
 
@@ -182,7 +258,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
         var userId = Guid.NewGuid();
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await handler.Handle(userId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -195,27 +271,59 @@ public class GetUserCompaniesHandlerTests : IDisposable
         // Arrange
         var userId = Guid.NewGuid();
 
-        var adminRole = new RoleModel { Id = Guid.NewGuid(), Name = "Admin" };
+        var adminRole = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Admin"
+        };
 
-        var userRole = new RoleModel { Id = Guid.NewGuid(), Name = "User" };
+        var userRole = new RoleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "User"
+        };
 
-        this.db.AuthRoles.AddRange(adminRole, userRole);
+        db.AuthRoles.AddRange(adminRole, userRole);
 
-        var company1 = new CompanyModel { Id = Guid.NewGuid(), Name = "Company 1", Cnpj = "00000001000100", IsActive = true };
+        var company1 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Company 1",
+            Cnpj = "00000001000100",
+            IsActive = true
+        };
 
-        var company2 = new CompanyModel { Id = Guid.NewGuid(), Name = "Company 2", Cnpj = "00000002000100", IsActive = true };
+        var company2 = new CompanyModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Company 2",
+            Cnpj = "00000002000100",
+            IsActive = true
+        };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
+        db.AuthCompanies.AddRange(company1, company2);
 
-        var userRole1 = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, CompanyId = company1.Id, RoleId = adminRole.Id };
+        var userRole1 = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            CompanyId = company1.Id,
+            RoleId = adminRole.Id
+        };
 
-        var userRole2 = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, CompanyId = company2.Id, RoleId = userRole.Id };
+        var userRole2 = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            CompanyId = company2.Id,
+            RoleId = userRole.Id
+        };
 
-        this.db.AuthUserRoles.AddRange(userRole1, userRole2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthUserRoles.AddRange(userRole1, userRole2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await handler.Handle(userId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -233,19 +341,35 @@ public class GetUserCompaniesHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = "Test Company", Cnpj = "12345678000190", IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = "Test Company",
+            Cnpj = "12345678000190",
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, CompanyId = companyId, RoleId = roleId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            CompanyId = companyId,
+            RoleId = roleId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(userId, CancellationToken.None);
+        var result = await handler.Handle(userId, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

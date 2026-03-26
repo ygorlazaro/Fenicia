@@ -35,24 +35,24 @@ public class DataSourceControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        var getAllPositionForDataSourceHandler = new GetAllPositionForDataSourceHandler(this.db);
-        var getAllProductCategoryForDataSourceHandler = new GetAllProductCategoryForDataSourceHandler(this.db);
-        var getAllSupplierForDataSourceHandler = new GetAllSupplierForDataSourceHandler(this.db);
-        var getAllCustomerForDataSourceHandler = new GetAllCustomerForDataSourceHandler(this.db);
-        var getAllProductForDataSourceHandler = new GetAllProductForDataSourceHandler(this.db);
-        var getAllEmployeeForDataSourceHandler = new GetAllEmployeeForDataSourceHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, companyContext);
+        var getAllPositionForDataSourceHandler = new GetAllPositionForDataSourceHandler(db);
+        var getAllProductCategoryForDataSourceHandler = new GetAllProductCategoryForDataSourceHandler(db);
+        var getAllSupplierForDataSourceHandler = new GetAllSupplierForDataSourceHandler(db);
+        var getAllCustomerForDataSourceHandler = new GetAllCustomerForDataSourceHandler(db);
+        var getAllProductForDataSourceHandler = new GetAllProductForDataSourceHandler(db);
+        var getAllEmployeeForDataSourceHandler = new GetAllEmployeeForDataSourceHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new DataSourceController(getAllPositionForDataSourceHandler, getAllProductCategoryForDataSourceHandler, getAllSupplierForDataSourceHandler, getAllCustomerForDataSourceHandler, getAllProductForDataSourceHandler, getAllEmployeeForDataSourceHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new DataSourceController(getAllPositionForDataSourceHandler, getAllProductCategoryForDataSourceHandler, getAllSupplierForDataSourceHandler, getAllCustomerForDataSourceHandler, getAllProductForDataSourceHandler, getAllEmployeeForDataSourceHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
-        this.faker = new Faker();
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -63,8 +63,8 @@ public class DataSourceControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetPositionsAsync(wide, ct);
+        var result = await controller.GetPositionsAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -99,18 +99,26 @@ public class DataSourceControllerTests : IDisposable
     public async Task GetPositionsAsync_WhenPositionsExist_ReturnsOkWithPositions()
     {
         // Arrange
-        var position1 = new PositionModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Department() };
+        var position1 = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Department()
+        };
 
-        var position2 = new PositionModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Department() };
+        var position2 = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Department()
+        };
 
-        this.db.BasicPositions.AddRange(position1, position2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.AddRange(position1, position2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetPositionsAsync(wide, ct);
+        var result = await controller.GetPositionsAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -131,20 +139,32 @@ public class DataSourceControllerTests : IDisposable
     public async Task GetPositionsAsync_WhenPositionsExist_ReturnsPositionsOrderedByName()
     {
         // Arrange
-        var position1 = new PositionModel { Id = Guid.NewGuid(), Name = "Zebra" };
+        var position1 = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Zebra"
+        };
 
-        var position2 = new PositionModel { Id = Guid.NewGuid(), Name = "Alpha" };
+        var position2 = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Alpha"
+        };
 
-        var position3 = new PositionModel { Id = Guid.NewGuid(), Name = "Manager" };
+        var position3 = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Manager"
+        };
 
-        this.db.BasicPositions.AddRange(position1, position2, position3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.AddRange(position1, position2, position3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetPositionsAsync(wide, ct);
+        var result = await controller.GetPositionsAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -223,7 +243,7 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductCategoriesAsync(wide, ct);
+        var result = await controller.GetProductCategoriesAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -244,18 +264,26 @@ public class DataSourceControllerTests : IDisposable
     public async Task GetProductCategoriesAsync_WhenCategoriesExist_ReturnsOkWithCategories()
     {
         // Arrange
-        var category1 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Categories(1)[0] };
+        var category1 = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Categories(1)[0]
+        };
 
-        var category2 = new ProductCategoryModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Categories(1)[0] };
+        var category2 = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Categories(1)[0]
+        };
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.AddRange(category1, category2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductCategoriesAsync(wide, ct);
+        var result = await controller.GetProductCategoriesAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -284,7 +312,7 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetSuppliersAsync(wide, ct);
+        var result = await controller.GetSuppliersAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -305,23 +333,41 @@ public class DataSourceControllerTests : IDisposable
     public async Task GetSuppliersAsync_WhenSuppliersExist_ReturnsOkWithSuppliers()
     {
         // Arrange
-        var person1 = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName() };
+        var person1 = new PersonModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName()
+        };
 
-        var person2 = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Company.CompanyName() };
+        var person2 = new PersonModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Company.CompanyName()
+        };
 
-        var supplier1 = new SupplierModel { Id = Guid.NewGuid(), PersonId = person1.Id, Person = person1 };
+        var supplier1 = new SupplierModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person1.Id,
+            Person = person1
+        };
 
-        var supplier2 = new SupplierModel { Id = Guid.NewGuid(), PersonId = person2.Id, Person = person2 };
+        var supplier2 = new SupplierModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person2.Id,
+            Person = person2
+        };
 
-        this.db.BasicPeople.AddRange(person1, person2);
-        this.db.BasicSuppliers.AddRange(supplier1, supplier2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPeople.AddRange(person1, person2);
+        db.BasicSuppliers.AddRange(supplier1, supplier2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetSuppliersAsync(wide, ct);
+        var result = await controller.GetSuppliersAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -350,7 +396,7 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetCustomersAsync(wide, ct);
+        var result = await controller.GetCustomersAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -371,23 +417,41 @@ public class DataSourceControllerTests : IDisposable
     public async Task GetCustomersAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
         // Arrange
-        var person1 = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Name.FullName() };
+        var person1 = new PersonModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Name.FullName()
+        };
 
-        var person2 = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Name.FullName() };
+        var person2 = new PersonModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Name.FullName()
+        };
 
-        var customer1 = new CustomerModel { Id = Guid.NewGuid(), PersonId = person1.Id, Person = person1 };
+        var customer1 = new CustomerModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person1.Id,
+            Person = person1
+        };
 
-        var customer2 = new CustomerModel { Id = Guid.NewGuid(), PersonId = person2.Id, Person = person2 };
+        var customer2 = new CustomerModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person2.Id,
+            Person = person2
+        };
 
-        this.db.BasicPeople.AddRange(person1, person2);
-        this.db.BasicCustomers.AddRange(customer1, customer2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPeople.AddRange(person1, person2);
+        db.BasicCustomers.AddRange(customer1, customer2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetCustomersAsync(wide, ct);
+        var result = await controller.GetCustomersAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -416,7 +480,7 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductsAsync(wide, ct);
+        var result = await controller.GetProductsAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -437,21 +501,37 @@ public class DataSourceControllerTests : IDisposable
     public async Task GetProductsAsync_WhenProductsExist_ReturnsOkWithProducts()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.Categories(1)[0] };
+        var category = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Categories(1)[0]
+        };
 
-        var product1 = new ProductModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), SalesPrice = 100.00m, CategoryId = category.Id };
+        var product1 = new ProductModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            SalesPrice = 100.00m,
+            CategoryId = category.Id
+        };
 
-        var product2 = new ProductModel { Id = Guid.NewGuid(), Name = this.faker.Commerce.ProductName(), SalesPrice = 200.00m, CategoryId = category.Id };
+        var product2 = new ProductModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.ProductName(),
+            SalesPrice = 200.00m,
+            CategoryId = category.Id
+        };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.AddRange(product1, product2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.AddRange(product1, product2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetProductsAsync(wide, ct);
+        var result = await controller.GetProductsAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -480,7 +560,7 @@ public class DataSourceControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetEmployeesAsync(wide, ct);
+        var result = await controller.GetEmployeesAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -501,26 +581,50 @@ public class DataSourceControllerTests : IDisposable
     public async Task GetEmployeesAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
         // Arrange
-        var position = new PositionModel { Id = Guid.NewGuid(), Name = this.faker.Name.JobTitle() };
+        var position = new PositionModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Name.JobTitle()
+        };
 
-        var person1 = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Name.FullName() };
+        var person1 = new PersonModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Name.FullName()
+        };
 
-        var person2 = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Name.FullName() };
+        var person2 = new PersonModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Name.FullName()
+        };
 
-        var employee1 = new EmployeeModel { Id = Guid.NewGuid(), PersonId = person1.Id, PositionId = position.Id, Person = person1 };
+        var employee1 = new EmployeeModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person1.Id,
+            PositionId = position.Id,
+            Person = person1
+        };
 
-        var employee2 = new EmployeeModel { Id = Guid.NewGuid(), PersonId = person2.Id, PositionId = position.Id, Person = person2 };
+        var employee2 = new EmployeeModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person2.Id,
+            PositionId = position.Id,
+            Person = person2
+        };
 
-        this.db.BasicPositions.Add(position);
-        this.db.BasicPeople.AddRange(person1, person2);
-        this.db.BasicEmployees.AddRange(employee1, employee2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        db.BasicPeople.AddRange(person1, person2);
+        db.BasicEmployees.AddRange(employee1, employee2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetEmployeesAsync(wide, ct);
+        var result = await controller.GetEmployeesAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);

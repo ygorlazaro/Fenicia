@@ -33,6 +33,8 @@ public class ResetPasswordHandler(DefaultContext db)
         user.Password = command.Password.Hash();
 
         await InvalidateCodeAsync(currentCode.Id, ct);
+
+        await db.SaveChangesAsync(ct);
     }
 
     /// <summary>
@@ -68,7 +70,5 @@ public class ResetPasswordHandler(DefaultContext db)
         forgotPassword.IsActive = false;
 
         db.Entry(forgotPassword).State = EntityState.Modified;
-
-        await db.SaveChangesAsync(ct);
     }
 }

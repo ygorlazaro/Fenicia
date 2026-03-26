@@ -40,25 +40,25 @@ public class StockMovementControllerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
-        this.testMovementId = Guid.NewGuid();
-        this.testProductId = Guid.NewGuid();
-        this.getStockMovementHandler = new GetStockMovementHandler(this.db);
-        this.addStockMovementHandler = new AddStockMovementHandler(this.db);
-        this.updateStockMovementHandler = new UpdateStockMovementHandler(this.db);
-        this.getStockMovementDashboardHandler = new GetStockMovementDashboardHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        companyContext = new TestCompanyContext();
+        db = new DefaultContext(options, companyContext);
+        testMovementId = Guid.NewGuid();
+        testProductId = Guid.NewGuid();
+        getStockMovementHandler = new GetStockMovementHandler(db);
+        addStockMovementHandler = new AddStockMovementHandler(db);
+        updateStockMovementHandler = new UpdateStockMovementHandler(db);
+        getStockMovementDashboardHandler = new GetStockMovementDashboardHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new StockMovementController(this.getStockMovementHandler, this.addStockMovementHandler, this.updateStockMovementHandler, this.getStockMovementDashboardHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new StockMovementController(getStockMovementHandler, addStockMovementHandler, updateStockMovementHandler, getStockMovementDashboardHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
-        this.faker = new Faker();
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
     }
 
     private void SetupUserClaims()
@@ -68,20 +68,24 @@ public class StockMovementControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
     public async Task GetAsync_WhenNoMovementsExist_ReturnsOkWithEmptyList()
     {
         // Arrange
-        var query = new StockMovementController.StockMovementQuery(1, 10) { StartDate = DateTime.Now.AddDays(-30), EndDate = DateTime.Now };
+        var query = new StockMovementController.StockMovementQuery(1, 10)
+        {
+            StartDate = DateTime.Now.AddDays(-30),
+            EndDate = DateTime.Now
+        };
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(query, wide, ct);
+        var result = await controller.GetAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -101,8 +105,8 @@ public class StockMovementControllerTests : IDisposable
         // Arrange
         var product = new ProductModel
         {
-            Id = this.testProductId,
-            Name = this.faker.Commerce.ProductName(),
+            Id = testProductId,
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
@@ -112,7 +116,7 @@ public class StockMovementControllerTests : IDisposable
         var movement1 = new StockMovementModel
         {
             Id = Guid.NewGuid(),
-            ProductId = this.testProductId,
+            ProductId = testProductId,
             Quantity = 10,
             Date = DateTime.Now.AddDays(-5),
             Price = 20.00m,
@@ -122,23 +126,27 @@ public class StockMovementControllerTests : IDisposable
         var movement2 = new StockMovementModel
         {
             Id = Guid.NewGuid(),
-            ProductId = this.testProductId,
+            ProductId = testProductId,
             Quantity = 5,
             Date = DateTime.Now.AddDays(-3),
             Price = 20.00m,
             Type = StockMovementType.Out
         };
 
-        this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.AddRange(movement1, movement2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        db.BasicStockMovements.AddRange(movement1, movement2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new StockMovementController.StockMovementQuery(1, 10) { StartDate = DateTime.Now.AddDays(-30), EndDate = DateTime.Now };
+        var query = new StockMovementController.StockMovementQuery(1, 10)
+        {
+            StartDate = DateTime.Now.AddDays(-30),
+            EndDate = DateTime.Now
+        };
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(query, wide, ct);
+        var result = await controller.GetAsync(query, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -158,24 +166,24 @@ public class StockMovementControllerTests : IDisposable
         // Arrange
         var product = new ProductModel
         {
-            Id = this.testProductId,
-            Name = this.faker.Commerce.ProductName(),
+            Id = testProductId,
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
 
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new AddStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 20.00m, StockMovementType.In, this.testProductId, null, null, null, null, "Test reason");
+        var command = new AddStockMovementCommand(Guid.NewGuid(), 10, DateTime.Now, 20.00m, StockMovementType.In, testProductId, null, null, null, null, "Test reason");
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -187,7 +195,7 @@ public class StockMovementControllerTests : IDisposable
 
         var returnedMovement = createdResult.Value as AddStockMovementResponse;
         Assert.NotNull(returnedMovement);
-        Assert.Equal(this.testProductId, returnedMovement.ProductId);
+        Assert.Equal(testProductId, returnedMovement.ProductId);
         Assert.Equal(10, returnedMovement.Quantity);
         Assert.Equal(StockMovementType.In, returnedMovement.Type);
         Assert.Equal("Test reason", returnedMovement.Reason);
@@ -199,8 +207,8 @@ public class StockMovementControllerTests : IDisposable
         // Arrange
         var product = new ProductModel
         {
-            Id = this.testProductId,
-            Name = this.faker.Commerce.ProductName(),
+            Id = testProductId,
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
@@ -209,27 +217,27 @@ public class StockMovementControllerTests : IDisposable
 
         var movement = new StockMovementModel
         {
-            Id = this.testMovementId,
-            ProductId = this.testProductId,
+            Id = testMovementId,
+            ProductId = testProductId,
             Quantity = 10,
             Date = DateTime.Now.AddDays(-5),
             Price = 20.00m,
             Type = StockMovementType.In
         };
 
-        this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.Add(movement);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProducts.Add(product);
+        db.BasicStockMovements.Add(movement);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         SetupAdminUserClaims();
 
-        var command = new UpdateStockMovementCommand(this.testMovementId, 15, DateTime.Now, 25.00m, StockMovementType.In, this.testProductId, null, null, null, null, "Updated reason");
+        var command = new UpdateStockMovementCommand(testMovementId, 15, DateTime.Now, 25.00m, StockMovementType.In, testProductId, null, null, null, null, "Updated reason");
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(this.testMovementId, command, wide, ct);
+        var result = await controller.PatchAsync(testMovementId, command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -252,13 +260,13 @@ public class StockMovementControllerTests : IDisposable
         var nonExistentId = Guid.NewGuid();
         SetupAdminUserClaims();
 
-        var command = new UpdateStockMovementCommand(nonExistentId, 15, DateTime.Now, 25.00m, StockMovementType.In, this.testProductId, null, null, null, null, null);
+        var command = new UpdateStockMovementCommand(nonExistentId, 15, DateTime.Now, 25.00m, StockMovementType.In, testProductId, null, null, null, null, null);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(nonExistentId, command, wide, ct);
+        var result = await controller.PatchAsync(nonExistentId, command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -328,7 +336,7 @@ public class StockMovementControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetDashboardAsync(wide, 30, 10, ct);
+        var result = await controller.GetDashboardAsync(wide, 30, 10, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -351,20 +359,24 @@ public class StockMovementControllerTests : IDisposable
         // Arrange
         var product = new ProductModel
         {
-            Id = this.testProductId,
-            Name = this.faker.Commerce.ProductName(),
+            Id = testProductId,
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
         var movement = new StockMovementModel
         {
             Id = Guid.NewGuid(),
-            ProductId = this.testProductId,
+            ProductId = testProductId,
             Quantity = 10,
             Date = DateTime.Now.AddDays(-5),
             Price = 20.00m,
@@ -372,16 +384,16 @@ public class StockMovementControllerTests : IDisposable
             Reason = "Test reason"
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.Add(movement);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        db.BasicStockMovements.Add(movement);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetDashboardAsync(wide, 30, 10, ct);
+        var result = await controller.GetDashboardAsync(wide, 30, 10, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -404,7 +416,7 @@ public class StockMovementControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 }

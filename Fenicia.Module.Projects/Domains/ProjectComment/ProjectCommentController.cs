@@ -24,7 +24,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllProjectCommentResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectComments = await getAllProjectCommentHandler.Handle(new GetAllProjectCommentQuery(page, perPage), ct);
 
@@ -37,7 +37,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetProjectCommentByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectComment = await getProjectCommentByIdHandler.Handle(new GetProjectCommentByIdQuery(id), ct);
 
@@ -53,7 +53,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProjectCommentResponse>> PostAsync([FromBody] AddProjectCommentCommand command, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectComment = await addProjectCommentHandler.Handle(command, ct);
 
@@ -70,7 +70,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProjectCommentResponse>> PatchAsync([FromBody] UpdateProjectCommentCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectComment = await updateProjectCommentHandler.Handle(command with { Id = id }, ct);
 
@@ -84,7 +84,7 @@ public class ProjectCommentController(GetAllProjectCommentHandler getAllProjectC
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         await deleteProjectCommentHandler.Handle(new DeleteProjectCommentCommand(id), ct);
 

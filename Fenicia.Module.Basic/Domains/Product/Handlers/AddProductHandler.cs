@@ -3,37 +3,66 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.Commands;
 using Fenicia.Module.Basic.Domains.Product.Responses;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace Fenicia.Module.Basic.Domains.Product.Handlers;
 
-/// <summary>
-///     Handler responsible for creating a new product.
-///     Adds a new product to the database with the provided details.
-/// </summary>
 public class AddProductHandler(DefaultContext db)
 {
-    /// <summary>
-    ///     Creates a new product.
-    /// </summary>
-    /// <param name="command">The command containing product details.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The created product with its details.</returns>
     public async Task<AddProductResponse> Handle(AddProductCommand command, CancellationToken ct)
     {
         var product = new ProductModel
         {
             Id = command.Id,
             Name = command.Name,
+            SKU = command.SKU,
+            Barcode = command.Barcode,
+            Description = command.Description,
             CostPrice = command.CostPrice,
             SalesPrice = command.SalesPrice,
             Quantity = command.Quantity,
+            MinStockLevel = command.MinStockLevel,
+            MaxStockLevel = command.MaxStockLevel,
+            ImageUrl = command.ImageUrl,
+            Weight = command.Weight,
+            Dimensions = command.Dimensions,
+            UnitOfMeasure = command.UnitOfMeasure,
             CategoryId = command.CategoryId,
-            SupplierId = command.SupplierId
+            SupplierId = command.SupplierId,
+            IsActive = true
         };
 
         db.BasicProducts.Add(product);
 
         await db.SaveChangesAsync(ct);
 
-        return new AddProductResponse(product.Id, product.Name, product.CostPrice, product.SalesPrice, product.Quantity, product.CategoryId, string.Empty, product.SupplierId, string.Empty);
+        var category = await db.BasicProductCategories.FirstOrDefaultAsync(c => c.Id == product.CategoryId, ct);
+
+        SupplierModel? supplier = null;
+        if (product.SupplierId.HasValue)
+        {
+            supplier = await db.BasicSuppliers.Include(s => s.Person).FirstOrDefaultAsync(s => s.Id == product.SupplierId, ct);
+        }
+
+        return new AddProductResponse(
+            product.Id,
+            product.Name,
+            product.SKU,
+            product.Barcode,
+            product.Description,
+            product.CostPrice,
+            product.SalesPrice,
+            product.Quantity,
+            product.MinStockLevel,
+            product.MaxStockLevel,
+            product.ImageUrl,
+            product.Weight,
+            product.Dimensions,
+            product.UnitOfMeasure,
+            product.CategoryId,
+            category?.Name ?? string.Empty,
+            product.SupplierId,
+            supplier?.Person.Name,
+            product.IsActive);
     }
 }

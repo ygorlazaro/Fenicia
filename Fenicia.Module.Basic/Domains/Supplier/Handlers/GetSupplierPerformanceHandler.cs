@@ -36,9 +36,23 @@ public class GetSupplierPerformanceHandler(DefaultContext db)
         var productsWithMultipleSuppliers = await GetSupplierCostComparisonAsync(query, ct);
 
         // Summary from productsPerSupplier data
-        var summary = new SupplierSummaryResponse { TotalSuppliers = productsPerSupplier.Count, TotalProducts = productsPerSupplier.Sum(s => s.ProductCount), TotalStockValue = productsPerSupplier.Sum(s => s.TotalStockValue), AverageProductsPerSupplier = productsPerSupplier.Any() ? (decimal)productsPerSupplier.Sum(s => s.ProductCount) / productsPerSupplier.Count : 0 };
+        var summary = new SupplierSummaryResponse
+        {
+            TotalSuppliers = productsPerSupplier.Count,
+            TotalProducts = productsPerSupplier.Sum(s => s.ProductCount),
+            TotalStockValue = productsPerSupplier.Sum(s => s.TotalStockValue),
+            AverageProductsPerSupplier = productsPerSupplier.Any()
+                ? (decimal)productsPerSupplier.Sum(s => s.ProductCount) / productsPerSupplier.Count
+                : 0
+        };
 
-        return new SupplierPerformanceResponse { ProductsPerSupplier = productsPerSupplier, CostComparison = productsWithMultipleSuppliers, RecentStockMovements = recentStockMovements, Summary = summary };
+        return new SupplierPerformanceResponse
+        {
+            ProductsPerSupplier = productsPerSupplier,
+            CostComparison = productsWithMultipleSuppliers,
+            RecentStockMovements = recentStockMovements,
+            Summary = summary
+        };
     }
 
     private async Task<List<SupplierCostComparisonResponse>> GetSupplierCostComparisonAsync(GetSupplierPerformanceQuery query, CancellationToken ct)

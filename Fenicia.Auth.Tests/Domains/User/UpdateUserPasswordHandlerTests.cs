@@ -23,21 +23,27 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
+        db = new DefaultContext(options, new TestCompanyContext());
 
-        this.handler = new UpdateUserPasswordHandler(this.db);
-        this.faker = new Faker();
+        handler = new UpdateUserPasswordHandler(db);
+        faker = new Faker();
 
         // Create test user
-        this.testUser = new UserModel { Email = this.faker.Internet.Email(), Password = this.faker.Internet.Password().Hash(), Name = this.faker.Person.FullName };
+        testUser = new UserModel
+        {
+            Email = faker.Internet.Email(),
+            Password = faker.Internet.Password()
+                .Hash(),
+            Name = faker.Person.FullName
+        };
 
-        this.db.AuthUsers.Add(this.testUser);
-        this.db.SaveChanges();
+        db.AuthUsers.Add(testUser);
+        db.SaveChanges();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -45,12 +51,12 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     public async Task Handle_WhenValidRequest_ChangesPasswordSuccessfully()
     {
         // Arrange
-        var newPassword = this.faker.Internet.Password();
-        var request = new UpdateUserPasswordCommand(this.testUser.Id, newPassword);
-        var originalPasswordHash = this.testUser.Password;
+        var newPassword = faker.Internet.Password();
+        var request = new UpdateUserPasswordCommand(testUser.Id, newPassword);
+        var originalPasswordHash = testUser.Password;
 
         // Act
-        var result = await this.handler.Handle(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -59,7 +65,7 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         Assert.Equal("Password changed successfully", result.Message);
 
         // Verify password was updated in database
-        var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
+        var updatedUser = await db.AuthUsers.FindAsync(testUser.Id);
         Assert.NotNull(updatedUser);
 
         Assert.NotEqual(originalPasswordHash, updatedUser.Password);
@@ -69,14 +75,14 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     public async Task Handle_NewPasswordIsHashed()
     {
         // Arrange
-        var newPassword = this.faker.Internet.Password();
-        var request = new UpdateUserPasswordCommand(this.testUser.Id, newPassword);
+        var newPassword = faker.Internet.Password();
+        var request = new UpdateUserPasswordCommand(testUser.Id, newPassword);
 
         // Act
-        await this.handler.Handle(request, CancellationToken.None);
+        await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        var updatedUser = await this.db.AuthUsers.FindAsync(this.testUser.Id);
+        var updatedUser = await db.AuthUsers.FindAsync(testUser.Id);
         Assert.NotNull(updatedUser);
         Assert.NotEqual(newPassword, updatedUser.Password); // Should be hashed
         Assert.StartsWith("$2", updatedUser.Password); // BCrypt format
@@ -90,11 +96,11 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     {
         // Arrange
         var nonExistentUserId = Guid.NewGuid();
-        var newPassword = this.faker.Internet.Password();
+        var newPassword = faker.Internet.Password();
         var request = new UpdateUserPasswordCommand(nonExistentUserId, newPassword);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await this.handler.Handle(request, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);
     }

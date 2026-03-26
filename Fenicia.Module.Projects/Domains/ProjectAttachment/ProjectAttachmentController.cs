@@ -24,7 +24,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllProjectAttachmentResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectAttachments = await getAllProjectAttachmentHandler.Handle(new GetAllProjectAttachmentQuery(page, perPage), ct);
 
@@ -37,7 +37,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetProjectAttachmentByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectAttachment = await getProjectAttachmentByIdHandler.Handle(new GetProjectAttachmentByIdQuery(id), ct);
 
@@ -53,7 +53,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProjectAttachmentResponse>> PostAsync([FromBody] AddProjectAttachmentCommand command, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectAttachment = await addProjectAttachmentHandler.Handle(command, ct);
 
@@ -70,7 +70,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProjectAttachmentResponse>> PatchAsync([FromBody] UpdateProjectAttachmentCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectAttachment = await updateProjectAttachmentHandler.Handle(command with { Id = id }, ct);
 
@@ -84,7 +84,7 @@ public class ProjectAttachmentController(GetAllProjectAttachmentHandler getAllPr
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         await deleteProjectAttachmentHandler.Handle(new DeleteProjectAttachmentCommand(id), ct);
 

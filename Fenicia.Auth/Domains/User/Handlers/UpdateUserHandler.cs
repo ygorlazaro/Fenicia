@@ -31,7 +31,11 @@ public class UpdateUserHandler(DefaultContext db)
     {
         foreach (var companyId in companies)
         {
-            await db.AuthCompanies.AnyAsync(companyId, ct);
+            var exists = await db.AuthCompanies.AnyAsync(companyId, ct);
+            if (!exists)
+            {
+                throw new InvalidRequestException($"Company not found: {companyId}");
+            }
         }
     }
 
@@ -66,7 +70,12 @@ public class UpdateUserHandler(DefaultContext db)
 
         var toRemove = existingRoles.Where(r => !requestedSet.Contains((r.CompanyId, r.RoleId))).ToList();
 
-        var toInsert = requestedRoles.Where(r => !existingSet.Contains((r.CompanyId, r.RoleId))).Select(r => new UserRoleModel { UserId = user.Id, CompanyId = r.CompanyId, RoleId = r.RoleId }).ToList();
+        var toInsert = requestedRoles.Where(r => !existingSet.Contains((r.CompanyId, r.RoleId))).Select(r => new UserRoleModel
+        {
+            UserId = user.Id,
+            CompanyId = r.CompanyId,
+            RoleId = r.RoleId
+        }).ToList();
 
         if (toRemove.Count > 0)
         {

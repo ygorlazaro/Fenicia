@@ -29,11 +29,11 @@ public class GenerateRefreshTokenHandlerTests
     public GenerateRefreshTokenHandlerTests()
     {
         var redisMock = new Mock<IConnectionMultiplexer>();
-        this.redisDbMock = new Mock<IDatabase>();
+        redisDbMock = new Mock<IDatabase>();
 
-        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(this.redisDbMock.Object);
+        redisMock.Setup(x => x.GetDatabase(It.IsAny<int>(), It.IsAny<object?>())).Returns(redisDbMock.Object);
 
-        this.handler = new GenerateRefreshTokenHandler(redisMock.Object);
+        handler = new GenerateRefreshTokenHandler(redisMock.Object);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public class GenerateRefreshTokenHandlerTests
         var userId = Guid.NewGuid();
 
         // Act
-        var result = this.handler.Handle(userId);
+        var result = handler.Handle(userId);
 
         // Assert
         Assert.NotNull(result);
@@ -65,9 +65,9 @@ public class GenerateRefreshTokenHandlerTests
         var userId = Guid.NewGuid();
 
         // Act
-        var token1 = this.handler.Handle(userId);
-        var token2 = this.handler.Handle(userId);
-        var token3 = this.handler.Handle(userId);
+        var token1 = handler.Handle(userId);
+        var token2 = handler.Handle(userId);
+        var token3 = handler.Handle(userId);
 
 
         Assert.NotEqual(token1, token2);
@@ -86,11 +86,11 @@ public class GenerateRefreshTokenHandlerTests
         var userId = Guid.NewGuid();
 
         // Act
-        var result = this.handler.Handle(userId);
+        var result = handler.Handle(userId);
 
         // Assert
         var key = $"refresh_token:{result}";
-        this.redisDbMock.Verify(x => x.StringSet(It.Is<RedisKey>(k => k == key), It.IsAny<RedisValue>(), It.Is<TimeSpan>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSet(It.Is<RedisKey>(k => k == key), It.IsAny<RedisValue>(), It.Is<TimeSpan>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     /// <summary>
@@ -103,10 +103,10 @@ public class GenerateRefreshTokenHandlerTests
         var userId = Guid.NewGuid();
 
         // Act
-        this.handler.Handle(userId);
+        handler.Handle(userId);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSet(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.Is<TimeSpan>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSet(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.Is<TimeSpan>(t => t == TimeSpan.FromDays(7)), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     /// <summary>
@@ -119,10 +119,10 @@ public class GenerateRefreshTokenHandlerTests
         var userId = Guid.NewGuid();
 
         // Act
-        this.handler.Handle(userId);
+        handler.Handle(userId);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSet(It.IsAny<RedisKey>(), It.Is<RedisValue>(v => JsonSerializer.Deserialize<RefreshTokenModel>((string)v!)!.IsActive == true), It.IsAny<TimeSpan>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSet(It.IsAny<RedisKey>(), It.Is<RedisValue>(v => JsonSerializer.Deserialize<RefreshTokenModel>((string)v!)!.IsActive == true), It.IsAny<TimeSpan>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     /// <summary>
@@ -136,8 +136,8 @@ public class GenerateRefreshTokenHandlerTests
         var userId2 = Guid.NewGuid();
 
         // Act
-        var token1 = this.handler.Handle(userId1);
-        var token2 = this.handler.Handle(userId2);
+        var token1 = handler.Handle(userId1);
+        var token2 = handler.Handle(userId2);
 
         // Assert
         Assert.NotEqual(token1, token2);
@@ -153,10 +153,10 @@ public class GenerateRefreshTokenHandlerTests
         var userId = Guid.NewGuid();
 
         // Act
-        this.handler.Handle(userId);
+        handler.Handle(userId);
 
         // Assert
-        this.redisDbMock.Verify(x => x.StringSet(It.IsAny<RedisKey>(), It.Is<RedisValue>(v => JsonSerializer.Deserialize<RefreshTokenModel>((string)v!) != null), It.IsAny<TimeSpan>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+        redisDbMock.Verify(x => x.StringSet(It.IsAny<RedisKey>(), It.Is<RedisValue>(v => JsonSerializer.Deserialize<RefreshTokenModel>((string)v!) != null), It.IsAny<TimeSpan>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
     }
 
     /// <summary>
@@ -172,7 +172,7 @@ public class GenerateRefreshTokenHandlerTests
         // Act
         for (var i = 0; i < 10; i++)
         {
-            tokens.Add(this.handler.Handle(userId));
+            tokens.Add(handler.Handle(userId));
         }
 
         // Assert

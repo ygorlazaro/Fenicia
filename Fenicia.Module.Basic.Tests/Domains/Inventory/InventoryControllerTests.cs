@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using Bogus;
 
+using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
@@ -30,31 +31,33 @@ public class InventoryControllerTests : IDisposable
     private readonly Mock<HttpContext> mockHttpContext;
     private readonly Guid testCategoryId;
     private readonly Guid testProductId;
+    private readonly WideEventContext wide;
 
     public InventoryControllerTests()
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.testProductId = Guid.NewGuid();
-        this.testCategoryId = Guid.NewGuid();
-        var getInventoryHandler = new GetInventoryHandler(this.db);
-        var getInventoryByProductHandler = new GetInventoryByProductHandler(this.db);
-        var getInventoryByCategoryHandler = new GetInventoryByCategoryHandler(this.db);
-        var getInventoryDashboardHandler = new GetInventoryDashboardHandler(this.db);
-        var getInventoryHealthHandler = new GetInventoryHealthHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, companyContext);
+        testProductId = Guid.NewGuid();
+        testCategoryId = Guid.NewGuid();
+        wide = new WideEventContext();
+        var getInventoryHandler = new GetInventoryHandler(db);
+        var getInventoryByProductHandler = new GetInventoryByProductHandler(db);
+        var getInventoryByCategoryHandler = new GetInventoryByCategoryHandler(db);
+        var getInventoryDashboardHandler = new GetInventoryDashboardHandler(db);
+        var getInventoryHealthHandler = new GetInventoryHealthHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new InventoryController(getInventoryHandler, getInventoryByProductHandler, getInventoryByCategoryHandler, getInventoryDashboardHandler, getInventoryHealthHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new InventoryController(getInventoryHandler, getInventoryByProductHandler, getInventoryByCategoryHandler, getInventoryDashboardHandler, getInventoryHealthHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
-        this.faker = new Faker();
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -66,8 +69,8 @@ public class InventoryControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
@@ -79,7 +82,7 @@ public class InventoryControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryAsync(page, perPage, ct);
+        var result = await controller.GetInventoryAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -100,12 +103,16 @@ public class InventoryControllerTests : IDisposable
     public async Task GetInventoryAsync_WhenProductsExist_ReturnsOkWithInventory()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = this.testCategoryId, Name = this.faker.Commerce.Categories(1)[0] };
+        var category = new ProductCategoryModel
+        {
+            Id = testCategoryId,
+            Name = faker.Commerce.Categories(1)[0]
+        };
 
         var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
@@ -115,23 +122,23 @@ public class InventoryControllerTests : IDisposable
         var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 15.00m,
             SalesPrice = 30.00m,
             Quantity = 50,
             CategoryId = category.Id
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.AddRange(product1, product2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.AddRange(product1, product2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var page = 1;
         var perPage = 10;
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryAsync(page, perPage, ct);
+        var result = await controller.GetInventoryAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -152,26 +159,30 @@ public class InventoryControllerTests : IDisposable
     public async Task GetInventoryByProductIdAsync_WhenProductExists_ReturnsOkWithInventory()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = this.testCategoryId, Name = this.faker.Commerce.Categories(1)[0] };
+        var category = new ProductCategoryModel
+        {
+            Id = testCategoryId,
+            Name = faker.Commerce.Categories(1)[0]
+        };
 
         var product = new ProductModel
         {
-            Id = this.testProductId,
-            Name = this.faker.Commerce.ProductName(),
+            Id = testProductId,
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
             CategoryId = category.Id
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryByProductIdAsync(this.testProductId, ct);
+        var result = await controller.GetInventoryByProductIdAsync(testProductId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -183,7 +194,7 @@ public class InventoryControllerTests : IDisposable
         var returnedInventory = okResult.Value as InventoryResponse;
         Assert.NotNull(returnedInventory);
         Assert.Single(returnedInventory.Items);
-        Assert.Equal(this.testProductId, returnedInventory.Items[0].Id);
+        Assert.Equal(testProductId, returnedInventory.Items[0].Id);
         Assert.Equal(product.Name, returnedInventory.Items[0].Name);
     }
 
@@ -195,7 +206,7 @@ public class InventoryControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryByProductIdAsync(nonExistentId, ct);
+        var result = await controller.GetInventoryByProductIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -213,12 +224,16 @@ public class InventoryControllerTests : IDisposable
     public async Task GetInventoryByCategoryIdAsync_WhenCategoryExists_ReturnsOkWithInventory()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = this.testCategoryId, Name = this.faker.Commerce.Categories(1)[0] };
+        var category = new ProductCategoryModel
+        {
+            Id = testCategoryId,
+            Name = faker.Commerce.Categories(1)[0]
+        };
 
         var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
@@ -228,21 +243,21 @@ public class InventoryControllerTests : IDisposable
         var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 15.00m,
             SalesPrice = 30.00m,
             Quantity = 50,
             CategoryId = category.Id
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.AddRange(product1, product2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.AddRange(product1, product2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryByCategoryIdAsync(this.testCategoryId, ct);
+        var result = await controller.GetInventoryByCategoryIdAsync(testCategoryId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -266,7 +281,7 @@ public class InventoryControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryByCategoryIdAsync(nonExistentId, ct);
+        var result = await controller.GetInventoryByCategoryIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -329,7 +344,7 @@ public class InventoryControllerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryDashboardAsync(ct);
+        var result = await controller.GetInventoryDashboardAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -353,12 +368,16 @@ public class InventoryControllerTests : IDisposable
     public async Task GetInventoryDashboardAsync_WhenProductsExist_ReturnsOkWithDashboardData()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = this.testCategoryId, Name = this.faker.Commerce.Categories(1)[0] };
+        var category = new ProductCategoryModel
+        {
+            Id = testCategoryId,
+            Name = faker.Commerce.Categories(1)[0]
+        };
 
         var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 5,
@@ -368,27 +387,46 @@ public class InventoryControllerTests : IDisposable
         var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 15.00m,
             SalesPrice = 30.00m,
             Quantity = 100,
             CategoryId = category.Id
         };
 
-        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Name.FullName() } };
+        var customer = new CustomerModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = Guid.NewGuid(),
+            Person = new PersonModel
+            {
+                Id = Guid.NewGuid(),
+                Name = faker.Name.FullName()
+            }
+        };
 
-        var employee = new EmployeeModel { Id = Guid.NewGuid(), PersonId = Guid.NewGuid(), PositionId = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = this.faker.Name.FullName() } };
+        var employee = new EmployeeModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = Guid.NewGuid(),
+            PositionId = Guid.NewGuid(),
+            Person = new PersonModel
+            {
+                Id = Guid.NewGuid(),
+                Name = faker.Name.FullName()
+            }
+        };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.AddRange(product1, product2);
-        this.db.BasicCustomers.Add(customer);
-        this.db.BasicEmployees.Add(employee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.AddRange(product1, product2);
+        db.BasicCustomers.Add(customer);
+        db.BasicEmployees.Add(employee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryDashboardAsync(ct);
+        var result = await controller.GetInventoryDashboardAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -410,7 +448,11 @@ public class InventoryControllerTests : IDisposable
     public async Task GetInventoryDashboardAsync_ReturnsLowStockItemsOrderedByQuantity()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = this.testCategoryId, Name = this.faker.Commerce.Categories(1)[0] };
+        var category = new ProductCategoryModel
+        {
+            Id = testCategoryId,
+            Name = faker.Commerce.Categories(1)[0]
+        };
 
         var product1 = new ProductModel
         {
@@ -432,14 +474,14 @@ public class InventoryControllerTests : IDisposable
             CategoryId = category.Id
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.AddRange(product1, product2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.AddRange(product1, product2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryDashboardAsync(ct);
+        var result = await controller.GetInventoryDashboardAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -460,26 +502,30 @@ public class InventoryControllerTests : IDisposable
     public async Task GetInventoryDashboardAsync_CalculatesProfitPotentialCorrectly()
     {
         // Arrange
-        var category = new ProductCategoryModel { Id = this.testCategoryId, Name = this.faker.Commerce.Categories(1)[0] };
+        var category = new ProductCategoryModel
+        {
+            Id = testCategoryId,
+            Name = faker.Commerce.Categories(1)[0]
+        };
 
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
-            Name = this.faker.Commerce.ProductName(),
+            Name = faker.Commerce.ProductName(),
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 10,
             CategoryId = category.Id
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.controller.GetInventoryDashboardAsync(ct);
+        var result = await controller.GetInventoryDashboardAsync(wide, ct);
 
         // Assert
         Assert.NotNull(result);

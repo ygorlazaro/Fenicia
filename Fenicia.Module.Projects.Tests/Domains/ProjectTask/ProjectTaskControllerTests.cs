@@ -36,24 +36,24 @@ public class ProjectTaskControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.testProjectTaskId = Guid.NewGuid();
-        var getAllProjectTaskHandler = new GetAllProjectTaskHandler(this.db);
-        var getProjectTaskByIdHandler = new GetProjectTaskByIdHandler(this.db);
-        var addProjectTaskHandler = new AddProjectTaskHandler(this.db);
-        var updateProjectTaskHandler = new UpdateProjectTaskHandler(this.db);
-        var deleteProjectTaskHandler = new DeleteProjectTaskHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, companyContext);
+        testProjectTaskId = Guid.NewGuid();
+        var getAllProjectTaskHandler = new GetAllProjectTaskHandler(db);
+        var getProjectTaskByIdHandler = new GetProjectTaskByIdHandler(db);
+        var addProjectTaskHandler = new AddProjectTaskHandler(db);
+        var updateProjectTaskHandler = new UpdateProjectTaskHandler(db);
+        var deleteProjectTaskHandler = new DeleteProjectTaskHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ProjectTaskController(getAllProjectTaskHandler, getProjectTaskByIdHandler, addProjectTaskHandler, updateProjectTaskHandler, deleteProjectTaskHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new ProjectTaskController(getAllProjectTaskHandler, getProjectTaskByIdHandler, addProjectTaskHandler, updateProjectTaskHandler, deleteProjectTaskHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
-        this.faker = new Faker();
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -65,8 +65,8 @@ public class ProjectTaskControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class ProjectTaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -102,8 +102,8 @@ public class ProjectTaskControllerTests : IDisposable
             Id = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -117,8 +117,8 @@ public class ProjectTaskControllerTests : IDisposable
             Id = Guid.NewGuid(),
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.High,
             Type = EnumTaskType.Bug,
             Order = 2,
@@ -127,8 +127,8 @@ public class ProjectTaskControllerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(projectTask1, projectTask2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.AddRange(projectTask1, projectTask2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -136,7 +136,7 @@ public class ProjectTaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -156,11 +156,11 @@ public class ProjectTaskControllerTests : IDisposable
         // Arrange
         var projectTask = new ProjectTaskModel
         {
-            Id = this.testProjectTaskId,
+            Id = testProjectTaskId,
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -169,14 +169,14 @@ public class ProjectTaskControllerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.Add(projectTask);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.Add(projectTask);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testProjectTaskId, wide, ct);
+        var result = await controller.GetByIdAsync(testProjectTaskId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -187,7 +187,7 @@ public class ProjectTaskControllerTests : IDisposable
 
         var returnedTask = okResult.Value as GetProjectTaskByIdResponse;
         Assert.NotNull(returnedTask);
-        Assert.Equal(this.testProjectTaskId, returnedTask.Id);
+        Assert.Equal(testProjectTaskId, returnedTask.Id);
         Assert.Equal(projectTask.Title, returnedTask.Title);
     }
 
@@ -200,7 +200,7 @@ public class ProjectTaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
+        var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -211,13 +211,13 @@ public class ProjectTaskControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithItem()
     {
         // Arrange
-        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), this.faker.Lorem.Paragraph(), "Medium", "Task", this.faker.Random.Int(1, 10), this.faker.Random.Int(1, 13), DateTime.UtcNow.AddDays(7), Guid.NewGuid());
+        var command = new AddProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), faker.Lorem.Paragraph(), "Medium", "Task", faker.Random.Int(1, 10), faker.Random.Int(1, 13), DateTime.UtcNow.AddDays(7), Guid.NewGuid());
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -239,11 +239,11 @@ public class ProjectTaskControllerTests : IDisposable
         // Arrange
         var projectTask = new ProjectTaskModel
         {
-            Id = this.testProjectTaskId,
+            Id = testProjectTaskId,
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -252,16 +252,16 @@ public class ProjectTaskControllerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.Add(projectTask);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.Add(projectTask);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProjectTaskCommand(projectTask.Id, projectTask.ProjectId, projectTask.StatusId, this.faker.Lorem.Sentence(5) + " Updated", this.faker.Lorem.Paragraph(), "High", "Bug", projectTask.Order, projectTask.EstimatePoints, projectTask.DueDate, projectTask.CreatedBy);
+        var command = new UpdateProjectTaskCommand(projectTask.Id, projectTask.ProjectId, projectTask.StatusId, faker.Lorem.Sentence(5) + " Updated", faker.Lorem.Paragraph(), "High", "Bug", projectTask.Order, projectTask.EstimatePoints, projectTask.DueDate, projectTask.CreatedBy);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, this.testProjectTaskId, wide, ct);
+        var result = await controller.PatchAsync(command, testProjectTaskId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -280,13 +280,13 @@ public class ProjectTaskControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdateProjectTaskCommand(nonExistentId, Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), this.faker.Lorem.Paragraph(), "Medium", "Task", this.faker.Random.Int(1, 10), this.faker.Random.Int(1, 13), DateTime.UtcNow.AddDays(7), Guid.NewGuid());
+        var command = new UpdateProjectTaskCommand(nonExistentId, Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), faker.Lorem.Paragraph(), "Medium", "Task", faker.Random.Int(1, 10), faker.Random.Int(1, 13), DateTime.UtcNow.AddDays(7), Guid.NewGuid());
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
+        var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -299,11 +299,11 @@ public class ProjectTaskControllerTests : IDisposable
         // Arrange
         var projectTask = new ProjectTaskModel
         {
-            Id = this.testProjectTaskId,
+            Id = testProjectTaskId,
             ProjectId = Guid.NewGuid(),
             StatusId = Guid.NewGuid(),
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -312,20 +312,20 @@ public class ProjectTaskControllerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.Add(projectTask);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.Add(projectTask);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testProjectTaskId, wide, ct);
+        var result = await controller.DeleteAsync(testProjectTaskId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify project task was deleted
-        var deletedTask = await this.db.ProjectTasks.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskId && x.Deleted == null, ct);
+        var deletedTask = await db.ProjectTasks.FirstOrDefaultAsync(x => x.Id == testProjectTaskId && x.Deleted == null, ct);
         Assert.Null(deletedTask);
     }
 
@@ -338,7 +338,7 @@ public class ProjectTaskControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
+        var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);

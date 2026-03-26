@@ -31,7 +31,14 @@ public sealed class GetCompaniesByUserHandler(DefaultContext db)
 
         var request = db.AuthUserRoles.Where(ur => ur.UserId == query.UserId && ur.Company.IsActive);
         var total = await request.CountAsync(ct);
-        var items = await request.OrderBy(ur => ur.Company.Name).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).Select(ur => new GetCompaniesByUserResponse(ur.Company.Id, ur.Company.Name, ur.Company.Cnpj, ur.Role.Name)).ToListAsync(ct);
+        var items = await request.OrderBy(ur => ur.Company.Name)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .Select(ur => new GetCompaniesByUserResponse(ur.Company.Id,
+                ur.Company.Name,
+                ur.Company.Cnpj,
+                ur.Role.Name))
+            .ToListAsync(ct);
 
         return new Pagination<IEnumerable<GetCompaniesByUserResponse>>(items, total, query.Page, query.PerPage);
     }

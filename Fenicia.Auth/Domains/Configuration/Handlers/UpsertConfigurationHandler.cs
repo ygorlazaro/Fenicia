@@ -73,6 +73,8 @@ public class UpsertConfigurationHandler(DefaultContext db)
     /// <returns>The existing configuration or null if not found.</returns>
     private async Task<ConfigurationModel?> GetCurrentConfigurationAsync(UpsertConfigurationCommand command, CancellationToken ct)
     {
-        return await db.AuthConfigurations.FirstOrDefaultAsync(c => c.UserId == command.UserId && c.ConfigType == command.ConfigType && c.CompanyId == command.CompanyId, ct);
+        return await db.AuthConfigurations.FirstOrDefaultAsync(
+            c => c.UserId == command.UserId && c.ConfigType == command.ConfigType && c.CompanyId == command.CompanyId,
+            ct);
     }
 }

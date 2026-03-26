@@ -38,7 +38,7 @@ public class ResetAttemptsService(IMemoryCache cache)
 
         if (string.IsNullOrWhiteSpace(email))
         {
-            throw new ArgumentException("Email cannot be empty or whitespace-only", nameof(email));
+            throw new ArgumentException("Email cannot be empty or whitespace-only");
         }
 
         cache.Remove(GetKey(email));
