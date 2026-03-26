@@ -21,13 +21,13 @@ public class AddProductHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new AddProductHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new AddProductHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -37,18 +37,39 @@ public class AddProductHandlerTests : IDisposable
     {
         // Arrange
         var categoryId = Guid.NewGuid();
-        var command = new AddProductCommand(Guid.NewGuid(), "Product Name", 10.00m, 20.00m, 100, categoryId, null);
+        var command = new AddProductCommand(Guid.NewGuid(),
+            "Product Name",
+            "SKU001",
+            "123456789",
+            "Description",
+            10.00m,
+            20.00m,
+            100,
+            5,
+            200,
+            "http://image.com",
+            1.5m,
+            "10x10x10",
+            "un",
+            categoryId,
+            null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal(command.Name, result.Name);
+        Assert.Equal("SKU001", result.SKU);
+        Assert.Equal("123456789", result.Barcode);
+        Assert.Equal("Description", result.Description);
         Assert.Equal(command.CostPrice, result.CostPrice);
         Assert.Equal(command.SalesPrice, result.SalesPrice);
         Assert.Equal(command.Quantity, result.Quantity);
+        Assert.Equal(5, result.MinStockLevel);
+        Assert.Equal(200, result.MaxStockLevel);
+        Assert.True(result.IsActive);
         Assert.Equal(command.CategoryId, result.CategoryId);
     }
 
@@ -56,31 +77,47 @@ public class AddProductHandlerTests : IDisposable
     public async Task Handle_VerifiesProductWasSavedToDatabase()
     {
         // Arrange
-        var command = new AddProductCommand(Guid.NewGuid(), "Product Name", 10.00m, 20.00m, 100, Guid.NewGuid(), null);
+        var command = new AddProductCommand(Guid.NewGuid(),
+            "Product Name",
+            "SKU001",
+            "123456789",
+            "Description",
+            10.00m,
+            20.00m,
+            100,
+            5,
+            200,
+            "http://image.com",
+            1.5m,
+            "10x10x10",
+            "un",
+            Guid.NewGuid(),
+            null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var product = await this.db.BasicProducts.FindAsync([command.Id], CancellationToken.None);
+        var product = await db.BasicProducts.FindAsync([command.Id], CancellationToken.None);
         Assert.NotNull(product);
         Assert.Equal(command.Name, product.Name);
+        Assert.Equal("SKU001", product.SKU);
     }
 
     [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProducts()
     {
         // Arrange
-        var command1 = new AddProductCommand(Guid.NewGuid(), "Product 1", 10.00m, 20.00m, 100, Guid.NewGuid(), null);
+        var command1 = new AddProductCommand(Guid.NewGuid(), "Product 1", "SKU001", "123456789", "Description", 10.00m, 20.00m, 100, 5, 200, null, 1.5f, "10x10x10", "un", Guid.NewGuid(), null);
 
-        var command2 = new AddProductCommand(Guid.NewGuid(), "Product 2", 15.00m, 25.00m, 50, Guid.NewGuid(), null);
+        var command2 = new AddProductCommand(Guid.NewGuid(), "Product 2", "SKU002", "987654321", "Description", 15.00m, 25.00m, 50, 10, 150, null, 2.0f, "20x20x20", "kg", Guid.NewGuid(), null);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await handler.Handle(command1, CancellationToken.None);
+        await handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var products = await this.db.BasicProducts.ToListAsync();
+        var products = await db.BasicProducts.ToListAsync();
         Assert.Equal(2, products.Count);
     }
 
@@ -88,10 +125,10 @@ public class AddProductHandlerTests : IDisposable
     public async Task Handle_WithNullCostPrice_HandlesCorrectly()
     {
         // Arrange
-        var command = new AddProductCommand(Guid.NewGuid(), "Product Name", null, 20.00m, 100, Guid.NewGuid(), null);
+        var command = new AddProductCommand(Guid.NewGuid(), "Product Name", null, null, null, null, 20.00m, 100, null, null, null, null, null, null, Guid.NewGuid(), null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

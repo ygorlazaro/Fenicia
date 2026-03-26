@@ -19,14 +19,14 @@ public class AddProjectSubtaskHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new AddProjectSubtaskHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new AddProjectSubtaskHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -35,10 +35,10 @@ public class AddProjectSubtaskHandlerTests : IDisposable
     public async Task Handle_WithValidCommand_AddsProjectSubtaskAndReturnsResponse()
     {
         // Arrange
-        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), false, this.faker.Random.Number(0, 100), null);
+        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), false, faker.Random.Number(0, 100), null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -50,13 +50,13 @@ public class AddProjectSubtaskHandlerTests : IDisposable
     public async Task Handle_VerifiesProjectSubtaskWasSaved()
     {
         // Arrange
-        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), false, 1, null);
+        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), false, 1, null);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var subtask = await this.db.ProjectSubtasks.FirstOrDefaultAsync(s => s.Id == command.Id);
+        var subtask = await db.ProjectSubtasks.FirstOrDefaultAsync(s => s.Id == command.Id);
 
         Assert.NotNull(subtask);
         Assert.Equal(command.Title, subtask.Title);
@@ -68,16 +68,16 @@ public class AddProjectSubtaskHandlerTests : IDisposable
     {
         // Arrange
         var taskId = Guid.NewGuid();
-        var command1 = new AddProjectSubtaskCommand(Guid.NewGuid(), taskId, this.faker.Lorem.Sentence(5), false, 1, null);
+        var command1 = new AddProjectSubtaskCommand(Guid.NewGuid(), taskId, faker.Lorem.Sentence(5), false, 1, null);
 
-        var command2 = new AddProjectSubtaskCommand(Guid.NewGuid(), taskId, this.faker.Lorem.Sentence(5), true, 2, DateTime.UtcNow);
+        var command2 = new AddProjectSubtaskCommand(Guid.NewGuid(), taskId, faker.Lorem.Sentence(5), true, 2, DateTime.UtcNow);
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await handler.Handle(command1, CancellationToken.None);
+        await handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var subtasks = await this.db.ProjectSubtasks.ToListAsync();
+        var subtasks = await db.ProjectSubtasks.ToListAsync();
         Assert.Equal(2, subtasks.Count);
     }
 
@@ -86,10 +86,10 @@ public class AddProjectSubtaskHandlerTests : IDisposable
     {
         // Arrange
         var completedAt = DateTime.UtcNow;
-        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), true, 5, completedAt);
+        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), true, 5, completedAt);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -102,10 +102,10 @@ public class AddProjectSubtaskHandlerTests : IDisposable
     public async Task Handle_WithNullCompletedAt_AddsProjectSubtaskSuccessfully()
     {
         // Arrange
-        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Sentence(5), false, 1, null);
+        var command = new AddProjectSubtaskCommand(Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Sentence(5), false, 1, null);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

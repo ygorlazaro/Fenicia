@@ -43,7 +43,10 @@ public class IncrementAttemptsService(IMemoryCache cache)
         var key = GetKey(email);
         var current = cache.TryGetValue(key, out int count) ? count + 1 : 1;
 
-        var options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(ExpirationMinutes) };
+        var options = new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(ExpirationMinutes)
+        };
 
         cache.Set(key, current, options);
 

@@ -20,14 +20,14 @@ public class GetAllStateHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetAllStateHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetAllStateHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -35,7 +35,7 @@ public class GetAllStateHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -46,15 +46,25 @@ public class GetAllStateHandlerTests : IDisposable
     public async Task Handle_WithStates_ReturnsAllStates()
     {
         // Arrange
-        var state1 = new StateModel { Id = Guid.NewGuid(), Name = "São Paulo", Uf = "SP" };
+        var state1 = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "São Paulo",
+            Uf = "SP"
+        };
 
-        var state2 = new StateModel { Id = Guid.NewGuid(), Name = "Rio de Janeiro", Uf = "RJ" };
+        var state2 = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Rio de Janeiro",
+            Uf = "RJ"
+        };
 
-        this.db.AuthStates.AddRange(state1, state2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthStates.AddRange(state1, state2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -69,14 +79,20 @@ public class GetAllStateHandlerTests : IDisposable
         // Arrange
         for (var i = 0; i < 27; i++)
         {
-            var state = new StateModel { Id = Guid.NewGuid(), Name = $"{this.faker.Address.State()} {i}", Uf = this.faker.Random.String2(2).ToUpper() };
-            this.db.AuthStates.Add(state);
+            var state = new StateModel
+            {
+                Id = Guid.NewGuid(),
+                Name = $"{faker.Address.State()} {i}",
+                Uf = faker.Random.String2(2)
+                    .ToUpper()
+            };
+            db.AuthStates.Add(state);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -87,13 +103,18 @@ public class GetAllStateHandlerTests : IDisposable
     public async Task Handle_VerifiesStateDataIsCorrect()
     {
         // Arrange
-        var state = new StateModel { Id = Guid.NewGuid(), Name = "Minas Gerais", Uf = "MG" };
+        var state = new StateModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Minas Gerais",
+            Uf = "MG"
+        };
 
-        this.db.AuthStates.Add(state);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthStates.Add(state);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await this.handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

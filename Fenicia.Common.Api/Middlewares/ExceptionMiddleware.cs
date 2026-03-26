@@ -2,12 +2,14 @@ using System.Globalization;
 using System.Diagnostics;
 
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Data;
+using Microsoft.Extensions.DependencyInjection;
 
 using Microsoft.AspNetCore.Http;
 
 namespace Fenicia.Common.API.Middlewares;
 
-public class ExceptionMiddleware(RequestDelegate next)
+public class ExceptionMiddleware(RequestDelegate next, ICompanyContext companyContext)
 {
     public async Task InvokeAsync(HttpContext context)
     {
@@ -33,7 +35,7 @@ public class ExceptionMiddleware(RequestDelegate next)
             context.Response.ContentType = "application/json";
 
             var userId = GetUserId(context);
-            var companyId = GetCompanyId(context);
+            var companyId = GetCompanyId();
 
             var response = new
             {
@@ -65,24 +67,15 @@ public class ExceptionMiddleware(RequestDelegate next)
         };
     }
 
-    private static Guid? GetUserId(HttpContext context)
+    private Guid? GetUserId(HttpContext context)
     {
         var userIdClaim = context.User.Claims.FirstOrDefault(c => c.Type == "userId");
-        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
-        {
-            return userId;
-        }
-        return null;
+        return userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId) ? userId : null;
     }
 
-    private static Guid? GetCompanyId(HttpContext context)
+    private Guid? GetCompanyId()
     {
-        if (context.Request.Headers.TryGetValue("x-company", out var companyHeader) &&
-            Guid.TryParse(companyHeader, out var companyId))
-        {
-            return companyId;
-        }
-        return null;
+        return companyContext.CompanyId != Guid.Empty ? companyContext.CompanyId : null;
     }
 
     private static void SetCulture(string acceptLanguage)

@@ -20,14 +20,14 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new DeleteProjectSubtaskHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new DeleteProjectSubtaskHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -42,23 +42,23 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         {
             Id = subtaskId,
             TaskId = taskId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             IsCompleted = false,
             Order = 1,
             CompletedAt = null
         };
 
-        this.db.ProjectSubtasks.Add(subtask);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectSubtasks.Add(subtask);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectSubtaskCommand(subtaskId);
         var beforeDelete = DateTime.UtcNow;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedSubtask = await this.db.ProjectSubtasks.FindAsync([subtaskId], CancellationToken.None);
+        var deletedSubtask = await db.ProjectSubtasks.FindAsync([subtaskId], CancellationToken.None);
         Assert.NotNull(deletedSubtask);
         Assert.NotNull(deletedSubtask.Deleted);
         Assert.InRange(deletedSubtask.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
@@ -71,10 +71,10 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         var command = new DeleteProjectSubtaskCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var subtasks = await this.db.ProjectSubtasks.ToListAsync();
+        var subtasks = await db.ProjectSubtasks.ToListAsync();
         Assert.Empty(subtasks);
     }
 
@@ -85,10 +85,10 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         var command = new DeleteProjectSubtaskCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var subtasks = await this.db.ProjectSubtasks.ToListAsync();
+        var subtasks = await db.ProjectSubtasks.ToListAsync();
         Assert.Empty(subtasks);
     }
 
@@ -104,7 +104,7 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         {
             Id = subtask1Id,
             TaskId = taskId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             IsCompleted = false,
             Order = 1,
             CompletedAt = null
@@ -114,23 +114,23 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         {
             Id = subtask2Id,
             TaskId = taskId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             IsCompleted = true,
             Order = 2,
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        this.db.ProjectSubtasks.AddRange(subtask1, subtask2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectSubtasks.AddRange(subtask1, subtask2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectSubtaskCommand(subtask1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedSubtask = await this.db.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
-        var notDeletedSubtask = await this.db.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
+        var deletedSubtask = await db.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
+        var notDeletedSubtask = await db.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
 
         Assert.NotNull(deletedSubtask);
         Assert.NotNull(deletedSubtask.Deleted);
@@ -151,7 +151,7 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         {
             Id = subtask1Id,
             TaskId = taskId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             IsCompleted = false,
             Order = 1,
             CompletedAt = null
@@ -161,7 +161,7 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         {
             Id = subtask2Id,
             TaskId = taskId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             IsCompleted = true,
             Order = 2,
             CompletedAt = DateTime.UtcNow.AddDays(-2)
@@ -171,24 +171,24 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         {
             Id = subtask3Id,
             TaskId = taskId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             IsCompleted = false,
             Order = 3,
             CompletedAt = null
         };
 
-        this.db.ProjectSubtasks.AddRange(subtask1, subtask2, subtask3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectSubtasks.AddRange(subtask1, subtask2, subtask3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectSubtaskCommand(subtask2Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var subtask1InDb = await this.db.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
-        var deletedSubtask = await this.db.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
-        var subtask3InDb = await this.db.ProjectSubtasks.FindAsync([subtask3Id], CancellationToken.None);
+        var subtask1InDb = await db.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
+        var deletedSubtask = await db.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
+        var subtask3InDb = await db.ProjectSubtasks.FindAsync([subtask3Id], CancellationToken.None);
 
         Assert.NotNull(subtask1InDb);
         Assert.NotNull(deletedSubtask);

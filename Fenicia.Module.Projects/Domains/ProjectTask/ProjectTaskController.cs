@@ -24,7 +24,7 @@ public class ProjectTaskController(GetAllProjectTaskHandler getAllProjectTaskHan
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<List<GetAllProjectTaskResponse>>> GetAsync(WideEventContext wide, [FromQuery] int page = 1, [FromQuery] int perPage = 10, CancellationToken ct = default)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectTasks = await getAllProjectTaskHandler.Handle(new GetAllProjectTaskQuery(page, perPage), ct);
 
@@ -37,7 +37,7 @@ public class ProjectTaskController(GetAllProjectTaskHandler getAllProjectTaskHan
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<GetProjectTaskByIdResponse>> GetByIdAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectTask = await getProjectTaskByIdHandler.Handle(new GetProjectTaskByIdQuery(id), ct);
 
@@ -53,7 +53,7 @@ public class ProjectTaskController(GetAllProjectTaskHandler getAllProjectTaskHan
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<AddProjectTaskResponse>> PostAsync([FromBody] AddProjectTaskCommand command, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectTask = await addProjectTaskHandler.Handle(command, ct);
 
@@ -70,7 +70,7 @@ public class ProjectTaskController(GetAllProjectTaskHandler getAllProjectTaskHan
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<UpdateProjectTaskResponse>> PatchAsync([FromBody] UpdateProjectTaskCommand command, [FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         var projectTask = await updateProjectTaskHandler.Handle(command with { Id = id }, ct);
 
@@ -84,7 +84,7 @@ public class ProjectTaskController(GetAllProjectTaskHandler getAllProjectTaskHan
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> DeleteAsync([FromRoute] Guid id, WideEventContext wide, CancellationToken ct)
     {
-        wide.UserId = ClaimReader.UserId(this.User).ToString();
+        wide.UserId = ClaimReader.UserId(User).ToString();
 
         await deleteProjectTaskHandler.Handle(new DeleteProjectTaskCommand(id), ct);
 

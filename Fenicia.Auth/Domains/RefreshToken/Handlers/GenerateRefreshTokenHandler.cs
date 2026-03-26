@@ -62,6 +62,6 @@ public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
         var key = RedisPrefix + refreshToken.Token;
         var value = JsonSerializer.Serialize(refreshToken);
 
-        this.redisDb.StringSet(key, value, TimeSpan.FromDays(7), When.Always, CommandFlags.None);
+        redisDb.StringSet(key, value, TimeSpan.FromDays(7), When.Always, CommandFlags.None);
     }
 }

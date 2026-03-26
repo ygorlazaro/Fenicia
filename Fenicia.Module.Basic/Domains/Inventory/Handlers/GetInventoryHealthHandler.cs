@@ -30,7 +30,13 @@ public class GetInventoryHealthHandler(DefaultContext db)
         var (stockValueByCategory, totalStockValue) = await GetStockValueByCategoryAsync(ct);
         var summary = await GetInventoryHealthSummaryAsync(activeProductIds, overstockProducts, zeroMovementProducts, totalStockValue, ct);
 
-        return new InventoryHealthResponse { OverstockAlert = overstockAlert, ZeroMovementProducts = zeroMovementProducts, StockValueByCategory = stockValueByCategory, Summary = summary };
+        return new InventoryHealthResponse
+        {
+            OverstockAlert = overstockAlert,
+            ZeroMovementProducts = zeroMovementProducts,
+            StockValueByCategory = stockValueByCategory,
+            Summary = summary
+        };
     }
 
     private async Task<InventoryHealthSummaryResponse> GetInventoryHealthSummaryAsync(IEnumerable<Guid> activeProductIds, List<OverstockProductResponse> overstockProducts, IEnumerable<ZeroMovementProductResponse> zeroMovementProducts, decimal totalStockValue, CancellationToken ct)
@@ -104,14 +110,17 @@ public class GetInventoryHealthHandler(DefaultContext db)
             var recommendedQuantity = avgMonthlySales * query.OverstockMultiplier;
             var excessQuantity = Math.Max(0, p.Quantity - recommendedQuantity);
             var excessValue = (decimal)excessQuantity * (p.CostPrice ?? 0);
-            if (excessValue > 0)
-            {
-                return new OverstockProductResponse(p.Id, p.Name, p.CategoryName, p.Quantity, recommendedQuantity, excessValue, p.CostPrice ?? 0);
-            }
-
-            return null;
+            return excessValue > 0
+                ? new OverstockProductResponse(p.Id, p.Name, p.CategoryName, p.Quantity, recommendedQuantity, excessValue, p.CostPrice ?? 0)
+                : null;
         }).Where(x => x != null).OrderByDescending(x => x!.ExcessValue).Cast<OverstockProductResponse>().ToList();
-        var overstockAlert = new OverstockAlertResponse { TotalOverstockProducts = overstockProducts.Count, TotalOverstockValue = overstockProducts.Sum(p => p.ExcessValue), Products = overstockProducts.Take(20).ToList() };
+        var overstockAlert = new OverstockAlertResponse
+        {
+            TotalOverstockProducts = overstockProducts.Count,
+            TotalOverstockValue = overstockProducts.Sum(p => p.ExcessValue),
+            Products = overstockProducts.Take(20)
+                .ToList()
+        };
 
         return (overstockProducts, overstockAlert);
     }

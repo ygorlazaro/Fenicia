@@ -20,21 +20,21 @@ namespace Fenicia.Auth.Tests.Domains.LoginAttempt;
 /// </remarks>
 public class LoginAttemptServiceTests : IDisposable
 {
-    private readonly LoginAttemptService _service;
+    private readonly LoginAttemptService service;
 
     private readonly MemoryCache cache;
     private readonly Faker faker;
 
     public LoginAttemptServiceTests()
     {
-        this.cache = new MemoryCache(new MemoryCacheOptions());
-        this.faker = new Faker();
-        this._service = new LoginAttemptService(this.cache);
+        cache = new MemoryCache(new MemoryCacheOptions());
+        faker = new Faker();
+        service = new LoginAttemptService(cache);
     }
 
     public void Dispose()
     {
-        this.cache.Dispose();
+        cache.Dispose();
     }
 
     /// <summary>
@@ -44,10 +44,10 @@ public class LoginAttemptServiceTests : IDisposable
     public void Handle_WhenNoAttemptsExist_ReturnsZero()
     {
         // Arrange
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
 
         // Act
-        var result = this._service.Handle(email);
+        var result = service.Handle(email);
 
         // Assert
         Assert.Equal(0, result);
@@ -60,12 +60,12 @@ public class LoginAttemptServiceTests : IDisposable
     public void Handle_WhenAttemptsExist_ReturnsAttemptCount()
     {
         // Arrange
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 3);
+        cache.Set(key, 3);
 
         // Act
-        var result = this._service.Handle(email);
+        var result = service.Handle(email);
 
         // Assert
         Assert.Equal(3, result);
@@ -78,13 +78,13 @@ public class LoginAttemptServiceTests : IDisposable
     public void Handle_WhenEmailHasDifferentCase_ReturnsCorrectCount()
     {
         // Arrange
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var upperCaseEmail = email.ToUpper();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 5);
+        cache.Set(key, 5);
 
         // Act
-        var result = this._service.Handle(upperCaseEmail);
+        var result = service.Handle(upperCaseEmail);
 
         // Assert
         Assert.Equal(5, result);
@@ -97,7 +97,7 @@ public class LoginAttemptServiceTests : IDisposable
     public void Handle_WhenEmailIsNull_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => this._service.Handle(null!));
+        Assert.Throws<ArgumentNullException>(() => service.Handle(null!));
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ public class LoginAttemptServiceTests : IDisposable
         var email = string.Empty;
 
         // Act
-        var result = this._service.Handle(email);
+        var result = service.Handle(email);
 
         // Assert
         Assert.Equal(0, result);
@@ -126,7 +126,7 @@ public class LoginAttemptServiceTests : IDisposable
         var email = " test@example.com ";
 
         // Act
-        var result = this._service.Handle(email);
+        var result = service.Handle(email);
 
         // Assert
         Assert.Equal(0, result);
@@ -139,16 +139,16 @@ public class LoginAttemptServiceTests : IDisposable
     public void Handle_WithMultipleDifferentEmails_ReturnsCorrectCounts()
     {
         // Arrange
-        var email1 = this.faker.Internet.Email();
-        var email2 = this.faker.Internet.Email();
+        var email1 = faker.Internet.Email();
+        var email2 = faker.Internet.Email();
         var key1 = $"login-attempt:{email1.ToLower()}";
         var key2 = $"login-attempt:{email2.ToLower()}";
-        this.cache.Set(key1, 2);
-        this.cache.Set(key2, 4);
+        cache.Set(key1, 2);
+        cache.Set(key2, 4);
 
         // Act
-        var result1 = this._service.Handle(email1);
-        var result2 = this._service.Handle(email2);
+        var result1 = service.Handle(email1);
+        var result2 = service.Handle(email2);
 
         // Assert
         Assert.Equal(2, result1);
@@ -162,12 +162,12 @@ public class LoginAttemptServiceTests : IDisposable
     public void Handle_WhenAttemptCountIsHigh_ReturnsCorrectCount()
     {
         // Arrange
-        var email = this.faker.Internet.Email();
+        var email = faker.Internet.Email();
         var key = $"login-attempt:{email.ToLower()}";
-        this.cache.Set(key, 100);
+        cache.Set(key, 100);
 
         // Act
-        var result = this._service.Handle(email);
+        var result = service.Handle(email);
 
         // Assert
         Assert.Equal(100, result);

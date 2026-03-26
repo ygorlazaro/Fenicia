@@ -17,13 +17,13 @@ public class AddPositionHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new AddPositionHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new AddPositionHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -39,7 +39,7 @@ public class AddPositionHandlerTests : IDisposable
         var command = new AddPositionCommand(Guid.NewGuid(), positionName);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -57,10 +57,10 @@ public class AddPositionHandlerTests : IDisposable
         var command = new AddPositionCommand(Guid.NewGuid(), positionName);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var position = await this.db.BasicPositions.FindAsync([command.Id], CancellationToken.None);
+        var position = await db.BasicPositions.FindAsync([command.Id], CancellationToken.None);
         Assert.NotNull(position);
         Assert.Equal(positionName, position.Name);
     }
@@ -73,11 +73,11 @@ public class AddPositionHandlerTests : IDisposable
         var command2 = new AddPositionCommand(Guid.NewGuid(), "Designer");
 
         // Act
-        await this.handler.Handle(command1, CancellationToken.None);
-        await this.handler.Handle(command2, CancellationToken.None);
+        await handler.Handle(command1, CancellationToken.None);
+        await handler.Handle(command2, CancellationToken.None);
 
         // Assert
-        var positions = await this.db.BasicPositions.ToListAsync();
+        var positions = await db.BasicPositions.ToListAsync();
         Assert.Equal(2, positions.Count);
     }
 }

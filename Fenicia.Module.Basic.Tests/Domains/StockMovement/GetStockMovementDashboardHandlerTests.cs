@@ -19,14 +19,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, this.companyContext);
-        this.handler = new GetStockMovementDashboardHandler(this.db);
+        companyContext = new TestCompanyContext();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetStockMovementDashboardHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -38,7 +38,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var ct = CancellationToken.None;
 
         // Act
-        var result = await this.handler.Handle(query, ct);
+        var result = await handler.Handle(query, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -62,7 +62,11 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
         var movement = new StockMovementModel
         {
@@ -76,15 +80,15 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Reason = "Test reason"
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.Add(movement);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        db.BasicStockMovements.Add(movement);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -108,7 +112,11 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
         var now = DateTime.UtcNow;
         var movementIn = new StockMovementModel
@@ -133,15 +141,15 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.AddRange(movementIn, movementOut);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        db.BasicStockMovements.AddRange(movementIn, movementOut);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -178,14 +186,22 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category1 = new ProductCategoryModel { Id = product1.CategoryId, Name = "Category 1" };
+        var category1 = new ProductCategoryModel
+        {
+            Id = product1.CategoryId,
+            Name = "Category 1"
+        };
 
-        var category2 = new ProductCategoryModel { Id = product2.CategoryId, Name = "Category 2" };
+        var category2 = new ProductCategoryModel
+        {
+            Id = product2.CategoryId,
+            Name = "Category 2"
+        };
 
         // More movements for product1
         for (var i = 0; i < 5; i++)
         {
-            this.db.BasicStockMovements.Add(new StockMovementModel
+            db.BasicStockMovements.Add(new StockMovementModel
             {
                 Id = Guid.NewGuid(),
                 ProductId = product1.Id,
@@ -200,7 +216,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         // Fewer movements for product2
         for (var i = 0; i < 2; i++)
         {
-            this.db.BasicStockMovements.Add(new StockMovementModel
+            db.BasicStockMovements.Add(new StockMovementModel
             {
                 Id = Guid.NewGuid(),
                 ProductId = product2.Id,
@@ -212,14 +228,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             });
         }
 
-        this.db.BasicProductCategories.AddRange(category1, category2);
-        this.db.BasicProducts.AddRange(product1, product2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.AddRange(category1, category2);
+        db.BasicProducts.AddRange(product1, product2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -244,11 +260,15 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
         for (var i = 0; i < 5; i++)
         {
-            this.db.BasicStockMovements.Add(new StockMovementModel
+            db.BasicStockMovements.Add(new StockMovementModel
             {
                 Id = Guid.NewGuid(),
                 ProductId = product.Id,
@@ -260,14 +280,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             });
         }
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -295,9 +315,13 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -308,14 +332,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -340,7 +364,11 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
         var now = DateTime.UtcNow;
 
@@ -366,15 +394,15 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.In
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.AddRange(movementInRange, movementOutOfRange);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        db.BasicStockMovements.AddRange(movementInRange, movementOutOfRange);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -391,7 +419,11 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         var products = new List<ProductModel>();
         var categories = new List<ProductCategoryModel>();
 
-        var category = new ProductCategoryModel { Id = Guid.NewGuid(), Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test Category"
+        };
         categories.Add(category);
 
         for (var i = 0; i < 5; i++)
@@ -407,7 +439,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             };
             products.Add(product);
 
-            this.db.BasicStockMovements.Add(new StockMovementModel
+            db.BasicStockMovements.Add(new StockMovementModel
             {
                 Id = Guid.NewGuid(),
                 ProductId = product.Id,
@@ -419,14 +451,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             });
         }
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.AddRange(products);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.AddRange(products);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery(TopLimit: 3);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -455,9 +487,21 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        var customer = new CustomerModel { Id = Guid.NewGuid(), Person = new PersonModel { Id = Guid.NewGuid(), Name = "Test Customer" } };
+        var customer = new CustomerModel
+        {
+            Id = Guid.NewGuid(),
+            Person = new PersonModel
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Customer"
+            }
+        };
 
         var now = DateTime.UtcNow;
 
@@ -487,16 +531,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.In
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        this.db.BasicCustomers.Add(customer);
-        this.db.BasicStockMovements.AddRange(movementWithin7Days, movementOutside7Days);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        db.BasicCustomers.Add(customer);
+        db.BasicStockMovements.AddRange(movementWithin7Days, movementOutside7Days);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery(7);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -522,7 +566,11 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
         var now = DateTime.UtcNow;
 
@@ -559,15 +607,15 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.In
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        this.db.BasicStockMovements.AddRange(movement1, movement2, movement3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        db.BasicStockMovements.AddRange(movement1, movement2, movement3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -595,12 +643,16 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
         var january = new DateTime(DateTime.UtcNow.Year, 1, 15);
         var february = new DateTime(DateTime.UtcNow.Year, 2, 15);
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -611,7 +663,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.In
         });
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -622,7 +674,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -633,7 +685,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.In
         });
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -644,14 +696,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery(60);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -684,9 +736,13 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -697,14 +753,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
@@ -727,9 +783,13 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -740,14 +800,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
@@ -770,9 +830,13 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -783,14 +847,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
@@ -813,9 +877,13 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -826,14 +894,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
@@ -856,9 +924,13 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -869,14 +941,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
@@ -899,9 +971,13 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -912,14 +988,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
@@ -942,9 +1018,13 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -955,14 +1035,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.Out
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
@@ -985,9 +1065,13 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicStockMovements.Add(new StockMovementModel
+        db.BasicStockMovements.Add(new StockMovementModel
         {
             Id = Guid.NewGuid(),
             ProductId = product.Id,
@@ -998,14 +1082,14 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Type = StockMovementType.In
         });
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotEmpty(result.TurnoverRates);
@@ -1028,16 +1112,20 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Empty(result.TurnoverRates);
@@ -1061,11 +1149,24 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = "John Doe" };
+        var person = new PersonModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "John Doe"
+        };
 
-        var customer = new CustomerModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person };
+        var customer = new CustomerModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person.Id,
+            Person = person
+        };
 
         var movement = new StockMovementModel
         {
@@ -1081,17 +1182,17 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Reason = "Sale"
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        this.db.BasicPeople.Add(person);
-        this.db.BasicCustomers.Add(customer);
-        this.db.BasicStockMovements.Add(movement);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        db.BasicPeople.Add(person);
+        db.BasicCustomers.Add(customer);
+        db.BasicStockMovements.Add(movement);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -1114,11 +1215,24 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             CategoryId = Guid.NewGuid()
         };
 
-        var category = new ProductCategoryModel { Id = product.CategoryId, Name = "Test Category" };
+        var category = new ProductCategoryModel
+        {
+            Id = product.CategoryId,
+            Name = "Test Category"
+        };
 
-        var person = new PersonModel { Id = Guid.NewGuid(), Name = "ABC Supplier Ltd" };
+        var person = new PersonModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "ABC Supplier Ltd"
+        };
 
-        var supplier = new SupplierModel { Id = Guid.NewGuid(), PersonId = person.Id, Person = person };
+        var supplier = new SupplierModel
+        {
+            Id = Guid.NewGuid(),
+            PersonId = person.Id,
+            Person = person
+        };
 
         var movement = new StockMovementModel
         {
@@ -1134,17 +1248,17 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
             Reason = "Purchase"
         };
 
-        this.db.BasicProductCategories.Add(category);
-        this.db.BasicProducts.Add(product);
-        this.db.BasicPeople.Add(person);
-        this.db.BasicSuppliers.Add(supplier);
-        this.db.BasicStockMovements.Add(movement);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicProductCategories.Add(category);
+        db.BasicProducts.Add(product);
+        db.BasicPeople.Add(person);
+        db.BasicSuppliers.Add(supplier);
+        db.BasicStockMovements.Add(movement);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetStockMovementDashboardQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

@@ -26,14 +26,14 @@ public class UpdateCompanyHandlerTests : IDisposable
     {
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
-        this.db = new DefaultContext(options, new TestCompanyContext());
-        this.handler = new UpdateCompanyHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, new TestCompanyContext());
+        handler = new UpdateCompanyHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -49,27 +49,49 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Name.FullName(), Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Name.FullName(),
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateCompanyCommand(companyId, userId, this.faker.Company.CompanyName());
+        var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal(command.Name, updatedCompany.Name);
         Assert.True(updatedCompany.IsActive);
@@ -86,15 +108,21 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var nonExistentCompanyId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        this.db.AuthCompanies.Add(company);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(nonExistentCompanyId, userId, "Updated Name");
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 
@@ -109,23 +137,45 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = false };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = false
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FirstName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FirstName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
-        var command = new UpdateCompanyCommand(companyId, userId, this.faker.Company.CompanyName());
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
+        var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 
@@ -140,24 +190,46 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "User" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "admin"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateCompanyCommand(companyId, userId, this.faker.Company.CompanyName());
+        var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -173,24 +245,46 @@ public class UpdateCompanyHandlerTests : IDisposable
         var otherUserId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var otherUser = new UserModel { Id = otherUserId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var otherUser = new UserModel
+        {
+            Id = otherUserId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = otherUserId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = otherUserId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(otherUser);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(otherUser);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateCompanyCommand(companyId, userId, this.faker.Company.CompanyName());
+        var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -206,26 +300,54 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId2 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company1 = new CompanyModel { Id = companyId1, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company1 = new CompanyModel
+        {
+            Id = companyId1,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var company2 = new CompanyModel { Id = companyId2, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company2 = new CompanyModel
+        {
+            Id = companyId2,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId1 };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = companyId1
+        };
 
-        this.db.AuthCompanies.AddRange(company1, company2);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.AddRange(company1, company2);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateCompanyCommand(companyId2, userId, this.faker.Company.CompanyName());
+        var command = new UpdateCompanyCommand(companyId2, userId, faker.Company.CompanyName());
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -241,29 +363,62 @@ public class UpdateCompanyHandlerTests : IDisposable
         var adminRoleId = Guid.NewGuid();
         var memberRoleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var adminRole = new RoleModel { Id = adminRoleId, Name = "Admin" };
+        var adminRole = new RoleModel
+        {
+            Id = adminRoleId,
+            Name = "Admin"
+        };
 
-        var memberRole = new RoleModel { Id = memberRoleId, Name = "User" };
+        var memberRole = new RoleModel
+        {
+            Id = memberRoleId,
+            Name = "User"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRoles = new List<UserRoleModel> { new() { Id = Guid.NewGuid(), UserId = userId, RoleId = adminRoleId, CompanyId = companyId }, new() { Id = Guid.NewGuid(), UserId = userId, RoleId = memberRoleId, CompanyId = companyId } };
+        var userRoles = new List<UserRoleModel> { new()
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = adminRoleId,
+            CompanyId = companyId
+        }, new()
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                RoleId = memberRoleId,
+                CompanyId = companyId
+            }
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.AddRange(adminRole, memberRole);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.AddRange(userRoles);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.AddRange(adminRole, memberRole);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.AddRange(userRoles);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateCompanyCommand(companyId, userId, this.faker.Company.CompanyName());
+        var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal(command.Name, updatedCompany.Name);
     }
@@ -280,29 +435,64 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var admin1 = new UserModel { Id = admin1Id, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var admin1 = new UserModel
+        {
+            Id = admin1Id,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var admin2 = new UserModel { Id = admin2Id, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var admin2 = new UserModel
+        {
+            Id = admin2Id,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRoles = new List<UserRoleModel> { new() { Id = Guid.NewGuid(), UserId = admin1Id, RoleId = roleId, CompanyId = companyId }, new() { Id = Guid.NewGuid(), UserId = admin2Id, RoleId = roleId, CompanyId = companyId } };
+        var userRoles = new List<UserRoleModel> { new()
+        {
+            Id = Guid.NewGuid(),
+            UserId = admin1Id,
+            RoleId = roleId,
+            CompanyId = companyId
+        }, new()
+            {
+                Id = Guid.NewGuid(),
+                UserId = admin2Id,
+                RoleId = roleId,
+                CompanyId = companyId
+            }
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.AddRange(admin1, admin2);
-        this.db.AuthUserRoles.AddRange(userRoles);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.AddRange(admin1, admin2);
+        db.AuthUserRoles.AddRange(userRoles);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateCompanyCommand(companyId, admin2Id, this.faker.Company.CompanyName());
+        var command = new UpdateCompanyCommand(companyId, admin2Id, faker.Company.CompanyName());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.Equal(command.Name, updatedCompany.Name);
     }
@@ -317,18 +507,30 @@ public class UpdateCompanyHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthUsers.Add(user);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthUsers.Add(user);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(companyId, userId, "Updated Name");
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -343,24 +545,46 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "admin"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(companyId, userId, "Updated Name");
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -375,24 +599,46 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "admin"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCompanyCommand(companyId, userId, "Updated Name");
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<PermissionDeniedException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("You are not authorized to update this company.", ex.Message);
     }
 
@@ -407,27 +653,49 @@ public class UpdateCompanyHandlerTests : IDisposable
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
-        var company = new CompanyModel { Id = companyId, Name = this.faker.Company.CompanyName(), Cnpj = this.faker.Company.Cnpj(), IsActive = true };
+        var company = new CompanyModel
+        {
+            Id = companyId,
+            Name = faker.Company.CompanyName(),
+            Cnpj = faker.Company.Cnpj(),
+            IsActive = true
+        };
 
-        var role = new RoleModel { Id = roleId, Name = "Admin" };
+        var role = new RoleModel
+        {
+            Id = roleId,
+            Name = "Admin"
+        };
 
-        var user = new UserModel { Id = userId, Email = this.faker.Internet.Email(), Name = this.faker.Person.FullName, Password = this.faker.Internet.Password() };
+        var user = new UserModel
+        {
+            Id = userId,
+            Email = faker.Internet.Email(),
+            Name = faker.Person.FullName,
+            Password = faker.Internet.Password()
+        };
 
-        var userRole = new UserRoleModel { Id = Guid.NewGuid(), UserId = userId, RoleId = roleId, CompanyId = companyId };
+        var userRole = new UserRoleModel
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            RoleId = roleId,
+            CompanyId = companyId
+        };
 
-        this.db.AuthCompanies.Add(company);
-        this.db.AuthRoles.Add(role);
-        this.db.AuthUsers.Add(user);
-        this.db.AuthUserRoles.Add(userRole);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.AuthCompanies.Add(company);
+        db.AuthRoles.Add(role);
+        db.AuthUsers.Add(user);
+        db.AuthUserRoles.Add(userRole);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateCompanyCommand(companyId, userId, this.faker.Company.CompanyName());
+        var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var updatedCompany = await this.db.AuthCompanies.FindAsync(companyId);
+        var updatedCompany = await db.AuthCompanies.FindAsync(companyId);
         Assert.NotNull(updatedCompany);
         Assert.True(updatedCompany.IsActive);
         Assert.Equal(company.Cnpj, updatedCompany.Cnpj);
@@ -443,10 +711,10 @@ public class UpdateCompanyHandlerTests : IDisposable
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
 
-        var command = new UpdateCompanyCommand(companyId, userId, this.faker.Company.CompanyName());
+        var command = new UpdateCompanyCommand(companyId, userId, faker.Company.CompanyName());
 
         // Act & Assert
-        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await this.handler.Handle(command, CancellationToken.None));
+        var ex = await Assert.ThrowsAsync<ItemNotExistsException>(async () => await handler.Handle(command, CancellationToken.None));
         Assert.Equal("Company not found.", ex.Message);
     }
 }

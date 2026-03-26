@@ -18,13 +18,13 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectTaskAssigneeHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateProjectTaskAssigneeHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -45,14 +45,14 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-10)
         };
 
-        this.db.ProjectTaskAssignees.Add(assignee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.Add(assignee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var newUserId = Guid.NewGuid();
         var command = new UpdateProjectTaskAssigneeCommand(assigneeId, taskId, newUserId, "Owner", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -67,7 +67,7 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
         var command = new UpdateProjectTaskAssigneeCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Owner", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -80,7 +80,7 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
         var command = new UpdateProjectTaskAssigneeCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Owner", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -114,22 +114,22 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-3)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.AddRange(assignee1, assignee2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var newUserId = Guid.NewGuid();
         var command = new UpdateProjectTaskAssigneeCommand(assignee1Id, taskId, newUserId, "Contributor", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(assignee1Id, result.Id);
         Assert.Equal("Contributor", result.Role);
 
-        var updatedAssignee1 = await this.db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
-        var assignee2InDb = await this.db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
+        var updatedAssignee1 = await db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
+        var assignee2InDb = await db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
 
         Assert.NotNull(updatedAssignee1);
         Assert.NotNull(assignee2InDb);
@@ -153,13 +153,13 @@ public class UpdateProjectTaskAssigneeHandlerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-10)
         };
 
-        this.db.ProjectTaskAssignees.Add(assignee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.Add(assignee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskAssigneeCommand(assigneeId, taskId, userId, "Owner", DateTime.UtcNow);
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

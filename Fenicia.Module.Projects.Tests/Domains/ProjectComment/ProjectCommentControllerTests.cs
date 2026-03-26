@@ -35,24 +35,24 @@ public class ProjectCommentControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.testProjectCommentId = Guid.NewGuid();
-        var getAllProjectCommentHandler = new GetAllProjectCommentHandler(this.db);
-        var getProjectCommentByIdHandler = new GetProjectCommentByIdHandler(this.db);
-        var addProjectCommentHandler = new AddProjectCommentHandler(this.db);
-        var updateProjectCommentHandler = new UpdateProjectCommentHandler(this.db);
-        var deleteProjectCommentHandler = new DeleteProjectCommentHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, companyContext);
+        testProjectCommentId = Guid.NewGuid();
+        var getAllProjectCommentHandler = new GetAllProjectCommentHandler(db);
+        var getProjectCommentByIdHandler = new GetProjectCommentByIdHandler(db);
+        var addProjectCommentHandler = new AddProjectCommentHandler(db);
+        var updateProjectCommentHandler = new UpdateProjectCommentHandler(db);
+        var deleteProjectCommentHandler = new DeleteProjectCommentHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ProjectCommentController(getAllProjectCommentHandler, getProjectCommentByIdHandler, addProjectCommentHandler, updateProjectCommentHandler, deleteProjectCommentHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new ProjectCommentController(getAllProjectCommentHandler, getProjectCommentByIdHandler, addProjectCommentHandler, updateProjectCommentHandler, deleteProjectCommentHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
-        this.faker = new Faker();
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -64,8 +64,8 @@ public class ProjectCommentControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -96,12 +96,24 @@ public class ProjectCommentControllerTests : IDisposable
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
         // Arrange
-        var projectComment1 = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
+        var projectComment1 = new ProjectCommentModel
+        {
+            Id = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            Content = faker.Lorem.Paragraph()
+        };
 
-        var projectComment2 = new ProjectCommentModel { Id = Guid.NewGuid(), TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
+        var projectComment2 = new ProjectCommentModel
+        {
+            Id = Guid.NewGuid(),
+            TaskId = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            Content = faker.Lorem.Paragraph()
+        };
 
-        this.db.ProjectComments.AddRange(projectComment1, projectComment2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.AddRange(projectComment1, projectComment2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -109,7 +121,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -127,16 +139,22 @@ public class ProjectCommentControllerTests : IDisposable
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
         // Arrange
-        var projectComment = new ProjectCommentModel { Id = this.testProjectCommentId, TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
+        var projectComment = new ProjectCommentModel
+        {
+            Id = testProjectCommentId,
+            TaskId = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            Content = faker.Lorem.Paragraph()
+        };
 
-        this.db.ProjectComments.Add(projectComment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.Add(projectComment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testProjectCommentId, wide, ct);
+        var result = await controller.GetByIdAsync(testProjectCommentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -147,7 +165,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         var returnedComment = okResult.Value as GetProjectCommentByIdResponse;
         Assert.NotNull(returnedComment);
-        Assert.Equal(this.testProjectCommentId, returnedComment.Id);
+        Assert.Equal(testProjectCommentId, returnedComment.Id);
         Assert.Equal(projectComment.Content, returnedComment.Content);
     }
 
@@ -160,7 +178,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
+        var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -171,13 +189,13 @@ public class ProjectCommentControllerTests : IDisposable
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithItem()
     {
         // Arrange
-        var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), this.faker.Lorem.Paragraph());
+        var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Paragraph());
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -197,18 +215,24 @@ public class ProjectCommentControllerTests : IDisposable
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
         // Arrange
-        var projectComment = new ProjectCommentModel { Id = this.testProjectCommentId, TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
+        var projectComment = new ProjectCommentModel
+        {
+            Id = testProjectCommentId,
+            TaskId = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            Content = faker.Lorem.Paragraph()
+        };
 
-        this.db.ProjectComments.Add(projectComment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.Add(projectComment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProjectCommentCommand(projectComment.Id, this.faker.Lorem.Paragraph() + " Updated");
+        var command = new UpdateProjectCommentCommand(projectComment.Id, faker.Lorem.Paragraph() + " Updated");
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, this.testProjectCommentId, wide, ct);
+        var result = await controller.PatchAsync(command, testProjectCommentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -227,13 +251,13 @@ public class ProjectCommentControllerTests : IDisposable
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();
-        var command = new UpdateProjectCommentCommand(nonExistentId, this.faker.Lorem.Paragraph());
+        var command = new UpdateProjectCommentCommand(nonExistentId, faker.Lorem.Paragraph());
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
+        var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -244,22 +268,28 @@ public class ProjectCommentControllerTests : IDisposable
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
         // Arrange
-        var projectComment = new ProjectCommentModel { Id = this.testProjectCommentId, TaskId = Guid.NewGuid(), UserId = Guid.NewGuid(), Content = this.faker.Lorem.Paragraph() };
+        var projectComment = new ProjectCommentModel
+        {
+            Id = testProjectCommentId,
+            TaskId = Guid.NewGuid(),
+            UserId = Guid.NewGuid(),
+            Content = faker.Lorem.Paragraph()
+        };
 
-        this.db.ProjectComments.Add(projectComment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectComments.Add(projectComment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testProjectCommentId, wide, ct);
+        var result = await controller.DeleteAsync(testProjectCommentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify project comment was deleted
-        var deletedComment = await this.db.ProjectComments.FirstOrDefaultAsync(x => x.Id == this.testProjectCommentId && x.Deleted == null, ct);
+        var deletedComment = await db.ProjectComments.FirstOrDefaultAsync(x => x.Id == testProjectCommentId && x.Deleted == null, ct);
         Assert.Null(deletedComment);
     }
 
@@ -272,7 +302,7 @@ public class ProjectCommentControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
+        var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);

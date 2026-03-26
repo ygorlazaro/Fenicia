@@ -16,7 +16,7 @@ public class CorrelationIdMiddlewareTests
     public async Task InvokeAsync_WhenHeaderPresent_PassesThroughAndSetsResponseHeader()
     {
         var context = new DefaultHttpContext();
-        var existing = this.faker.Random.Guid().ToString();
+        var existing = faker.Random.Guid().ToString();
         context.Request.Headers[HeaderName] = existing;
 
         var called = false;

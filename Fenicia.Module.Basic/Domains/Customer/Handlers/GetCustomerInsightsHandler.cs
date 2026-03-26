@@ -25,7 +25,13 @@ public class GetCustomerInsightsHandler(DefaultContext db)
         var recentOrders = await GetRecentOrdersAsync(query.TopLimit, ct);
         var atRiskCustomers = await GetAtRiskCustomersAsync(query, ct);
 
-        return new CustomerInsightsResponse { Summary = summary, TopCustomers = topCustomers, RecentOrders = recentOrders, AtRiskCustomers = atRiskCustomers };
+        return new CustomerInsightsResponse
+        {
+            Summary = summary,
+            TopCustomers = topCustomers,
+            RecentOrders = recentOrders,
+            AtRiskCustomers = atRiskCustomers
+        };
     }
 
     private async Task<List<CustomerRiskAlertResponse>> GetAtRiskCustomersAsync(GetCustomerInsightsQuery query, CancellationToken ct)

@@ -1,48 +1,46 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { cilBan, cilCart, cilChart, cilPeople, cilPlus, cilTrash, cilUser, cilWarning } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
+    CCol,
     CContainer,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
+    CForm,
+    CFormInput,
+    CFormLabel,
+    CFormSelect,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
     CModalTitle,
-    CSpinner,
-    CAlert,
-    CForm,
-    CFormInput,
-    CFormLabel,
-    CFormSelect,
-    CRow,
-    CCol,
     CNav,
     CNavItem,
     CNavLink,
+    CRow,
+    CSpinner,
     CTabContent,
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableFoot,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow,
     CTabPane,
-    CWidgetStatsA,
-    CProgress,
-    CListGroup,
-    CListGroupItem
+    CWidgetStatsA
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPlus, cilTrash, cilWarning, cilCalendar, cilUser, cilCart, cilChart, cilPeople, cilDollar, cilBan } from '@coreui/icons';
-import { CChartPie, CChartLine, CChartBar } from '@coreui/react-chartjs';
-import { BasicOrderClient, BasicDataSourceClient } from '../../../services/basic-crud-clients';
-import OrderAnalyticsClient from '../../../services/order-analytics-client';
-import Pagination from '../../../components/Pagination';
+import { CChartLine, CChartPie } from '@coreui/react-chartjs';
 import { getStyle } from '@coreui/utils';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import Pagination from '../../../components/Pagination';
+import { BasicDataSourceClient, BasicOrderClient } from '../../../services/basic-crud-clients';
+import OrderAnalyticsClient from '../../../services/order-analytics-client';
 
 const orderClient = new BasicOrderClient();
 const dataSourceClient = new BasicDataSourceClient();
@@ -90,7 +88,7 @@ const Orders = () => {
     const [products, setProducts] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [employees, setEmployees] = useState([]);
-    const [isAdmin, setIsAdmin] = useState(false);
+
 
     // Analytics state
     const [analyticsLoading, setAnalyticsLoading] = useState(false);
@@ -103,7 +101,7 @@ const Orders = () => {
         loadProducts();
         loadCustomers();
         loadEmployees();
-        checkAdminRole();
+
     }, []);
 
     useEffect(() => {
@@ -116,11 +114,7 @@ const Orders = () => {
         }
     }, [activeTab, analyticsDays]);
 
-    const checkAdminRole = () => {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const roles = user.roles || [];
-        setIsAdmin(roles.includes('Admin'));
-    };
+
 
     const loadProducts = async () => {
         try {
@@ -759,15 +753,14 @@ const Orders = () => {
                                                     </CTableDataCell>
                                                     <CTableDataCell>{order.totalItems}</CTableDataCell>
                                                     <CTableDataCell className="text-end">
-                                                        {isAdmin && (
-                                                            <CButton
-                                                                color="danger"
-                                                                size="sm"
-                                                                onClick={() => handleOpenDelete(order)}
-                                                            >
-                                                                <CIcon icon={cilTrash} />
-                                                            </CButton>
-                                                        )}
+                                                        <CButton
+                                                            color="danger"
+                                                            size="sm"
+                                                            onClick={() => handleOpenDelete(order)}
+                                                        >
+                                                            <CIcon icon={cilTrash} />
+                                                        </CButton>
+
                                                     </CTableDataCell>
                                                 </CTableRow>
                                             ))}

@@ -22,12 +22,16 @@ namespace Fenicia.Auth.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthAddressModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.AddressModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<int>("AddressType")
+                        .HasColumnType("integer")
+                        .HasColumnName("address_type");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -36,10 +40,14 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnName("city");
 
                     b.Property<string>("Complement")
-                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("complement");
+
+                    b.Property<string>("Country")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("complement");
+                        .HasColumnName("country");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
@@ -49,11 +57,33 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted");
 
-                    b.Property<string>("Number")
-                        .IsRequired()
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("latitude");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision")
+                        .HasColumnName("longitude");
+
+                    b.Property<string>("Neighborhood")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
+                        .HasColumnName("neighborhood");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
                         .HasColumnName("number");
+
+                    b.Property<string>("Observation")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("observation");
 
                     b.Property<Guid>("StateId")
                         .HasColumnType("uuid")
@@ -84,7 +114,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("addresses", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthCompanyModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.CompanyModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -113,23 +143,11 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("language");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
-
-                    b.Property<string>("TimeZone")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("time_zone");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
@@ -144,7 +162,55 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("companies", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthForgotPassowrdModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.ConfigurationModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
+
+                    b.Property<int>("ConfigType")
+                        .HasColumnType("integer")
+                        .HasColumnName("config_type");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_configuration");
+
+                    b.HasIndex("CompanyId")
+                        .HasDatabaseName("ix_configuration_company_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_configuration_user_id");
+
+                    b.ToTable("Configuration", "auth");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.ForgotPasswordModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -169,6 +235,11 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expiration_date");
 
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)")
+                        .HasColumnName("ip_address");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -176,6 +247,11 @@ namespace Fenicia.Auth.Migrations
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("user_agent");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -190,7 +266,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("forgotten_passwords", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthModuleModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.ModuleModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -205,6 +281,20 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("icon");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -215,6 +305,10 @@ namespace Fenicia.Auth.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("price");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -230,7 +324,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("modules", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthOrderDetailModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.OrderDetailModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -245,6 +339,10 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("discount_amount");
+
                     b.Property<Guid>("ModuleId")
                         .HasColumnType("uuid")
                         .HasColumnName("module_id");
@@ -256,6 +354,10 @@ namespace Fenicia.Auth.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("price");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("subtotal");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
@@ -273,7 +375,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("order_details", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthOrderModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.OrderModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -292,6 +394,25 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("discount_amount");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("order_number");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_method");
+
                     b.Property<DateTime>("SaleDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sale_date");
@@ -303,6 +424,10 @@ namespace Fenicia.Auth.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("total_amount");
+
+                    b.Property<int>("TotalQuantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_quantity");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
@@ -324,7 +449,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("orders", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthRoleModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.RoleModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -355,7 +480,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("roles", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthStateModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.StateModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -392,56 +517,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("states", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthSubmoduleModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("description");
-
-                    b.Property<Guid>("ModuleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("module_id");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Route")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("route");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated");
-
-                    b.HasKey("Id")
-                        .HasName("pk_submodules");
-
-                    b.HasIndex("ModuleId")
-                        .HasDatabaseName("ix_submodules_module_id");
-
-                    b.ToTable("submodules", "auth");
-                });
-
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthSubscriptionCreditModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.SubscriptionCreditModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -500,7 +576,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("subscription_credits", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthSubscriptionModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.SubscriptionModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -552,7 +628,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("subscriptions", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthUserModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.UserModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -600,7 +676,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("users", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthUserRoleModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.UserRoleModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -646,7 +722,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("users_roles", "auth");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicCustomerModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.CustomerModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -683,7 +759,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("customers", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicEmployeeModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.EmployeeModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -727,7 +803,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("employees", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicOrderDetailModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.OrderDetailModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -746,6 +822,10 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("discount_amount");
+
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");
@@ -761,6 +841,10 @@ namespace Fenicia.Auth.Migrations
                     b.Property<double>("Quantity")
                         .HasColumnType("double precision")
                         .HasColumnName("quantity");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("subtotal");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
@@ -778,7 +862,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("order_details", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicOrderModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.OrderModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -801,9 +885,28 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted");
 
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("discount_amount");
+
                     b.Property<Guid?>("EmployeeId")
                         .HasColumnType("uuid")
                         .HasColumnName("employee_id");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<string>("OrderNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("order_number");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_method");
 
                     b.Property<DateTime>("SaleDate")
                         .HasColumnType("timestamp with time zone")
@@ -816,6 +919,10 @@ namespace Fenicia.Auth.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("total_amount");
+
+                    b.Property<int>("TotalQuantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_quantity");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
@@ -837,30 +944,67 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("orders", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicPersonModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.PersonAddressModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("City")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("city");
+                    b.Property<Guid>("AddressId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("address_id");
 
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uuid")
                         .HasColumnName("company_id");
 
-                    b.Property<string>("Complement")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("complement");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("person_id");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.HasKey("Id")
+                        .HasName("pk_person_addresses");
+
+                    b.HasIndex("AddressId")
+                        .HasDatabaseName("ix_person_addresses_address_id");
+
+                    b.HasIndex("PersonId")
+                        .HasDatabaseName("ix_person_addresses_person_id");
+
+                    b.ToTable("person_addresses", "basic");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.PersonModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_of_birth");
 
                     b.Property<DateTime?>("Deleted")
                         .HasColumnType("timestamp with time zone")
@@ -882,49 +1026,39 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
 
-                    b.Property<string>("Neighborhood")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("neighborhood");
-
-                    b.Property<string>("Number")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("number");
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("phone_number");
 
-                    b.Property<Guid?>("StateId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("state_id");
+                    b.Property<string>("PhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("photo_url");
 
-                    b.Property<string>("Street")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("street");
+                    b.Property<Guid?>("StateModelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("state_model_id");
 
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
 
-                    b.Property<string>("ZipCode")
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)")
-                        .HasColumnName("zip_code");
-
                     b.HasKey("Id")
                         .HasName("pk_people");
 
-                    b.HasIndex("StateId")
-                        .HasDatabaseName("ix_people_state_id");
+                    b.HasIndex("StateModelId")
+                        .HasDatabaseName("ix_people_state_model_id");
 
                     b.ToTable("people", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicPositionModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.PositionModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -959,7 +1093,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("positions", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicProductCategoryModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.ProductCategoryModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -994,12 +1128,17 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("product_categories", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicProductModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.ProductModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<string>("Barcode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("barcode");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid")
@@ -1021,6 +1160,33 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Dimensions")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("dimensions");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("image_url");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<int?>("MaxStockLevel")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_stock_level");
+
+                    b.Property<int?>("MinStockLevel")
+                        .HasColumnType("integer")
+                        .HasColumnName("min_stock_level");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1031,6 +1197,11 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("quantity");
 
+                    b.Property<string>("SKU")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("sku");
+
                     b.Property<decimal>("SalesPrice")
                         .HasColumnType("numeric")
                         .HasColumnName("sales_price");
@@ -1039,9 +1210,18 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("supplier_id");
 
+                    b.Property<string>("UnitOfMeasure")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("unit_of_measure");
+
                     b.Property<DateTime?>("Updated")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated");
+
+                    b.Property<decimal?>("Weight")
+                        .HasColumnType("numeric")
+                        .HasColumnName("weight");
 
                     b.HasKey("Id")
                         .HasName("pk_products");
@@ -1055,7 +1235,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("products", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicStockMovementModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.StockMovementModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1140,7 +1320,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("stock_movements", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicSupplierModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.SupplierModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1181,7 +1361,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("suppliers", "basic");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectAttachmentModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.AttachmentModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1193,8 +1373,8 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnName("company_id");
 
                     b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("content_type");
 
                     b.Property<DateTime>("Created")
@@ -1207,7 +1387,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("file_name");
 
                     b.Property<long>("FileSize")
@@ -1216,7 +1397,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("FileUrl")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("file_url");
 
                     b.Property<long>("Size")
@@ -1239,9 +1421,9 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("uploaded_by");
 
-                    b.Property<Guid>("UserModelId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
-                        .HasColumnName("user_model_id");
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id")
                         .HasName("pk_attachments");
@@ -1249,13 +1431,13 @@ namespace Fenicia.Auth.Migrations
                     b.HasIndex("TaskModelId")
                         .HasDatabaseName("ix_attachments_task_model_id");
 
-                    b.HasIndex("UserModelId")
-                        .HasDatabaseName("ix_attachments_user_model_id");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_attachments_user_id");
 
                     b.ToTable("attachments", "project");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectCommentModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectCommentModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1272,7 +1454,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)")
                         .HasColumnName("content");
 
                     b.Property<DateTime>("Created")
@@ -1299,23 +1482,19 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("UserModelId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_model_id");
-
                     b.HasKey("Id")
                         .HasName("pk_comments");
 
                     b.HasIndex("TaskModelId")
                         .HasDatabaseName("ix_comments_task_model_id");
 
-                    b.HasIndex("UserModelId")
-                        .HasDatabaseName("ix_comments_user_model_id");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_comments_user_id");
 
                     b.ToTable("comments", "project");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1335,7 +1514,8 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnName("deleted");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)")
                         .HasColumnName("description");
 
                     b.Property<DateTime?>("EndDate")
@@ -1356,7 +1536,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("title");
 
                     b.Property<DateTime?>("Updated")
@@ -1369,7 +1550,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("projects", "project");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectStatusModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectStatusModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1378,7 +1559,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("Color")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
                         .HasColumnName("color");
 
                     b.Property<Guid>("CompanyId")
@@ -1399,7 +1581,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
                         .HasColumnName("name");
 
                     b.Property<int>("Order")
@@ -1427,7 +1610,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("statuses", "project");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectSubtaskModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectSubtaskModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1472,7 +1655,8 @@ namespace Fenicia.Auth.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
                         .HasColumnName("title");
 
                     b.Property<DateTime?>("Updated")
@@ -1488,7 +1672,100 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("project_subtasks", "project");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectTaskAssigneeModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectTaskModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("company_id");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("Deleted")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4096)
+                        .HasColumnType("character varying(4096)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("due_date");
+
+                    b.Property<int?>("EstimatePoints")
+                        .HasColumnType("integer")
+                        .HasColumnName("estimate_points");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("project_id");
+
+                    b.Property<Guid>("ProjectModelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("project_model_id");
+
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("status_id");
+
+                    b.Property<Guid>("StatusModelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("status_model_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("title");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime?>("Updated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tasks");
+
+                    b.HasIndex("ProjectModelId")
+                        .HasDatabaseName("ix_tasks_project_model_id");
+
+                    b.HasIndex("StatusModelId")
+                        .HasDatabaseName("ix_tasks_status_model_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_tasks_user_id");
+
+                    b.ToTable("tasks", "project");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.TaskAssigneeModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1531,114 +1808,19 @@ namespace Fenicia.Auth.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("UserModelId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_model_id");
-
                     b.HasKey("Id")
                         .HasName("pk_task_assignees");
 
                     b.HasIndex("TaskModelId")
                         .HasDatabaseName("ix_task_assignees_task_model_id");
 
-                    b.HasIndex("UserModelId")
-                        .HasDatabaseName("ix_task_assignees_user_model_id");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_task_assignees_user_id");
 
                     b.ToTable("task_assignees", "project");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectTaskModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("company_id");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime?>("Deleted")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<DateTime?>("DueDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("due_date");
-
-                    b.Property<int?>("EstimatePoints")
-                        .HasColumnType("integer")
-                        .HasColumnName("estimate_points");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("integer")
-                        .HasColumnName("order");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("integer")
-                        .HasColumnName("priority");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("project_id");
-
-                    b.Property<Guid>("ProjectModelId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("project_model_id");
-
-                    b.Property<Guid>("StatusId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("status_id");
-
-                    b.Property<Guid>("StatusModelId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("status_model_id");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("title");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer")
-                        .HasColumnName("type");
-
-                    b.Property<DateTime?>("Updated")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated");
-
-                    b.Property<Guid>("UserModelId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_model_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_tasks");
-
-                    b.HasIndex("ProjectModelId")
-                        .HasDatabaseName("ix_tasks_project_model_id");
-
-                    b.HasIndex("StatusModelId")
-                        .HasDatabaseName("ix_tasks_status_model_id");
-
-                    b.HasIndex("UserModelId")
-                        .HasDatabaseName("ix_tasks_user_model_id");
-
-                    b.ToTable("tasks", "project");
-                });
-
-            modelBuilder.Entity("Fenicia.Common.Data.Models.SNFeedModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetworkModels.FeedModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1688,7 +1870,7 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("feeds", "social_network");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.SNFollowerModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetworkModels.FollowerModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1739,21 +1921,21 @@ namespace Fenicia.Auth.Migrations
                     b.ToTable("followers", "social_network");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthAddressModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.AddressModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthStateModel", "StateModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.StateModel", "State")
                         .WithMany("Addresses")
                         .HasForeignKey("StateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_addresses_states_state_id");
 
-                    b.Navigation("StateModel");
+                    b.Navigation("State");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthCompanyModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.CompanyModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthAddressModel", "Address")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.AddressModel", "Address")
                         .WithMany()
                         .HasForeignKey("AddressId")
                         .HasConstraintName("fk_companies_addresses_address_id");
@@ -1761,242 +1943,270 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Address");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthForgotPassowrdModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.ConfigurationModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "UserModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.CompanyModel", "Company")
+                        .WithMany("Configurations")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_configuration_companies_company_id");
+
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
+                        .WithMany("Configurations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_configuration_users_user_id");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.ForgotPasswordModel", b =>
+                {
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_forgotten_passwords_users_user_id");
 
-                    b.Navigation("UserModel");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthOrderDetailModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.OrderDetailModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthModuleModel", "ModuleModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ModuleModel", "Module")
                         .WithMany("OrderDetails")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_order_details_modules_module_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthOrderModel", "OrderModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.OrderModel", "Order")
                         .WithMany("Details")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_order_details_orders_order_id");
 
-                    b.Navigation("ModuleModel");
+                    b.Navigation("Module");
 
-                    b.Navigation("OrderModel");
+                    b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthOrderModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.OrderModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthCompanyModel", "CompanyModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.CompanyModel", "Company")
                         .WithMany("Orders")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_orders_companies_company_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "UserModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_orders_users_user_id");
 
-                    b.Navigation("CompanyModel");
+                    b.Navigation("Company");
 
-                    b.Navigation("UserModel");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthSubmoduleModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.SubscriptionCreditModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthModuleModel", "ModuleModel")
-                        .WithMany("Submodules")
-                        .HasForeignKey("ModuleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_submodules_modules_module_id");
-
-                    b.Navigation("ModuleModel");
-                });
-
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthSubscriptionCreditModel", b =>
-                {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthModuleModel", "ModuleModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.ModuleModel", "Module")
                         .WithMany("SubscriptionCredits")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_subscription_credits_modules_module_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthOrderDetailModel", "OrderDetail")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.OrderDetailModel", "Order")
                         .WithOne("SubscriptionCredit")
-                        .HasForeignKey("Fenicia.Common.Data.Models.AuthSubscriptionCreditModel", "OrderDetailId")
+                        .HasForeignKey("Fenicia.Common.Data.Models.Auth.SubscriptionCreditModel", "OrderDetailId")
                         .HasConstraintName("fk_subscription_credits_order_details_order_detail_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthSubscriptionModel", "SubscriptionModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.SubscriptionModel", "Subscription")
                         .WithMany("Credits")
                         .HasForeignKey("SubscriptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_subscription_credits_subscriptions_subscription_id");
 
-                    b.Navigation("ModuleModel");
+                    b.Navigation("Module");
 
-                    b.Navigation("OrderDetail");
+                    b.Navigation("Order");
 
-                    b.Navigation("SubscriptionModel");
+                    b.Navigation("Subscription");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthSubscriptionModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.SubscriptionModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthCompanyModel", "CompanyModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.CompanyModel", "Company")
                         .WithMany("Subscriptions")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_subscriptions_companies_company_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthOrderModel", "Order")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.OrderModel", "Order")
                         .WithOne("Subscription")
-                        .HasForeignKey("Fenicia.Common.Data.Models.AuthSubscriptionModel", "OrderId")
+                        .HasForeignKey("Fenicia.Common.Data.Models.Auth.SubscriptionModel", "OrderId")
                         .HasConstraintName("fk_subscriptions_orders_order_id");
 
-                    b.Navigation("CompanyModel");
+                    b.Navigation("Company");
 
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthUserRoleModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.UserRoleModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthCompanyModel", "CompanyModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.CompanyModel", "Company")
                         .WithMany("UsersRoles")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_users_roles_companies_company_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthRoleModel", "RoleModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.RoleModel", "Role")
                         .WithMany("UsersRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_users_roles_roles_role_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "UserModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
                         .WithMany("UsersRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_users_roles_users_user_id");
 
-                    b.Navigation("CompanyModel");
+                    b.Navigation("Company");
 
-                    b.Navigation("RoleModel");
+                    b.Navigation("Role");
 
-                    b.Navigation("UserModel");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicCustomerModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.CustomerModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.BasicPersonModel", "PersonModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.PersonModel", "Person")
                         .WithOne("Customer")
-                        .HasForeignKey("Fenicia.Common.Data.Models.BasicCustomerModel", "PersonId")
+                        .HasForeignKey("Fenicia.Common.Data.Models.Basic.CustomerModel", "PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_customers_people_person_id");
 
-                    b.Navigation("PersonModel");
+                    b.Navigation("Person");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicEmployeeModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.EmployeeModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.BasicPersonModel", "PersonModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.PersonModel", "Person")
                         .WithOne("Employee")
-                        .HasForeignKey("Fenicia.Common.Data.Models.BasicEmployeeModel", "PersonId")
+                        .HasForeignKey("Fenicia.Common.Data.Models.Basic.EmployeeModel", "PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_employees_people_person_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.BasicPositionModel", "PositionModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.PositionModel", "Position")
                         .WithMany("Employees")
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_employees_positions_position_id");
 
-                    b.Navigation("PersonModel");
+                    b.Navigation("Person");
 
-                    b.Navigation("PositionModel");
+                    b.Navigation("Position");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicOrderDetailModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.OrderDetailModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.BasicOrderModel", "OrderModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.OrderModel", "Order")
                         .WithMany("Details")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_order_details_orders_order_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.BasicProductModel", "ProductModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.ProductModel", "Product")
                         .WithMany("OrderDetails")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_order_details_products_product_id");
 
-                    b.Navigation("OrderModel");
+                    b.Navigation("Order");
 
-                    b.Navigation("ProductModel");
+                    b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicOrderModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.OrderModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.BasicCustomerModel", "CustomerModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.CustomerModel", "Customer")
                         .WithMany("Orders")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_orders_customers_customer_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.BasicEmployeeModel", "EmployeeModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.EmployeeModel", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .HasConstraintName("fk_orders_employees_employee_id");
 
-                    b.Navigation("CustomerModel");
+                    b.Navigation("Customer");
 
-                    b.Navigation("EmployeeModel");
+                    b.Navigation("Employee");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicPersonModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.PersonAddressModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthStateModel", "StateModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.AddressModel", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_person_addresses_addresses_address_id");
+
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.PersonModel", "Person")
+                        .WithMany("PersonAddresses")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_person_addresses_people_person_id");
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.PersonModel", b =>
+                {
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.StateModel", null)
                         .WithMany("People")
-                        .HasForeignKey("StateId")
-                        .HasConstraintName("fk_people_states_state_id");
-
-                    b.Navigation("StateModel");
+                        .HasForeignKey("StateModelId")
+                        .HasConstraintName("fk_people_states_state_model_id");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicProductModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.ProductModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.BasicProductCategoryModel", "Category")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.ProductCategoryModel", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_products_product_categories_category_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.BasicSupplierModel", "Supplier")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.SupplierModel", "Supplier")
                         .WithMany("Products")
                         .HasForeignKey("SupplierId")
                         .HasConstraintName("fk_products_suppliers_supplier_id");
@@ -2006,31 +2216,31 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Supplier");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicStockMovementModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.StockMovementModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.BasicCustomerModel", "Customer")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.CustomerModel", "Customer")
                         .WithMany("StockMovements")
                         .HasForeignKey("CustomerId")
                         .HasConstraintName("fk_stock_movements_customers_customer_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.BasicEmployeeModel", "Employee")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.EmployeeModel", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .HasConstraintName("fk_stock_movements_employees_employee_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.BasicOrderModel", "OrderModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.OrderModel", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .HasConstraintName("fk_stock_movements_orders_order_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.BasicProductModel", "ProductModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.ProductModel", "Product")
                         .WithMany("StockMovements")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_stock_movements_products_product_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.BasicSupplierModel", "Supplier")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.SupplierModel", "Supplier")
                         .WithMany("StockMovements")
                         .HasForeignKey("SupplierId")
                         .HasConstraintName("fk_stock_movements_suppliers_supplier_id");
@@ -2039,16 +2249,16 @@ namespace Fenicia.Auth.Migrations
 
                     b.Navigation("Employee");
 
-                    b.Navigation("OrderModel");
+                    b.Navigation("Order");
 
-                    b.Navigation("ProductModel");
+                    b.Navigation("Product");
 
                     b.Navigation("Supplier");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicSupplierModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.SupplierModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.BasicPersonModel", "Person")
+                    b.HasOne("Fenicia.Common.Data.Models.Basic.PersonModel", "Person")
                         .WithMany()
                         .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2058,51 +2268,51 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("Person");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectAttachmentModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.AttachmentModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.ProjectTaskModel", "TaskModel")
+                    b.HasOne("Fenicia.Common.Data.Models.ProjectModels.ProjectTaskModel", "TaskModel")
                         .WithMany("Attachments")
                         .HasForeignKey("TaskModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_attachments_tasks_task_model_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "UserModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
                         .WithMany()
-                        .HasForeignKey("UserModelId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_attachments_users_user_model_id");
+                        .HasConstraintName("fk_attachments_users_user_id");
 
                     b.Navigation("TaskModel");
 
-                    b.Navigation("UserModel");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectCommentModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectCommentModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.ProjectTaskModel", "TaskModel")
+                    b.HasOne("Fenicia.Common.Data.Models.ProjectModels.ProjectTaskModel", "TaskModel")
                         .WithMany("Comments")
                         .HasForeignKey("TaskModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_comments_tasks_task_model_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "UserModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
                         .WithMany()
-                        .HasForeignKey("UserModelId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_comments_users_user_model_id");
+                        .HasConstraintName("fk_comments_users_user_id");
 
                     b.Navigation("TaskModel");
 
-                    b.Navigation("UserModel");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectStatusModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectStatusModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.ProjectModel", "ProjectModel")
+                    b.HasOne("Fenicia.Common.Data.Models.ProjectModels.ProjectModel", "ProjectModel")
                         .WithMany("Statuses")
                         .HasForeignKey("ProjectModelId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2112,9 +2322,9 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("ProjectModel");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectSubtaskModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectSubtaskModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.ProjectTaskModel", "TaskModel")
+                    b.HasOne("Fenicia.Common.Data.Models.ProjectModels.ProjectTaskModel", "TaskModel")
                         .WithMany("Subtasks")
                         .HasForeignKey("TaskModelId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2124,60 +2334,60 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("TaskModel");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectTaskAssigneeModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectTaskModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.ProjectTaskModel", "TaskModel")
-                        .WithMany("Assignees")
-                        .HasForeignKey("TaskModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_task_assignees_tasks_task_model_id");
-
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "UserModel")
-                        .WithMany("TaskAssignees")
-                        .HasForeignKey("UserModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_task_assignees_users_user_model_id");
-
-                    b.Navigation("TaskModel");
-
-                    b.Navigation("UserModel");
-                });
-
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectTaskModel", b =>
-                {
-                    b.HasOne("Fenicia.Common.Data.Models.ProjectModel", "ProjectModel")
+                    b.HasOne("Fenicia.Common.Data.Models.ProjectModels.ProjectModel", "ProjectModel")
                         .WithMany("Tasks")
                         .HasForeignKey("ProjectModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_tasks_projects_project_model_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.ProjectStatusModel", "StatusModel")
+                    b.HasOne("Fenicia.Common.Data.Models.ProjectModels.ProjectStatusModel", "StatusModel")
                         .WithMany("Tasks")
                         .HasForeignKey("StatusModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_tasks_statuses_status_model_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "UserModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
                         .WithMany("Tasks")
-                        .HasForeignKey("UserModelId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_tasks_users_user_model_id");
+                        .HasConstraintName("fk_tasks_users_user_id");
 
                     b.Navigation("ProjectModel");
 
                     b.Navigation("StatusModel");
 
-                    b.Navigation("UserModel");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.SNFeedModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.TaskAssigneeModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "UserModel")
+                    b.HasOne("Fenicia.Common.Data.Models.ProjectModels.ProjectTaskModel", "TaskModel")
+                        .WithMany("Assignees")
+                        .HasForeignKey("TaskModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_task_assignees_tasks_task_model_id");
+
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "User")
+                        .WithMany("TaskAssignees")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_task_assignees_users_user_id");
+
+                    b.Navigation("TaskModel");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetworkModels.FeedModel", b =>
+                {
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "UserModel")
                         .WithMany()
                         .HasForeignKey("UserModelId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2187,16 +2397,16 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("UserModel");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.SNFollowerModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.SocialNetworkModels.FollowerModel", b =>
                 {
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "Follower")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "Follower")
                         .WithMany("Followers")
                         .HasForeignKey("FollowerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_followers_users_follower_id");
 
-                    b.HasOne("Fenicia.Common.Data.Models.AuthUserModel", "UserModel")
+                    b.HasOne("Fenicia.Common.Data.Models.Auth.UserModel", "UserModel")
                         .WithMany("Following")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2208,8 +2418,10 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("UserModel");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthCompanyModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.CompanyModel", b =>
                 {
+                    b.Navigation("Configurations");
+
                     b.Navigation("Orders");
 
                     b.Navigation("Subscriptions");
@@ -2217,46 +2429,46 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("UsersRoles");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthModuleModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.ModuleModel", b =>
                 {
                     b.Navigation("OrderDetails");
-
-                    b.Navigation("Submodules");
 
                     b.Navigation("SubscriptionCredits");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthOrderDetailModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.OrderDetailModel", b =>
                 {
                     b.Navigation("SubscriptionCredit");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthOrderModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.OrderModel", b =>
                 {
                     b.Navigation("Details");
 
                     b.Navigation("Subscription");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthRoleModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.RoleModel", b =>
                 {
                     b.Navigation("UsersRoles");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthStateModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.StateModel", b =>
                 {
                     b.Navigation("Addresses");
 
                     b.Navigation("People");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthSubscriptionModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.SubscriptionModel", b =>
                 {
                     b.Navigation("Credits");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.AuthUserModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Auth.UserModel", b =>
                 {
+                    b.Navigation("Configurations");
+
                     b.Navigation("Followers");
 
                     b.Navigation("Following");
@@ -2270,62 +2482,64 @@ namespace Fenicia.Auth.Migrations
                     b.Navigation("UsersRoles");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicCustomerModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.CustomerModel", b =>
                 {
                     b.Navigation("Orders");
 
                     b.Navigation("StockMovements");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicOrderModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.OrderModel", b =>
                 {
                     b.Navigation("Details");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicPersonModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.PersonModel", b =>
                 {
                     b.Navigation("Customer");
 
                     b.Navigation("Employee");
+
+                    b.Navigation("PersonAddresses");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicPositionModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.PositionModel", b =>
                 {
                     b.Navigation("Employees");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicProductCategoryModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.ProductCategoryModel", b =>
                 {
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicProductModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.ProductModel", b =>
                 {
                     b.Navigation("OrderDetails");
 
                     b.Navigation("StockMovements");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.BasicSupplierModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.Basic.SupplierModel", b =>
                 {
                     b.Navigation("Products");
 
                     b.Navigation("StockMovements");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectModel", b =>
                 {
                     b.Navigation("Statuses");
 
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectStatusModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectStatusModel", b =>
                 {
                     b.Navigation("Tasks");
                 });
 
-            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectTaskModel", b =>
+            modelBuilder.Entity("Fenicia.Common.Data.Models.ProjectModels.ProjectTaskModel", b =>
                 {
                     b.Navigation("Assignees");
 

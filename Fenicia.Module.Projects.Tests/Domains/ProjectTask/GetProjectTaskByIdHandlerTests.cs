@@ -21,14 +21,14 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectTaskByIdHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetProjectTaskByIdHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -45,8 +45,8 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             Id = taskId,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.High,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -55,13 +55,13 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.Add(task);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.Add(task);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskByIdQuery(taskId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -76,7 +76,7 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
         var query = new GetProjectTaskByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -89,7 +89,7 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
         var query = new GetProjectTaskByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -109,8 +109,8 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             Id = task1Id,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.High,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -124,8 +124,8 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             Id = task2Id,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Bug,
             Order = 2,
@@ -134,13 +134,13 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(task1, task2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.AddRange(task1, task2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskByIdQuery(task1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -160,7 +160,7 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             Id = taskId,
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             Description = null,
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Task,
@@ -170,13 +170,13 @@ public class GetProjectTaskByIdHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.Add(task);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.Add(task);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectTaskByIdQuery(taskId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

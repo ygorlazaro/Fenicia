@@ -18,13 +18,13 @@ public class DeletePositionHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new DeletePositionHandler(this.db);
+        db = new DefaultContext(options, companyContext);
+        handler = new DeletePositionHandler(db);
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
         GC.SuppressFinalize(this);
     }
 
@@ -36,19 +36,23 @@ public class DeletePositionHandlerTests : IDisposable
     {
         // Arrange
         var positionId = Guid.NewGuid();
-        var position = new PositionModel { Id = positionId, Name = positionName };
+        var position = new PositionModel
+        {
+            Id = positionId,
+            Name = positionName
+        };
 
-        this.db.BasicPositions.Add(position);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.Add(position);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeletePositionCommand(positionId);
         var beforeDelete = DateTime.Now;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedPosition = await this.db.BasicPositions.FindAsync([positionId], CancellationToken.None);
+        var deletedPosition = await db.BasicPositions.FindAsync([positionId], CancellationToken.None);
         Assert.NotNull(deletedPosition);
         Assert.NotNull(deletedPosition.Deleted);
         Assert.InRange(deletedPosition.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.Now.AddSeconds(1));
@@ -61,10 +65,10 @@ public class DeletePositionHandlerTests : IDisposable
         var command = new DeletePositionCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var positions = await this.db.BasicPositions.ToListAsync();
+        var positions = await db.BasicPositions.ToListAsync();
         Assert.Empty(positions);
     }
 
@@ -75,20 +79,28 @@ public class DeletePositionHandlerTests : IDisposable
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
-        var position1 = new PositionModel { Id = position1Id, Name = "Developer" };
-        var position2 = new PositionModel { Id = position2Id, Name = "Designer" };
+        var position1 = new PositionModel
+        {
+            Id = position1Id,
+            Name = "Developer"
+        };
+        var position2 = new PositionModel
+        {
+            Id = position2Id,
+            Name = "Designer"
+        };
 
-        this.db.BasicPositions.AddRange(position1, position2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.BasicPositions.AddRange(position1, position2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeletePositionCommand(position1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedPosition = await this.db.BasicPositions.FindAsync([position1Id], CancellationToken.None);
-        var notDeletedPosition = await this.db.BasicPositions.FindAsync([position2Id], CancellationToken.None);
+        var deletedPosition = await db.BasicPositions.FindAsync([position1Id], CancellationToken.None);
+        var notDeletedPosition = await db.BasicPositions.FindAsync([position2Id], CancellationToken.None);
 
         Assert.NotNull(deletedPosition);
         Assert.NotNull(deletedPosition.Deleted);
@@ -103,10 +115,10 @@ public class DeletePositionHandlerTests : IDisposable
         var command = new DeletePositionCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var positions = await this.db.BasicPositions.ToListAsync();
+        var positions = await db.BasicPositions.ToListAsync();
         Assert.Empty(positions);
     }
 }

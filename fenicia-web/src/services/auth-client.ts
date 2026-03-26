@@ -1,5 +1,5 @@
+import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { ApiClient, AUTH_API_BASE_URL } from './client';
-import { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
 // Default company ID for initial login (can be overridden)
 const DEFAULT_COMPANY_ID = import.meta.env.VITE_DEFAULT_COMPANY_ID || '00000000-0000-0000-0000-000000000000';
@@ -28,10 +28,7 @@ export class AuthClient extends ApiClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Use stored company ID or default for anonymous requests
-        if ((companyId || DEFAULT_COMPANY_ID) && config.headers) {
-          config.headers['x-company'] = companyId || DEFAULT_COMPANY_ID;
-        }
+
 
         return config;
       },

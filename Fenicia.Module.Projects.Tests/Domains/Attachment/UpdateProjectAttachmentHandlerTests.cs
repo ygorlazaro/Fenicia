@@ -20,14 +20,14 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new UpdateProjectAttachmentHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new UpdateProjectAttachmentHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -43,22 +43,22 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             Id = attachmentId,
             TaskId = taskId,
             FileName = "old_file.pdf",
-            FileUrl = this.faker.Internet.Url(),
+            FileUrl = faker.Internet.Url(),
             FileSize = 10000,
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.Add(attachment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectAttachments.Add(attachment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var newFileName = $"{this.faker.System.FileName()}.pdf";
-        var newFileUrl = this.faker.Internet.Url();
-        var newFileSize = this.faker.Random.Long(50000, 100000);
+        var newFileName = $"{faker.System.FileName()}.pdf";
+        var newFileUrl = faker.Internet.Url();
+        var newFileSize = faker.Random.Long(50000, 100000);
         var command = new UpdateProjectAttachmentCommand(attachmentId, taskId, newFileName, newFileUrl, newFileSize, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -70,10 +70,10 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
     public async Task Handle_WhenProjectAttachmentDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), $"{this.faker.System.FileName()}.pdf", this.faker.Internet.Url(), this.faker.Random.Long(1000, 1000000), Guid.NewGuid());
+        var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), $"{faker.System.FileName()}.pdf", faker.Internet.Url(), faker.Random.Long(1000, 1000000), Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -83,10 +83,10 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), $"{this.faker.System.FileName()}.pdf", this.faker.Internet.Url(), this.faker.Random.Long(1000, 1000000), Guid.NewGuid());
+        var command = new UpdateProjectAttachmentCommand(Guid.NewGuid(), Guid.NewGuid(), $"{faker.System.FileName()}.pdf", faker.Internet.Url(), faker.Random.Long(1000, 1000000), Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -105,7 +105,7 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             Id = attachment1Id,
             TaskId = taskId,
             FileName = "file1.pdf",
-            FileUrl = this.faker.Internet.Url(),
+            FileUrl = faker.Internet.Url(),
             FileSize = 10000,
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
@@ -116,28 +116,28 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
             Id = attachment2Id,
             TaskId = taskId,
             FileName = "file2.docx",
-            FileUrl = this.faker.Internet.Url(),
+            FileUrl = faker.Internet.Url(),
             FileSize = 20000,
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.AddRange(attachment1, attachment2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectAttachments.AddRange(attachment1, attachment2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
-        var newFileName = $"{this.faker.System.FileName()}_updated.pdf";
-        var command = new UpdateProjectAttachmentCommand(attachment1Id, taskId, newFileName, this.faker.Internet.Url(), 50000, Guid.NewGuid());
+        var newFileName = $"{faker.System.FileName()}_updated.pdf";
+        var command = new UpdateProjectAttachmentCommand(attachment1Id, taskId, newFileName, faker.Internet.Url(), 50000, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(attachment1Id, result.Id);
         Assert.Equal(newFileName, result.FileName);
 
-        var updatedAttachment1 = await this.db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
-        var attachment2InDb = await this.db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
+        var updatedAttachment1 = await db.ProjectAttachments.FindAsync([attachment1Id], CancellationToken.None);
+        var attachment2InDb = await db.ProjectAttachments.FindAsync([attachment2Id], CancellationToken.None);
 
         Assert.NotNull(updatedAttachment1);
         Assert.NotNull(attachment2InDb);
@@ -155,21 +155,21 @@ public class UpdateProjectAttachmentHandlerTests : IDisposable
         {
             Id = attachmentId,
             TaskId = taskId,
-            FileName = this.faker.System.FileName(),
-            FileUrl = this.faker.Internet.Url(),
+            FileName = faker.System.FileName(),
+            FileUrl = faker.Internet.Url(),
             FileSize = 10000,
             UploadedBy = Guid.NewGuid(),
             ContentType = "application/json"
         };
 
-        this.db.ProjectAttachments.Add(attachment);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectAttachments.Add(attachment);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         const long newFileSize = 500000L;
-        var command = new UpdateProjectAttachmentCommand(attachmentId, taskId, "updated_file.pdf", this.faker.Internet.Url(), newFileSize, Guid.NewGuid());
+        var command = new UpdateProjectAttachmentCommand(attachmentId, taskId, "updated_file.pdf", faker.Internet.Url(), newFileSize, Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

@@ -2,7 +2,6 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Common.Exceptions;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
@@ -45,7 +44,7 @@ public class EmployeeController(GetAllEmployeeHandler getAllEmployeeHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var employees = await getAllEmployeeHandler.Handle(new GetAllEmployeeQuery(page, perPage), ct);
 
@@ -76,7 +75,7 @@ public class EmployeeController(GetAllEmployeeHandler getAllEmployeeHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var employee = await getEmployeeByIdHandler.Handle(new GetEmployeeByIdQuery(id), ct);
 
@@ -107,7 +106,7 @@ public class EmployeeController(GetAllEmployeeHandler getAllEmployeeHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var employee = await addEmployeeHandler.Handle(command, ct);
 
@@ -142,7 +141,7 @@ public class EmployeeController(GetAllEmployeeHandler getAllEmployeeHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var employee = await updateEmployeeHandler.Handle(command with { Id = id }, ct);
 
@@ -171,7 +170,7 @@ public class EmployeeController(GetAllEmployeeHandler getAllEmployeeHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             await deleteEmployeeHandler.Handle(new DeleteEmployeeCommand(id), ct);
 
@@ -201,7 +200,7 @@ public class EmployeeController(GetAllEmployeeHandler getAllEmployeeHandler, Get
     {
         try
         {
-            wide.UserId = ClaimReader.UserId(this.User).ToString();
+            wide.UserId = ClaimReader.UserId(User).ToString();
 
             var performance = await getEmployeePerformanceHandler.Handle(new GetEmployeePerformanceQuery(days, topLimit), ct);
 

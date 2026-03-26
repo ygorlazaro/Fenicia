@@ -65,7 +65,11 @@ public class CreateNewOrderHandler(DefaultContext db)
     {
         var totalAmount = modules.Sum(m => m.Price);
 
-        var details = modules.Select(m => new OrderDetailModel { ModuleId = m.Id, Price = m.Price });
+        var details = modules.Select(m => new OrderDetailModel
+        {
+            ModuleId = m.Id,
+            Price = m.Price
+        }).ToList();
 
         var order = new OrderModel
         {
@@ -174,7 +178,8 @@ public class CreateNewOrderHandler(DefaultContext db)
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddMonths(1),
             OrderDetailId = d.Id
-        });
+        })
+            .ToList();
 
         var subscription = new SubscriptionModel
         {

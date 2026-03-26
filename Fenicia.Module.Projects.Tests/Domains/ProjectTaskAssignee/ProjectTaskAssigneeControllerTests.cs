@@ -33,23 +33,23 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.testProjectTaskAssigneeId = Guid.NewGuid();
-        var getAllProjectTaskAssigneeHandler = new GetAllProjectTaskAssigneeHandler(this.db);
-        var getProjectTaskAssigneeByIdHandler = new GetProjectTaskAssigneeByIdHandler(this.db);
-        var addProjectTaskAssigneeHandler = new AddProjectTaskAssigneeHandler(this.db);
-        var updateProjectTaskAssigneeHandler = new UpdateProjectTaskAssigneeHandler(this.db);
-        var deleteProjectTaskAssigneeHandler = new DeleteProjectTaskAssigneeHandler(this.db);
-        this.mockHttpContext = new Mock<HttpContext>();
+        db = new DefaultContext(options, companyContext);
+        testProjectTaskAssigneeId = Guid.NewGuid();
+        var getAllProjectTaskAssigneeHandler = new GetAllProjectTaskAssigneeHandler(db);
+        var getProjectTaskAssigneeByIdHandler = new GetProjectTaskAssigneeByIdHandler(db);
+        var addProjectTaskAssigneeHandler = new AddProjectTaskAssigneeHandler(db);
+        var updateProjectTaskAssigneeHandler = new UpdateProjectTaskAssigneeHandler(db);
+        var deleteProjectTaskAssigneeHandler = new DeleteProjectTaskAssigneeHandler(db);
+        mockHttpContext = new Mock<HttpContext>();
 
-        this.controller = new ProjectTaskAssigneeController(getAllProjectTaskAssigneeHandler, getProjectTaskAssigneeByIdHandler, addProjectTaskAssigneeHandler, updateProjectTaskAssigneeHandler, deleteProjectTaskAssigneeHandler) { ControllerContext = new ControllerContext { HttpContext = this.mockHttpContext.Object } };
+        controller = new ProjectTaskAssigneeController(getAllProjectTaskAssigneeHandler, getProjectTaskAssigneeByIdHandler, addProjectTaskAssigneeHandler, updateProjectTaskAssigneeHandler, deleteProjectTaskAssigneeHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -61,8 +61,8 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-        this.mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
-        this.controller.ControllerContext.HttpContext.User = claimsPrincipal;
+        mockHttpContext.Setup(x => x.User).Returns(claimsPrincipal);
+        controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -111,8 +111,8 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
             AssignedAt = DateTime.UtcNow.AddDays(-1)
         };
 
-        this.db.ProjectTaskAssignees.AddRange(projectTaskAssignee1, projectTaskAssignee2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.AddRange(projectTaskAssignee1, projectTaskAssignee2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         const int page = 1;
         const int perPage = 10;
@@ -120,7 +120,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetAsync(wide, page, perPage, ct);
+        var result = await controller.GetAsync(wide, page, perPage, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -140,21 +140,21 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
         // Arrange
         var projectTaskAssignee = new TaskAssigneeModel
         {
-            Id = this.testProjectTaskAssigneeId,
+            Id = testProjectTaskAssigneeId,
             TaskId = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             Role = EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow
         };
 
-        this.db.ProjectTaskAssignees.Add(projectTaskAssignee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.Add(projectTaskAssignee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(this.testProjectTaskAssigneeId, wide, ct);
+        var result = await controller.GetByIdAsync(testProjectTaskAssigneeId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -165,7 +165,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
 
         var returnedAssignee = okResult.Value as GetProjectTaskAssigneeByIdResponse;
         Assert.NotNull(returnedAssignee);
-        Assert.Equal(this.testProjectTaskAssigneeId, returnedAssignee.Id);
+        Assert.Equal(testProjectTaskAssigneeId, returnedAssignee.Id);
         Assert.Equal(projectTaskAssignee.TaskId, returnedAssignee.TaskId);
     }
 
@@ -178,7 +178,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.GetByIdAsync(nonExistentId, wide, ct);
+        var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -195,7 +195,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PostAsync(command, wide, ct);
+        var result = await controller.PostAsync(command, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -217,15 +217,15 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
         // Arrange
         var projectTaskAssignee = new TaskAssigneeModel
         {
-            Id = this.testProjectTaskAssigneeId,
+            Id = testProjectTaskAssigneeId,
             TaskId = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             Role = EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow
         };
 
-        this.db.ProjectTaskAssignees.Add(projectTaskAssignee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.Add(projectTaskAssignee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateProjectTaskAssigneeCommand(projectTaskAssignee.Id, projectTaskAssignee.TaskId, projectTaskAssignee.UserId, "Contributor", projectTaskAssignee.AssignedAt);
 
@@ -233,7 +233,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, this.testProjectTaskAssigneeId, wide, ct);
+        var result = await controller.PatchAsync(command, testProjectTaskAssigneeId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -258,7 +258,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.PatchAsync(command, nonExistentId, wide, ct);
+        var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
@@ -271,27 +271,27 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
         // Arrange
         var projectTaskAssignee = new TaskAssigneeModel
         {
-            Id = this.testProjectTaskAssigneeId,
+            Id = testProjectTaskAssigneeId,
             TaskId = Guid.NewGuid(),
             UserId = Guid.NewGuid(),
             Role = EnumAssigneeRole.Owner,
             AssignedAt = DateTime.UtcNow
         };
 
-        this.db.ProjectTaskAssignees.Add(projectTaskAssignee);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTaskAssignees.Add(projectTaskAssignee);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var ct = CancellationToken.None;
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(this.testProjectTaskAssigneeId, wide, ct);
+        var result = await controller.DeleteAsync(testProjectTaskAssigneeId, wide, ct);
 
         // Assert
         Assert.NotNull(result);
 
         // Verify project task assignee was deleted
-        var deletedAssignee = await this.db.ProjectTaskAssignees.FirstOrDefaultAsync(x => x.Id == this.testProjectTaskAssigneeId && x.Deleted == null, ct);
+        var deletedAssignee = await db.ProjectTaskAssignees.FirstOrDefaultAsync(x => x.Id == testProjectTaskAssigneeId && x.Deleted == null, ct);
         Assert.Null(deletedAssignee);
     }
 
@@ -304,7 +304,7 @@ public class ProjectTaskAssigneeControllerTests : IDisposable
 
         // Act
         var wide = new WideEventContext();
-        var result = await this.controller.DeleteAsync(nonExistentId, wide, ct);
+        var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
         // Assert
         Assert.NotNull(result);

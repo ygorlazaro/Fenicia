@@ -20,14 +20,14 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetProjectStatusByIdHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetProjectStatusByIdHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -42,19 +42,19 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         {
             Id = statusId,
             ProjectId = projectId,
-            Name = this.faker.Lorem.Word(),
-            Color = this.faker.Internet.Color(),
+            Name = faker.Lorem.Word(),
+            Color = faker.Internet.Color(),
             Order = 1,
             IsFinal = false
         };
 
-        this.db.ProjectStatuses.Add(status);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectStatuses.Add(status);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectStatusByIdQuery(statusId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -69,7 +69,7 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         var query = new GetProjectStatusByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -82,7 +82,7 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         var query = new GetProjectStatusByIdQuery(Guid.NewGuid());
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -100,8 +100,8 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         {
             Id = status1Id,
             ProjectId = projectId,
-            Name = this.faker.Lorem.Word(),
-            Color = this.faker.Internet.Color(),
+            Name = faker.Lorem.Word(),
+            Color = faker.Internet.Color(),
             Order = 1,
             IsFinal = false
         };
@@ -110,19 +110,19 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         {
             Id = status2Id,
             ProjectId = projectId,
-            Name = this.faker.Lorem.Word(),
-            Color = this.faker.Internet.Color(),
+            Name = faker.Lorem.Word(),
+            Color = faker.Internet.Color(),
             Order = 2,
             IsFinal = true
         };
 
-        this.db.ProjectStatuses.AddRange(status1, status2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectStatuses.AddRange(status1, status2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectStatusByIdQuery(status1Id);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -140,19 +140,19 @@ public class GetProjectStatusByIdHandlerTests : IDisposable
         {
             Id = statusId,
             ProjectId = projectId,
-            Name = this.faker.Lorem.Word(),
-            Color = this.faker.Internet.Color(),
+            Name = faker.Lorem.Word(),
+            Color = faker.Internet.Color(),
             Order = 5,
             IsFinal = true
         };
 
-        this.db.ProjectStatuses.Add(status);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectStatuses.Add(status);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetProjectStatusByIdQuery(statusId);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

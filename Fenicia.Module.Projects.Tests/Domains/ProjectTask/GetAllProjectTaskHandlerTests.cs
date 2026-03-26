@@ -21,14 +21,14 @@ public class GetAllProjectTaskHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectTaskHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetAllProjectTaskHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -40,7 +40,7 @@ public class GetAllProjectTaskHandlerTests : IDisposable
         var query = new GetAllProjectTaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -58,8 +58,8 @@ public class GetAllProjectTaskHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.High,
             Type = EnumTaskType.Task,
             Order = 1,
@@ -73,8 +73,8 @@ public class GetAllProjectTaskHandlerTests : IDisposable
             Id = Guid.NewGuid(),
             ProjectId = projectId,
             StatusId = statusId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Priority = EnumTaskPriority.Medium,
             Type = EnumTaskType.Bug,
             Order = 2,
@@ -83,13 +83,13 @@ public class GetAllProjectTaskHandlerTests : IDisposable
             CreatedBy = Guid.NewGuid()
         };
 
-        this.db.ProjectTasks.AddRange(task1, task2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectTasks.AddRange(task1, task2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -111,24 +111,24 @@ public class GetAllProjectTaskHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
                 StatusId = statusId,
-                Title = $"{this.faker.Lorem.Sentence(5)} {i}",
-                Description = this.faker.Lorem.Paragraph(),
+                Title = $"{faker.Lorem.Sentence(5)} {i}",
+                Description = faker.Lorem.Paragraph(),
                 Priority = EnumTaskPriority.Medium,
                 Type = EnumTaskType.Task,
                 Order = i,
-                EstimatePoints = this.faker.Random.Number(1, 10),
+                EstimatePoints = faker.Random.Number(1, 10),
                 DueDate = DateTime.UtcNow.AddDays(i),
                 CreatedBy = Guid.NewGuid()
             };
-            this.db.ProjectTasks.Add(task);
+            db.ProjectTasks.Add(task);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -148,8 +148,8 @@ public class GetAllProjectTaskHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
                 StatusId = statusId,
-                Title = $"{this.faker.Lorem.Sentence(5)} {i}",
-                Description = this.faker.Lorem.Paragraph(),
+                Title = $"{faker.Lorem.Sentence(5)} {i}",
+                Description = faker.Lorem.Paragraph(),
                 Priority = EnumTaskPriority.Medium,
                 Type = EnumTaskType.Task,
                 Order = i,
@@ -157,15 +157,15 @@ public class GetAllProjectTaskHandlerTests : IDisposable
                 DueDate = null,
                 CreatedBy = Guid.NewGuid()
             };
-            this.db.ProjectTasks.Add(task);
+            db.ProjectTasks.Add(task);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -185,8 +185,8 @@ public class GetAllProjectTaskHandlerTests : IDisposable
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
                 StatusId = statusId,
-                Title = $"{this.faker.Lorem.Sentence(5)} {i}",
-                Description = this.faker.Lorem.Paragraph(),
+                Title = $"{faker.Lorem.Sentence(5)} {i}",
+                Description = faker.Lorem.Paragraph(),
                 Priority = EnumTaskPriority.Medium,
                 Type = EnumTaskType.Task,
                 Order = i,
@@ -194,15 +194,15 @@ public class GetAllProjectTaskHandlerTests : IDisposable
                 DueDate = null,
                 CreatedBy = Guid.NewGuid()
             };
-            this.db.ProjectTasks.Add(task);
+            db.ProjectTasks.Add(task);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectTaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

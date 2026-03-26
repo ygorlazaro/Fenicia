@@ -26,7 +26,11 @@ public class AddPositionHandler(DefaultContext db)
     /// <returns>The created position response.</returns>
     public async Task<AddPositionResponse> Handle(AddPositionCommand command, CancellationToken ct)
     {
-        var position = new PositionModel { Id = command.Id, Name = command.Name };
+        var position = new PositionModel
+        {
+            Id = command.Id,
+            Name = command.Name
+        };
 
         db.BasicPositions.Add(position);
 

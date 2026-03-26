@@ -15,9 +15,9 @@ public record GetConfigurationResponse(
     /// </summary>
     Guid UserId,
     /// <summary>
-    /// The company ID (nullable for user-level configurations).
+    /// The company ID (now required).
     /// </summary>
-    Guid? CompanyId,
+    Guid CompanyId,
     /// <summary>
     /// The type of configuration.
     /// </summary>

@@ -20,14 +20,14 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new GetAllProjectSubtaskHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new GetAllProjectSubtaskHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -39,7 +39,7 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         var query = new GetAllProjectSubtaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -55,7 +55,7 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             IsCompleted = false,
             Order = 1,
             CompletedAt = null
@@ -65,19 +65,19 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             TaskId = taskId,
-            Title = this.faker.Lorem.Sentence(5),
+            Title = faker.Lorem.Sentence(5),
             IsCompleted = true,
             Order = 2,
             CompletedAt = DateTime.UtcNow.AddDays(-2)
         };
 
-        this.db.ProjectSubtasks.AddRange(subtask1, subtask2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.ProjectSubtasks.AddRange(subtask1, subtask2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -97,20 +97,20 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
-                Title = $"{this.faker.Lorem.Sentence(5)} {i}",
+                Title = $"{faker.Lorem.Sentence(5)} {i}",
                 IsCompleted = i % 2 == 0,
                 Order = i,
                 CompletedAt = i % 2 == 0 ? DateTime.UtcNow.AddDays(-i) : null
             };
-            this.db.ProjectSubtasks.Add(subtask);
+            db.ProjectSubtasks.Add(subtask);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery(2);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -128,20 +128,20 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
-                Title = $"{this.faker.Lorem.Sentence(5)} {i}",
+                Title = $"{faker.Lorem.Sentence(5)} {i}",
                 IsCompleted = false,
                 Order = i,
                 CompletedAt = null
             };
-            this.db.ProjectSubtasks.Add(subtask);
+            db.ProjectSubtasks.Add(subtask);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery(10);
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -159,20 +159,20 @@ public class GetAllProjectSubtaskHandlerTests : IDisposable
             {
                 Id = Guid.NewGuid(),
                 TaskId = taskId,
-                Title = $"{this.faker.Lorem.Sentence(5)} {i}",
+                Title = $"{faker.Lorem.Sentence(5)} {i}",
                 IsCompleted = false,
                 Order = i,
                 CompletedAt = null
             };
-            this.db.ProjectSubtasks.Add(subtask);
+            db.ProjectSubtasks.Add(subtask);
         }
 
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var query = new GetAllProjectSubtaskQuery();
 
         // Act
-        var result = await this.handler.Handle(query, CancellationToken.None);
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

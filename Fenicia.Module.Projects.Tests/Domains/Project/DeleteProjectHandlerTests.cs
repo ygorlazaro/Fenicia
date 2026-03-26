@@ -21,14 +21,14 @@ public class DeleteProjectHandlerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         var companyContext = new TestCompanyContext();
-        this.db = new DefaultContext(options, companyContext);
-        this.handler = new DeleteProjectHandler(this.db);
-        this.faker = new Faker();
+        db = new DefaultContext(options, companyContext);
+        handler = new DeleteProjectHandler(db);
+        faker = new Faker();
     }
 
     public void Dispose()
     {
-        this.db.Dispose();
+        db.Dispose();
 
         GC.SuppressFinalize(this);
     }
@@ -41,25 +41,25 @@ public class DeleteProjectHandlerTests : IDisposable
         var project = new ProjectModel
         {
             Id = projectId,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.Add(project);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.Projects.Add(project);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectCommand(projectId);
         var beforeDelete = DateTime.UtcNow;
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedProject = await this.db.Projects.FindAsync([projectId], CancellationToken.None);
+        var deletedProject = await db.Projects.FindAsync([projectId], CancellationToken.None);
         Assert.NotNull(deletedProject);
         Assert.NotNull(deletedProject.Deleted);
         Assert.InRange(deletedProject.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.UtcNow.AddSeconds(1));
@@ -72,10 +72,10 @@ public class DeleteProjectHandlerTests : IDisposable
         var command = new DeleteProjectCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var projects = await this.db.Projects.ToListAsync();
+        var projects = await db.Projects.ToListAsync();
         Assert.Empty(projects);
     }
 
@@ -86,10 +86,10 @@ public class DeleteProjectHandlerTests : IDisposable
         var command = new DeleteProjectCommand(Guid.NewGuid());
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var projects = await this.db.Projects.ToListAsync();
+        var projects = await db.Projects.ToListAsync();
         Assert.Empty(projects);
     }
 
@@ -103,8 +103,8 @@ public class DeleteProjectHandlerTests : IDisposable
         var project1 = new ProjectModel
         {
             Id = project1Id,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
@@ -114,25 +114,25 @@ public class DeleteProjectHandlerTests : IDisposable
         var project2 = new ProjectModel
         {
             Id = project2Id,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Draft,
             StartDate = DateTime.UtcNow,
             EndDate = null,
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.AddRange(project1, project2);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.Projects.AddRange(project1, project2);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectCommand(project1Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var deletedProject = await this.db.Projects.FindAsync([project1Id], CancellationToken.None);
-        var notDeletedProject = await this.db.Projects.FindAsync([project2Id], CancellationToken.None);
+        var deletedProject = await db.Projects.FindAsync([project1Id], CancellationToken.None);
+        var notDeletedProject = await db.Projects.FindAsync([project2Id], CancellationToken.None);
 
         Assert.NotNull(deletedProject);
         Assert.NotNull(deletedProject.Deleted);
@@ -151,8 +151,8 @@ public class DeleteProjectHandlerTests : IDisposable
         var project1 = new ProjectModel
         {
             Id = project1Id,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Active,
             StartDate = DateTime.UtcNow,
             EndDate = null,
@@ -162,8 +162,8 @@ public class DeleteProjectHandlerTests : IDisposable
         var project2 = new ProjectModel
         {
             Id = project2Id,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Draft,
             StartDate = DateTime.UtcNow,
             EndDate = null,
@@ -173,26 +173,26 @@ public class DeleteProjectHandlerTests : IDisposable
         var project3 = new ProjectModel
         {
             Id = project3Id,
-            Title = this.faker.Lorem.Sentence(5),
-            Description = this.faker.Lorem.Paragraph(),
+            Title = faker.Lorem.Sentence(5),
+            Description = faker.Lorem.Paragraph(),
             Status = EnumProjectStatus.Completed,
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow,
             Owner = Guid.NewGuid()
         };
 
-        this.db.Projects.AddRange(project1, project2, project3);
-        await this.db.SaveChangesAsync(CancellationToken.None);
+        db.Projects.AddRange(project1, project2, project3);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new DeleteProjectCommand(project2Id);
 
         // Act
-        await this.handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var project1InDb = await this.db.Projects.FindAsync([project1Id], CancellationToken.None);
-        var deletedProject = await this.db.Projects.FindAsync([project2Id], CancellationToken.None);
-        var project3InDb = await this.db.Projects.FindAsync([project3Id], CancellationToken.None);
+        var project1InDb = await db.Projects.FindAsync([project1Id], CancellationToken.None);
+        var deletedProject = await db.Projects.FindAsync([project2Id], CancellationToken.None);
+        var project3InDb = await db.Projects.FindAsync([project3Id], CancellationToken.None);
 
         Assert.NotNull(project1InDb);
         Assert.NotNull(deletedProject);
