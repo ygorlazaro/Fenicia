@@ -65,30 +65,36 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Name = "Product 1",
+            SKU = "SKU001",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category1Id
+            CategoryId = category1Id,
+            IsActive = true
         };
 
         var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 2",
+            SKU = "SKU002",
             CostPrice = 15.00m,
             SalesPrice = 25.00m,
             Quantity = 50,
-            CategoryId = category1Id
+            CategoryId = category1Id,
+            IsActive = true
         };
 
         var product3 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 3",
+            SKU = "SKU003",
             CostPrice = 20.00m,
             SalesPrice = 30.00m,
             Quantity = 75,
-            CategoryId = category2Id
+            CategoryId = category2Id,
+            IsActive = true
         };
 
         db.BasicProducts.AddRange(product1, product2, product3);
@@ -123,10 +129,12 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
+                SKU = $"SKU{i:D3}",
                 CostPrice = 10.00m,
                 SalesPrice = 20.00m,
                 Quantity = 100,
-                CategoryId = categoryId
+                CategoryId = categoryId,
+                IsActive = true
             };
             db.BasicProducts.Add(product);
         }
@@ -161,10 +169,12 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
+                SKU = $"SKU{i:D3}",
                 CostPrice = 10.00m,
                 SalesPrice = 20.00m,
                 Quantity = 100,
-                CategoryId = categoryId
+                CategoryId = categoryId,
+                IsActive = true
             };
             db.BasicProducts.Add(product);
         }
@@ -197,10 +207,20 @@ public class GetProductsByCategoryIdHandlerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Name = "Product",
+            SKU = "SKU001",
+            Barcode = "123456789",
+            Description = "Test description",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = categoryId
+            MinStockLevel = 10,
+            MaxStockLevel = 500,
+            ImageUrl = "http://test.com/image.jpg",
+            Weight = 1.5m,
+            Dimensions = "10x10x10",
+            UnitOfMeasure = "un",
+            CategoryId = categoryId,
+            IsActive = true
         };
 
         db.BasicProducts.Add(product);

@@ -43,7 +43,12 @@ public class ForgotPasswordController(AddForgotPasswordHandler addForgotPassword
         {
             wide.UserId = reset.Email;
 
-            await addForgotPasswordHandler.Handle(reset, ct);
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var userAgent = Request.Headers.UserAgent.ToString();
+
+            var command = new AddForgotPasswordCommand(reset.Email, ipAddress, userAgent);
+
+            await addForgotPasswordHandler.Handle(command, ct);
 
             return Created();
         }

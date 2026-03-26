@@ -27,6 +27,22 @@ public class ModuleModel : BaseModel
     [EnumDataType(typeof(ModuleType))]
     public ModuleType Type { get; set; }
 
+    [Column("description")]
+    [MaxLength(500)]
+    public string? Description { get; set; }
+
+    [Column("icon")]
+    [MaxLength(100)]
+    public string? Icon { get; set; }
+
+    [Required]
+    [Column("is_active")]
+    public bool IsActive { get; set; } = true;
+
+    [Required]
+    [Column("sort_order")]
+    public int SortOrder { get; set; }
+
     public List<SubscriptionCreditModel> SubscriptionCredits { get; set; } = [];
 
     public List<OrderDetailModel> OrderDetails { get; set; } = [];

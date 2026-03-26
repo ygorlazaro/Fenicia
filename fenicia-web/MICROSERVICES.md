@@ -49,7 +49,7 @@ General purpose API for future use:
 All API clients automatically:
 - Use the configured base URLs from environment variables
 - Include `Authorization: Bearer <token>` header when authenticated
-- Include `x-company` header with selected company ID
+- Tenant context derived from JWT claims server-side (x-company header no longer used)
 - Handle 401 errors by clearing auth and redirecting to login
 
 ### Usage Example

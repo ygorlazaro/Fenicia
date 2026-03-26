@@ -29,6 +29,16 @@ public class PersonModel : BaseCompanyModel
         set => field = value != null ? new string([.. value.Where(char.IsDigit)]) : null;
     }
 
+    [DataType(DataType.Date)]
+    public DateTime? DateOfBirth { get; set; }
+
+    [Column("photo_url")]
+    [MaxLength(500)]
+    public string? PhotoUrl { get; set; }
+
+    [MaxLength(1000)]
+    public string? Notes { get; set; }
+
     public virtual ICollection<PersonAddressModel> PersonAddresses { get; set; } = new List<PersonAddressModel>();
 
     public virtual CustomerModel? Customer { get; set; }

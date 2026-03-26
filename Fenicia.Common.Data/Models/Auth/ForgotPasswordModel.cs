@@ -25,6 +25,14 @@ public class ForgotPasswordModel : BaseModel
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
 
+    [Column("ip_address")]
+    [MaxLength(45)]
+    public string? IpAddress { get; set; }
+
+    [Column("user_agent")]
+    [MaxLength(500)]
+    public string? UserAgent { get; set; }
+
     [ForeignKey(nameof(UserId))]
     public virtual UserModel User { get; set; } = null!;
 }

@@ -6,6 +6,7 @@ using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Auth;
+using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Order;
 using Fenicia.Module.Basic.Domains.Order.Commands;
@@ -107,7 +108,7 @@ public class OrderControllerTests : IDisposable
         db.BasicProducts.Add(product);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new CreateOrderCommand(testUserId, testCustomerId, DateTime.Now, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 20.00m, 2), new OrderDetailCommand(product.Id, 20.00m, 3)]);
+        var command = new CreateOrderCommand(testUserId, testCustomerId, DateTime.Now, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 20.00m, 2), new OrderDetailCommand(product.Id, 20.00m, 3)], PaymentMethod.CreditCard);
 
         var ct = CancellationToken.None;
 
@@ -137,11 +138,14 @@ public class OrderControllerTests : IDisposable
         var order = new OrderModel
         {
             Id = testOrderId,
+            OrderNumber = "ORD-20260101-TEST001",
             UserId = testUserId,
             CustomerId = testCustomerId,
             SaleDate = DateTime.Now,
             Status = OrderStatus.Pending,
-            TotalAmount = 100.00m
+            TotalAmount = 100.00m,
+            TotalQuantity = 5,
+            PaymentMethod = PaymentMethod.CreditCard
         };
 
         var orderDetail1 = new OrderDetailModel
@@ -150,7 +154,9 @@ public class OrderControllerTests : IDisposable
             OrderId = testOrderId,
             ProductId = Guid.NewGuid(),
             Price = 20.00m,
-            Quantity = 2
+            Quantity = 2,
+            DiscountAmount = 0,
+            Subtotal = 40.00m
         };
 
         var orderDetail2 = new OrderDetailModel
@@ -159,7 +165,9 @@ public class OrderControllerTests : IDisposable
             OrderId = testOrderId,
             ProductId = Guid.NewGuid(),
             Price = 30.00m,
-            Quantity = 3
+            Quantity = 3,
+            DiscountAmount = 0,
+            Subtotal = 90.00m
         };
 
         db.BasicOrders.Add(order);
@@ -239,7 +247,7 @@ public class OrderControllerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new CreateOrderCommand(Guid.Empty, // Will be overridden by claims
-            testCustomerId, DateTime.Now, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 20.00m, 2)]);
+            testCustomerId, DateTime.Now, OrderStatus.Pending, [new OrderDetailCommand(product.Id, 20.00m, 2)], PaymentMethod.CreditCard);
 
         var ct = CancellationToken.None;
 

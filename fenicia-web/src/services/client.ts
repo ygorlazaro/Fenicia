@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5144';
 export const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:5144';
@@ -84,9 +84,7 @@ export class ApiClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
-        if (companyId && config.headers) {
-          config.headers['x-company'] = companyId;
-        }
+
 
         return config;
       },

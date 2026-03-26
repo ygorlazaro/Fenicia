@@ -56,20 +56,28 @@ public class GetAllProductHandlerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Name = "Product 1",
+            SKU = "SKU001",
+            Barcode = "111111111",
+            Description = "Description 1",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category.Id
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = "Product 2",
+            SKU = "SKU002",
+            Barcode = "222222222",
+            Description = "Description 2",
             CostPrice = 15.00m,
             SalesPrice = 25.00m,
             Quantity = 50,
-            CategoryId = category.Id
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         db.BasicProducts.AddRange(product1, product2);
@@ -104,10 +112,12 @@ public class GetAllProductHandlerTests : IDisposable
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
+                SKU = $"SKU{i:D3}",
                 CostPrice = 10.00m,
                 SalesPrice = 20.00m,
                 Quantity = 100,
-                CategoryId = category.Id
+                CategoryId = category.Id,
+                IsActive = true
             };
             db.BasicProducts.Add(product);
         }
@@ -141,10 +151,12 @@ public class GetAllProductHandlerTests : IDisposable
             {
                 Id = Guid.NewGuid(),
                 Name = $"Product {i}",
+                SKU = $"SKU{i:D3}",
                 CostPrice = 10.00m,
                 SalesPrice = 20.00m,
                 Quantity = 100,
-                CategoryId = category.Id
+                CategoryId = category.Id,
+                IsActive = true
             };
             db.BasicProducts.Add(product);
         }
@@ -176,10 +188,20 @@ public class GetAllProductHandlerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Name = "Product",
+            SKU = "SKU001",
+            Barcode = "123456789",
+            Description = "Test description",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category.Id
+            MinStockLevel = 10,
+            MaxStockLevel = 500,
+            ImageUrl = "http://test.com/image.jpg",
+            Weight = 1.5m,
+            Dimensions = "10x10x10",
+            UnitOfMeasure = "un",
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         db.BasicProducts.Add(product);
@@ -194,5 +216,11 @@ public class GetAllProductHandlerTests : IDisposable
         Assert.NotNull(result);
         Assert.Single(result.Data);
         Assert.Equal("Electronics", result.Data[0].CategoryName);
+        Assert.Equal("SKU001", result.Data[0].SKU);
+        Assert.Equal("123456789", result.Data[0].Barcode);
+        Assert.Equal("Test description", result.Data[0].Description);
+        Assert.Equal(10, result.Data[0].MinStockLevel);
+        Assert.Equal(500, result.Data[0].MaxStockLevel);
+        Assert.True(result.Data[0].IsActive);
     }
 }

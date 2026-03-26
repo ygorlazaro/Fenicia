@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
-  CModal,
-  CModalBody,
-  CModalHeader,
-  CModalTitle,
-  CModalFooter,
+  CAlert,
   CButton,
+  CCard,
+  CCol,
   CForm,
+  CFormCheck,
   CFormInput,
   CFormLabel,
-  CFormCheck,
-  CSpinner,
-  CAlert,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
   CRow,
-  CCol,
-  CCard,
+  CSpinner,
 } from '@coreui/react';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
@@ -67,7 +67,6 @@ const UserModal = ({ visible, onClose, onSave, mode, user }) => {
       const response = await axios.get(`${API_BASE_URL}/company`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'x-company': getCompanyId(),
         },
       });
       setCompanies(response.data || []);
@@ -82,7 +81,6 @@ const UserModal = ({ visible, onClose, onSave, mode, user }) => {
       const response = await axios.get(`${API_BASE_URL}/role`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'x-company': getCompanyId(),
         },
       });
       return response.data || [];
@@ -149,14 +147,12 @@ const UserModal = ({ visible, onClose, onSave, mode, user }) => {
         await axios.post(`${API_BASE_URL}/user`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
-            'x-company': getCompanyId(),
           },
         });
       } else {
         await axios.patch(`${API_BASE_URL}/user/${user.id}`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
-            'x-company': getCompanyId(),
           },
         });
       }

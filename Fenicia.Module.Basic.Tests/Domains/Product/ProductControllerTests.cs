@@ -104,20 +104,24 @@ public class ProductControllerTests : IDisposable
         {
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
+            SKU = "SKU001",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category.Id
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         var product2 = new ProductModel
         {
             Id = Guid.NewGuid(),
             Name = faker.Commerce.ProductName(),
+            SKU = "SKU002",
             CostPrice = 15.00m,
             SalesPrice = 30.00m,
             Quantity = 50,
-            CategoryId = category.Id
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         db.BasicProductCategories.Add(category);
@@ -158,10 +162,14 @@ public class ProductControllerTests : IDisposable
         {
             Id = testProductId,
             Name = faker.Commerce.ProductName(),
+            SKU = "SKU001",
+            Barcode = "123456789",
+            Description = "Test product",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category.Id
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         db.BasicProductCategories.Add(category);
@@ -216,7 +224,7 @@ public class ProductControllerTests : IDisposable
         db.BasicProductCategories.Add(category);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new AddProductCommand(category.Id, faker.Commerce.ProductName(), 10.00m, 20.00m, 100, category.Id, null);
+        var command = new AddProductCommand(category.Id, faker.Commerce.ProductName(), "SKU001", "123456789", "Test description", 10.00m, 20.00m, 100, 10, 500, "http://test.com/image.jpg", 1.5m, "10x10x10", "un", category.Id, null);
 
         var ct = CancellationToken.None;
 
@@ -253,17 +261,21 @@ public class ProductControllerTests : IDisposable
         {
             Id = testProductId,
             Name = faker.Commerce.ProductName(),
+            SKU = "SKU001",
+            Barcode = "123456789",
+            Description = "Test product",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category.Id
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         db.BasicProductCategories.Add(category);
         db.BasicProducts.Add(product);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProductCommand(product.Id, faker.Commerce.ProductName() + " Updated", 15.00m, 25.00m, 150, category.Id, null);
+        var command = new UpdateProductCommand(product.Id, faker.Commerce.ProductName() + " Updated", "SKU001", "999999999", "Updated description", 15.00m, 25.00m, 150, 20, 600, "http://updated.com", 2.0m, "20x20x20", "kg", category.Id, null);
 
         var ct = CancellationToken.None;
 
@@ -297,7 +309,7 @@ public class ProductControllerTests : IDisposable
         db.BasicProductCategories.Add(category);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProductCommand(nonExistentId, faker.Commerce.ProductName(), 10.00m, 20.00m, 100, category.Id, null);
+        var command = new UpdateProductCommand(nonExistentId, faker.Commerce.ProductName(), "SKU001", "123456789", "Desc", 10.00m, 20.00m, 100, 10, 500, "http://img.com", 1.5m, "10x10x10", "un", category.Id, null);
 
         var ct = CancellationToken.None;
 
@@ -314,14 +326,33 @@ public class ProductControllerTests : IDisposable
     public async Task DeleteAsync_WhenProductExists_ReturnsNoContent()
     {
         // Arrange
+        var category = new ProductCategoryModel
+        {
+            Id = Guid.NewGuid(),
+            Name = faker.Commerce.Categories(1)[0]
+        };
+
+        db.BasicProductCategories.Add(category);
+        await db.SaveChangesAsync(CancellationToken.None);
+
         var product = new ProductModel
         {
             Id = testProductId,
             Name = faker.Commerce.ProductName(),
+            SKU = "SKU001",
+            Barcode = "123456789",
+            Description = "Test product",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = Guid.NewGuid()
+            MinStockLevel = 10,
+            MaxStockLevel = 500,
+            ImageUrl = "http://test.com/image.jpg",
+            Weight = 1.5m,
+            Dimensions = "10x10x10",
+            UnitOfMeasure = "un",
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         db.BasicProducts.Add(product);

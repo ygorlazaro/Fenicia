@@ -48,16 +48,20 @@ public class UpdateProductHandlerTests : IDisposable
         {
             Id = productId,
             Name = "Old Product",
+            SKU = "OLD001",
+            Barcode = "111111111",
+            Description = "Old description",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category1.Id
+            CategoryId = category1.Id,
+            IsActive = true
         };
 
         db.BasicProducts.Add(product);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProductCommand(productId, "New Product", 15.00m, 25.00m, 50, category2.Id, null);
+        var command = new UpdateProductCommand(productId, "New Product", "NEW001", "999999999", "New description", 15.00m, 25.00m, 50, 5, 200, "http://new.com", 2.5m, "20x20x20", "kg", category2.Id, null);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -65,9 +69,14 @@ public class UpdateProductHandlerTests : IDisposable
         // Assert
         Assert.NotNull(result);
         Assert.Equal("New Product", result.Name);
+        Assert.Equal("NEW001", result.SKU);
+        Assert.Equal("999999999", result.Barcode);
+        Assert.Equal("New description", result.Description);
         Assert.Equal(15.00m, result.CostPrice);
         Assert.Equal(25.00m, result.SalesPrice);
         Assert.Equal(50, result.Quantity);
+        Assert.Equal(5, result.MinStockLevel);
+        Assert.Equal(200, result.MaxStockLevel);
         Assert.Equal(category2.Id, result.CategoryId);
     }
 
@@ -75,7 +84,7 @@ public class UpdateProductHandlerTests : IDisposable
     public async Task Handle_WhenProductDoesNotExist_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateProductCommand(Guid.NewGuid(), "New Product", 15.00m, 25.00m, 50, Guid.NewGuid(), null);
+        var command = new UpdateProductCommand(Guid.NewGuid(), "New Product", "SKU001", "123456789", "Desc", 15.00m, 25.00m, 50, 5, 200, "http://img.com", 1.5m, "10x10x10", "un", Guid.NewGuid(), null);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -88,7 +97,7 @@ public class UpdateProductHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
         // Arrange
-        var command = new UpdateProductCommand(Guid.NewGuid(), "New Product", 15.00m, 25.00m, 50, Guid.NewGuid(), null);
+        var command = new UpdateProductCommand(Guid.NewGuid(), "New Product", "SKU001", "123456789", "Desc", 15.00m, 25.00m, 50, 5, 200, "http://img.com", 1.5m, "10x10x10", "un", Guid.NewGuid(), null);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -113,16 +122,18 @@ public class UpdateProductHandlerTests : IDisposable
         {
             Id = productId,
             Name = "Old Product",
+            SKU = "OLD001",
             CostPrice = 10.00m,
             SalesPrice = 20.00m,
             Quantity = 100,
-            CategoryId = category.Id
+            CategoryId = category.Id,
+            IsActive = true
         };
 
         db.BasicProducts.Add(product);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var command = new UpdateProductCommand(productId, "New Product", 15.00m, 25.00m, 50, category.Id, null);
+        var command = new UpdateProductCommand(productId, "New Product", "NEW001", "999999999", "New desc", 15.00m, 25.00m, 50, 5, 200, "http://img.com", 2.0m, "20x20x20", "kg", category.Id, null);
 
         // Act
         await handler.Handle(command, CancellationToken.None);
@@ -131,6 +142,7 @@ public class UpdateProductHandlerTests : IDisposable
         var updatedProduct = await db.BasicProducts.FindAsync([productId], CancellationToken.None);
         Assert.NotNull(updatedProduct);
         Assert.Equal("New Product", updatedProduct.Name);
+        Assert.Equal("NEW001", updatedProduct.SKU);
         Assert.Equal(15.00m, updatedProduct.CostPrice);
     }
 }
