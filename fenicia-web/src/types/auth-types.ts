@@ -1,4 +1,4 @@
-import { ModuleType, SubscriptionStatus } from "../enums/auth-enums";
+import { ModuleType } from "../enums/auth-enums";
 
 export type GetCompaniesByUserResponse = {
     id: string,
@@ -36,7 +36,7 @@ export type UserSubscriptionResponse = {
     id: string,
     companyId: string,
     companyName: string,
-    status: SubscriptionStatus,
+    status: string,
     startDate: Date,
     endDate?: Date
     modules: UserModuleResponse[]
