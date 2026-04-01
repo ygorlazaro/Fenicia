@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { CCol, CContainer, CRow } from '@coreui/react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CContainer, CRow, CCol } from '@coreui/react';
 import CompanySelectModal from '../../../components/CompanySelectModal';
-import AuthCompanyClient from '../../../services/auth-company-client';
-import { setCompanyId } from '../../../services/client';
+import { setCompanyId } from '../../../services/api-client';
+import AuthCompanyClient from '../../../services/auth/auth-company-client';
 
 const companyClient = new AuthCompanyClient("http://localhost:5144");
 
@@ -22,13 +22,10 @@ const CompanySelect = () => {
         try {
             setLoading(true);
             setError(null);
-            console.log('Fetching companies...');
             const response = await companyClient.getCompaniesByUser(1, 50);
-            console.log('Companies response:', response);
 
             // Handle both array and paginated response
             const companiesList = Array.isArray(response) ? response : response.items || response.data || [];
-            console.log('Companies list:', companiesList);
             setCompanies(companiesList);
             
             if (companiesList.length === 0) {

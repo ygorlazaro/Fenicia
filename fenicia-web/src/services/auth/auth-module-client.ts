@@ -1,5 +1,6 @@
-import { ApiClient } from './client';
 import { AxiosResponse } from 'axios';
+import { GetModuleResponse, UserModuleResponse, UserSubscriptionResponse } from '../../types/auth-types';
+import { ApiClient } from '../api-client';
 
 const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:5001/api';
 
@@ -17,9 +18,9 @@ export class AuthModuleClient extends ApiClient {
    * GET /module?page=1&perPage=10
    * @param {number} page - Page number
    * @param {number} perPage - Items per page
-   * @returns {Promise<any>}
+   * @returns {Promise<GetModuleResponse[]>}
    */
-  async getModules(page: number = 1, perPage: number = 50): Promise<any> {
+  async getModules(page: number = 1, perPage: number = 50): Promise<GetModuleResponse[]> {
     const response = await this.getClient().get('/module', {
       params: { page, perPage }
     });
@@ -41,11 +42,12 @@ export class AuthModuleClient extends ApiClient {
     }
 
     // Extract all module IDs from all subscriptions
-    const moduleIds = profile.subscriptions.flatMap((subscription: any) =>
-      subscription.modules.map((module: any) => module.id)
+    const moduleIds: string[] = profile.subscriptions
+      .flatMap((subscription: UserSubscriptionResponse) =>
+      subscription.modules.map((module: UserModuleResponse) => module.id)
     );
 
-    return moduleIds;
+    return [...new Set(moduleIds)];
   }
 }
 

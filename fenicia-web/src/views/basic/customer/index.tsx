@@ -34,7 +34,8 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import CustomerModal from '../../../components/CustomerModal';
 import Pagination from '../../../components/Pagination';
-import { BasicCustomerClient, BasicOrderClient } from '../../../services/basic-crud-clients';
+import { BasicCustomerClient } from '../../../services/basic/basic-customer-client';
+import { BasicOrderClient } from '../../../services/basic/basic-order-client';
 import CustomerInsightsClient from '../../../services/customer-insights-client';
 
 const customerClient = new BasicCustomerClient();

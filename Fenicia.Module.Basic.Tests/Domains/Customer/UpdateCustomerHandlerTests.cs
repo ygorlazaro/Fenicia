@@ -244,7 +244,7 @@ public class UpdateCustomerHandlerTests : IDisposable
         db.BasicCustomers.Add(customer);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var addressDto = new AddressDTO(
+        var addressDto = new AddressCommand(
             faker.Address.StreetName(),
             faker.Random.Replace("####"),
             "Apt 202",

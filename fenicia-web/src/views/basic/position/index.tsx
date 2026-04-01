@@ -1,31 +1,31 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CContainer,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
     CModalTitle,
     CSpinner,
-    CAlert
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
-import BasicPositionClient from '../../../services/basic-position-client';
-import PositionModal from '../../../components/PositionModal';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import Pagination from '../../../components/Pagination';
+import PositionModal from '../../../components/PositionModal';
+import BasicPositionClient from '../../../services/basic/basic-position-client';
 
 const positionClient = new BasicPositionClient("http://localhost:5083");
 
@@ -147,12 +147,10 @@ const PositionList = () => {
     };
 
     const handlePageChange = (newPage) => {
-        console.log('handlePageChange called with:', newPage);
         setPagination(prev => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage) => {
-        console.log('handlePerPageChange called with:', newPerPage);
         setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 

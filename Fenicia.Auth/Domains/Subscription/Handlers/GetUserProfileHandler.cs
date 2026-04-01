@@ -36,7 +36,19 @@ public class GetUserProfileHandler(DefaultContext db)
                 s.StartDate,
                 s.EndDate);
 
-        return await request.ToListAsync(ct);
+        var subscriptions = await request.ToListAsync(ct);
+
+        foreach (var subscription in subscriptions)
+        {
+            var modules = await db.AuthModules
+                .Where(m => m.SubscriptionCredits.Any(sc => sc.SubscriptionId == subscription.Id))
+                .Select(m => new UserModuleResponse(m.Id, m.Name, m.Type))
+                .ToListAsync(ct);
+            
+            subscription.Modules = modules;
+        }
+
+        return subscriptions;
     }
 
     private async Task<List<UserCompanyResponse>> GetUserCompaniesAsync(Guid userId, CancellationToken ct)

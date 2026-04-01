@@ -1,29 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CContainer,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
     CModalTitle,
     CSpinner,
-    CAlert
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
-import ProjectCommentClient from '../../../services/project-comment-client';
-import ProjectCommentModal from '../../../components/ProjectCommentModal';
+import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
+import ProjectCommentModal from '../../../components/ProjectCommentModal';
+import ProjectCommentClient from '../../../services/project-comment-client';
 
 const projectCommentClient = new ProjectCommentClient("http://localhost:5144");
 
@@ -54,10 +54,8 @@ const ProjectCommentList = () => {
             setLoading(true);
             setError(null);
             const response = await projectCommentClient.getAll(pagination.page, pagination.perPage);
-            console.log('Project Comments API response:', response);
 
             const commentsList = Array.isArray(response) ? response : (response?.data || []);
-            console.log('Project Comments list:', commentsList);
             setComments(commentsList);
             setPagination(prev => ({
                 ...prev,

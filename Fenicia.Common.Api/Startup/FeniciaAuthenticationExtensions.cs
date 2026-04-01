@@ -27,13 +27,13 @@ public static class FeniciaAuthenticationExtensions
         }).AddJwtBearer(o =>
         {
             o.RequireHttpsMetadata = true;
-            o.SaveToken = true;
+            o.SaveToken = false;
             o.ClaimsIssuer = "AuthService";
             o.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
+                ValidateIssuer = false,
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero

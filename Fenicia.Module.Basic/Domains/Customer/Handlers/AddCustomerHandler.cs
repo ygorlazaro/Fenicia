@@ -50,7 +50,6 @@ public class AddCustomerHandler(DefaultContext db)
 
         var customer = new CustomerModel
         {
-            Id = command.Id,
             Person = person,
             PersonId = person.Id
         };

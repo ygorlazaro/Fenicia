@@ -11,5 +11,5 @@ public record UpdateCustomerCommand(
     string Name, 
     string? Email, 
     string? Document, 
-    string? PhoneNumber, 
-    AddressDTO? Address);
+    string? PhoneNumber,
+    AddressCommand? Address);

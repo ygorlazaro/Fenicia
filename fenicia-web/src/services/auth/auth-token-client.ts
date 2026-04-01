@@ -1,6 +1,7 @@
-import { AuthClient } from './auth-client';
-import { setToken, setCompanyId } from './client';
 import { AxiosResponse } from 'axios';
+import { GenerateTokenQuery, TokenResponse, ValidateTokenQuery } from '../../types/auth-types';
+import { setCompanyId, setToken } from '../api-client';
+import { AuthClient } from './auth-client';
 
 /**
  * AuthTokenClient - Handles token authentication operations
@@ -17,9 +18,9 @@ export class AuthTokenClient extends AuthClient {
    * @param {Object} credentials - User credentials
    * @param {string} credentials.email - User email
    * @param {string} [credentials.password] - User password (optional depending on implementation)
-   * @returns {Promise<any>}
+   * @returns {Promise<TokenResponse>}
    */
-  async generateToken(credentials: { email: string; password?: string }): Promise<any> {
+  async generateToken(credentials: GenerateTokenQuery): Promise<TokenResponse> {
     const response = await this.getClient().post('/token', credentials);
     const data = (response as AxiosResponse).data;
 
@@ -42,9 +43,9 @@ export class AuthTokenClient extends AuthClient {
    * @param {Object} requestData - Refresh token data
    * @param {string} requestData.userId - User ID
    * @param {string} requestData.refreshToken - Refresh token
-   * @returns {Promise<any>}
+   * @returns {Promise<TokenResponse>}
    */
-  async refreshToken(requestData: { userId: string; refreshToken: string }): Promise<any> {
+  async refreshToken(requestData: ValidateTokenQuery): Promise<TokenResponse> {
     const response = await this.getClient().post('/token/refresh', requestData);
     const data = (response as AxiosResponse).data;
 

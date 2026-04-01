@@ -1,5 +1,6 @@
-import { AuthClient } from './auth-client';
 import { AxiosResponse } from 'axios';
+import { GetUserProfileResponse } from '../../types/auth-types';
+import { AuthClient } from './auth-client';
 
 /**
  * AuthProfileClient - Handles user profile operations
@@ -14,11 +15,11 @@ export class AuthProfileClient extends AuthClient {
   }
 
   /**
-   * Get current user profile with companies and subscriptions
+   * Get full profile including subscriptions and modules
    * GET /subscription/profile
-   * @returns {Promise<any>}
+   * @returns {Promise<GetUserProfileResponse>} Profile data
    */
-  async getProfile(): Promise<any> {
+  async getProfile(): Promise<GetUserProfileResponse> {
     const response = await this.getClient().get('/subscription/profile');
     return (response as AxiosResponse).data;
   }

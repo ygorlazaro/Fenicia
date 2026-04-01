@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CForm,
     CFormInput,
-    CFormLabel,
-    CAlert
+    CFormLabel
 } from "@coreui/react";
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import AuthLayout from 'src/components/AuthLayout';
-import AuthForgotPasswordClient from '../../../services/auth-forgot-password-client';
+import AuthForgotPasswordClient from '../../../services/auth/auth-forgot-password-client';
 
 const forgotPasswordClient = new AuthForgotPasswordClient("http://localhost:5144");
 

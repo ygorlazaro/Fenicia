@@ -12,4 +12,5 @@ public sealed record GetModuleResponse(
     string? Description,
     string? Icon,
     bool IsActive,
-    int SortOrder);
+    int SortOrder,
+    decimal Price);

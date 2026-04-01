@@ -1,5 +1,4 @@
 import { AuthClient } from './auth-client';
-import { AxiosResponse } from 'axios';
 
 /**
  * AuthForgotPasswordClient - Handles forgot password operations
