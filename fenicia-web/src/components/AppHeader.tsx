@@ -1,24 +1,24 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { NavLink } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux'
-import {
-    CContainer,
-    CHeader,
-    CHeaderNav,
-    CHeaderToggler,
-    CNavLink,
-    CNavItem, useColorModes,
-} from '@coreui/react'
+import { cilMenu } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import {cilContrast, cilMenu, cilMoon, cilSun} from '@coreui/icons'
+import {
+  CContainer,
+  CHeader,
+  CHeaderNav,
+  CHeaderToggler,
+  CNavItem,
+  CNavLink
+} from '@coreui/react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useDispatch, useSelector } from 'react-redux'
+import { NavLink } from 'react-router-dom'
 
-import { AppBreadcrumb } from './index'
-import { AppHeaderDropdown } from './header/index'
-import LanguageSelector from './LanguageSelector'
+import { setCompanyId } from '../services/api-client'
+import AuthCompanyClient from '../services/auth/auth-company-client'
 import CompanySelectModal from './CompanySelectModal'
-import AuthCompanyClient from '../services/auth-company-client'
-import { setCompanyId } from '../services/client'
+import { AppHeaderDropdown } from './header/index'
+import { AppBreadcrumb } from './index'
+import LanguageSelector from './LanguageSelector'
 
 const companyClient = new AuthCompanyClient("http://localhost:5144")
 

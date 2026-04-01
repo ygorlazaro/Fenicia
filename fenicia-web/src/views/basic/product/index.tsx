@@ -35,7 +35,8 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import Pagination from '../../../components/Pagination';
 import ProductModal from '../../../components/ProductModal';
-import { BasicDataSourceClient, BasicProductClient } from '../../../services/basic-crud-clients';
+import { BasicDataSourceClient } from '../../../services/basic/basic-datasource-client';
+import { BasicProductClient } from '../../../services/basic/basic-product-client';
 import ProductPerformanceClient from '../../../services/product-performance-client';
 
 const productClient = new BasicProductClient();

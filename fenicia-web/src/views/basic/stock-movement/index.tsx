@@ -1,32 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { cilArrowBottom, cilArrowTop, cilHistory, cilLayers, cilSpeedometer } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
     CCard,
     CCardBody,
     CCardHeader,
+    CCol,
     CContainer,
+    CRow,
+    CSpinner,
     CTable,
     CTableBody,
     CTableDataCell,
     CTableHead,
     CTableHeaderCell,
     CTableRow,
-    CSpinner,
-    CAlert,
-    CRow,
-    CCol,
     CWidgetStatsA
 } from '@coreui/react';
-import { CChartBar, CChartLine } from '@coreui/react-chartjs';
-import CIcon from '@coreui/icons-react';
-import { cilArrowBottom, cilArrowTop, cilLayers, cilSpeedometer, cilHistory } from '@coreui/icons';
-import { StockMovementClient, StockMovementDashboard, StockMovementHistory, MonthlyInOut, TopMovedProduct, StockTurnover } from '../../../services/stock-movement-client';
-import { BasicProductClient, BasicOrderClient, BasicCustomerClient, BasicEmployeeClient } from '../../../services/basic-crud-clients';
+import { CChartBar } from '@coreui/react-chartjs';
 import { getStyle } from '@coreui/utils';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import ProductModal from '../../../components/ProductModal';
-import CustomerModal from '../../../components/CustomerModal';
-import EmployeeModal from '../../../components/EmployeeModal';
+import { BasicOrderClient } from '../../../services/basic/basic-order-client';
+import { BasicProductClient } from '../../../services/basic/basic-product-client';
+import { StockMovementClient, StockMovementDashboard } from '../../../services/stock-movement-client';
 
 const stockMovementClient = new StockMovementClient();
 

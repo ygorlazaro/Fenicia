@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import { cilCloudDownload, cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CContainer,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
+    CLink,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
     CModalTitle,
     CSpinner,
-    CAlert,
-    CLink
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning, cilCloudDownload } from '@coreui/icons';
-import ProjectAttachmentClient from '../../../services/project-attachment-client';
-import ProjectAttachmentModal from '../../../components/ProjectAttachmentModal';
+import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
+import ProjectAttachmentModal from '../../../components/ProjectAttachmentModal';
+import ProjectAttachmentClient from '../../../services/project-attachment-client';
 
 const projectAttachmentClient = new ProjectAttachmentClient("http://localhost:5144");
 
@@ -55,10 +55,8 @@ const ProjectAttachmentList = () => {
             setLoading(true);
             setError(null);
             const response = await projectAttachmentClient.getAll(pagination.page, pagination.perPage);
-            console.log('Project Attachments API response:', response);
 
             const attachmentsList = Array.isArray(response) ? response : (response?.data || []);
-            console.log('Project Attachments list:', attachmentsList);
             setAttachments(attachmentsList);
             setPagination(prev => ({
                 ...prev,

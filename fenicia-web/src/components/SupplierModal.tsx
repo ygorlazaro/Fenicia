@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
+    CAlert,
     CButton,
+    CCol,
     CForm,
     CFormInput,
     CFormLabel,
@@ -11,11 +11,11 @@ import {
     CModalFooter,
     CModalHeader,
     CModalTitle,
-    CAlert,
-    CRow,
-    CCol
+    CRow
 } from '@coreui/react';
-import BasicSupplierClient from '../services/basic-crud-clients';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import BasicSupplierClient from '../services/basic/basic-customer-client';
 import { fetchAddressByCep } from '../services/cep-client';
 
 const supplierClient = new BasicSupplierClient();

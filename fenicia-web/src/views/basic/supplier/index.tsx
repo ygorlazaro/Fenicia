@@ -34,7 +34,8 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import Pagination from '../../../components/Pagination';
 import SupplierModal from '../../../components/SupplierModal';
-import { BasicDataSourceClient, BasicSupplierClient } from '../../../services/basic-crud-clients';
+import { BasicDataSourceClient } from '../../../services/basic/basic-datasource-client';
+import { BasicSupplierClient } from '../../../services/basic/basic-supplier-client';
 import SupplierPerformanceClient from '../../../services/supplier-performance-client';
 
 const supplierClient = new BasicSupplierClient();

@@ -36,7 +36,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import EmployeeModal from '../../../components/EmployeeModal';
 import Pagination from '../../../components/Pagination';
-import { BasicEmployeeClient } from '../../../services/basic-employee-client';
+import { BasicEmployeeClient } from '../../../services/basic/basic-employee-client';
 import EmployeePerformanceClient from '../../../services/employee-performance-client';
 
 const employeeClient = new BasicEmployeeClient("http://localhost:5083");
