@@ -1,21 +1,10 @@
-# Security Vulnerability Fix: Client-Side Role Check Bypass
+# Fix Authentication Scheme Error in Controllers
 
-## Status: In Progress
+## Steps to Complete
 
-### Step 1: [DONE] Create TODO.md - Breakdown of approved plan
-
-### Step 2: [DONE] Edit fenicia-web/src/views/basic/order/index.tsx
-- Removed checkAdminRole() function
-- Removed isAdmin state and useEffect call
-- Made delete button always visible (removed conditional rendering)
-- Backend now solely enforces authorization via existing error handling
-
-### Step 3: [PENDING] Test the fix
-- Verify delete works for admin users
-- Verify non-admin users get backend 403 error shown in UI
-- Confirm no functionality regressions
-
-### Step 4: [DONE] Search codebase again post-fix for remaining issues
-- Re-ran searches: 0 similar patterns found
-
-### Step 5: [DONE] Attempt completion with explanation
+- [x] 1. Create reusable `ForbidWithMessage` helper in Fenicia.Common.Api/Controllers/ControllerBaseExtensions.cs
+- [x] 2. Edit Fenicia.Auth/Domains/Order/OrderController.cs to use helper instead of `Forbid(ex.Message)`
+- [ ] 3. Test POST /order endpoint with invalid user-company combo (should return 403, not 500) - Manual test needed
+- [ ] 4. Identify and refactor other controllers using `Forbid(ex.Message)` pattern (Fenicia.Module.Basic controllers, other Auth controllers)
+- [ ] 5. Verify global ExceptionMiddleware handles remaining cases
+- [x] 6. Update TODO.md after each step

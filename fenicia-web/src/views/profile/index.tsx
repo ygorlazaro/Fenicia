@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { cilBuilding, cilCalendar, cilCheck, cilUser } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+  CAlert,
+  CBadge,
   CCard,
   CCardBody,
   CCardHeader,
+  CCol,
   CContainer,
   CRow,
-  CCol,
   CSpinner,
-  CAlert,
-  CBadge,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -17,9 +17,9 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilBuilding, cilCalendar, cilCheck, cilUser } from '@coreui/icons';
-import AuthProfileClient from '../../services/auth-profile-client';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import AuthProfileClient from '../../services/auth/auth-profile-client';
 
 const profileClient = new AuthProfileClient();
 

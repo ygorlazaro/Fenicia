@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
+    CAlert,
     CButton,
+    CCol,
     CForm,
     CFormInput,
     CFormLabel,
@@ -11,11 +11,11 @@ import {
     CModalFooter,
     CModalHeader,
     CModalTitle,
-    CAlert,
-    CRow,
-    CCol
+    CRow
 } from '@coreui/react';
-import { BasicProductClient } from '../services/basic-crud-clients';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BasicProductClient } from '../services/basic/basic-product-client';
 
 const productClient = new BasicProductClient();
 

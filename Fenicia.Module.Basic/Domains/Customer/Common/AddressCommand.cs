@@ -3,7 +3,7 @@ namespace Fenicia.Module.Basic.Domains.Customer.Common;
 /// <summary>
 ///     Data transfer object for address information.
 /// </summary>
-public record AddressDTO(
+public record AddressCommand(
     string Street,
     string Number,
     string? Complement,

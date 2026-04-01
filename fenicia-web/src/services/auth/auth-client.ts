@@ -1,8 +1,5 @@
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { ApiClient, AUTH_API_BASE_URL } from './client';
-
-// Default company ID for initial login (can be overridden)
-const DEFAULT_COMPANY_ID = import.meta.env.VITE_DEFAULT_COMPANY_ID || '00000000-0000-0000-0000-000000000000';
+import { ApiClient, AUTH_API_BASE_URL } from '../api-client';
 
 /**
  * AuthClient - Base class for authentication microservice
@@ -22,13 +19,10 @@ export class AuthClient extends ApiClient {
     this.getClient().interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         const token = this.getToken();
-        let companyId = this.getCompanyId();
 
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
-
-
 
         return config;
       },

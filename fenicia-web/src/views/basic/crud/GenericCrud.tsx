@@ -1,15 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import {
-    CButton, CCard, CCardBody, CCardHeader, CContainer, CTable, CTableBody, CTableDataCell,
-    CTableHead, CTableHeaderCell, CTableRow, CModal, CModalBody, CModalFooter, CModalHeader,
-    CModalTitle, CSpinner, CAlert, CForm, CFormInput, CFormLabel,
-    CFormSelect, CFormTextarea, CRow, CCol, CInputGroup, CInputGroupText
-} from '@coreui/react';
+import { cilPencil, cilPlus, cilSearch, cilTrash, cilWarning } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning, cilSearch } from '@coreui/icons';
-import { BasicCustomerClient, BasicSupplierClient, BasicProductCategoryClient, BasicProductClient } from '../../../services/basic-crud-clients';
-import { fetchAddressByCep } from '../../../services/cep-client';
+import {
+    CAlert,
+    CButton, CCard, CCardBody, CCardHeader, CContainer,
+    CForm, CFormInput, CFormLabel,
+    CFormSelect, CFormTextarea,
+    CInputGroup, CInputGroupText,
+    CModal, CModalBody, CModalFooter, CModalHeader,
+    CModalTitle, CSpinner,
+    CTable, CTableBody, CTableDataCell,
+    CTableHead, CTableHeaderCell, CTableRow
+} from '@coreui/react';
+import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
+import { BasicCustomerClient } from '../../../services/basic/basic-customer-client';
+import { BasicProductCategoryClient } from '../../../services/basic/basic-product-category-client';
+import { BasicProductClient } from '../../../services/basic/basic-product-client';
+import { BasicSupplierClient } from '../../../services/basic/basic-supplier-client';
+import { fetchAddressByCep } from '../../../services/cep-client';
 
 const customerClient = new BasicCustomerClient();
 const supplierClient = new BasicSupplierClient();
@@ -367,4 +375,4 @@ const ProductCrud = () => {
     );
 };
 
-export { SupplierCrud, ProductCategoryCrud, ProductCrud };
+export { ProductCategoryCrud, ProductCrud, SupplierCrud };
