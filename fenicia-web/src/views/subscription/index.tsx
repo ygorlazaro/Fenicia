@@ -15,18 +15,22 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthModuleClient from '../../services/auth/auth-module-client';
 import AuthOrderClient from '../../services/auth/auth-order-client';
+import AuthProfileClient from '../../services/auth/auth-profile-client';
+import { GetModuleResponse } from '../../types/auth-types';
+import SubscriptionSummary from './subscription-summary';
 
 const moduleClient = new AuthModuleClient("http://localhost:5144");
 const orderClient = new AuthOrderClient("http://localhost:5144");
+const profileClient = new AuthProfileClient("http://localhost:5144");
 
 const Subscription = () => {
     const navigate = useNavigate();
-    const [modules, setModules] = useState([]);
-    const [selectedModules, setSelectedModules] = useState([]);
-    const [subscribedModuleIds, setSubscribedModuleIds] = useState([]);
+    const [modules, setModules] = useState<GetModuleResponse[]>([]);
+    const [selectedModules, setSelectedModules] = useState<string[]>([]);
+    const [subscribedModuleIds, setSubscribedModuleIds] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [ordering, setOrdering] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [subscribedCount, setSubscribedCount] = useState(0);
 
@@ -56,21 +60,22 @@ const Subscription = () => {
             const [modulesResponse, subscribedIds, profile] = await Promise.all([
                 moduleClient.getModules(1, 50),
                 moduleClient.getSubscribedModuleIds(),
-                moduleClient.getProfile()
+                profileClient.getProfile()
             ]);
 
             // Handle pagination response - response should have data array
-            const modulesList = modulesResponse?.data || modulesResponse?.items || [];
-            setModules(modulesList);
+            setModules(modulesResponse.data);
             setSubscribedModuleIds(subscribedIds);
-            
+
             // Pre-select already subscribed modules (they will be disabled)
             setSelectedModules(subscribedIds);
 
             // Compute unique non-Basic subscribed modules count
-            const nonBasicIds = profile?.subscriptions?.flatMap((subscription: any) =>
-                subscription.modules.filter((m: any) => m.mType !== 'Basic').map((m: any) => m.id)
+            const nonBasicIds = profile?.subscriptions?.flatMap((subscription) =>
+                subscription.modules.filter((m) => m.type !== "Basic").map((m) => m.id)
             ) || [];
+
+
             const uniqueNonBasicCount = new Set(nonBasicIds).size;
             setSubscribedCount(uniqueNonBasicCount);
         } catch (err) {
@@ -82,7 +87,7 @@ const Subscription = () => {
         }
     };
 
-    const handleToggleModule = (moduleId) => {
+    const handleToggleModule = (moduleId: string) => {
         // Prevent toggling already subscribed modules
         if (subscribedModuleIds.includes(moduleId)) {
             return;
@@ -103,7 +108,7 @@ const Subscription = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
 
         // Filter out already subscribed modules - only send new modules
@@ -140,30 +145,6 @@ const Subscription = () => {
             style: 'currency',
             currency: 'BRL'
         }).format(price);
-    };
-
-    const SubscriptionSummary = ({ variant = 'default', isSticky = false }) => {
-        return (
-            <CCard className={`mb-3 shadow-lg ${isSticky ? 'sticky-bottom' : ''}`} style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                border: 'none',
-                top: isSticky ? '10px' : 'auto'
-            }}>
-                <CCardBody className="text-center py-4">
-                    <CRow className="align-items-center">
-                        <CCol md={6}>
-                            <div className="h4 mb-1">{selectedCountNew} módulo(s) novo(s) selecionado(s)</div>
-                            <div className="opacity-75">de {modules.length - subscribedModuleIds.length} disponíveis</div>
-                        </CCol>
-                        <CCol md={6} className="text-md-end">
-                            <div className="h3 fw-bold mb-1">{formatPrice(totalPrice)}/mês</div>
-                            <div className="small opacity-75">Total da assinatura</div>
-                        </CCol>
-                    </CRow>
-                </CCardBody>
-            </CCard>
-        );
     };
 
     return (
@@ -224,7 +205,7 @@ const Subscription = () => {
                                         </CButton>
                                     </div>
 
-                                    <SubscriptionSummary variant="header" />
+                                    <SubscriptionSummary selectedCountNew={selectedCountNew} modulesCount={modules.length} subscribedModulesCount={subscribedModuleIds.length} totalPrice={totalPrice} />
 
                                     <CForm onSubmit={handleSubmit}>
                                         <CRow className="g-4">
@@ -255,7 +236,7 @@ const Subscription = () => {
                                                                     id={`module-${module.id}`}
                                                                     label={
                                                                         <>
-                                                                            <span className="text-dark fw-semibold">{module.name}</span>
+                                                                            <span className="fw-semibold">{module.name}</span>
                                                                             {isSubscribed && (
                                                                                 <span className="ms-2 badge bg-success">
                                                                                     Já assinado
@@ -280,7 +261,7 @@ const Subscription = () => {
 
                                         <div className="mb-4">
                                             <div className="position-sticky bottom-0 z-3" style={{ top: 'auto' }}>
-                                                <SubscriptionSummary variant="footer" isSticky={true} />
+                                                <SubscriptionSummary selectedCountNew={selectedCountNew} modulesCount={modules.length} subscribedModulesCount={subscribedModuleIds.length} totalPrice={totalPrice} />
                                             </div>
                                         </div>
 
