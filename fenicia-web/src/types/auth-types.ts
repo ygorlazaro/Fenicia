@@ -44,7 +44,7 @@ export type UserSubscriptionResponse = {
 export type UserModuleResponse = {
     id: string,
     name: string,
-    type: ModuleType
+    type: string
 }
 
 export type CreateNewOrderResponse = {

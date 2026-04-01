@@ -19,7 +19,7 @@ declare module '*.ico';
 
 // API Response Types
 export interface Pagination<T> {
-  data: T;
+  data: T[];
   total: number;
   page: number;
   perPage: number;
