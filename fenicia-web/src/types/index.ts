@@ -18,7 +18,7 @@ declare module '*.svg';
 declare module '*.ico';
 
 // API Response Types
-export interface Pagination<T> {
+export interface IPagination<T> {
   data: T[];
   total: number;
   page: number;
@@ -27,28 +27,28 @@ export interface Pagination<T> {
 }
 
 // Auth Types
-export interface User {
+export interface IUser {
   id: string;
   email: string;
   name: string;
   companyId?: string;
 }
 
-export interface Company {
+export interface ICompany {
   id: string;
   name: string;
   cnpj: string;
   isDefault?: boolean;
 }
 
-export interface TokenResponse {
+export interface ITokenResponse {
   accessToken: string;
   refreshToken: string;
-  user: User;
+  user: IUser;
 }
 
 // Employee Types
-export interface Employee {
+export interface IEmployee {
   id: string;
   name: string;
   email: string;
@@ -67,7 +67,7 @@ export interface Employee {
 }
 
 // Position Types
-export interface Position {
+export interface IPosition {
   id: string;
   name: string;
   code?: string;
@@ -75,7 +75,7 @@ export interface Position {
 }
 
 // Product Types
-export interface Product {
+export interface IProduct {
   id: string;
   name: string;
   sku?: string;
@@ -88,7 +88,7 @@ export interface Product {
   supplierName?: string;
 }
 
-export interface ProductCategory {
+export interface IProductCategory {
   id: string;
   name: string;
   code?: string;
@@ -96,7 +96,7 @@ export interface ProductCategory {
 }
 
 // Customer & Supplier Types
-export interface Customer {
+export interface ICustomer {
   id: string;
   name: string;
   email?: string;
@@ -105,7 +105,7 @@ export interface Customer {
   address?: string;
 }
 
-export interface Supplier {
+export interface ISupplier {
   id: string;
   name: string;
   email?: string;
@@ -115,7 +115,7 @@ export interface Supplier {
 }
 
 // Inventory Types
-export interface Inventory {
+export interface IInventory {
   id?: string;
   productId?: string;
   productName?: string;
@@ -127,7 +127,7 @@ export interface Inventory {
 }
 
 // Stock Movement Types
-export interface StockMovement {
+export interface IStockMovement {
   id?: string;
   productId: string;
   productName?: string;
@@ -138,23 +138,23 @@ export interface StockMovement {
 }
 
 // Order Types
-export interface OrderItem {
+export interface IOrderItem {
   productId: string;
   productName?: string;
   quantity: number;
   price: number;
 }
 
-export interface Order {
+export interface IOrder {
   id?: string;
   userId?: string;
-  items: OrderItem[];
+  items: IOrderItem[];
   totalAmount?: number;
   createdAt?: string;
 }
 
 // Module Types
-export interface Module {
+export interface IModule {
   id: string;
   name: string;
   type: string;
@@ -162,7 +162,7 @@ export interface Module {
 }
 
 // Navigation Types
-export interface NavItem {
+export interface INavItem {
   component?: React.ComponentType<any>;
   name: string;
   to?: string;
@@ -172,39 +172,39 @@ export interface NavItem {
     color: string;
     text: string;
   };
-  items?: NavItem[];
+  items?: INavItem[];
   element?: React.ComponentType<any>;
   path?: string;
   exact?: boolean;
 }
 
 // Profile Types
-export interface UserProfileResponse {
+export interface IUserProfileResponse {
   id: string;
   name: string;
   email: string;
-  companies: UserCompany[];
-  subscriptions: UserSubscription[];
+  companies: IUserCompany[];
+  subscriptions: IUserSubscription[];
 }
 
-export interface UserCompany {
+export interface IUserCompany {
   id: string;
   name: string;
   cnpj: string;
   isDefault: boolean;
 }
 
-export interface UserSubscription {
+export interface IUserSubscription {
   id: string;
   companyId: string;
   companyName: string;
   status: string;
   startDate: string;
   endDate?: string;
-  modules: SubscribedModule[];
+  modules: ISubscribedModule[];
 }
 
-export interface SubscribedModule {
+export interface ISubscribedModule {
   id: string;
   name: string;
   type: string;

@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { Pagination } from '../../types';
+import { IPagination } from '../../types';
 import { AddProductCategoryCommand, AddProductCategoryResponse, GetAllProductCategoryResponse, GetProductCategoryByIdResponse, UpdateProductCategoryCommand, UpdateProductCategoryResponse } from '../../types/basic-types';
 import { ApiClient } from '../api-client';
 import { BASIC_API_BASE_URL } from './basic-product-client';
@@ -14,7 +14,7 @@ export class BasicProductCategoryClient extends ApiClient {
     super(baseURL);
   }
 
-  async getAll(page: number = 1, perPage: number = 10): Promise<Pagination<GetAllProductCategoryResponse>> {
+  async getAll(page: number = 1, perPage: number = 10): Promise<IPagination<GetAllProductCategoryResponse>> {
     const response = await this.getClient().get('/productcategory', { params: { page, perPage } });
     return (response as AxiosResponse).data;
   }
