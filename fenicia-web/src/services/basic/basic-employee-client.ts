@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import type { Pagination } from '../../types';
+import type { IPagination } from '../../types';
 import type {
   AddEmployeeCommand,
   AddEmployeeResponse,
@@ -24,7 +24,7 @@ export class BasicEmployeeClient extends ApiClient {
    * Get all employees with pagination
    * GET /employee?page=1&perPage=10
    */
-  async getAll(page: number = 1, perPage: number = 10): Promise<Pagination<GetAllEmployeeResponse>> {
+  async getAll(page: number = 1, perPage: number = 10): Promise<IPagination<GetAllEmployeeResponse>> {
     const response = await this.getClient().get('/employee', {
       params: { page, perPage }
     });

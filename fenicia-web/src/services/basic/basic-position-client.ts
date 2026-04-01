@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import type { Pagination } from '../../types';
+import type { IPagination } from '../../types';
 import type {
   AddPositionCommand,
   AddPositionResponse,
@@ -26,7 +26,7 @@ export class BasicPositionClient extends ApiClient {
    * Get all positions with pagination
    * GET /position?page=1&perPage=10
    */
-  async getAll(page: number = 1, perPage: number = 10): Promise<Pagination<GetAllPositionResponse>> {
+  async getAll(page: number = 1, perPage: number = 10): Promise<IPagination<GetAllPositionResponse>> {
     const response = await this.getClient().get('/position', {
       params: { page, perPage }
     });
@@ -78,7 +78,7 @@ export class BasicPositionClient extends ApiClient {
    * Get employees by position ID
    * GET /position/:id/employee
    */
-  async getEmployeesByPosition(id: string, page: number = 1, perPage: number = 10): Promise<Pagination<GetAllEmployeeResponse>> {
+  async getEmployeesByPosition(id: string, page: number = 1, perPage: number = 10): Promise<IPagination<GetAllEmployeeResponse>> {
     const response = await this.getClient().get(`/position/${id}/employee`, {
       params: { page, perPage }
     });

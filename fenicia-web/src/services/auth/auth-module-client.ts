@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { Pagination } from '../../types';
+import { IPagination } from '../../types';
 import { GetModuleResponse, UserModuleResponse, UserSubscriptionResponse } from '../../types/auth-types';
 import { ApiClient } from '../api-client';
 
@@ -19,9 +19,9 @@ export class AuthModuleClient extends ApiClient {
    * GET /module?page=1&perPage=10
    * @param {number} page - Page number
    * @param {number} perPage - Items per page
-   * @returns {Promise<Pagination<GetModuleResponse>>}
+   * @returns {Promise<IPagination<GetModuleResponse>>}
    */
-  async getModules(page: number = 1, perPage: number = 50): Promise<Pagination<GetModuleResponse>> {
+  async getModules(page: number = 1, perPage: number = 50): Promise<IPagination<GetModuleResponse>> {
     const response = await this.getClient().get('/module', {
       params: { page, perPage }
     });

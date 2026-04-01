@@ -26,13 +26,14 @@ import { useSearchParams } from 'react-router-dom';
 import Pagination from '../../../components/Pagination';
 import PositionModal from '../../../components/PositionModal';
 import BasicPositionClient from '../../../services/basic/basic-position-client';
+import { GetAllPositionResponse, GetPositionByIdResponse, UpdatePositionCommand } from '../../../types/basic-types';
 
 const positionClient = new BasicPositionClient("http://localhost:5083");
 
 const PositionList = () => {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
-    const [positions, setPositions] = useState([]);
+    const [positions, setPositions] = useState<GetAllPositionResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({
@@ -43,7 +44,7 @@ const PositionList = () => {
     });
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [selectedPosition, setSelectedPosition] = useState(null);
+    const [selectedPosition, setSelectedPosition] = useState<GetPositionByIdResponse>(null);
     const [positionToDelete, setPositionToDelete] = useState(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -60,7 +61,7 @@ const PositionList = () => {
         loadPositions();
     }, [pagination.page, pagination.perPage]);
 
-    const loadPositionForEdit = async (positionId) => {
+    const loadPositionForEdit = async (positionId: string) => {
         try {
             const position = await positionClient.getById(positionId);
             setSelectedPosition(position);
@@ -98,17 +99,17 @@ const PositionList = () => {
         setModalVisible(true);
     };
 
-    const handleOpenEdit = (position) => {
+    const handleOpenEdit = (position: GetPositionByIdResponse) => {
         setSelectedPosition(position);
         setModalVisible(true);
     };
 
-    const handleOpenDelete = (position) => {
+    const handleOpenDelete = (position: GetPositionByIdResponse) => {
         setPositionToDelete(position);
         setDeleteModalVisible(true);
     };
 
-    const handleSave = async (formData) => {
+    const handleSave = async (formData: UpdatePositionCommand) => {
         setSaving(true);
         try {
             if (selectedPosition) {
@@ -129,7 +130,9 @@ const PositionList = () => {
     };
 
     const handleDelete = async () => {
-        if (!positionToDelete) return;
+        if (!positionToDelete) {
+            return;
+        }
 
         setDeleting(true);
         try {
@@ -146,11 +149,11 @@ const PositionList = () => {
         }
     };
 
-    const handlePageChange = (newPage) => {
+    const handlePageChange = (newPage: number) => {
         setPagination(prev => ({ ...prev, page: newPage }));
     };
 
-    const handlePerPageChange = (newPerPage) => {
+    const handlePerPageChange = (newPerPage: number) => {
         setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
