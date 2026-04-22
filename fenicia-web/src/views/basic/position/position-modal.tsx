@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
+    CAlert,
     CButton,
     CForm,
-    CFormInput,
-    CFormLabel,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
-    CModalTitle,
-    CAlert
+    CModalTitle
 } from '@coreui/react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { FeniciaInput } from '../../../components/fenicia/fenicia-input';
 
 const PositionModal = ({ 
     visible, 
@@ -78,14 +77,12 @@ const PositionModal = ({
                     )}
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="name">{t('positions.name')} *</CFormLabel>
-                        <CFormInput
-                            type="text"
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            required
+                        <FeniciaInput 
+                            label="positions.name" 
+                            id="name" 
+                            value={formData.name} 
+                            handleInputChange={handleInputChange} 
+                            required={true} 
                         />
                     </div>
                 </CModalBody>

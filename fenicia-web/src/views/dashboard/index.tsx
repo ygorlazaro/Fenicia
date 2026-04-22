@@ -5,13 +5,13 @@ import {
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import TimeRangeSelector from '../../components/fenicia/time-range-selector';
 import FinancialDashboardClient, { FinancialDashboard } from '../../services/financial-dashboard-client';
 import { AdditionalInfo } from './additional-info';
 import ChartsRow from './charts-row';
 import DailySalesSummary from './daily-sales-summary';
 import KpiSummaryCards from './kpi-summary-cards';
 import { ProfitMarginTrend } from './profit-margin-trend';
-import TimeRangeSelector from './time-range-selector';
 
 const dashboardClient = new FinancialDashboardClient();
 
@@ -65,7 +65,7 @@ const Dashboard = () => {
     return (
         <CContainer className="py-4">
             {/* Time Range Selector */}
-            <TimeRangeSelector days={days} setDays={setDays} />
+            <TimeRangeSelector days={days} setDays={setDays} title={t('dashboard.financialDashboard')} />
 
             {/* KPI Summary Cards */}
             <KpiSummaryCards
