@@ -8,7 +8,6 @@ export interface CustomerSummary {
   totalOrders: number;
   totalRevenue: number;
   averageOrderValue: number;
-  averageCustomerLifetimeValue: number;
 }
 
 export interface CustomerOrderHistory {

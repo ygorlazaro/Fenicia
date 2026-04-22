@@ -32,6 +32,7 @@ export type GetCustomerByIdResponse = {
 }
 
 export type AddCustomerCommand = {
+    id: string;
     name: string;
     email?: string;
     phoneNumber?: string;
