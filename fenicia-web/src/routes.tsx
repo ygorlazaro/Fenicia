@@ -7,7 +7,7 @@ const AuthUser = React.lazy(() => import("./template/auth/user"));
 const ForgotPassword = React.lazy(() => import("./template/auth/forgot-password"));
 const ResetPassword = React.lazy(() => import("./template/auth/reset-password"));
 const Profile = React.lazy(() => import("./template/profile"));
-const Subscription = React.lazy(() => import("./template/subscription"));
+const Subscription = React.lazy(() => import("./views/subscription"));
 const EmployeeList = React.lazy(() => import("./template/basic/employee"));
 const PositionList = React.lazy(() => import("./template/basic/position"));
 const Customers = React.lazy(() => import("./template/basic/customer"));

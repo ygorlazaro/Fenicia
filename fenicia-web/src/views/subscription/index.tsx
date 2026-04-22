@@ -17,6 +17,7 @@ import AuthModuleClient from '../../services/auth/auth-module-client';
 import AuthOrderClient from '../../services/auth/auth-order-client';
 import AuthProfileClient from '../../services/auth/auth-profile-client';
 import { GetModuleResponse } from '../../types/auth-types';
+import { SubscriptionHeader } from './subscription-header';
 import SubscriptionSummary from './subscription-summary';
 
 const moduleClient = new AuthModuleClient("http://localhost:5144");
@@ -177,33 +178,7 @@ const Subscription = () => {
 
                             {!loading && !success && (
                                 <>
-                                    <p className="text-muted mb-4">
-                                        Selecione os módulos que deseja assinar para sua empresa.
-                                    </p>
-
-                                    <div className="alert alert-info mb-4 p-3">
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <strong className="h6 mb-0">
-                                                {subscribedCount} de {modules.length} módulo(s) ativo(s)
-                                            </strong>
-                                            <span className="badge bg-info">
-                                                excluindo Básico
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="d-flex justify-content-between align-items-center mb-3">
-                                        <span>
-                                            {selectedCountNew} de {modules.length - subscribedModuleIds.length} novo(s) selecionado(s)
-                                        </span>
-                                        <CButton 
-                                            color="outline-primary" 
-                                            size="sm"
-                                            onClick={handleSelectAll}
-                                        >
-                                            {selectedCountNew === (modules.length - subscribedModuleIds.length) ? 'Desmarcar novos' : 'Selecionar todos os novos'}
-                                        </CButton>
-                                    </div>
+                                    <SubscriptionHeader subscribedCount={subscribedCount} selectedCountNew={selectedCountNew} handleSelectAll={handleSelectAll} modulesCount={modules.length} subscribedModulesCount={subscribedCount}  />
 
                                     <SubscriptionSummary selectedCountNew={selectedCountNew} modulesCount={modules.length} subscribedModulesCount={subscribedModuleIds.length} totalPrice={totalPrice} />
 
