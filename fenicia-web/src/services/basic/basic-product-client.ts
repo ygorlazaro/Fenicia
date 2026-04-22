@@ -5,7 +5,7 @@ import { ApiClient } from '../api-client';
 import { BasicCustomerClient } from './basic-customer-client';
 
 
-export const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5002/api';
+export const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5083';
 
 
 /**

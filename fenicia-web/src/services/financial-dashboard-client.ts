@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import { ApiClient } from './api-client';
 
-const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5002/api';
+const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5083';
 
 export interface KPISummary {
   totalRevenue: number;
@@ -22,14 +22,14 @@ export interface RevenueVsCost {
   profit: number;
 }
 
-export interface ProfitMarginTrend {
+export interface FinancialProfitMarginTrend {
   period: string;
   date: string;
   marginPercentage: number;
   trend: string;
 }
 
-export interface AccountsReceivable {
+export interface FinancialAccountsReceivable {
   totalPending: number;
   pendingOrdersCount: number;
   totalApproved: number;
@@ -50,8 +50,8 @@ export interface DailySalesSummary {
 export interface FinancialDashboard {
   kpi: KPISummary;
   revenueVsCost: RevenueVsCost[];
-  profitMarginTrend: ProfitMarginTrend[];
-  accountsReceivable: AccountsReceivable;
+  profitMarginTrend: FinancialProfitMarginTrend[];
+  accountsReceivable: FinancialAccountsReceivable;
   dailySales: DailySalesSummary;
 }
 
