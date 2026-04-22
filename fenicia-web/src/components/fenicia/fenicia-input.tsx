@@ -2,7 +2,7 @@ import { CFormInput, CFormLabel } from "@coreui/react";
 import { useTranslation } from "react-i18next";
 
 interface FeniciaInputProps {
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   value: string;
   label: string;
@@ -14,7 +14,7 @@ interface FeniciaInputProps {
 }
 
 export function FeniciaInput({
-  handleInputChange,
+  onChange,
   value,
   label,
   id,
@@ -28,6 +28,6 @@ export function FeniciaInput({
 
   return <>
     <CFormLabel htmlFor={id}>{t(label)} *</CFormLabel>
-    <CFormInput type={type} id={id} name={id} value={value} onChange={handleInputChange} onBlur={onBlur} required={required} placeholder={placeholder} maxLength={maxLength} />
+    <CFormInput type={type} id={id} name={id} value={value} onChange={onChange} onBlur={onBlur} required={required} placeholder={placeholder} maxLength={maxLength} />
   </>;
 }

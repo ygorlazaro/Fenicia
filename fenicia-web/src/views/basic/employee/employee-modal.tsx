@@ -211,7 +211,7 @@ const EmployeeModal = ({
                                     label="employees.name"
                                     id="name"
                                     value={formData.name}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                     required
                                 />
                             </div>
@@ -222,7 +222,7 @@ const EmployeeModal = ({
                                     label="employees.document"
                                     id="document"
                                     value={formData.document}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
@@ -234,7 +234,7 @@ const EmployeeModal = ({
                             id="email"
                             type="email"
                             value={formData.email}
-                            handleInputChange={handleInputChange}
+                            onChange={handleInputChange}
                             required
                         />
                     </div>
@@ -247,7 +247,7 @@ const EmployeeModal = ({
                                     id="phoneNumber"
                                     type="tel"
                                     value={formData.phoneNumber}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
@@ -258,7 +258,7 @@ const EmployeeModal = ({
                                     id="positionId"
                                     data={positions}
                                     value={formData.positionId}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                     loadingOptions={loadingOptions}
                                 />
                             </div>
@@ -274,7 +274,7 @@ const EmployeeModal = ({
                                     label="employees.zipCode"
                                     id="zipCode"
                                     value={formData.address?.zipCode}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                     onBlur={handleCepBlur}
                                     placeholder="00000-000"
                                     maxLength={9}
@@ -288,7 +288,7 @@ const EmployeeModal = ({
                                     id="stateId"
                                     data={states}
                                     value={formData.address?.stateId}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                     loadingOptions={loadingOptions}
                                 />
 
@@ -300,7 +300,7 @@ const EmployeeModal = ({
                                     label="employees.city"
                                     id="city"
                                     value={formData.address?.city}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
@@ -314,7 +314,7 @@ const EmployeeModal = ({
                                     label="employees.street"
                                     id="street"
                                     value={formData.address?.street}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
@@ -324,7 +324,7 @@ const EmployeeModal = ({
                                     label="employees.number"
                                     id="number"
                                     value={formData.address?.number}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
@@ -334,7 +334,7 @@ const EmployeeModal = ({
                                     label="employees.neighborhood"
                                     id="neighborhood"
                                     value={formData.address?.neighborhood}
-                                    handleInputChange={handleInputChange}
+                                    onChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
@@ -345,7 +345,7 @@ const EmployeeModal = ({
                             label="employees.complement"
                             id="complement"
                             value={formData.address?.complement}
-                            handleInputChange={handleInputChange}
+                            onChange={handleInputChange}
                         />
                     </div>
                 </CModalBody>
