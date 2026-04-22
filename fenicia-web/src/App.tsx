@@ -11,11 +11,11 @@ import './scss/examples.scss'
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
 // Pages
-const AuthLogin = React.lazy(() => import('./views/auth/login'))
-const AuthRegister = React.lazy(() => import('./views/auth/register'))
-const ForgotPassword = React.lazy(() => import('./views/auth/forgot-password'))
-const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
-const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
+const AuthLogin = React.lazy(() => import('./template/auth/login'))
+const AuthRegister = React.lazy(() => import('./template/auth/register'))
+const ForgotPassword = React.lazy(() => import('./template/auth/forgot-password'))
+const Page404 = React.lazy(() => import('./template/pages/page404/Page404'))
+const Page500 = React.lazy(() => import('./template/pages/page500/Page500'))
 
 const App = () => {
   const { setColorMode } = useColorModes('fenicia-gato-ninja-theme')
