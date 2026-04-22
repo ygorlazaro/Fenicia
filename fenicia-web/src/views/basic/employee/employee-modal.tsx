@@ -3,9 +3,6 @@ import {
     CButton,
     CCol,
     CForm,
-    CFormInput,
-    CFormLabel,
-    CFormSelect,
     CModal,
     CModalBody,
     CModalFooter,
@@ -15,6 +12,8 @@ import {
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FeniciaInput } from '../../../components/fenicia/fenicia-input';
+import { FeniciaSelect } from '../../../components/fenicia/fenicia-select';
 import BasicEmployeeClient from '../../../services/basic/basic-employee-client';
 import { BasicStateClient } from '../../../services/basic/basic-state-client';
 import { fetchAddressByCep } from '../../../services/cep-client';
@@ -208,39 +207,34 @@ const EmployeeModal = ({
                     <CRow>
                         <CCol md={8}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="name">{t('employees.name')} *</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput 
+                                    label="employees.name"
                                     id="name"
-                                    name="name"
                                     value={formData.name}
-                                    onChange={handleInputChange}
+                                    handleInputChange={handleInputChange}
                                     required
                                 />
                             </div>
                         </CCol>
                         <CCol md={4}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="document">{t('employees.document')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput 
+                                    label="employees.document"
                                     id="document"
-                                    name="document"
                                     value={formData.document}
-                                    onChange={handleInputChange}
+                                    handleInputChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
                     </CRow>
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="email">{t('employees.email')} *</CFormLabel>
-                        <CFormInput
-                            type="email"
+                        <FeniciaInput 
+                            label="employees.email"
                             id="email"
-                            name="email"
+                            type="email"
                             value={formData.email}
-                            onChange={handleInputChange}
+                            handleInputChange={handleInputChange}
                             required
                         />
                     </div>
@@ -248,34 +242,25 @@ const EmployeeModal = ({
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="phoneNumber">{t('employees.phone')}</CFormLabel>
-                                <CFormInput
-                                    type="tel"
+                                <FeniciaInput 
+                                    label="employees.phone"
                                     id="phoneNumber"
-                                    name="phoneNumber"
+                                    type="tel"
                                     value={formData.phoneNumber}
-                                    onChange={handleInputChange}
+                                    handleInputChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="positionId">{t('employees.position')} *</CFormLabel>
-                                <CFormSelect
+                                <FeniciaSelect
+                                    label="employees.position"
                                     id="positionId"
-                                    name="positionId"
+                                    data={positions}
                                     value={formData.positionId}
-                                    onChange={handleInputChange}
-                                    disabled={loadingOptions}
-                                    required
-                                >
-                                    <option value="">{t('common.select')}...</option>
-                                    {positions.map(pos => (
-                                        <option key={pos.id} value={pos.id}>
-                                            {pos.name}
-                                        </option>
-                                    ))}
-                                </CFormSelect>
+                                    handleInputChange={handleInputChange}
+                                    loadingOptions={loadingOptions}
+                                />
                             </div>
                         </CCol>
                     </CRow>
@@ -285,13 +270,11 @@ const EmployeeModal = ({
                     <CRow>
                         <CCol md={3}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="zipCode">{t('employees.zipCode')}</CFormLabel>
-                                <CFormInput 
-                                    type="text" 
-                                    id="zipCode" 
-                                    name="zipCode" 
-                                    value={formData.address?.zipCode} 
-                                    onChange={handleInputChange}
+                                <FeniciaInput 
+                                    label="employees.zipCode"
+                                    id="zipCode"
+                                    value={formData.address?.zipCode}
+                                    handleInputChange={handleInputChange}
                                     onBlur={handleCepBlur}
                                     placeholder="00000-000"
                                     maxLength={9}
@@ -300,33 +283,24 @@ const EmployeeModal = ({
                         </CCol>
                         <CCol md={3}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="stateId">{t('employees.state')} *</CFormLabel>
-                                <CFormSelect
+                                <FeniciaSelect
+                                    label="employees.state"
                                     id="stateId"
-                                    name="stateId"
+                                    data={states}
                                     value={formData.address?.stateId}
-                                    onChange={handleInputChange}
-                                    disabled={loadingOptions}
-                                    required
-                                >
-                                    <option value="">{t('common.select')}...</option>
-                                    {states.map(state => (
-                                        <option key={state.id} value={state.id}>
-                                            {state.uf} - {state.name}
-                                        </option>
-                                    ))}
-                                </CFormSelect>
+                                    handleInputChange={handleInputChange}
+                                    loadingOptions={loadingOptions}
+                                />
+
                             </div>
                         </CCol>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="city">{t('employees.city')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput 
+                                    label="employees.city"
                                     id="city"
-                                    name="city"
                                     value={formData.address?.city}
-                                    onChange={handleInputChange}
+                                    handleInputChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
@@ -335,50 +309,43 @@ const EmployeeModal = ({
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="street">{t('employees.street')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+
+                                <FeniciaInput
+                                    label="employees.street"
                                     id="street"
-                                    name="street"
                                     value={formData.address?.street}
-                                    onChange={handleInputChange}
+                                    handleInputChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
                         <CCol md={3}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="number">{t('employees.number')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput 
+                                    label="employees.number"
                                     id="number"
-                                    name="number"
                                     value={formData.address?.number}
-                                    onChange={handleInputChange}
+                                    handleInputChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
                         <CCol md={3}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="neighborhood">{t('employees.neighborhood')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput
+                                    label="employees.neighborhood"
                                     id="neighborhood"
-                                    name="neighborhood"
                                     value={formData.address?.neighborhood}
-                                    onChange={handleInputChange}
+                                    handleInputChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
                     </CRow>
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="complement">{t('employees.complement')}</CFormLabel>
-                        <CFormInput
-                            type="text"
+                        <FeniciaInput
+                            label="employees.complement"
                             id="complement"
-                            name="complement"
                             value={formData.address?.complement}
-                            onChange={handleInputChange}
+                            handleInputChange={handleInputChange}
                         />
                     </div>
                 </CModalBody>
