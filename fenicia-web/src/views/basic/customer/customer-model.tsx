@@ -5,7 +5,6 @@ import {
     CForm,
     CFormInput,
     CFormLabel,
-    CFormSelect,
     CModal,
     CModalBody,
     CModalFooter,
@@ -15,10 +14,23 @@ import {
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import BasicCustomerClient from '../services/basic/basic-customer-client';
-import { fetchAddressByCep } from '../services/cep-client';
+import { FeniciaInput } from '../../../components/fenicia/fenicia-input';
+import { FeniciaSelect } from '../../../components/fenicia/fenicia-select';
+import BasicCustomerClient from '../../../services/basic/basic-customer-client';
+import { BasicStateClient } from '../../../services/basic/basic-state-client';
+import { fetchAddressByCep } from '../../../services/cep-client';
+import { UpdateCustomerCommand } from '../../../types/basic-types';
 
 const customerClient = new BasicCustomerClient();
+const stateClient = new BasicStateClient();
+
+interface CustomerModalProps {
+    visible: boolean;
+    onClose: () => void;
+    onSave: (data: UpdateCustomerCommand) => void;
+    customer?: UpdateCustomerCommand;
+    loading?: boolean;
+}
 
 const CustomerModal = ({
     visible,
@@ -26,20 +38,23 @@ const CustomerModal = ({
     onSave,
     customer,
     loading
-}) => {
+}: CustomerModalProps) => {
     const { t } = useTranslation();
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<UpdateCustomerCommand | null>({
+        id: '',
         name: '',
         email: '',
         phoneNumber: '',
         document: '',
-        stateId: '',
-        street: '',
-        number: '',
-        neighborhood: '',
-        city: '',
-        complement: '',
-        zipCode: ''
+        address: {
+            stateId: '',
+            street: '',
+            number: '',
+            neighborhood: '',
+            city: '',
+            complement: '',
+            zipCode: ''
+        }
     });
     const [states, setStates] = useState([]);
     const [loadingOptions, setLoadingOptions] = useState(true);
@@ -54,31 +69,29 @@ const CustomerModal = ({
     useEffect(() => {
         if (customer) {
             setFormData({
+                id: customer.id,
                 name: customer.name || '',
                 email: customer.email || '',
                 phoneNumber: customer.phoneNumber || '',
                 document: customer.document || '',
-                stateId: customer.stateId || '',
-                street: customer.street || '',
-                number: customer.number || '',
-                neighborhood: customer.neighborhood || '',
-                city: customer.city || '',
-                complement: customer.complement || '',
-                zipCode: customer.zipCode || ''
+                address: customer.address
             });
         } else {
             setFormData({
+                id: '',
                 name: '',
                 email: '',
                 phoneNumber: '',
                 document: '',
-                stateId: '',
-                street: '',
-                number: '',
-                neighborhood: '',
-                city: '',
-                complement: '',
-                zipCode: ''
+                address: {
+                    stateId: '',
+                    street: '',
+                    number: '',
+                    neighborhood: '',
+                    city: '',
+                    complement: '',
+                    zipCode: ''
+                }
             });
         }
         setError(null);
@@ -87,7 +100,7 @@ const CustomerModal = ({
     const loadOptions = async () => {
         try {
             setLoadingOptions(true);
-            const statesData = await customerClient.getStates();
+            const statesData = await stateClient.getStates();
             setStates(statesData || []);
         } catch (err) {
             console.error('Failed to load states:', err);
@@ -96,12 +109,24 @@ const CustomerModal = ({
         }
     };
 
+    const addressFields = ['zipCode', 'stateId', 'city', 'street', 'number', 'neighborhood', 'complement'];
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        if (addressFields.includes(name)) {
+            setFormData(prev => ({
+                ...prev,
+                address: {
+                    ...prev.address,
+                    [name]: value
+                }
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     const handleCepBlur = async (e) => {
@@ -114,16 +139,20 @@ const CustomerModal = ({
                 const stateMatch = states.find(s => s.uf === address.state);
                 setFormData(prev => ({
                     ...prev,
-                    [name]: address.cep,
-                    stateId: stateMatch?.id || prev.stateId,
-                    city: address.city,
-                    neighborhood: address.neighborhood,
-                    street: address.street,
-                    complement: address.complement || prev.complement || ''
+                    address: {
+                        ...prev.address,
+                        zipCode: address.cep,
+                        stateId: stateMatch?.id || prev.address?.stateId || '',
+                        city: address.city || '',
+                        neighborhood: address.neighborhood || '',
+                        street: address.street || '',
+                        complement: address.complement || prev.address?.complement || ''
+                    }
                 }));
             }
         }
     };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -159,11 +188,9 @@ const CustomerModal = ({
                     <CRow>
                         <CCol md={8}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="name">{t('customers.name')} *</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput
+                                    label={t('customers.name')}
                                     id="name"
-                                    name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     required
@@ -172,36 +199,32 @@ const CustomerModal = ({
                         </CCol>
                         <CCol md={4}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="document">{t('customers.document')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput
+                                    label={t('customers.document')}
                                     id="document"
-                                    name="document"
                                     value={formData.document}
                                     onChange={handleInputChange}
+                                    required
                                 />
                             </div>
                         </CCol>
                     </CRow>
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="email">{t('customers.email')} *</CFormLabel>
-                        <CFormInput
-                            type="email"
+                        <FeniciaInput
+                            label={t('customers.email')}
                             id="email"
-                            name="email"
                             value={formData.email}
                             onChange={handleInputChange}
                             required
-                        />
+                        /> 
+
                     </div>
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="phoneNumber">{t('customers.phone')}</CFormLabel>
-                        <CFormInput
-                            type="tel"
+                        <FeniciaInput
+                            label={t('customers.phone')}
                             id="phoneNumber"
-                            name="phoneNumber"
                             value={formData.phoneNumber}
                             onChange={handleInputChange}
                         />
@@ -212,12 +235,10 @@ const CustomerModal = ({
                     <CRow>
                         <CCol md={3}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="zipCode">{t('customers.zipCode')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput
+                                    label={t('customers.zipCode')}
                                     id="zipCode"
-                                    name="zipCode"
-                                    value={formData.zipCode}
+                                    value={formData.address.zipCode}
                                     onChange={handleInputChange}
                                     onBlur={handleCepBlur}
                                     placeholder="00000-000"
@@ -227,21 +248,13 @@ const CustomerModal = ({
                         </CCol>
                         <CCol md={3}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="stateId">{t('customers.state')}</CFormLabel>
-                                <CFormSelect
+                                <FeniciaSelect
                                     id="stateId"
-                                    name="stateId"
-                                    value={formData.stateId}
+                                    data={states.map(state => ({ id: state.id, name: `${state.uf} - ${state.name}` }))}
+                                    value={formData.address.stateId}
                                     onChange={handleInputChange}
-                                    disabled={loadingOptions}
-                                >
-                                    <option value="">{t('common.select')}...</option>
-                                    {states.map(state => (
-                                        <option key={state.id} value={state.id}>
-                                            {state.uf} - {state.name}
-                                        </option>
-                                    ))}
-                                </CFormSelect>
+                                    label={t('customers.state')}
+                                />
                             </div>
                         </CCol>
                         <CCol md={6}>
@@ -251,7 +264,7 @@ const CustomerModal = ({
                                     type="text"
                                     id="city"
                                     name="city"
-                                    value={formData.city}
+                                    value={formData.address.city}
                                     onChange={handleInputChange}
                                 />
                             </div>
@@ -261,36 +274,31 @@ const CustomerModal = ({
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="street">{t('customers.street')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput
+                                    label={t('customers.street')}
                                     id="street"
-                                    name="street"
-                                    value={formData.street}
+                                    value={formData.address.street}
                                     onChange={handleInputChange}
                                 />
+
                             </div>
                         </CCol>
                         <CCol md={2}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="number">{t('customers.number')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput
+                                    label={t('customers.number')}
                                     id="number"
-                                    name="number"
-                                    value={formData.number}
+                                    value={formData.address.number}
                                     onChange={handleInputChange}
                                 />
                             </div>
                         </CCol>
                         <CCol md={4}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="neighborhood">{t('customers.neighborhood')}</CFormLabel>
-                                <CFormInput
-                                    type="text"
+                                <FeniciaInput
+                                    label={t('customers.neighborhood')}
                                     id="neighborhood"
-                                    name="neighborhood"
-                                    value={formData.neighborhood}
+                                    value={formData.address.neighborhood}
                                     onChange={handleInputChange}
                                 />
                             </div>
@@ -298,12 +306,10 @@ const CustomerModal = ({
                     </CRow>
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="complement">{t('customers.complement')}</CFormLabel>
-                        <CFormInput
-                            type="text"
+                        <FeniciaInput
+                            label={t('customers.complement')}
                             id="complement"
-                            name="complement"
-                            value={formData.complement}
+                            value={formData.address.complement}
                             onChange={handleInputChange}
                         />
                     </div>

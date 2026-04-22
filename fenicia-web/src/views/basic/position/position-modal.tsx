@@ -81,7 +81,7 @@ const PositionModal = ({
                             label="positions.name" 
                             id="name" 
                             value={formData.name} 
-                            handleInputChange={handleInputChange} 
+                            onChange={handleInputChange} 
                             required={true} 
                         />
                     </div>
