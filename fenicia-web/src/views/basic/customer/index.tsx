@@ -34,12 +34,11 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import CustomerModal from '../../../components/CustomerModal';
 import Pagination from '../../../components/Pagination';
-import { BasicCustomerClient } from '../../../services/basic/basic-customer-client';
-import { BasicOrderClient } from '../../../services/basic/basic-order-client';
+import BasicCustomerClient from '../../../services/basic/basic-customer-client';
 import CustomerInsightsClient from '../../../services/customer-insights-client';
+import { UpdateCustomerCommand } from '../../../types/basic-types';
 
 const customerClient = new BasicCustomerClient();
-const orderClient = new BasicOrderClient();
 const insightsClient = new CustomerInsightsClient();
 
 const Customers = () => {
@@ -170,19 +169,13 @@ const Customers = () => {
         }
 
         try {
-            const payload = {
+            const payload: UpdateCustomerCommand = {
                 id: selectedCustomer?.id || crypto.randomUUID(),
                 name: formData.name,
                 email: formData.email,
                 document: formData.document || null,
                 phoneNumber: formData.phoneNumber || null,
-                street: formData.street || null,
-                number: formData.number || null,
-                neighborhood: formData.neighborhood || null,
-                city: formData.city || null,
-                complement: formData.complement || null,
-                zipCode: formData.zipCode || null,
-                stateId: formData.stateId || null
+                address: formData.address
             };
 
             if (selectedCustomer) {

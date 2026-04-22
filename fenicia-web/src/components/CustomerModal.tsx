@@ -15,7 +15,7 @@ import {
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BasicCustomerClient } from '../services/basic/basic-customer-client';
+import BasicCustomerClient from '../services/basic/basic-customer-client';
 import { fetchAddressByCep } from '../services/cep-client';
 
 const customerClient = new BasicCustomerClient();

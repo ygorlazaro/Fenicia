@@ -8,7 +8,7 @@ import { BASIC_API_BASE_URL } from './basic-product-client';
  * Basic Customer Client - Handles customer CRUD operations
  */
 
-export class BasicCustomerClient extends ApiClient {
+class BasicCustomerClient extends ApiClient {
   constructor(baseURL: string = BASIC_API_BASE_URL) {
     super(baseURL);
   }
@@ -37,3 +37,5 @@ export class BasicCustomerClient extends ApiClient {
     await this.getClient().delete(`/customer/${id}`);
   }
 }
+
+export default BasicCustomerClient;
