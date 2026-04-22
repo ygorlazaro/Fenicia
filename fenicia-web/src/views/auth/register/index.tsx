@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CForm,
     CFormInput,
-    CFormLabel,
-    CAlert
+    CFormLabel
 } from "@coreui/react";
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from 'src/components/AuthLayout';
-import AuthRegisterClient from '../../../services/auth-register-client';
+import AuthRegisterClient from '../../../services/auth/auth-register-client';
 
 const registerClient = new AuthRegisterClient("http://localhost:5144");
 

@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { cilArrowLeft, cilCalendar, cilCart, cilDollar, cilPrint, cilUser } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
+    CBadge,
+    CButton,
     CCard,
     CCardBody,
     CCardHeader,
-    CContainer,
-    CSpinner,
-    CAlert,
-    CRow,
     CCol,
+    CContainer,
+    CRow,
+    CSpinner,
     CTable,
     CTableBody,
     CTableDataCell,
     CTableHead,
     CTableHeaderCell,
-    CTableRow,
-    CButton,
-    CBadge
+    CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilArrowLeft, cilPrint, cilCart, cilCalendar, cilUser, cilDollar } from '@coreui/icons';
-import { BasicOrderClient } from '../../../services/basic-crud-clients';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { BasicOrderClient } from '../../../services/basic/basic-order-client';
 
 const orderClient = new BasicOrderClient();
 

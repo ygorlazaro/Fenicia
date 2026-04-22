@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
+    CAlert,
     CButton,
+    CCol,
     CForm,
     CFormInput,
     CFormLabel,
@@ -11,14 +11,17 @@ import {
     CModalFooter,
     CModalHeader,
     CModalTitle,
-    CAlert,
-    CRow,
-    CCol
+    CRow
 } from '@coreui/react';
-import BasicEmployeeClient from '../services/basic-employee-client';
-import { fetchAddressByCep } from '../services/cep-client';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import BasicEmployeeClient from '../../../services/basic/basic-employee-client';
+import { BasicStateClient } from '../../../services/basic/basic-state-client';
+import { fetchAddressByCep } from '../../../services/cep-client';
+import { DataSourceItem, GetAllStateResponse, UpdateEmployeeCommand } from '../../../types/basic-types';
 
 const employeeClient = new BasicEmployeeClient();
+const stateClient = new BasicStateClient();
 
 const EmployeeModal = ({ 
     visible, 
@@ -28,22 +31,26 @@ const EmployeeModal = ({
     loading 
 }) => {
     const { t } = useTranslation();
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<UpdateEmployeeCommand>({
         name: '',
         email: '',
         phoneNumber: '',
         positionId: '',
-        stateId: '',
-        street: '',
-        number: '',
-        neighborhood: '',
-        city: '',
-        complement: '',
-        zipCode: '',
-        document: ''
+        id: '',
+        document: '',
+        address: {
+            street: '',
+            number: '',
+            neighborhood: '',
+            city: '',
+            complement: '',
+            zipCode: '',
+            stateId: '',
+            country: ''
+        }
     });
-    const [states, setStates] = useState([]);
-    const [positions, setPositions] = useState([]);
+    const [states, setStates] = useState<GetAllStateResponse[]>([]);
+    const [positions, setPositions] = useState<DataSourceItem[]>([]);
     const [loadingOptions, setLoadingOptions] = useState(true);
     const [error, setError] = useState(null);
 
@@ -56,32 +63,49 @@ const EmployeeModal = ({
     useEffect(() => {
         if (employee) {
             setFormData({
-                name: employee.name || '',
-                email: employee.email || '',
-                phoneNumber: employee.phoneNumber || '',
-                positionId: employee.positionId || '',
-                stateId: employee.stateId || '',
-                street: employee.street || '',
-                number: employee.number || '',
-                neighborhood: employee.neighborhood || '',
-                city: employee.city || '',
-                complement: employee.complement || '',
-                zipCode: employee.zipCode || '',
-                document: employee.document || ''
-            });
+                    id: employee.id,
+                    name: employee.name || '',
+                    email: employee.email || '',
+                    phoneNumber: employee.phoneNumber || '',
+                    positionId: employee.positionId || '',
+                    address: employee.address ? {
+                        street: employee.address.street || '',
+                        number: employee.address.number || '',
+                        neighborhood: employee.address.neighborhood || '',
+                        city: employee.address.city || '',
+                        complement: employee.address.complement || '',
+                        zipCode: employee.address.zipCode || '',
+                        stateId: employee.address.stateId || '',
+                        country: employee.address.country || ''
+                    } : {
+                        street: '',
+                        number: '',
+                        neighborhood: '',
+                        city: '',
+                        complement: '',
+                        zipCode: '',
+                        stateId: '',
+                        country: ''
+                    },
+                    document: employee.document || ''
+                });
         } else {
             setFormData({
+                id: null,
                 name: '',
                 email: '',
                 phoneNumber: '',
                 positionId: '',
-                stateId: '',
-                street: '',
-                number: '',
-                neighborhood: '',
-                city: '',
-                complement: '',
-                zipCode: '',
+                address: {
+                    street: '',
+                    number: '',
+                    neighborhood: '',
+                    city: '',
+                    complement: '',
+                    zipCode: '',
+                    stateId: '',
+                    country: ''
+                },
                 document: ''
             });
         }
@@ -92,7 +116,7 @@ const EmployeeModal = ({
         try {
             setLoadingOptions(true);
             const [statesData, positionsData] = await Promise.all([
-                employeeClient.getStates(),
+                stateClient.getStates(),
                 employeeClient.getPositions()
             ]);
             setStates(statesData || []);
@@ -104,12 +128,24 @@ const EmployeeModal = ({
         }
     };
 
+    const addressFields = ['zipCode', 'stateId', 'city', 'street', 'number', 'neighborhood', 'complement'];
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        if (addressFields.includes(name)) {
+            setFormData(prev => ({
+                ...prev,
+                address: {
+                    ...prev.address,
+                    [name]: value
+                }
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     const handleCepBlur = async (e) => {
@@ -122,12 +158,15 @@ const EmployeeModal = ({
                 const stateMatch = states.find(s => s.uf === address.state);
                 setFormData(prev => ({
                     ...prev,
-                    [name]: address.cep,
-                    stateId: stateMatch?.id || prev.stateId,
-                    city: address.city,
-                    neighborhood: address.neighborhood,
-                    street: address.street,
-                    complement: address.complement || prev.complement || ''
+                    address: {
+                        ...prev.address,
+                        zipCode: address.cep,
+                        stateId: stateMatch?.id || prev.address?.stateId || '',
+                        city: address.city || '',
+                        neighborhood: address.neighborhood || '',
+                        street: address.street || '',
+                        complement: address.complement || prev.address?.complement || ''
+                    }
                 }));
             }
         }
@@ -137,7 +176,9 @@ const EmployeeModal = ({
         e.preventDefault();
         setError(null);
 
-        if (!formData.name || !formData.email || !formData.stateId || !formData.positionId) {
+        console.log(formData)
+
+        if (!formData.name || !formData.email || !formData.address?.stateId || !formData.positionId) {
             setError(t('employees.requiredFields'));
             return;
         }
@@ -249,7 +290,7 @@ const EmployeeModal = ({
                                     type="text" 
                                     id="zipCode" 
                                     name="zipCode" 
-                                    value={formData.zipCode} 
+                                    value={formData.address?.zipCode} 
                                     onChange={handleInputChange}
                                     onBlur={handleCepBlur}
                                     placeholder="00000-000"
@@ -263,7 +304,7 @@ const EmployeeModal = ({
                                 <CFormSelect
                                     id="stateId"
                                     name="stateId"
-                                    value={formData.stateId}
+                                    value={formData.address?.stateId}
                                     onChange={handleInputChange}
                                     disabled={loadingOptions}
                                     required
@@ -284,7 +325,7 @@ const EmployeeModal = ({
                                     type="text"
                                     id="city"
                                     name="city"
-                                    value={formData.city}
+                                    value={formData.address?.city}
                                     onChange={handleInputChange}
                                 />
                             </div>
@@ -299,7 +340,7 @@ const EmployeeModal = ({
                                     type="text"
                                     id="street"
                                     name="street"
-                                    value={formData.street}
+                                    value={formData.address?.street}
                                     onChange={handleInputChange}
                                 />
                             </div>
@@ -311,7 +352,7 @@ const EmployeeModal = ({
                                     type="text"
                                     id="number"
                                     name="number"
-                                    value={formData.number}
+                                    value={formData.address?.number}
                                     onChange={handleInputChange}
                                 />
                             </div>
@@ -323,7 +364,7 @@ const EmployeeModal = ({
                                     type="text"
                                     id="neighborhood"
                                     name="neighborhood"
-                                    value={formData.neighborhood}
+                                    value={formData.address?.neighborhood}
                                     onChange={handleInputChange}
                                 />
                             </div>
@@ -336,7 +377,7 @@ const EmployeeModal = ({
                             type="text"
                             id="complement"
                             name="complement"
-                            value={formData.complement}
+                            value={formData.address?.complement}
                             onChange={handleInputChange}
                         />
                     </div>

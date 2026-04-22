@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
+    CBadge,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CContainer,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
     CModalTitle,
     CSpinner,
-    CAlert,
-    CBadge
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
-import ProjectTaskAssigneeClient from '../../../services/project-task-assignee-client';
-import ProjectTaskAssigneeModal from '../../../components/ProjectTaskAssigneeModal';
+import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
+import ProjectTaskAssigneeModal from '../../../components/ProjectTaskAssigneeModal';
+import ProjectTaskAssigneeClient from '../../../services/project-task-assignee-client';
 
 const projectTaskAssigneeClient = new ProjectTaskAssigneeClient("http://localhost:5144");
 
@@ -55,10 +55,8 @@ const ProjectTaskAssigneeList = () => {
             setLoading(true);
             setError(null);
             const response = await projectTaskAssigneeClient.getAll(pagination.page, pagination.perPage);
-            console.log('Project Task Assignees API response:', response);
 
             const assigneesList = Array.isArray(response) ? response : (response?.data || []);
-            console.log('Project Task Assignees list:', assigneesList);
             setAssignees(assigneesList);
             setPagination(prev => ({
                 ...prev,

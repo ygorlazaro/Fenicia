@@ -1,31 +1,31 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CContainer,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
     CModalTitle,
     CSpinner,
-    CAlert
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
-import ProductCategoryModal from '../../../components/ProductCategoryModal';
-import { BasicProductCategoryClient } from '../../../services/basic-crud-clients';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import Pagination from '../../../components/Pagination';
+import ProductCategoryModal from '../../../components/ProductCategoryModal';
+import { BasicProductCategoryClient } from '../../../services/basic/basic-product-category-client';
 
 const categoryClient = new BasicProductCategoryClient();
 

@@ -39,7 +39,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Pagination from '../../../components/Pagination';
-import { BasicDataSourceClient, BasicOrderClient } from '../../../services/basic-crud-clients';
+import { BasicDataSourceClient } from '../../../services/basic/basic-datasource-client';
+import { BasicOrderClient } from '../../../services/basic/basic-order-client';
 import OrderAnalyticsClient from '../../../services/order-analytics-client';
 
 const orderClient = new BasicOrderClient();

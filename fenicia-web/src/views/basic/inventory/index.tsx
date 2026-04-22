@@ -1,19 +1,20 @@
 import {
     cilArrowBottom,
     cilArrowTop,
+    cilBan,
+    cilChart,
     cilDollar,
     cilLayers,
     cilPeople,
+    cilPuzzle,
     cilTags,
     cilTruck,
-    cilWarning,
-    cilChart,
-    cilBan,
-    cilPuzzle
+    cilWarning
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
     CAlert,
+    CBadge,
     CCard,
     CCardBody,
     CCardHeader,
@@ -21,35 +22,36 @@ import {
     CContainer,
     CListGroup,
     CListGroupItem,
+    CNav,
+    CNavItem,
+    CNavLink,
     CProgress,
     CRow,
     CSpinner,
+    CTabContent,
     CTable,
     CTableBody,
     CTableDataCell,
     CTableHead,
     CTableHeaderCell,
     CTableRow,
+    CTabPane,
     CWidgetStatsA,
-    CWidgetStatsB,
-    CBadge,
-    CNav,
-    CNavItem,
-    CNavLink,
-    CTabContent,
-    CTabPane
+    CWidgetStatsB
 } from '@coreui/react'
 import { CChartBar, CChartDoughnut, CChartLine } from '@coreui/react-chartjs'
 import { getStyle } from '@coreui/utils'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
+import ProductCategoryModal from '../../../components/ProductCategoryModal'
+import ProductModal from '../../../components/ProductModal'
+import SupplierModal from '../../../components/SupplierModal'
+import { BasicProductCategoryClient } from '../../../services/basic/basic-product-category-client'
+import { BasicProductClient } from '../../../services/basic/basic-product-client'
+import { BasicSupplierClient } from '../../../services/basic/basic-supplier-client'
 import InventoryClient from '../../../services/inventory-client'
 import InventoryHealthClient from '../../../services/inventory-health-client'
-import { BasicProductClient, BasicProductCategoryClient, BasicSupplierClient } from '../../../services/basic-crud-clients'
-import ProductModal from '../../../components/ProductModal'
-import ProductCategoryModal from '../../../components/ProductCategoryModal'
-import SupplierModal from '../../../components/SupplierModal'
 
 const inventoryClient = new InventoryClient()
 const healthClient = new InventoryHealthClient()

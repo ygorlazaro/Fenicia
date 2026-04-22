@@ -17,7 +17,7 @@ export const fetchAddressByCep = async (cep: string): Promise<CepAddress | null>
         cep: result.cep || cep,
         state: result.uf || '',
         city: result.localidade || '',
-        neighborhood: result.bairo || '',
+        neighborhood: result.bairro || '',
         street: result.logradouro || '',
         complement: result.complemento || ''
       };

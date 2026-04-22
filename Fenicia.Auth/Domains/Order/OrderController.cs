@@ -5,6 +5,7 @@ using Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
 using Fenicia.Auth.Domains.Order.CreateNewOrder.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
+using Fenicia.Common.Api.Controllers;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -77,17 +78,17 @@ public class OrderController(CreateNewOrderHandler createNewOrderHandler) : Cont
                 _ => Created(string.Empty, order)
             };
         }
-        catch (UnauthorizedAccessException ex)
+        catch (UnauthorizedAccessException)
         {
-            return Forbid(ex.Message);
+            return Forbid();
         }
         catch (PermissionDeniedException ex)
         {
-            return Forbid(ex.Message);
+            return this.ForbidWithMessage(ex.Message);
         }
         catch (ItemNotExistsException ex)
         {
-            return NotFound(ex.Message);
+            return NotFound(new { Message = ex.Message });
         }
     }
 }

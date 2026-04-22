@@ -1,6 +1,5 @@
-import React from 'react';
+import { CFormSelect, CPagination } from '@coreui/react';
 import { useTranslation } from 'react-i18next';
-import { CPagination, CFormSelect } from '@coreui/react';
 
 const PAGE_SIZE_OPTIONS = [2, 10, 20, 50, 100];
 
@@ -73,7 +72,6 @@ const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = 
                     onClick={(e) => {
                         e.preventDefault();
                         if (hasPrevPage) {
-                            console.log('Clicked Previous, going to page:', page - 1);
                             onPageChange(page - 1);
                         }
                     }}
@@ -90,7 +88,6 @@ const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = 
                     onClick={(e) => {
                         e.preventDefault();
                         if (hasNextPage) {
-                            console.log('Clicked Next, going to page:', page + 1);
                             onPageChange(page + 1);
                         }
                     }}

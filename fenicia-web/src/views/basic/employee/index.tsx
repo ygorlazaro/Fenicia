@@ -34,10 +34,11 @@ import { getStyle } from '@coreui/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
-import EmployeeModal from '../../../components/EmployeeModal';
 import Pagination from '../../../components/Pagination';
-import { BasicEmployeeClient } from '../../../services/basic-employee-client';
-import EmployeePerformanceClient from '../../../services/employee-performance-client';
+import { BasicEmployeeClient } from '../../../services/basic/basic-employee-client';
+import EmployeePerformanceClient, { EmployeePerformance } from '../../../services/employee-performance-client';
+import { GetAllEmployeeResponse, GetEmployeeByIdResponse, UpdateEmployeeCommand } from '../../../types/basic-types';
+import EmployeeModal from './employee-modal';
 
 const employeeClient = new BasicEmployeeClient("http://localhost:5083");
 const performanceClient = new EmployeePerformanceClient();
@@ -50,7 +51,7 @@ const EmployeeList = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [analyticsDays, setAnalyticsDays] = useState(90);
 
-    const [employees, setEmployees] = useState([]);
+    const [employees, setEmployees] = useState<GetAllEmployeeResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({
@@ -61,15 +62,15 @@ const EmployeeList = () => {
     });
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [selectedEmployee, setSelectedEmployee] = useState(null);
-    const [employeeToDelete, setEmployeeToDelete] = useState(null);
+    const [selectedEmployee, setSelectedEmployee] = useState<GetEmployeeByIdResponse | null>(null);
+    const [employeeToDelete, setEmployeeToDelete] = useState<GetEmployeeByIdResponse | null>(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
-    const [successMessage, setSuccessMessage] = useState(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // Performance state
     const [performanceLoading, setPerformanceLoading] = useState(false);
-    const [performance, setPerformance] = useState(null);
+    const [performance, setPerformance] = useState<EmployeePerformance | null>(null);
 
     const paginationRef = useRef(pagination);
     paginationRef.current = pagination;
@@ -101,7 +102,7 @@ const EmployeeList = () => {
         }
     };
 
-    const formatCurrency = (value) => {
+    const formatCurrency = (value: number) => {
         if (!value && value !== 0) return '-';
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -109,7 +110,7 @@ const EmployeeList = () => {
         }).format(value);
     };
 
-    const loadEmployeeForEdit = async (employeeId) => {
+    const loadEmployeeForEdit = async (employeeId: string) => {
         try {
             const employee = await employeeClient.getById(employeeId);
             setSelectedEmployee(employee);
@@ -147,7 +148,7 @@ const EmployeeList = () => {
         setModalVisible(true);
     };
 
-    const handleOpenEdit = async (employee) => {
+    const handleOpenEdit = async (employee: GetEmployeeByIdResponse) => {
         try {
             const fullEmployee = await employeeClient.getById(employee.id);
             setSelectedEmployee(fullEmployee);
@@ -158,30 +159,23 @@ const EmployeeList = () => {
         }
     };
 
-    const handleOpenDelete = (employee) => {
+    const handleOpenDelete = (employee: GetEmployeeByIdResponse) => {
         setEmployeeToDelete(employee);
         setDeleteModalVisible(true);
     };
 
-    const handleSave = async (formData) => {
+    const handleSave = async (formData: UpdateEmployeeCommand) => {
         setSaving(true);
         try {
-            const payload = {
+            const payload: UpdateEmployeeCommand = {
                 id: formData.id || crypto.randomUUID(),
                 positionId: formData.positionId,
                 name: formData.name,
                 email: formData.email,
                 document: formData.document || null,
-                city: formData.city || null,
-                complement: formData.complement || null,
-                neighborhood: formData.neighborhood || null,
-                number: formData.number || null,
-                stateId: formData.stateId,
-                street: formData.street || null,
-                zipCode: formData.zipCode || null,
+                address: formData.address,
                 phoneNumber: formData.phoneNumber || null
             };
-
             if (selectedEmployee) {
                 await employeeClient.update(selectedEmployee.id, payload);
                 setSuccessMessage(t('employees.updateSuccess'));
@@ -217,11 +211,11 @@ const EmployeeList = () => {
         }
     };
 
-    const handlePageChange = (newPage) => {
+    const handlePageChange = (newPage: number) => {
         setPagination(prev => ({ ...prev, page: newPage }));
     };
 
-    const handlePerPageChange = (newPerPage) => {
+    const handlePerPageChange = (newPerPage: number) => {
         setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
@@ -565,10 +559,7 @@ const EmployeeList = () => {
                                             <CTableRow>
                                                 <CTableHeaderCell>{t('employees.name')}</CTableHeaderCell>
                                                 <CTableHeaderCell>{t('employees.email')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('employees.phone')}</CTableHeaderCell>
                                                 <CTableHeaderCell>{t('employees.position')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('employees.city')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('employees.state')}</CTableHeaderCell>
                                                 <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
                                             </CTableRow>
                                         </CTableHead>
@@ -577,7 +568,6 @@ const EmployeeList = () => {
                                                 <CTableRow key={employee.id}>
                                                     <CTableDataCell>{employee.name}</CTableDataCell>
                                                     <CTableDataCell>{employee.email}</CTableDataCell>
-                                                    <CTableDataCell>{formatPhone(employee.phoneNumber)}</CTableDataCell>
                                                     <CTableDataCell>
                                                         {employee.positionId ? (
                                                             <Link to={`/basic/positions?id=${employee.positionId}`} className="text-decoration-none">
@@ -586,9 +576,7 @@ const EmployeeList = () => {
                                                         ) : (
                                                     '-'
                                                 )}
-                                            </CTableDataCell>
-                                            <CTableDataCell>{employee.city || '-'}</CTableDataCell>
-                                            <CTableDataCell>{employee.stateName || '-'}</CTableDataCell>
+                                                    </CTableDataCell>
                                             <CTableDataCell className="text-end">
                                                 <CButton 
                                                     color="info" 

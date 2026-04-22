@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
+    CBadge,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CContainer,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
     CModalTitle,
     CSpinner,
-    CAlert,
-    CBadge
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
-import ProjectTaskClient from '../../../services/project-task-client';
-import ProjectTaskModal from '../../../components/ProjectTaskModal';
+import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
+import ProjectTaskModal from '../../../components/ProjectTaskModal';
+import ProjectTaskClient from '../../../services/project-task-client';
 
 const projectTaskClient = new ProjectTaskClient("http://localhost:5144");
 
@@ -55,10 +55,8 @@ const ProjectTaskList = () => {
             setLoading(true);
             setError(null);
             const response = await projectTaskClient.getAll(pagination.page, pagination.perPage);
-            console.log('Project Tasks API response:', response);
 
             const tasksList = Array.isArray(response) ? response : (response?.data || []);
-            console.log('Project Tasks list:', tasksList);
             setTasks(tasksList);
             setPagination(prev => ({
                 ...prev,

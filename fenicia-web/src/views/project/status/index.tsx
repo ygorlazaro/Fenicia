@@ -1,31 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
+    CBadge,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CContainer,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
+    CFormSwitch,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
     CModalTitle,
     CSpinner,
-    CAlert,
-    CBadge,
-    CFormSwitch
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
-import ProjectStatusClient from '../../../services/project-status-client';
-import ProjectStatusModal from '../../../components/ProjectStatusModal';
+import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
+import ProjectStatusModal from '../../../components/ProjectStatusModal';
+import ProjectStatusClient from '../../../services/project-status-client';
 
 const projectStatusClient = new ProjectStatusClient("http://localhost:5144");
 
@@ -56,10 +56,8 @@ const ProjectStatusList = () => {
             setLoading(true);
             setError(null);
             const response = await projectStatusClient.getAll(pagination.page, pagination.perPage);
-            console.log('Project Statuses API response:', response);
 
             const statusesList = Array.isArray(response) ? response : (response?.data || []);
-            console.log('Project Statuses list:', statusesList);
             setStatuses(statusesList);
             setPagination(prev => ({
                 ...prev,

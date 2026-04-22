@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { cilAccountLogout, cilBuilding, cilUser } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
   CAvatar,
   CDropdown,
@@ -9,9 +8,10 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilUser, cilAccountLogout, cilBuilding } from '@coreui/icons';
-import { clearAuth, getCompanyId, getToken } from '../../services/client';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { clearAuth, getCompanyId, getToken } from '../../services/api-client';
 
 const AppHeaderDropdown = ({ onCompanySelect }) => {
   const navigate = useNavigate();

@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from 'src/components/AuthLayout';
-import AuthTokenClient from '../../../services/auth-token-client';
+import AuthTokenClient from '../../../services/auth/auth-token-client';
 
 const authClient = new AuthTokenClient("http://localhost:5144");
 
@@ -20,8 +20,8 @@ const AuthLogin = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        email: '',
-        password: ''
+        email: 'ygor@ygorlazaro.com',
+        password: '$@Age14rjy$@'
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

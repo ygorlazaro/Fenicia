@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { CButton, CModal, CModalBody, CModalHeader, CModalTitle, CModalFooter } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 import { cilCloudDownload } from '@coreui/icons'
+import CIcon from '@coreui/icons-react'
+import { CButton, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle } from '@coreui/react'
+import { useEffect, useState } from 'react'
 
 const PWAInstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null)
@@ -40,11 +40,7 @@ const PWAInstallPrompt = () => {
 
     // Show the install prompt
     deferredPrompt.prompt()
-    
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice
-    console.log(`User response to the install prompt: ${outcome}`)
-    
+
     // Reset the deferred prompt variable
     setDeferredPrompt(null)
     setShowInstallPrompt(false)

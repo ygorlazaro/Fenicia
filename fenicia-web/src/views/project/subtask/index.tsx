@@ -1,31 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import {
+    CAlert,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
     CContainer,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
+    CFormCheck,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
     CModalTitle,
     CSpinner,
-    CAlert,
-    CBadge,
-    CFormCheck
+    CTable,
+    CTableBody,
+    CTableDataCell,
+    CTableHead,
+    CTableHeaderCell,
+    CTableRow
 } from '@coreui/react';
-import CIcon from '@coreui/icons-react';
-import { cilPencil, cilTrash, cilPlus, cilWarning } from '@coreui/icons';
-import ProjectSubtaskClient from '../../../services/project-subtask-client';
-import ProjectSubtaskModal from '../../../components/ProjectSubtaskModal';
+import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
+import ProjectSubtaskModal from '../../../components/ProjectSubtaskModal';
+import ProjectSubtaskClient from '../../../services/project-subtask-client';
 
 const projectSubtaskClient = new ProjectSubtaskClient("http://localhost:5144");
 
@@ -56,10 +55,8 @@ const ProjectSubtaskList = () => {
             setLoading(true);
             setError(null);
             const response = await projectSubtaskClient.getAll(pagination.page, pagination.perPage);
-            console.log('Project Subtasks API response:', response);
 
             const subtasksList = Array.isArray(response) ? response : (response?.data || []);
-            console.log('Project Subtasks list:', subtasksList);
             setSubtasks(subtasksList);
             setPagination(prev => ({
                 ...prev,

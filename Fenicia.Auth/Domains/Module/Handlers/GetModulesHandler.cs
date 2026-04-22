@@ -35,7 +35,8 @@ public class GetModulesHandler(DefaultContext db)
                 m.Description,
                 m.Icon,
                 m.IsActive,
-                m.SortOrder));
+                m.SortOrder,
+                m.Price));
 
         var modules = await request.Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
 

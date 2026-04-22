@@ -1,5 +1,6 @@
-import { AuthClient } from './auth-client';
 import { AxiosResponse } from 'axios';
+import { CreateNewUserCommand, CreateNewUserResponse } from '../../types/auth-types';
+import { AuthClient } from './auth-client';
 
 /**
  * AuthRegisterClient - Handles user registration operations
@@ -21,19 +22,10 @@ export class AuthRegisterClient extends AuthClient {
    * @param {string} userData.company.cnpj - Company CNPJ
    * @param {string} userData.company.name - Company name
    * @param {string} [userData.company.timeZone] - Company time zone
-   * @returns {Promise<any>}
+   * @returns {Promise<CreateNewUserResponse>}
    */
-  async register(userData: { email: string; password: string; name: string; company: { cnpj: string; name: string; timeZone?: string } }): Promise<any> {
-    const response = await this.getClient().post('/register', {
-      email: userData.email,
-      password: userData.password,
-      name: userData.name,
-      company: {
-        cnpj: userData.company.cnpj,
-        name: userData.company.name,
-        timeZone: userData.company.timeZone
-      }
-    });
+  async register(userData: CreateNewUserCommand): Promise<CreateNewUserResponse> {
+    const response = await this.getClient().post('/register', userData);
 
     return (response as AxiosResponse).data;
   }
