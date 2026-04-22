@@ -3,7 +3,6 @@ using System.Diagnostics;
 
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Data;
-using Microsoft.Extensions.DependencyInjection;
 
 using Microsoft.AspNetCore.Http;
 
