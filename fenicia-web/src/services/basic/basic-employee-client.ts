@@ -3,11 +3,13 @@ import type { IPagination } from '../../types';
 import type {
   AddEmployeeCommand,
   AddEmployeeResponse,
+  DataSourceItem,
   GetAllEmployeeResponse,
   GetEmployeeByIdResponse,
   UpdateEmployeeCommand,
   UpdateEmployeeResponse
 } from '../../types/basic-types';
+
 import { ApiClient } from '../api-client';
 import { BASIC_API_BASE_URL } from './basic-product-client';
 
@@ -74,10 +76,11 @@ export class BasicEmployeeClient extends ApiClient {
    * Get all positions for data source
    * GET /datasource/position
    */
-  async getPositions(): Promise<any> {
+  async getPositions(): Promise<DataSourceItem[]> {
     const response = await this.getClient().get('/datasource/position');
     return (response as AxiosResponse).data;
   }
+
 
 }
 

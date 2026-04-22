@@ -15,7 +15,6 @@ using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
-using Fenicia.Common.Exceptions;
 using Fenicia.Common.Tests;
 
 using Microsoft.AspNetCore.Authorization;
