@@ -15,14 +15,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthModuleClient from '../../services/auth/auth-module-client';
 import AuthOrderClient from '../../services/auth/auth-order-client';
-import AuthProfileClient from '../../services/auth/auth-profile-client';
+import AuthSubscriptionClient from '../../services/auth/auth-subscription-client';
 import { GetModuleResponse } from '../../types/auth-types';
-import { SubscriptionHeader } from './subscription-header';
+import formatCurrency from '../../utils/format-currency';
+import SubscriptionHeader from './subscription-header';
 import SubscriptionSummary from './subscription-summary';
 
 const moduleClient = new AuthModuleClient("http://localhost:5144");
 const orderClient = new AuthOrderClient("http://localhost:5144");
-const profileClient = new AuthProfileClient("http://localhost:5144");
+const profileClient = new AuthSubscriptionClient("http://localhost:5144");
 
 const Subscription = () => {
     const navigate = useNavigate();
@@ -56,22 +57,18 @@ const Subscription = () => {
         try {
             setLoading(true);
             setError(null);
-            
-            // Fetch available modules and subscribed modules in parallel
+
             const [modulesResponse, subscribedIds, profile] = await Promise.all([
                 moduleClient.getModules(1, 50),
                 moduleClient.getSubscribedModuleIds(),
                 profileClient.getProfile()
             ]);
 
-            // Handle pagination response - response should have data array
             setModules(modulesResponse.data);
             setSubscribedModuleIds(subscribedIds);
 
-            // Pre-select already subscribed modules (they will be disabled)
             setSelectedModules(subscribedIds);
 
-            // Compute unique non-Basic subscribed modules count
             const nonBasicIds = profile?.subscriptions?.flatMap((subscription) =>
                 subscription.modules.filter((m) => m.type !== "Basic").map((m) => m.id)
             ) || [];
@@ -89,7 +86,6 @@ const Subscription = () => {
     };
 
     const handleToggleModule = (moduleId: string) => {
-        // Prevent toggling already subscribed modules
         if (subscribedModuleIds.includes(moduleId)) {
             return;
         }
@@ -112,7 +108,6 @@ const Subscription = () => {
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
 
-        // Filter out already subscribed modules - only send new modules
         const newModules = selectedModules.filter(id => !subscribedModuleIds.includes(id));
 
         if (newModules.length === 0) {
@@ -129,7 +124,6 @@ const Subscription = () => {
             });
             setSuccess(true);
 
-            // Redirect to dashboard after 3 seconds
             setTimeout(() => {
                 navigate('/dashboard');
             }, 3000);
@@ -139,13 +133,6 @@ const Subscription = () => {
         } finally {
             setOrdering(false);
         }
-    };
-
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(price);
     };
 
     return (
@@ -225,7 +212,7 @@ const Subscription = () => {
                                                                     className="mb-2"
                                                                 />
                                                                 <div className="fw-bold text-success h5 mb-1">
-                                                                    {formatPrice(module.price || 0)}/mês
+                                                                    {formatCurrency(module.price || 0)}/mês
                                                                 </div>
                                                             </CCardBody>
                                                         </CCard>

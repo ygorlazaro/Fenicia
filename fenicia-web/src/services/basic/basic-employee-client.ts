@@ -10,6 +10,7 @@ import type {
   UpdateEmployeeResponse
 } from '../../types/basic-types';
 
+import { EmployeePerformance } from '../../types/basic/employee/employee-performance';
 import { ApiClient } from '../api-client';
 import { BASIC_API_BASE_URL } from './basic-product-client';
 
@@ -81,6 +82,14 @@ export class BasicEmployeeClient extends ApiClient {
     return (response as AxiosResponse).data;
   }
 
+  async getPerformance(days?: number, topLimit?: number): Promise<EmployeePerformance> {
+    const params: any = {};
+    if (days !== undefined) params.days = days;
+    if (topLimit !== undefined) params.topLimit = topLimit;
+
+    const response = await this.getClient().get('/employee/performance', { params });
+    return (response as AxiosResponse).data;
+  }
 
 }
 

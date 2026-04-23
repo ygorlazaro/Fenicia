@@ -37,7 +37,7 @@ import Pagination from '../../../components/Pagination';
 import ProductModal from '../../../components/ProductModal';
 import { BasicDataSourceClient } from '../../../services/basic/basic-datasource-client';
 import { BasicProductClient } from '../../../services/basic/basic-product-client';
-import ProductPerformanceClient from '../../../services/product-performance-client';
+import ProductPerformanceClient from '../../../services/basic/product-performance-client';
 
 const productClient = new BasicProductClient();
 const dataSourceClient = new BasicDataSourceClient();

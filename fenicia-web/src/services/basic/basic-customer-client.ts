@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import { IPagination } from '../../types';
 import { AddCustomerCommand, AddCustomerResponse, GetAllCustomerResponse, GetCustomerByIdResponse, UpdateCustomerCommand, UpdateCustomerResponse } from '../../types/basic-types';
+import { CustomerInsights } from '../../types/basic/customer/customer-insights';
 import { ApiClient } from '../api-client';
 import { BASIC_API_BASE_URL } from './basic-product-client';
 
@@ -35,6 +36,16 @@ class BasicCustomerClient extends ApiClient {
 
   async delete(id: string): Promise<void> {
     await this.getClient().delete(`/customer/${id}`);
+  }
+
+  async getInsights(days?: number, topLimit?: number, riskThresholdDays?: number): Promise<CustomerInsights> {
+    const params: any = {};
+    if (days !== undefined) params.days = days;
+    if (topLimit !== undefined) params.topLimit = topLimit;
+    if (riskThresholdDays !== undefined) params.riskThresholdDays = riskThresholdDays;
+
+    const response = await this.getClient().get('/customer/insights', { params });
+    return (response as AxiosResponse).data;
   }
 }
 

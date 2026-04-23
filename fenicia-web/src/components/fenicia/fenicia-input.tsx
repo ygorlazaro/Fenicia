@@ -27,7 +27,7 @@ export function FeniciaInput({
   const { t } = useTranslation();
 
   return <>
-    <CFormLabel htmlFor={id}>{t(label)} *</CFormLabel>
+    <CFormLabel htmlFor={id}>{t(label)} {required && <span className="text-danger">*</span>}</CFormLabel>
     <CFormInput type={type} id={id} name={id} value={value} onChange={onChange} onBlur={onBlur} required={required} placeholder={placeholder} maxLength={maxLength} />
   </>;
 }

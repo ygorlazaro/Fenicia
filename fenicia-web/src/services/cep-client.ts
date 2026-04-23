@@ -1,11 +1,4 @@
-export interface CepAddress {
-  cep: string;
-  state: string;
-  city: string;
-  neighborhood: string;
-  street: string;
-  complement?: string;
-}
+import { CepAddress } from "../types/cep-address";
 
 export const fetchAddressByCep = async (cep: string): Promise<CepAddress | null> => {
   try {

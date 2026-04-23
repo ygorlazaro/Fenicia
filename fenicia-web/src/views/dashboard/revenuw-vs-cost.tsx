@@ -9,13 +9,13 @@ import {
 import { CChartLine } from '@coreui/react-chartjs';
 import { getStyle } from '@coreui/utils';
 import { useTranslation } from 'react-i18next';
-import { RevenueVsCost } from '../../services/financial-dashboard-client';
+import { RevenueVsCost } from '../../types/basic/dashboard/revenue-vs-cost';
 
 interface RevenueVsCostProps {
     revenueVsCost?: RevenueVsCost[];
 }
 
-export function RevenuwVsCost({ revenueVsCost = [] }: RevenueVsCostProps) {
+export default function RevenuwVsCost({ revenueVsCost = [] }: RevenueVsCostProps) {
     const { t } = useTranslation();
 
     const getRevenueVsCostChartData = () => {

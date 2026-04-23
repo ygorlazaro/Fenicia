@@ -24,7 +24,7 @@ import {
 import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
 import ProjectAttachmentModal from '../../../components/ProjectAttachmentModal';
-import ProjectAttachmentClient from '../../../services/project-attachment-client';
+import ProjectAttachmentClient from '../../../services/project/project-attachment-client';
 
 const projectAttachmentClient = new ProjectAttachmentClient("http://localhost:5144");
 

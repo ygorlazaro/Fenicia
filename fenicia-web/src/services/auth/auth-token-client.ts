@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 import { GenerateTokenQuery, TokenResponse, ValidateTokenQuery } from '../../types/auth-types';
-import { setCompanyId, setToken } from '../api-client';
 import { AuthClient } from './auth-client';
 
 /**
@@ -26,12 +25,12 @@ export class AuthTokenClient extends AuthClient {
 
     // Persist access token
     if (data.accessToken) {
-      setToken(data.accessToken);
+      super.setToken(data.accessToken);
     }
 
     // Persist company ID if returned
     if (data.user?.companyId) {
-      setCompanyId(data.user.companyId);
+      super.setCompanyId(data.user.companyId);
     }
 
     return data;
@@ -51,7 +50,7 @@ export class AuthTokenClient extends AuthClient {
 
     // Persist new access token
     if (data.accessToken) {
-      setToken(data.accessToken);
+      super.setToken(data.accessToken);
     }
 
     return data;

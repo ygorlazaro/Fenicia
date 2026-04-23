@@ -3,8 +3,8 @@ import CIcon from "@coreui/icons-react";
 import { CBadge, CCard, CCardBody, CCardHeader, CCol, CRow, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
 import { t } from "i18next";
 import { Link } from "react-router-dom";
-import { TopPerformer } from "../../../../services/employee-performance-client";
-import { formatCurrency } from "../../../../utils/format-currency";
+import { TopPerformer } from '../../../../types/basic/employee/top-performer';
+import formatCurrency from "../../../../utils/format-currency";
 
 interface TopPerformersProps {
     topPerformers : TopPerformer[];

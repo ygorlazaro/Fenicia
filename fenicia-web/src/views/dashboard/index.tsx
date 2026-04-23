@@ -6,14 +6,15 @@ import {
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import TimeRangeSelector from '../../components/fenicia/time-range-selector';
-import FinancialDashboardClient, { FinancialDashboard } from '../../services/financial-dashboard-client';
+import { BasicDataSourceClient } from '../../services/basic/basic-datasource-client';
+import { FinancialDashboard } from '../../types/basic/dashboard/financial-dashboard';
 import { AdditionalInfo } from './additional-info';
 import ChartsRow from './charts-row';
 import DailySalesSummary from './daily-sales-summary';
 import KpiSummaryCards from './kpi-summary-cards';
 import { ProfitMarginTrend } from './profit-margin-trend';
 
-const dashboardClient = new FinancialDashboardClient();
+const datasourceClient = new BasicDataSourceClient();
 
 const Dashboard = () => {
     const { t } = useTranslation();
@@ -30,7 +31,7 @@ const Dashboard = () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await dashboardClient.getFinancialDashboard(days);
+            const data = await datasourceClient.getFinancialDashboard(days);
             setDashboard(data);
         } catch (err) {
             setError(t('dashboard.loadError'));

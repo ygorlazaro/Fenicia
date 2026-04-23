@@ -3,9 +3,9 @@ import CIcon from "@coreui/icons-react";
 import { CCard, CCardBody, CCardHeader, CCol, CRow, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
 import { t } from "i18next";
 import { Link } from "react-router-dom";
-import { CustomerOrderHistory } from "../../../../services/customer-insights-client";
-import { formatCurrency } from "../../../../utils/format-currency";
-import { formatDate } from "../../../../utils/format-date";
+import { CustomerOrderHistory } from '../../../../types/basic/customer/customer-order-history';
+import formatCurrency from "../../../../utils/format-currency";
+import formatDate from "../../../../utils/format-date";
 
 interface TopCustomersProps {
     topCustomers: CustomerOrderHistory[];

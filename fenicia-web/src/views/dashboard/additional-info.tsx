@@ -13,8 +13,9 @@ import {
     CRow
 } from '@coreui/react';
 import { t } from 'i18next';
-import { FinancialAccountsReceivable, KPISummary } from '../../services/financial-dashboard-client';
-import { formatCurrency } from '../../utils/format-currency';
+import { FinancialAccountsReceivable } from '../../types/basic/dashboard/financial-accounts-receivable';
+import { KPISummary } from '../../types/basic/dashboard/kpi-summary';
+import formatCurrency from '../../utils/format-currency';
 
 interface AdditionalInfoProps {
     kpi: KPISummary

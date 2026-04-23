@@ -4,7 +4,7 @@ import { CCard, CCardBody, CCardHeader, CCol, CRow } from "@coreui/react";
 import { CChartBar } from "@coreui/react-chartjs";
 import { getStyle } from "@coreui/utils";
 import { useTranslation } from "react-i18next";
-import { EmployeeSales } from "../../../../services/employee-performance-client";
+import { EmployeeSales } from '../../../../types/basic/employee/employee-sales';
 
 interface SalesByEmployeeProps {
     data: EmployeeSales[];

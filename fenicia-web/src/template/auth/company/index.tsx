@@ -2,7 +2,6 @@ import { CCol, CContainer, CRow } from '@coreui/react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CompanySelectModal from '../../../components/CompanySelectModal';
-import { setCompanyId } from '../../../services/api-client';
 import AuthCompanyClient from '../../../services/auth/auth-company-client';
 
 const companyClient = new AuthCompanyClient("http://localhost:5144");
@@ -45,7 +44,7 @@ const CompanySelect = () => {
         setSelected(true);
         
         // Persist company ID and name to localStorage
-        setCompanyId(company.id);
+        companyClient.setCompanyId(company.id);
         localStorage.setItem('company_name', company.name);
         
         // Redirect to dashboard

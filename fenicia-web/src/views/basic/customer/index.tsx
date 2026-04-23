@@ -30,14 +30,14 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import Pagination from '../../../components/Pagination';
 import BasicCustomerClient from '../../../services/basic/basic-customer-client';
-import CustomerInsightsClient, { CustomerInsights } from '../../../services/customer-insights-client';
-import { AddCustomerCommand, UpdateCustomerCommand } from '../../../types/basic-types';
-import { formatPhone } from '../../../utils/format-phone';
+import { AddCustomerCommand, GetAllCustomerResponse, UpdateCustomerCommand } from '../../../types/basic-types';
+import { CustomerInsights } from '../../../types/basic/customer/customer-insights';
+import formatPhone from '../../../utils/format-phone';
 import CustomerModal from './customer-model';
 import { RenderAnalyticsTab } from './performance';
 
 const customerClient = new BasicCustomerClient();
-const insightsClient = new CustomerInsightsClient();
+const insightsClient = new BasicCustomerClient();
 
 const Customers = () => {
     const { t } = useTranslation();
@@ -48,7 +48,7 @@ const Customers = () => {
     const [analyticsDays, setAnalyticsDays] = useState(90);
 
     // Customer list state
-    const [customers, setCustomers] = useState([]);
+    const [customers, setCustomers] = useState<GetAllCustomerResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({
@@ -151,7 +151,7 @@ const Customers = () => {
         }
     };
 
-    const handleOpenDelete = (customer) => {
+    const handleOpenDelete = (customer: UpdateCustomerCommand) => {
         setCustomerToDelete(customer);
         setDeleteModalVisible(true);
     };

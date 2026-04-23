@@ -1,9 +1,10 @@
 import {
     CRow
 } from '@coreui/react';
-import { FinancialAccountsReceivable, RevenueVsCost } from '../../services/financial-dashboard-client';
-import { AccountsReceivable } from './accounts-receivable';
-import { RevenuwVsCost } from './revenuw-vs-cost';
+import { FinancialAccountsReceivable } from '../../types/basic/dashboard/financial-accounts-receivable';
+import { RevenueVsCost } from '../../types/basic/dashboard/revenue-vs-cost';
+import AccountsReceivable from './accounts-receivable';
+import RevenuwVsCost from './revenuw-vs-cost';
 
 interface ChartsRowProps {
     revenueVsCost?: RevenueVsCost[];
@@ -16,7 +17,7 @@ const ChartsRow = ({ revenueVsCost = [], accountsReceivable }: ChartsRowProps) =
         <CRow className="mb-4" xs={{ gutter: 4 }}>
             <RevenuwVsCost revenueVsCost={revenueVsCost} />
 
-            <AccountsReceivable  accountsReceivable={accountsReceivable}  />
+            <AccountsReceivable data={accountsReceivable} />
         </CRow>
     )
 }

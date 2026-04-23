@@ -3,9 +3,9 @@ import CIcon from "@coreui/icons-react";
 import { CBadge, CCard, CCardBody, CCardHeader, CCol, CRow, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
 import { t } from "i18next";
 import { Link } from "react-router-dom";
-import { CustomerRecentOrder } from "../../../../services/customer-insights-client";
-import { formatCurrency } from "../../../../utils/format-currency";
-import { formatDate } from "../../../../utils/format-date";
+import { CustomerRecentOrder } from '../../../../types/basic/customer/customer-recent-order';
+import formatCurrency from "../../../../utils/format-currency";
+import formatDate from "../../../../utils/format-date";
 
 interface RecentOrdersProps {
     recentOrders: CustomerRecentOrder[];

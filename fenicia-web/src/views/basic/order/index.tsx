@@ -41,7 +41,7 @@ import { Link } from 'react-router-dom';
 import Pagination from '../../../components/Pagination';
 import { BasicDataSourceClient } from '../../../services/basic/basic-datasource-client';
 import { BasicOrderClient } from '../../../services/basic/basic-order-client';
-import OrderAnalyticsClient from '../../../services/order-analytics-client';
+import OrderAnalyticsClient from '../../../services/basic/order-analytics-client';
 
 const orderClient = new BasicOrderClient();
 const dataSourceClient = new BasicDataSourceClient();

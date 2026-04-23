@@ -6,14 +6,14 @@ import {
   CSpinner
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
-import AuthProfileClient from '../../services/auth/auth-profile-client';
+import AuthSubscriptionClient from '../../services/auth/auth-subscription-client';
 import { GetUserProfileResponse } from '../../types/auth-types';
 import UserCompanies from './user-companies';
 import UserProfile from './user-profile';
 import UserSubscriptionsDetail from './user-subscriptions-detail';
 import UserSubscriptionsSummary from './user-subscriptions-summary';
 
-const profileClient = new AuthProfileClient();
+const profileClient = new AuthSubscriptionClient();
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
