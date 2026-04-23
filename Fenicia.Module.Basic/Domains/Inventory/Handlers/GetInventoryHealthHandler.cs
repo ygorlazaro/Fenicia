@@ -41,48 +41,109 @@ public class GetInventoryHealthHandler(DefaultContext db)
 
     private async Task<InventoryHealthSummaryResponse> GetInventoryHealthSummaryAsync(IEnumerable<Guid> activeProductIds, List<OverstockProductResponse> overstockProducts, IEnumerable<ZeroMovementProductResponse> zeroMovementProducts, decimal totalStockValue, CancellationToken ct)
     {
-        var healthyProducts = await db.BasicProducts.CountAsync(p => p.Quantity > 0 && activeProductIds.Contains(p.Id) && overstockProducts.All(op => op.ProductId != p.Id), ct);
+        var totalProducts = await db.BasicProducts.CountAsync(p => p.Quantity > 0, ct);
         var totalZeroMovementProducts = zeroMovementProducts.Count();
+        var overstockCount = overstockProducts.Count;
+
+        // Client-side safe calculations
+        var overstockPercentage = totalProducts > 0 ? (decimal)overstockCount / totalProducts * 100 : 0;
+        var zeroMovementPercentage = totalProducts > 0 ? (decimal)totalZeroMovementProducts / totalProducts * 100 : 0;
+
+        // Healthy: stocked + active - overstock (approximate, but safe)
+        var stockedActiveIds = activeProductIds.Where(id => !overstockProducts.Any(op => op.ProductId == id)).ToHashSet();
+        var healthyProducts = await db.BasicProducts.CountAsync(p => p.Quantity > 0 && stockedActiveIds.Contains(p.Id), ct);
 
         var summary = new InventoryHealthSummaryResponse
         {
-            TotalProducts = await db.BasicProducts.CountAsync(p => p.Quantity > 0, ct),
+            TotalProducts = totalProducts,
             HealthyProducts = healthyProducts,
-            OverstockProducts = overstockProducts.Count,
+            OverstockProducts = overstockCount,
             ZeroMovementProducts = totalZeroMovementProducts,
             TotalStockValue = totalStockValue,
-            OverstockPercentage = await db.BasicProducts.CountAsync(p => p.Quantity > 0, ct) > 0 ? (decimal)overstockProducts.Count / await db.BasicProducts.CountAsync(p => p.Quantity > 0, ct) * 100 : 0,
-            ZeroMovementPercentage = await db.BasicProducts.CountAsync(p => p.Quantity > 0, ct) > 0 ? (decimal)totalZeroMovementProducts / db.BasicProducts.Count(p => p.Quantity > 0) * 100 : 0
+            OverstockPercentage = overstockPercentage,
+            ZeroMovementPercentage = zeroMovementPercentage
         };
         return summary;
     }
 
     private async Task<(List<StockValueByCategoryResponse>, decimal totalStockValue)> GetStockValueByCategoryAsync(CancellationToken ct)
     {
-        var request = from p in db.BasicProducts where p.Quantity > 0 group p by new { p.CategoryId, CategoryName = p.Category.Name } into g let totalValue = g.Sum(p => (p.CostPrice ?? 0) * (decimal)p.Quantity) orderby totalValue descending select new StockValueByCategoryResponse(g.Key.CategoryId, g.Key.CategoryName, g.Count(), totalValue, 0);
+        // Fetch products with category info
+        var productsByCategory = await (from p in db.BasicProducts
+                                        where p.Quantity > 0
+                                        select new { p.CategoryId, CategoryName = p.Category.Name, p.Quantity, p.CostPrice })
+                                        .ToListAsync(ct);
 
-        var stockValueByCategory = await request.ToListAsync(ct);
-        var totalStockValue = stockValueByCategory.Sum(c => c.TotalStockValue);
+        // Client-side group, aggregate, order
+        var grouped = productsByCategory
+            .GroupBy(p => new { p.CategoryId, p.CategoryName })
+            .Select(g =>
+            {
+                var totalValue = g.Sum(p => (p.CostPrice ?? 0m) * (decimal)p.Quantity);
+                return new StockValueByCategoryResponse(g.Key.CategoryId, g.Key.CategoryName, g.Count(), totalValue, 0);
+            })
+            .OrderByDescending(g => g.TotalStockValue)
+            .ToList();
 
-        return (stockValueByCategory.Select(s => s with { TotalStockValue = (decimal)(totalStockValue > 0 ? (double)s.TotalStockValue / (double)totalStockValue * 100 : 0) }).ToList(), totalStockValue);
+        var totalStockValue = grouped.Sum(g => g.TotalStockValue);
+
+        return (grouped.Select(s => s with { TotalStockValue = totalStockValue > 0 ? (decimal)(s.TotalStockValue / totalStockValue * 100) : 0 }).ToList(), totalStockValue);
     }
 
     private async Task<(IEnumerable<Guid> activeProductIds, List<ZeroMovementProductResponse> zeroMovementProducts)> GetActiveProductIdsAsync(IQueryable<StockMovementModel> stockMovements, IQueryable<OrderDetailModel> orderDetails, CancellationToken ct)
     {
-        var movementProductIds = stockMovements.Select(m => m.ProductId).Distinct().ToHashSet();
-        var orderProductIds = orderDetails.Select(d => d.ProductId).Distinct().ToHashSet();
-        var activeProductIds = movementProductIds.Union(orderProductIds);
+        // Get active product IDs from movements and orders
+        var movementProductIds = await stockMovements.Select(m => m.ProductId).Distinct().ToListAsync(ct);
+        var orderProductIds = await orderDetails.Select(d => d.ProductId).Distinct().ToListAsync(ct);
+        var activeProductIds = movementProductIds.Union(orderProductIds).ToHashSet();
+
+        // Get candidate products: stock > 0, not active
+        var candidateProducts = await (from p in db.BasicProducts
+                                       where p.Quantity > 0 && !activeProductIds.Contains(p.Id)
+                                       select new
+                                       {
+                                           p.Id,
+                                           p.Name,
+                                           CategoryName = p.Category.Name,
+                                           SupplierName = p.Supplier.Person.Name,
+                                           p.Quantity,
+                                           p.CostPrice,
+                                           p.SupplierId
+                                       }).ToListAsync(ct);
+
+        // Pre-fetch last movement dates for candidates only (efficient dict)
+        var candidateIds = candidateProducts.Select(p => p.Id).ToList();
+        var lastMovements = await stockMovements
+            .Where(m => candidateIds.Contains(m.ProductId))
+            .GroupBy(m => m.ProductId)
+            .Select(g => new { ProductId = g.Key, LastDate = g.OrderByDescending(m => m.Date).Select(m => m.Date).FirstOrDefault() })
+            .ToDictionaryAsync(k => k.ProductId, v => v.LastDate, ct);
 
         var now = DateTime.UtcNow;
+        var ancient = now.AddYears(-100); // fallback for no movement
 
-        var request = from p in db.BasicProducts
-                      join s in db.BasicSuppliers on p.SupplierId equals s.Id
-                      where p.Quantity > 0 && !activeProductIds.Contains(p.Id)
-                      let lastMovement = stockMovements.Where(m => m.ProductId == p.Id).OrderByDescending(m => m.Date).FirstOrDefault()
-                      let daysWithoutMovement = lastMovement != null ? (now - lastMovement.Date).Value.TotalDays : 999
-                      select new ZeroMovementProductResponse(p.Id, p.Name, p.Category.Name, s.Person.Name, p.Quantity, (p.CostPrice ?? 0) * (decimal)p.Quantity, lastMovement.Date, 0);
+        // Project to responses, sort, take top 20
+        var zeroMovementProducts = candidateProducts
+            .Select(p =>
+            {
+                var lastDate = lastMovements.TryGetValue(p.Id, out var date) ? date : null;
+                var daysWithoutMovement = lastDate.HasValue ? (int)(now - lastDate.Value).TotalDays : 999;
+                var stockValue = (p.CostPrice ?? 0m) * (decimal)p.Quantity;
+                return new ZeroMovementProductResponse(
+                    p.Id,
+                    p.Name,
+                    p.CategoryName,
+                    p.SupplierName,
+                    p.Quantity,
+                    stockValue,
+                    lastDate ?? ancient,
+                    daysWithoutMovement);
+            })
+            .OrderByDescending(p => p.DaysWithoutMovement)
+            .ThenByDescending(p => p.StockValue)
+            .Take(20)
+            .ToList();
 
-        var zeroMovementProducts = await request.OrderByDescending(p => p.DaysWithoutMovement).ThenByDescending(p => p.StockValue).Take(20).ToListAsync(ct);
         return (activeProductIds, zeroMovementProducts);
     }
 

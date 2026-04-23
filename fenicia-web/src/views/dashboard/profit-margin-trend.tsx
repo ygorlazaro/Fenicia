@@ -18,8 +18,8 @@ import {
 import { CChartBar } from '@coreui/react-chartjs';
 import { getStyle } from '@coreui/utils';
 import { useTranslation } from 'react-i18next';
-import { FinancialProfitMarginTrend } from '../../services/financial-dashboard-client';
-import { formatPercentage } from '../../utils/format-percentage';
+import { FinancialProfitMarginTrend } from '../../types/basic/dashboard/financial-profit-margin-trend';
+import formatPercentage from '../../utils/format-percentage';
 
 interface ProfitMarginTrendProps {
     profitMarginTrend: FinancialProfitMarginTrend[] 

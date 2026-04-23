@@ -3,8 +3,8 @@ import CIcon from "@coreui/icons-react";
 import { CBadge, CCard, CCardBody, CCardHeader, CCol, CRow, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
 import { t } from "i18next";
 import { Link } from "react-router-dom";
-import { EmployeeOrderCount } from "../../../../services/employee-performance-client";
-import { formatCurrency } from "../../../../utils/format-currency";
+import { EmployeeOrderCount } from '../../../../types/basic/employee/employee-order-count';
+import formatCurrency from "../../../../utils/format-currency";
 
 interface OrdersByEmployeeProps {
     ordersByEmployee: EmployeeOrderCount[];

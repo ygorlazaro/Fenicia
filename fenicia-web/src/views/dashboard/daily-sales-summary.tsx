@@ -9,8 +9,8 @@ import {
     CWidgetStatsB
 } from '@coreui/react';
 import { useTranslation } from 'react-i18next';
-import { formatCurrency } from '../../utils/format-currency';
-import { formatPercentage } from '../../utils/format-percentage';
+import formatCurrency from '../../utils/format-currency';
+import formatPercentage from '../../utils/format-percentage';
 
 interface DailySalesSummaryProps {
     todayRevenue: number;

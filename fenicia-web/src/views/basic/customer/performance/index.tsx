@@ -1,7 +1,7 @@
 import { CSpinner } from "@coreui/react";
 import { useTranslation } from "react-i18next";
 import TimeRangeSelector from "../../../../components/fenicia/time-range-selector";
-import { CustomerInsights } from "../../../../services/customer-insights-client";
+import { CustomerInsights } from '../../../../types/basic/customer/customer-insights';
 import { SummaryCards } from "../summary-cards";
 import { AtRiskCustomers } from './at-risk-customers';
 import { RecentOrders } from './recent-orders';

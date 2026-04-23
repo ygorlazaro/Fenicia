@@ -24,7 +24,7 @@ import {
 import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
 import ProjectTaskAssigneeModal from '../../../components/ProjectTaskAssigneeModal';
-import ProjectTaskAssigneeClient from '../../../services/project-task-assignee-client';
+import ProjectTaskAssigneeClient from '../../../services/project/project-task-assignee-client';
 
 const projectTaskAssigneeClient = new ProjectTaskAssigneeClient("http://localhost:5144");
 

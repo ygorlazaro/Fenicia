@@ -1,5 +1,5 @@
 import { CCard, CCardBody, CCol, CRow } from "@coreui/react";
-import { formatCurrency } from "../../utils/format-currency";
+import formatCurrency from "../../utils/format-currency";
 
 interface SubscriptionSummaryProps {
     isSticky?: boolean;

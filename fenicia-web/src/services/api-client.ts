@@ -28,7 +28,7 @@ export class ApiClient {
   /**
    * Get the stored auth token
    */
-  protected getToken(): string | null {
+  public getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }
 
@@ -46,14 +46,14 @@ export class ApiClient {
   /**
    * Get the stored company ID
    */
-  protected getCompanyId(): string | null {
+  public getCompanyId(): string | null {
     return localStorage.getItem(COMPANY_ID_KEY);
   }
 
   /**
    * Set the company ID
    */
-  protected setCompanyId(companyId: string | null): void {
+  public setCompanyId(companyId: string | null): void {
     if (companyId) {
       localStorage.setItem(COMPANY_ID_KEY, companyId);
     } else {
@@ -64,7 +64,7 @@ export class ApiClient {
   /**
    * Clear all auth data
    */
-  protected clearAuth(): void {
+  public clearAuth(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(COMPANY_ID_KEY);
     localStorage.removeItem('company_name');
@@ -108,42 +108,3 @@ export class ApiClient {
     return this.client;
   }
 }
-
-/**
- * Default generic API client for common use cases
- */
-export class DefaultApiClient extends ApiClient {
-  // You can add specific methods here if needed
-}
-
-// Storage utility functions (for backward compatibility)
-export const getToken = (): string | null => localStorage.getItem(TOKEN_KEY);
-
-export const setToken = (token: string | null): void => {
-  if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
-  } else {
-    localStorage.removeItem(TOKEN_KEY);
-  }
-};
-
-export const getCompanyId = (): string | null => localStorage.getItem(COMPANY_ID_KEY);
-
-export const setCompanyId = (companyId: string | null): void => {
-  if (companyId) {
-    localStorage.setItem(COMPANY_ID_KEY, companyId);
-  } else {
-    localStorage.removeItem(COMPANY_ID_KEY);
-  }
-};
-
-export const clearAuth = (): void => {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(COMPANY_ID_KEY);
-  localStorage.removeItem('company_name');
-};
-
-// Default instance for backward compatibility
-export const client = new DefaultApiClient().getClient();
-
-export default client;

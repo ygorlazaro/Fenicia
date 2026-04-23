@@ -24,7 +24,7 @@ import {
 import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
 import ProjectSubtaskModal from '../../../components/ProjectSubtaskModal';
-import ProjectSubtaskClient from '../../../services/project-subtask-client';
+import ProjectSubtaskClient from '../../../services/project/project-subtask-client';
 
 const projectSubtaskClient = new ProjectSubtaskClient("http://localhost:5144");
 

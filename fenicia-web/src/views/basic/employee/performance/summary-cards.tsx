@@ -1,7 +1,7 @@
 import { CCol, CRow, CWidgetStatsA } from "@coreui/react";
 import { t } from "i18next";
-import { EmployeePerformanceSummary } from "../../../../services/employee-performance-client";
-import { formatCurrency } from "../../../../utils/format-currency";
+import { EmployeePerformanceSummary } from '../../../../types/basic/employee/employee-performance-summary';
+import formatCurrency from "../../../../utils/format-currency";
 
 interface SummaryCardsProps {
     summary: EmployeePerformanceSummary

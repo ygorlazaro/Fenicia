@@ -2,7 +2,8 @@ import { CSpinner } from "@coreui/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TimeRangeSelector from "../../../../components/fenicia/time-range-selector";
-import EmployeePerformanceClient, { EmployeePerformance } from "../../../../services/employee-performance-client";
+import BasicEmployeeClient from "../../../../services/basic/basic-employee-client";
+import { EmployeePerformance } from '../../../../types/basic/employee/employee-performance';
 import { OrdersByEmployee } from './orders-by-employee';
 import { SalesByEmployee } from './sales-by-employee';
 import { SummaryCards } from './summary-cards';
@@ -15,7 +16,7 @@ interface EmployeePerformanceData {
     onError?: (message: string) => void;
 }
 
-const performanceClient = new EmployeePerformanceClient();
+const performanceClient = new BasicEmployeeClient();
 
 export function RenderPerformanceTab({ analyticsDays, setAnalyticsDays, activeTab, onError }: EmployeePerformanceData) {
     const { t } = useTranslation();

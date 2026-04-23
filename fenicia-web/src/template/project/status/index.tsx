@@ -25,7 +25,7 @@ import {
 import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
 import ProjectStatusModal from '../../../components/ProjectStatusModal';
-import ProjectStatusClient from '../../../services/project-status-client';
+import ProjectStatusClient from '../../../services/project/project-status-client';
 
 const projectStatusClient = new ProjectStatusClient("http://localhost:5144");
 

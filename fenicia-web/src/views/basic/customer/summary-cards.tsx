@@ -1,7 +1,7 @@
 import { CCol, CRow, CWidgetStatsA } from "@coreui/react";
 import { useTranslation } from "react-i18next";
-import { CustomerSummary } from "../../../services/customer-insights-client";
-import { formatCurrency } from "../../../utils/format-currency";
+import { CustomerSummary } from '../../../types/basic/customer/customer-summary';
+import formatCurrency from "../../../utils/format-currency";
 
 interface SummaryCardsProps {
     summary: CustomerSummary;

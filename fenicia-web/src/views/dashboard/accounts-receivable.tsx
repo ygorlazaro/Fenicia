@@ -4,17 +4,16 @@ import { CCard, CCardBody, CCardHeader, CCol, CRow } from "@coreui/react";
 import { CChartDoughnut } from "@coreui/react-chartjs";
 import { getStyle } from "@coreui/utils";
 import { useTranslation } from "react-i18next";
-import { FinancialAccountsReceivable } from "../../services/financial-dashboard-client";
-import { formatCurrency } from "../../utils/format-currency";
+import { FinancialAccountsReceivable } from '../../types/basic/dashboard/financial-accounts-receivable';
+import formatCurrency from "../../utils/format-currency";
 
 interface AccountsReceivableProps {
-    accountsReceivable: FinancialAccountsReceivable
+    data: FinancialAccountsReceivable
 }
 
-export function AccountsReceivable({
-    accountsReceivable
-}: AccountsReceivableProps) {
-
+const AccountsReceivable = ({
+    data
+}: AccountsReceivableProps) => {
     const { t } = useTranslation();
 
     const getAccountsReceivableChartData = () => {
@@ -23,7 +22,7 @@ export function AccountsReceivable({
             datasets: [
                 {
                     backgroundColor: [getStyle('--cui-warning'), getStyle('--cui-success')],
-                    data: [accountsReceivable.totalPending, accountsReceivable.totalApproved],
+                    data: [data.totalPending, data.totalApproved],
                 },
             ],
         };
@@ -36,7 +35,7 @@ export function AccountsReceivable({
                 <strong>{t('dashboard.accountsReceivable')}</strong>
             </CCardHeader>
             <CCardBody>
-                {accountsReceivable?.totalPending === 0 && accountsReceivable?.totalApproved === 0 ? <p className="text-muted text-center">{t('common.noData')}</p> : <>
+                {data?.totalPending === 0 && data?.totalApproved === 0 ? <p className="text-muted text-center">{t('common.noData')}</p> : <>
                     <CChartDoughnut data={getAccountsReceivableChartData()} options={{
                         responsive: true,
                         maintainAspectRatio: true,
@@ -52,20 +51,20 @@ export function AccountsReceivable({
                         <CCol xs={6}>
                             <div className="text-center">
                                 <div className="text-warning fw-semibold">
-                                    {formatCurrency((accountsReceivable?.totalPending))}
+                                    {formatCurrency((data?.totalPending))}
                                 </div>
                                 <small className="text-body-secondary">
-                                    {accountsReceivable?.pendingOrdersCount} {t('dashboard.pendingOrders')}
+                                    {data?.pendingOrdersCount} {t('dashboard.pendingOrders')}
                                 </small>
                             </div>
                         </CCol>
                         <CCol xs={6}>
                             <div className="text-center">
                                 <div className="text-success fw-semibold">
-                                    {formatCurrency((accountsReceivable?.totalApproved))}
+                                    {formatCurrency((data?.totalApproved))}
                                 </div>
                                 <small className="text-body-secondary">
-                                    {accountsReceivable?.approvedOrdersCount} {t('dashboard.approvedOrders')}
+                                    {data?.approvedOrdersCount} {t('dashboard.approvedOrders')}
                                 </small>
                             </div>
                         </CCol>
@@ -75,3 +74,5 @@ export function AccountsReceivable({
         </CCard>
     </CCol>;
 }
+
+export default AccountsReceivable;

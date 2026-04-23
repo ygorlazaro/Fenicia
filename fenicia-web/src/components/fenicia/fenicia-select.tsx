@@ -8,6 +8,7 @@ interface FeniciaSelectProps {
   value: string;
   label: string;
   id: string;
+  required?: boolean;
 }
 
 export function FeniciaSelect({
@@ -17,11 +18,12 @@ export function FeniciaSelect({
   loadingOptions = false,
   label,
   id,
+  required = false
 }: FeniciaSelectProps) {
   const { t } = useTranslation();
 
   return <>
-    <CFormLabel htmlFor={id}>{t(label)} *</CFormLabel>
+    <CFormLabel htmlFor={id}>{t(label)} {required && <span className="text-danger">*</span>}</CFormLabel>
     <CFormSelect id={id} name={id} value={value} onChange={onChange} disabled={loadingOptions} required>
       <option value="">{t('common.select')}...</option>
       {data.map(item => <option key={item.id} value={item.id}>

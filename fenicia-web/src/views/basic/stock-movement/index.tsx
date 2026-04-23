@@ -25,9 +25,10 @@ import { useNavigate } from 'react-router-dom';
 import ProductModal from '../../../components/ProductModal';
 import { BasicOrderClient } from '../../../services/basic/basic-order-client';
 import { BasicProductClient } from '../../../services/basic/basic-product-client';
-import { StockMovementClient, StockMovementDashboard } from '../../../services/stock-movement-client';
+import { BasicStockMovementClient } from '../../../services/basic/basic-stock-movement-client';
+import { StockMovementDashboard } from '../../../types/basic/stock-movement/stock-movement-dashboard';
 
-const stockMovementClient = new StockMovementClient();
+const stockMovementClient = new BasicStockMovementClient();
 
 const StockMovementDashboardView = () => {
     const { t } = useTranslation();

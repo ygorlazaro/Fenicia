@@ -3,8 +3,8 @@ import {
     CRow
 } from '@coreui/react';
 import { t } from 'i18next';
-import { formatCurrency } from '../../utils/format-currency';
-import { formatPercentage } from '../../utils/format-percentage';
+import formatCurrency from '../../utils/format-currency';
+import formatPercentage from '../../utils/format-percentage';
 import KpiSummaryCard from './kpi-summary-card';
 
 interface KpiSummaryCardsProps {

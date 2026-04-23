@@ -46,53 +46,17 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import ProductCategoryModal from '../../../components/ProductCategoryModal'
 import ProductModal from '../../../components/ProductModal'
-import SupplierModal from '../../../components/SupplierModal'
+import BasicInventoryClient from '../../../services/basic/basic-inventory-client'
 import { BasicProductCategoryClient } from '../../../services/basic/basic-product-category-client'
 import { BasicProductClient } from '../../../services/basic/basic-product-client'
-import { BasicSupplierClient } from '../../../services/basic/basic-supplier-client'
-import InventoryClient from '../../../services/inventory-client'
-import InventoryHealthClient from '../../../services/inventory-health-client'
+import { DashboardData } from '../../../types/basic/inventory/dashboard-data'
+import formatCurrency from '../../../utils/format-currency'
+import { formatNumber } from '../../../utils/format-number'
+import SupplierModal from '../supplier/supplier-modal'
 
-const inventoryClient = new InventoryClient()
-const healthClient = new InventoryHealthClient()
-
-interface LowStockItem {
-    id: string
-    name: string
-    quantity: number
-    costPrice: number | null
-    salesPrice: number
-    categoryId: string
-    categoryName: string
-}
-
-interface CategoryBreakdown {
-    categoryId: string
-    categoryName: string
-    totalCostValue: number
-    totalSalesValue: number
-    totalQuantity: number
-}
-
-interface SupplierBreakdown {
-    supplierId: string
-    supplierName: string
-    totalCostValue: number
-    totalSalesValue: number
-    totalQuantity: number
-}
-
-interface DashboardData {
-    lowStockItems: LowStockItem[]
-    totalCustomers: number
-    totalEmployees: number
-    totalCostValue: number
-    totalSalesValue: number
-    totalQuantity: number
-    profitPotential: number
-    categoryBreakdown: CategoryBreakdown[]
-    supplierBreakdown: SupplierBreakdown[]
-}
+const inventoryClient = new BasicInventoryClient()
+const productClient = new BasicProductClient()
+const categoryClient = new BasicProductCategoryClient()
 
 const InventoryDashboard = () => {
     const { t } = useTranslation()
@@ -118,10 +82,6 @@ const InventoryDashboard = () => {
     const [selectedItem, setSelectedItem] = useState(null)
     const [modalLoading, setModalLoading] = useState(false)
 
-    const productClient = new BasicProductClient()
-    const categoryClient = new BasicProductCategoryClient()
-    const supplierClient = new BasicSupplierClient()
-
     useEffect(() => {
         loadDashboard()
     }, [])
@@ -135,7 +95,7 @@ const InventoryDashboard = () => {
     const loadHealth = async () => {
         try {
             setHealthLoading(true)
-            const data = await healthClient.getInventoryHealth(zeroMovementDays, overstockMultiplier)
+            const data = await inventoryClient.getInventoryHealth(zeroMovementDays, overstockMultiplier)
             setHealth(data)
         } catch (err) {
             setError(t('inventory.healthLoadError'))
@@ -157,18 +117,6 @@ const InventoryDashboard = () => {
         } finally {
             setLoading(false)
         }
-    }
-
-    const formatCurrency = (value: number) => {
-        if (value === null || value === undefined) return '-'
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-        }).format(value)
-    }
-
-    const formatNumber = (value: number) => {
-        return new Intl.NumberFormat('pt-BR').format(value)
     }
 
     // Open modal without navigation
@@ -199,22 +147,6 @@ const InventoryDashboard = () => {
         } catch (err) {
             console.error('Failed to load category:', err)
             navigate(`/basic/product-categories?id=${categoryId}`)
-        } finally {
-            setModalLoading(false)
-        }
-    }
-
-    const openSupplierModal = async (supplierId: string, e: React.MouseEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-        try {
-            setModalLoading(true)
-            const supplier = await supplierClient.getById(supplierId)
-            setSelectedItem(supplier)
-            setSupplierModalVisible(true)
-        } catch (err) {
-            console.error('Failed to load supplier:', err)
-            navigate(`/basic/suppliers?id=${supplierId}`)
         } finally {
             setModalLoading(false)
         }

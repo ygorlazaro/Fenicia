@@ -1,4 +1,4 @@
-export const formatPhone = (phone: string) => {
+export default (phone: string) => {
     if (!phone) return '-';
     const cleaned = phone.replace(/\D/g, '');
     if (cleaned.length === 10) {

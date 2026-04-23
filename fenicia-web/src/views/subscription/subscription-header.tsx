@@ -8,14 +8,9 @@ interface SubscriptionHeaderProps {
     handleSelectAll: () => void;
 }
 
-
-export function SubscriptionHeader({
-    subscribedCount,
-    selectedCountNew,
-    modulesCount,
-    subscribedModulesCount,
-    handleSelectAll
-}: SubscriptionHeaderProps) {
+const SubscriptionHeader = ({
+    subscribedCount, selectedCountNew, modulesCount, subscribedModulesCount, handleSelectAll
+}: SubscriptionHeaderProps) => {
     return <><p className="text-muted mb-4">
         Selecione os módulos que deseja assinar para sua empresa.
     </p>
@@ -39,4 +34,6 @@ export function SubscriptionHeader({
                 {selectedCountNew === modulesCount - subscribedModulesCount ? 'Desmarcar novos' : 'Selecionar todos os novos'}
             </CButton>
         </div></>;
-}
+};
+
+export default SubscriptionHeader;

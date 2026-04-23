@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import type { IPagination } from '../../types';
 import type { AddProductCommand, AddProductResponse, DataSourceItem, GetAllProductResponse, GetProductByIdResponse, UpdateProductCommand, UpdateProductResponse } from '../../types/basic-types';
+import { ProductPerformance } from '../../types/basic/product/product-performance';
 import { ApiClient } from '../api-client';
 
 
@@ -50,6 +51,15 @@ export class BasicProductClient extends ApiClient {
 
   async getSuppliers(): Promise<DataSourceItem[]> {
     const response = await this.getClient().get('/datasource/supplier');
+    return (response as AxiosResponse).data;
+  }
+
+  async getPerformance(days?: number, topLimit?: number): Promise<ProductPerformance> {
+    const params: any = {};
+    if (days !== undefined) params.days = days;
+    if (topLimit !== undefined) params.topLimit = topLimit;
+
+    const response = await this.getClient().get('/product/performance', { params });
     return (response as AxiosResponse).data;
   }
 

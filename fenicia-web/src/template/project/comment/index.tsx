@@ -23,7 +23,7 @@ import {
 import { useEffect, useState } from 'react';
 import Pagination from '../../../components/Pagination';
 import ProjectCommentModal from '../../../components/ProjectCommentModal';
-import ProjectCommentClient from '../../../services/project-comment-client';
+import ProjectCommentClient from '../../../services/project/project-comment-client';
 
 const projectCommentClient = new ProjectCommentClient("http://localhost:5144");
 
