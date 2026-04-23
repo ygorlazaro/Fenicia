@@ -1,7 +1,7 @@
 import { OverstockProduct } from './overstock-product';
 
 
-export interface OverstockAlert {
+export interface InventoryOverstockAlert {
   totalOverstockProducts: number;
   totalOverstockValue: number;
   products: OverstockProduct[];
