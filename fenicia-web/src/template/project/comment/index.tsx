@@ -21,7 +21,7 @@ import {
     CTableRow
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
-import Pagination from '../../../components/Pagination';
+import Pagination from '../../../components/fenicia/Pagination';
 import ProjectCommentModal from '../../../components/ProjectCommentModal';
 import ProjectCommentClient from '../../../services/project/project-comment-client';
 

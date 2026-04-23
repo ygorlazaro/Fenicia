@@ -23,7 +23,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/Pagination';
+import Pagination from '../../../components/fenicia/pagination';
 import ProductCategoryModal from '../../../components/ProductCategoryModal';
 import { BasicProductCategoryClient } from '../../../services/basic/basic-product-category-client';
 

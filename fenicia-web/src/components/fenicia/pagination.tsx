@@ -5,7 +5,7 @@ const PAGE_SIZE_OPTIONS = [2, 10, 20, 50, 100];
 
 const Pagination = ({ pagination, onPageChange, onPerPageChange, showPageSize = true }) => {
     const { t } = useTranslation();
-    const { page, perPage, total, pages } = pagination;
+    const { page, perPage, total } = pagination;
 
     const totalPages = Math.ceil(total / perPage) || 1;
     const hasNextPage = page < totalPages;

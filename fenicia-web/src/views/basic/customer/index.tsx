@@ -28,7 +28,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/Pagination';
+import Pagination from '../../../components/fenicia/pagination';
 import BasicCustomerClient from '../../../services/basic/basic-customer-client';
 import { AddCustomerCommand, GetAllCustomerResponse, UpdateCustomerCommand } from '../../../types/basic-types';
 import { CustomerInsights } from '../../../types/basic/customer/customer-insights';

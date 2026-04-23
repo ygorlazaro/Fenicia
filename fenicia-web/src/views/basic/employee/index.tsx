@@ -28,7 +28,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/Pagination';
+import Pagination from '../../../components/fenicia/pagination';
 import { BasicEmployeeClient } from '../../../services/basic/basic-employee-client';
 import { GetAllEmployeeResponse, GetEmployeeByIdResponse, UpdateEmployeeCommand } from '../../../types/basic-types';
 import EmployeeModal from './employee-modal';

@@ -1,14 +1,14 @@
 import { AverageOrderValue } from './average-order-value';
-import { CancelledOrder } from './cancelled-order';
+import { OrderCancelledOrder } from './order-cancelled-order';
 import { OrderStatusCount } from './order-status-count';
+import { OrderTopCustomer } from './order-top-customer';
 import { SalesTrend } from './sales-trend';
-import { TopCustomer } from './top-customer';
 
 
 export interface OrderAnalytics {
   ordersByStatus: OrderStatusCount[];
   salesTrend: SalesTrend[];
-  topCustomers: TopCustomer[];
+  topCustomers: OrderTopCustomer[];
   averageOrderValue: AverageOrderValue;
-  cancelledOrders: CancelledOrder[];
+  cancelledOrders: OrderCancelledOrder[];
 }

@@ -23,7 +23,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/Pagination';
+import Pagination from '../../../components/fenicia/pagination';
 import BasicPositionClient from '../../../services/basic/basic-position-client';
 import { GetAllPositionResponse, GetPositionByIdResponse, UpdatePositionCommand } from '../../../types/basic-types';
 import PositionModal from './position-modal';

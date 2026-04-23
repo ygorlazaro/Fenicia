@@ -28,7 +28,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/Pagination';
+import Pagination from '../../../components/fenicia/pagination';
 import { BasicSupplierClient } from '../../../services/basic/basic-supplier-client';
 import { AddSupplierCommand, UpdateSupplierCommand } from '../../../types/basic-types';
 import { SupplierPerformance } from '../../../types/basic/supplier/supplier-performance';
