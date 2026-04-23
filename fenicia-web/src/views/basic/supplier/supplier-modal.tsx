@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { FeniciaInput } from '../../../components/fenicia/fenicia-input';
 import { BasicStateClient } from '../../../services/basic/basic-state-client';
 import { fetchAddressByCep } from '../../../services/cep-client';
-import { UpdateSupplierCommand } from '../../../types/basic-types';
+import { UpdateSupplierCommand } from "../../../types/basic/supplier/update-supplier-command";
 
 const stateClient = new BasicStateClient();
 

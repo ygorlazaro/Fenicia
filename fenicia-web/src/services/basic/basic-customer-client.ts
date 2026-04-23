@@ -1,7 +1,12 @@
 import { AxiosResponse } from 'axios';
 import { IPagination } from '../../types';
-import { AddCustomerCommand, AddCustomerResponse, GetAllCustomerResponse, GetCustomerByIdResponse, UpdateCustomerCommand, UpdateCustomerResponse } from '../../types/basic-types';
+import { AddCustomerCommand } from "../../types/basic/customer/add-customer-command";
+import { AddCustomerResponse } from "../../types/basic/customer/add-customer-response";
 import { CustomerInsights } from '../../types/basic/customer/customer-insights';
+import { GetAllCustomerResponse } from "../../types/basic/customer/get-all-customer-response";
+import { GetCustomerByIdResponse } from "../../types/basic/customer/get-customer-by-id-response";
+import { UpdateCustomerCommand } from "../../types/basic/customer/update-customer-command";
+import { UpdateCustomerResponse } from "../../types/basic/customer/update-customer-response";
 import { ApiClient } from '../api-client';
 import { BASIC_API_BASE_URL } from './basic-product-client';
 

@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { GetUserProfileResponse } from '../../types/auth-types';
+import { GetUserProfileResponse } from "../../types/auth/get-user-profile-response";
 import { AuthClient } from './auth-client';
 
 /**

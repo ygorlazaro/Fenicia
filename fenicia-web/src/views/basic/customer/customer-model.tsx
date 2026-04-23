@@ -19,7 +19,7 @@ import { FeniciaSelect } from '../../../components/fenicia/fenicia-select';
 import BasicCustomerClient from '../../../services/basic/basic-customer-client';
 import { BasicStateClient } from '../../../services/basic/basic-state-client';
 import { fetchAddressByCep } from '../../../services/cep-client';
-import { UpdateCustomerCommand } from '../../../types/basic-types';
+import { UpdateCustomerCommand } from "../../../types/basic/customer/update-customer-command";
 
 const customerClient = new BasicCustomerClient();
 const stateClient = new BasicStateClient();

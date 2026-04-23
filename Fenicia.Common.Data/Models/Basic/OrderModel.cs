@@ -11,7 +11,7 @@ public class OrderModel : BaseCompanyModel
 {
     [Required]
     [Column("order_number")]
-    [MaxLength(20)]
+    [MaxLength(40)]
     public string OrderNumber { get; set; } = null!;
 
     [Required]

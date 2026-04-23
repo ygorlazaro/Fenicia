@@ -30,7 +30,9 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import Pagination from '../../../components/fenicia/pagination';
 import { BasicEmployeeClient } from '../../../services/basic/basic-employee-client';
-import { GetAllEmployeeResponse, GetEmployeeByIdResponse, UpdateEmployeeCommand } from '../../../types/basic-types';
+import { GetAllEmployeeResponse } from "../../../types/basic/employee/get-all-employee-response";
+import { GetEmployeeByIdResponse } from "../../../types/basic/employee/get-employee-by-id-response";
+import { UpdateEmployeeCommand } from "../../../types/basic/employee/update-employee-command";
 import EmployeeModal from './employee-modal';
 import { RenderPerformanceTab } from './performance';
 

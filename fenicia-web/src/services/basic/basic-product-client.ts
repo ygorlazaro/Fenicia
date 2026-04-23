@@ -1,7 +1,13 @@
 import { AxiosResponse } from 'axios';
 import type { IPagination } from '../../types';
-import type { AddProductCommand, AddProductResponse, DataSourceItem, GetAllProductResponse, GetProductByIdResponse, UpdateProductCommand, UpdateProductResponse } from '../../types/basic-types';
+import type { DataSourceItem } from "../../types/basic/product-category/add-product-category-command";
+import type { AddProductCommand } from "../../types/basic/product/add-product-command";
+import type { AddProductResponse } from "../../types/basic/product/add-product-response";
+import type { GetAllProductResponse } from "../../types/basic/product/get-all-product-response";
+import type { GetProductByIdResponse } from "../../types/basic/product/get-product-by-id-response";
 import { ProductPerformance } from '../../types/basic/product/product-performance';
+import type { UpdateProductCommand } from "../../types/basic/product/update-product-command";
+import type { UpdateProductResponse } from "../../types/basic/product/update-product-response";
 import { ApiClient } from '../api-client';
 
 

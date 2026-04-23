@@ -2,7 +2,7 @@ import { cilCalendar } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CBadge, CCard, CCardBody, CCardHeader, CCol, CRow, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
 import { Link } from "react-router-dom";
-import { UserSubscriptionResponse } from "../../types/auth-types";
+import { UserSubscriptionResponse } from "../../types/auth/user-subscription-response";
 
 interface UserSubscriptionProps {
     subscriptions: UserSubscriptionResponse[]

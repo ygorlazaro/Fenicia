@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { GetCompaniesByUserResponse } from '../../types/auth-types';
+import { GetCompaniesByUserResponse } from "../../types/auth/get-companies-by-user-response";
 import { AuthClient } from './auth-client';
 
 /**

@@ -30,8 +30,9 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import Pagination from '../../../components/fenicia/pagination';
 import { BasicSupplierClient } from '../../../services/basic/basic-supplier-client';
-import { AddSupplierCommand, UpdateSupplierCommand } from '../../../types/basic-types';
+import { AddSupplierCommand } from "../../../types/basic/supplier/add-supplier-command";
 import { SupplierPerformance } from '../../../types/basic/supplier/supplier-performance';
+import { UpdateSupplierCommand } from "../../../types/basic/supplier/update-supplier-command";
 import RenderAnalyticsTab from './performance';
 import SupplierModal from './supplier-modal';
 

@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthModuleClient from '../../services/auth/auth-module-client';
 import AuthOrderClient from '../../services/auth/auth-order-client';
 import AuthSubscriptionClient from '../../services/auth/auth-subscription-client';
-import { GetModuleResponse } from '../../types/auth-types';
+import { GetModuleResponse } from "../../types/auth/get-module-response";
 import formatCurrency from '../../utils/format-currency';
 import SubscriptionHeader from './subscription-header';
 import SubscriptionSummary from './subscription-summary';

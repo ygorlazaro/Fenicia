@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { CreateNewOrderResponse } from '../../types/auth-types';
+import { CreateNewOrderResponse } from "../../types/auth/create-new-order-response";
 import { ApiClient } from '../api-client';
 
 const AUTH_API_BASE_URL = import.meta.env.VITE_AUTH_API_BASE_URL || 'http://localhost:5001/api';

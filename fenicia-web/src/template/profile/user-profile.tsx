@@ -1,7 +1,7 @@
 import CIcon from "@coreui/icons-react";
 import { cilUser } from "@coreui/icons/dist/esm/free/cil-user";
 import { CCard, CCardBody, CCardHeader, CCol, CRow } from "@coreui/react";
-import { GetUserProfileResponse } from "../../types/auth-types";
+import { GetUserProfileResponse } from "../../types/auth/get-user-profile-response";
 
 interface UserProfileProps {
     profile: GetUserProfileResponse

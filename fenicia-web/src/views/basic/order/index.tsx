@@ -1,4 +1,4 @@
-import { cilCart, cilChart, cilPlus, cilTrash, cilUser, cilWarning } from '@coreui/icons';
+import { cilCart, cilChart, cilPlus, cilWarning } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import {
     CAlert,
@@ -6,12 +6,7 @@ import {
     CCard,
     CCardBody,
     CCardHeader,
-    CCol,
     CContainer,
-    CForm,
-    CFormInput,
-    CFormLabel,
-    CFormSelect,
     CModal,
     CModalBody,
     CModalFooter,
@@ -20,31 +15,19 @@ import {
     CNav,
     CNavItem,
     CNavLink,
-    CRow,
-    CSpinner,
     CTabContent,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableFoot,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
     CTabPane
 } from '@coreui/react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import Pagination from '../../../components/fenicia/pagination';
-import { BasicDataSourceClient } from '../../../services/basic/basic-datasource-client';
 import { BasicOrderClient } from '../../../services/basic/basic-order-client';
-import { DataSourceItem, GetAllOrderResponse } from '../../../types/basic-types';
 import { OrderAnalytics } from '../../../types/basic/order/order-analytics';
-import formatCurrency from '../../../utils/format-currency';
+import { CreateOrderCommand, GetAllOrderResponse } from "../../../types/basic/product-category/add-product-category-command";
+import CreateOrderModal from './modal';
+import OrderTable from './order-table';
 import RenderAnalyticsTab from './performance';
 
 const orderClient = new BasicOrderClient();
-const dataSourceClient = new BasicDataSourceClient();
 
 const Orders = () => {
     const { t } = useTranslation();
@@ -68,26 +51,8 @@ const Orders = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [orderToDelete, setOrderToDelete] = useState(null);
-    const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
-
-    // Form state - Step 1 (Header)
-    const [customerId, setCustomerId] = useState('');
-    const [saleDate, setSaleDate] = useState(new Date().toISOString().split('T')[0]);
-    const [status, setStatus] = useState('Pending');
-    const [employeeId, setEmployeeId] = useState('');
-
-    // Form state - Step 2 (Details)
-    const [orderItems, setOrderItems] = useState([]);
-    const [selectedProduct, setSelectedProduct] = useState('');
-    const [quantity, setQuantity] = useState(1);
-    const [price, setPrice] = useState(0);
-
-    // Data lists
-    const [products, setProducts] = useState<DataSourceItem[]>([]);
-    const [customers, setCustomers] = useState<DataSourceItem[]>([]);
-    const [employees, setEmployees] = useState<DataSourceItem[]>([]);
 
 
     // Analytics state
@@ -98,13 +63,6 @@ const Orders = () => {
     paginationRef.current = pagination;
 
     useEffect(() => {
-        loadProducts();
-        loadCustomers();
-        loadEmployees();
-
-    }, []);
-
-    useEffect(() => {
         loadOrders();
     }, [pagination.page, pagination.perPage]);
 
@@ -113,38 +71,6 @@ const Orders = () => {
             loadAnalytics();
         }
     }, [activeTab, analyticsDays]);
-
-
-
-    const loadProducts = async () => {
-        try {
-            const response = await dataSourceClient.getProducts();
-            const data = Array.isArray(response) ? response : [];
-            setProducts(data);
-        } catch (err) {
-            console.error('Failed to load products:', err);
-        }
-    };
-
-    const loadCustomers = async () => {
-        try {
-            const response = await dataSourceClient.getCustomers();
-            const data = Array.isArray(response) ? response : [];
-            setCustomers(data);
-        } catch (err) {
-            console.error('Failed to load customers:', err);
-        }
-    };
-
-    const loadEmployees = async () => {
-        try {
-            const response = await dataSourceClient.getEmployees();
-            const data = Array.isArray(response) ? response : [];
-            setEmployees(data);
-        } catch (err) {
-            console.error('Failed to load employees:', err);
-        }
-    };
 
     const loadOrders = async () => {
         try {
@@ -183,103 +109,19 @@ const Orders = () => {
     };
 
     const handleOpenAdd = () => {
-        setCustomerId('');
-        setSaleDate(new Date().toISOString().split('T')[0]);
-        setStatus('Pending');
-        setEmployeeId('');
-        setOrderItems([]);
-        setSelectedProduct('');
-        setQuantity(1);
-        setPrice(0);
         setActiveTab(0);
         setModalVisible(true);
     };
 
-    const handleOpenDelete = (order) => {
+    const handleOpenDelete = (order: GetAllOrderResponse) => {
         setOrderToDelete(order);
         setDeleteModalVisible(true);
     };
 
-    const handleProductChange = (productId: string) => {
-        setSelectedProduct(productId);
-        const product = products.find(p => p.id === productId);
-        if (product) {
-            setPrice(product.salesPrice || 0);
-        }
-    };
-
-    const handleAddItem = () => {
-        if (!selectedProduct || quantity <= 0 || price <= 0) {
-            setError(t('common.requiredField'));
-            return;
-        }
-
-        const product = products.find(p => p.id === selectedProduct);
-        if (!product) return;
-
-        const existingItem = orderItems.find(item => item.productId === selectedProduct);
-        if (existingItem) {
-            setOrderItems(orderItems.map(item =>
-                item.productId === selectedProduct
-                    ? { ...item, quantity: item.quantity + Number(quantity) }
-                    : item
-            ));
-        } else {
-            setOrderItems([...orderItems, {
-                productId: selectedProduct,
-                productName: product.name,
-                price: Number(product.salesPrice || price),
-                quantity: Number(quantity)
-            }]);
-        }
-
-        setSelectedProduct('');
-        setQuantity(1);
-        setPrice(0);
-    };
-
-    const handleRemoveItem = (productId: string) => {
-        setOrderItems(orderItems.filter(item => item.productId !== productId));
-    };
-
-    const handleNextTab = () => {
-        if (!customerId || !saleDate || !status) {
-            setError(t('common.requiredField'));
-            return;
-        }
-        setActiveTab(1);
-    };
-
-    const handlePrevTab = () => {
-        setActiveTab(0);
-    };
-
-    const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSave = async (e, payload: CreateOrderCommand) => {
         e.preventDefault();
 
-        if (!customerId || !saleDate || !status) {
-            setError(t('common.requiredField'));
-            return;
-        }
-
-        if (orderItems.length === 0) {
-            setError(t('orders.items') + ' ' + t('common.requiredField'));
-            return;
-        }
-
-        setSaving(true);
         try {
-            const payload = {
-                customerId: customerId,
-                saleDate: new Date(saleDate).toISOString(),
-                status: status,
-                employeeId: employeeId || null,
-                details: orderItems.map(item => ({
-                    productId: item.productId,
-                    quantity: item.quantity,
-                    price: item.price
-                }))
-            };
 
             await orderClient.create(payload);
             setSuccessMessage(t('orders.createSuccess'));
@@ -289,9 +131,7 @@ const Orders = () => {
         } catch (err) {
             console.error('Failed to create order:', err);
             setError(err.response?.data?.title || t('orders.loadError'));
-        } finally {
-            setSaving(false);
-        }
+        };
     };
 
     const handleDelete = async () => {
@@ -319,23 +159,6 @@ const Orders = () => {
 
     const handlePerPageChange = (newPerPage: number) => {
         setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString();
-    };
-
-    const getStatusBadgeColor = (status: string | null) => {
-        switch (status?.toLowerCase()) {
-            case 'pending':
-                return 'warning';
-            case 'approved':
-                return 'success';
-            case 'cancelled':
-                return 'danger';
-            default:
-                return 'secondary';
-        }
     };
 
 
@@ -391,76 +214,7 @@ const Orders = () => {
                     <CTabContent className="mt-3">
                         {/* Orders List Tab */}
                         <CTabPane visible={activeTab === 0}>
-                            {loading && (
-                                <div className="text-center py-4">
-                                    <CSpinner color="primary" />
-                                    <p className="mt-2">{t('common.loading')}</p>
-                                </div>
-                            )}
-
-                            {!loading && orders.length === 0 && (
-                                <div className="text-center py-4">
-                                    <p className="text-muted">{t('common.noData')}</p>
-                                </div>
-                            )}
-
-                            {!loading && orders.length > 0 && (
-                                <>
-                                    <CTable hover responsive>
-                                        <CTableHead>
-                                            <CTableRow>
-                                                <CTableHeaderCell>{t('orders.id')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('orders.customer')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('orders.total')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('orders.date')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('orders.status')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('orders.items')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
-                                            </CTableRow>
-                                        </CTableHead>
-                                        <CTableBody>
-                                            {orders.map((order) => (
-                                                <CTableRow key={order.id}>
-                                                    <CTableDataCell>
-                                                        <Link to={`/basic/order/${order.id}`} className="text-decoration-none font-monospace">
-                                                            {order.id.substring(0, 8)}...
-                                                        </Link>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell>
-                                                        <Link to={`/basic/order/${order.id}`} className="text-decoration-none">
-                                                            {order.customerName}
-                                                        </Link>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell>{formatCurrency(order.totalAmount)}</CTableDataCell>
-                                                    <CTableDataCell>{formatDate(order.saleDate)}</CTableDataCell>
-                                                    <CTableDataCell>
-                                                        <span className={`badge bg-${getStatusBadgeColor(order.status)}`}>
-                                                            {t(`orders.statusValues.${order.status?.toLowerCase()}`) || order.status}
-                                                        </span>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell>{order.totalItems}</CTableDataCell>
-                                                    <CTableDataCell className="text-end">
-                                                        <CButton
-                                                            color="danger"
-                                                            size="sm"
-                                                            onClick={() => handleOpenDelete(order)}
-                                                        >
-                                                            <CIcon icon={cilTrash} />
-                                                        </CButton>
-
-                                                    </CTableDataCell>
-                                                </CTableRow>
-                                            ))}
-                                        </CTableBody>
-                                    </CTable>
-
-                                    <Pagination
-                                        pagination={pagination}
-                                        onPageChange={handlePageChange}
-                                        onPerPageChange={handlePerPageChange}
-                                    />
-                                </>
-                            )}
+                            <OrderTable loading={loading} orders={orders} handlePageChange={handlePageChange} handlePerPageChange={handlePerPageChange} handleOpenDelete={handleOpenDelete} />
                         </CTabPane>
 
                         {/* Analytics Tab */}
@@ -472,231 +226,7 @@ const Orders = () => {
             </CCard>
 
             {/* Create Order Modal */}
-            <CModal visible={modalVisible} onClose={() => setModalVisible(false)} size="xl">
-                <CModalHeader>
-                    <CModalTitle>{t('orders.new')}</CModalTitle>
-                </CModalHeader>
-                <CForm onSubmit={handleSave}>
-                    <CModalBody>
-                        <CNav variant="tabs">
-                            <CNavItem>
-                                <CNavLink
-                                    active={activeTab === 0}
-                                    onClick={() => setActiveTab(0)}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    <CIcon icon={cilUser} className="me-2" />
-                                    {t('orders.header')}
-                                </CNavLink>
-                            </CNavItem>
-                            <CNavItem>
-                                <CNavLink
-                                    active={activeTab === 1}
-                                    onClick={() => setActiveTab(1)}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    <CIcon icon={cilCart} className="me-2" />
-                                    {t('orders.details')}
-                                </CNavLink>
-                            </CNavItem>
-                        </CNav>
-
-                        <CTabContent className="mt-3">
-                            <CTabPane visible={activeTab === 0}>
-                                <CRow>
-                                    <CCol md={6}>
-                                        <CFormLabel htmlFor="customer">{t('orders.customer')} *</CFormLabel>
-                                        <CFormSelect
-                                            id="customer"
-                                            value={customerId}
-                                            onChange={(e) => setCustomerId(e.target.value)}
-                                            required
-                                        >
-                                            <option value="">{t('common.select')}</option>
-                                            {customers.map(c => (
-                                                <option key={c.id} value={c.id}>
-                                                    {c.name}
-                                                </option>
-                                            ))}
-                                        </CFormSelect>
-                                    </CCol>
-                                    <CCol md={6}>
-                                        <CFormLabel htmlFor="saleDate">{t('orders.date')} *</CFormLabel>
-                                        <CFormInput
-                                            type="date"
-                                            id="saleDate"
-                                            value={saleDate}
-                                            onChange={(e) => setSaleDate(e.target.value)}
-                                            required
-                                        />
-                                    </CCol>
-                                    <CCol md={12}>
-                                        <CFormLabel htmlFor="status">{t('orders.statusLabel')} *</CFormLabel>
-                                        <CFormSelect
-                                            id="status"
-                                            value={status}
-                                            onChange={(e) => setStatus(e.target.value)}
-                                            required
-                                        >
-                                            <option value="Pending">{t('orders.statusValues.pending')}</option>
-                                            <option value="Approved">{t('orders.statusValues.approved')}</option>
-                                            <option value="Cancelled">{t('orders.statusValues.cancelled')}</option>
-                                        </CFormSelect>
-                                    </CCol>
-                                    <CCol md={12}>
-                                        <CFormLabel htmlFor="employee">{t('orders.employee')}</CFormLabel>
-                                        <CFormSelect
-                                            id="employee"
-                                            value={employeeId}
-                                            onChange={(e) => setEmployeeId(e.target.value)}
-                                        >
-                                            <option value="">{t('orders.noEmployee')}</option>
-                                            {employees.map(e => (
-                                                <option key={e.id} value={e.id}>
-                                                    {e.name}
-                                                </option>
-                                            ))}
-                                        </CFormSelect>
-                                    </CCol>
-                                </CRow>
-                            </CTabPane>
-
-                            <CTabPane visible={activeTab === 1}>
-                                <h6 className="mb-3">{t('orders.addItems')}</h6>
-
-                                <CRow className="mb-4">
-                                    <CCol md={5}>
-                                        <CFormLabel htmlFor="product">{t('products.title')} *</CFormLabel>
-                                        <CFormSelect
-                                            id="product"
-                                            value={selectedProduct}
-                                            onChange={(e) => handleProductChange(e.target.value)}
-                                        >
-                                            <option value="">{t('common.select')}</option>
-                                            {products.map(p => (
-                                                <option key={p.id} value={p.id}>
-                                                    {p.name} - {formatCurrency(p.salesPrice || 0)}
-                                                </option>
-                                            ))}
-                                        </CFormSelect>
-                                    </CCol>
-                                    <CCol md={2}>
-                                        <CFormLabel htmlFor="price">{t('products.price')} *</CFormLabel>
-                                        <CFormInput
-                                            type="number"
-                                            min="0.01"
-                                            step="0.01"
-                                            id="price"
-                                            value={price}
-                                            onChange={(e) => setPrice(e.target.value)}
-                                            required
-                                        />
-                                    </CCol>
-                                    <CCol md={2}>
-                                        <CFormLabel htmlFor="quantity">{t('orders.quantity')} *</CFormLabel>
-                                        <CFormInput
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            id="quantity"
-                                            value={quantity}
-                                            onChange={(e) => setQuantity(e.target.value)}
-                                            required
-                                        />
-                                    </CCol>
-                                    <CCol md={3} className="d-flex align-items-end">
-                                        <CButton
-                                            color="primary"
-                                            onClick={handleAddItem}
-                                            disabled={!selectedProduct}
-                                        >
-                                            <CIcon icon={cilPlus} className="me-2" />
-                                            {t('common.add')}
-                                        </CButton>
-                                    </CCol>
-                                </CRow>
-
-                                <h6 className="mb-3">{t('orders.items')}</h6>
-
-                                {orderItems.length === 0 ? (
-                                    <div className="text-center py-4">
-                                        <p className="text-muted">{t('orders.noItems')}</p>
-                                    </div>
-                                ) : (
-                                    <CTable hover responsive>
-                                        <CTableHead>
-                                            <CTableRow>
-                                                <CTableHeaderCell>{t('products.name')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('products.price')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('orders.quantity')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('orders.subtotal')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
-                                            </CTableRow>
-                                        </CTableHead>
-                                        <CTableBody>
-                                            {orderItems.map((item) => (
-                                                <CTableRow key={item.productId}>
-                                                    <CTableDataCell>{item.productName}</CTableDataCell>
-                                                    <CTableDataCell className="text-end">{formatCurrency(item.price)}</CTableDataCell>
-                                                    <CTableDataCell className="text-end">{item.quantity}</CTableDataCell>
-                                                    <CTableDataCell className="text-end">
-                                                        {formatCurrency(item.price * item.quantity)}
-                                                    </CTableDataCell>
-                                                    <CTableDataCell className="text-end">
-                                                        <CButton
-                                                            color="danger"
-                                                            size="sm"
-                                                            onClick={() => handleRemoveItem(item.productId)}
-                                                        >
-                                                            <CIcon icon={cilTrash} />
-                                                        </CButton>
-                                                    </CTableDataCell>
-                                                </CTableRow>
-                                            ))}
-                                        </CTableBody>
-                                        <CTableFoot>
-                                            <CTableRow>
-                                                <CTableHeaderCell colSpan={3} className="text-end">
-                                                    {t('orders.total')}:
-                                                </CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">
-                                                    <strong>{formatCurrency(orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0))}</strong>
-                                                </CTableHeaderCell>
-                                                <CTableHeaderCell></CTableHeaderCell>
-                                            </CTableRow>
-                                        </CTableFoot>
-                                    </CTable>
-                                )}
-                            </CTabPane>
-                        </CTabContent>
-                    </CModalBody>
-                    <CModalFooter>
-                        {activeTab === 0 ? (
-                            <>
-                                <CButton color="secondary" onClick={() => setModalVisible(false)} disabled={saving}>
-                                    {t('common.cancel')}
-                                </CButton>
-                                <CButton color="primary" onClick={handleNextTab}>
-                                    {t('common.next')}
-                                </CButton>
-                            </>
-                        ) : (
-                            <>
-                                <CButton color="secondary" onClick={handlePrevTab} disabled={saving}>
-                                    {t('common.previous')}
-                                </CButton>
-                                <CButton
-                                    color="primary"
-                                    type="submit"
-                                    disabled={saving || orderItems.length === 0}
-                                >
-                                    {saving ? t('common.saving') : t('orders.create')}
-                                </CButton>
-                            </>
-                        )}
-                    </CModalFooter>
-                </CForm>
-            </CModal>
+            <CreateOrderModal modalVisible={modalVisible} setModalVisible={setModalVisible} handleSave={handleSave} setError={setError} />
 
             {/* Delete Confirmation Modal */}
             <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
@@ -733,6 +263,6 @@ const Orders = () => {
             </CModal>
         </CContainer>
     );
-};
+}
 
 export default Orders;

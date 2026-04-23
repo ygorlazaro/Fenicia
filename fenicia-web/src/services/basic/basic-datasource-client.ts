@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
-import type { DataSourceItem } from '../../types/basic-types';
 import { FinancialDashboard } from '../../types/basic/dashboard/financial-dashboard';
+import type { DataSourceItem } from "../../types/basic/product-category/add-product-category-command";
 import { ApiClient } from '../api-client';
 import { BASIC_API_BASE_URL } from './basic-product-client';
 

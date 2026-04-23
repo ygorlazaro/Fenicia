@@ -17,7 +17,9 @@ import { FeniciaSelect } from '../../../components/fenicia/fenicia-select';
 import BasicEmployeeClient from '../../../services/basic/basic-employee-client';
 import { BasicStateClient } from '../../../services/basic/basic-state-client';
 import { fetchAddressByCep } from '../../../services/cep-client';
-import { DataSourceItem, GetAllStateResponse, UpdateEmployeeCommand } from '../../../types/basic-types';
+import { UpdateEmployeeCommand } from "../../../types/basic/employee/update-employee-command";
+import { DataSourceItem } from "../../../types/basic/product-category/add-product-category-command";
+import { GetAllStateResponse } from "../../../types/basic/state/get-all-state-response";
 
 const employeeClient = new BasicEmployeeClient();
 const stateClient = new BasicStateClient();
