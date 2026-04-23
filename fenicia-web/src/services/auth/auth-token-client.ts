@@ -1,5 +1,7 @@
 import { AxiosResponse } from 'axios';
-import { GenerateTokenQuery, TokenResponse, ValidateTokenQuery } from '../../types/auth-types';
+import { GenerateTokenQuery } from "../../types/auth/generate-token-query";
+import { TokenResponse } from "../../types/auth/token-response";
+import { ValidateTokenQuery } from "../../types/auth/validate-token-query";
 import { AuthClient } from './auth-client';
 
 /**

@@ -25,7 +25,9 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import Pagination from '../../../components/fenicia/pagination';
 import BasicPositionClient from '../../../services/basic/basic-position-client';
-import { GetAllPositionResponse, GetPositionByIdResponse, UpdatePositionCommand } from '../../../types/basic-types';
+import { GetAllPositionResponse } from "../../../types/basic/position/get-all-position-response";
+import { GetPositionByIdResponse } from "../../../types/basic/position/get-position-by-id-response";
+import { UpdatePositionCommand } from "../../../types/basic/position/update-position-command";
 import PositionModal from './position-modal';
 
 const positionClient = new BasicPositionClient("http://localhost:5083");

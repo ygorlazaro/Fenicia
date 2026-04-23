@@ -16,7 +16,6 @@ const ProductCategories = React.lazy(() => import("./views/basic/product-categor
 const Products = React.lazy(() => import("./views/basic/product"));
 const Inventory = React.lazy(() => import("./views/basic/inventory"));
 const StockMovement = React.lazy(() => import("./views/basic/stock-movement"));
-const Orders = React.lazy(() => import("./views/basic/order"));
 const OrderDetail = React.lazy(() => import("./views/basic/order-detail"));
 const ProjectList = React.lazy(() => import("./template/project"));
 const ProjectStatusList = React.lazy(() => import("./template/project/status"));
@@ -28,6 +27,7 @@ const ProjectTaskAssigneeList = React.lazy(() => import("./template/project/task
 const Dashboard = React.lazy(() => import('./views/dashboard'))
 const Colors = React.lazy(() => import('./template/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./template/theme/typography/Typography'))
+const Orders = React.lazy(() => import('./views/basic/order'))
 
 // Base
 const Accordion = React.lazy(() => import('./template/base/accordion/Accordion'))

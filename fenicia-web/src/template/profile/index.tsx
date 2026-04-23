@@ -7,7 +7,7 @@ import {
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
 import AuthSubscriptionClient from '../../services/auth/auth-subscription-client';
-import { GetUserProfileResponse } from '../../types/auth-types';
+import { GetUserProfileResponse } from "../../types/auth/get-user-profile-response";
 import UserCompanies from './user-companies';
 import UserProfile from './user-profile';
 import UserSubscriptionsDetail from './user-subscriptions-detail';
