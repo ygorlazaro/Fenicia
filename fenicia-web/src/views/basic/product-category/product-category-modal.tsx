@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
+    CAlert,
     CButton,
     CForm,
-    CFormInput,
-    CFormLabel,
     CModal,
     CModalBody,
     CModalFooter,
     CModalHeader,
-    CModalTitle,
-    CAlert
+    CModalTitle
 } from '@coreui/react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { FeniciaInput } from '../../../components/fenicia/fenicia-input';
 
 const ProductCategoryModal = ({
     visible,
@@ -78,11 +77,10 @@ const ProductCategoryModal = ({
                     )}
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="name">{t('categories.name')} *</CFormLabel>
-                        <CFormInput
+                        <FeniciaInput
                             type="text"
                             id="name"
-                            name="name"
+                            label={t('categories.name')}
                             value={formData.name}
                             onChange={handleInputChange}
                             required
