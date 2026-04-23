@@ -22,11 +22,11 @@ import { getStyle } from '@coreui/utils';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import ProductModal from '../../../components/ProductModal';
 import { BasicOrderClient } from '../../../services/basic/basic-order-client';
 import { BasicProductClient } from '../../../services/basic/basic-product-client';
 import { BasicStockMovementClient } from '../../../services/basic/basic-stock-movement-client';
 import { StockMovementDashboard } from '../../../types/basic/stock-movement/stock-movement-dashboard';
+import ProductModal from '../product/product-modal';
 
 const stockMovementClient = new BasicStockMovementClient();
 

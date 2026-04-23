@@ -6,4 +6,5 @@ export type OrderDetailResponse = {
     discountAmount: number;
     quantity: number;
     subtotal: number;
+    productName: string;
 };

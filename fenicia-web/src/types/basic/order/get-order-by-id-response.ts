@@ -1,4 +1,4 @@
-import { OrderDetailResponse } from "./order-oetail-response";
+import { OrderDetailResponse } from "./order-detail-response";
 import { OrderStatus } from "./order-status";
 import { PaymentMethod } from "./payment-method";
 

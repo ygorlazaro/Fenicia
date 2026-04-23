@@ -19,6 +19,7 @@ public class GetOrderDetailsByOrderIdHandler(DefaultContext db)
                 d.Id,
                 d.OrderId,
                 d.ProductId,
+                d.Product.Name,
                 d.Price,
                 d.DiscountAmount,
                 d.Quantity,
