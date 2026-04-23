@@ -22,7 +22,7 @@ import {
     CTableRow
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
-import Pagination from '../../../components/Pagination';
+import Pagination from '../../../components/fenicia/Pagination';
 import ProjectTaskAssigneeModal from '../../../components/ProjectTaskAssigneeModal';
 import ProjectTaskAssigneeClient from '../../../services/project/project-task-assignee-client';
 

@@ -17,28 +17,60 @@ public class GetAllOrderHandler(DefaultContext db)
     {
         var total = await db.BasicOrders.CountAsync(ct);
 
-        var request = from o in db.BasicOrders
-            join c in db.BasicCustomers on o.CustomerId equals c.Id
-            join p in db.BasicPeople on c.PersonId equals p.Id
-            join e in db.BasicEmployees on o.EmployeeId equals e.Id
-            join pe in db.BasicPeople on e.Id equals pe.Id
-            select new GetAllOrderResponse(
+        // Get paginated order IDs
+        var orderIds = await db.BasicOrders
+            .OrderByDescending(o => o.SaleDate)
+            .Skip((query.Page - 1) * query.PerPage)
+            .Take(query.PerPage)
+            .Select(o => o.Id)
+            .ToListAsync(ct);
+
+        // Pre-fetch detail counts for these orders
+        var detailCounts = await db.BasicOrderDetails
+            .Where(d => orderIds.Contains(d.OrderId))
+            .GroupBy(d => d.OrderId)
+            .Select(g => new { OrderId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(g => g.OrderId, g => g.Count, ct);
+
+        // Fetch orders with customer/employee info using navigation properties
+        var orders = await (from o in db.BasicOrders
+                            where orderIds.Contains(o.Id)
+                            select new
+                            {
+                                o.Id,
+                                o.OrderNumber,
+                                o.UserId,
+                                o.CustomerId,
+                                CustomerName = o.Customer.Person.Name,
+                                o.TotalAmount,
+                                o.DiscountAmount,
+                                o.TotalQuantity,
+                                o.SaleDate,
+                                o.Status,
+                                o.PaymentMethod,
+                                o.EmployeeId,
+                                EmployeeName = o.Employee != null ? o.Employee.Person.Name : null
+                            }).ToListAsync(ct);
+
+        // Project to response client-side
+        var response = orders
+            .OrderByDescending(o => o.SaleDate)
+            .Select(o => new GetAllOrderResponse(
                 o.Id,
                 o.OrderNumber,
                 o.UserId,
                 o.CustomerId,
-                p.Name,
+                o.CustomerName,
                 o.TotalAmount,
                 o.DiscountAmount,
                 o.TotalQuantity,
                 o.SaleDate,
                 o.Status.ToString(),
                 o.PaymentMethod,
-                o.Details.Count,
+                detailCounts.TryGetValue(o.Id, out var count) ? count : 0,
                 o.EmployeeId,
-                pe.Name);
-
-        var response = await request.OrderByDescending(o => o.SaleDate).Skip((query.Page - 1) * query.PerPage).Take(query.PerPage).ToListAsync(ct);
+                o.EmployeeName))
+            .ToList();
 
         return new Pagination<List<GetAllOrderResponse>>(response, total, query.Page, query.PerPage);
     }

@@ -1,5 +1,5 @@
 
-export interface CancelledOrder {
+export interface OrderCancelledOrder {
   orderId: string;
   customerName: string;
   totalAmount: number;
