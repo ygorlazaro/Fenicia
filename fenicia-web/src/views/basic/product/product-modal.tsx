@@ -3,9 +3,6 @@ import {
     CButton,
     CCol,
     CForm,
-    CFormInput,
-    CFormLabel,
-    CFormSelect,
     CModal,
     CModalBody,
     CModalFooter,
@@ -15,7 +12,9 @@ import {
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BasicProductClient } from '../services/basic/basic-product-client';
+import { FeniciaInput } from '../../../components/fenicia/fenicia-input';
+import { FeniciaSelect } from '../../../components/fenicia/fenicia-select';
+import { BasicProductClient } from '../../../services/basic/basic-product-client';
 
 const productClient = new BasicProductClient();
 
@@ -134,11 +133,9 @@ const ProductModal = ({
                     )}
 
                     <div className="mb-3">
-                        <CFormLabel htmlFor="name">{t('products.name')} *</CFormLabel>
-                        <CFormInput
-                            type="text"
+                        <FeniciaInput
+                            label={t('products.name')}
                             id="name"
-                            name="name"
                             value={formData.name}
                             onChange={handleInputChange}
                             required
@@ -148,41 +145,26 @@ const ProductModal = ({
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="categoryId">{t('products.category')} *</CFormLabel>
-                                <CFormSelect
+                                <FeniciaSelect
                                     id="categoryId"
-                                    name="categoryId"
                                     value={formData.categoryId}
                                     onChange={handleInputChange}
-                                    disabled={loadingOptions}
+                                    data={categories}
+                                    label={t('products.category')}
                                     required
-                                >
-                                    <option value="">{t('common.select')}...</option>
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.id}>
-                                            {cat.name}
-                                        </option>
-                                    ))}
-                                </CFormSelect>
+                                />
+                                
                             </div>
                         </CCol>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="supplierId">{t('products.supplier')}</CFormLabel>
-                                <CFormSelect
+                                <FeniciaSelect
                                     id="supplierId"
-                                    name="supplierId"
                                     value={formData.supplierId}
                                     onChange={handleInputChange}
-                                    disabled={loadingOptions}
-                                >
-                                    <option value="">{t('common.select')}...</option>
-                                    {suppliers.map(sup => (
-                                        <option key={sup.id} value={sup.id}>
-                                            {sup.name}
-                                        </option>
-                                    ))}
-                                </CFormSelect>
+                                    data={suppliers}
+                                    label={t('products.supplier')}
+                                />
                             </div>
                         </CCol>
                     </CRow>
@@ -190,14 +172,11 @@ const ProductModal = ({
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="quantity">{t('products.quantity')}</CFormLabel>
-                                <CFormInput
-                                    type="number"
+                                <FeniciaInput
+                                    label={t('products.quantity')}
                                     id="quantity"
-                                    name="quantity"
                                     value={formData.quantity}
                                     onChange={handleInputChange}
-                                    min="0"
                                 />
                             </div>
                         </CCol>
@@ -206,29 +185,21 @@ const ProductModal = ({
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="costPrice">{t('products.costPrice')}</CFormLabel>
-                                <CFormInput
-                                    type="number"
+                                <FeniciaInput
+                                    label={t('products.costPrice')}
                                     id="costPrice"
-                                    name="costPrice"
                                     value={formData.costPrice}
                                     onChange={handleInputChange}
-                                    step="0.01"
-                                    min="0"
                                 />
                             </div>
                         </CCol>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="salesPrice">{t('products.salesPrice')} *</CFormLabel>
-                                <CFormInput
-                                    type="number"
+                                <FeniciaInput
+                                    label={t('products.salesPrice')}
                                     id="salesPrice"
-                                    name="salesPrice"
                                     value={formData.salesPrice}
                                     onChange={handleInputChange}
-                                    step="0.01"
-                                    min="0"
                                     required
                                 />
                             </div>

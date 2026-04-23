@@ -1,3 +1,5 @@
+import { OrderDetailResponse } from "../order/order-detail-response";
+
 export type AddProductCategoryCommand = {
     id: string;
     name: string;
@@ -84,16 +86,6 @@ export type CreateOrderResponse = {
     paymentMethod: PaymentMethod;
     notes?: string;
     employeeId?: string;
-};
-
-export type OrderDetailResponse = {
-    id: string;
-    orderId: string;
-    productId: string;
-    price: number;
-    discountAmount: number;
-    quantity: number;
-    subtotal: number;
 };
 
 export type DataSourceItem = {

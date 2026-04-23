@@ -18,5 +18,4 @@ public record GetOrderByIdResponse(
     string Status,
     PaymentMethod PaymentMethod,
     string? Notes,
-    List<OrderDetailResponse> Details,
     Guid? EmployeeId = null);
