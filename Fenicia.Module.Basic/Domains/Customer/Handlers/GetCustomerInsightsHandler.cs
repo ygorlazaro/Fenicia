@@ -75,19 +75,14 @@ public class GetCustomerInsightsHandler(DefaultContext db)
         var totalCustomers = await db.BasicCustomers.CountAsync(ct);
         var totalOrders = await db.BasicOrders.CountAsync(ct);
         var totalRevenue = await db.BasicOrders.SumAsync(o => o.TotalAmount, ct);
-        var averageOrderValue = await db.BasicOrders.AverageAsync(o => o.TotalAmount, ct);
-
-        var customerTotals = await db.BasicOrders.GroupBy(o => o.CustomerId).Select(g => g.Sum(o => o.TotalAmount)).ToListAsync(ct);
-
-        var averageCustomerLifetimeValue = customerTotals.Average();
+        var averageOrderValue = totalRevenue / (totalOrders > 0 ? totalOrders : 1);
 
         var summary = new CustomerSummaryResponse
         {
             TotalCustomers = totalCustomers,
             TotalOrders = totalOrders,
             TotalRevenue = totalRevenue,
-            AverageOrderValue = averageOrderValue,
-            AverageCustomerLifetimeValue = averageCustomerLifetimeValue
+            AverageOrderValue = averageOrderValue
         };
         return summary;
     }

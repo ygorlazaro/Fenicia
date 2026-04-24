@@ -4,13 +4,12 @@ import {
     CCard,
     CCardBody,
     CCardHeader,
-    CForm,
-    CFormInput,
-    CFormLabel
+    CForm
 } from "@coreui/react";
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import AuthLayout from 'src/components/AuthLayout';
+import { FeniciaInput } from "../../../components/fenicia/fenicia-input";
+import AuthLayout from "../../../layout/auth-layout";
 import AuthForgotPasswordClient from '../../../services/auth/auth-forgot-password-client';
 
 const forgotPasswordClient = new AuthForgotPasswordClient("http://localhost:5144");
@@ -98,12 +97,10 @@ const ResetPassword = () => {
                     {!success && (
                         <CForm onSubmit={handleSubmit}>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="inputEmail">E-mail</CFormLabel>
-                                <CFormInput
+                                <FeniciaInput
                                     type="email"
-                                    id="inputEmail"
-                                    name="email"
-                                    placeholder="name@example.com"
+                                    id="inputEmailFenicia"
+                                    label="E-mail"
                                     value={formData.email}
                                     onChange={handleInputChange}
                                     required
@@ -111,24 +108,20 @@ const ResetPassword = () => {
                                 />
                             </div>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="inputToken">Token</CFormLabel>
-                                <CFormInput
+                                <FeniciaInput
                                     type="text"
-                                    id="inputToken"
-                                    name="token"
-                                    placeholder="Token de recuperação"
+                                    id="inputTokenFenicia"
+                                    label="Token"
                                     value={formData.token}
                                     onChange={handleInputChange}
                                     required
                                 />
                             </div>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="inputNewPassword">Nova Senha</CFormLabel>
-                                <CFormInput
+                                <FeniciaInput
                                     type="password"
-                                    id="inputNewPassword"
-                                    name="newPassword"
-                                    placeholder="Nova senha"
+                                    id="inputNewPasswordFenicia"
+                                    label="Nova Senha"
                                     value={formData.newPassword}
                                     onChange={handleInputChange}
                                     required
@@ -136,12 +129,10 @@ const ResetPassword = () => {
                                 />
                             </div>
                             <div className="mb-3">
-                                <CFormLabel htmlFor="inputConfirmPassword">Confirmar Senha</CFormLabel>
-                                <CFormInput
+                                <FeniciaInput
                                     type="password"
-                                    id="inputConfirmPassword"
-                                    name="confirmPassword"
-                                    placeholder="Confirme a nova senha"
+                                    id="inputConfirmPasswordFenicia"
+                                    label="Confirmar Senha"
                                     value={formData.confirmPassword}
                                     onChange={handleInputChange}
                                     required

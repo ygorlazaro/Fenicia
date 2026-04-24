@@ -1,21 +1,20 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import CIcon from '@coreui/icons-react';
 import {
-    cilCalculator,
-    cilPeople,
-    cilCart,
-    cilBuilding,
-    cilLayers,
-    cilMove,
-    cilList,
-    cilNotes,
-    cilPaperclip,
-    cilDiamond,
-    cilUser
+  cilBuilding,
+  cilCalculator,
+  cilCart,
+  cilDiamond,
+  cilLayers,
+  cilList,
+  cilMove,
+  cilNotes,
+  cilPaperclip,
+  cilPeople,
+  cilUser
 } from '@coreui/icons';
+import CIcon from '@coreui/icons-react';
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react';
-import {t} from "i18next";
+import { t } from "i18next";
+import { useTranslation } from 'react-i18next';
 
 const createNav = (t) => [
   {
@@ -151,7 +150,7 @@ export const useNav = () => {
   return createNav(t);
 };
 
-const _nav = [
+export const _nav = [
   {
     component: CNavTitle,
     name: 'Módulos',

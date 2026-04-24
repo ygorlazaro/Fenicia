@@ -11,9 +11,10 @@ import {
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { clearAuth, getCompanyId, getToken } from '../../services/api-client';
+import { ApiClient } from '../../services/api-client';
 
 const AppHeaderDropdown = ({ onCompanySelect }) => {
+  const apiClient = new ApiClient();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [userName, setUserName] = useState('');
@@ -21,7 +22,7 @@ const AppHeaderDropdown = ({ onCompanySelect }) => {
 
   useEffect(() => {
     // Get user info from token
-    const token = getToken();
+    const token = apiClient.getToken();
     if (token) {
       try {
         const tokenPayload = JSON.parse(atob(token.split('.')[1]));
@@ -33,7 +34,7 @@ const AppHeaderDropdown = ({ onCompanySelect }) => {
     }
 
     // Get company name from localStorage
-    const companyId = getCompanyId();
+    const companyId = apiClient.getCompanyId();
     const companyNameStored = localStorage.getItem('company_name');
     if (companyId && companyNameStored) {
       setCompanyName(companyNameStored);
@@ -43,7 +44,7 @@ const AppHeaderDropdown = ({ onCompanySelect }) => {
   }, [t]);
 
   const handleLogout = () => {
-    clearAuth();
+    apiClient.clearAuth();
     navigate('/auth/login');
   };
 

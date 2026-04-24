@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import { IPagination } from '../../types';
-import { CreateOrderCommand, CreateOrderResponse, GetAllOrderResponse, GetOrderByIdResponse, OrderDetailResponse } from '../../types/basic-types';
+import { OrderAnalytics } from '../../types/basic/order/order-analytics';
+import { CreateOrderCommand, CreateOrderResponse, GetAllOrderResponse, GetOrderByIdResponse, OrderDetailResponse } from "../../types/basic/product-category/add-product-category-command";
 import { ApiClient } from '../api-client';
 import { BASIC_API_BASE_URL } from './basic-product-client';
 
@@ -41,4 +42,12 @@ export class BasicOrderClient extends ApiClient {
     return (response as AxiosResponse).data;
   }
 
+  async getAnalytics(days?: number, topCustomersLimit?: number): Promise<OrderAnalytics> {
+    const params: any = {};
+    if (days !== undefined) params.days = days;
+    if (topCustomersLimit !== undefined) params.topCustomersLimit = topCustomersLimit;
+
+    const response = await this.getClient().get('/order/analytics', { params });
+    return (response as AxiosResponse).data;
+  }
 }

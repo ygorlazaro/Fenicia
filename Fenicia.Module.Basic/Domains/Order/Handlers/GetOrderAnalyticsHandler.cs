@@ -48,9 +48,30 @@ public class GetOrderAnalyticsHandler(DefaultContext db)
     /// </summary>
     private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
-        var cancelledOrders = await orders.Where(o => o.Status == OrderStatus.Cancelled).Select(o => new CancelledOrderResponse(o.Id, o.Customer.Person.Name, o.TotalAmount, o.SaleDate, o.Details.Sum(d => (int)d.Quantity), null)).OrderByDescending(o => o.SaleDate).Take(20).ToListAsync(ct);
+        var cancelled = await orders
+            .Where(o => o.Status == OrderStatus.Cancelled)
+            .Select(o => new { o.Id, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.SaleDate })
+            .ToListAsync(ct);
 
-        return cancelledOrders;
+        var orderIds = cancelled.Select(o => o.Id).ToList();
+
+        var detailQtys = await db.BasicOrderDetails
+            .Where(d => orderIds.Contains(d.OrderId))
+            .GroupBy(d => d.OrderId)
+            .Select(g => new { OrderId = g.Key, Qty = g.Sum(d => d.Quantity) })
+            .ToDictionaryAsync(k => k.OrderId, v => v.Qty, ct);
+
+        return cancelled
+            .Select(o => new CancelledOrderResponse(
+                o.Id,
+                o.CustomerName,
+                o.TotalAmount,
+                o.SaleDate,
+                (int)(detailQtys.TryGetValue(o.Id, out var q) ? q : 0),
+                null))
+            .OrderByDescending(o => o.SaleDate)
+            .Take(20)
+            .ToList();
     }
 
     /// <summary>
@@ -75,7 +96,29 @@ public class GetOrderAnalyticsHandler(DefaultContext db)
     /// </summary>
     private async Task<List<TopCustomerResponse>> GetTopCustomerAsync(GetOrderAnalyticsQuery query, IQueryable<OrderModel> orders, CancellationToken ct)
     {
-        var topCustomers = await orders.GroupBy(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name }).Select(g => new TopCustomerResponse(g.Key.CustomerId, g.Key.CustomerName, g.Count(), g.Sum(o => o.TotalAmount), g.Sum(o => o.Details.Sum(d => (int)d.Quantity)))).OrderByDescending(c => c.TotalSpent).Take(query.TopCustomersLimit).ToListAsync(ct);
+        var raw = await orders
+            .Select(o => new { o.CustomerId, CustomerName = o.Customer.Person.Name, o.TotalAmount, o.Id })
+            .ToListAsync(ct);
+
+        var orderIds = raw.Select(o => o.Id).ToList();
+
+        var detailQtys = await db.BasicOrderDetails
+            .Where(d => orderIds.Contains(d.OrderId))
+            .GroupBy(d => d.OrderId)
+            .Select(g => new { OrderId = g.Key, Qty = g.Sum(d => d.Quantity) })
+            .ToDictionaryAsync(k => k.OrderId, v => v.Qty, ct);
+
+        var topCustomers = raw
+            .GroupBy(o => new { o.CustomerId, o.CustomerName })
+            .Select(g => new TopCustomerResponse(
+                g.Key.CustomerId,
+                g.Key.CustomerName,
+                g.Count(),
+                g.Sum(o => o.TotalAmount),
+                g.Sum(o => (int)(detailQtys.TryGetValue(o.Id, out var q) ? q : 0))))
+            .OrderByDescending(c => c.TotalSpent)
+            .Take(query.TopCustomersLimit)
+            .ToList();
 
         return topCustomers;
     }
@@ -85,7 +128,29 @@ public class GetOrderAnalyticsHandler(DefaultContext db)
     /// </summary>
     private async Task<List<SalesTrendResponse>> GetSalesTrendAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
-        var salesTrend = await orders.GroupBy(o => new { o.SaleDate.Date }).Select(g => new SalesTrendResponse(g.Key.Date.ToString("yyyy-MM-dd"), g.Key.Date, g.Count(), g.Sum(o => o.TotalAmount), g.Sum(o => o.Details.Sum(d => (int)d.Quantity)))).OrderBy(s => s.Date).ToListAsync(ct);
+        var orderData = await orders
+            .Select(o => new { Date = o.SaleDate.Date, o.TotalAmount, o.Id })
+            .ToListAsync(ct);
+
+        var orderIds = orderData.Select(o => o.Id).ToList();
+
+        var detailQtys = await db.BasicOrderDetails
+            .Where(d => orderIds.Contains(d.OrderId))
+            .GroupBy(d => d.OrderId)
+            .Select(g => new { OrderId = g.Key, Qty = g.Sum(d => d.Quantity) })
+            .ToDictionaryAsync(k => k.OrderId, v => v.Qty, ct);
+
+        var salesTrend = orderData
+            .GroupBy(o => o.Date)
+            .Select(g => new SalesTrendResponse(
+                g.Key.ToString("yyyy-MM-dd"),
+                g.Key,
+                g.Count(),
+                g.Sum(o => o.TotalAmount),
+                g.Sum(o => (int)(detailQtys.TryGetValue(o.Id, out var q) ? q : 0))))
+            .OrderBy(s => s.Date)
+            .ToList();
+
         return salesTrend;
     }
 
@@ -94,7 +159,15 @@ public class GetOrderAnalyticsHandler(DefaultContext db)
     /// </summary>
     private async Task<List<OrderStatusCountResponse>> GetOrdersByStatusAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
-        return await orders.GroupBy(o => o.Status).Select(g => new OrderStatusCountResponse(g.Key.ToString(), g.Count(), g.Sum(o => o.TotalAmount))).OrderByDescending(s => s.Count).ToListAsync(ct);
+        var groups = await orders
+            .GroupBy(o => o.Status)
+            .Select(g => new { Status = g.Key, Count = g.Count(), Total = g.Sum(o => o.TotalAmount) })
+            .ToListAsync(ct);
+
+        return groups
+            .Select(g => new OrderStatusCountResponse(g.Status.ToString(), g.Count, g.Total))
+            .OrderByDescending(s => s.Count)
+            .ToList();
     }
 
     private static decimal CalculateMedian(List<decimal> values)

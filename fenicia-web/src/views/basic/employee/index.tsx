@@ -1,13 +1,11 @@
-import { cilChart, cilPencil, cilPeople, cilPlus, cilTrash, cilTruck, cilWarning } from '@coreui/icons';
+import { cilChart, cilPencil, cilPeople, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import {
     CAlert,
-    CBadge,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
-    CCol,
     CContainer,
     CModal,
     CModalBody,
@@ -17,7 +15,6 @@ import {
     CNav,
     CNavItem,
     CNavLink,
-    CRow,
     CSpinner,
     CTabContent,
     CTable,
@@ -26,22 +23,20 @@ import {
     CTableHead,
     CTableHeaderCell,
     CTableRow,
-    CTabPane,
-    CWidgetStatsA
+    CTabPane
 } from '@coreui/react';
-import { CChartBar } from '@coreui/react-chartjs';
-import { getStyle } from '@coreui/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/Pagination';
+import Pagination from '../../../components/fenicia/pagination';
 import { BasicEmployeeClient } from '../../../services/basic/basic-employee-client';
-import EmployeePerformanceClient, { EmployeePerformance } from '../../../services/employee-performance-client';
-import { GetAllEmployeeResponse, GetEmployeeByIdResponse, UpdateEmployeeCommand } from '../../../types/basic-types';
+import { GetAllEmployeeResponse } from "../../../types/basic/employee/get-all-employee-response";
+import { GetEmployeeByIdResponse } from "../../../types/basic/employee/get-employee-by-id-response";
+import { UpdateEmployeeCommand } from "../../../types/basic/employee/update-employee-command";
 import EmployeeModal from './employee-modal';
+import { RenderPerformanceTab } from './performance';
 
 const employeeClient = new BasicEmployeeClient("http://localhost:5083");
-const performanceClient = new EmployeePerformanceClient();
 
 const EmployeeList = () => {
     const { t } = useTranslation();
@@ -68,10 +63,6 @@ const EmployeeList = () => {
     const [deleting, setDeleting] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-    // Performance state
-    const [performanceLoading, setPerformanceLoading] = useState(false);
-    const [performance, setPerformance] = useState<EmployeePerformance | null>(null);
-
     const paginationRef = useRef(pagination);
     paginationRef.current = pagination;
 
@@ -82,33 +73,6 @@ const EmployeeList = () => {
         }
         loadEmployees();
     }, [pagination.page, pagination.perPage]);
-
-    useEffect(() => {
-        if (activeTab === 1) {
-            loadPerformance();
-        }
-    }, [activeTab, analyticsDays]);
-
-    const loadPerformance = async () => {
-        try {
-            setPerformanceLoading(true);
-            const data = await performanceClient.getPerformance(analyticsDays);
-            setPerformance(data);
-        } catch (err) {
-            setError(t('employees.performanceLoadError'));
-            console.error('Failed to load employee performance:', err);
-        } finally {
-            setPerformanceLoading(false);
-        }
-    };
-
-    const formatCurrency = (value: number) => {
-        if (!value && value !== 0) return '-';
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(value);
-    };
 
     const loadEmployeeForEdit = async (employeeId: string) => {
         try {
@@ -219,283 +183,6 @@ const EmployeeList = () => {
         setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
-    const formatPhone = (phone: string) => {
-        if (!phone) return '-';
-        const cleaned = phone.replace(/\D/g, '');
-        if (cleaned.length === 10) {
-            return `(${cleaned.slice(0,2)}) ${cleaned.slice(2,6)}-${cleaned.slice(6)}`;
-        }
-        return phone;
-    };
-
-    const getPerformanceLevelColor = (level: string) => {
-        switch (level?.toLowerCase()) {
-            case 'excellent': return 'success';
-            case 'very good': return 'info';
-            case 'good': return 'warning';
-            default: return 'secondary';
-        }
-    };
-
-    const getSalesChartData = () => {
-        if (!performance || performance.salesByEmployee.length === 0) return null;
-
-        return {
-            labels: performance.salesByEmployee.slice(0, 10).map(e => e.employeeName.split(' ')[0]),
-            datasets: [{
-                label: t('employees.totalSales'),
-                backgroundColor: getStyle('--cui-primary'),
-                data: performance.salesByEmployee.slice(0, 10).map(e => e.totalSales),
-            }]
-        };
-    };
-
-    // Render Performance Tab Content
-    const renderPerformanceTab = () => {
-        if (performanceLoading) {
-            return (
-                <div className="text-center py-5">
-                    <CSpinner color="primary" />
-                    <p className="mt-3">{t('common.loading')}</p>
-                </div>
-            );
-        }
-
-        if (!performance) {
-            return (
-                <div className="text-center py-5">
-                    <p className="text-muted">{t('common.noData')}</p>
-                </div>
-            );
-        }
-
-        return (
-            <>
-                {/* Time Range Selector */}
-                <CRow className="mb-4">
-                    <CCol xs={12}>
-                        <div className="d-flex justify-content-end gap-2">
-                            <CButton size="sm" color={analyticsDays === 30 ? 'primary' : 'outline-primary'} onClick={() => setAnalyticsDays(30)}>
-                                {t('employees.last30Days')}
-                            </CButton>
-                            <CButton size="sm" color={analyticsDays === 90 ? 'primary' : 'outline-primary'} onClick={() => setAnalyticsDays(90)}>
-                                {t('employees.last90Days')}
-                            </CButton>
-                            <CButton size="sm" color={analyticsDays === 180 ? 'primary' : 'outline-primary'} onClick={() => setAnalyticsDays(180)}>
-                                {t('employees.last180Days')}
-                            </CButton>
-                        </div>
-                    </CCol>
-                </CRow>
-
-                {/* Summary Cards */}
-                <CRow className="mb-4" xs={{ gutter: 4 }}>
-                    <CCol sm={6} xl={3}>
-                        <CWidgetStatsA
-                            color="primary"
-                            value={
-                                <>
-                                    {performance.summary.activeEmployees}
-                                    <span className="fs-6 fw-normal d-block mt-1">
-                                        / {performance.summary.totalEmployees} {t('employees.employees')}
-                                    </span>
-                                </>
-                            }
-                            title={t('employees.activeEmployees')}
-                        />
-                    </CCol>
-                    <CCol sm={6} xl={3}>
-                        <CWidgetStatsA
-                            color="success"
-                            value={
-                                <>
-                                    {formatCurrency(performance.summary.totalSales)}
-                                    <span className="fs-6 fw-normal d-block mt-1">
-                                        {t('employees.totalSales')}
-                                    </span>
-                                </>
-                            }
-                            title={t('employees.totalSales')}
-                        />
-                    </CCol>
-                    <CCol sm={6} xl={3}>
-                        <CWidgetStatsA
-                            color="info"
-                            value={
-                                <>
-                                    {performance.summary.totalOrders}
-                                    <span className="fs-6 fw-normal d-block mt-1">
-                                        {t('employees.totalOrders')}
-                                    </span>
-                                </>
-                            }
-                            title={t('employees.totalOrders')}
-                        />
-                    </CCol>
-                    <CCol sm={6} xl={3}>
-                        <CWidgetStatsA
-                            color="warning"
-                            value={
-                                <>
-                                    {formatCurrency(performance.summary.averageSalesPerEmployee)}
-                                    <span className="fs-6 fw-normal d-block mt-1">
-                                        {t('employees.avgPerEmployee')}
-                                    </span>
-                                </>
-                            }
-                            title={t('employees.averageSalesPerEmployee')}
-                        />
-                    </CCol>
-                </CRow>
-
-                {/* Sales by Employee Chart */}
-                <CRow className="mb-4">
-                    <CCol md={12}>
-                        <CCard>
-                            <CCardHeader className="d-flex align-items-center">
-                                <CIcon icon={cilChart} className="me-2" />
-                                <strong>{t('employees.salesByEmployee')}</strong>
-                            </CCardHeader>
-                            <CCardBody>
-                                {performance.salesByEmployee.length === 0 ? (
-                                    <p className="text-muted text-center">{t('common.noData')}</p>
-                                ) : (
-                                    <CChartBar
-                                        data={getSalesChartData()}
-                                        options={{
-                                            responsive: true,
-                                            maintainAspectRatio: true,
-                                            plugins: {
-                                                legend: {
-                                                    display: false,
-                                                },
-                                            },
-                                            scales: {
-                                                x: {
-                                                    grid: {
-                                                        display: false,
-                                                    },
-                                                },
-                                                y: {
-                                                    beginAtZero: true,
-                                                },
-                                            },
-                                        }}
-                                    />
-                                )}
-                            </CCardBody>
-                        </CCard>
-                    </CCol>
-                </CRow>
-
-                {/* Top Performers */}
-                <CRow className="mb-4">
-                    <CCol xs={12}>
-                        <CCard>
-                            <CCardHeader className="d-flex align-items-center">
-                                <CIcon icon={cilTruck} className="me-2 text-warning" />
-                                <strong>{t('employees.topPerformers')}</strong>
-                            </CCardHeader>
-                            <CCardBody>
-                                {performance.topPerformers.length === 0 ? (
-                                    <p className="text-muted text-center">{t('common.noData')}</p>
-                                ) : (
-                                    <CTable hover responsive>
-                                        <CTableHead>
-                                            <CTableRow>
-                                                <CTableHeaderCell>#</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('employees.employee')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('employees.position')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-center">{t('employees.orders')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('employees.sales')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-center">{t('employees.performanceLevel')}</CTableHeaderCell>
-                                            </CTableRow>
-                                        </CTableHead>
-                                        <CTableBody>
-                                            {performance.topPerformers.map((performer, index) => (
-                                                <CTableRow key={performer.employeeId}>
-                                                    <CTableDataCell>
-                                                        {index <= 2 ? (
-                                                            <CIcon icon={cilTruck} className={`text-${index === 0 ? 'warning' : index === 1 ? 'secondary' : 'danger'}`} size="lg" />
-                                                        ) : (
-                                                            index + 1
-                                                        )}
-                                                    </CTableDataCell>
-                                                    <CTableDataCell>
-                                                        <Link to={`/basic/employees?id=${performer.employeeId}`} className="text-decoration-none">
-                                                            <strong>{performer.employeeName}</strong>
-                                                        </Link>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell>{performer.positionName}</CTableDataCell>
-                                                    <CTableDataCell className="text-center">{performer.totalOrders}</CTableDataCell>
-                                                    <CTableDataCell className="text-end">
-                                                        <strong>{formatCurrency(performer.totalSales)}</strong>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell className="text-center">
-                                                        <CBadge color={getPerformanceLevelColor(performer.performanceLevel)}>
-                                                            {t(`employees.${performer.performanceLevel.toLowerCase().replace(' ', '')}`)}
-                                                        </CBadge>
-                                                    </CTableDataCell>
-                                                </CTableRow>
-                                            ))}
-                                        </CTableBody>
-                                    </CTable>
-                                )}
-                            </CCardBody>
-                        </CCard>
-                    </CCol>
-                </CRow>
-
-                {/* Orders by Employee */}
-                <CRow>
-                    <CCol xs={12}>
-                        <CCard>
-                            <CCardHeader className="d-flex align-items-center">
-                                <CIcon icon={cilPeople} className="me-2" />
-                                <strong>{t('employees.ordersByEmployee')}</strong>
-                            </CCardHeader>
-                            <CCardBody>
-                                {performance.ordersByEmployee.length === 0 ? (
-                                    <p className="text-muted text-center">{t('common.noData')}</p>
-                                ) : (
-                                    <CTable hover responsive>
-                                        <CTableHead>
-                                            <CTableRow>
-                                                <CTableHeaderCell>{t('employees.employee')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('employees.position')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-center">{t('employees.orders')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('employees.totalValue')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-center">{t('employees.firstOrder')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-center">{t('employees.lastOrder')}</CTableHeaderCell>
-                                            </CTableRow>
-                                        </CTableHead>
-                                        <CTableBody>
-                                            {performance.ordersByEmployee.map((employee) => (
-                                                <CTableRow key={employee.employeeId}>
-                                                    <CTableDataCell>
-                                                        <Link to={`/basic/employees?id=${employee.employeeId}`} className="text-decoration-none">
-                                                            {employee.employeeName}
-                                                        </Link>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell>{employee.positionName}</CTableDataCell>
-                                                    <CTableDataCell className="text-center">
-                                                        <CBadge color="info">{employee.orderCount}</CBadge>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell className="text-end">{formatCurrency(employee.totalValue)}</CTableDataCell>
-                                                    <CTableDataCell className="text-center">{new Date(employee.firstOrderDate).toLocaleDateString()}</CTableDataCell>
-                                                    <CTableDataCell className="text-center">{new Date(employee.lastOrderDate).toLocaleDateString()}</CTableDataCell>
-                                                </CTableRow>
-                                            ))}
-                                        </CTableBody>
-                                    </CTable>
-                                )}
-                            </CCardBody>
-                        </CCard>
-                    </CCol>
-                </CRow>
-            </>
-        );
-    };
 
     return (
         <CContainer className="py-4">
@@ -574,41 +261,46 @@ const EmployeeList = () => {
                                                                 {employee.positionName || '-'}
                                                             </Link>
                                                         ) : (
-                                                    '-'
-                                                )}
+                                                            '-'
+                                                        )}
                                                     </CTableDataCell>
-                                            <CTableDataCell className="text-end">
-                                                <CButton 
-                                                    color="info" 
-                                                    size="sm" 
-                                                    className="me-2"
-                                                    onClick={() => handleOpenEdit(employee)}
-                                                >
-                                                    <CIcon icon={cilPencil} />
-                                                </CButton>
-                                                <CButton 
-                                                    color="danger" 
-                                                    size="sm"
-                                                    onClick={() => handleOpenDelete(employee)}
-                                                >
-                                                    <CIcon icon={cilTrash} />
-                                                </CButton>
-                                            </CTableDataCell>
-                                        </CTableRow>
-                                    ))}
-                                </CTableBody>
-                            </CTable>
+                                                    <CTableDataCell className="text-end">
+                                                        <CButton
+                                                            color="info"
+                                                            size="sm"
+                                                            className="me-2"
+                                                            onClick={() => handleOpenEdit(employee)}
+                                                        >
+                                                            <CIcon icon={cilPencil} />
+                                                        </CButton>
+                                                        <CButton
+                                                            color="danger"
+                                                            size="sm"
+                                                            onClick={() => handleOpenDelete(employee)}
+                                                        >
+                                                            <CIcon icon={cilTrash} />
+                                                        </CButton>
+                                                    </CTableDataCell>
+                                                </CTableRow>
+                                            ))}
+                                        </CTableBody>
+                                    </CTable>
 
-                            <Pagination
-                                pagination={pagination}
-                                onPageChange={handlePageChange}
-                                onPerPageChange={handlePerPageChange}
-                            />
-                        </>
-                    )}
+                                    <Pagination
+                                        pagination={pagination}
+                                        onPageChange={handlePageChange}
+                                        onPerPageChange={handlePerPageChange}
+                                    />
+                                </>
+                            )}
                         </CTabPane>
                         <CTabPane visible={activeTab === 1}>
-                            {renderPerformanceTab()}
+                            <RenderPerformanceTab
+                                analyticsDays={analyticsDays}
+                                setAnalyticsDays={setAnalyticsDays}
+                                activeTab={activeTab}
+                                onError={t => setError(t)}
+                            />
                         </CTabPane>
                     </CTabContent>
                 </CCardBody>
@@ -622,8 +314,8 @@ const EmployeeList = () => {
                 loading={saving}
             />
 
-            <CModal 
-                visible={deleteModalVisible} 
+            <CModal
+                visible={deleteModalVisible}
                 onClose={() => setDeleteModalVisible(false)}
             >
                 <CModalHeader>
@@ -641,15 +333,15 @@ const EmployeeList = () => {
                     </p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton 
-                        color="secondary" 
+                    <CButton
+                        color="secondary"
                         onClick={() => setDeleteModalVisible(false)}
                         disabled={deleting}
                     >
                         {t('common.cancel')}
                     </CButton>
-                    <CButton 
-                        color="danger" 
+                    <CButton
+                        color="danger"
                         onClick={handleDelete}
                         disabled={deleting}
                     >

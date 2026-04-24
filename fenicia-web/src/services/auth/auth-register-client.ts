@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
-import { CreateNewUserCommand, CreateNewUserResponse } from '../../types/auth-types';
+import { CreateNewUserCommand } from "../../types/auth/create-new-user-command";
+import { CreateNewUserResponse } from "../../types/auth/create-new-user-response";
 import { AuthClient } from './auth-client';
 
 /**

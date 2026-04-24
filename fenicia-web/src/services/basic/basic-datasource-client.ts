@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
-import type { DataSourceItem } from '../../types/basic-types';
+import { FinancialDashboard } from '../../types/basic/dashboard/financial-dashboard';
+import type { DataSourceItem } from "../../types/basic/product-category/add-product-category-command";
 import { ApiClient } from '../api-client';
 import { BASIC_API_BASE_URL } from './basic-product-client';
 
@@ -46,6 +47,14 @@ export class BasicDataSourceClient extends ApiClient {
 
   async getEmployees(): Promise<DataSourceItem[]> {
     const response = await this.getClient().get('/datasource/employee');
+    return (response as AxiosResponse).data;
+  }
+
+  async getFinancialDashboard(days?: number): Promise<FinancialDashboard> {
+    const params: any = {};
+    if (days !== undefined) params.days = days;
+
+    const response = await this.getClient().get('/dashboard/financial', { params });
     return (response as AxiosResponse).data;
   }
 
