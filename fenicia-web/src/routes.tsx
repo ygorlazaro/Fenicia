@@ -16,6 +16,8 @@ const Products = React.lazy(() => import("./views/basic/product"));
 const Inventory = React.lazy(() => import("./views/basic/inventory"));
 const StockMovement = React.lazy(() => import("./views/basic/stock-movement"));
 const OrderDetail = React.lazy(() => import("./views/basic/order-detail"));
+const NotificationList = React.lazy(() => import("./views/notifications/notification-list"));
+const NotificationDetail = React.lazy(() => import("./views/notifications/notification-detail"));
 const ProjectList = React.lazy(() => import("./template/project"));
 const ProjectStatusList = React.lazy(() => import("./template/project/status"));
 const ProjectTaskList = React.lazy(() => import("./template/project/task"));
@@ -115,7 +117,8 @@ const routes = [
   { path: '/icons/fenicia-icons', name: 'Fenicia Icons', element: CoreUIIcons },
   { path: '/icons/flags', name: 'Flags', element: Flags },
   { path: '/icons/brands', name: 'Brands', element: Brands },
-  { path: '/notifications', name: 'Notifications', element: Alerts, exact: true },
+  { path: '/notifications', name: 'Notifications', element: NotificationList, exact: true },
+  { path: '/notifications/:id', name: 'Notification Details', element: NotificationDetail },
   { path: '/notifications/alerts', name: 'Alerts', element: Alerts },
   { path: '/notifications/badges', name: 'Badges', element: Badges },
   { path: '/notifications/modals', name: 'Modals', element: Modals },

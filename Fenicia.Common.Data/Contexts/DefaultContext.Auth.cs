@@ -31,4 +31,6 @@ public partial class DefaultContext
     public DbSet<StateModel> AuthStates { get; set; } = null!;
 
     public DbSet<ForgotPasswordModel> AuthForgottenPasswords { get; set; } = null!;
+
+    public DbSet<NotificationModel> AuthNotifications { get; set; } = null!;
 }

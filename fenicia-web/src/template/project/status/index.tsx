@@ -23,8 +23,8 @@ import {
     CTableRow
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
-import Pagination from '../../../components/fenicia/Pagination';
-import ProjectStatusModal from '../../../components/ProjectStatusModal';
+import Pagination from '../../components/fenicia/pagination';
+import ProjectStatusModal from '../../components/ProjectStatusModal';
 import ProjectStatusClient from '../../../services/project/project-status-client';
 
 const projectStatusClient = new ProjectStatusClient("http://localhost:5144");

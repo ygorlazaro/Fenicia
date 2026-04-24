@@ -347,6 +347,19 @@
     "taskAssignees": "Assignees",
     "tasks": "Tasks"
   },
+  "notifications": {
+    "date": "Date",
+    "description": "Description",
+    "detailTitle": "Notification Detail",
+    "loadError": "Failed to load notifications.",
+    "notFound": "Notification not found.",
+    "read": "Read",
+    "searchPlaceholder": "Search notifications...",
+    "status": "Status",
+    "title": "Notifications",
+    "unread": "Unread",
+    "viewAll": "More notifications"
+  },
   "orders": {
     "addItems": "Add Items",
     "analytics": "Analytics",
