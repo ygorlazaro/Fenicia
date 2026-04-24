@@ -78,9 +78,14 @@ export class ApiClient {
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         const token = this.getToken();
+        const companyId = this.getCompanyId();
 
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        if (companyId && config.headers) {
+          config.headers['CompanyId'] = companyId;
         }
 
         return config;
