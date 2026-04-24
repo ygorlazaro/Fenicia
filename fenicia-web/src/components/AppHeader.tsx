@@ -15,7 +15,7 @@ import { NavLink } from 'react-router-dom'
 
 import { ApiClient } from '../services/api-client'
 import AuthCompanyClient from '../services/auth/auth-company-client'
-import CompanySelectModal from './CompanySelectModal'
+import CompanySelectModal from '../views/auth/company/company-select-modal'
 import { AppHeaderDropdown } from './header/index'
 import { AppBreadcrumb } from './index'
 import LanguageSelector from './LanguageSelector'

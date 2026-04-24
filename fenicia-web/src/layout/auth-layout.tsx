@@ -1,19 +1,16 @@
-import React from 'react'
-import { CContainer, CRow, CCol } from '@coreui/react'
+import { CCol, CContainer, CRow } from '@coreui/react'
 import feniciaLogo from 'src/assets/brand/fenicia.svg'
-import LanguageSelector from './LanguageSelector'
+import LanguageSelector from '../components/LanguageSelector'
 
 const AuthLayout = ({ children }) => {
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer fluid>
-        {/* Language Selector - Top Right Corner */}
         <div className="position-absolute top-0 end-0 p-3" style={{ zIndex: 1000 }}>
           <LanguageSelector />
         </div>
         
         <CRow className="justify-content-center align-items-center g-0">
-          {/* Logo Section - Left on desktop, Top on mobile */}
           <CCol lg={6} xl={5} className="d-flex justify-content-center align-items-center p-4 auth-logo-section">
             <div className="text-center">
               <img

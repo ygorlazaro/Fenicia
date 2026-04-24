@@ -4,24 +4,24 @@ import {
     CCard,
     CCardBody,
     CCardHeader,
-    CForm,
-    CFormInput,
-    CFormLabel
+    CForm
 } from "@coreui/react";
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import AuthLayout from 'src/components/AuthLayout';
+import { FeniciaInput } from "../../../components/fenicia/fenicia-input";
+import AuthLayout from "../../../layout/auth-layout";
 import AuthTokenClient from '../../../services/auth/auth-token-client';
+import { GenerateTokenQuery } from "../../../types/auth/generate-token-query";
 
-const authClient = new AuthTokenClient("http://localhost:5144");
+const authClient = new AuthTokenClient();
 
-const AuthLogin = () => {
+function AuthLogin() {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        email: 'ygor@ygorlazaro.com',
-        password: '$@Age14rjy$@'
+    const [formData, setFormData] = useState<GenerateTokenQuery>({
+        email: '',
+        password: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -40,10 +40,7 @@ const AuthLogin = () => {
         setError(null);
 
         try {
-            await authClient.generateToken({
-                email: formData.email,
-                password: formData.password
-            });
+            await authClient.generateToken(formData);
 
             navigate('/auth/company');
         } catch (err) {
@@ -68,24 +65,22 @@ const AuthLogin = () => {
                     )}
                     <CForm onSubmit={handleSubmit}>
                         <div className="mb-3">
-                            <CFormLabel htmlFor="inputEmail">{t('auth.login.labels.email', 'E-mail')}</CFormLabel>
-                            <CFormInput
+                            <FeniciaInput
                                 type="email"
-                                id="inputEmail"
+                                id="inputEmailFenicia"
                                 name="email"
-                                placeholder={t('auth.login.placeholders.email', 'name@example.com')}
+                                label={t('auth.login.labels.email', '')}
                                 value={formData.email}
                                 onChange={handleInputChange}
                                 required
                             />
                         </div>
                         <div className="mb-3">
-                            <CFormLabel htmlFor="inputPassword">{t('auth.login.labels.password', 'Senha')}</CFormLabel>
-                            <CFormInput
+                            <FeniciaInput
                                 type="password"
-                                id="inputPassword"
+                                id="inputPasswordFenicia"
                                 name="password"
-                                placeholder={t('auth.login.placeholders.password', 'senha')}
+                                label={t('auth.login.labels.password', 'Senha')}
                                 value={formData.password}
                                 onChange={handleInputChange}
                                 required
@@ -115,7 +110,7 @@ const AuthLogin = () => {
                 </CCardBody>
             </CCard>
         </AuthLayout>
-    )
-};
+    );
+}
 
 export default AuthLogin;

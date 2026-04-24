@@ -1,11 +1,11 @@
 import React from 'react';
 
-const AuthLogin = React.lazy(() => import("./template/auth/login"));
-const AuthRegister = React.lazy(() => import("./template/auth/register"));
-const AuthCompany = React.lazy(() => import("./template/auth/company"));
-const AuthUser = React.lazy(() => import("./template/auth/user"));
-const ForgotPassword = React.lazy(() => import("./template/auth/forgot-password"));
-const ResetPassword = React.lazy(() => import("./template/auth/reset-password"));
+const AuthLogin = React.lazy(() => import("./views/auth/login"));
+const AuthRegister = React.lazy(() => import("./views/auth/register"));
+const AuthCompany = React.lazy(() => import("./views/auth/company"));
+const AuthUser = React.lazy(() => import("./views/auth/user"));
+const ForgotPassword = React.lazy(() => import("./views/auth/forgot-password"));
+const ResetPassword = React.lazy(() => import("./views/auth/reset-password"));
 const Profile = React.lazy(() => import("./template/profile"));
 const Subscription = React.lazy(() => import("./views/subscription"));
 const EmployeeList = React.lazy(() => import("./views/basic/employee"));

@@ -8,12 +8,12 @@ import './scss/style.scss'
 import './scss/examples.scss'
 
 // Containers
-const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
+const DefaultLayout = React.lazy(() => import('./layout/default-layout'))
 
 // Pages
-const AuthLogin = React.lazy(() => import('./template/auth/login'))
-const AuthRegister = React.lazy(() => import('./template/auth/register'))
-const ForgotPassword = React.lazy(() => import('./template/auth/forgot-password'))
+const AuthLogin = React.lazy(() => import('./views/auth/login'))
+const AuthRegister = React.lazy(() => import('./views/auth/register'))
+const ForgotPassword = React.lazy(() => import('./views/auth/forgot-password'))
 const Page404 = React.lazy(() => import('./template/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./template/pages/page500/Page500'))
 
