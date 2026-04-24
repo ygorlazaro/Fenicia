@@ -19,6 +19,7 @@ import CompanySelectModal from '../views/auth/company/company-select-modal'
 import { AppHeaderDropdown } from './header/index'
 import { AppBreadcrumb } from './index'
 import LanguageSelector from './LanguageSelector'
+import NotificationDropdown from './NotificationDropdown'
 
 const companyClient = new AuthCompanyClient("http://localhost:5144")
 const apiClient = new ApiClient()
@@ -100,6 +101,14 @@ const AppHeader = () => {
           ))}
         </CHeaderNav>
         <CHeaderNav>
+          {apiClient.getToken() && (
+            <>
+              <NotificationDropdown />
+              <li className="nav-item py-1">
+                <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
+              </li>
+            </>
+          )}
           <LanguageSelector />
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>

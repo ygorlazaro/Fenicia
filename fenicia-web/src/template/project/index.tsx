@@ -22,9 +22,9 @@ import {
     CTableRow
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
-import Pagination from '../../../components/Pagination';
-import ProjectModal from '../../../components/ProjectModal';
-import ProjectClient from '../../../services/project-client';
+import Pagination from '../../components/fenicia/pagination';
+import ProjectModal from '../../components/ProjectModal';
+import ProjectClient from '../../services/project/project-client';
 
 const projectClient = new ProjectClient("http://localhost:5144");
 

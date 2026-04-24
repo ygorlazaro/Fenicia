@@ -348,6 +348,19 @@
         "taskAssignees": "Responsáveis",
         "tasks": "Tarefas"
     },
+    "notifications": {
+        "date": "Data",
+        "description": "Descrição",
+        "detailTitle": "Detalhe da Notificação",
+        "loadError": "Falha ao carregar notificações.",
+        "notFound": "Notificação não encontrada.",
+        "read": "Lida",
+        "searchPlaceholder": "Pesquisar notificações...",
+        "status": "Status",
+        "title": "Notificações",
+        "unread": "Não lida",
+        "viewAll": "Mais notificações"
+    },
     "orders": {
         "addItems": "Adicionar Itens",
         "analytics": "Indicadores",
