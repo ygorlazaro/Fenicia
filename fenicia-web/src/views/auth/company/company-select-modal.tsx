@@ -34,7 +34,7 @@ const CompanySelectModal = ({
             onClose={() => {}}
             scrollable
         >
-            <CModalHeader>
+            <CModalHeader closeButton={false}>
                 <CModalTitle>{t('auth.selectCompany')}</CModalTitle>
             </CModalHeader>
             <CModalBody>
