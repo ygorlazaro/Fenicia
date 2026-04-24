@@ -1,13 +1,11 @@
-import { cilChart, cilDollar, cilPencil, cilPlus, cilTrash, cilTruck, cilWarning } from '@coreui/icons';
+import { cilChart, cilPencil, cilPlus, cilTrash, cilTruck, cilWarning } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import {
     CAlert,
-    CBadge,
     CButton,
     CCard,
     CCardBody,
     CCardHeader,
-    CCol,
     CContainer,
     CModal,
     CModalBody,
@@ -17,7 +15,6 @@ import {
     CNav,
     CNavItem,
     CNavLink,
-    CRow,
     CSpinner,
     CTabContent,
     CTable,
@@ -26,21 +23,20 @@ import {
     CTableHead,
     CTableHeaderCell,
     CTableRow,
-    CTabPane,
-    CWidgetStatsA
+    CTabPane
 } from '@coreui/react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/Pagination';
-import SupplierModal from '../../../components/SupplierModal';
-import { BasicDataSourceClient } from '../../../services/basic/basic-datasource-client';
+import { useSearchParams } from 'react-router-dom';
+import Pagination from '../../../components/fenicia/pagination';
 import { BasicSupplierClient } from '../../../services/basic/basic-supplier-client';
-import SupplierPerformanceClient from '../../../services/supplier-performance-client';
+import { AddSupplierCommand } from "../../../types/basic/supplier/add-supplier-command";
+import { SupplierPerformance } from '../../../types/basic/supplier/supplier-performance';
+import { UpdateSupplierCommand } from "../../../types/basic/supplier/update-supplier-command";
+import RenderAnalyticsTab from './performance';
+import SupplierModal from './supplier-modal';
 
 const supplierClient = new BasicSupplierClient();
-const dataSourceClient = new BasicDataSourceClient();
-const performanceClient = new SupplierPerformanceClient();
 
 const Suppliers = () => {
     const { t } = useTranslation();
@@ -64,18 +60,15 @@ const Suppliers = () => {
     // Modal state
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [selectedSupplier, setSelectedSupplier] = useState(null);
-    const [supplierToDelete, setSupplierToDelete] = useState(null);
+    const [selectedSupplier, setSelectedSupplier] = useState<UpdateSupplierCommand | null>(null);
+    const [supplierToDelete, setSupplierToDelete] = useState<UpdateSupplierCommand | null>(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
 
     // Analytics state
     const [performanceLoading, setPerformanceLoading] = useState(false);
-    const [performance, setPerformance] = useState(null);
-
-    // Data lists for modal
-    const [categories, setCategories] = useState([]);
+    const [performance, setPerformance] = useState<SupplierPerformance | null>(null);
 
     const paginationRef = useRef(pagination);
     paginationRef.current = pagination;
@@ -86,7 +79,6 @@ const Suppliers = () => {
             loadSupplierForEdit(supplierId);
         }
         loadSuppliers();
-        loadCategories();
     }, [pagination.page, pagination.perPage]);
 
     useEffect(() => {
@@ -95,20 +87,11 @@ const Suppliers = () => {
         }
     }, [activeTab, analyticsDays]);
 
-    const loadCategories = async () => {
-        try {
-            const response = await dataSourceClient.getProductCategories();
-            const data = Array.isArray(response) ? response : [];
-            setCategories(data);
-        } catch (err) {
-            console.error('Failed to load categories:', err);
-        }
-    };
 
     const loadPerformance = async () => {
         try {
             setPerformanceLoading(true);
-            const data = await performanceClient.getPerformance(analyticsDays);
+            const data = await supplierClient.getPerformance(analyticsDays);
             setPerformance(data);
         } catch (err) {
             console.error('Failed to load supplier performance:', err);
@@ -118,7 +101,7 @@ const Suppliers = () => {
         }
     };
 
-    const loadSupplierForEdit = async (supplierId) => {
+    const loadSupplierForEdit = async (supplierId: string) => {
         try {
             const supplier = await supplierClient.getById(supplierId);
             setSelectedSupplier(supplier);
@@ -157,7 +140,7 @@ const Suppliers = () => {
         setModalVisible(true);
     };
 
-    const handleOpenEdit = async (supplier) => {
+    const handleOpenEdit = async (supplier: UpdateSupplierCommand) => {
         try {
             const fullSupplier = await supplierClient.getById(supplier.id);
             setSelectedSupplier(fullSupplier);
@@ -168,12 +151,12 @@ const Suppliers = () => {
         }
     };
 
-    const handleOpenDelete = (supplier) => {
+    const handleOpenDelete = (supplier: UpdateSupplierCommand) => {
         setSupplierToDelete(supplier);
         setDeleteModalVisible(true);
     };
 
-    const handleSave = async (formData) => {
+    const handleSave = async (formData: UpdateSupplierCommand | AddSupplierCommand) => {
         setSaving(true);
         setError(null);
 
@@ -184,26 +167,20 @@ const Suppliers = () => {
         }
 
         try {
-            const payload = {
+            const payload: UpdateSupplierCommand = {
                 id: selectedSupplier?.id || crypto.randomUUID(),
                 name: formData.name,
                 email: formData.email,
                 document: formData.document || null,
                 phoneNumber: formData.phoneNumber || null,
-                street: formData.street || null,
-                number: formData.number || null,
-                neighborhood: formData.neighborhood || null,
-                city: formData.city || null,
-                complement: formData.complement || null,
-                zipCode: formData.zipCode || null,
-                stateId: formData.stateId || null
+                address: formData.address || null,
             };
 
             if (selectedSupplier) {
                 await supplierClient.update(selectedSupplier.id, payload);
                 setSuccessMessage(t('suppliers.updateSuccess'));
             } else {
-                await supplierClient.create(payload);
+                await supplierClient.create(payload as AddSupplierCommand);
                 setSuccessMessage(t('suppliers.createSuccess'));
             }
             setModalVisible(false);
@@ -259,247 +236,6 @@ const Suppliers = () => {
             style: 'currency',
             currency: 'BRL'
         }).format(value);
-    };
-
-    // Render Analytics Tab Content
-    const renderAnalyticsTab = () => {
-        if (performanceLoading) {
-            return (
-                <div className="text-center py-5">
-                    <CSpinner color="primary" />
-                    <p className="mt-3">{t('common.loading')}</p>
-                </div>
-            );
-        }
-
-        if (!performance) {
-            return (
-                <div className="text-center py-5">
-                    <p className="text-muted">{t('common.noData')}</p>
-                </div>
-            );
-        }
-
-        return (
-            <>
-                {/* Time Range Selector */}
-                <CRow className="mb-4">
-                    <CCol xs={12}>
-                        <div className="d-flex justify-content-end gap-2">
-                            <CButton size="sm" color={analyticsDays === 30 ? 'primary' : 'outline-primary'} onClick={() => setAnalyticsDays(30)}>
-                                {t('suppliers.last30Days')}
-                            </CButton>
-                            <CButton size="sm" color={analyticsDays === 90 ? 'primary' : 'outline-primary'} onClick={() => setAnalyticsDays(90)}>
-                                {t('suppliers.last90Days')}
-                            </CButton>
-                            <CButton size="sm" color={analyticsDays === 180 ? 'primary' : 'outline-primary'} onClick={() => setAnalyticsDays(180)}>
-                                {t('suppliers.last180Days')}
-                            </CButton>
-                        </div>
-                    </CCol>
-                </CRow>
-
-                {/* Summary Cards */}
-                <CRow className="mb-4" xs={{ gutter: 4 }}>
-                    <CCol sm={6} xl={3}>
-                        <CWidgetStatsA
-                            color="primary"
-                            value={
-                                <>
-                                    {performance.summary.totalSuppliers}
-                                    <span className="fs-6 fw-normal d-block mt-1">
-                                        {t('suppliers.suppliers')}
-                                    </span>
-                                </>
-                            }
-                            title={t('suppliers.totalSuppliers')}
-                        />
-                    </CCol>
-                    <CCol sm={6} xl={3}>
-                        <CWidgetStatsA
-                            color="success"
-                            value={
-                                <>
-                                    {performance.summary.totalProducts}
-                                    <span className="fs-6 fw-normal d-block mt-1">
-                                        {t('suppliers.products')}
-                                    </span>
-                                </>
-                            }
-                            title={t('suppliers.totalProducts')}
-                        />
-                    </CCol>
-                    <CCol sm={6} xl={3}>
-                        <CWidgetStatsA
-                            color="info"
-                            value={
-                                <>
-                                    {formatCurrency(performance.summary.totalStockValue)}
-                                    <span className="fs-6 fw-normal d-block mt-1">
-                                        {t('suppliers.stockValue')}
-                                    </span>
-                                </>
-                            }
-                            title={t('suppliers.totalStockValue')}
-                        />
-                    </CCol>
-                    <CCol sm={6} xl={3}>
-                        <CWidgetStatsA
-                            color="warning"
-                            value={
-                                <>
-                                    {performance.summary.averageProductsPerSupplier.toFixed(1)}
-                                    <span className="fs-6 fw-normal d-block mt-1">
-                                        {t('suppliers.avgPerSupplier')}
-                                    </span>
-                                </>
-                            }
-                            title={t('suppliers.averageProductsPerSupplier')}
-                        />
-                    </CCol>
-                </CRow>
-
-                {/* Products per Supplier */}
-                <CRow className="mb-4">
-                    <CCol xs={12}>
-                        <CCard>
-                            <CCardHeader className="d-flex align-items-center">
-                                <CIcon icon={cilTruck} className="me-2" />
-                                <strong>{t('suppliers.productsPerSupplier')}</strong>
-                            </CCardHeader>
-                            <CCardBody>
-                                {performance.productsPerSupplier.length === 0 ? (
-                                    <p className="text-muted text-center">{t('common.noData')}</p>
-                                ) : (
-                                    <CTable hover responsive>
-                                        <CTableHead>
-                                            <CTableRow>
-                                                <CTableHeaderCell>{t('suppliers.name')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-center">{t('suppliers.products')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('suppliers.stockValue')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('suppliers.revenue')}</CTableHeaderCell>
-                                            </CTableRow>
-                                        </CTableHead>
-                                        <CTableBody>
-                                            {performance.productsPerSupplier.map((supplier, index) => (
-                                                <CTableRow key={supplier.supplierId}>
-                                                    <CTableDataCell>
-                                                        <Link to={`/basic/suppliers?id=${supplier.supplierId}`} className="text-decoration-none">
-                                                            <strong>{supplier.supplierName}</strong>
-                                                        </Link>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell className="text-center">{supplier.productCount}</CTableDataCell>
-                                                    <CTableDataCell className="text-end">{formatCurrency(supplier.totalStockValue)}</CTableDataCell>
-                                                    <CTableDataCell className="text-end">{formatCurrency(supplier.totalRevenue)}</CTableDataCell>
-                                                </CTableRow>
-                                            ))}
-                                        </CTableBody>
-                                    </CTable>
-                                )}
-                            </CCardBody>
-                        </CCard>
-                    </CCol>
-                </CRow>
-
-                {/* Cost Comparison */}
-                <CRow className="mb-4">
-                    <CCol xs={12}>
-                        <CCard>
-                            <CCardHeader className="d-flex align-items-center">
-                                <CIcon icon={cilDollar} className="me-2" />
-                                <strong>{t('suppliers.costComparison')}</strong>
-                            </CCardHeader>
-                            <CCardBody>
-                                {performance.costComparison.length === 0 ? (
-                                    <p className="text-muted text-center">{t('suppliers.noCostComparison')}</p>
-                                ) : (
-                                    <CTable hover responsive>
-                                        <CTableHead>
-                                            <CTableRow>
-                                                <CTableHeaderCell>{t('products.name')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('suppliers.supplier')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('products.costPrice')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('products.salesPrice')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-center">{t('suppliers.margin')}</CTableHeaderCell>
-                                            </CTableRow>
-                                        </CTableHead>
-                                        <CTableBody>
-                                            {performance.costComparison.map((product) => (
-                                                product.suppliers.map((supplier, idx) => (
-                                                    <CTableRow key={`${product.productName}-${supplier.supplierId}`}>
-                                                        <CTableDataCell rowSpan={product.suppliers.length}>{product.productName}</CTableDataCell>
-                                                        <CTableDataCell>
-                                                            <Link to={`/basic/suppliers?id=${supplier.supplierId}`} className="text-decoration-none">
-                                                                {supplier.supplierName}
-                                                            </Link>
-                                                        </CTableDataCell>
-                                                        <CTableDataCell className="text-end">{formatCurrency(supplier.costPrice)}</CTableDataCell>
-                                                        <CTableDataCell className="text-end">{formatCurrency(supplier.salesPrice)}</CTableDataCell>
-                                                        <CTableDataCell className="text-center">
-                                                            <CBadge color={supplier.profitMargin >= 30 ? 'success' : supplier.profitMargin >= 15 ? 'warning' : 'danger'}>
-                                                                {supplier.profitMargin.toFixed(1)}%
-                                                            </CBadge>
-                                                        </CTableDataCell>
-                                                    </CTableRow>
-                                                ))
-                                            ))}
-                                        </CTableBody>
-                                    </CTable>
-                                )}
-                            </CCardBody>
-                        </CCard>
-                    </CCol>
-                </CRow>
-
-                {/* Recent Stock Movements */}
-                <CRow>
-                    <CCol xs={12}>
-                        <CCard>
-                            <CCardHeader className="d-flex align-items-center">
-                                <CIcon icon={cilChart} className="me-2" />
-                                <strong>{t('suppliers.recentMovements')}</strong>
-                            </CCardHeader>
-                            <CCardBody>
-                                {performance.recentStockMovements.length === 0 ? (
-                                    <p className="text-muted text-center">{t('common.noData')}</p>
-                                ) : (
-                                    <CTable hover responsive>
-                                        <CTableHead>
-                                            <CTableRow>
-                                                <CTableHeaderCell>{t('suppliers.date')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('products.name')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-center">{t('suppliers.type')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('products.quantity')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('products.price')}</CTableHeaderCell>
-                                            </CTableRow>
-                                        </CTableHead>
-                                        <CTableBody>
-                                            {performance.recentStockMovements.map((movement) => (
-                                                <CTableRow key={movement.movementId}>
-                                                    <CTableDataCell>{new Date(movement.date).toLocaleDateString()}</CTableDataCell>
-                                                    <CTableDataCell>
-                                                        <Link to={`/basic/products?id=${movement.productId}`} className="text-decoration-none">
-                                                            {movement.productName}
-                                                        </Link>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell className="text-center">
-                                                        <CBadge color={movement.movementType === 'In' ? 'success' : 'danger'}>
-                                                            {t(`suppliers.${movement.movementType.toLowerCase()}`)}
-                                                        </CBadge>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell className="text-end">{movement.quantity}</CTableDataCell>
-                                                    <CTableDataCell className="text-end">{formatCurrency(movement.price)}</CTableDataCell>
-                                                </CTableRow>
-                                            ))}
-                                        </CTableBody>
-                                    </CTable>
-                                )}
-                            </CCardBody>
-                        </CCard>
-                    </CCol>
-                </CRow>
-            </>
-        );
     };
 
     return (
@@ -609,7 +345,11 @@ const Suppliers = () => {
 
                         {/* Analytics Tab */}
                         <CTabPane visible={activeTab === 1}>
-                            {renderAnalyticsTab()}
+                            <RenderAnalyticsTab performance={performance}
+                                performanceLoading={performanceLoading}
+                                analyticsDays={analyticsDays}
+                                setAnalyticsDays={setAnalyticsDays}
+                            />
                         </CTabPane>
                     </CTabContent>
                 </CCardBody>

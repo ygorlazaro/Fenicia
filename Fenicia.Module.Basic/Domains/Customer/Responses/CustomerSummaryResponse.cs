@@ -17,7 +17,4 @@ public record CustomerSummaryResponse
 
     /// <summary>Average value per order.</summary>
     public decimal AverageOrderValue { get; set; }
-
-    /// <summary>Average total spending per customer over their lifetime.</summary>
-    public decimal AverageCustomerLifetimeValue { get; set; }
 }

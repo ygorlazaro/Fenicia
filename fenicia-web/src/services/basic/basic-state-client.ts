@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { GetAllStateResponse } from '../../types/basic-types';
+import { GetAllStateResponse } from "../../types/basic/state/get-all-state-response";
 import { ApiClient } from '../api-client';
 import { BASIC_API_BASE_URL } from './basic-product-client';
 

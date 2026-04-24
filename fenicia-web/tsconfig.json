@@ -26,13 +26,13 @@
     "useDefineForClassFields": true
   },
   "exclude": [
-    "src/views/base/**/*",
-    "src/views/buttons/**/*",
-    "src/views/forms/**/*",
-    "src/views/icons/**/*",
-    "src/views/notifications/**/*",
-    "src/views/widgets/**/*",
-    "src/views/charts/**/*",
+    "src/template/base/**/*",
+    "src/template/buttons/**/*",
+    "src/template/forms/**/*",
+    "src/template/icons/**/*",
+    "src/template/notifications/**/*",
+    "src/template/widgets/**/*",
+    "src/template/charts/**/*",
     "src/views/dashboard/**/*",
     "node_modules"
   ],

@@ -20,15 +20,6 @@ public class GetOrderByIdHandler(DefaultContext db)
             return null;
         }
 
-        var details = order.Details.Select(d => new OrderDetailResponse(
-            d.Id,
-            d.ProductId,
-            d.Product?.Name ?? "Unknown",
-            d.Price,
-            d.DiscountAmount,
-            d.Quantity,
-            d.Subtotal)).ToList();
-
         return new GetOrderByIdResponse(
             order.Id,
             order.OrderNumber,
@@ -42,7 +33,6 @@ public class GetOrderByIdHandler(DefaultContext db)
             order.Status.ToString(),
             order.PaymentMethod,
             order.Notes,
-            details,
             order.EmployeeId);
     }
 }

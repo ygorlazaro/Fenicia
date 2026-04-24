@@ -13,14 +13,15 @@ import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 
-import { setCompanyId } from '../services/api-client'
+import { ApiClient } from '../services/api-client'
 import AuthCompanyClient from '../services/auth/auth-company-client'
-import CompanySelectModal from './CompanySelectModal'
+import CompanySelectModal from '../views/auth/company/company-select-modal'
 import { AppHeaderDropdown } from './header/index'
 import { AppBreadcrumb } from './index'
 import LanguageSelector from './LanguageSelector'
 
 const companyClient = new AuthCompanyClient("http://localhost:5144")
+const apiClient = new ApiClient()
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -64,7 +65,7 @@ const AppHeader = () => {
 
   const handleSelectCompany = (company) => {
     // Persist company ID and name to localStorage
-    setCompanyId(company.id)
+    apiClient.setCompanyId(company.id)
     localStorage.setItem('company_name', company.name)
     
     // Close modal

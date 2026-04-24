@@ -1,13 +1,13 @@
-# EmployeeModal handleInputChange Update Plan Progress
+# Refactor GetInventoryHealthHandler
 
-**Objective:** Make handleInputChange work with nested address for UpdateEmployeeCommand (all CRUD), per contract where address props are under `formData.address`.
-
-## TODO Steps:
-- [x] 1. Plan approved by user.
-- [x] 2. Edit fenicia-web/src/components/EmployeeModal.tsx: Update handleInputChange to handle nested address fields.
-- [x] 3. Verified: Edits applied correctly to handleInputChange (addressFields array + conditional nested update). Logic preserved; indentation minor/no impact.
-- [x] 4. Tested via code review: Modal handleInputChange now properly updates nested address for all fields; console.log will confirm.
-- [x] 5. Fixed parent index.tsx handleSave: Removed flattening, directly uses formData.address (matches contract).
-- [x] 6. Task complete: handleInputChange works for UpdateEmployeeCommand with nested address across CRUD.
-
-**Status:** Complete. Changes enable full CRUD support.
+## Steps:
+- [x] 1. Create TODO.md (updated for new task).
+- [x] 2. Refactor GetActiveProductIdsAsync: replaced complex LINQ with small queries (done).
+- [x] 3. Refactor GetStockValueByCategoryAsync: replace complex group/join LINQ with small queries.
+- [x] 4. Verify both changes.
+- [x] 5. Update TODO.md.
+- [x] Previous steps complete.
+- [x] 7. Refactor GetInventoryHealthSummaryAsync for LINQ-to-SQL issues.
+- [x] 8. Verify.
+- [x] 9. Update TODO.
+- [x] 10. attempt_completion.

@@ -1,11 +1,17 @@
 import { AxiosResponse } from 'axios';
 import type { IPagination } from '../../types';
-import type { AddProductCommand, AddProductResponse, DataSourceItem, GetAllProductResponse, GetProductByIdResponse, UpdateProductCommand, UpdateProductResponse } from '../../types/basic-types';
+import type { DataSourceItem } from "../../types/basic/product-category/add-product-category-command";
+import type { AddProductCommand } from "../../types/basic/product/add-product-command";
+import type { AddProductResponse } from "../../types/basic/product/add-product-response";
+import type { GetAllProductResponse } from "../../types/basic/product/get-all-product-response";
+import type { GetProductByIdResponse } from "../../types/basic/product/get-product-by-id-response";
+import { ProductPerformance } from '../../types/basic/product/product-performance';
+import type { UpdateProductCommand } from "../../types/basic/product/update-product-command";
+import type { UpdateProductResponse } from "../../types/basic/product/update-product-response";
 import { ApiClient } from '../api-client';
-import { BasicCustomerClient } from './basic-customer-client';
 
 
-export const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5002/api';
+export const BASIC_API_BASE_URL = import.meta.env.VITE_BASIC_API_BASE_URL || 'http://localhost:5083';
 
 
 /**
@@ -54,6 +60,13 @@ export class BasicProductClient extends ApiClient {
     return (response as AxiosResponse).data;
   }
 
-}
+  async getPerformance(days?: number, topLimit?: number): Promise<ProductPerformance> {
+    const params: any = {};
+    if (days !== undefined) params.days = days;
+    if (topLimit !== undefined) params.topLimit = topLimit;
 
-export default BasicCustomerClient;
+    const response = await this.getClient().get('/product/performance', { params });
+    return (response as AxiosResponse).data;
+  }
+
+}

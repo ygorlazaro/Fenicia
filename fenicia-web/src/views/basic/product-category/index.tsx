@@ -23,16 +23,18 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/Pagination';
-import ProductCategoryModal from '../../../components/ProductCategoryModal';
+import Pagination from '../../../components/fenicia/pagination';
 import { BasicProductCategoryClient } from '../../../services/basic/basic-product-category-client';
+import { GetAllProductCategoryResponse } from '../../../types/basic/product-category/get-all-product-category-response';
+import { GetProductCategoryByIdResponse } from '../../../types/basic/product-category/get-product-category-by-id-response';
+import ProductCategoryModal from './product-category-modal';
 
 const categoryClient = new BasicProductCategoryClient();
 
 const ProductCategories = () => {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState<GetAllProductCategoryResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState({
@@ -43,8 +45,8 @@ const ProductCategories = () => {
     });
     const [modalVisible, setModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [categoryToDelete, setCategoryToDelete] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState<GetAllProductCategoryResponse | null>(null);
+    const [categoryToDelete, setCategoryToDelete] = useState<GetAllProductCategoryResponse | null>(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
@@ -99,7 +101,7 @@ const ProductCategories = () => {
         setModalVisible(true);
     };
 
-    const handleOpenEdit = async (category) => {
+    const handleOpenEdit = async (category: GetProductCategoryByIdResponse) => {
         try {
             const fullCategory = await categoryClient.getById(category.id);
             setSelectedCategory(fullCategory);
@@ -110,7 +112,7 @@ const ProductCategories = () => {
         }
     };
 
-    const handleOpenDelete = (category) => {
+    const handleOpenDelete = (category: GetAllProductCategoryResponse) => {
         setCategoryToDelete(category);
         setDeleteModalVisible(true);
     };
@@ -126,7 +128,7 @@ const ProductCategories = () => {
         }
 
         try {
-            const payload = {
+            const payload: GetProductCategoryByIdResponse = {
                 id: selectedCategory?.id || crypto.randomUUID(),
                 name: formData.name
             };
@@ -168,11 +170,11 @@ const ProductCategories = () => {
         }
     };
 
-    const handlePageChange = (newPage) => {
+    const handlePageChange = (newPage: number) => {
         setPagination(prev => ({ ...prev, page: newPage }));
     };
 
-    const handlePerPageChange = (newPerPage) => {
+    const handlePerPageChange = (newPerPage: number) => {
         setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 

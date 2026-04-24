@@ -1,11 +1,5 @@
 import { CCard, CCardBody, CCol, CRow } from "@coreui/react";
-
-const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    }).format(price);
-};
+import formatCurrency from "../../utils/format-currency";
 
 interface SubscriptionSummaryProps {
     isSticky?: boolean;
@@ -30,7 +24,7 @@ interface SubscriptionSummaryProps {
                             <div className="opacity-75">de {modulesCount - subscribedModulesCount} disponíveis</div>
                         </CCol>
                         <CCol md={6} className="text-md-end">
-                            <div className="h3 fw-bold mb-1">{formatPrice(totalPrice)}/mês</div>
+                            <div className="h3 fw-bold mb-1">{formatCurrency(totalPrice)}/mês</div>
                             <div className="small opacity-75">Total da assinatura</div>
                         </CCol>
                     </CRow>
