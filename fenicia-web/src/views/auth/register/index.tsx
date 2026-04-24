@@ -4,27 +4,25 @@ import {
     CCard,
     CCardBody,
     CCardHeader,
-    CForm
+    CForm,
+    CFormInput,
+    CFormLabel
 } from "@coreui/react";
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthLayout } from "../../../components";
-import { FeniciaInput } from "../../../components/fenicia/fenicia-input";
+import AuthLayout from "../../../layout/auth-layout";
 import AuthRegisterClient from '../../../services/auth/auth-register-client';
-import { CreateNewUserCommand } from "../../../types/auth/create-new-user-command";
 
-const registerClient = new AuthRegisterClient();
+const registerClient = new AuthRegisterClient("http://localhost:5144");
 
 const AuthRegister = () => {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState<CreateNewUserCommand>({
+    const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
-        company: {
-            name: '',
-            cnpj: ''
-        }
+        companyName: '',
+        cnpj: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -43,7 +41,15 @@ const AuthRegister = () => {
         setError(null);
 
         try {
-            await registerClient.register(formData);
+            await registerClient.register({
+                name: formData.name,
+                email: formData.email,
+                password: formData.password,
+                company: {
+                    name: formData.companyName,
+                    cnpj: formData.cnpj,
+                }
+            });
 
             navigate('/auth/login', { 
                 state: { message: 'Conta criada com sucesso! Faça login para continuar.' }
@@ -70,53 +76,64 @@ const AuthRegister = () => {
                     )}
                     <CForm onSubmit={handleSubmit}>
                         <div className="mb-3">
-                            <FeniciaInput
+                            <CFormLabel htmlFor="inputName">Nome</CFormLabel>
+                            <CFormInput
                                 type="text"
-                                id="inputNameFenicia"
-                                label="Nome"
+                                id="inputName"
+                                name="name"
+                                placeholder="Seu nome completo"
                                 value={formData.name}
                                 onChange={handleInputChange}
                                 required
                             />
                         </div>
                         <div className="mb-3">
-                            <FeniciaInput
+                            <CFormLabel htmlFor="inputEmail">E-mail</CFormLabel>
+                            <CFormInput
                                 type="email"
-                                id="inputEmailFenicia"
-                                label="E-mail"
+                                id="inputEmail"
+                                name="email"
+                                placeholder="name@example.com"
                                 value={formData.email}
                                 onChange={handleInputChange}
                                 required
                             />
                         </div>
                         <div className="mb-3">
-                            <FeniciaInput
+                            <CFormLabel htmlFor="inputPassword">Senha</CFormLabel>
+                            <CFormInput
                                 type="password"
-                                id="inputPasswordFenicia"
-                                label="Senha"
+                                id="inputPassword"
+                                name="password"
+                                placeholder="senha"
                                 value={formData.password}
                                 onChange={handleInputChange}
                                 required
+                                minLength={6}
                             />
                         </div>
                         <hr className="my-4" />
                         <h6 className="mb-3">Dados da Empresa</h6>
                         <div className="mb-3">
-                            <FeniciaInput
+                            <CFormLabel htmlFor="inputCompanyName">Nome da Empresa</CFormLabel>
+                            <CFormInput
                                 type="text"
-                                id="inputCompanyNameFenicia"
-                                label="Nome da Empresa"
-                                value={formData.company.name}
+                                id="inputCompanyName"
+                                name="companyName"
+                                placeholder="Razão social da empresa"
+                                value={formData.companyName}
                                 onChange={handleInputChange}
                                 required
                             />
                         </div>
                         <div className="mb-3">
-                            <FeniciaInput
+                            <CFormLabel htmlFor="inputCnpj">CNPJ</CFormLabel>
+                            <CFormInput
                                 type="text"
-                                id="inputCompanyCnpjFenicia"
-                                label="CNPJ"
-                                value={formData.company.cnpj}
+                                id="inputCnpj"
+                                name="cnpj"
+                                placeholder="00.000.000/0001-00"
+                                value={formData.cnpj}
                                 onChange={handleInputChange}
                                 required
                             />
