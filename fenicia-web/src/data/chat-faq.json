@@ -1,0 +1,304 @@
+{
+    "faq": [
+        {
+            "answer": "Acesse a tela de login, informe seu e-mail e senha cadastrados. Se esqueceu a senha, clique em 'Esqueci minha senha' para receber um link de redefinição por e-mail.",
+            "category": "Autenticação e Conta",
+            "id": 1,
+            "question": "Como faço login no sistema?"
+        },
+        {
+            "answer": "Na tela de login, clique em 'Esqueci minha senha', digite seu e-mail cadastrado e enviaremos um link para você criar uma nova senha de forma segura.",
+            "category": "Autenticação e Conta",
+            "id": 2,
+            "question": "Esqueci minha senha, o que fazer?"
+        },
+        {
+            "answer": "Na tela inicial, clique em 'Registrar-se'. Preencha seus dados pessoais, crie uma senha segura e confirme seu e-mail para ativar a conta.",
+            "category": "Autenticação e Conta",
+            "id": 3,
+            "question": "Como criar uma nova conta?"
+        },
+        {
+            "answer": "Se você tem acesso a múltiplas empresas, clique no menu superior ou acesse a tela de seleção de empresa para alternar entre elas.",
+            "category": "Empresas e Assinaturas",
+            "id": 4,
+            "question": "Como alternar entre empresas?"
+        },
+        {
+            "answer": "Acesse a tela de 'Assinaturas' no menu principal. Lá você visualiza os módulos disponíveis, seus preços e pode selecionar os que deseja contratar.",
+            "category": "Empresas e Assinaturas",
+            "id": 5,
+            "question": "Como contratar novos módulos?"
+        },
+        {
+            "answer": "O plano básico inclui os módulos essenciais de cadastro: funcionários, cargos, clientes, fornecedores, produtos, categorias, estoque, movimentação de estoque e pedidos.",
+            "category": "Empresas e Assinaturas",
+            "id": 6,
+            "question": "O que está incluído no plano básico?"
+        },
+        {
+            "answer": "O dashboard exibe indicadores chave (KPIs) como receita total, custo total, lucro bruto e margem de lucro. Também mostra gráficos de receita vs custo, contas a receber, tendência de margem e resumo de vendas diárias, semanais e mensais.",
+            "category": "Dashboard",
+            "id": 7,
+            "question": "O que aparece no dashboard principal?"
+        },
+        {
+            "answer": "A margem de lucro mostra a porcentagem de lucro sobre as vendas. Se estiver acima de 20%, geralmente é considerada saudável. O sistema também mostra a tendência: se está melhorando, estável ou piorando.",
+            "category": "Dashboard",
+            "id": 8,
+            "question": "Como interpretar a margem de lucro no dashboard?"
+        },
+        {
+            "answer": "São valores que seus clientes ainda devem da empresa. O gráfico mostra a evolução das contas a receber ao longo do tempo para ajudar no controle do fluxo de caixa.",
+            "category": "Dashboard",
+            "id": 9,
+            "question": "O que são contas a receber no dashboard?"
+        },
+        {
+            "answer": "Acesse o menu 'Funcionários', clique em 'Novo Funcionário' e preencha os dados pessoais, cargo, salário e informações de contato.",
+            "category": "Funcionários",
+            "id": 10,
+            "question": "Como cadastrar um novo funcionário?"
+        },
+        {
+            "answer": "Na lista de funcionários, clique no funcionário desejado para ver detalhes como quantidade de pedidos atendidos, vendas realizadas e ranking de performance.",
+            "category": "Funcionários",
+            "id": 11,
+            "question": "Como visualizar a performance de um funcionário?"
+        },
+        {
+            "answer": "Acesse o menu 'Cargos', clique em 'Novo Cargo', informe o nome do cargo, descrição e salário base. O cargo poderá ser vinculado aos funcionários posteriormente.",
+            "category": "Cargos",
+            "id": 12,
+            "question": "Como criar um novo cargo?"
+        },
+        {
+            "answer": "Vá em 'Clientes' > 'Novo Cliente'. Preencha nome, documento (CPF/CNPJ), contato, endereço (você pode buscar o endereço pelo CEP) e outras informações relevantes.",
+            "category": "Clientes",
+            "id": 13,
+            "question": "Como cadastrar um cliente?"
+        },
+        {
+            "answer": "São clientes que não compram há um tempo ou têm comportamento que indica possível churn. O sistema identifica esses clientes automaticamente para que você possa fazer ações de retenção.",
+            "category": "Clientes",
+            "id": 14,
+            "question": "O que são clientes em risco?"
+        },
+        {
+            "answer": "Na tela de clientes, clique no cliente desejado. Você verá o histórico completo de pedidos, valores gastos e frequência de compra.",
+            "category": "Clientes",
+            "id": 15,
+            "question": "Como ver o histórico de pedidos de um cliente?"
+        },
+        {
+            "answer": "Acesse 'Fornecedores' > 'Novo Fornecedor'. Informe razão social, nome fantasia, CNPJ, contato, endereço e dados bancários.",
+            "category": "Fornecedores",
+            "id": 16,
+            "question": "Como cadastrar um fornecedor?"
+        },
+        {
+            "answer": "Na tela de fornecedores, acesse a aba 'Performance' ou 'Comparação de Custos'. Lá você visualiza os preços do mesmo produto oferecidos por diferentes fornecedores.",
+            "category": "Fornecedores",
+            "id": 17,
+            "question": "Como comparar preços entre fornecedores?"
+        },
+        {
+            "answer": "A performance avalia o fornecedor com base em quantidade de produtos fornecidos, movimentações de estoque, prazos de entrega e custo médio dos produtos.",
+            "category": "Fornecedores",
+            "id": 18,
+            "question": "O que é a performance de um fornecedor?"
+        },
+        {
+            "answer": "Vá em 'Produtos' > 'Novo Produto'. Preencha nome, categoria, preço de custo, preço de venda, estoque inicial, fornecedor e outras características.",
+            "category": "Produtos",
+            "id": 19,
+            "question": "Como cadastrar um produto?"
+        },
+        {
+            "answer": "Acesse 'Categorias de Produto' > 'Nova Categoria'. Informe o nome e uma descrição. As categorias ajudam a organizar o catálogo e gerar relatórios.",
+            "category": "Produtos",
+            "id": 20,
+            "question": "Como criar uma categoria de produto?"
+        },
+        {
+            "answer": "São produtos cadastrados no sistema que ainda não tiveram nenhuma venda. O sistema lista esses produtos para que você possa analisar se deve mantê-los no catálogo.",
+            "category": "Produtos",
+            "id": 21,
+            "question": "O que são produtos nunca vendidos?"
+        },
+        {
+            "answer": "Na tela de produtos, acesse a aba 'Performance' ou 'Mais Vendidos'. Você verá um ranking dos produtos com maior volume de vendas e receita gerada.",
+            "category": "Produtos",
+            "id": 22,
+            "question": "Como ver os produtos mais vendidos?"
+        },
+        {
+            "answer": "Acesse o menu 'Estoque'. Lá você visualiza a quantidade atual de cada produto, valor do estoque e alertas de produtos com estoque baixo.",
+            "category": "Estoque",
+            "id": 23,
+            "question": "Como consultar o saldo de estoque?"
+        },
+        {
+            "answer": "É uma análise que mostra a situação geral do seu estoque, incluindo produtos com estoque baixo, produtos em excesso (overstock) e produtos sem movimentação.",
+            "category": "Estoque",
+            "id": 24,
+            "question": "O que é saúde do estoque?"
+        },
+        {
+            "answer": "Acesse 'Movimentação de Estoque' > 'Nova Movimentação'. Informe o produto, tipo (entrada ou saída), quantidade, motivo e data. O sistema atualiza o saldo automaticamente.",
+            "category": "Estoque",
+            "id": 25,
+            "question": "Como fazer uma movimentação de estoque?"
+        },
+        {
+            "answer": "Turnover (giro de estoque) indica quantas vezes o estoque foi renovado em um período. Quanto maior, melhor, pois significa que os produtos estão vendendo rápido.",
+            "category": "Estoque",
+            "id": 26,
+            "question": "O que é turnover de estoque?"
+        },
+        {
+            "answer": "Acesse 'Pedidos' > 'Novo Pedido'. Selecione o cliente, adicione os produtos, quantidades, aplique descontos se necessário e finalize o pedido.",
+            "category": "Pedidos",
+            "id": 27,
+            "question": "Como criar um novo pedido/venda?"
+        },
+        {
+            "answer": "Na lista de pedidos, cada um exibe seu status atual: Pendente, Em Processamento, Enviado, Entregue ou Cancelado. Clique no pedido para ver o histórico completo.",
+            "category": "Pedidos",
+            "id": 28,
+            "question": "Como acompanhar o status de um pedido?"
+        },
+        {
+            "answer": "Na tela de pedidos, acesse o filtro ou a aba 'Cancelados'. Você verá a lista de pedidos cancelados com motivo e data do cancelamento.",
+            "category": "Pedidos",
+            "id": 29,
+            "question": "Como visualizar pedidos cancelados?"
+        },
+        {
+            "answer": "O ticket médio é o valor médio gasto por cliente em cada pedido. É calculado dividindo o faturamento total pela quantidade de pedidos no período.",
+            "category": "Pedidos",
+            "id": 30,
+            "question": "O que é o ticket médio?"
+        },
+        {
+            "answer": "Acesse o módulo 'Projetos' > 'Novo Projeto'. Informe nome, descrição, status, prazo e responsáveis. Depois, você pode adicionar tarefas e subtarefas.",
+            "category": "Projetos",
+            "id": 31,
+            "question": "Como criar um projeto?"
+        },
+        {
+            "answer": "Dentro do projeto, vá para a aba 'Tarefas' e clique em 'Nova Tarefa'. Preencha o título, descrição, responsável, prazo e vincule ao projeto.",
+            "category": "Projetos",
+            "id": 32,
+            "question": "Como adicionar tarefas a um projeto?"
+        },
+        {
+            "answer": "Abra a tarefa desejada e use a seção 'Comentários' para adicionar observações, atualizações de status ou comunicar a equipe.",
+            "category": "Projetos",
+            "id": 33,
+            "question": "Como adicionar comentários em uma tarefa?"
+        },
+        {
+            "answer": "Na tela do projeto ou tarefa, acesse a aba 'Anexos' e faça o upload de documentos, imagens ou outros arquivos relevantes.",
+            "category": "Projetos",
+            "id": 34,
+            "question": "Como anexar arquivos a um projeto?"
+        },
+        {
+            "answer": "Clique no ícone de sino no cabeçalho ou acesse o menu 'Notificações'. Lá você vê todas as notificações, incluindo alertas de estoque baixo, novos pedidos e atualizações de projetos.",
+            "category": "Notificações",
+            "id": 35,
+            "question": "Como visualizar minhas notificações?"
+        },
+        {
+            "answer": "Na lista de notificações, clique sobre a notificação para abrir seus detalhes. Ela será marcada como lida automaticamente.",
+            "category": "Notificações",
+            "id": 36,
+            "question": "Como marcar uma notificação como lida?"
+        },
+        {
+            "answer": "O Fenicia é um sistema ERP completo para gestão empresarial. Ele integra módulos de vendas, estoque, financeiro, recursos humanos e projetos em uma única plataforma.",
+            "category": "Geral",
+            "id": 37,
+            "question": "O que é o Fenicia?"
+        },
+        {
+            "answer": "Clique no seu nome ou avatar no canto superior direito e selecione 'Perfil'. Lá você pode atualizar nome, e-mail, senha e outras informações pessoais.",
+            "category": "Geral",
+            "id": 38,
+            "question": "Como alterar meus dados de perfil?"
+        },
+        {
+            "answer": "Sim! O Fenicia é responsivo e pode ser acessado via navegador em smartphones e tablets. Recomendamos usar Chrome ou Safari para melhor experiência.",
+            "category": "Geral",
+            "id": 39,
+            "question": "O sistema funciona em celular?"
+        },
+        {
+            "answer": "Você pode usar este chat de suporte, enviar um e-mail para nossa equipe ou abrir um chamado técnico pelo menu 'Suporte' quando disponível.",
+            "category": "Geral",
+            "id": 40,
+            "question": "Como faço para obter suporte técnico?"
+        },
+        {
+            "answer": "Sim, a maioria das telas de listagem e relatórios possui opção de exportação para Excel ou PDF. Procure o botão de exportação no canto superior direito das telas.",
+            "category": "Geral",
+            "id": 41,
+            "question": "É possível exportar relatórios?"
+        },
+        {
+            "answer": "Em telas de cadastro que possuem campo de endereço, digite o CEP no campo correspondente e o sistema preenche automaticamente rua, bairro, cidade e estado.",
+            "category": "Geral",
+            "id": 42,
+            "question": "Como buscar endereço pelo CEP?"
+        },
+        {
+            "answer": "Tente atualizar a página (F5), limpar o cache do navegador ou verificar sua conexão com a internet. Se o problema persistir, entre em contato com o suporte.",
+            "category": "Geral",
+            "id": 43,
+            "question": "O que fazer se o sistema estiver lento?"
+        },
+        {
+            "answer": "Sim, você pode acessar sua conta de vários dispositários simultaneamente. Recomendamos sempre fazer logout em computadores compartilhados por segurança.",
+            "category": "Geral",
+            "id": 44,
+            "question": "Posso usar o sistema em mais de um computador ao mesmo tempo?"
+        },
+        {
+            "answer": "O dashboard principal mostra a receita total no período. Você também pode filtrar por dia, semana ou mês e ver comparativos com períodos anteriores.",
+            "category": "Financeiro",
+            "id": 45,
+            "question": "Como acompanhar minha receita?"
+        },
+        {
+            "answer": "No dashboard, compare 'Receita Total' com 'Custo Total'. O 'Lucro Bruto' mostra exatamente o resultado. A 'Margem de Lucro' indica a porcentagem de lucratividade.",
+            "category": "Financeiro",
+            "id": 46,
+            "question": "Como saber se estou tendo lucro ou prejuízo?"
+        },
+        {
+            "answer": "É uma comparação visual entre o dinheiro que entrou (receita) e o dinheiro que saiu (custo) ao longo do tempo. Ajuda a identificar meses de maior e menor lucratividade.",
+            "category": "Financeiro",
+            "id": 47,
+            "question": "O que é o gráfico Receita vs Custo?"
+        },
+        {
+            "answer": "São produtos que não tiveram entrada nem saída de estoque por um longo período. O sistema alerta sobre esses produtos para que você avalie se deve mantê-los.",
+            "category": "Estoque",
+            "id": 48,
+            "question": "O que são produtos sem movimentação?"
+        },
+        {
+            "answer": "Overstock é quando você tem quantidade excessiva de um produto em estoque, acima do necessário. Isso imobiliza capital e aumenta custos de armazenagem.",
+            "category": "Estoque",
+            "id": 49,
+            "question": "O que é overstock?"
+        },
+        {
+            "answer": "Na tela de pedidos, utilize os filtros de data disponíveis no topo da lista. Você pode filtrar por data específica, semana, mês ou intervalo personalizado.",
+            "category": "Pedidos",
+            "id": 50,
+            "question": "Como filtrar pedidos por período?"
+        }
+    ]
+}

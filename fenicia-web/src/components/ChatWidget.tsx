@@ -1,16 +1,18 @@
-import { cilChatBubble, cilSend, cilX } from '@coreui/icons';
+import { cilSearch, cilSend, cilX } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import {
-    CButton,
-    CCard,
-    CCardBody,
-    CCardFooter,
-    CCardHeader,
-    CFormInput,
-    CListGroup,
-    CListGroupItem,
+  CButton,
+  CCard,
+  CCardBody,
+  CCardFooter,
+  CCardHeader,
+  CFormInput,
+  CListGroup,
+  CListGroupItem,
 } from '@coreui/react';
 import React, { useEffect, useRef, useState } from 'react';
+import minionAvatar from '../assets/images/minions.jpeg';
+import faqData from '../data/chat-faq.json';
 
 interface ChatMessage {
   id: number;
@@ -19,31 +21,60 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+interface FaqItem {
+  id: number;
+  category: string;
+  question: string;
+  answer: string;
+}
+
 const mockMessages: ChatMessage[] = [
   {
     id: 1,
     sender: 'bot',
-    text: 'Olá! Como posso ajudar você hoje?',
+    text: 'Olá! Como posso ajudar você hoje? Digite sua dúvida ou escolha uma pergunta frequente abaixo.',
     timestamp: new Date(Date.now() - 1000 * 60 * 5),
   },
-  {
-    id: 2,
-    sender: 'user',
-    text: 'Quero saber mais sobre o sistema.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 4),
-  },
-  {
-    id: 3,
-    sender: 'bot',
-    text: 'Claro! O Fenicia é um ERP completo para gestão empresarial. Posso te ajudar com dúvidas sobre módulos, assinaturas ou suporte técnico.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 3),
-  },
 ];
+
+const findFaqAnswer = (userText: string): string | null => {
+  const text = userText.toLowerCase();
+  const faqs: FaqItem[] = faqData.faq;
+
+  // Exact match first
+  const exactMatch = faqs.find((f) => f.question.toLowerCase() === text);
+  if (exactMatch) return exactMatch.answer;
+
+  // Keyword match
+  const keywords = text.split(/\s+/).filter((w) => w.length > 2);
+  let bestMatch: FaqItem | null = null;
+  let bestScore = 0;
+
+  for (const faq of faqs) {
+    const qWords = faq.question.toLowerCase().split(/\s+/);
+    const aWords = faq.answer.toLowerCase().split(/\s+/);
+    let score = 0;
+
+    for (const kw of keywords) {
+      if (qWords.some((w) => w.includes(kw))) score += 3;
+      if (aWords.some((w) => w.includes(kw))) score += 1;
+      if (faq.category.toLowerCase().includes(kw)) score += 2;
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = faq;
+    }
+  }
+
+  return bestScore >= 3 && bestMatch ? bestMatch.answer : null;
+};
 
 const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const [inputValue, setInputValue] = useState('');
+  const [showFaq, setShowFaq] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -58,29 +89,53 @@ const ChatWidget: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
+  const sendBotMessage = (text: string, delay = 1000) => {
+    setTimeout(() => {
+      const botResponse: ChatMessage = {
+        id: Date.now(),
+        sender: 'bot',
+        text,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, botResponse]);
+    }, delay);
+  };
+
   const handleSend = () => {
     if (!inputValue.trim()) return;
 
+    const userText = inputValue.trim();
     const newMessage: ChatMessage = {
-      id: messages.length + 1,
+      id: Date.now(),
       sender: 'user',
-      text: inputValue.trim(),
+      text: userText,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, newMessage]);
     setInputValue('');
+    setShowFaq(false);
 
-    // Mock bot response
-    setTimeout(() => {
-      const botResponse: ChatMessage = {
-        id: messages.length + 2,
-        sender: 'bot',
-        text: 'Obrigado pela mensagem! Nossa equipe de suporte entrará em contato em breve.',
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
+    const faqAnswer = findFaqAnswer(userText);
+    if (faqAnswer) {
+      sendBotMessage(faqAnswer);
+    } else {
+      sendBotMessage(
+        'Não encontrei uma resposta exata para sua pergunta. Nossa equipe de suporte entrará em contato em breve. Enquanto isso, você pode tentar reformular sua dúvida ou escolher uma das perguntas frequentes.'
+      );
+    }
+  };
+
+  const handleFaqClick = (faq: FaqItem) => {
+    const userMessage: ChatMessage = {
+      id: Date.now(),
+      sender: 'user',
+      text: faq.question,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    setShowFaq(false);
+    sendBotMessage(faq.answer);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -115,9 +170,12 @@ const ChatWidget: React.FC = () => {
         >
           <CCardHeader className="d-flex justify-content-between align-items-center bg-primary text-white">
             <div className="d-flex align-items-center gap-2">
-              <div className="rounded-circle bg-light d-flex align-items-center justify-content-center" style={{ width: '32px', height: '32px' }}>
-                <CIcon icon={cilChatBubble} size="sm" />
-              </div>
+              <img
+                src={minionAvatar}
+                alt="Minion"
+                className="rounded-circle"
+                style={{ width: '36px', height: '36px', objectFit: 'cover', border: '2px solid #fff' }}
+              />
               <strong>Suporte Fenicia</strong>
             </div>
             <CButton
@@ -166,6 +224,28 @@ const ChatWidget: React.FC = () => {
                   </div>
                 </CListGroupItem>
               ))}
+              {showFaq && (
+                <CListGroupItem className="border-0 bg-transparent p-0 mt-2">
+                  <div className="text-muted mb-2" style={{ fontSize: '0.75rem' }}>
+                    <CIcon icon={cilSearch} size="sm" className="me-1" />
+                    Perguntas frequentes:
+                  </div>
+                  <div className="d-flex flex-column gap-1">
+                    {(faqData.faq as FaqItem[]).slice(0, 6).map((faq) => (
+                      <CButton
+                        key={faq.id}
+                        color="light"
+                        size="sm"
+                        className="text-start text-wrap"
+                        style={{ fontSize: '0.8rem', whiteSpace: 'normal' }}
+                        onClick={() => handleFaqClick(faq)}
+                      >
+                        {faq.question}
+                      </CButton>
+                    ))}
+                  </div>
+                </CListGroupItem>
+              )}
               <div ref={messagesEndRef} />
             </CListGroup>
           </CCardBody>
@@ -196,9 +276,15 @@ const ChatWidget: React.FC = () => {
           width: '60px',
           height: '60px',
           boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          padding: 0,
+          overflow: 'hidden',
         }}
       >
-        <CIcon icon={cilChatBubble} size="lg" />
+        <img
+          src={minionAvatar}
+          alt="Minion"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
       </CButton>
     </div>
   );
