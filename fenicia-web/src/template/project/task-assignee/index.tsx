@@ -22,8 +22,8 @@ import {
     CTableRow
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
-import Pagination from '../../components/fenicia/pagination';
-import ProjectTaskAssigneeModal from '../../components/ProjectTaskAssigneeModal';
+import Pagination from '../../../components/fenicia/pagination';
+import ProjectTaskAssigneeModal from '../../../components/ProjectTaskAssigneeModal';
 import ProjectTaskAssigneeClient from '../../../services/project/project-task-assignee-client';
 
 const projectTaskAssigneeClient = new ProjectTaskAssigneeClient("http://localhost:5144");

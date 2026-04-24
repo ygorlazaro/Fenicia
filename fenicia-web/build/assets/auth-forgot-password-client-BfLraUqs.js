@@ -1,0 +1,1 @@
+import{A as t}from"./auth-client-B_JWI5Xy.js";class r extends t{constructor(s){super(s)}async requestReset(s){await this.getClient().post("/forgotpassword",{email:s})}async resetPassword(s){await this.getClient().post("/forgotpassword/reset",{email:s.email,token:s.token,newPassword:s.newPassword})}}export{r as A};

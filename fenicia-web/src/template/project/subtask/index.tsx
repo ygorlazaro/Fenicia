@@ -22,8 +22,8 @@ import {
     CTableRow
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
-import Pagination from '../../components/fenicia/pagination';
-import ProjectSubtaskModal from '../../components/ProjectSubtaskModal';
+import Pagination from '../../../components/fenicia/pagination';
+import ProjectSubtaskModal from '../../../components/ProjectSubtaskModal';
 import ProjectSubtaskClient from '../../../services/project/project-subtask-client';
 
 const projectSubtaskClient = new ProjectSubtaskClient("http://localhost:5144");

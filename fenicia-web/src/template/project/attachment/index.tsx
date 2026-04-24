@@ -22,8 +22,8 @@ import {
     CTableRow
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
-import Pagination from '../../components/fenicia/pagination';
-import ProjectAttachmentModal from '../../components/ProjectAttachmentModal';
+import Pagination from '../../../components/fenicia/pagination';
+import ProjectAttachmentModal from '../../../components/ProjectAttachmentModal';
 import ProjectAttachmentClient from '../../../services/project/project-attachment-client';
 
 const projectAttachmentClient = new ProjectAttachmentClient("http://localhost:5144");
