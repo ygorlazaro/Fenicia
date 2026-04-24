@@ -1,4 +1,5 @@
 import { AxiosResponse } from 'axios';
+import { IPagination } from '../../types';
 import { GetCompaniesByUserResponse } from "../../types/auth/get-companies-by-user-response";
 import { AuthClient } from './auth-client';
 
@@ -18,7 +19,7 @@ export class AuthCompanyClient extends AuthClient {
    * @param {number} perPage - Items per page
    * @returns {Promise<GetCompaniesByUserResponse[]>}
    */
-  async getCompaniesByUser(page: number = 1, perPage: number = 10): Promise<GetCompaniesByUserResponse[]> {
+  async getCompaniesByUser(page: number = 1, perPage: number = 10): Promise<IPagination<GetCompaniesByUserResponse>> {
     const response = await this.getClient().get('/company', {
       params: { page, perPage }
     });

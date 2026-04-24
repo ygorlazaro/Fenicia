@@ -1,5 +1,3 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
 import {
     CModal,
     CModalBody,
@@ -7,14 +5,24 @@ import {
     CModalTitle,
     CSpinner
 } from '@coreui/react';
+import { useTranslation } from 'react-i18next';
+import { GetCompaniesByUserResponse } from '../../../types/auth/get-companies-by-user-response';
+
+interface CompanySelectModalProps {
+    visible: boolean;
+    companies: GetCompaniesByUserResponse[];
+    loading: boolean;
+    error: string | null;
+    onSelect: (company: GetCompaniesByUserResponse) => void;
+}
 
 const CompanySelectModal = ({
     visible,
-    companies,
+    companies = [],
     loading,
     error,
     onSelect
-}) => {
+}: CompanySelectModalProps) => {
     const { t } = useTranslation();
 
     return (
@@ -62,9 +70,6 @@ const CompanySelectModal = ({
                             </div>
                             <div className="d-flex gap-2">
                                 <small className="text-muted">CNPJ: {company.cnpj}</small>
-                                {company.isDefault && (
-                                    <span className="badge bg-primary">{t('common.default')}</span>
-                                )}
                             </div>
                         </button>
                     ))}

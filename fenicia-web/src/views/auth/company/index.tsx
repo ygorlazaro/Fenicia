@@ -1,14 +1,15 @@
 import { CCol, CContainer, CRow } from '@coreui/react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CompanySelectModal from '../../../components/CompanySelectModal';
 import AuthCompanyClient from '../../../services/auth/auth-company-client';
+import { GetCompaniesByUserResponse } from '../../../types/auth/get-companies-by-user-response';
+import CompanySelectModal from './company-select-modal';
 
-const companyClient = new AuthCompanyClient("http://localhost:5144");
+const companyClient = new AuthCompanyClient();
 
 const CompanySelect = () => {
     const navigate = useNavigate();
-    const [companies, setCompanies] = useState([]);
+    const [companies, setCompanies] = useState <GetCompaniesByUserResponse[]>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selected, setSelected] = useState(false);
@@ -23,31 +24,25 @@ const CompanySelect = () => {
             setError(null);
             const response = await companyClient.getCompaniesByUser(1, 50);
 
-            // Handle both array and paginated response
-            const companiesList = Array.isArray(response) ? response : response.items || response.data || [];
-            setCompanies(companiesList);
+            setCompanies(response.data);
             
-            if (companiesList.length === 0) {
+            if (companies.length === 0) {
                 setError('Nenhuma empresa encontrada para este usuário.');
             }
         } catch (err) {
-            console.error('Failed to load companies:', err);
-            console.error('Error response:', err.response);
             setError(err.response?.data?.title || err.message || 'Falha ao carregar empresas.');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSelectCompany = (company) => {
-        if (selected) return; // Prevent multiple selections
+    const handleSelectCompany = (company: GetCompaniesByUserResponse) => {
+        if (selected) return;
         setSelected(true);
         
-        // Persist company ID and name to localStorage
         companyClient.setCompanyId(company.id);
         localStorage.setItem('company_name', company.name);
         
-        // Redirect to dashboard
         navigate('/dashboard');
     };
 

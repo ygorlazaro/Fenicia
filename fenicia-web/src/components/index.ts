@@ -1,14 +1,14 @@
+import AuthLayout from '../layout/auth-layout'
 import AppBreadcrumb from './AppBreadcrumb'
 import AppContent from './AppContent'
 import AppFooter from './AppFooter'
 import AppHeader from './AppHeader'
-import AppHeaderDropdown from './header/AppHeaderDropdown'
 import AppSidebar from './AppSidebar'
-import AuthLayout from './AuthLayout'
 import DocsComponents from './DocsComponents'
+import DocsExample from './DocsExample'
 import DocsIcons from './DocsIcons'
 import DocsLink from './DocsLink'
-import DocsExample from './DocsExample'
+import AppHeaderDropdown from './header/AppHeaderDropdown'
 import PWAInstallPrompt from './PWAInstallPrompt'
 import UserModal from './UserModal'
 import UserPasswordModal from './UserPasswordModal'
@@ -21,11 +21,8 @@ export {
   AppHeaderDropdown,
   AppSidebar,
   AuthLayout,
-  DocsComponents,
-  DocsIcons,
-  DocsLink,
-  DocsExample,
-  PWAInstallPrompt,
+  DocsComponents, DocsExample, DocsIcons,
+  DocsLink, PWAInstallPrompt,
   UserModal,
-  UserPasswordModal,
+  UserPasswordModal
 }

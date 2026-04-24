@@ -4,19 +4,18 @@ import {
     CCard,
     CCardBody,
     CCardHeader,
-    CForm,
-    CFormInput,
-    CFormLabel
+    CForm
 } from "@coreui/react";
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import AuthLayout from 'src/components/AuthLayout';
+import { AuthLayout } from "../../../components";
+import { FeniciaInput } from "../../../components/fenicia/fenicia-input";
 import AuthForgotPasswordClient from '../../../services/auth/auth-forgot-password-client';
 
-const forgotPasswordClient = new AuthForgotPasswordClient("http://localhost:5144");
+const forgotPasswordClient = new AuthForgotPasswordClient();
 
-const ForgotPassword = () => {
+function ForgotPassword() {
     const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
@@ -66,15 +65,14 @@ const ForgotPassword = () => {
                             </p>
                             <CForm onSubmit={handleSubmit}>
                                 <div className="mb-3">
-                                    <CFormLabel htmlFor="inputEmail">{t('auth.labels.email', 'E-mail')}</CFormLabel>
-                                    <CFormInput
+                                    <FeniciaInput
                                         type="email"
-                                        id="inputEmail"
-                                        name="email"
-                                        placeholder={t('auth.placeholders.email', 'name@example.com')}
+                                        id="inputEmailFenicia"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
+                                        label={t('auth.labels.email', 'E-mail')}
+                                        placeholder={t('auth.forgotPassword.emailPlaceholder', 'Digite seu e-mail')}
                                     />
                                 </div>
                                 <div className="d-grid gap-2">
@@ -98,7 +96,7 @@ const ForgotPassword = () => {
                 </CCardBody>
             </CCard>
         </AuthLayout>
-    )
-};
+    );
+}
 
 export default ForgotPassword;
