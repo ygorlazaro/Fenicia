@@ -1,4 +1,4 @@
-import { AppContent, AppFooter, AppHeader, AppSidebar, PWAInstallPrompt } from '../components/index'
+import { AppContent, AppFooter, AppHeader, AppSidebar, ChatWidget, PWAInstallPrompt } from '../components/index'
 
 const DefaultLayout = () => {
   return (
@@ -11,6 +11,7 @@ const DefaultLayout = () => {
         </div>
         <AppFooter />
         <PWAInstallPrompt />
+        <ChatWidget />
       </div>
     </div>
   )

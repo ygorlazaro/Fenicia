@@ -4,6 +4,7 @@ import AppContent from './AppContent'
 import AppFooter from './AppFooter'
 import AppHeader from './AppHeader'
 import AppSidebar from './AppSidebar'
+import ChatWidget from './ChatWidget'
 import DocsComponents from './DocsComponents'
 import DocsExample from './DocsExample'
 import DocsIcons from './DocsIcons'
@@ -21,6 +22,7 @@ export {
   AppHeaderDropdown,
   AppSidebar,
   AuthLayout,
+  ChatWidget,
   DocsComponents, DocsExample, DocsIcons,
   DocsLink, PWAInstallPrompt,
   UserModal,
