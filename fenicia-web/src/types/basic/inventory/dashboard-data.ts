@@ -1,6 +1,6 @@
-import { CategoryBreakdown } from './category-breakdown';
-import { LowStockItem } from './low-stock-item';
-import { SupplierBreakdown } from './supplier-breakdown';
+import { CategoryBreakdown } from "./category-breakdown";
+import { LowStockItem } from "./low-stock-item";
+import { SupplierBreakdown } from "./supplier-breakdown";
 
 export interface DashboardData {
     lowStockItems: LowStockItem[];

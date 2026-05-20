@@ -1,6 +1,5 @@
 import { ModuleType } from "../../enums/auth-enums";
 
-
 export type GetModuleResponse = {
     id: string;
     name: string;

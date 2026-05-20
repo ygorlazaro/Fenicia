@@ -1,4 +1,3 @@
-
 export type AddProductCommand = {
     id: string;
     name: string;

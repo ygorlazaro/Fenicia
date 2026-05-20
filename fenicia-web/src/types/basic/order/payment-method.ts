@@ -1,1 +1,1 @@
-export type PaymentMethod = 'Cash' | 'CreditCard' | 'DebitCard' | 'BankTransfer' | 'Pix';
+export type PaymentMethod = "Cash" | "CreditCard" | "DebitCard" | "BankTransfer" | "Pix";

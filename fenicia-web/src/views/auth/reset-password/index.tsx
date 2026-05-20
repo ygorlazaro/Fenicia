@@ -1,28 +1,21 @@
-import {
-    CAlert,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CForm
-} from "@coreui/react";
-import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { CAlert, CButton, CCard, CCardBody, CCardHeader, CForm } from "@coreui/react";
+import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FeniciaInput } from "../../../components/fenicia/fenicia-input";
 import AuthLayout from "../../../layout/auth-layout";
-import AuthForgotPasswordClient from '../../../services/auth/auth-forgot-password-client';
+import AuthForgotPasswordClient from "../../../services/auth/auth-forgot-password-client";
 
 const forgotPasswordClient = new AuthForgotPasswordClient("http://localhost:5144");
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    
+
     const [formData, setFormData] = useState({
-        email: searchParams.get('email') || '',
-        token: searchParams.get('token') || '',
-        newPassword: '',
-        confirmPassword: ''
+        email: searchParams.get("email") || "",
+        token: searchParams.get("token") || "",
+        newPassword: "",
+        confirmPassword: ""
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -30,7 +23,7 @@ const ResetPassword = () => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value
         }));
@@ -43,14 +36,14 @@ const ResetPassword = () => {
 
         // Validate passwords match
         if (formData.newPassword !== formData.confirmPassword) {
-            setError('As senhas não coincidem.');
+            setError("As senhas não coincidem.");
             setLoading(false);
             return;
         }
 
         // Validate password length
         if (formData.newPassword.length < 6) {
-            setError('A senha deve ter pelo menos 6 caracteres.');
+            setError("A senha deve ter pelo menos 6 caracteres.");
             setLoading(false);
             return;
         }
@@ -62,14 +55,14 @@ const ResetPassword = () => {
                 newPassword: formData.newPassword
             });
             setSuccess(true);
-            
+
             // Redirect to login after 3 seconds
             setTimeout(() => {
-                navigate('/auth/login');
+                navigate("/auth/login");
             }, 3000);
         } catch (err) {
-            console.error('Reset password failed:', err);
-            setError(err.response?.data?.title || 'Falha ao redefinir senha. O token pode ter expirado.');
+            console.error("Reset password failed:", err);
+            setError(err.response?.data?.title || "Falha ao redefinir senha. O token pode ter expirado.");
         } finally {
             setLoading(false);
         }
@@ -97,55 +90,20 @@ const ResetPassword = () => {
                     {!success && (
                         <CForm onSubmit={handleSubmit}>
                             <div className="mb-3">
-                                <FeniciaInput
-                                    type="email"
-                                    id="inputEmailFenicia"
-                                    label="E-mail"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    required
-                                    disabled
-                                />
+                                <FeniciaInput type="email" id="inputEmailFenicia" label="E-mail" value={formData.email} onChange={handleInputChange} required disabled />
                             </div>
                             <div className="mb-3">
-                                <FeniciaInput
-                                    type="text"
-                                    id="inputTokenFenicia"
-                                    label="Token"
-                                    value={formData.token}
-                                    onChange={handleInputChange}
-                                    required
-                                />
+                                <FeniciaInput type="text" id="inputTokenFenicia" label="Token" value={formData.token} onChange={handleInputChange} required />
                             </div>
                             <div className="mb-3">
-                                <FeniciaInput
-                                    type="password"
-                                    id="inputNewPasswordFenicia"
-                                    label="Nova Senha"
-                                    value={formData.newPassword}
-                                    onChange={handleInputChange}
-                                    required
-                                    minLength={6}
-                                />
+                                <FeniciaInput type="password" id="inputNewPasswordFenicia" label="Nova Senha" value={formData.newPassword} onChange={handleInputChange} required minLength={6} />
                             </div>
                             <div className="mb-3">
-                                <FeniciaInput
-                                    type="password"
-                                    id="inputConfirmPasswordFenicia"
-                                    label="Confirmar Senha"
-                                    value={formData.confirmPassword}
-                                    onChange={handleInputChange}
-                                    required
-                                    minLength={6}
-                                />
+                                <FeniciaInput type="password" id="inputConfirmPasswordFenicia" label="Confirmar Senha" value={formData.confirmPassword} onChange={handleInputChange} required minLength={6} />
                             </div>
                             <div className="d-grid gap-2">
-                                <CButton
-                                    color="primary"
-                                    type="submit"
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Redefinindo...' : 'Redefinir senha'}
+                                <CButton color="primary" type="submit" disabled={loading}>
+                                    {loading ? "Redefinindo..." : "Redefinir senha"}
                                 </CButton>
                             </div>
                         </CForm>
@@ -159,7 +117,7 @@ const ResetPassword = () => {
                 </CCardBody>
             </CCard>
         </AuthLayout>
-    )
+    );
 };
 
 export default ResetPassword;

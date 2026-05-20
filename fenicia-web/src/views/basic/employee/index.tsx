@@ -1,40 +1,16 @@
-import { cilChart, cilPencil, cilPeople, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CAlert,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CNav,
-    CNavItem,
-    CNavLink,
-    CSpinner,
-    CTabContent,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
-    CTabPane
-} from '@coreui/react';
-import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link, useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/fenicia/pagination';
-import { BasicEmployeeClient } from '../../../services/basic/basic-employee-client';
+import { cilChart, cilPencil, cilPeople, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CAlert, CButton, CCard, CCardBody, CCardHeader, CContainer, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CNav, CNavItem, CNavLink, CSpinner, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabPane } from "@coreui/react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useSearchParams } from "react-router-dom";
+import Pagination from "../../../components/fenicia/pagination";
+import { BasicEmployeeClient } from "../../../services/basic/basic-employee-client";
 import { GetAllEmployeeResponse } from "../../../types/basic/employee/get-all-employee-response";
 import { GetEmployeeByIdResponse } from "../../../types/basic/employee/get-employee-by-id-response";
 import { UpdateEmployeeCommand } from "../../../types/basic/employee/update-employee-command";
-import EmployeeModal from './employee-modal';
-import { RenderPerformanceTab } from './performance';
+import EmployeeModal from "./employee-modal";
+import { RenderPerformanceTab } from "./performance";
 
 const employeeClient = new BasicEmployeeClient("http://localhost:5083");
 
@@ -67,7 +43,7 @@ const EmployeeList = () => {
     paginationRef.current = pagination;
 
     useEffect(() => {
-        const employeeId = searchParams.get('id');
+        const employeeId = searchParams.get("id");
         if (employeeId) {
             loadEmployeeForEdit(employeeId);
         }
@@ -80,8 +56,8 @@ const EmployeeList = () => {
             setSelectedEmployee(employee);
             setModalVisible(true);
         } catch (err) {
-            console.error('Failed to load employee for edit:', err);
-            setError(t('employees.loadError'));
+            console.error("Failed to load employee for edit:", err);
+            setError(t("employees.loadError"));
         }
     };
 
@@ -92,16 +68,16 @@ const EmployeeList = () => {
             const { page, perPage } = paginationRef.current;
             const response = await employeeClient.getAll(page, perPage);
             const isPaginated = response && response.data && Array.isArray(response.data);
-            const employeesList = isPaginated ? response.data : (Array.isArray(response) ? response : []);
+            const employeesList = isPaginated ? response.data : Array.isArray(response) ? response : [];
             const totalItems = response?.total ?? employeesList.length;
             setEmployees(employeesList);
-            setPagination(prev => ({
+            setPagination((prev) => ({
                 ...prev,
                 total: totalItems,
                 pages: Math.ceil(totalItems / prev.perPage) || 1
             }));
         } catch (err) {
-            setError(t('employees.loadError'));
+            setError(t("employees.loadError"));
         } finally {
             setLoading(false);
         }
@@ -118,8 +94,8 @@ const EmployeeList = () => {
             setSelectedEmployee(fullEmployee);
             setModalVisible(true);
         } catch (err) {
-            console.error('Failed to load employee details:', err);
-            setError(t('employees.loadError'));
+            console.error("Failed to load employee details:", err);
+            setError(t("employees.loadError"));
         }
     };
 
@@ -142,16 +118,16 @@ const EmployeeList = () => {
             };
             if (selectedEmployee) {
                 await employeeClient.update(selectedEmployee.id, payload);
-                setSuccessMessage(t('employees.updateSuccess'));
+                setSuccessMessage(t("employees.updateSuccess"));
             } else {
                 await employeeClient.create(payload);
-                setSuccessMessage(t('employees.createSuccess'));
+                setSuccessMessage(t("employees.createSuccess"));
             }
             setModalVisible(false);
             loadEmployees();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            setError(t('employees.saveError'));
+            setError(t("employees.saveError"));
         } finally {
             setSaving(false);
         }
@@ -163,26 +139,25 @@ const EmployeeList = () => {
         setDeleting(true);
         try {
             await employeeClient.delete(employeeToDelete.id);
-            setSuccessMessage(t('employees.deleteSuccess'));
+            setSuccessMessage(t("employees.deleteSuccess"));
             setDeleteModalVisible(false);
             setEmployeeToDelete(null);
             loadEmployees();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            setError(t('employees.loadError'));
+            setError(t("employees.loadError"));
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage: number) => {
-        setPagination(prev => ({ ...prev, page: newPage }));
+        setPagination((prev) => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage: number) => {
-        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+        setPagination((prev) => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
-
 
     return (
         <CContainer className="py-4">
@@ -200,25 +175,25 @@ const EmployeeList = () => {
 
             <CCard>
                 <CCardHeader className="d-flex justify-content-between align-items-center">
-                    <strong>{t('employees.title')}</strong>
+                    <strong>{t("employees.title")}</strong>
                     <CButton color="primary" size="sm" onClick={handleOpenAdd}>
                         <CIcon icon={cilPlus} className="me-2" />
-                        {t('employees.new')}
+                        {t("employees.new")}
                     </CButton>
                 </CCardHeader>
                 <CCardBody>
                     {/* Main Navigation Tabs */}
                     <CNav variant="tabs">
                         <CNavItem>
-                            <CNavLink active={activeTab === 0} onClick={() => setActiveTab(0)} style={{ cursor: 'pointer' }}>
+                            <CNavLink active={activeTab === 0} onClick={() => setActiveTab(0)} style={{ cursor: "pointer" }}>
                                 <CIcon icon={cilPeople} className="me-2" />
-                                {t('employees.employeesList')}
+                                {t("employees.employeesList")}
                             </CNavLink>
                         </CNavItem>
                         <CNavItem>
-                            <CNavLink active={activeTab === 1} onClick={() => setActiveTab(1)} style={{ cursor: 'pointer' }}>
+                            <CNavLink active={activeTab === 1} onClick={() => setActiveTab(1)} style={{ cursor: "pointer" }}>
                                 <CIcon icon={cilChart} className="me-2" />
-                                {t('employees.performance')}
+                                {t("employees.performance")}
                             </CNavLink>
                         </CNavItem>
                     </CNav>
@@ -229,13 +204,13 @@ const EmployeeList = () => {
                             {loading && (
                                 <div className="text-center py-4">
                                     <CSpinner color="primary" />
-                                    <p className="mt-2">{t('common.loading')}</p>
+                                    <p className="mt-2">{t("common.loading")}</p>
                                 </div>
                             )}
 
                             {!loading && employees.length === 0 && (
                                 <div className="text-center py-4">
-                                    <p className="text-muted">{t('common.noData')}</p>
+                                    <p className="text-muted">{t("common.noData")}</p>
                                 </div>
                             )}
 
@@ -244,10 +219,10 @@ const EmployeeList = () => {
                                     <CTable hover responsive>
                                         <CTableHead>
                                             <CTableRow>
-                                                <CTableHeaderCell>{t('employees.name')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('employees.email')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('employees.position')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t("employees.name")}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t("employees.email")}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t("employees.position")}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-end">{t("common.actions")}</CTableHeaderCell>
                                             </CTableRow>
                                         </CTableHead>
                                         <CTableBody>
@@ -258,26 +233,17 @@ const EmployeeList = () => {
                                                     <CTableDataCell>
                                                         {employee.positionId ? (
                                                             <Link to={`/basic/positions?id=${employee.positionId}`} className="text-decoration-none">
-                                                                {employee.positionName || '-'}
+                                                                {employee.positionName || "-"}
                                                             </Link>
                                                         ) : (
-                                                            '-'
+                                                            "-"
                                                         )}
                                                     </CTableDataCell>
                                                     <CTableDataCell className="text-end">
-                                                        <CButton
-                                                            color="info"
-                                                            size="sm"
-                                                            className="me-2"
-                                                            onClick={() => handleOpenEdit(employee)}
-                                                        >
+                                                        <CButton color="info" size="sm" className="me-2" onClick={() => handleOpenEdit(employee)}>
                                                             <CIcon icon={cilPencil} />
                                                         </CButton>
-                                                        <CButton
-                                                            color="danger"
-                                                            size="sm"
-                                                            onClick={() => handleOpenDelete(employee)}
-                                                        >
+                                                        <CButton color="danger" size="sm" onClick={() => handleOpenDelete(employee)}>
                                                             <CIcon icon={cilTrash} />
                                                         </CButton>
                                                     </CTableDataCell>
@@ -286,66 +252,36 @@ const EmployeeList = () => {
                                         </CTableBody>
                                     </CTable>
 
-                                    <Pagination
-                                        pagination={pagination}
-                                        onPageChange={handlePageChange}
-                                        onPerPageChange={handlePerPageChange}
-                                    />
+                                    <Pagination pagination={pagination} onPageChange={handlePageChange} onPerPageChange={handlePerPageChange} />
                                 </>
                             )}
                         </CTabPane>
                         <CTabPane visible={activeTab === 1}>
-                            <RenderPerformanceTab
-                                analyticsDays={analyticsDays}
-                                setAnalyticsDays={setAnalyticsDays}
-                                activeTab={activeTab}
-                                onError={t => setError(t)}
-                            />
+                            <RenderPerformanceTab analyticsDays={analyticsDays} setAnalyticsDays={setAnalyticsDays} activeTab={activeTab} onError={(t) => setError(t)} />
                         </CTabPane>
                     </CTabContent>
                 </CCardBody>
             </CCard>
 
-            <EmployeeModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onSave={handleSave}
-                employee={selectedEmployee}
-                loading={saving}
-            />
+            <EmployeeModal visible={modalVisible} onClose={() => setModalVisible(false)} onSave={handleSave} employee={selectedEmployee} loading={saving} />
 
-            <CModal
-                visible={deleteModalVisible}
-                onClose={() => setDeleteModalVisible(false)}
-            >
+            <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
-                        {t('common.confirmDelete')}
+                        {t("common.confirmDelete")}
                     </CModalTitle>
                 </CModalHeader>
                 <CModalBody>
-                    <p>
-                        {t('employees.deleteConfirm', { name: employeeToDelete?.name })}
-                    </p>
-                    <p className="text-danger">
-                        {t('employees.deleteWarning')}
-                    </p>
+                    <p>{t("employees.deleteConfirm", { name: employeeToDelete?.name })}</p>
+                    <p className="text-danger">{t("employees.deleteWarning")}</p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton
-                        color="secondary"
-                        onClick={() => setDeleteModalVisible(false)}
-                        disabled={deleting}
-                    >
-                        {t('common.cancel')}
+                    <CButton color="secondary" onClick={() => setDeleteModalVisible(false)} disabled={deleting}>
+                        {t("common.cancel")}
                     </CButton>
-                    <CButton
-                        color="danger"
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? t('common.deleting') : t('common.delete')}
+                    <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+                        {deleting ? t("common.deleting") : t("common.delete")}
                     </CButton>
                 </CModalFooter>
             </CModal>

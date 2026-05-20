@@ -1,4 +1,3 @@
-
 export type AddressCommand = {
     street: string;
     number: string;

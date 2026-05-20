@@ -1,16 +1,9 @@
-import {
-    cilArrowBottom,
-    cilArrowTop
-} from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CCol,
-    CRow,
-    CWidgetStatsB
-} from '@coreui/react';
-import { useTranslation } from 'react-i18next';
-import formatCurrency from '../../utils/format-currency';
-import formatPercentage from '../../utils/format-percentage';
+import { cilArrowBottom, cilArrowTop } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CCol, CRow, CWidgetStatsB } from "@coreui/react";
+import { useTranslation } from "react-i18next";
+import formatCurrency from "../../utils/format-currency";
+import formatPercentage from "../../utils/format-percentage";
 
 interface DailySalesSummaryProps {
     todayRevenue: number;
@@ -29,12 +22,12 @@ const DailySalesSummary = ({ todayRevenue, todayOrders, weekRevenue, weekOrders,
             <CCol sm={4} xl={4}>
                 <CWidgetStatsB
                     color="primary"
-                    title={t('dashboard.today')}
+                    title={t("dashboard.today")}
                     value={
                         <>
                             {formatCurrency(todayRevenue)}
                             <span className="fs-6 fw-normal d-block mt-1">
-                                {todayOrders} {t('dashboard.orders')}
+                                {todayOrders} {t("dashboard.orders")}
                             </span>
                         </>
                     }
@@ -44,12 +37,12 @@ const DailySalesSummary = ({ todayRevenue, todayOrders, weekRevenue, weekOrders,
             <CCol sm={4} xl={4}>
                 <CWidgetStatsB
                     color="info"
-                    title={t('dashboard.thisWeek')}
+                    title={t("dashboard.thisWeek")}
                     value={
                         <>
                             {formatCurrency(weekRevenue)}
                             <span className="fs-6 fw-normal d-block mt-1">
-                                {weekOrders} {t('dashboard.orders')}
+                                {weekOrders} {t("dashboard.orders")}
                             </span>
                         </>
                     }
@@ -59,16 +52,13 @@ const DailySalesSummary = ({ todayRevenue, todayOrders, weekRevenue, weekOrders,
             <CCol sm={4} xl={4}>
                 <CWidgetStatsB
                     color="success"
-                    title={t('dashboard.thisMonth')}
+                    title={t("dashboard.thisMonth")}
                     value={
                         <>
                             {formatCurrency(monthRevenue)}
                             <span className="fs-6 fw-normal d-block mt-1">
-                                <CIcon
-                                    icon={growthPercentage >= 0 ? cilArrowTop : cilArrowBottom}
-                                    className="me-1"
-                                />
-                                {formatPercentage(growthPercentage)} {t('dashboard.vsLastMonth')}
+                                <CIcon icon={growthPercentage >= 0 ? cilArrowTop : cilArrowBottom} className="me-1" />
+                                {formatPercentage(growthPercentage)} {t("dashboard.vsLastMonth")}
                             </span>
                         </>
                     }
@@ -76,6 +66,6 @@ const DailySalesSummary = ({ todayRevenue, todayOrders, weekRevenue, weekOrders,
             </CCol>
         </CRow>
     );
-}
+};
 
 export default DailySalesSummary;

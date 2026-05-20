@@ -1,30 +1,10 @@
-import { cilCloudDownload, cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CAlert,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CLink,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CSpinner,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow
-} from '@coreui/react';
-import { useEffect, useState } from 'react';
-import Pagination from '../../components/fenicia/pagination';
-import ProjectAttachmentModal from '../../components/ProjectAttachmentModal';
-import ProjectAttachmentClient from '../../../services/project/project-attachment-client';
+import { cilCloudDownload, cilPencil, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CAlert, CButton, CCard, CCardBody, CCardHeader, CContainer, CLink, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CSpinner, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
+import { useEffect, useState } from "react";
+import Pagination from "../../components/fenicia/pagination";
+import ProjectAttachmentModal from "../../components/ProjectAttachmentModal";
+import ProjectAttachmentClient from "../../../services/project/project-attachment-client";
 
 const projectAttachmentClient = new ProjectAttachmentClient("http://localhost:5144");
 
@@ -56,17 +36,17 @@ const ProjectAttachmentList = () => {
             setError(null);
             const response = await projectAttachmentClient.getAll(pagination.page, pagination.perPage);
 
-            const attachmentsList = Array.isArray(response) ? response : (response?.data || []);
+            const attachmentsList = Array.isArray(response) ? response : response?.data || [];
             setAttachments(attachmentsList);
-            setPagination(prev => ({
+            setPagination((prev) => ({
                 ...prev,
                 total: response?.total || attachmentsList.length,
                 pages: response?.pages || 1
             }));
         } catch (err) {
-            console.error('Failed to load project attachments:', err);
-            console.error('Error response:', err.response);
-            setError(err.response?.data?.title || 'Falha ao carregar anexos do projeto.');
+            console.error("Failed to load project attachments:", err);
+            console.error("Error response:", err.response);
+            setError(err.response?.data?.title || "Falha ao carregar anexos do projeto.");
         } finally {
             setLoading(false);
         }
@@ -92,17 +72,17 @@ const ProjectAttachmentList = () => {
         try {
             if (selectedAttachment) {
                 await projectAttachmentClient.update(selectedAttachment.id, formData);
-                setSuccessMessage('Anexo do projeto atualizado com sucesso!');
+                setSuccessMessage("Anexo do projeto atualizado com sucesso!");
             } else {
                 await projectAttachmentClient.create(formData);
-                setSuccessMessage('Anexo do projeto criado com sucesso!');
+                setSuccessMessage("Anexo do projeto criado com sucesso!");
             }
             setModalVisible(false);
             loadAttachments();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to save project attachment:', err);
-            setError(err.response?.data?.title || 'Falha ao salvar anexo do projeto.');
+            console.error("Failed to save project attachment:", err);
+            setError(err.response?.data?.title || "Falha ao salvar anexo do projeto.");
         } finally {
             setSaving(false);
         }
@@ -114,34 +94,34 @@ const ProjectAttachmentList = () => {
         setDeleting(true);
         try {
             await projectAttachmentClient.delete(attachmentToDelete.id);
-            setSuccessMessage('Anexo do projeto excluído com sucesso!');
+            setSuccessMessage("Anexo do projeto excluído com sucesso!");
             setDeleteModalVisible(false);
             setAttachmentToDelete(null);
             loadAttachments();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to delete project attachment:', err);
-            setError(err.response?.data?.title || 'Falha ao excluir anexo do projeto.');
+            console.error("Failed to delete project attachment:", err);
+            setError(err.response?.data?.title || "Falha ao excluir anexo do projeto.");
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage) => {
-        setPagination(prev => ({ ...prev, page: newPage }));
+        setPagination((prev) => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage) => {
-        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+        setPagination((prev) => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
     const formatFileSize = (bytes) => {
-        if (!bytes) return '-';
-        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-        if (bytes === 0) return '0 B';
+        if (!bytes) return "-";
+        const sizes = ["B", "KB", "MB", "GB", "TB"];
+        if (bytes === 0) return "0 B";
         const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
         if (i === 0) return `${bytes} B`;
-        return `${(bytes / (1024 ** i)).toFixed(2)} ${sizes[i]}`;
+        return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
     };
 
     return (
@@ -206,22 +186,13 @@ const ProjectAttachmentList = () => {
                                                 )}
                                             </CTableDataCell>
                                             <CTableDataCell>{formatFileSize(attachment.fileSize)}</CTableDataCell>
-                                            <CTableDataCell>{attachment.taskId || '-'}</CTableDataCell>
-                                            <CTableDataCell>{attachment.uploadedBy || '-'}</CTableDataCell>
+                                            <CTableDataCell>{attachment.taskId || "-"}</CTableDataCell>
+                                            <CTableDataCell>{attachment.uploadedBy || "-"}</CTableDataCell>
                                             <CTableDataCell className="text-end">
-                                                <CButton
-                                                    color="info"
-                                                    size="sm"
-                                                    className="me-2"
-                                                    onClick={() => handleOpenEdit(attachment)}
-                                                >
+                                                <CButton color="info" size="sm" className="me-2" onClick={() => handleOpenEdit(attachment)}>
                                                     <CIcon icon={cilPencil} />
                                                 </CButton>
-                                                <CButton
-                                                    color="danger"
-                                                    size="sm"
-                                                    onClick={() => handleOpenDelete(attachment)}
-                                                >
+                                                <CButton color="danger" size="sm" onClick={() => handleOpenDelete(attachment)}>
                                                     <CIcon icon={cilTrash} />
                                                 </CButton>
                                             </CTableDataCell>
@@ -237,19 +208,10 @@ const ProjectAttachmentList = () => {
             </CCard>
 
             {/* Add/Edit Modal */}
-            <ProjectAttachmentModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onSave={handleSave}
-                projectAttachment={selectedAttachment}
-                loading={saving}
-            />
+            <ProjectAttachmentModal visible={modalVisible} onClose={() => setModalVisible(false)} onSave={handleSave} projectAttachment={selectedAttachment} loading={saving} />
 
             {/* Delete Confirmation Modal */}
-            <CModal
-                visible={deleteModalVisible}
-                onClose={() => setDeleteModalVisible(false)}
-            >
+            <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
@@ -260,24 +222,14 @@ const ProjectAttachmentList = () => {
                     <p>
                         Tem certeza que deseja excluir o anexo <strong>{attachmentToDelete?.fileName}</strong>?
                     </p>
-                    <p className="text-danger">
-                        Esta ação não pode ser desfeita.
-                    </p>
+                    <p className="text-danger">Esta ação não pode ser desfeita.</p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton
-                        color="secondary"
-                        onClick={() => setDeleteModalVisible(false)}
-                        disabled={deleting}
-                    >
+                    <CButton color="secondary" onClick={() => setDeleteModalVisible(false)} disabled={deleting}>
                         Cancelar
                     </CButton>
-                    <CButton
-                        color="danger"
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? 'Excluindo...' : 'Excluir'}
+                    <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+                        {deleting ? "Excluindo..." : "Excluir"}
                     </CButton>
                 </CModalFooter>
             </CModal>

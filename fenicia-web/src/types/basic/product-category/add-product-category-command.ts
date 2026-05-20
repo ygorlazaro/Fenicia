@@ -20,9 +20,9 @@ export type UpdateProductCategoryResponse = {
     name: string;
 };
 
-export type PaymentMethod = 'Cash' | 'CreditCard' | 'DebitCard' | 'BankTransfer' | 'Pix';
+export type PaymentMethod = "Cash" | "CreditCard" | "DebitCard" | "BankTransfer" | "Pix";
 
-export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled';
+export type OrderStatus = "Pending" | "Confirmed" | "Shipped" | "Delivered" | "Cancelled";
 
 export type GetAllOrderResponse = {
     id: string;

@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TimeRangeSelector from "../../../../components/fenicia/time-range-selector";
 import BasicEmployeeClient from "../../../../services/basic/basic-employee-client";
-import { EmployeePerformance } from '../../../../types/basic/employee/employee-performance';
-import { OrdersByEmployee } from './orders-by-employee';
-import { SalesByEmployee } from './sales-by-employee';
-import { SummaryCards } from './summary-cards';
-import { TopPerformers } from './top-performers';
+import { EmployeePerformance } from "../../../../types/basic/employee/employee-performance";
+import { OrdersByEmployee } from "./orders-by-employee";
+import { SalesByEmployee } from "./sales-by-employee";
+import { SummaryCards } from "./summary-cards";
+import { TopPerformers } from "./top-performers";
 
 interface EmployeePerformanceData {
     analyticsDays: number;
@@ -35,36 +35,41 @@ export function RenderPerformanceTab({ analyticsDays, setAnalyticsDays, activeTa
             const data = await performanceClient.getPerformance(analyticsDays);
             setPerformance(data);
         } catch (err) {
-            onError?.(t('employees.performanceLoadError'));
-            console.error('Failed to load employee performance:', err);
+            onError?.(t("employees.performanceLoadError"));
+            console.error("Failed to load employee performance:", err);
         } finally {
             setPerformanceLoading(false);
         }
     };
 
-
     if (performanceLoading) {
-        return <div className="text-center py-5">
-            <CSpinner color="primary" />
-            <p className="mt-3">{t('common.loading')}</p>
-        </div>;
+        return (
+            <div className="text-center py-5">
+                <CSpinner color="primary" />
+                <p className="mt-3">{t("common.loading")}</p>
+            </div>
+        );
     }
 
     if (!performance) {
-        return <div className="text-center py-5">
-            <p className="text-muted">{t('common.noData')}</p>
-        </div>;
+        return (
+            <div className="text-center py-5">
+                <p className="text-muted">{t("common.noData")}</p>
+            </div>
+        );
     }
 
-    return <>
-        <TimeRangeSelector days={analyticsDays} setDays={setAnalyticsDays} />
+    return (
+        <>
+            <TimeRangeSelector days={analyticsDays} setDays={setAnalyticsDays} />
 
-        <SummaryCards summary={performance.summary} />
+            <SummaryCards summary={performance.summary} />
 
-        <SalesByEmployee data={performance.salesByEmployee} />
+            <SalesByEmployee data={performance.salesByEmployee} />
 
-        <TopPerformers topPerformers={performance.topPerformers} />
+            <TopPerformers topPerformers={performance.topPerformers} />
 
-        <OrdersByEmployee ordersByEmployee={performance.ordersByEmployee} />
-    </>;
+            <OrdersByEmployee ordersByEmployee={performance.ordersByEmployee} />
+        </>
+    );
 }

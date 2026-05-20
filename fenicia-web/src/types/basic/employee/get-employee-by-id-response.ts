@@ -1,6 +1,5 @@
 import { AddressResponse } from "../address/address-response";
 
-
 export type GetEmployeeByIdResponse = {
     id: string;
     positionId: string;

@@ -1,4 +1,3 @@
-
 export type GetAllProductResponse = {
     id: string;
     name: string;

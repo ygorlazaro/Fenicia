@@ -1,38 +1,23 @@
-import {
-    CAlert,
-    CButton,
-    CForm,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle
-} from '@coreui/react';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { FeniciaInput } from '../../../components/fenicia/fenicia-input';
+import { CAlert, CButton, CForm, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle } from "@coreui/react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FeniciaInput } from "../../../components/fenicia/fenicia-input";
 
-const PositionModal = ({ 
-    visible, 
-    onClose, 
-    onSave, 
-    position, 
-    loading 
-}) => {
+const PositionModal = ({ visible, onClose, onSave, position, loading }) => {
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
-        name: ''
+        name: ""
     });
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (position) {
             setFormData({
-                name: position.name || ''
+                name: position.name || ""
             });
         } else {
             setFormData({
-                name: ''
+                name: ""
             });
         }
         setError(null);
@@ -40,7 +25,7 @@ const PositionModal = ({
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value
         }));
@@ -51,7 +36,7 @@ const PositionModal = ({
         setError(null);
 
         if (!formData.name) {
-            setError(t('common.requiredField'));
+            setError(t("common.requiredField"));
             return;
         }
 
@@ -59,14 +44,9 @@ const PositionModal = ({
     };
 
     return (
-        <CModal 
-            visible={visible} 
-            onClose={onClose}
-        >
+        <CModal visible={visible} onClose={onClose}>
             <CModalHeader>
-                <CModalTitle>
-                    {position ? t('positions.edit') : t('positions.new')}
-                </CModalTitle>
+                <CModalTitle>{position ? t("positions.edit") : t("positions.new")}</CModalTitle>
             </CModalHeader>
             <CForm onSubmit={handleSubmit}>
                 <CModalBody>
@@ -77,25 +57,15 @@ const PositionModal = ({
                     )}
 
                     <div className="mb-3">
-                        <FeniciaInput 
-                            label="positions.name" 
-                            id="name" 
-                            value={formData.name} 
-                            onChange={handleInputChange} 
-                            required={true} 
-                        />
+                        <FeniciaInput label="positions.name" id="name" value={formData.name} onChange={handleInputChange} required={true} />
                     </div>
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="secondary" onClick={onClose} disabled={loading}>
-                        {t('common.cancel')}
+                        {t("common.cancel")}
                     </CButton>
-                    <CButton 
-                        color="primary" 
-                        type="submit"
-                        disabled={loading}
-                    >
-                        {loading ? t('common.saving') : t('common.save')}
+                    <CButton color="primary" type="submit" disabled={loading}>
+                        {loading ? t("common.saving") : t("common.save")}
                     </CButton>
                 </CModalFooter>
             </CForm>

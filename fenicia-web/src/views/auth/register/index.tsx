@@ -1,35 +1,26 @@
-import {
-    CAlert,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CForm,
-    CFormInput,
-    CFormLabel
-} from "@coreui/react";
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { CAlert, CButton, CCard, CCardBody, CCardHeader, CForm, CFormInput, CFormLabel } from "@coreui/react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../../../layout/auth-layout";
-import AuthRegisterClient from '../../../services/auth/auth-register-client';
+import AuthRegisterClient from "../../../services/auth/auth-register-client";
 
 const registerClient = new AuthRegisterClient("http://localhost:5144");
 
 const AuthRegister = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: '',
-        companyName: '',
-        cnpj: ''
+        name: "",
+        email: "",
+        password: "",
+        companyName: "",
+        cnpj: ""
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value
         }));
@@ -47,16 +38,16 @@ const AuthRegister = () => {
                 password: formData.password,
                 company: {
                     name: formData.companyName,
-                    cnpj: formData.cnpj,
+                    cnpj: formData.cnpj
                 }
             });
 
-            navigate('/auth/login', { 
-                state: { message: 'Conta criada com sucesso! Faça login para continuar.' }
+            navigate("/auth/login", {
+                state: { message: "Conta criada com sucesso! Faça login para continuar." }
             });
         } catch (err) {
-            console.error('Registration failed:', err);
-            setError(err.response?.data?.title || 'Falha ao criar conta. Tente novamente.');
+            console.error("Registration failed:", err);
+            setError(err.response?.data?.title || "Falha ao criar conta. Tente novamente.");
         } finally {
             setLoading(false);
         }
@@ -77,74 +68,29 @@ const AuthRegister = () => {
                     <CForm onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <CFormLabel htmlFor="inputName">Nome</CFormLabel>
-                            <CFormInput
-                                type="text"
-                                id="inputName"
-                                name="name"
-                                placeholder="Seu nome completo"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <CFormInput type="text" id="inputName" name="name" placeholder="Seu nome completo" value={formData.name} onChange={handleInputChange} required />
                         </div>
                         <div className="mb-3">
                             <CFormLabel htmlFor="inputEmail">E-mail</CFormLabel>
-                            <CFormInput
-                                type="email"
-                                id="inputEmail"
-                                name="email"
-                                placeholder="name@example.com"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <CFormInput type="email" id="inputEmail" name="email" placeholder="name@example.com" value={formData.email} onChange={handleInputChange} required />
                         </div>
                         <div className="mb-3">
                             <CFormLabel htmlFor="inputPassword">Senha</CFormLabel>
-                            <CFormInput
-                                type="password"
-                                id="inputPassword"
-                                name="password"
-                                placeholder="senha"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                required
-                                minLength={6}
-                            />
+                            <CFormInput type="password" id="inputPassword" name="password" placeholder="senha" value={formData.password} onChange={handleInputChange} required minLength={6} />
                         </div>
                         <hr className="my-4" />
                         <h6 className="mb-3">Dados da Empresa</h6>
                         <div className="mb-3">
                             <CFormLabel htmlFor="inputCompanyName">Nome da Empresa</CFormLabel>
-                            <CFormInput
-                                type="text"
-                                id="inputCompanyName"
-                                name="companyName"
-                                placeholder="Razão social da empresa"
-                                value={formData.companyName}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <CFormInput type="text" id="inputCompanyName" name="companyName" placeholder="Razão social da empresa" value={formData.companyName} onChange={handleInputChange} required />
                         </div>
                         <div className="mb-3">
                             <CFormLabel htmlFor="inputCnpj">CNPJ</CFormLabel>
-                            <CFormInput
-                                type="text"
-                                id="inputCnpj"
-                                name="cnpj"
-                                placeholder="00.000.000/0001-00"
-                                value={formData.cnpj}
-                                onChange={handleInputChange}
-                                required
-                            />
+                            <CFormInput type="text" id="inputCnpj" name="cnpj" placeholder="00.000.000/0001-00" value={formData.cnpj} onChange={handleInputChange} required />
                         </div>
                         <div className="d-grid gap-2">
-                            <CButton
-                                color="primary"
-                                type="submit"
-                                disabled={loading}
-                            >
-                                {loading ? 'Criando conta...' : 'Criar conta'}
+                            <CButton color="primary" type="submit" disabled={loading}>
+                                {loading ? "Criando conta..." : "Criar conta"}
                             </CButton>
                         </div>
 
@@ -157,7 +103,7 @@ const AuthRegister = () => {
                 </CCardBody>
             </CCard>
         </AuthLayout>
-    )
+    );
 };
 
 export default AuthRegister;

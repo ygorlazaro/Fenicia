@@ -13,9 +13,9 @@ interface TotalSalesValueProps {
 
 export default function TotalSalesValue({ totalSalesValue, profitPotential }: TotalSalesValueProps) {
     const calculateProfitMargin = () => {
-        if (totalSalesValue === 0) return 0
-        return ((profitPotential / totalSalesValue) * 100).toFixed(1)
-    }
+        if (totalSalesValue === 0) return 0;
+        return ((profitPotential / totalSalesValue) * 100).toFixed(1);
+    };
 
     return (
         <CWidgetStatsA
@@ -24,11 +24,11 @@ export default function TotalSalesValue({ totalSalesValue, profitPotential }: To
                 <>
                     {formatCurrency(totalSalesValue)}
                     <span className="fs-6 fw-normal d-block mt-1">
-                        +{calculateProfitMargin()}% {t('inventory.margin')}
+                        +{calculateProfitMargin()}% {t("inventory.margin")}
                     </span>
                 </>
             }
-            title={t('inventory.totalSalesValue')}
+            title={t("inventory.totalSalesValue")}
             action={
                 <div className="mt-2">
                     <CIcon icon={cilTruck} size="xl" className="text-white-50" />
@@ -37,27 +37,27 @@ export default function TotalSalesValue({ totalSalesValue, profitPotential }: To
             chart={
                 <CChartLine
                     className="mt-3 mx-3"
-                    style={{ height: '70px' }}
+                    style={{ height: "70px" }}
                     data={{
-                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
                         datasets: [
                             {
-                                label: 'Sales',
-                                backgroundColor: 'transparent',
-                                borderColor: 'rgba(255,255,255,.55)',
-                                pointBackgroundColor: getStyle('--cui-success'),
-                                data: [1, 18, 9, 17, 34, 22, totalSalesValue ?? 11],
-                            },
-                        ],
+                                label: "Sales",
+                                backgroundColor: "transparent",
+                                borderColor: "rgba(255,255,255,.55)",
+                                pointBackgroundColor: getStyle("--cui-success"),
+                                data: [1, 18, 9, 17, 34, 22, totalSalesValue ?? 11]
+                            }
+                        ]
                     }}
                     options={{
                         plugins: { legend: { display: false } },
                         maintainAspectRatio: false,
                         scales: {
                             x: { border: { display: false }, grid: { display: false }, ticks: { display: false } },
-                            y: { display: false, grid: { display: false }, ticks: { display: false } },
+                            y: { display: false, grid: { display: false }, ticks: { display: false } }
                         },
-                        elements: { line: { borderWidth: 1 }, point: { radius: 4 } },
+                        elements: { line: { borderWidth: 1 }, point: { radius: 4 } }
                     }}
                 />
             }

@@ -11,40 +11,42 @@ interface TotalCostValueProps {
 }
 
 export default function TotalCostValue({ totalCustomers, totalEmployees }: TotalCostValueProps) {
-    return (<CWidgetStatsA
-        color="info"
-        value={
-            <>
-                {totalCustomers ?? 0}
-                <span className="fs-6 fw-normal d-block mt-1">
-                    {totalEmployees ?? 0} {t('inventory.employees')}
-                </span>
-            </>
-        }
-        title={t('inventory.customersAndEmployees')}
-        action={
-            <div className="mt-2">
-                <CIcon icon={cilPeople} size="xl" className="text-white-50" />
-            </div>
-        }
-        chart={
-            <CChartDoughnut
-                className="mx-3"
-                style={{ height: '70px' }}
-                data={{
-                    labels: [t('inventory.customers'), t('inventory.employees')],
-                    datasets: [
-                        {
-                            backgroundColor: [getStyle('--cui-info'), getStyle('--cui-warning')],
-                            data: [totalCustomers ?? 70, totalEmployees ?? 30],
-                        },
-                    ],
-                }}
-                options={{
-                    plugins: { legend: { display: false } },
-                    maintainAspectRatio: false,
-                }}
-            />
-        }
-    />);
+    return (
+        <CWidgetStatsA
+            color="info"
+            value={
+                <>
+                    {totalCustomers ?? 0}
+                    <span className="fs-6 fw-normal d-block mt-1">
+                        {totalEmployees ?? 0} {t("inventory.employees")}
+                    </span>
+                </>
+            }
+            title={t("inventory.customersAndEmployees")}
+            action={
+                <div className="mt-2">
+                    <CIcon icon={cilPeople} size="xl" className="text-white-50" />
+                </div>
+            }
+            chart={
+                <CChartDoughnut
+                    className="mx-3"
+                    style={{ height: "70px" }}
+                    data={{
+                        labels: [t("inventory.customers"), t("inventory.employees")],
+                        datasets: [
+                            {
+                                backgroundColor: [getStyle("--cui-info"), getStyle("--cui-warning")],
+                                data: [totalCustomers ?? 70, totalEmployees ?? 30]
+                            }
+                        ]
+                    }}
+                    options={{
+                        plugins: { legend: { display: false } },
+                        maintainAspectRatio: false
+                    }}
+                />
+            }
+        />
+    );
 }

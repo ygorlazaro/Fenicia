@@ -1,11 +1,11 @@
 import { CSpinner } from "@coreui/react";
 import { useTranslation } from "react-i18next";
 import TimeRangeSelector from "../../../../components/fenicia/time-range-selector";
-import { CustomerInsights } from '../../../../types/basic/customer/customer-insights';
+import { CustomerInsights } from "../../../../types/basic/customer/customer-insights";
 import { SummaryCards } from "../summary-cards";
-import { AtRiskCustomers } from './at-risk-customers';
-import { RecentOrders } from './recent-orders';
-import { TopCustomers } from './top-customers';
+import { AtRiskCustomers } from "./at-risk-customers";
+import { RecentOrders } from "./recent-orders";
+import { TopCustomers } from "./top-customers";
 
 interface CustomerPerformanceInsights {
     insightsLoading: boolean;
@@ -15,12 +15,12 @@ interface CustomerPerformanceInsights {
 }
 
 export const RenderAnalyticsTab = ({ insightsLoading, insights, analyticsDays, setAnalyticsDays }: CustomerPerformanceInsights) => {
-    const {t } = useTranslation();
+    const { t } = useTranslation();
     if (insightsLoading) {
         return (
             <div className="text-center py-5">
                 <CSpinner color="primary" />
-                <p className="mt-3">{t('common.loading')}</p>
+                <p className="mt-3">{t("common.loading")}</p>
             </div>
         );
     }
@@ -28,7 +28,7 @@ export const RenderAnalyticsTab = ({ insightsLoading, insights, analyticsDays, s
     if (!insights) {
         return (
             <div className="text-center py-5">
-                <p className="text-muted">{t('common.noData')}</p>
+                <p className="text-muted">{t("common.noData")}</p>
             </div>
         );
     }
@@ -39,7 +39,7 @@ export const RenderAnalyticsTab = ({ insightsLoading, insights, analyticsDays, s
 
             <SummaryCards summary={insights.summary} />
 
-            <TopCustomers topCustomers={insights.topCustomers}  />
+            <TopCustomers topCustomers={insights.topCustomers} />
 
             <RecentOrders recentOrders={insights.recentOrders} />
 

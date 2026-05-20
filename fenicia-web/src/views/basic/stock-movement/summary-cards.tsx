@@ -33,7 +33,6 @@ export default function SummaryCards({ dashboard }: SummaryCardsProps) {
         return (sum / dashboard.turnoverRates.length).toFixed(2);
     };
 
-
     return (
         <CRow className="mb-4" xs={{ gutter: 4 }}>
             <CCol sm={6} xl={3}>
@@ -42,12 +41,10 @@ export default function SummaryCards({ dashboard }: SummaryCardsProps) {
                     value={
                         <>
                             {formatNumber(getTotalInQuantity())}
-                            <span className="fs-6 fw-normal d-block mt-1">
-                                {t('stockMovement.unitsIn')}
-                            </span>
+                            <span className="fs-6 fw-normal d-block mt-1">{t("stockMovement.unitsIn")}</span>
                         </>
                     }
-                    title={t('stockMovement.totalIn')}
+                    title={t("stockMovement.totalIn")}
                     action={
                         <div className="mt-2">
                             <CIcon icon={cilArrowTop} size="xl" className="text-white-50" />
@@ -62,12 +59,10 @@ export default function SummaryCards({ dashboard }: SummaryCardsProps) {
                     value={
                         <>
                             {formatNumber(getTotalOutQuantity())}
-                            <span className="fs-6 fw-normal d-block mt-1">
-                                {t('stockMovement.unitsOut')}
-                            </span>
+                            <span className="fs-6 fw-normal d-block mt-1">{t("stockMovement.unitsOut")}</span>
                         </>
                     }
-                    title={t('stockMovement.totalOut')}
+                    title={t("stockMovement.totalOut")}
                     action={
                         <div className="mt-2">
                             <CIcon icon={cilArrowBottom} size="xl" className="text-white-50" />
@@ -82,12 +77,10 @@ export default function SummaryCards({ dashboard }: SummaryCardsProps) {
                     value={
                         <>
                             {getTotalMovements()}
-                            <span className="fs-6 fw-normal d-block mt-1">
-                                {t('stockMovement.movements')}
-                            </span>
+                            <span className="fs-6 fw-normal d-block mt-1">{t("stockMovement.movements")}</span>
                         </>
                     }
-                    title={t('stockMovement.totalMovements')}
+                    title={t("stockMovement.totalMovements")}
                     action={
                         <div className="mt-2">
                             <CIcon icon={cilHistory} size="xl" className="text-white-50" />
@@ -102,12 +95,10 @@ export default function SummaryCards({ dashboard }: SummaryCardsProps) {
                     value={
                         <>
                             {getAverageTurnover()}
-                            <span className="fs-6 fw-normal d-block mt-1">
-                                {t('stockMovement.avgTurnover')}
-                            </span>
+                            <span className="fs-6 fw-normal d-block mt-1">{t("stockMovement.avgTurnover")}</span>
                         </>
                     }
-                    title={t('stockMovement.averageTurnover')}
+                    title={t("stockMovement.averageTurnover")}
                     action={
                         <div className="mt-2">
                             <CIcon icon={cilSpeedometer} size="xl" className="text-white-50" />
@@ -116,5 +107,5 @@ export default function SummaryCards({ dashboard }: SummaryCardsProps) {
                 />
             </CCol>
         </CRow>
-    )
-} 
+    );
+}

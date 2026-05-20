@@ -1,30 +1,10 @@
-import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CAlert,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CFormCheck,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CSpinner,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow
-} from '@coreui/react';
-import { useEffect, useState } from 'react';
-import Pagination from '../../components/fenicia/pagination';
-import ProjectSubtaskModal from '../../components/ProjectSubtaskModal';
-import ProjectSubtaskClient from '../../../services/project/project-subtask-client';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CAlert, CButton, CCard, CCardBody, CCardHeader, CContainer, CFormCheck, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CSpinner, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
+import { useEffect, useState } from "react";
+import Pagination from "../../components/fenicia/pagination";
+import ProjectSubtaskModal from "../../components/ProjectSubtaskModal";
+import ProjectSubtaskClient from "../../../services/project/project-subtask-client";
 
 const projectSubtaskClient = new ProjectSubtaskClient("http://localhost:5144");
 
@@ -56,17 +36,17 @@ const ProjectSubtaskList = () => {
             setError(null);
             const response = await projectSubtaskClient.getAll(pagination.page, pagination.perPage);
 
-            const subtasksList = Array.isArray(response) ? response : (response?.data || []);
+            const subtasksList = Array.isArray(response) ? response : response?.data || [];
             setSubtasks(subtasksList);
-            setPagination(prev => ({
+            setPagination((prev) => ({
                 ...prev,
                 total: response?.total || subtasksList.length,
                 pages: response?.pages || 1
             }));
         } catch (err) {
-            console.error('Failed to load project subtasks:', err);
-            console.error('Error response:', err.response);
-            setError(err.response?.data?.title || 'Falha ao carregar subtarefas do projeto.');
+            console.error("Failed to load project subtasks:", err);
+            console.error("Error response:", err.response);
+            setError(err.response?.data?.title || "Falha ao carregar subtarefas do projeto.");
         } finally {
             setLoading(false);
         }
@@ -92,17 +72,17 @@ const ProjectSubtaskList = () => {
         try {
             if (selectedSubtask) {
                 await projectSubtaskClient.update(selectedSubtask.id, formData);
-                setSuccessMessage('Subtarefa do projeto atualizada com sucesso!');
+                setSuccessMessage("Subtarefa do projeto atualizada com sucesso!");
             } else {
                 await projectSubtaskClient.create(formData);
-                setSuccessMessage('Subtarefa do projeto criada com sucesso!');
+                setSuccessMessage("Subtarefa do projeto criada com sucesso!");
             }
             setModalVisible(false);
             loadSubtasks();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to save project subtask:', err);
-            setError(err.response?.data?.title || 'Falha ao salvar subtarefa do projeto.');
+            console.error("Failed to save project subtask:", err);
+            setError(err.response?.data?.title || "Falha ao salvar subtarefa do projeto.");
         } finally {
             setSaving(false);
         }
@@ -114,30 +94,30 @@ const ProjectSubtaskList = () => {
         setDeleting(true);
         try {
             await projectSubtaskClient.delete(subtaskToDelete.id);
-            setSuccessMessage('Subtarefa do projeto excluída com sucesso!');
+            setSuccessMessage("Subtarefa do projeto excluída com sucesso!");
             setDeleteModalVisible(false);
             setSubtaskToDelete(null);
             loadSubtasks();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to delete project subtask:', err);
-            setError(err.response?.data?.title || 'Falha ao excluir subtarefa do projeto.');
+            console.error("Failed to delete project subtask:", err);
+            setError(err.response?.data?.title || "Falha ao excluir subtarefa do projeto.");
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage) => {
-        setPagination(prev => ({ ...prev, page: newPage }));
+        setPagination((prev) => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage) => {
-        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+        setPagination((prev) => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString('pt-BR');
+        if (!dateString) return "-";
+        return new Date(dateString).toLocaleDateString("pt-BR");
     };
 
     return (
@@ -195,27 +175,15 @@ const ProjectSubtaskList = () => {
                                                 <strong>{subtask.title}</strong>
                                             </CTableDataCell>
                                             <CTableDataCell>
-                                                <CFormCheck
-                                                    checked={subtask.isCompleted}
-                                                    disabled
-                                                />
+                                                <CFormCheck checked={subtask.isCompleted} disabled />
                                             </CTableDataCell>
                                             <CTableDataCell>{subtask.order}</CTableDataCell>
                                             <CTableDataCell>{formatDate(subtask.completedAt)}</CTableDataCell>
                                             <CTableDataCell className="text-end">
-                                                <CButton
-                                                    color="info"
-                                                    size="sm"
-                                                    className="me-2"
-                                                    onClick={() => handleOpenEdit(subtask)}
-                                                >
+                                                <CButton color="info" size="sm" className="me-2" onClick={() => handleOpenEdit(subtask)}>
                                                     <CIcon icon={cilPencil} />
                                                 </CButton>
-                                                <CButton
-                                                    color="danger"
-                                                    size="sm"
-                                                    onClick={() => handleOpenDelete(subtask)}
-                                                >
+                                                <CButton color="danger" size="sm" onClick={() => handleOpenDelete(subtask)}>
                                                     <CIcon icon={cilTrash} />
                                                 </CButton>
                                             </CTableDataCell>
@@ -231,19 +199,10 @@ const ProjectSubtaskList = () => {
             </CCard>
 
             {/* Add/Edit Modal */}
-            <ProjectSubtaskModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onSave={handleSave}
-                projectSubtask={selectedSubtask}
-                loading={saving}
-            />
+            <ProjectSubtaskModal visible={modalVisible} onClose={() => setModalVisible(false)} onSave={handleSave} projectSubtask={selectedSubtask} loading={saving} />
 
             {/* Delete Confirmation Modal */}
-            <CModal
-                visible={deleteModalVisible}
-                onClose={() => setDeleteModalVisible(false)}
-            >
+            <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
@@ -254,24 +213,14 @@ const ProjectSubtaskList = () => {
                     <p>
                         Tem certeza que deseja excluir a subtarefa <strong>{subtaskToDelete?.title}</strong>?
                     </p>
-                    <p className="text-danger">
-                        Esta ação não pode ser desfeita.
-                    </p>
+                    <p className="text-danger">Esta ação não pode ser desfeita.</p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton
-                        color="secondary"
-                        onClick={() => setDeleteModalVisible(false)}
-                        disabled={deleting}
-                    >
+                    <CButton color="secondary" onClick={() => setDeleteModalVisible(false)} disabled={deleting}>
                         Cancelar
                     </CButton>
-                    <CButton
-                        color="danger"
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? 'Excluindo...' : 'Excluir'}
+                    <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+                        {deleting ? "Excluindo..." : "Excluir"}
                     </CButton>
                 </CModalFooter>
             </CModal>

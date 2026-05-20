@@ -14,9 +14,9 @@ interface StockMovementHistoryProps {
 }
 
 export default function StockMovementHistoryTable({ history = [], openProductModal, openOrderModal }: StockMovementHistoryProps) {
-    const {t} = useTranslation();    
+    const { t } = useTranslation();
     const getTypeBadgeColor = (type: string) => {
-        return type === 'In' ? 'success' : 'danger';
+        return type === "In" ? "success" : "danger";
     };
 
     return (
@@ -25,22 +25,22 @@ export default function StockMovementHistoryTable({ history = [], openProductMod
                 <CCard>
                     <CCardHeader className="d-flex align-items-center">
                         <CIcon icon={cilHistory} className="me-2 text-primary" size="lg" />
-                        <strong>{t('stockMovement.history')}</strong>
+                        <strong>{t("stockMovement.history")}</strong>
                     </CCardHeader>
                     <CCardBody>
                         {!history || history.length === 0 ? (
-                            <p className="text-muted text-center">{t('common.noData')}</p>
+                            <p className="text-muted text-center">{t("common.noData")}</p>
                         ) : (
                             <CTable hover responsive>
                                 <CTableHead>
                                     <CTableRow>
-                                        <CTableHeaderCell>{t('stockMovement.date')}</CTableHeaderCell>
-                                        <CTableHeaderCell>{t('stockMovement.product')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-center">{t('stockMovement.type')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-end">{t('stockMovement.quantity')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-end">{t('stockMovement.price')}</CTableHeaderCell>
-                                        <CTableHeaderCell>{t('stockMovement.order')}</CTableHeaderCell>
-                                        <CTableHeaderCell>{t('stockMovement.reason')}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t("stockMovement.date")}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t("stockMovement.product")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-center">{t("stockMovement.type")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-end">{t("stockMovement.quantity")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-end">{t("stockMovement.price")}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t("stockMovement.order")}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t("stockMovement.reason")}</CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
                                 <CTableBody>
@@ -53,32 +53,26 @@ export default function StockMovementHistoryTable({ history = [], openProductMod
                                                 </a>
                                             </CTableDataCell>
                                             <CTableDataCell className="text-center">
-                                                <span className={`badge bg-${getTypeBadgeColor(movement.type)}`}>
-                                                    {t(`stockMovement.${movement.type.toLowerCase()}`)}
-                                                </span>
+                                                <span className={`badge bg-${getTypeBadgeColor(movement.type)}`}>{t(`stockMovement.${movement.type.toLowerCase()}`)}</span>
                                             </CTableDataCell>
-                                            <CTableDataCell className="text-end">
-                                                {formatNumber(movement.quantity)}
-                                            </CTableDataCell>
-                                            <CTableDataCell className="text-end">
-                                                {formatCurrency(movement.price)}
-                                            </CTableDataCell>
+                                            <CTableDataCell className="text-end">{formatNumber(movement.quantity)}</CTableDataCell>
+                                            <CTableDataCell className="text-end">{formatCurrency(movement.price)}</CTableDataCell>
                                             <CTableDataCell>
                                                 {movement.orderId ? (
                                                     <a href={`/basic/order/${movement.orderId}`} onClick={(e) => openOrderModal(movement.orderId, e)} className="text-primary">
                                                         {movement.orderId.substring(0, 8)}...
                                                     </a>
                                                 ) : (
-                                                    '-'
+                                                    "-"
                                                 )}
                                             </CTableDataCell>
                                             <CTableDataCell>
                                                 {movement.orderId ? (
                                                     <a href={`/basic/order/${movement.orderId}`} onClick={(e) => openOrderModal(movement.orderId, e)} className="text-decoration-none">
-                                                        {movement.reason || '-'}
+                                                        {movement.reason || "-"}
                                                     </a>
                                                 ) : (
-                                                    movement.reason || '-'
+                                                    movement.reason || "-"
                                                 )}
                                             </CTableDataCell>
                                         </CTableRow>
@@ -90,5 +84,5 @@ export default function StockMovementHistoryTable({ history = [], openProductMod
                 </CCard>
             </CCol>
         </CRow>
-    )
+    );
 }

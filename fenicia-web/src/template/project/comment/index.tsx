@@ -1,29 +1,10 @@
-import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CAlert,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CSpinner,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow
-} from '@coreui/react';
-import { useEffect, useState } from 'react';
-import Pagination from '../../components/fenicia/pagination';
-import ProjectCommentModal from '../../components/ProjectCommentModal';
-import ProjectCommentClient from '../../../services/project/project-comment-client';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CAlert, CButton, CCard, CCardBody, CCardHeader, CContainer, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CSpinner, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
+import { useEffect, useState } from "react";
+import Pagination from "../../components/fenicia/pagination";
+import ProjectCommentModal from "../../components/ProjectCommentModal";
+import ProjectCommentClient from "../../../services/project/project-comment-client";
 
 const projectCommentClient = new ProjectCommentClient("http://localhost:5144");
 
@@ -55,17 +36,17 @@ const ProjectCommentList = () => {
             setError(null);
             const response = await projectCommentClient.getAll(pagination.page, pagination.perPage);
 
-            const commentsList = Array.isArray(response) ? response : (response?.data || []);
+            const commentsList = Array.isArray(response) ? response : response?.data || [];
             setComments(commentsList);
-            setPagination(prev => ({
+            setPagination((prev) => ({
                 ...prev,
                 total: response?.total || commentsList.length,
                 pages: response?.pages || 1
             }));
         } catch (err) {
-            console.error('Failed to load project comments:', err);
-            console.error('Error response:', err.response);
-            setError(err.response?.data?.title || 'Falha ao carregar comentários do projeto.');
+            console.error("Failed to load project comments:", err);
+            console.error("Error response:", err.response);
+            setError(err.response?.data?.title || "Falha ao carregar comentários do projeto.");
         } finally {
             setLoading(false);
         }
@@ -91,17 +72,17 @@ const ProjectCommentList = () => {
         try {
             if (selectedComment) {
                 await projectCommentClient.update(selectedComment.id, formData);
-                setSuccessMessage('Comentário do projeto atualizado com sucesso!');
+                setSuccessMessage("Comentário do projeto atualizado com sucesso!");
             } else {
                 await projectCommentClient.create(formData);
-                setSuccessMessage('Comentário do projeto criado com sucesso!');
+                setSuccessMessage("Comentário do projeto criado com sucesso!");
             }
             setModalVisible(false);
             loadComments();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to save project comment:', err);
-            setError(err.response?.data?.title || 'Falha ao salvar comentário do projeto.');
+            console.error("Failed to save project comment:", err);
+            setError(err.response?.data?.title || "Falha ao salvar comentário do projeto.");
         } finally {
             setSaving(false);
         }
@@ -113,31 +94,31 @@ const ProjectCommentList = () => {
         setDeleting(true);
         try {
             await projectCommentClient.delete(commentToDelete.id);
-            setSuccessMessage('Comentário do projeto excluído com sucesso!');
+            setSuccessMessage("Comentário do projeto excluído com sucesso!");
             setDeleteModalVisible(false);
             setCommentToDelete(null);
             loadComments();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to delete project comment:', err);
-            setError(err.response?.data?.title || 'Falha ao excluir comentário do projeto.');
+            console.error("Failed to delete project comment:", err);
+            setError(err.response?.data?.title || "Falha ao excluir comentário do projeto.");
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage) => {
-        setPagination(prev => ({ ...prev, page: newPage }));
+        setPagination((prev) => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage) => {
-        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+        setPagination((prev) => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
     const truncateContent = (content, maxLength = 100) => {
-        if (!content) return '-';
+        if (!content) return "-";
         if (content.length <= maxLength) return content;
-        return content.substring(0, maxLength) + '...';
+        return content.substring(0, maxLength) + "...";
     };
 
     return (
@@ -191,26 +172,15 @@ const ProjectCommentList = () => {
                                     {comments.map((comment) => (
                                         <CTableRow key={comment.id}>
                                             <CTableDataCell>
-                                                <div style={{ maxWidth: '400px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                    {truncateContent(comment.content)}
-                                                </div>
+                                                <div style={{ maxWidth: "400px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{truncateContent(comment.content)}</div>
                                             </CTableDataCell>
-                                            <CTableDataCell>{comment.taskId || '-'}</CTableDataCell>
-                                            <CTableDataCell>{comment.userId || '-'}</CTableDataCell>
+                                            <CTableDataCell>{comment.taskId || "-"}</CTableDataCell>
+                                            <CTableDataCell>{comment.userId || "-"}</CTableDataCell>
                                             <CTableDataCell className="text-end">
-                                                <CButton
-                                                    color="info"
-                                                    size="sm"
-                                                    className="me-2"
-                                                    onClick={() => handleOpenEdit(comment)}
-                                                >
+                                                <CButton color="info" size="sm" className="me-2" onClick={() => handleOpenEdit(comment)}>
                                                     <CIcon icon={cilPencil} />
                                                 </CButton>
-                                                <CButton
-                                                    color="danger"
-                                                    size="sm"
-                                                    onClick={() => handleOpenDelete(comment)}
-                                                >
+                                                <CButton color="danger" size="sm" onClick={() => handleOpenDelete(comment)}>
                                                     <CIcon icon={cilTrash} />
                                                 </CButton>
                                             </CTableDataCell>
@@ -226,19 +196,10 @@ const ProjectCommentList = () => {
             </CCard>
 
             {/* Add/Edit Modal */}
-            <ProjectCommentModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onSave={handleSave}
-                projectComment={selectedComment}
-                loading={saving}
-            />
+            <ProjectCommentModal visible={modalVisible} onClose={() => setModalVisible(false)} onSave={handleSave} projectComment={selectedComment} loading={saving} />
 
             {/* Delete Confirmation Modal */}
-            <CModal
-                visible={deleteModalVisible}
-                onClose={() => setDeleteModalVisible(false)}
-            >
+            <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
@@ -249,24 +210,14 @@ const ProjectCommentList = () => {
                     <p>
                         Tem certeza que deseja excluir o comentário <strong>{commentToDelete?.id}</strong>?
                     </p>
-                    <p className="text-danger">
-                        Esta ação não pode ser desfeita.
-                    </p>
+                    <p className="text-danger">Esta ação não pode ser desfeita.</p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton
-                        color="secondary"
-                        onClick={() => setDeleteModalVisible(false)}
-                        disabled={deleting}
-                    >
+                    <CButton color="secondary" onClick={() => setDeleteModalVisible(false)} disabled={deleting}>
                         Cancelar
                     </CButton>
-                    <CButton
-                        color="danger"
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? 'Excluindo...' : 'Excluir'}
+                    <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+                        {deleting ? "Excluindo..." : "Excluir"}
                     </CButton>
                 </CModalFooter>
             </CModal>

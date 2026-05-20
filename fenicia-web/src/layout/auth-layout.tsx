@@ -1,44 +1,44 @@
-import { CCol, CContainer, CRow } from '@coreui/react'
-import feniciaLogo from 'src/assets/brand/fenicia.svg'
-import LanguageSelector from '../components/LanguageSelector'
+import { CCol, CContainer, CRow } from "@coreui/react";
+import feniciaLogo from "src/assets/brand/fenicia.svg";
+import LanguageSelector from "../components/LanguageSelector";
 
 const AuthLayout = ({ children }) => {
-  return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
-      <CContainer fluid>
-        <div className="position-absolute top-0 end-0 p-3" style={{ zIndex: 1000 }}>
-          <LanguageSelector />
-        </div>
-        
-        <CRow className="justify-content-center align-items-center g-0">
-          <CCol lg={6} xl={5} className="d-flex justify-content-center align-items-center p-4 auth-logo-section">
-            <div className="text-center">
-              <img
-                src={feniciaLogo}
-                alt="Fenicia - Gato Ninja Site"
-                className="img-fluid auth-logo"
-                style={{ 
-                  maxWidth: '400px', 
-                  width: '100%',
-                  height: 'auto'
-                }}
-              />
-              <h2 className="mt-4 text-primary fw-bold">Fenicia</h2>
-              <p className="text-muted">Gato Ninja</p>
-            </div>
-          </CCol>
-          
-          {/* Form Section - Right on desktop, Bottom on mobile */}
-          <CCol lg={6} xl={7} className="d-flex justify-content-center align-items-center p-4">
-            <div className="w-100" style={{ maxWidth: '450px' }}>
-              {children}
-            </div>
-          </CCol>
-        </CRow>
-      </CContainer>
-      
-      {/* Custom CSS for responsive layout */}
-      <style>{`
+    return (
+        <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
+            <CContainer fluid>
+                <div className="position-absolute top-0 end-0 p-3" style={{ zIndex: 1000 }}>
+                    <LanguageSelector />
+                </div>
+
+                <CRow className="justify-content-center align-items-center g-0">
+                    <CCol lg={6} xl={5} className="d-flex justify-content-center align-items-center p-4 auth-logo-section">
+                        <div className="text-center">
+                            <img
+                                src={feniciaLogo}
+                                alt="Fenicia - Gato Ninja Site"
+                                className="img-fluid auth-logo"
+                                style={{
+                                    maxWidth: "400px",
+                                    width: "100%",
+                                    height: "auto"
+                                }}
+                            />
+                            <h2 className="mt-4 text-primary fw-bold">Fenicia</h2>
+                            <p className="text-muted">Gato Ninja</p>
+                        </div>
+                    </CCol>
+
+                    {/* Form Section - Right on desktop, Bottom on mobile */}
+                    <CCol lg={6} xl={7} className="d-flex justify-content-center align-items-center p-4">
+                        <div className="w-100" style={{ maxWidth: "450px" }}>
+                            {children}
+                        </div>
+                    </CCol>
+                </CRow>
+            </CContainer>
+
+            {/* Custom CSS for responsive layout */}
+            <style>{`
         .auth-logo-section {
           min-height: 300px;
         }
@@ -69,8 +69,8 @@ const AuthLayout = ({ children }) => {
           }
         }
       `}</style>
-    </div>
-  )
-}
+        </div>
+    );
+};
 
-export default AuthLayout
+export default AuthLayout;

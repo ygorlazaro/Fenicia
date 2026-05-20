@@ -15,19 +15,19 @@ export default function MonthlyIdOutChart({ monthlyInOut = [] }: MonthlyIdOutCha
 
     const getMonthlyInOutChartData = () => {
         return {
-            labels: monthlyInOut?.map(m => m.month) || [],
+            labels: monthlyInOut?.map((m) => m.month) || [],
             datasets: [
                 {
-                    label: t('stockMovement.in'),
-                    backgroundColor: getStyle('--cui-success'),
-                    data: monthlyInOut?.map(m => m.totalIn) || [],
+                    label: t("stockMovement.in"),
+                    backgroundColor: getStyle("--cui-success"),
+                    data: monthlyInOut?.map((m) => m.totalIn) || []
                 },
                 {
-                    label: t('stockMovement.out'),
-                    backgroundColor: getStyle('--cui-danger'),
-                    data: monthlyInOut?.map(m => m.totalOut) || [],
-                },
-            ],
+                    label: t("stockMovement.out"),
+                    backgroundColor: getStyle("--cui-danger"),
+                    data: monthlyInOut?.map((m) => m.totalOut) || []
+                }
+            ]
         };
     };
 
@@ -37,7 +37,7 @@ export default function MonthlyIdOutChart({ monthlyInOut = [] }: MonthlyIdOutCha
                 <CCard>
                     <CCardHeader className="d-flex align-items-center">
                         <CIcon icon={cilLayers} className="me-2" size="lg" />
-                        <strong>{t('stockMovement.monthlyInOut')}</strong>
+                        <strong>{t("stockMovement.monthlyInOut")}</strong>
                     </CCardHeader>
                     <CCardBody>
                         <CChartBar
@@ -47,24 +47,24 @@ export default function MonthlyIdOutChart({ monthlyInOut = [] }: MonthlyIdOutCha
                                 maintainAspectRatio: true,
                                 plugins: {
                                     legend: {
-                                        position: 'top',
-                                    },
+                                        position: "top"
+                                    }
                                 },
                                 scales: {
                                     x: {
                                         grid: {
-                                            display: false,
-                                        },
+                                            display: false
+                                        }
                                     },
                                     y: {
-                                        beginAtZero: true,
-                                    },
-                                },
+                                        beginAtZero: true
+                                    }
+                                }
                             }}
                         />
                     </CCardBody>
                 </CCard>
             </CCol>
         </CRow>
-    )
+    );
 }

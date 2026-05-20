@@ -19,7 +19,7 @@ export default function RenderAnalyticsTab({ analytics, analyticsLoading, analyt
         return (
             <div className="text-center py-5">
                 <CSpinner color="primary" />
-                <p className="mt-3">{t('common.loading')}</p>
+                <p className="mt-3">{t("common.loading")}</p>
             </div>
         );
     }
@@ -27,7 +27,7 @@ export default function RenderAnalyticsTab({ analytics, analyticsLoading, analyt
     if (!analytics) {
         return (
             <div className="text-center py-5">
-                <p className="text-muted">{t('common.noData')}</p>
+                <p className="text-muted">{t("common.noData")}</p>
             </div>
         );
     }

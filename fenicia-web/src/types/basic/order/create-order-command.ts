@@ -1,6 +1,5 @@
 import { PaymentMethod } from "./payment-method";
 
-
 export type CreateOrderCommand = {
     customerId: string;
     saleDate: string;

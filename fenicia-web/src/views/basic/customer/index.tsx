@@ -1,42 +1,18 @@
-import { cilChart, cilPencil, cilPeople, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CAlert,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CNav,
-    CNavItem,
-    CNavLink,
-    CSpinner,
-    CTabContent,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow,
-    CTabPane
-} from '@coreui/react';
-import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/fenicia/pagination';
-import BasicCustomerClient from '../../../services/basic/basic-customer-client';
+import { cilChart, cilPencil, cilPeople, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CAlert, CButton, CCard, CCardBody, CCardHeader, CContainer, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CNav, CNavItem, CNavLink, CSpinner, CTabContent, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow, CTabPane } from "@coreui/react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
+import Pagination from "../../../components/fenicia/pagination";
+import BasicCustomerClient from "../../../services/basic/basic-customer-client";
 import { AddCustomerCommand } from "../../../types/basic/customer/add-customer-command";
-import { CustomerInsights } from '../../../types/basic/customer/customer-insights';
+import { CustomerInsights } from "../../../types/basic/customer/customer-insights";
 import { GetAllCustomerResponse } from "../../../types/basic/customer/get-all-customer-response";
 import { UpdateCustomerCommand } from "../../../types/basic/customer/update-customer-command";
-import formatPhone from '../../../utils/format-phone';
-import CustomerModal from './customer-model';
-import { RenderAnalyticsTab } from './performance';
+import formatPhone from "../../../utils/format-phone";
+import CustomerModal from "./customer-model";
+import { RenderAnalyticsTab } from "./performance";
 
 const customerClient = new BasicCustomerClient();
 const insightsClient = new BasicCustomerClient();
@@ -77,7 +53,7 @@ const Customers = () => {
     paginationRef.current = pagination;
 
     useEffect(() => {
-        const customerId = searchParams.get('id');
+        const customerId = searchParams.get("id");
         if (customerId) {
             loadCustomerForEdit(customerId);
         }
@@ -96,8 +72,8 @@ const Customers = () => {
             const data = await insightsClient.getInsights(analyticsDays);
             setInsights(data);
         } catch (err) {
-            console.error('Failed to load customer insights:', err);
-            setError(t('customers.insightsLoadError'));
+            console.error("Failed to load customer insights:", err);
+            setError(t("customers.insightsLoadError"));
         } finally {
             setInsightsLoading(false);
         }
@@ -109,8 +85,8 @@ const Customers = () => {
             setSelectedCustomer(customer);
             setModalVisible(true);
         } catch (err) {
-            console.error('Failed to load customer for edit:', err);
-            setError(t('customers.loadError'));
+            console.error("Failed to load customer for edit:", err);
+            setError(t("customers.loadError"));
         }
     };
 
@@ -121,17 +97,17 @@ const Customers = () => {
             const { page, perPage } = paginationRef.current;
             const response = await customerClient.getAll(page, perPage);
             const isPaginated = response && response.data && Array.isArray(response.data);
-            const customersList = isPaginated ? response.data : (Array.isArray(response) ? response : []);
+            const customersList = isPaginated ? response.data : Array.isArray(response) ? response : [];
             const totalItems = response?.total ?? customersList.length;
             setCustomers(customersList);
-            setPagination(prev => ({
+            setPagination((prev) => ({
                 ...prev,
                 total: totalItems,
                 pages: Math.ceil(totalItems / prev.perPage) || 1
             }));
         } catch (err) {
-            console.error('Failed to load customers:', err);
-            setError(t('customers.loadError'));
+            console.error("Failed to load customers:", err);
+            setError(t("customers.loadError"));
         } finally {
             setLoading(false);
         }
@@ -148,8 +124,8 @@ const Customers = () => {
             setSelectedCustomer(fullCustomer);
             setModalVisible(true);
         } catch (err) {
-            console.error('Failed to load customer details:', err);
-            setError(t('customers.loadError'));
+            console.error("Failed to load customer details:", err);
+            setError(t("customers.loadError"));
         }
     };
 
@@ -163,7 +139,7 @@ const Customers = () => {
         setError(null);
 
         if (!formData.name || !formData.email) {
-            setError(t('customers.requiredFields'));
+            setError(t("customers.requiredFields"));
             setSaving(false);
             return;
         }
@@ -180,17 +156,17 @@ const Customers = () => {
 
             if (selectedCustomer) {
                 await customerClient.update(selectedCustomer.id, payload);
-                setSuccessMessage(t('customers.updateSuccess'));
+                setSuccessMessage(t("customers.updateSuccess"));
             } else {
                 await customerClient.create(payload as AddCustomerCommand);
-                setSuccessMessage(t('customers.createSuccess'));
+                setSuccessMessage(t("customers.createSuccess"));
             }
             setModalVisible(false);
             loadCustomers();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to save customer:', err);
-            setError(err.response?.data?.title || t('customers.saveError'));
+            console.error("Failed to save customer:", err);
+            setError(err.response?.data?.title || t("customers.saveError"));
         } finally {
             setSaving(false);
         }
@@ -202,25 +178,25 @@ const Customers = () => {
         setDeleting(true);
         try {
             await customerClient.delete(customerToDelete.id);
-            setSuccessMessage(t('customers.deleteSuccess'));
+            setSuccessMessage(t("customers.deleteSuccess"));
             setDeleteModalVisible(false);
             setCustomerToDelete(null);
             loadCustomers();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to delete customer:', err);
-            setError(t('customers.loadError'));
+            console.error("Failed to delete customer:", err);
+            setError(t("customers.loadError"));
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage) => {
-        setPagination(prev => ({ ...prev, page: newPage }));
+        setPagination((prev) => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage) => {
-        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+        setPagination((prev) => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
     return (
@@ -239,25 +215,25 @@ const Customers = () => {
 
             <CCard>
                 <CCardHeader className="d-flex justify-content-between align-items-center">
-                    <strong>{t('customers.title')}</strong>
+                    <strong>{t("customers.title")}</strong>
                     <CButton color="primary" size="sm" onClick={handleOpenAdd}>
                         <CIcon icon={cilPlus} className="me-2" />
-                        {t('customers.new')}
+                        {t("customers.new")}
                     </CButton>
                 </CCardHeader>
                 <CCardBody>
                     {/* Main Navigation Tabs */}
                     <CNav variant="tabs">
                         <CNavItem>
-                            <CNavLink active={activeTab === 0} onClick={() => setActiveTab(0)} style={{ cursor: 'pointer' }}>
+                            <CNavLink active={activeTab === 0} onClick={() => setActiveTab(0)} style={{ cursor: "pointer" }}>
                                 <CIcon icon={cilPeople} className="me-2" />
-                                {t('customers.customersList')}
+                                {t("customers.customersList")}
                             </CNavLink>
                         </CNavItem>
                         <CNavItem>
-                            <CNavLink active={activeTab === 1} onClick={() => setActiveTab(1)} style={{ cursor: 'pointer' }}>
+                            <CNavLink active={activeTab === 1} onClick={() => setActiveTab(1)} style={{ cursor: "pointer" }}>
                                 <CIcon icon={cilChart} className="me-2" />
-                                {t('customers.insights')}
+                                {t("customers.insights")}
                             </CNavLink>
                         </CNavItem>
                     </CNav>
@@ -268,13 +244,13 @@ const Customers = () => {
                             {loading && (
                                 <div className="text-center py-4">
                                     <CSpinner color="primary" />
-                                    <p className="mt-2">{t('common.loading')}</p>
+                                    <p className="mt-2">{t("common.loading")}</p>
                                 </div>
                             )}
 
                             {!loading && customers.length === 0 && (
                                 <div className="text-center py-4">
-                                    <p className="text-muted">{t('common.noData')}</p>
+                                    <p className="text-muted">{t("common.noData")}</p>
                                 </div>
                             )}
 
@@ -283,11 +259,11 @@ const Customers = () => {
                                     <CTable hover responsive>
                                         <CTableHead>
                                             <CTableRow>
-                                                <CTableHeaderCell>{t('customers.name')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('customers.email')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('customers.phone')}</CTableHeaderCell>
-                                                <CTableHeaderCell>{t('customers.document')}</CTableHeaderCell>
-                                                <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t("customers.name")}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t("customers.email")}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t("customers.phone")}</CTableHeaderCell>
+                                                <CTableHeaderCell>{t("customers.document")}</CTableHeaderCell>
+                                                <CTableHeaderCell className="text-end">{t("common.actions")}</CTableHeaderCell>
                                             </CTableRow>
                                         </CTableHead>
                                         <CTableBody>
@@ -296,21 +272,12 @@ const Customers = () => {
                                                     <CTableDataCell>{customer.name}</CTableDataCell>
                                                     <CTableDataCell>{customer.email}</CTableDataCell>
                                                     <CTableDataCell>{formatPhone(customer.phoneNumber)}</CTableDataCell>
-                                                    <CTableDataCell>{customer.document || '-'}</CTableDataCell>
+                                                    <CTableDataCell>{customer.document || "-"}</CTableDataCell>
                                                     <CTableDataCell className="text-end">
-                                                        <CButton
-                                                            color="info"
-                                                            size="sm"
-                                                            className="me-2"
-                                                            onClick={() => handleOpenEdit(customer)}
-                                                        >
+                                                        <CButton color="info" size="sm" className="me-2" onClick={() => handleOpenEdit(customer)}>
                                                             <CIcon icon={cilPencil} />
                                                         </CButton>
-                                                        <CButton
-                                                            color="danger"
-                                                            size="sm"
-                                                            onClick={() => handleOpenDelete(customer)}
-                                                        >
+                                                        <CButton color="danger" size="sm" onClick={() => handleOpenDelete(customer)}>
                                                             <CIcon icon={cilTrash} />
                                                         </CButton>
                                                     </CTableDataCell>
@@ -319,11 +286,7 @@ const Customers = () => {
                                         </CTableBody>
                                     </CTable>
 
-                                    <Pagination
-                                        pagination={pagination}
-                                        onPageChange={handlePageChange}
-                                        onPerPageChange={handlePerPageChange}
-                                    />
+                                    <Pagination pagination={pagination} onPageChange={handlePageChange} onPerPageChange={handlePerPageChange} />
                                 </>
                             )}
                         </CTabPane>
@@ -335,46 +298,25 @@ const Customers = () => {
                 </CCardBody>
             </CCard>
 
-            <CustomerModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onSave={handleSave}
-                customer={selectedCustomer}
-                loading={saving}
-            />
+            <CustomerModal visible={modalVisible} onClose={() => setModalVisible(false)} onSave={handleSave} customer={selectedCustomer} loading={saving} />
 
-            <CModal
-                visible={deleteModalVisible}
-                onClose={() => setDeleteModalVisible(false)}
-            >
+            <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
-                        {t('common.confirmDelete')}
+                        {t("common.confirmDelete")}
                     </CModalTitle>
                 </CModalHeader>
                 <CModalBody>
-                    <p>
-                        {t('customers.deleteConfirm', { name: customerToDelete?.name })}
-                    </p>
-                    <p className="text-danger">
-                        {t('customers.deleteWarning')}
-                    </p>
+                    <p>{t("customers.deleteConfirm", { name: customerToDelete?.name })}</p>
+                    <p className="text-danger">{t("customers.deleteWarning")}</p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton
-                        color="secondary"
-                        onClick={() => setDeleteModalVisible(false)}
-                        disabled={deleting}
-                    >
-                        {t('common.cancel')}
+                    <CButton color="secondary" onClick={() => setDeleteModalVisible(false)} disabled={deleting}>
+                        {t("common.cancel")}
                     </CButton>
-                    <CButton
-                        color="danger"
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? t('common.deleting') : t('common.delete')}
+                    <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+                        {deleting ? t("common.deleting") : t("common.delete")}
                     </CButton>
                 </CModalFooter>
             </CModal>

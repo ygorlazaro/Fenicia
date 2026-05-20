@@ -1,38 +1,23 @@
-import {
-    CAlert,
-    CButton,
-    CForm,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle
-} from '@coreui/react';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { FeniciaInput } from '../../../components/fenicia/fenicia-input';
+import { CAlert, CButton, CForm, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle } from "@coreui/react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FeniciaInput } from "../../../components/fenicia/fenicia-input";
 
-const ProductCategoryModal = ({
-    visible,
-    onClose,
-    onSave,
-    category,
-    loading
-}) => {
+const ProductCategoryModal = ({ visible, onClose, onSave, category, loading }) => {
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
-        name: ''
+        name: ""
     });
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (category) {
             setFormData({
-                name: category.name || ''
+                name: category.name || ""
             });
         } else {
             setFormData({
-                name: ''
+                name: ""
             });
         }
         setError(null);
@@ -40,7 +25,7 @@ const ProductCategoryModal = ({
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value
         }));
@@ -51,7 +36,7 @@ const ProductCategoryModal = ({
         setError(null);
 
         if (!formData.name) {
-            setError(t('categories.requiredFields'));
+            setError(t("categories.requiredFields"));
             return;
         }
 
@@ -59,14 +44,9 @@ const ProductCategoryModal = ({
     };
 
     return (
-        <CModal
-            visible={visible}
-            onClose={onClose}
-        >
+        <CModal visible={visible} onClose={onClose}>
             <CModalHeader>
-                <CModalTitle>
-                    {category ? t('categories.edit') : t('categories.new')}
-                </CModalTitle>
+                <CModalTitle>{category ? t("categories.edit") : t("categories.new")}</CModalTitle>
             </CModalHeader>
             <CForm onSubmit={handleSubmit}>
                 <CModalBody>
@@ -77,26 +57,15 @@ const ProductCategoryModal = ({
                     )}
 
                     <div className="mb-3">
-                        <FeniciaInput
-                            type="text"
-                            id="name"
-                            label={t('categories.name')}
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            required
-                        />
+                        <FeniciaInput type="text" id="name" label={t("categories.name")} value={formData.name} onChange={handleInputChange} required />
                     </div>
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="secondary" onClick={onClose} disabled={loading}>
-                        {t('common.cancel')}
+                        {t("common.cancel")}
                     </CButton>
-                    <CButton
-                        color="primary"
-                        type="submit"
-                        disabled={loading}
-                    >
-                        {loading ? t('common.saving') : t('common.save')}
+                    <CButton color="primary" type="submit" disabled={loading}>
+                        {loading ? t("common.saving") : t("common.save")}
                     </CButton>
                 </CModalFooter>
             </CForm>

@@ -21,7 +21,7 @@ export default function RenderAnalyticsTab({ performance, performanceLoading, an
         return (
             <div className="text-center py-5">
                 <CSpinner color="primary" />
-                <p className="mt-3">{t('common.loading')}</p>
+                <p className="mt-3">{t("common.loading")}</p>
             </div>
         );
     }
@@ -29,7 +29,7 @@ export default function RenderAnalyticsTab({ performance, performanceLoading, an
     if (!performance) {
         return (
             <div className="text-center py-5">
-                <p className="text-muted">{t('common.noData')}</p>
+                <p className="text-muted">{t("common.noData")}</p>
             </div>
         );
     }
@@ -45,7 +45,6 @@ export default function RenderAnalyticsTab({ performance, performanceLoading, an
             <ProfitMargins data={performance.profitMargins} />
 
             <ProductNeverSold data={performance.neverSoldProducts} />
-           
         </>
     );
 }

@@ -1,30 +1,10 @@
-import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CAlert,
-    CBadge,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CSpinner,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow
-} from '@coreui/react';
-import { useEffect, useState } from 'react';
-import Pagination from '../../components/fenicia/pagination';
-import ProjectModal from '../../components/ProjectModal';
-import ProjectClient from '../../services/project/project-client';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CAlert, CBadge, CButton, CCard, CCardBody, CCardHeader, CContainer, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CSpinner, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
+import { useEffect, useState } from "react";
+import Pagination from "../../components/fenicia/pagination";
+import ProjectModal from "../../components/ProjectModal";
+import ProjectClient from "../../services/project/project-client";
 
 const projectClient = new ProjectClient("http://localhost:5144");
 
@@ -56,17 +36,17 @@ const ProjectList = () => {
             setError(null);
             const response = await projectClient.getAll(pagination.page, pagination.perPage);
 
-            const projectsList = Array.isArray(response) ? response : (response?.data || []);
+            const projectsList = Array.isArray(response) ? response : response?.data || [];
             setProjects(projectsList);
-            setPagination(prev => ({
+            setPagination((prev) => ({
                 ...prev,
                 total: response?.total || projectsList.length,
                 pages: response?.pages || 1
             }));
         } catch (err) {
-            console.error('Failed to load projects:', err);
-            console.error('Error response:', err.response);
-            setError(err.response?.data?.title || 'Falha ao carregar projetos.');
+            console.error("Failed to load projects:", err);
+            console.error("Error response:", err.response);
+            setError(err.response?.data?.title || "Falha ao carregar projetos.");
         } finally {
             setLoading(false);
         }
@@ -92,17 +72,17 @@ const ProjectList = () => {
         try {
             if (selectedProject) {
                 await projectClient.update(selectedProject.id, formData);
-                setSuccessMessage('Projeto atualizado com sucesso!');
+                setSuccessMessage("Projeto atualizado com sucesso!");
             } else {
                 await projectClient.create(formData);
-                setSuccessMessage('Projeto criado com sucesso!');
+                setSuccessMessage("Projeto criado com sucesso!");
             }
             setModalVisible(false);
             loadProjects();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to save project:', err);
-            setError(err.response?.data?.title || 'Falha ao salvar projeto.');
+            console.error("Failed to save project:", err);
+            setError(err.response?.data?.title || "Falha ao salvar projeto.");
         } finally {
             setSaving(false);
         }
@@ -114,40 +94,40 @@ const ProjectList = () => {
         setDeleting(true);
         try {
             await projectClient.delete(projectToDelete.id);
-            setSuccessMessage('Projeto excluído com sucesso!');
+            setSuccessMessage("Projeto excluído com sucesso!");
             setDeleteModalVisible(false);
             setProjectToDelete(null);
             loadProjects();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to delete project:', err);
-            setError(err.response?.data?.title || 'Falha ao excluir projeto.');
+            console.error("Failed to delete project:", err);
+            setError(err.response?.data?.title || "Falha ao excluir projeto.");
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage) => {
-        setPagination(prev => ({ ...prev, page: newPage }));
+        setPagination((prev) => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage) => {
-        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+        setPagination((prev) => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
     const getStatusColor = (status) => {
         const colors = {
-            Draft: 'secondary',
-            Active: 'success',
-            Archived: 'dark',
-            Completed: 'info'
+            Draft: "secondary",
+            Active: "success",
+            Archived: "dark",
+            Completed: "info"
         };
-        return colors[status] || 'secondary';
+        return colors[status] || "secondary";
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString('pt-BR');
+        if (!dateString) return "-";
+        return new Date(dateString).toLocaleDateString("pt-BR");
     };
 
     return (
@@ -206,33 +186,18 @@ const ProjectList = () => {
                                                 <strong>{project.title}</strong>
                                             </CTableDataCell>
                                             <CTableDataCell>
-                                                <div style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                    {project.description || '-'}
-                                                </div>
+                                                <div style={{ maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{project.description || "-"}</div>
                                             </CTableDataCell>
                                             <CTableDataCell>
-                                                <CBadge color={getStatusColor(project.status)}>
-                                                    {project.status === 'Active' ? 'Ativo' : 
-                                                     project.status === 'Completed' ? 'Concluído' :
-                                                     project.status === 'Archived' ? 'Arquivado' : 'Rascunho'}
-                                                </CBadge>
+                                                <CBadge color={getStatusColor(project.status)}>{project.status === "Active" ? "Ativo" : project.status === "Completed" ? "Concluído" : project.status === "Archived" ? "Arquivado" : "Rascunho"}</CBadge>
                                             </CTableDataCell>
                                             <CTableDataCell>{formatDate(project.startDate)}</CTableDataCell>
                                             <CTableDataCell>{formatDate(project.endDate)}</CTableDataCell>
                                             <CTableDataCell className="text-end">
-                                                <CButton
-                                                    color="info"
-                                                    size="sm"
-                                                    className="me-2"
-                                                    onClick={() => handleOpenEdit(project)}
-                                                >
+                                                <CButton color="info" size="sm" className="me-2" onClick={() => handleOpenEdit(project)}>
                                                     <CIcon icon={cilPencil} />
                                                 </CButton>
-                                                <CButton
-                                                    color="danger"
-                                                    size="sm"
-                                                    onClick={() => handleOpenDelete(project)}
-                                                >
+                                                <CButton color="danger" size="sm" onClick={() => handleOpenDelete(project)}>
                                                     <CIcon icon={cilTrash} />
                                                 </CButton>
                                             </CTableDataCell>
@@ -241,30 +206,17 @@ const ProjectList = () => {
                                 </CTableBody>
                             </CTable>
 
-                            <Pagination
-                                pagination={pagination}
-                                onPageChange={handlePageChange}
-                                onPerPageChange={handlePerPageChange}
-                            />
+                            <Pagination pagination={pagination} onPageChange={handlePageChange} onPerPageChange={handlePerPageChange} />
                         </>
                     )}
                 </CCardBody>
             </CCard>
 
             {/* Add/Edit Modal */}
-            <ProjectModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onSave={handleSave}
-                project={selectedProject}
-                loading={saving}
-            />
+            <ProjectModal visible={modalVisible} onClose={() => setModalVisible(false)} onSave={handleSave} project={selectedProject} loading={saving} />
 
             {/* Delete Confirmation Modal */}
-            <CModal
-                visible={deleteModalVisible}
-                onClose={() => setDeleteModalVisible(false)}
-            >
+            <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
@@ -275,24 +227,14 @@ const ProjectList = () => {
                     <p>
                         Tem certeza que deseja excluir o projeto <strong>{projectToDelete?.title}</strong>?
                     </p>
-                    <p className="text-danger">
-                        Esta ação não pode ser desfeita.
-                    </p>
+                    <p className="text-danger">Esta ação não pode ser desfeita.</p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton
-                        color="secondary"
-                        onClick={() => setDeleteModalVisible(false)}
-                        disabled={deleting}
-                    >
+                    <CButton color="secondary" onClick={() => setDeleteModalVisible(false)} disabled={deleting}>
                         Cancelar
                     </CButton>
-                    <CButton
-                        color="danger"
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? 'Excluindo...' : 'Excluir'}
+                    <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+                        {deleting ? "Excluindo..." : "Excluir"}
                     </CButton>
                 </CModalFooter>
             </CModal>
