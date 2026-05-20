@@ -1,0 +1,4 @@
+{
+    "fenicia-web/**/*.{js,jsx,ts,tsx,mjs,cjs}": ["prettier --write", "eslint --fix"],
+    "fenicia-web/**/*.{json,css,scss,md,html}": ["prettier --write"]
+}
