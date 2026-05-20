@@ -1,9 +1,11 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.ForgotPassword.Commands;
-using Fenicia.Auth.Domains.ForgotPassword.Handlers;
+
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +24,7 @@ namespace Fenicia.Auth.Domains.ForgotPassword;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ForgotPasswordController(AddForgotPasswordHandler addForgotPasswordHandler, ResetPasswordHandler resetPasswordHandler) : ControllerBase
+public class ForgotPasswordController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Initiates the forgot password process by generating a reset code for the user.
@@ -43,12 +45,12 @@ public class ForgotPasswordController(AddForgotPasswordHandler addForgotPassword
         {
             wide.UserId = reset.Email;
 
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var userAgent = Request.Headers.UserAgent.ToString();
+            var ipAddress = HttpContext?.Connection?.RemoteIpAddress?.ToString();
+            var userAgent = HttpContext?.Request?.Headers.UserAgent.ToString();
 
             var command = new AddForgotPasswordCommand(reset.Email, ipAddress, userAgent);
 
-            await addForgotPasswordHandler.Handle(command, ct);
+            await sender.Send(command, ct);
 
             return Created();
         }
@@ -78,7 +80,7 @@ public class ForgotPasswordController(AddForgotPasswordHandler addForgotPassword
         {
             wide.UserId = request.Email;
 
-            await resetPasswordHandler.Handle(request, ct);
+            await sender.Send(request, ct);
 
             return Created();
         }

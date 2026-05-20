@@ -1,3 +1,8 @@
+using Fenicia.Auth.Domains.Company.Responses;
+using Fenicia.Common;
+
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Company.Queries;
 
 /// <summary>
@@ -6,4 +11,4 @@ namespace Fenicia.Auth.Domains.Company.Queries;
 /// <remarks>
 ///     Returns companies where the user has an active role, supporting pagination.
 /// </remarks>
-public sealed record GetCompaniesByUserQuery(Guid UserId, int Page, int PerPage);
+public sealed record GetCompaniesByUserQuery(Guid UserId, int Page, int PerPage) : IRequest<Pagination<IEnumerable<GetCompaniesByUserResponse>>>;

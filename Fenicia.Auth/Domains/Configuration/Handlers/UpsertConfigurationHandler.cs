@@ -2,6 +2,8 @@ using Fenicia.Auth.Domains.Configuration.Commands;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Configuration.Handlers;
@@ -11,7 +13,7 @@ namespace Fenicia.Auth.Domains.Configuration.Handlers;
 ///     Uses upsert pattern: creates new configuration if combination of UserId, CompanyId, and ConfigType doesn't exist,
 ///     otherwise updates the existing configuration value.
 /// </summary>
-public class UpsertConfigurationHandler(DefaultContext db)
+public class UpsertConfigurationHandler(DefaultContext db) : IRequestHandler<UpsertConfigurationCommand>
 {
     /// <summary>
     ///     Handles the upsert configuration operation.

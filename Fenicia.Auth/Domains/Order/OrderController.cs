@@ -1,11 +1,10 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Commands;
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Responses;
+using Fenicia.Auth.Domains.Order.Command;
+using Fenicia.Auth.Domains.Order.Response;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
-using Fenicia.Common.Api.Controllers;
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +25,7 @@ namespace Fenicia.Auth.Domains.Order;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController(CreateNewOrderHandler createNewOrderHandler) : ControllerBase
+public class OrderController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Creates a new order for module subscriptions.
@@ -70,7 +69,7 @@ public class OrderController(CreateNewOrderHandler createNewOrderHandler) : Cont
             var userId = ClaimReader.UserId(User);
             var companyId = headers.CompanyId;
             var command = new CreateNewOrderCommand(userId, companyId, request.Modules);
-            var order = await createNewOrderHandler.Handle(command, ct);
+            var order = await sender.Send(command, ct);
 
             return order switch
             {
@@ -82,9 +81,9 @@ public class OrderController(CreateNewOrderHandler createNewOrderHandler) : Cont
         {
             return Forbid();
         }
-        catch (PermissionDeniedException ex)
+        catch (PermissionDeniedException)
         {
-            return this.ForbidWithMessage(ex.Message);
+            return Forbid();
         }
         catch (ItemNotExistsException ex)
         {

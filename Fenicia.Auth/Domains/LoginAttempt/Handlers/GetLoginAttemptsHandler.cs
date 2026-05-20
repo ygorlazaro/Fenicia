@@ -1,20 +1,24 @@
 using System.Globalization;
 
+using Fenicia.Auth.Domains.LoginAttempt.Queries;
+
+using MediatR;
+
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Fenicia.Auth.Domains.LoginAttempt.Services;
+namespace Fenicia.Auth.Domains.LoginAttempt.Handlers;
 
 /// <summary>
-///     Service responsible for retrieving login attempt counts from memory cache.
+///     Handler responsible for retrieving login attempt counts from memory cache.
 ///     Used to track failed login attempts for account lockout protection.
 /// </summary>
 /// <remarks>
-///     This service is part of a brute-force protection system that tracks failed login attempts per email address.
+///     This handler is part of a brute-force protection system that tracks failed login attempts per email address.
 ///     It uses an in-memory cache to store attempt counts, which are automatically incremented by
-///     <see cref="IncrementAttemptsService" /> on failed logins and cleared by <see cref="ResetAttemptsService" /> on successful logins.
+///     <see cref="IncrementLoginAttemptsHandler" /> on failed logins and cleared by <see cref="ResetLoginAttemptsHandler" /> on successful logins.
 ///     Cache entries expire after 15 minutes of inactivity to allow legitimate users to retry.
 /// </remarks>
-public class LoginAttemptService(IMemoryCache cache)
+public class GetLoginAttemptsHandler(IMemoryCache cache) : IRequestHandler<GetLoginAttemptsQuery, int>
 {
     /// <summary>
     ///     Prefix used for all login attempt cache keys.
@@ -31,9 +35,14 @@ public class LoginAttemptService(IMemoryCache cache)
     ///     The email is normalized to lowercase for consistent cache key generation.
     ///     Returns 0 (not -1 or null) when no attempts exist to simplify calling code.
     /// </remarks>
-    public virtual int Handle(string email)
+    public virtual int GetAttempts(string email)
     {
         return cache.TryGetValue(GetKey(email), out int attempts) ? attempts : 0;
+    }
+
+    public Task<int> Handle(GetLoginAttemptsQuery request, CancellationToken ct)
+    {
+        return Task.FromResult(GetAttempts(request.Email));
     }
 
     /// <summary>

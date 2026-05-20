@@ -1,20 +1,24 @@
 using System.Globalization;
 
+using Fenicia.Auth.Domains.LoginAttempt.Commands;
+
+using MediatR;
+
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Fenicia.Auth.Domains.LoginAttempt.Services;
+namespace Fenicia.Auth.Domains.LoginAttempt.Handlers;
 
 /// <summary>
-///     Service responsible for incrementing login attempt counters in memory cache.
+///     Handler responsible for incrementing login attempt counters in memory cache.
 ///     Used to track failed login attempts for brute-force protection.
 /// </summary>
 /// <remarks>
-///     This service is part of a brute-force protection system. When a login attempt fails,
-///     this service increments the counter for that email. The counter is used by the authentication
+///     This handler is part of a brute-force protection system. When a login attempt fails,
+///     this handler increments the counter for that email. The counter is used by the authentication
 ///     logic to determine if an account should be locked out after too many failed attempts.
 ///     Cache entries expire after 15 minutes to allow legitimate users to retry after a cooldown period.
 /// </remarks>
-public class IncrementAttemptsService(IMemoryCache cache)
+public class IncrementLoginAttemptsHandler(IMemoryCache cache) : IRequestHandler<IncrementLoginAttemptsCommand>
 {
     /// <summary>
     ///     Default expiration time for login attempt entries in minutes.
@@ -38,7 +42,7 @@ public class IncrementAttemptsService(IMemoryCache cache)
     ///     The counter is incremented atomically by reading the current value and writing incremented value.
     ///     The cache entry is set with an absolute expiration of 15 minutes from the time of setting.
     /// </remarks>
-    public Task SetKey(string email)
+    public Task IncrementAsync(string email)
     {
         var key = GetKey(email);
         var current = cache.TryGetValue(key, out int count) ? count + 1 : 1;
@@ -51,6 +55,11 @@ public class IncrementAttemptsService(IMemoryCache cache)
         cache.Set(key, current, options);
 
         return Task.CompletedTask;
+    }
+
+    public Task Handle(IncrementLoginAttemptsCommand request, CancellationToken ct)
+    {
+        return IncrementAsync(request.Email);
     }
 
     /// <summary>

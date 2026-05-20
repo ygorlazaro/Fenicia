@@ -3,6 +3,8 @@ using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Module.Handlers;
@@ -18,7 +20,7 @@ namespace Fenicia.Auth.Domains.Module.Handlers;
 ///     3. Active subscription credits for the modules
 ///     Only modules with active subscriptions and within the valid date range are returned.
 /// </remarks>
-public class GetUserModuleHandler(DefaultContext db)
+public class GetUserModuleHandler(DefaultContext db) : IRequestHandler<GetUserModulesQuery, List<GetUserModulesResponse>>
 {
     /// <summary>
     ///     Retrieves modules available to a user for a specific company based on active subscriptions.
@@ -57,20 +59,20 @@ public class GetUserModuleHandler(DefaultContext db)
         var now = DateTime.Now;
 
         var query = from m in db.AuthModules
-            join sc in db.AuthSubscriptionCredits on m.Id equals sc.ModuleId
-            join s in db.AuthSubscriptions on sc.SubscriptionId equals s.Id
-            join ur in db.AuthUserRoles on s.CompanyId equals ur.CompanyId
-            where ur.UserId == userId &&
-                  s.CompanyId == companyId &&
-                  s.Status == SubscriptionStatus.Active &&
-                  now >= s.StartDate &&
-                  now <= s.EndDate &&
-                  sc.IsActive &&
-                  now >= sc.StartDate &&
-                  now <= sc.EndDate
-            select new GetUserModulesResponse(m.Id,
-                m.Name,
-                m.Type);
+                    join sc in db.AuthSubscriptionCredits on m.Id equals sc.ModuleId
+                    join s in db.AuthSubscriptions on sc.SubscriptionId equals s.Id
+                    join ur in db.AuthUserRoles on s.CompanyId equals ur.CompanyId
+                    where ur.UserId == userId &&
+                          s.CompanyId == companyId &&
+                          s.Status == SubscriptionStatus.Active &&
+                          now >= s.StartDate &&
+                          now <= s.EndDate &&
+                          sc.IsActive &&
+                          now >= sc.StartDate &&
+                          now <= sc.EndDate
+                    select new GetUserModulesResponse(m.Id,
+                        m.Name,
+                        m.Type);
 
         return query;
     }

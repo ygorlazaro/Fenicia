@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 using Fenicia.Common.Enums.Auth;
 
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Configuration.Commands;
 
 /// <summary>
@@ -29,4 +31,4 @@ public record UpsertConfigurationCommand(
     /// <summary>
     /// The company ID (optional, for company-scoped configurations).
     /// </summary>
-    [Required] Guid CompanyId);
+    [Required] Guid CompanyId) : IRequest;

@@ -3,11 +3,13 @@ using Fenicia.Auth.Domains.User.Responses;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.Handlers;
 
-public class GetUserHandler(DefaultContext db)
+public class GetUserHandler(DefaultContext db) : IRequestHandler<GetUsersQuery, Pagination<List<UserListItemResponse>>>
 {
     public virtual async Task<Pagination<List<UserListItemResponse>>> Handle(GetUsersQuery query, CancellationToken ct)
     {

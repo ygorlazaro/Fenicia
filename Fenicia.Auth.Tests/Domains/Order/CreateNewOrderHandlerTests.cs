@@ -1,8 +1,8 @@
 using Bogus;
 using Bogus.Extensions.Brazil;
 
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Commands;
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
+using Fenicia.Auth.Domains.Order.Command;
+using Fenicia.Auth.Domains.Order.Handler;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Enums.Auth;

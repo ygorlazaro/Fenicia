@@ -4,6 +4,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Company.Handlers;
 
 /// <summary>
@@ -11,7 +13,7 @@ namespace Fenicia.Auth.Domains.Company.Handlers;
 ///     Validates that the company exists, is active, and that the user has Admin permissions
 ///     before applying the update.
 /// </summary>
-public sealed class UpdateCompanyHandler(DefaultContext db)
+public sealed class UpdateCompanyHandler(DefaultContext db) : IRequestHandler<UpdateCompanyCommand>
 {
     /// <summary>
     ///     Handles the company update operation.

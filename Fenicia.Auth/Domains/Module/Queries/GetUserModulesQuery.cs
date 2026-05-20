@@ -1,3 +1,7 @@
+using Fenicia.Auth.Domains.Module.Responses;
+
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Module.Queries;
 
 /// <summary>
@@ -7,4 +11,4 @@ namespace Fenicia.Auth.Domains.Module.Queries;
 ///     Used by GetUserModuleHandler to determine which modules a user can access
 ///     based on their subscriptions and subscription credits.
 /// </remarks>
-public record GetUserModulesQuery(Guid CompanyId, Guid UserId);
+public record GetUserModulesQuery(Guid CompanyId, Guid UserId) : IRequest<List<GetUserModulesResponse>>;

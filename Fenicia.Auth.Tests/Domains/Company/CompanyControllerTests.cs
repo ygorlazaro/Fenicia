@@ -6,6 +6,8 @@ using Bogus.Extensions.Brazil;
 using Fenicia.Auth.Domains.Company;
 using Fenicia.Auth.Domains.Company.Commands;
 using Fenicia.Auth.Domains.Company.Handlers;
+
+using MediatR;
 using Fenicia.Auth.Domains.Company.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
@@ -17,6 +19,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
 
@@ -40,11 +44,16 @@ public class CompanyControllerTests : IDisposable
 
         db = new DefaultContext(options, new TestCompanyContext());
         testUserId = Guid.NewGuid();
-        var getCompaniesByUserHandler = new GetCompaniesByUserHandler(db);
-        var updateCompanyHandler = new UpdateCompanyHandler(db);
+        var services = new ServiceCollection();
+        services.AddSingleton(db);
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<UpdateCompanyHandler>());
+
+        var provider = services.BuildServiceProvider();
+        var sender = provider.GetRequiredService<ISender>();
+
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new CompanyController(getCompaniesByUserHandler, updateCompanyHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new CompanyController(sender) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims(testUserId);
         faker = new Faker();

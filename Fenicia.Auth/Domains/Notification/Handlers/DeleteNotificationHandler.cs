@@ -1,11 +1,13 @@
 using Fenicia.Auth.Domains.Notification.Commands;
 using Fenicia.Common.Data.Contexts;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification.Handlers;
 
-public class DeleteNotificationHandler(DefaultContext db)
+public class DeleteNotificationHandler(DefaultContext db) : IRequestHandler<DeleteNotificationCommand>
 {
     public async Task Handle(DeleteNotificationCommand command, CancellationToken ct)
     {

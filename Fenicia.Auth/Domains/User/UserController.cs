@@ -1,15 +1,14 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.Module.Handlers;
 using Fenicia.Auth.Domains.Module.Queries;
 using Fenicia.Auth.Domains.Module.Responses;
 using Fenicia.Auth.Domains.User.Commands;
-using Fenicia.Auth.Domains.User.Handlers;
 using Fenicia.Auth.Domains.User.Queries;
-using Fenicia.Auth.Domains.UserRole.Handlers;
 using Fenicia.Auth.Domains.UserRole.Responses;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +20,7 @@ namespace Fenicia.Auth.Domains.User;
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCompaniesHandler getUserCompaniesHandler, GetUserHandler getUserHandler, CreateUserHandler createUserHandler, UpdateUserHandler updateUserHandler, GetUserByIdHandler getUserByIdHandler, DeleteUserHandler deleteUserHandler, UpdateUserPasswordHandler updateUserPasswordHandler) : ControllerBase
+public class UserController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves modules available to the authenticated user for a specific company.
@@ -45,7 +44,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
 
             var companyId = headers.CompanyId;
             var query = new GetUserModulesQuery(companyId, userId);
-            var response = await getUserModuleHandler.Handle(query, ct);
+            var response = await sender.Send(query, ct);
 
             return Ok(response);
         }
@@ -74,7 +73,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
             var userId = ClaimReader.UserId(User);
             wide.UserId = userId.ToString();
 
-            var response = await getUserCompaniesHandler.Handle(userId, ct);
+            var response = await sender.Send(new GetUserCompaniesQuery(userId), ct);
 
             return Ok(response);
         }
@@ -98,7 +97,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
     public async Task<IActionResult> GetAsync(CancellationToken ct, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
         var query = new GetUsersQuery(page, pageSize);
-        var result = await getUserHandler.Handle(query, ct);
+        var result = await sender.Send(query, ct);
 
         return Ok(result);
     }
@@ -117,7 +116,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(Guid userId, CancellationToken ct)
     {
-        var user = await getUserByIdHandler.Handler(userId, ct);
+        var user = await sender.Send(new GetUserByIdQuery(userId), ct);
 
         return user switch
         {
@@ -144,7 +143,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
     {
         try
         {
-            var result = await createUserHandler.Handle(request, ct);
+            var result = await sender.Send(request, ct);
 
             return Created(string.Empty, result);
         }
@@ -178,7 +177,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
         try
         {
             var updateRequest = request with { UserId = userId };
-            var result = await updateUserHandler.Handle(updateRequest, ct);
+            var result = await sender.Send(updateRequest, ct);
 
             return Ok(result);
         }
@@ -206,7 +205,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
     {
         try
         {
-            await deleteUserHandler.Handle(new DeleteUserCommand(userId), ct);
+            await sender.Send(new DeleteUserCommand(userId), ct);
             return NoContent();
         }
         catch (InvalidRequestException)
@@ -238,7 +237,7 @@ public class UserController(GetUserModuleHandler getUserModuleHandler, GetUserCo
         try
         {
             var updateRequest = request with { UserId = userId };
-            var result = await updateUserPasswordHandler.Handle(updateRequest, ct);
+            var result = await sender.Send(updateRequest, ct);
 
             return Ok(result);
         }

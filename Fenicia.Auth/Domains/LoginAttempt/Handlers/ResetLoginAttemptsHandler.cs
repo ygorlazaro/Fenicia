@@ -1,19 +1,23 @@
 using System.Globalization;
 
+using Fenicia.Auth.Domains.LoginAttempt.Commands;
+
+using MediatR;
+
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Fenicia.Auth.Domains.LoginAttempt.Services;
+namespace Fenicia.Auth.Domains.LoginAttempt.Handlers;
 
 /// <summary>
-///     Service responsible for resetting login attempt counters in memory cache.
+///     Handler responsible for resetting login attempt counters in memory cache.
 ///     Called after successful login to clear failed attempt counts.
 /// </summary>
 /// <remarks>
-///     This service is part of a brute-force protection system. When a user successfully logs in,
-///     this service removes the attempt counter from the cache, allowing the user to start fresh.
+///     This handler is part of a brute-force protection system. When a user successfully logs in,
+///     this handler removes the attempt counter from the cache, allowing the user to start fresh.
 ///     This is typically called as part of the successful authentication flow.
 /// </remarks>
-public class ResetAttemptsService(IMemoryCache cache)
+public class ResetLoginAttemptsHandler(IMemoryCache cache) : IRequestHandler<ResetLoginAttemptsCommand>
 {
     /// <summary>
     ///     Prefix used for all login attempt cache keys.
@@ -32,7 +36,7 @@ public class ResetAttemptsService(IMemoryCache cache)
     ///     The email is trimmed and normalized to lowercase before generating the cache key.
     ///     This method safely handles cases where no attempts exist (no-op).
     /// </remarks>
-    public Task Handle(string email)
+    public Task ResetAsync(string email)
     {
         ArgumentNullException.ThrowIfNull(email);
 
@@ -43,6 +47,11 @@ public class ResetAttemptsService(IMemoryCache cache)
 
         cache.Remove(GetKey(email));
         return Task.CompletedTask;
+    }
+
+    public Task Handle(ResetLoginAttemptsCommand request, CancellationToken ct)
+    {
+        return ResetAsync(request.Email);
     }
 
     /// <summary>

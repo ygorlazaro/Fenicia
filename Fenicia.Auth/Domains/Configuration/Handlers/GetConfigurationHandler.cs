@@ -2,6 +2,8 @@ using Fenicia.Auth.Domains.Configuration.Queries;
 using Fenicia.Auth.Domains.Configuration.Responses;
 using Fenicia.Common.Data.Contexts;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Configuration.Handlers;
@@ -10,7 +12,7 @@ namespace Fenicia.Auth.Domains.Configuration.Handlers;
 ///     Handler responsible for retrieving user configurations.
 ///     Returns configurations filtered by user and optionally by company, ordered by ConfigType.
 /// </summary>
-public class GetConfigurationHandler(DefaultContext db)
+public class GetConfigurationHandler(DefaultContext db) : IRequestHandler<GetConfigurationQuery, List<GetConfigurationResponse>>
 {
     /// <summary>
     ///     Retrieves configurations for a user, filtered by company.

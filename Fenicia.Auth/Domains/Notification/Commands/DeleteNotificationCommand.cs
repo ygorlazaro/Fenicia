@@ -1,3 +1,5 @@
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Notification.Commands;
 
-public record DeleteNotificationCommand(Guid Id);
+public record DeleteNotificationCommand(Guid Id) : IRequest;

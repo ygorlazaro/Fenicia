@@ -3,6 +3,8 @@ using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Externals.Email;
 
+using MediatR;
+
 namespace Fenicia.Auth;
 
 public static class Program
@@ -21,6 +23,8 @@ public static class Program
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Configuration.AddConfiguration(configuration);
+
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
         {

@@ -8,6 +8,8 @@ using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
+using MediatR;
+
 namespace Fenicia.Auth.Domains.User.Handlers;
 
 /// <summary>
@@ -25,7 +27,7 @@ namespace Fenicia.Auth.Domains.User.Handlers;
 ///     - Assign roles
 ///     - Configure company settings
 /// </remarks>
-public class CreateNewUserHandler(DefaultContext db)
+public class CreateNewUserHandler(DefaultContext db) : IRequestHandler<CreateNewUserCommand, CreateNewUserResponse>
 {
     /// <summary>
     ///     Creates a new user with company registration.

@@ -1,11 +1,13 @@
 using Fenicia.Auth.Domains.Notification.Commands;
 using Fenicia.Common.Data.Contexts;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification.Handlers;
 
-public class MarkAsReadHandler(DefaultContext db)
+public class MarkAsReadHandler(DefaultContext db) : IRequestHandler<MarkAsReadCommand, bool>
 {
     public async Task<bool> Handle(MarkAsReadCommand command, CancellationToken ct)
     {

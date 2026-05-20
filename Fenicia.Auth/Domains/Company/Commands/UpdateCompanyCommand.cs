@@ -1,3 +1,5 @@
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Company.Commands;
 
 /// <summary>
@@ -6,4 +8,4 @@ namespace Fenicia.Auth.Domains.Company.Commands;
 /// <remarks>
 ///     Used by administrators to modify company details such as name.
 /// </remarks>
-public sealed record UpdateCompanyCommand(Guid CompanyId, Guid UserId, string Name);
+public sealed record UpdateCompanyCommand(Guid CompanyId, Guid UserId, string Name) : IRequest;

@@ -1,5 +1,5 @@
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Commands;
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Responses;
+using Fenicia.Auth.Domains.Order.Command;
+using Fenicia.Auth.Domains.Order.Response;
 using Fenicia.Auth.Domains.UserRole;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -7,9 +7,11 @@ using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
-namespace Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
+namespace Fenicia.Auth.Domains.Order.Handler;
 
 /// <summary>
 ///     Handler responsible for creating new module subscription orders.
@@ -25,7 +27,7 @@ namespace Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
 ///     - See <see cref="Fenicia.Auth.Domains.Module.Queries.GetModulesQuery" /> for module queries
 ///     - See <see cref="Fenicia.Auth.Domains.UserRole.UserRoleExtensions" /> for user-company validation
 /// </remarks>
-public class CreateNewOrderHandler(DefaultContext db)
+public class CreateNewOrderHandler(DefaultContext db) : IRequestHandler<CreateNewOrderCommand, CreateNewOrderResponse?>
 {
     /// <summary>
     ///     Creates a new order and associated subscription for module subscriptions.
@@ -64,6 +66,7 @@ public class CreateNewOrderHandler(DefaultContext db)
     private OrderModel PersistOrderAsync(CreateNewOrderCommand command, List<ModuleModel> modules)
     {
         var totalAmount = modules.Sum(m => m.Price);
+        var orderNumber = GenerateOrderNumber();
 
         var details = modules.Select(m => new OrderDetailModel
         {
@@ -73,6 +76,7 @@ public class CreateNewOrderHandler(DefaultContext db)
 
         var order = new OrderModel
         {
+            OrderNumber = orderNumber,
             SaleDate = DateTime.UtcNow,
             Status = OrderStatus.Approved,
             UserId = command.UserId,
@@ -192,5 +196,10 @@ public class CreateNewOrderHandler(DefaultContext db)
         };
 
         db.AuthSubscriptions.Add(subscription);
+    }
+
+    private static string GenerateOrderNumber()
+    {
+        return $"AO-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}";
     }
 }

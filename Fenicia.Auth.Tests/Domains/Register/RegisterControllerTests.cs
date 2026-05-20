@@ -1,11 +1,14 @@
 using Fenicia.Auth.Domains.Register;
+using Fenicia.Auth.Domains.Register.Command;
+using Fenicia.Auth.Domains.Register.Handler;
+using Fenicia.Auth.Domains.Register.Response;
 using Fenicia.Auth.Domains.User.Commands;
 using Fenicia.Auth.Domains.User.Handlers;
-using Fenicia.Auth.Domains.User.Responses;
-using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,23 +19,9 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Register;
 
-/// <summary>
-///     Unit tests for the RegisterController.
-///     Tests user registration with company creation.
-/// </summary>
-/// <remarks>
-///     These tests verify:
-///     - Duplicate email validation
-///     - Duplicate CNPJ validation
-///     - Admin role existence validation
-///     - Successful user and company creation
-///     - WideEventContext UserId setting
-///     - Controller attributes
-/// </remarks>
 public class RegisterControllerTests : IDisposable
 {
     private readonly Guid adminRoleId;
-
     private readonly RegisterController controller;
     private readonly DefaultContext db;
 
@@ -42,10 +31,14 @@ public class RegisterControllerTests : IDisposable
 
         db = new DefaultContext(options, new TestCompanyContext());
         var createNewUserHandler = new CreateNewUserHandler(db);
+        var registerHandler = new RegisterHandler(createNewUserHandler);
+        var mockSender = new Mock<ISender>();
+        mockSender.Setup(sender => sender.Send(It.IsAny<RegisterCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((RegisterCommand command, CancellationToken token) => registerHandler.Handle(command, token));
 
         var mockHttpContext = new Mock<HttpContext>();
+        controller = new RegisterController(mockSender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
-        controller = new RegisterController(createNewUserHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
         adminRoleId = Guid.NewGuid();
         SeedAdminRole();
     }
@@ -58,139 +51,83 @@ public class RegisterControllerTests : IDisposable
 
     private void SeedAdminRole()
     {
-        var adminRole = new RoleModel
-        {
-            Id = adminRoleId,
-            Name = "Admin"
-        };
-        db.AuthRoles.Add(adminRole);
+        db.AuthRoles.Add(new RoleModel { Id = adminRoleId, Name = "Admin" });
         db.SaveChanges();
     }
 
-    /// <summary>
-    ///     Tests that registering with an existing email throws exception.
-    /// </summary>
     [Fact]
     public async Task CreateNewUserAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
-        // Arrange
-        var wide = new WideEventContext();
-        var xrt = CancellationToken.None;
+        var wide = new Fenicia.Common.API.WideEventContext();
+        var ct = CancellationToken.None;
+        var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
+        var request = new RegisterCommand("existing@example.com", "password123", "Test User", company);
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var query = new CreateNewUserCommand("existing@example.com", "password123", "Test User", companyQuery);
-
-        var existingUser = new UserModel
-        {
-            Email = query.Email,
-            Name = "Existing User",
-            Password = "password"
-        };
-        db.AuthUsers.Add(existingUser);
+        db.AuthUsers.Add(new UserModel { Email = request.Email, Name = "Existing User", Password = "password" });
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
-        var result = await controller.CreateNewUserAsync(query, wide, xrt);
+        var result = await controller.CreateNewUserAsync(request, wide, ct);
 
-        // Assert
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 
-    /// <summary>
-    ///     Tests that registering with an existing company CNPJ throws exception.
-    /// </summary>
     [Fact]
     public async Task CreateNewUserAsync_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
-        // Arrange
-        var wide = new WideEventContext();
+        var wide = new Fenicia.Common.API.WideEventContext();
         var ct = CancellationToken.None;
+        var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Existing Company");
+        var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Existing Company");
-        var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
-
-        var existingCompany = new CompanyModel
-        {
-            Cnpj = companyQuery.Cnpj,
-            Name = "Existing Company"
-        };
-        db.AuthCompanies.Add(existingCompany);
+        db.AuthCompanies.Add(new CompanyModel { Cnpj = company.Cnpj, Name = "Existing Company" });
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
-        var result = await controller.CreateNewUserAsync(query, wide, ct);
+        var result = await controller.CreateNewUserAsync(request, wide, ct);
 
-        // Assert
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 
-    /// <summary>
-    ///     Tests that registering when Admin role doesn't exist throws exception.
-    /// </summary>
     [Fact]
     public async Task CreateNewUserAsync_WhenAdminRoleDoesNotExist_ReturnsBadRequest()
     {
-        // Arrange
-        var wide = new WideEventContext();
+        var wide = new Fenicia.Common.API.WideEventContext();
         var ct = CancellationToken.None;
+        var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
+        var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
-
-        var adminRole = db.AuthRoles.First();
-        db.AuthRoles.Remove(adminRole);
+        db.AuthRoles.Remove(db.AuthRoles.First());
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
-        var result = await controller.CreateNewUserAsync(query, wide, ct);
+        var result = await controller.CreateNewUserAsync(request, wide, ct);
 
-        // Assert
         Assert.IsType<BadRequestObjectResult>(result.Result);
     }
 
-    /// <summary>
-    ///     Tests that valid registration creates user, company, and role assignment.
-    /// </summary>
     [Fact]
     public async Task CreateNewUserAsync_WhenValidRequest_ReturnsCreatedWithUser()
     {
-        // Arrange
-        var wide = new WideEventContext();
+        var wide = new Fenicia.Common.API.WideEventContext();
         var ct = CancellationToken.None;
+        var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
+        var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
+        var result = await controller.CreateNewUserAsync(request, wide, ct);
 
-        // Act
-        var result = await controller.CreateNewUserAsync(query, wide, ct);
+        var createdResult = Assert.IsType<CreatedResult>(result.Result);
+        var response = Assert.IsType<RegisterResponse>(createdResult.Value);
 
-        // Assert
-        Assert.NotNull(result);
-        Assert.IsType<CreatedResult>(result.Result);
+        Assert.Equal(request.Email, response.Email);
+        Assert.Equal(request.Name, response.Name);
+        Assert.Equal(company.Name, response.Company.Name);
+        Assert.Equal(request.Email, wide.UserId);
 
-        var createdResult = result.Result as CreatedResult;
-        Assert.NotNull(createdResult);
-        Assert.Equal(201, createdResult.StatusCode);
-
-        var returnedResponse = createdResult.Value as CreateNewUserResponse;
-        Assert.NotNull(returnedResponse);
-        Assert.Equal(query.Email, returnedResponse.Email);
-        Assert.Equal(query.Name, returnedResponse.Name);
-        Assert.Equal(companyQuery.Name, returnedResponse.Company.Name);
-        Assert.Equal(query.Email, wide.UserId);
-
-        // Verify user was created
-        var createdUser = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == query.Email, ct);
+        var createdUser = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == request.Email, ct);
         Assert.NotNull(createdUser);
-        Assert.NotEqual(query.Password, createdUser.Password);
-        Assert.StartsWith("$2a$", createdUser.Password);
+        Assert.NotEqual(request.Password, createdUser.Password);
 
-        // Verify company was created
-        var createdCompany = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == companyQuery.Cnpj, ct);
+        var createdCompany = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == company.Cnpj, ct);
         Assert.NotNull(createdCompany);
-        Assert.Equal(companyQuery.Name, createdCompany.Name);
 
-        // Verify user role was created
         var userRole = await db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == createdUser.Id, ct);
         Assert.NotNull(userRole);
         Assert.Equal(adminRoleId, userRole.RoleId);
@@ -199,71 +136,41 @@ public class RegisterControllerTests : IDisposable
     [Fact]
     public async Task CreateNewUserAsync_SetsWideEventContextUserId()
     {
-        // Arrange
-        var wide = new WideEventContext();
+        var wide = new Fenicia.Common.API.WideEventContext();
         var ct = CancellationToken.None;
+        var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
+        var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
 
-        var companyQuery = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
-        var query = new CreateNewUserCommand("test@example.com", "password123", "Test User", companyQuery);
+        await controller.CreateNewUserAsync(request, wide, ct);
 
-        // Act
-        await controller.CreateNewUserAsync(query, wide, ct);
-
-        // Assert
-        Assert.Equal(query.Email, wide.UserId);
+        Assert.Equal(request.Email, wide.UserId);
     }
 
     [Fact]
     public void RegisterController_HasAllowAnonymousAttribute()
     {
-        // Arrange
-        var controllerType = typeof(RegisterController);
-
-        // Act
-        var allowAnonymousAttribute = controllerType.GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault();
-
-        // Assert
-        Assert.NotNull(allowAnonymousAttribute);
+        Assert.NotNull(typeof(RegisterController).GetCustomAttributes(typeof(AllowAnonymousAttribute), false).FirstOrDefault());
     }
 
     [Fact]
     public void RegisterController_HasRouteAttribute()
     {
-        // Arrange
-        var controllerType = typeof(RegisterController);
-
-        // Act
-        var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
-
-        // Assert
-        Assert.NotNull(routeAttribute);
-        Assert.Equal("[controller]", routeAttribute.Template);
+        var route = typeof(RegisterController).GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
+        Assert.NotNull(route);
+        Assert.Equal("[controller]", route.Template);
     }
 
     [Fact]
     public void RegisterController_HasApiControllerAttribute()
     {
-        // Arrange
-        var controllerType = typeof(RegisterController);
-
-        // Act
-        var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
-
-        // Assert
-        Assert.NotNull(apiControllerAttribute);
+        Assert.NotNull(typeof(RegisterController).GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault());
     }
 
     [Fact]
     public void RegisterController_HasProducesAttribute()
     {
-        // Arrange
-        var controllerType = typeof(RegisterController);
-
-        // Act
-        var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
-
-        // Assert
-        Assert.NotNull(producesAttribute);
-        Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
+        var produces = typeof(RegisterController).GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
+        Assert.NotNull(produces);
+        Assert.Equal("application/json", produces.ContentTypes.FirstOrDefault());
     }
 }

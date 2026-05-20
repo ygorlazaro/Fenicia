@@ -3,9 +3,11 @@ using Fenicia.Auth.Domains.Notification.Responses;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Notification.Handlers;
 
-public class AddNotificationHandler(DefaultContext db)
+public class AddNotificationHandler(DefaultContext db) : IRequestHandler<AddNotificationCommand, AddNotificationResponse>
 {
     public async Task<AddNotificationResponse> Handle(AddNotificationCommand command, CancellationToken ct)
     {

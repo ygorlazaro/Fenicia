@@ -1,13 +1,14 @@
 using System.Net.Mime;
 
-using Fenicia.Auth.Domains.RefreshToken.Handlers;
+using Fenicia.Auth.Domains.RefreshToken.Commands;
 using Fenicia.Auth.Domains.RefreshToken.Queries;
-using Fenicia.Auth.Domains.Token.Handlers;
 using Fenicia.Auth.Domains.Token.Queries;
 using Fenicia.Auth.Domains.Token.Responses;
-using Fenicia.Auth.Domains.User.Handlers;
+using Fenicia.Auth.Domains.User.Queries;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,19 +19,8 @@ namespace Fenicia.Auth.Domains.Token;
 [Route("[controller]")]
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
-public class TokenController(GenerateTokenHandler generateTokenHandler, GenerateRefreshTokenHandler generateRefreshTokenHandler, GenerateTokenStringHandler generateTokenStringHandler, ValidateTokenHandler validateTokenHandler, InvalidateRefreshTokenHandler invalidateRefreshTokenHandler, GetUserForRefreshHandler getUserForRefreshHandler) : ControllerBase
+public class TokenController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Generates an authentication token for the user.
-    /// </summary>
-    /// <param name="request">The token request containing email and password.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Authentication token response.</returns>
-    /// <response code="201">Token generated successfully.</response>
-    /// <response code="400">Invalid request or invalid credentials.</response>
-    /// <exception cref="PermissionDeniedException">Invalid username or password.</exception>
-    /// <exception cref="InvalidRequestException">Invalid request - email or password is empty.</exception>
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -42,9 +32,9 @@ public class TokenController(GenerateTokenHandler generateTokenHandler, Generate
         {
             wide.UserId = request.Email;
 
-            var userResponse = await generateTokenHandler.Handle(request, ct);
+            var userResponse = await sender.Send(request, ct);
 
-            return PopulateToken(userResponse);
+            return await PopulateTokenAsync(userResponse, ct);
         }
         catch (PermissionDeniedException ex)
         {
@@ -64,16 +54,6 @@ public class TokenController(GenerateTokenHandler generateTokenHandler, Generate
         }
     }
 
-    /// <summary>
-    ///     Refreshes an authentication token using a valid refresh token.
-    /// </summary>
-    /// <param name="request">The validation query containing user ID and refresh token.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>New authentication token response.</returns>
-    /// <response code="201">Token refreshed successfully.</response>
-    /// <response code="400">Invalid request or refresh token.</response>
-    /// <exception cref="InvalidRequestException">Refresh token is null or whitespace.</exception>
     [HttpPost]
     [AllowAnonymous]
     [Route("refresh")]
@@ -85,18 +65,18 @@ public class TokenController(GenerateTokenHandler generateTokenHandler, Generate
         {
             wide.UserId = request.UserId.ToString();
 
-            var isValidToken = await validateTokenHandler.Handle(request);
+            var isValidToken = await sender.Send(request, ct);
 
             if (!isValidToken)
             {
                 return BadRequest("Invalid client request");
             }
 
-            await invalidateRefreshTokenHandler.Handler(request.RefreshToken);
+            await sender.Send(new InvalidateRefreshTokenCommand(request.RefreshToken), ct);
 
-            var userResponse = await getUserForRefreshHandler.Handle(request.UserId, ct);
+            var userResponse = await sender.Send(new GetUserForRefreshQuery(request.UserId), ct);
 
-            return PopulateToken(new GenerateTokenResponse(userResponse.Id, userResponse.Name, userResponse.Email));
+            return await PopulateTokenAsync(new GenerateTokenResponse(userResponse.Id, userResponse.Name, userResponse.Email), ct);
         }
         catch (InvalidRequestException ex)
         {
@@ -108,10 +88,10 @@ public class TokenController(GenerateTokenHandler generateTokenHandler, Generate
         }
     }
 
-    private ActionResult<TokenResponse> PopulateToken(GenerateTokenResponse user)
+    private async Task<ActionResult<TokenResponse>> PopulateTokenAsync(GenerateTokenResponse user, CancellationToken ct)
     {
-        var token = generateTokenStringHandler.Handle(user);
-        var refreshToken = generateRefreshTokenHandler.Handle(user.Id);
+        var token = await sender.Send(new GenerateTokenStringQuery(user), ct);
+        var refreshToken = await sender.Send(new GenerateRefreshTokenCommand(user.Id), ct);
         var userResponse = new UserResponse(user.Id, user.Name, user.Email);
         var response = new TokenResponse(token, refreshToken, userResponse);
 

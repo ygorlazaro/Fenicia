@@ -4,6 +4,8 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Enums.Auth;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Module.Handlers;
@@ -17,7 +19,7 @@ namespace Fenicia.Auth.Domains.Module.Handlers;
 ///     Modules are ordered by their Type enum value. The Auth module type is excluded
 ///     as it represents internal authentication functionality not available for subscription.
 /// </remarks>
-public class GetModulesHandler(DefaultContext db)
+public class GetModulesHandler(DefaultContext db) : IRequestHandler<GetModulesQuery, Pagination<List<GetModuleResponse>>>
 {
     /// <summary>
     ///     Retrieves paginated modules, excluding Auth type modules.

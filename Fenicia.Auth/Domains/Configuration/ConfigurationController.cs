@@ -1,10 +1,12 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Configuration.Commands;
-using Fenicia.Auth.Domains.Configuration.Handlers;
+
 using Fenicia.Auth.Domains.Configuration.Queries;
 using Fenicia.Auth.Domains.Configuration.Responses;
 using Fenicia.Common.API;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +25,7 @@ namespace Fenicia.Auth.Domains.Configuration;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ConfigurationController(GetConfigurationHandler getConfigurationHandler, UpsertConfigurationHandler upsertConfigurationHandler) : ControllerBase
+public class ConfigurationController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves configurations for the authenticated user, filtered by company.
@@ -46,7 +48,7 @@ public class ConfigurationController(GetConfigurationHandler getConfigurationHan
             wide.UserId = userId.ToString();
 
             var query = new GetConfigurationQuery(userId, companyId);
-            var result = await getConfigurationHandler.Handle(query, ct);
+            var result = await sender.Send(query, ct);
 
             return Ok(result);
         }
@@ -82,7 +84,7 @@ public class ConfigurationController(GetConfigurationHandler getConfigurationHan
             wide.UserId = userId.ToString();
 
             var command = request with { UserId = userId, Id = id };
-            await upsertConfigurationHandler.Handle(command, ct);
+            await sender.Send(command, ct);
 
             return NoContent();
         }

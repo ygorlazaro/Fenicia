@@ -3,6 +3,8 @@ using Bogus;
 using Fenicia.Auth.Domains.Module;
 using Fenicia.Auth.Domains.Module.Handlers;
 using Fenicia.Auth.Domains.Module.Responses;
+
+using MediatR;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
@@ -14,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
 
@@ -42,11 +45,17 @@ public class ModuleControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        var getModulesHandler = new GetModulesHandler(db);
+        var services = new ServiceCollection();
+        services.AddSingleton(db);
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetModulesHandler>());
+
+        var provider = services.BuildServiceProvider();
+        var sender = provider.GetRequiredService<ISender>();
+
         var mockHttpContext = new Mock<HttpContext>();
         faker = new Faker();
 
-        controller = new ModuleController(getModulesHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new ModuleController(sender) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
     }
 
     public void Dispose()

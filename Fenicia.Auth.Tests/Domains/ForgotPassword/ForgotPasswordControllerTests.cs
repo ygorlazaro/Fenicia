@@ -3,6 +3,8 @@ using Bogus;
 using Fenicia.Auth.Domains.ForgotPassword;
 using Fenicia.Auth.Domains.ForgotPassword.Commands;
 using Fenicia.Auth.Domains.ForgotPassword.Handlers;
+
+using MediatR;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -12,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
 
@@ -32,11 +35,16 @@ public class ForgotPasswordControllerTests : IDisposable
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        var addForgotPasswordHandler = new AddForgotPasswordHandler(db);
-        var resetPasswordHandler = new ResetPasswordHandler(db);
+        var services = new ServiceCollection();
+        services.AddSingleton(db);
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<ResetPasswordHandler>());
+
+        var provider = services.BuildServiceProvider();
+        var sender = provider.GetRequiredService<ISender>();
+
         var mockHttpContext = new Mock<HttpContext>();
 
-        controller = new ForgotPasswordController(addForgotPasswordHandler, resetPasswordHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new ForgotPasswordController(sender) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         faker = new Faker();
     }

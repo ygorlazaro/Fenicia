@@ -4,11 +4,13 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.Handlers;
 
-public class UpdatePasswordHandler(DefaultContext db)
+public class UpdatePasswordHandler(DefaultContext db) : IRequestHandler<UpdatePasswordCommand, UpdatePasswordResponse>
 {
     public async Task<UpdatePasswordResponse> Handle(UpdatePasswordCommand command, CancellationToken ct)
     {

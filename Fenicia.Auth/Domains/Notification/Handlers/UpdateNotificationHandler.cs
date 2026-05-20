@@ -2,11 +2,13 @@ using Fenicia.Auth.Domains.Notification.Commands;
 using Fenicia.Auth.Domains.Notification.Responses;
 using Fenicia.Common.Data.Contexts;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification.Handlers;
 
-public class UpdateNotificationHandler(DefaultContext db)
+public class UpdateNotificationHandler(DefaultContext db) : IRequestHandler<UpdateNotificationCommand, UpdateNotificationResponse?>
 {
     public async Task<UpdateNotificationResponse?> Handle(UpdateNotificationCommand command, CancellationToken ct)
     {

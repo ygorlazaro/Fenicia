@@ -4,6 +4,8 @@ using Fenicia.Auth.Domains.Configuration;
 using Fenicia.Auth.Domains.Configuration.Commands;
 using Fenicia.Auth.Domains.Configuration.Handlers;
 using Fenicia.Auth.Domains.Configuration.Responses;
+
+using MediatR;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -14,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
 
@@ -36,11 +39,16 @@ public class ConfigurationControllerTests : IDisposable
 
         db = new DefaultContext(options, new TestCompanyContext());
         testUserId = Guid.NewGuid();
-        var getConfigurationHandler = new GetConfigurationHandler(db);
-        var upsertConfigurationHandler = new UpsertConfigurationHandler(db);
+        var services = new ServiceCollection();
+        services.AddSingleton(db);
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<UpsertConfigurationHandler>());
+
+        var provider = services.BuildServiceProvider();
+        var sender = provider.GetRequiredService<ISender>();
+
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new ConfigurationController(getConfigurationHandler, upsertConfigurationHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new ConfigurationController(sender) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims(testUserId);
     }

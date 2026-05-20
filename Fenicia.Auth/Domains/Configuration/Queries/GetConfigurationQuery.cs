@@ -1,3 +1,7 @@
+using Fenicia.Auth.Domains.Configuration.Responses;
+
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Configuration.Queries;
 
 /// <summary>
@@ -11,4 +15,4 @@ public record GetConfigurationQuery(
     /// <summary>
     /// The company ID to filter configurations (now required).
     /// </summary>
-    Guid CompanyId);
+    Guid CompanyId) : IRequest<List<GetConfigurationResponse>>;

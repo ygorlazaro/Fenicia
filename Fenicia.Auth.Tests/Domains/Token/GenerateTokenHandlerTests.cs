@@ -1,6 +1,6 @@
 using Bogus;
 
-using Fenicia.Auth.Domains.LoginAttempt.Services;
+using Fenicia.Auth.Domains.LoginAttempt.Handlers;
 using Fenicia.Auth.Domains.Security.Services;
 using Fenicia.Auth.Domains.Token.Handlers;
 using Fenicia.Auth.Domains.Token.Queries;
@@ -24,14 +24,15 @@ public class GenerateTokenHandlerTests : IDisposable
     public GenerateTokenHandlerTests()
     {
         cache = new MemoryCache(new MemoryCacheOptions());
-        var loginAttemptService = new LoginAttemptService(cache);
-        var incrementAttemptsService = new IncrementAttemptsService(cache);
+        var getLoginAttemptsHandler = new GetLoginAttemptsHandler(cache);
+        var incrementLoginAttemptsHandler = new IncrementLoginAttemptsHandler(cache);
+        var resetLoginAttemptsHandler = new ResetLoginAttemptsHandler(cache);
         var verifyPasswordService = new VerifyPasswordService();
 
         var options = new DbContextOptionsBuilder<DefaultContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
 
         db = new DefaultContext(options, new TestCompanyContext());
-        handler = new GenerateTokenHandler(db, loginAttemptService, incrementAttemptsService, verifyPasswordService);
+        handler = new GenerateTokenHandler(db, getLoginAttemptsHandler, incrementLoginAttemptsHandler, resetLoginAttemptsHandler, verifyPasswordService);
         faker = new Faker();
     }
 

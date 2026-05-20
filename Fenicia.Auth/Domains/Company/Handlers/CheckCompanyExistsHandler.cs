@@ -1,13 +1,15 @@
 using Fenicia.Auth.Domains.Company.Queries;
 using Fenicia.Common.Data.Contexts;
 
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Company.Handlers;
 
 /// <summary>
 ///     Handler responsible for checking if a company exists based on CNPJ.
 ///     Used during company registration to prevent duplicate CNPJs.
 /// </summary>
-public class CheckCompanyExistsHandler(DefaultContext db)
+public class CheckCompanyExistsHandler(DefaultContext db) : IRequestHandler<CheckCompanyExistsQuery, bool>
 {
     /// <summary>
     ///     Checks if a company exists with the given CNPJ.

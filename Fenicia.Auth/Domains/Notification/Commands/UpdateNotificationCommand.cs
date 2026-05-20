@@ -1,3 +1,7 @@
+using Fenicia.Auth.Domains.Notification.Responses;
+
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Notification.Commands;
 
 public record UpdateNotificationCommand(
@@ -6,4 +10,4 @@ public record UpdateNotificationCommand(
     string Description,
     DateTime? Date,
     string? ImageUrl,
-    bool? Read);
+    bool? Read) : IRequest<UpdateNotificationResponse?>;

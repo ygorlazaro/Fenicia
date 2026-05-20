@@ -2,7 +2,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
+using Fenicia.Auth.Domains.Token.Queries;
 using Fenicia.Auth.Domains.Token.Responses;
+
+using MediatR;
 
 using Microsoft.IdentityModel.Tokens;
 
@@ -12,7 +15,7 @@ namespace Fenicia.Auth.Domains.Token.Handlers;
 ///     Handler responsible for generating JWT token strings.
 ///     Creates signed JWT tokens with user claims.
 /// </summary>
-public class GenerateTokenStringHandler(IConfiguration configuration)
+public class GenerateTokenStringHandler(IConfiguration configuration) : IRequestHandler<GenerateTokenStringQuery, string>
 {
     /// <summary>
     ///     Generates a JWT token for the given user.
@@ -47,6 +50,11 @@ public class GenerateTokenStringHandler(IConfiguration configuration)
         var finalToken = tokenHandler.WriteToken(token);
 
         return finalToken;
+    }
+
+    public Task<string> Handle(GenerateTokenStringQuery request, CancellationToken ct)
+    {
+        return Task.FromResult(Handle(request.User));
     }
 
     private static List<Claim> GenerateClaims(GenerateTokenResponse user)

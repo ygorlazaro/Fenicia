@@ -1,12 +1,14 @@
 using System.Net.Mime;
 
 using Fenicia.Auth.Domains.Company.Commands;
-using Fenicia.Auth.Domains.Company.Handlers;
+
 using Fenicia.Auth.Domains.Company.Queries;
 using Fenicia.Auth.Domains.Company.Responses;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Common.Exceptions;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +28,7 @@ namespace Fenicia.Auth.Domains.Company;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandler, UpdateCompanyHandler updateCompanyCommand) : ControllerBase
+public class CompanyController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves a paginated list of companies associated with the currently logged-in user.
@@ -54,7 +56,7 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
             wide.UserId = userId.ToString();
 
             var getCompaniesByUserQuery = new GetCompaniesByUserQuery(userId, query.Page, query.PerPage);
-            var result = await getCompaniesByUserHandler.Handle(getCompaniesByUserQuery, ct);
+            var result = await sender.Send(getCompaniesByUserQuery, ct);
 
             return Ok(result);
         }
@@ -64,7 +66,7 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
         }
         catch (InvalidRequestException ex)
         {
-            return  BadRequest(ex.Message);
+            return BadRequest(ex.Message);
         }
     }
 
@@ -102,7 +104,7 @@ public class CompanyController(GetCompaniesByUserHandler getCompaniesByUserHandl
 
             var company = request with { CompanyId = id };
 
-            await updateCompanyCommand.Handle(company, ct);
+            await sender.Send(company, ct);
 
             return NoContent();
         }

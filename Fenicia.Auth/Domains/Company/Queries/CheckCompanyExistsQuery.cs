@@ -1,3 +1,5 @@
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Company.Queries;
 
 /// <summary>
@@ -6,4 +8,4 @@ namespace Fenicia.Auth.Domains.Company.Queries;
 /// <remarks>
 ///     Used to validate CNPJ uniqueness during company registration or updates.
 /// </remarks>
-public record CheckCompanyExistsQuery(string Cnpj, bool OnlyActive);
+public record CheckCompanyExistsQuery(string Cnpj, bool OnlyActive) : IRequest<bool>;

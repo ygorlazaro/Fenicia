@@ -1,6 +1,10 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 
+using Fenicia.Auth.Domains.RefreshToken.Commands;
+
+using MediatR;
+
 using StackExchange.Redis;
 
 namespace Fenicia.Auth.Domains.RefreshToken.Handlers;
@@ -17,7 +21,7 @@ namespace Fenicia.Auth.Domains.RefreshToken.Handlers;
 ///     - Stored in Redis with automatic expiration
 ///     - Associated with a specific user ID
 /// </remarks>
-public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
+public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis) : IRequestHandler<GenerateRefreshTokenCommand, string>
 {
     /// <summary>
     ///     Redis key prefix for refresh tokens.
@@ -48,6 +52,11 @@ public class GenerateRefreshTokenHandler(IConnectionMultiplexer redis)
         Add(refreshToken);
 
         return refreshToken.Token;
+    }
+
+    public Task<string> Handle(GenerateRefreshTokenCommand request, CancellationToken ct)
+    {
+        return Task.FromResult(Handle(request.UserId));
     }
 
     /// <summary>

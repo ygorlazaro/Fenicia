@@ -4,9 +4,9 @@ using Bogus;
 using Bogus.Extensions.Brazil;
 
 using Fenicia.Auth.Domains.Order;
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Commands;
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Handlers;
-using Fenicia.Auth.Domains.Order.CreateNewOrder.Responses;
+using Fenicia.Auth.Domains.Order.Command;
+using Fenicia.Auth.Domains.Order.Handler;
+using Fenicia.Auth.Domains.Order.Response;
 using Fenicia.Common.API;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+using MediatR;
 
 using Moq;
 
@@ -43,9 +45,13 @@ public class OrderControllerTests : IDisposable
         testUserId = Guid.NewGuid();
         testCompanyId = Guid.NewGuid();
         var createNewOrderHandler = new CreateNewOrderHandler(db);
+        var mockSender = new Mock<ISender>();
+        mockSender.Setup(sender => sender.Send(It.IsAny<CreateNewOrderCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((CreateNewOrderCommand command, CancellationToken token) => createNewOrderHandler.Handle(command, token));
+
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new OrderController(createNewOrderHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new OrderController(mockSender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims(testUserId);
         faker = new Faker();

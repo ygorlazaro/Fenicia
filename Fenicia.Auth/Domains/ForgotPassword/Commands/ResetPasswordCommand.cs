@@ -1,3 +1,5 @@
+using MediatR;
+
 namespace Fenicia.Auth.Domains.ForgotPassword.Commands;
 
 /// <summary>
@@ -15,4 +17,4 @@ public sealed record ResetPasswordCommand(
     /// <summary>
     /// The verification code sent to the user's email.
     /// </summary>
-    string Code);
+    string Code) : IRequest;

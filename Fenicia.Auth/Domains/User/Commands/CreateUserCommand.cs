@@ -1,3 +1,7 @@
+using Fenicia.Auth.Domains.User.Responses;
+
+using MediatR;
+
 namespace Fenicia.Auth.Domains.User.Commands;
 
-public record CreateUserCommand(string Email, string Password, string Name, List<CreateUserRoleCommand>? Roles = null);
+public record CreateUserCommand(string Email, string Password, string Name, List<CreateUserRoleCommand>? Roles = null) : IRequest<CreateUserResponse>;

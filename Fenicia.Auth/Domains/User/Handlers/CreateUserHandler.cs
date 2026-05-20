@@ -6,11 +6,13 @@ using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.User.Handlers;
 
-public class CreateUserHandler(DefaultContext db)
+public class CreateUserHandler(DefaultContext db) : IRequestHandler<CreateUserCommand, CreateUserResponse>
 {
     public virtual async Task<CreateUserResponse> Handle(CreateUserCommand command, CancellationToken ct)
     {

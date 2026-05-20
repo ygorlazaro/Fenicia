@@ -3,11 +3,13 @@ using Fenicia.Auth.Domains.Notification.Responses;
 using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Notification.Handlers;
 
-public class GetAllNotificationsHandler(DefaultContext db)
+public class GetAllNotificationsHandler(DefaultContext db) : IRequestHandler<GetAllNotificationsQuery, Pagination<List<GetAllNotificationsResponse>>>
 {
     public async Task<Pagination<List<GetAllNotificationsResponse>>> Handle(GetAllNotificationsQuery query, CancellationToken ct)
     {

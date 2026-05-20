@@ -6,6 +6,8 @@ using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.ForgotPassword.Handlers;
@@ -14,7 +16,7 @@ namespace Fenicia.Auth.Domains.ForgotPassword.Handlers;
 ///     Handler responsible for completing the password reset process.
 ///     Validates the reset code and updates the user's password.
 /// </summary>
-public class ResetPasswordHandler(DefaultContext db)
+public class ResetPasswordHandler(DefaultContext db) : IRequestHandler<ResetPasswordCommand>
 {
     /// <summary>
     ///     Handles the password reset request.

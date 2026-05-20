@@ -5,6 +5,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Domains.Company.Handlers;
@@ -13,7 +15,7 @@ namespace Fenicia.Auth.Domains.Company.Handlers;
 ///     Handler responsible for retrieving companies associated with a specific user.
 ///     Returns a paginated list of companies where the user has a role, ordered by company name.
 /// </summary>
-public sealed class GetCompaniesByUserHandler(DefaultContext db)
+public sealed class GetCompaniesByUserHandler(DefaultContext db) : IRequestHandler<GetCompaniesByUserQuery, Pagination<IEnumerable<GetCompaniesByUserResponse>>>
 {
     /// <summary>
     ///     Retrieves paginated companies for a user.

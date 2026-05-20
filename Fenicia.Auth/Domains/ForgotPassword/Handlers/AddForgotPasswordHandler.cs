@@ -5,13 +5,15 @@ using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Exceptions;
 using Fenicia.Common.Localization;
 
+using MediatR;
+
 namespace Fenicia.Auth.Domains.ForgotPassword.Handlers;
 
 /// <summary>
 ///     Handler responsible for initiating the forgot password process.
 ///     Creates a unique reset code that is sent to the user's email for verification.
 /// </summary>
-public class AddForgotPasswordHandler(DefaultContext db)
+public class AddForgotPasswordHandler(DefaultContext db) : IRequestHandler<AddForgotPasswordCommand>
 {
     /// <summary>
     ///     Handles the forgot password request by generating a reset code for the user.

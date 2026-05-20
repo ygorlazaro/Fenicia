@@ -1,3 +1,8 @@
+using Fenicia.Auth.Domains.Notification.Responses;
+using Fenicia.Common;
+
+using MediatR;
+
 namespace Fenicia.Auth.Domains.Notification.Queries;
 
-public record GetAllNotificationsQuery(int Page = 1, int PerPage = 10);
+public record GetAllNotificationsQuery(int Page = 1, int PerPage = 10) : IRequest<Pagination<List<GetAllNotificationsResponse>>>;
