@@ -19,20 +19,20 @@ export default function WorstSellingProducts({ data }: WorstSellingProductsProps
                 <CCard>
                     <CCardHeader className="d-flex align-items-center">
                         <CIcon icon={cilArrowBottom} className="me-2 text-warning" />
-                        <strong>{t('products.worstSellingProducts')}</strong>
+                        <strong>{t("products.worstSellingProducts")}</strong>
                     </CCardHeader>
                     <CCardBody>
                         {data.length === 0 ? (
-                            <p className="text-muted text-center">{t('common.noData')}</p>
+                            <p className="text-muted text-center">{t("common.noData")}</p>
                         ) : (
                             <CTable hover responsive>
                                 <CTableHead>
                                     <CTableRow>
-                                        <CTableHeaderCell>{t('products.name')}</CTableHeaderCell>
-                                        <CTableHeaderCell>{t('products.category')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-center">{t('products.sold')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-center">{t('products.stock')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-end">{t('products.costValue')}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t("products.name")}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t("products.category")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-center">{t("products.sold")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-center">{t("products.stock")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-end">{t("products.costValue")}</CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
                                 <CTableBody>
@@ -46,9 +46,7 @@ export default function WorstSellingProducts({ data }: WorstSellingProductsProps
                                             <CTableDataCell>{product.categoryName}</CTableDataCell>
                                             <CTableDataCell className="text-center">{product.totalQuantitySold}</CTableDataCell>
                                             <CTableDataCell className="text-center">
-                                                <CBadge color={product.currentStock > 50 ? 'warning' : 'info'}>
-                                                    {product.currentStock}
-                                                </CBadge>
+                                                <CBadge color={product.currentStock > 50 ? "warning" : "info"}>{product.currentStock}</CBadge>
                                             </CTableDataCell>
                                             <CTableDataCell className="text-end">
                                                 <span className="text-danger">{formatCurrency(product.costValue)}</span>

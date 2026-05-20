@@ -1,44 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import {
-    CButton,
-    CForm,
-    CFormInput,
-    CFormLabel,
-    CFormTextarea,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CAlert
-} from '@coreui/react';
+import React, { useEffect, useState } from "react";
+import { CButton, CForm, CFormInput, CFormLabel, CFormTextarea, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CAlert } from "@coreui/react";
 
-const ProjectCommentModal = ({
-    visible,
-    onClose,
-    onSave,
-    projectComment,
-    loading
-}) => {
+const ProjectCommentModal = ({ visible, onClose, onSave, projectComment, loading }) => {
     const [formData, setFormData] = useState({
-        content: '',
-        taskId: '',
-        userId: ''
+        content: "",
+        taskId: "",
+        userId: ""
     });
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (projectComment) {
             setFormData({
-                content: projectComment.content || '',
-                taskId: projectComment.taskId || '',
-                userId: projectComment.userId || ''
+                content: projectComment.content || "",
+                taskId: projectComment.taskId || "",
+                userId: projectComment.userId || ""
             });
         } else {
             setFormData({
-                content: '',
-                taskId: '',
-                userId: ''
+                content: "",
+                taskId: "",
+                userId: ""
             });
         }
         setError(null);
@@ -46,7 +28,7 @@ const ProjectCommentModal = ({
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value
         }));
@@ -58,7 +40,7 @@ const ProjectCommentModal = ({
 
         // Validation
         if (!formData.content) {
-            setError('Conteúdo é obrigatório.');
+            setError("Conteúdo é obrigatório.");
             return;
         }
 
@@ -66,15 +48,9 @@ const ProjectCommentModal = ({
     };
 
     return (
-        <CModal
-            visible={visible}
-            onClose={onClose}
-            size="lg"
-        >
+        <CModal visible={visible} onClose={onClose} size="lg">
             <CModalHeader>
-                <CModalTitle>
-                    {projectComment ? 'Editar Comentário do Projeto' : 'Novo Comentário do Projeto'}
-                </CModalTitle>
+                <CModalTitle>{projectComment ? "Editar Comentário do Projeto" : "Novo Comentário do Projeto"}</CModalTitle>
             </CModalHeader>
             <CForm onSubmit={handleSubmit}>
                 <CModalBody>
@@ -86,37 +62,18 @@ const ProjectCommentModal = ({
 
                     <div className="mb-3">
                         <CFormLabel htmlFor="content">Conteúdo *</CFormLabel>
-                        <CFormTextarea
-                            id="content"
-                            name="content"
-                            value={formData.content}
-                            onChange={handleInputChange}
-                            rows={5}
-                            required
-                        />
+                        <CFormTextarea id="content" name="content" value={formData.content} onChange={handleInputChange} rows={5} required />
                     </div>
 
                     <div className="row">
                         <div className="col-md-6 mb-3">
                             <CFormLabel htmlFor="taskId">ID da Tarefa</CFormLabel>
-                            <CFormInput
-                                type="text"
-                                id="taskId"
-                                name="taskId"
-                                value={formData.taskId}
-                                onChange={handleInputChange}
-                            />
+                            <CFormInput type="text" id="taskId" name="taskId" value={formData.taskId} onChange={handleInputChange} />
                         </div>
 
                         <div className="col-md-6 mb-3">
                             <CFormLabel htmlFor="userId">ID do Usuário</CFormLabel>
-                            <CFormInput
-                                type="text"
-                                id="userId"
-                                name="userId"
-                                value={formData.userId}
-                                onChange={handleInputChange}
-                            />
+                            <CFormInput type="text" id="userId" name="userId" value={formData.userId} onChange={handleInputChange} />
                         </div>
                     </div>
                 </CModalBody>
@@ -124,12 +81,8 @@ const ProjectCommentModal = ({
                     <CButton color="secondary" onClick={onClose} disabled={loading}>
                         Cancelar
                     </CButton>
-                    <CButton
-                        color="primary"
-                        type="submit"
-                        disabled={loading}
-                    >
-                        {loading ? 'Salvando...' : 'Salvar'}
+                    <CButton color="primary" type="submit" disabled={loading}>
+                        {loading ? "Salvando..." : "Salvar"}
                     </CButton>
                 </CModalFooter>
             </CForm>

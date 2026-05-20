@@ -1,4 +1,3 @@
-
 export type GetCompaniesByUserResponse = {
     id: string;
     name: string;

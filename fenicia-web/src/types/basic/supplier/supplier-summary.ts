@@ -1,7 +1,6 @@
-
 export interface SupplierSummary {
-  totalSuppliers: number;
-  totalProducts: number;
-  totalStockValue: number;
-  averageProductsPerSupplier: number;
+    totalSuppliers: number;
+    totalProducts: number;
+    totalStockValue: number;
+    averageProductsPerSupplier: number;
 }

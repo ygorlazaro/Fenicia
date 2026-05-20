@@ -2,7 +2,6 @@ import { OrderDetailResponse } from "./order-detail-response";
 import { OrderStatus } from "./order-status";
 import { PaymentMethod } from "./payment-method";
 
-
 export type GetOrderByIdResponse = {
     id: string;
     orderNumber: string;

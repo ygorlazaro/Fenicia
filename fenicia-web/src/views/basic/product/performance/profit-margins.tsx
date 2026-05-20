@@ -15,46 +15,45 @@ interface ProfitMarginsProps {
 export default function ProfitMargins({ data }: ProfitMarginsProps) {
     const { t } = useTranslation();
 
-
     const getMarginDistributionData = () => {
         if (data.length === 0) return null;
         const distribution = {
-            'Excellent': 0,
-            'Good': 0,
-            'Average': 0,
-            'Low': 0,
-            'Very Low': 0
+            Excellent: 0,
+            Good: 0,
+            Average: 0,
+            Low: 0,
+            "Very Low": 0
         };
-        data.forEach(p => {
+        data.forEach((p) => {
             if (distribution[p.marginClassification] !== undefined) {
                 distribution[p.marginClassification]++;
             }
         });
         return {
             labels: Object.keys(distribution),
-            datasets: [{
-                data: Object.values(distribution),
-                backgroundColor: [
-                    getStyle('--cui-success'),
-                    getStyle('--cui-info'),
-                    getStyle('--cui-warning'),
-                    getStyle('--cui-orange'),
-                    getStyle('--cui-danger')
-                ]
-            }]
+            datasets: [
+                {
+                    data: Object.values(distribution),
+                    backgroundColor: [getStyle("--cui-success"), getStyle("--cui-info"), getStyle("--cui-warning"), getStyle("--cui-orange"), getStyle("--cui-danger")]
+                }
+            ]
         };
     };
 
     const getMarginBadgeColor = (classification: string) => {
         switch (classification?.toLowerCase()) {
-            case 'excellent': return 'success';
-            case 'good': return 'info';
-            case 'average': return 'warning';
-            case 'low': return 'orange';
-            default: return 'danger';
+            case "excellent":
+                return "success";
+            case "good":
+                return "info";
+            case "average":
+                return "warning";
+            case "low":
+                return "orange";
+            default:
+                return "danger";
         }
     };
-
 
     return (
         <CRow className="mb-4" xs={{ gutter: 4 }}>
@@ -62,34 +61,28 @@ export default function ProfitMargins({ data }: ProfitMarginsProps) {
                 <CCard>
                     <CCardHeader className="d-flex align-items-center">
                         <CIcon icon={cilChart} className="me-2" />
-                        <strong>{t('products.marginDistribution')}</strong>
+                        <strong>{t("products.marginDistribution")}</strong>
                     </CCardHeader>
-                    <CCardBody>
-                        {data.length === 0 ? (
-                            <p className="text-muted text-center">{t('common.noData')}</p>
-                        ) : (
-                            <CChartPie data={getMarginDistributionData()} options={{ responsive: true, maintainAspectRatio: true }} />
-                        )}
-                    </CCardBody>
+                    <CCardBody>{data.length === 0 ? <p className="text-muted text-center">{t("common.noData")}</p> : <CChartPie data={getMarginDistributionData()} options={{ responsive: true, maintainAspectRatio: true }} />}</CCardBody>
                 </CCard>
             </CCol>
             <CCol md={6}>
                 <CCard>
                     <CCardHeader className="d-flex align-items-center">
                         <CIcon icon={cilDollar} className="me-2" />
-                        <strong>{t('products.profitMargins')}</strong>
+                        <strong>{t("products.profitMargins")}</strong>
                     </CCardHeader>
                     <CCardBody>
                         {data.length === 0 ? (
-                            <p className="text-muted text-center">{t('common.noData')}</p>
+                            <p className="text-muted text-center">{t("common.noData")}</p>
                         ) : (
                             <CTable hover responsive>
                                 <CTableHead>
                                     <CTableRow>
-                                        <CTableHeaderCell>{t('products.name')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-end">{t('products.cost')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-end">{t('products.price')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-center">{t('products.margin')}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t("products.name")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-end">{t("products.cost")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-end">{t("products.price")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-center">{t("products.margin")}</CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
                                 <CTableBody>

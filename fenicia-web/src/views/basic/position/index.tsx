@@ -1,34 +1,15 @@
-import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CAlert,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CSpinner,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow
-} from '@coreui/react';
-import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
-import Pagination from '../../../components/fenicia/pagination';
-import BasicPositionClient from '../../../services/basic/basic-position-client';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CAlert, CButton, CCard, CCardBody, CCardHeader, CContainer, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CSpinner, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
+import Pagination from "../../../components/fenicia/pagination";
+import BasicPositionClient from "../../../services/basic/basic-position-client";
 import { GetAllPositionResponse } from "../../../types/basic/position/get-all-position-response";
 import { GetPositionByIdResponse } from "../../../types/basic/position/get-position-by-id-response";
 import { UpdatePositionCommand } from "../../../types/basic/position/update-position-command";
-import PositionModal from './position-modal';
+import PositionModal from "./position-modal";
 
 const positionClient = new BasicPositionClient("http://localhost:5083");
 
@@ -56,7 +37,7 @@ const PositionList = () => {
     paginationRef.current = pagination;
 
     useEffect(() => {
-        const positionId = searchParams.get('id');
+        const positionId = searchParams.get("id");
         if (positionId) {
             loadPositionForEdit(positionId);
         }
@@ -69,8 +50,8 @@ const PositionList = () => {
             setSelectedPosition(position);
             setModalVisible(true);
         } catch (err) {
-            console.error('Failed to load position for edit:', err);
-            setError(t('positions.loadError'));
+            console.error("Failed to load position for edit:", err);
+            setError(t("positions.loadError"));
         }
     };
 
@@ -81,16 +62,16 @@ const PositionList = () => {
             const { page, perPage } = paginationRef.current;
             const response = await positionClient.getAll(page, perPage);
             const isPaginated = response && response.data && Array.isArray(response.data);
-            const positionsList = isPaginated ? response.data : (Array.isArray(response) ? response : []);
+            const positionsList = isPaginated ? response.data : Array.isArray(response) ? response : [];
             const totalItems = response?.total ?? positionsList.length;
             setPositions(positionsList);
-            setPagination(prev => ({
+            setPagination((prev) => ({
                 ...prev,
                 total: totalItems,
                 pages: Math.ceil(totalItems / prev.perPage) || 1
             }));
         } catch (err) {
-            setError(t('positions.loadError'));
+            setError(t("positions.loadError"));
         } finally {
             setLoading(false);
         }
@@ -116,16 +97,16 @@ const PositionList = () => {
         try {
             if (selectedPosition) {
                 await positionClient.update(selectedPosition.id, formData);
-                setSuccessMessage(t('positions.updateSuccess'));
+                setSuccessMessage(t("positions.updateSuccess"));
             } else {
                 await positionClient.create(formData);
-                setSuccessMessage(t('positions.createSuccess'));
+                setSuccessMessage(t("positions.createSuccess"));
             }
             setModalVisible(false);
             loadPositions();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            setError(t('positions.saveError'));
+            setError(t("positions.saveError"));
         } finally {
             setSaving(false);
         }
@@ -139,24 +120,24 @@ const PositionList = () => {
         setDeleting(true);
         try {
             await positionClient.delete(positionToDelete.id);
-            setSuccessMessage(t('positions.deleteSuccess'));
+            setSuccessMessage(t("positions.deleteSuccess"));
             setDeleteModalVisible(false);
             setPositionToDelete(null);
             loadPositions();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            setError(t('positions.loadError'));
+            setError(t("positions.loadError"));
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage: number) => {
-        setPagination(prev => ({ ...prev, page: newPage }));
+        setPagination((prev) => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage: number) => {
-        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+        setPagination((prev) => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
     return (
@@ -175,23 +156,23 @@ const PositionList = () => {
 
             <CCard>
                 <CCardHeader className="d-flex justify-content-between align-items-center">
-                    <strong>{t('positions.title')}</strong>
+                    <strong>{t("positions.title")}</strong>
                     <CButton color="primary" size="sm" onClick={handleOpenAdd}>
                         <CIcon icon={cilPlus} className="me-2" />
-                        {t('positions.new')}
+                        {t("positions.new")}
                     </CButton>
                 </CCardHeader>
                 <CCardBody>
                     {loading && (
                         <div className="text-center py-4">
                             <CSpinner color="primary" />
-                            <p className="mt-2">{t('common.loading')}</p>
+                            <p className="mt-2">{t("common.loading")}</p>
                         </div>
                     )}
 
                     {!loading && positions.length === 0 && (
                         <div className="text-center py-4">
-                            <p className="text-muted">{t('common.noData')}</p>
+                            <p className="text-muted">{t("common.noData")}</p>
                         </div>
                     )}
 
@@ -200,8 +181,8 @@ const PositionList = () => {
                             <CTable hover responsive>
                                 <CTableHead>
                                     <CTableRow>
-                                        <CTableHeaderCell>{t('positions.name')}</CTableHeaderCell>
-                                        <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
+                                        <CTableHeaderCell>{t("positions.name")}</CTableHeaderCell>
+                                        <CTableHeaderCell className="text-end">{t("common.actions")}</CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
                                 <CTableBody>
@@ -209,19 +190,10 @@ const PositionList = () => {
                                         <CTableRow key={position.id}>
                                             <CTableDataCell>{position.name}</CTableDataCell>
                                             <CTableDataCell className="text-end">
-                                                <CButton 
-                                                    color="info" 
-                                                    size="sm" 
-                                                    className="me-2"
-                                                    onClick={() => handleOpenEdit(position)}
-                                                >
+                                                <CButton color="info" size="sm" className="me-2" onClick={() => handleOpenEdit(position)}>
                                                     <CIcon icon={cilPencil} />
                                                 </CButton>
-                                                <CButton 
-                                                    color="danger" 
-                                                    size="sm"
-                                                    onClick={() => handleOpenDelete(position)}
-                                                >
+                                                <CButton color="danger" size="sm" onClick={() => handleOpenDelete(position)}>
                                                     <CIcon icon={cilTrash} />
                                                 </CButton>
                                             </CTableDataCell>
@@ -230,56 +202,31 @@ const PositionList = () => {
                                 </CTableBody>
                             </CTable>
 
-                            <Pagination
-                                pagination={pagination}
-                                onPageChange={handlePageChange}
-                                onPerPageChange={handlePerPageChange}
-                            />
+                            <Pagination pagination={pagination} onPageChange={handlePageChange} onPerPageChange={handlePerPageChange} />
                         </>
                     )}
                 </CCardBody>
             </CCard>
 
-            <PositionModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onSave={handleSave}
-                position={selectedPosition}
-                loading={saving}
-            />
+            <PositionModal visible={modalVisible} onClose={() => setModalVisible(false)} onSave={handleSave} position={selectedPosition} loading={saving} />
 
-            <CModal 
-                visible={deleteModalVisible} 
-                onClose={() => setDeleteModalVisible(false)}
-            >
+            <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
-                        {t('common.confirmDelete')}
+                        {t("common.confirmDelete")}
                     </CModalTitle>
                 </CModalHeader>
                 <CModalBody>
-                    <p>
-                        {t('positions.deleteConfirm', { name: positionToDelete?.name })}
-                    </p>
-                    <p className="text-danger">
-                        {t('positions.deleteWarning')}
-                    </p>
+                    <p>{t("positions.deleteConfirm", { name: positionToDelete?.name })}</p>
+                    <p className="text-danger">{t("positions.deleteWarning")}</p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton 
-                        color="secondary" 
-                        onClick={() => setDeleteModalVisible(false)}
-                        disabled={deleting}
-                    >
-                        {t('common.cancel')}
+                    <CButton color="secondary" onClick={() => setDeleteModalVisible(false)} disabled={deleting}>
+                        {t("common.cancel")}
                     </CButton>
-                    <CButton 
-                        color="danger" 
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? t('common.deleting') : t('common.delete')}
+                    <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+                        {deleting ? t("common.deleting") : t("common.delete")}
                     </CButton>
                 </CModalFooter>
             </CModal>

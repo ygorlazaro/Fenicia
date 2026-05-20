@@ -1,6 +1,5 @@
 import { AddressCommand } from "../address/address-command";
 
-
 export type UpdateCustomerCommand = {
     id: string;
     name: string;

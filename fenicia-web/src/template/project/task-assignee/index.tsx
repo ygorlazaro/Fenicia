@@ -1,30 +1,10 @@
-import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CAlert,
-    CBadge,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CSpinner,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow
-} from '@coreui/react';
-import { useEffect, useState } from 'react';
-import Pagination from '../../components/fenicia/pagination';
-import ProjectTaskAssigneeModal from '../../components/ProjectTaskAssigneeModal';
-import ProjectTaskAssigneeClient from '../../../services/project/project-task-assignee-client';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CAlert, CBadge, CButton, CCard, CCardBody, CCardHeader, CContainer, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CSpinner, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
+import { useEffect, useState } from "react";
+import Pagination from "../../components/fenicia/pagination";
+import ProjectTaskAssigneeModal from "../../components/ProjectTaskAssigneeModal";
+import ProjectTaskAssigneeClient from "../../../services/project/project-task-assignee-client";
 
 const projectTaskAssigneeClient = new ProjectTaskAssigneeClient("http://localhost:5144");
 
@@ -56,17 +36,17 @@ const ProjectTaskAssigneeList = () => {
             setError(null);
             const response = await projectTaskAssigneeClient.getAll(pagination.page, pagination.perPage);
 
-            const assigneesList = Array.isArray(response) ? response : (response?.data || []);
+            const assigneesList = Array.isArray(response) ? response : response?.data || [];
             setAssignees(assigneesList);
-            setPagination(prev => ({
+            setPagination((prev) => ({
                 ...prev,
                 total: response?.total || assigneesList.length,
                 pages: response?.pages || 1
             }));
         } catch (err) {
-            console.error('Failed to load project task assignees:', err);
-            console.error('Error response:', err.response);
-            setError(err.response?.data?.title || 'Falha ao carregar responsáveis das tarefas do projeto.');
+            console.error("Failed to load project task assignees:", err);
+            console.error("Error response:", err.response);
+            setError(err.response?.data?.title || "Falha ao carregar responsáveis das tarefas do projeto.");
         } finally {
             setLoading(false);
         }
@@ -92,17 +72,17 @@ const ProjectTaskAssigneeList = () => {
         try {
             if (selectedAssignee) {
                 await projectTaskAssigneeClient.update(selectedAssignee.id, formData);
-                setSuccessMessage('Responsável da tarefa atualizado com sucesso!');
+                setSuccessMessage("Responsável da tarefa atualizado com sucesso!");
             } else {
                 await projectTaskAssigneeClient.create(formData);
-                setSuccessMessage('Responsável da tarefa criado com sucesso!');
+                setSuccessMessage("Responsável da tarefa criado com sucesso!");
             }
             setModalVisible(false);
             loadAssignees();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to save project task assignee:', err);
-            setError(err.response?.data?.title || 'Falha ao salvar responsável da tarefa do projeto.');
+            console.error("Failed to save project task assignee:", err);
+            setError(err.response?.data?.title || "Falha ao salvar responsável da tarefa do projeto.");
         } finally {
             setSaving(false);
         }
@@ -114,48 +94,48 @@ const ProjectTaskAssigneeList = () => {
         setDeleting(true);
         try {
             await projectTaskAssigneeClient.delete(assigneeToDelete.id);
-            setSuccessMessage('Responsável da tarefa excluído com sucesso!');
+            setSuccessMessage("Responsável da tarefa excluído com sucesso!");
             setDeleteModalVisible(false);
             setAssigneeToDelete(null);
             loadAssignees();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to delete project task assignee:', err);
-            setError(err.response?.data?.title || 'Falha ao excluir responsável da tarefa do projeto.');
+            console.error("Failed to delete project task assignee:", err);
+            setError(err.response?.data?.title || "Falha ao excluir responsável da tarefa do projeto.");
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage) => {
-        setPagination(prev => ({ ...prev, page: newPage }));
+        setPagination((prev) => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage) => {
-        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+        setPagination((prev) => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
     const getRoleBadgeColor = (role) => {
         const colorMap = {
-            'Owner': 'danger',
-            'Contributor': 'primary',
-            'Reviewer': 'info'
+            Owner: "danger",
+            Contributor: "primary",
+            Reviewer: "info"
         };
-        return colorMap[role] || 'secondary';
+        return colorMap[role] || "secondary";
     };
 
     const translateRole = (role) => {
         const translations = {
-            'Owner': 'Proprietário',
-            'Contributor': 'Contribuidor',
-            'Reviewer': 'Revisor'
+            Owner: "Proprietário",
+            Contributor: "Contribuidor",
+            Reviewer: "Revisor"
         };
         return translations[role] || role;
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString('pt-BR');
+        if (!dateString) return "-";
+        return new Date(dateString).toLocaleDateString("pt-BR");
     };
 
     return (
@@ -209,28 +189,17 @@ const ProjectTaskAssigneeList = () => {
                                 <CTableBody>
                                     {assignees.map((assignee) => (
                                         <CTableRow key={assignee.id}>
-                                            <CTableDataCell>{assignee.taskId || '-'}</CTableDataCell>
-                                            <CTableDataCell>{assignee.userId || '-'}</CTableDataCell>
+                                            <CTableDataCell>{assignee.taskId || "-"}</CTableDataCell>
+                                            <CTableDataCell>{assignee.userId || "-"}</CTableDataCell>
                                             <CTableDataCell>
-                                                <CBadge color={getRoleBadgeColor(assignee.role)}>
-                                                    {translateRole(assignee.role)}
-                                                </CBadge>
+                                                <CBadge color={getRoleBadgeColor(assignee.role)}>{translateRole(assignee.role)}</CBadge>
                                             </CTableDataCell>
                                             <CTableDataCell>{formatDate(assignee.assignedAt)}</CTableDataCell>
                                             <CTableDataCell className="text-end">
-                                                <CButton
-                                                    color="info"
-                                                    size="sm"
-                                                    className="me-2"
-                                                    onClick={() => handleOpenEdit(assignee)}
-                                                >
+                                                <CButton color="info" size="sm" className="me-2" onClick={() => handleOpenEdit(assignee)}>
                                                     <CIcon icon={cilPencil} />
                                                 </CButton>
-                                                <CButton
-                                                    color="danger"
-                                                    size="sm"
-                                                    onClick={() => handleOpenDelete(assignee)}
-                                                >
+                                                <CButton color="danger" size="sm" onClick={() => handleOpenDelete(assignee)}>
                                                     <CIcon icon={cilTrash} />
                                                 </CButton>
                                             </CTableDataCell>
@@ -246,19 +215,10 @@ const ProjectTaskAssigneeList = () => {
             </CCard>
 
             {/* Add/Edit Modal */}
-            <ProjectTaskAssigneeModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onSave={handleSave}
-                projectTaskAssignee={selectedAssignee}
-                loading={saving}
-            />
+            <ProjectTaskAssigneeModal visible={modalVisible} onClose={() => setModalVisible(false)} onSave={handleSave} projectTaskAssignee={selectedAssignee} loading={saving} />
 
             {/* Delete Confirmation Modal */}
-            <CModal
-                visible={deleteModalVisible}
-                onClose={() => setDeleteModalVisible(false)}
-            >
+            <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
@@ -269,24 +229,14 @@ const ProjectTaskAssigneeList = () => {
                     <p>
                         Tem certeza que deseja excluir o responsável <strong>{assigneeToDelete?.id}</strong>?
                     </p>
-                    <p className="text-danger">
-                        Esta ação não pode ser desfeita.
-                    </p>
+                    <p className="text-danger">Esta ação não pode ser desfeita.</p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton
-                        color="secondary"
-                        onClick={() => setDeleteModalVisible(false)}
-                        disabled={deleting}
-                    >
+                    <CButton color="secondary" onClick={() => setDeleteModalVisible(false)} disabled={deleting}>
                         Cancelar
                     </CButton>
-                    <CButton
-                        color="danger"
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? 'Excluindo...' : 'Excluir'}
+                    <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+                        {deleting ? "Excluindo..." : "Excluir"}
                     </CButton>
                 </CModalFooter>
             </CModal>

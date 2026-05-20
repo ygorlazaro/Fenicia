@@ -1,38 +1,21 @@
-import {
-    CAlert,
-    CButton,
-    CCol,
-    CForm,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CRow
-} from '@coreui/react';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { FeniciaInput } from '../../../components/fenicia/fenicia-input';
-import { FeniciaSelect } from '../../../components/fenicia/fenicia-select';
-import { BasicProductClient } from '../../../services/basic/basic-product-client';
+import { CAlert, CButton, CCol, CForm, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CRow } from "@coreui/react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { FeniciaInput } from "../../../components/fenicia/fenicia-input";
+import { FeniciaSelect } from "../../../components/fenicia/fenicia-select";
+import { BasicProductClient } from "../../../services/basic/basic-product-client";
 
 const productClient = new BasicProductClient();
 
-const ProductModal = ({
-    visible,
-    onClose,
-    onSave,
-    product,
-    loading
-}) => {
+const ProductModal = ({ visible, onClose, onSave, product, loading }) => {
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
-        name: '',
-        costPrice: '',
-        salesPrice: '',
-        quantity: '',
-        categoryId: '',
-        supplierId: ''
+        name: "",
+        costPrice: "",
+        salesPrice: "",
+        quantity: "",
+        categoryId: "",
+        supplierId: ""
     });
     const [categories, setCategories] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
@@ -48,21 +31,21 @@ const ProductModal = ({
     useEffect(() => {
         if (product) {
             setFormData({
-                name: product.name || '',
-                costPrice: product.costPrice?.toString() || '',
-                salesPrice: product.salesPrice?.toString() || '',
-                quantity: product.quantity?.toString() || '0',
-                categoryId: product.categoryId || '',
-                supplierId: product.supplierId || ''
+                name: product.name || "",
+                costPrice: product.costPrice?.toString() || "",
+                salesPrice: product.salesPrice?.toString() || "",
+                quantity: product.quantity?.toString() || "0",
+                categoryId: product.categoryId || "",
+                supplierId: product.supplierId || ""
             });
         } else {
             setFormData({
-                name: '',
-                costPrice: '',
-                salesPrice: '',
-                quantity: '0',
-                categoryId: '',
-                supplierId: ''
+                name: "",
+                costPrice: "",
+                salesPrice: "",
+                quantity: "0",
+                categoryId: "",
+                supplierId: ""
             });
         }
         setError(null);
@@ -71,14 +54,11 @@ const ProductModal = ({
     const loadOptions = async () => {
         try {
             setLoadingOptions(true);
-            const [categoriesData, suppliersData] = await Promise.all([
-                productClient.getProductCategories(),
-                productClient.getSuppliers()
-            ]);
+            const [categoriesData, suppliersData] = await Promise.all([productClient.getProductCategories(), productClient.getSuppliers()]);
             setCategories(categoriesData || []);
             setSuppliers(suppliersData || []);
         } catch (err) {
-            console.error('Failed to load options:', err);
+            console.error("Failed to load options:", err);
         } finally {
             setLoadingOptions(false);
         }
@@ -86,7 +66,7 @@ const ProductModal = ({
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value
         }));
@@ -97,7 +77,7 @@ const ProductModal = ({
         setError(null);
 
         if (!formData.name || !formData.categoryId || !formData.salesPrice) {
-            setError(t('products.requiredFields'));
+            setError(t("products.requiredFields"));
             return;
         }
 
@@ -114,15 +94,9 @@ const ProductModal = ({
     };
 
     return (
-        <CModal
-            visible={visible}
-            onClose={onClose}
-            size="lg"
-        >
+        <CModal visible={visible} onClose={onClose} size="lg">
             <CModalHeader>
-                <CModalTitle>
-                    {product ? t('products.edit') : t('products.new')}
-                </CModalTitle>
+                <CModalTitle>{product ? t("products.edit") : t("products.new")}</CModalTitle>
             </CModalHeader>
             <CForm onSubmit={handleSubmit}>
                 <CModalBody>
@@ -133,38 +107,18 @@ const ProductModal = ({
                     )}
 
                     <div className="mb-3">
-                        <FeniciaInput
-                            label={t('products.name')}
-                            id="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            required
-                        />
+                        <FeniciaInput label={t("products.name")} id="name" value={formData.name} onChange={handleInputChange} required />
                     </div>
 
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <FeniciaSelect
-                                    id="categoryId"
-                                    value={formData.categoryId}
-                                    onChange={handleInputChange}
-                                    data={categories}
-                                    label={t('products.category')}
-                                    required
-                                />
-                                
+                                <FeniciaSelect id="categoryId" value={formData.categoryId} onChange={handleInputChange} data={categories} label={t("products.category")} required />
                             </div>
                         </CCol>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <FeniciaSelect
-                                    id="supplierId"
-                                    value={formData.supplierId}
-                                    onChange={handleInputChange}
-                                    data={suppliers}
-                                    label={t('products.supplier')}
-                                />
+                                <FeniciaSelect id="supplierId" value={formData.supplierId} onChange={handleInputChange} data={suppliers} label={t("products.supplier")} />
                             </div>
                         </CCol>
                     </CRow>
@@ -172,12 +126,7 @@ const ProductModal = ({
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <FeniciaInput
-                                    label={t('products.quantity')}
-                                    id="quantity"
-                                    value={formData.quantity}
-                                    onChange={handleInputChange}
-                                />
+                                <FeniciaInput label={t("products.quantity")} id="quantity" value={formData.quantity} onChange={handleInputChange} />
                             </div>
                         </CCol>
                     </CRow>
@@ -185,37 +134,22 @@ const ProductModal = ({
                     <CRow>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <FeniciaInput
-                                    label={t('products.costPrice')}
-                                    id="costPrice"
-                                    value={formData.costPrice}
-                                    onChange={handleInputChange}
-                                />
+                                <FeniciaInput label={t("products.costPrice")} id="costPrice" value={formData.costPrice} onChange={handleInputChange} />
                             </div>
                         </CCol>
                         <CCol md={6}>
                             <div className="mb-3">
-                                <FeniciaInput
-                                    label={t('products.salesPrice')}
-                                    id="salesPrice"
-                                    value={formData.salesPrice}
-                                    onChange={handleInputChange}
-                                    required
-                                />
+                                <FeniciaInput label={t("products.salesPrice")} id="salesPrice" value={formData.salesPrice} onChange={handleInputChange} required />
                             </div>
                         </CCol>
                     </CRow>
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="secondary" onClick={onClose} disabled={loading || loadingOptions}>
-                        {t('common.cancel')}
+                        {t("common.cancel")}
                     </CButton>
-                    <CButton
-                        color="primary"
-                        type="submit"
-                        disabled={loading || loadingOptions}
-                    >
-                        {loading ? t('common.saving') : t('common.save')}
+                    <CButton color="primary" type="submit" disabled={loading || loadingOptions}>
+                        {loading ? t("common.saving") : t("common.save")}
                     </CButton>
                 </CModalFooter>
             </CForm>

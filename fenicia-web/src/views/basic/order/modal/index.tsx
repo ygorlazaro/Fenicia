@@ -18,70 +18,60 @@ export default function CreateOrderModal({ modalVisible, setModalVisible, handle
     const [activeTab, setActiveTab] = useState(0);
     const [orderItems, setOrderItems] = useState([]);
     const [order, setOrder] = useState<CreateOrderCommand>({
-        customerId: '',
-        saleDate: new Date().toISOString().split('T')[0],
-        status: 'Pending',
-        employeeId: '',
+        customerId: "",
+        saleDate: new Date().toISOString().split("T")[0],
+        status: "Pending",
+        employeeId: "",
         details: [],
-        paymentMethod: 'CreditCard',
-        notes: ''
+        paymentMethod: "CreditCard",
+        notes: ""
     });
 
     const onSaving = (e: React.FormEvent) => {
-
         e.preventDefault();
 
         if (!order.customerId || !order.saleDate || !order.status) {
-            setError(t('common.requiredField'));
+            setError(t("common.requiredField"));
             return;
         }
 
         handleSave(e, order);
-    }
+    };
 
-    return (<CModal visible={modalVisible} onClose={() => setModalVisible(false)} size="xl">
-        <CModalHeader>
-            <CModalTitle>{t('orders.new')}</CModalTitle>
-        </CModalHeader>
-        <CForm onSubmit={onSaving} >
-            <CModalBody>
-                <CNav variant="tabs">
-                    <CNavItem>
-                        <CNavLink
-                            active={activeTab === 0}
-                            onClick={() => setActiveTab(0)}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <CIcon icon={cilUser} className="me-2" />
-                            {t('orders.header')}
-                        </CNavLink>
-                    </CNavItem>
-                    <CNavItem>
-                        <CNavLink
-                            active={activeTab === 1}
-                            onClick={() => setActiveTab(1)}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <CIcon icon={cilCart} className="me-2" />
-                            {t('orders.details')}
-                        </CNavLink>
-                    </CNavItem>
-                </CNav>
+    return (
+        <CModal visible={modalVisible} onClose={() => setModalVisible(false)} size="xl">
+            <CModalHeader>
+                <CModalTitle>{t("orders.new")}</CModalTitle>
+            </CModalHeader>
+            <CForm onSubmit={onSaving}>
+                <CModalBody>
+                    <CNav variant="tabs">
+                        <CNavItem>
+                            <CNavLink active={activeTab === 0} onClick={() => setActiveTab(0)} style={{ cursor: "pointer" }}>
+                                <CIcon icon={cilUser} className="me-2" />
+                                {t("orders.header")}
+                            </CNavLink>
+                        </CNavItem>
+                        <CNavItem>
+                            <CNavLink active={activeTab === 1} onClick={() => setActiveTab(1)} style={{ cursor: "pointer" }}>
+                                <CIcon icon={cilCart} className="me-2" />
+                                {t("orders.details")}
+                            </CNavLink>
+                        </CNavItem>
+                    </CNav>
 
-                <CTabContent className="mt-3">
-                    <OrderModalHeaderTab visible={activeTab == 0} onChange={setOrder} value={order}/>
+                    <CTabContent className="mt-3">
+                        <OrderModalHeaderTab visible={activeTab == 0} onChange={setOrder} value={order} />
 
-                    <OrderDetailTab visible={activeTab == 1} value={order} setError={setError} onChange={setOrder} />
-                </CTabContent>
-            </CModalBody>
-            <CModalFooter>
-                <CButton
-                    color="primary"
-                    type="submit"
-                >
-                    {t('orders.create')}
-                </CButton>
-            </CModalFooter>
-        </CForm>
-    </CModal>)
+                        <OrderDetailTab visible={activeTab == 1} value={order} setError={setError} onChange={setOrder} />
+                    </CTabContent>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton color="primary" type="submit">
+                        {t("orders.create")}
+                    </CButton>
+                </CModalFooter>
+            </CForm>
+        </CModal>
+    );
 }

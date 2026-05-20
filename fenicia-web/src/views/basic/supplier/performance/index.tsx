@@ -1,11 +1,11 @@
 import { CSpinner } from "@coreui/react";
 import { t } from "i18next";
 import TimeRangeSelector from "../../../../components/fenicia/time-range-selector";
-import { SupplierPerformance } from '../../../../types/basic/supplier/supplier-performance';
-import { CostComparison } from './cost-comparison';
-import { ProductsPerSupplier } from './products-per-supplier';
-import { RecentStockMovement } from './recent-stock-movement';
-import SummaryCards from './summary-cards';
+import { SupplierPerformance } from "../../../../types/basic/supplier/supplier-performance";
+import { CostComparison } from "./cost-comparison";
+import { ProductsPerSupplier } from "./products-per-supplier";
+import { RecentStockMovement } from "./recent-stock-movement";
+import SummaryCards from "./summary-cards";
 
 interface SupplierPerformanceInsights {
     performanceLoading: boolean;
@@ -19,7 +19,7 @@ export default function RenderAnalyticsTab({ performanceLoading, performance, an
         return (
             <div className="text-center py-5">
                 <CSpinner color="primary" />
-                <p className="mt-3">{t('common.loading')}</p>
+                <p className="mt-3">{t("common.loading")}</p>
             </div>
         );
     }
@@ -27,7 +27,7 @@ export default function RenderAnalyticsTab({ performanceLoading, performance, an
     if (!performance) {
         return (
             <div className="text-center py-5">
-                <p className="text-muted">{t('common.noData')}</p>
+                <p className="text-muted">{t("common.noData")}</p>
             </div>
         );
     }

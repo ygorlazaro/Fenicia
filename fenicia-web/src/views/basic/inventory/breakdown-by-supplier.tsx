@@ -11,37 +11,32 @@ interface BreakdownBySupplierProps {
     data: SupplierBreakdown[];
 }
 
-export default function BreakdownBySupplier({ data }: BreakdownBySupplierProps  ) {
+export default function BreakdownBySupplier({ data }: BreakdownBySupplierProps) {
     return (
         <CCard className="mb-4">
             <CCardHeader className="d-flex align-items-center">
                 <CIcon icon={cilTruck} className="me-2" size="lg" />
-                <strong>{t('inventory.breakdownBySupplier')}</strong>
+                <strong>{t("inventory.breakdownBySupplier")}</strong>
             </CCardHeader>
             <CCardBody>
                 {data.length === 0 ? (
-                    <p className="text-muted text-center">{t('common.noData')}</p>
+                    <p className="text-muted text-center">{t("common.noData")}</p>
                 ) : (
                     <CListGroup flush>
                         {data.slice(0, 5).map((supplier, index) => (
-                            <CListGroupItem
-                                key={supplier.supplierId}
-                                className="d-flex justify-content-between align-items-center"
-                            >
+                            <CListGroupItem key={supplier.supplierId} className="d-flex justify-content-between align-items-center">
                                 <div>
                                     <Link to={`/basic/suppliers?id=${supplier.supplierId}`} className="text-decoration-none">
                                         <div className="fw-semibold">{supplier.supplierName}</div>
                                     </Link>
                                     <small className="text-body-secondary">
-                                        {formatNumber(supplier.totalQuantity)} {t('inventory.items')}
+                                        {formatNumber(supplier.totalQuantity)} {t("inventory.items")}
                                     </small>
                                 </div>
                                 <div className="text-end">
-                                    <div className="text-success fw-semibold">
-                                        {formatCurrency(supplier.totalSalesValue)}
-                                    </div>
+                                    <div className="text-success fw-semibold">{formatCurrency(supplier.totalSalesValue)}</div>
                                     <small className="text-body-secondary">
-                                        {formatCurrency(supplier.totalCostValue)} {t('inventory.cost')}
+                                        {formatCurrency(supplier.totalCostValue)} {t("inventory.cost")}
                                     </small>
                                 </div>
                             </CListGroupItem>
@@ -50,5 +45,5 @@ export default function BreakdownBySupplier({ data }: BreakdownBySupplierProps  
                 )}
             </CCardBody>
         </CCard>
-    )
+    );
 }

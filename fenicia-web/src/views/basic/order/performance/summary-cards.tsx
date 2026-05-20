@@ -9,42 +9,23 @@ interface SummaryCardsProps {
 }
 
 export default function SummaryCards({ averageOrderValue, cancelledOrderLength }: SummaryCardsProps) {
-    return (<CRow className="mb-4" xs={{ gutter: 4 }}>
-        <CCol sm={6} xl={3}>
-            <CWidgetStatsA
-                color="primary"
-                value={<>
-                    {formatCurrency(averageOrderValue.averageValue)}
-                </>}
-                title={t('orders.averageOrderValue')} />
-        </CCol>
+    return (
+        <CRow className="mb-4" xs={{ gutter: 4 }}>
+            <CCol sm={6} xl={3}>
+                <CWidgetStatsA color="primary" value={<>{formatCurrency(averageOrderValue.averageValue)}</>} title={t("orders.averageOrderValue")} />
+            </CCol>
 
-        <CCol sm={6} xl={3}>
-            <CWidgetStatsA
-                color="success"
-                value={<>
-                    {averageOrderValue.totalOrders}
-                </>}
-                title={t('orders.totalOrders')} />
-        </CCol>
+            <CCol sm={6} xl={3}>
+                <CWidgetStatsA color="success" value={<>{averageOrderValue.totalOrders}</>} title={t("orders.totalOrders")} />
+            </CCol>
 
-        <CCol sm={6} xl={3}>
-            <CWidgetStatsA
-                color="info"
-                value={<>
-                    {formatCurrency(averageOrderValue.medianValue)}
-                </>}
-                title={t('orders.medianValue')} />
-        </CCol>
+            <CCol sm={6} xl={3}>
+                <CWidgetStatsA color="info" value={<>{formatCurrency(averageOrderValue.medianValue)}</>} title={t("orders.medianValue")} />
+            </CCol>
 
-        <CCol sm={6} xl={3}>
-            <CWidgetStatsA
-                color="warning"
-                value={<>
-                    {cancelledOrderLength}
-                </>}
-                title={t('orders.cancelledOrders')} />
-        </CCol>
-    </CRow>
+            <CCol sm={6} xl={3}>
+                <CWidgetStatsA color="warning" value={<>{cancelledOrderLength}</>} title={t("orders.cancelledOrders")} />
+            </CCol>
+        </CRow>
     );
 }

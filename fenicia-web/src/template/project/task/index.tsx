@@ -1,30 +1,10 @@
-import { cilPencil, cilPlus, cilTrash, cilWarning } from '@coreui/icons';
-import CIcon from '@coreui/icons-react';
-import {
-    CAlert,
-    CBadge,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CModal,
-    CModalBody,
-    CModalFooter,
-    CModalHeader,
-    CModalTitle,
-    CSpinner,
-    CTable,
-    CTableBody,
-    CTableDataCell,
-    CTableHead,
-    CTableHeaderCell,
-    CTableRow
-} from '@coreui/react';
-import { useEffect, useState } from 'react';
-import Pagination from '../../components/fenicia/pagination';
-import ProjectTaskModal from '../../components/ProjectTaskModal';
-import ProjectTaskClient from '../../../services/project/project-task-client';
+import { cilPencil, cilPlus, cilTrash, cilWarning } from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
+import { CAlert, CBadge, CButton, CCard, CCardBody, CCardHeader, CContainer, CModal, CModalBody, CModalFooter, CModalHeader, CModalTitle, CSpinner, CTable, CTableBody, CTableDataCell, CTableHead, CTableHeaderCell, CTableRow } from "@coreui/react";
+import { useEffect, useState } from "react";
+import Pagination from "../../components/fenicia/pagination";
+import ProjectTaskModal from "../../components/ProjectTaskModal";
+import ProjectTaskClient from "../../../services/project/project-task-client";
 
 const projectTaskClient = new ProjectTaskClient("http://localhost:5144");
 
@@ -56,17 +36,17 @@ const ProjectTaskList = () => {
             setError(null);
             const response = await projectTaskClient.getAll(pagination.page, pagination.perPage);
 
-            const tasksList = Array.isArray(response) ? response : (response?.data || []);
+            const tasksList = Array.isArray(response) ? response : response?.data || [];
             setTasks(tasksList);
-            setPagination(prev => ({
+            setPagination((prev) => ({
                 ...prev,
                 total: response?.total || tasksList.length,
                 pages: response?.pages || 1
             }));
         } catch (err) {
-            console.error('Failed to load project tasks:', err);
-            console.error('Error response:', err.response);
-            setError(err.response?.data?.title || 'Falha ao carregar tarefas do projeto.');
+            console.error("Failed to load project tasks:", err);
+            console.error("Error response:", err.response);
+            setError(err.response?.data?.title || "Falha ao carregar tarefas do projeto.");
         } finally {
             setLoading(false);
         }
@@ -92,17 +72,17 @@ const ProjectTaskList = () => {
         try {
             if (selectedTask) {
                 await projectTaskClient.update(selectedTask.id, formData);
-                setSuccessMessage('Tarefa do projeto atualizada com sucesso!');
+                setSuccessMessage("Tarefa do projeto atualizada com sucesso!");
             } else {
                 await projectTaskClient.create(formData);
-                setSuccessMessage('Tarefa do projeto criada com sucesso!');
+                setSuccessMessage("Tarefa do projeto criada com sucesso!");
             }
             setModalVisible(false);
             loadTasks();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to save project task:', err);
-            setError(err.response?.data?.title || 'Falha ao salvar tarefa do projeto.');
+            console.error("Failed to save project task:", err);
+            setError(err.response?.data?.title || "Falha ao salvar tarefa do projeto.");
         } finally {
             setSaving(false);
         }
@@ -114,72 +94,72 @@ const ProjectTaskList = () => {
         setDeleting(true);
         try {
             await projectTaskClient.delete(taskToDelete.id);
-            setSuccessMessage('Tarefa do projeto excluída com sucesso!');
+            setSuccessMessage("Tarefa do projeto excluída com sucesso!");
             setDeleteModalVisible(false);
             setTaskToDelete(null);
             loadTasks();
             setTimeout(() => setSuccessMessage(null), 5000);
         } catch (err) {
-            console.error('Failed to delete project task:', err);
-            setError(err.response?.data?.title || 'Falha ao excluir tarefa do projeto.');
+            console.error("Failed to delete project task:", err);
+            setError(err.response?.data?.title || "Falha ao excluir tarefa do projeto.");
         } finally {
             setDeleting(false);
         }
     };
 
     const handlePageChange = (newPage) => {
-        setPagination(prev => ({ ...prev, page: newPage }));
+        setPagination((prev) => ({ ...prev, page: newPage }));
     };
 
     const handlePerPageChange = (newPerPage) => {
-        setPagination(prev => ({ ...prev, perPage: newPerPage, page: 1 }));
+        setPagination((prev) => ({ ...prev, perPage: newPerPage, page: 1 }));
     };
 
     const getPriorityBadgeColor = (priority) => {
         const colorMap = {
-            'Low': 'info',
-            'Medium': 'warning',
-            'High': 'danger',
-            'Critical': 'dark'
+            Low: "info",
+            Medium: "warning",
+            High: "danger",
+            Critical: "dark"
         };
-        return colorMap[priority] || 'secondary';
+        return colorMap[priority] || "secondary";
     };
 
     const getTypeBadgeColor = (type) => {
         const colorMap = {
-            'Task': 'primary',
-            'Bug': 'danger',
-            'Feature': 'success',
-            'Improvement': 'info',
-            'Spike': 'warning'
+            Task: "primary",
+            Bug: "danger",
+            Feature: "success",
+            Improvement: "info",
+            Spike: "warning"
         };
-        return colorMap[type] || 'secondary';
+        return colorMap[type] || "secondary";
     };
 
     const translatePriority = (priority) => {
         const translations = {
-            'Low': 'Baixa',
-            'Medium': 'Média',
-            'High': 'Alta',
-            'Critical': 'Crítica'
+            Low: "Baixa",
+            Medium: "Média",
+            High: "Alta",
+            Critical: "Crítica"
         };
         return translations[priority] || priority;
     };
 
     const translateType = (type) => {
         const translations = {
-            'Task': 'Tarefa',
-            'Bug': 'Bug',
-            'Feature': 'Funcionalidade',
-            'Improvement': 'Melhoria',
-            'Spike': 'Spike'
+            Task: "Tarefa",
+            Bug: "Bug",
+            Feature: "Funcionalidade",
+            Improvement: "Melhoria",
+            Spike: "Spike"
         };
         return translations[type] || type;
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString('pt-BR');
+        if (!dateString) return "-";
+        return new Date(dateString).toLocaleDateString("pt-BR");
     };
 
     return (
@@ -238,31 +218,18 @@ const ProjectTaskList = () => {
                                                 <strong>{task.title}</strong>
                                             </CTableDataCell>
                                             <CTableDataCell>
-                                                <CBadge color={getPriorityBadgeColor(task.priority)}>
-                                                    {translatePriority(task.priority)}
-                                                </CBadge>
+                                                <CBadge color={getPriorityBadgeColor(task.priority)}>{translatePriority(task.priority)}</CBadge>
                                             </CTableDataCell>
                                             <CTableDataCell>
-                                                <CBadge color={getTypeBadgeColor(task.type)}>
-                                                    {translateType(task.type)}
-                                                </CBadge>
+                                                <CBadge color={getTypeBadgeColor(task.type)}>{translateType(task.type)}</CBadge>
                                             </CTableDataCell>
-                                            <CTableDataCell>{task.estimatePoints || '-'}</CTableDataCell>
+                                            <CTableDataCell>{task.estimatePoints || "-"}</CTableDataCell>
                                             <CTableDataCell>{formatDate(task.dueDate)}</CTableDataCell>
                                             <CTableDataCell className="text-end">
-                                                <CButton
-                                                    color="info"
-                                                    size="sm"
-                                                    className="me-2"
-                                                    onClick={() => handleOpenEdit(task)}
-                                                >
+                                                <CButton color="info" size="sm" className="me-2" onClick={() => handleOpenEdit(task)}>
                                                     <CIcon icon={cilPencil} />
                                                 </CButton>
-                                                <CButton
-                                                    color="danger"
-                                                    size="sm"
-                                                    onClick={() => handleOpenDelete(task)}
-                                                >
+                                                <CButton color="danger" size="sm" onClick={() => handleOpenDelete(task)}>
                                                     <CIcon icon={cilTrash} />
                                                 </CButton>
                                             </CTableDataCell>
@@ -278,19 +245,10 @@ const ProjectTaskList = () => {
             </CCard>
 
             {/* Add/Edit Modal */}
-            <ProjectTaskModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                onSave={handleSave}
-                projectTask={selectedTask}
-                loading={saving}
-            />
+            <ProjectTaskModal visible={modalVisible} onClose={() => setModalVisible(false)} onSave={handleSave} projectTask={selectedTask} loading={saving} />
 
             {/* Delete Confirmation Modal */}
-            <CModal
-                visible={deleteModalVisible}
-                onClose={() => setDeleteModalVisible(false)}
-            >
+            <CModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)}>
                 <CModalHeader>
                     <CModalTitle>
                         <CIcon icon={cilWarning} className="me-2 text-warning" />
@@ -301,24 +259,14 @@ const ProjectTaskList = () => {
                     <p>
                         Tem certeza que deseja excluir a tarefa <strong>{taskToDelete?.title}</strong>?
                     </p>
-                    <p className="text-danger">
-                        Esta ação não pode ser desfeita.
-                    </p>
+                    <p className="text-danger">Esta ação não pode ser desfeita.</p>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton
-                        color="secondary"
-                        onClick={() => setDeleteModalVisible(false)}
-                        disabled={deleting}
-                    >
+                    <CButton color="secondary" onClick={() => setDeleteModalVisible(false)} disabled={deleting}>
                         Cancelar
                     </CButton>
-                    <CButton
-                        color="danger"
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? 'Excluindo...' : 'Excluir'}
+                    <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+                        {deleting ? "Excluindo..." : "Excluir"}
                     </CButton>
                 </CModalFooter>
             </CModal>

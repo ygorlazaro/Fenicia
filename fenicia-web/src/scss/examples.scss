@@ -1,116 +1,116 @@
 /* stylelint-disable scss/selector-no-redundant-nesting-selector */
 @use "@coreui/coreui/scss/variables" as * with (
-  $enable-deprecation-messages: false
+    $enable-deprecation-messages: false
 );
 @use "@coreui/coreui/scss/mixins/breakpoints" as *;
 @use "@coreui/coreui/scss/mixins/color-mode" as *;
 
 .example {
-  &:not(:first-child) {
-    margin-top: 1.5rem;
-  }
-
-  .tab-content {
-    background-color: var(--#{$prefix}tertiary-bg);
-  }
-
-  & + p {
-    margin-top: 1.5rem;
-  }
-
-  // Components examples
-  .preview {
-    + p {
-      margin-top: 2rem;
+    &:not(:first-child) {
+        margin-top: 1.5rem;
     }
 
-    > .form-control {
-      + .form-control {
-        margin-top: .5rem;
-      }
+    .tab-content {
+        background-color: var(--#{$prefix}tertiary-bg);
     }
 
-    > .nav + .nav,
-    > .alert + .alert,
-    > .navbar + .navbar,
-    > .progress + .progress {
-      margin-top: 1rem;
+    & + p {
+        margin-top: 1.5rem;
     }
 
-    > .dropdown-menu {
-      position: static;
-      display: block;
-    }
+    // Components examples
+    .preview {
+        + p {
+            margin-top: 2rem;
+        }
 
-    > :last-child {
-      margin-bottom: 0;
-    }
+        > .form-control {
+            + .form-control {
+                margin-top: 0.5rem;
+            }
+        }
 
-    // Images
-    > svg + svg,
-    > img + img {
-      margin-left: .5rem;
-    }
+        > .nav + .nav,
+        > .alert + .alert,
+        > .navbar + .navbar,
+        > .progress + .progress {
+            margin-top: 1rem;
+        }
 
-    // Buttons
-    .col > .btn,
-    .col-auto > .btn,
-    > .btn,
-    > .btn-group {
-      margin: .25rem .125rem;
-    }
-    > .btn-toolbar + .btn-toolbar {
-      margin-top: .5rem;
-    }
+        > .dropdown-menu {
+            position: static;
+            display: block;
+        }
 
-    // List groups
-    > .list-group {
-      max-width: 400px;
-    }
+        > :last-child {
+            margin-bottom: 0;
+        }
 
-    > [class*="list-group-horizontal"] {
-      max-width: 100%;
-    }
+        // Images
+        > svg + svg,
+        > img + img {
+            margin-left: 0.5rem;
+        }
 
-    // Navbars
-    .fixed-top,
-    .sticky-top {
-      position: static;
-      margin: -1rem -1rem 1rem;
-    }
+        // Buttons
+        .col > .btn,
+        .col-auto > .btn,
+        > .btn,
+        > .btn-group {
+            margin: 0.25rem 0.125rem;
+        }
+        > .btn-toolbar + .btn-toolbar {
+            margin-top: 0.5rem;
+        }
 
-    .fixed-bottom {
-      position: static;
-      margin: 1rem -1rem -1rem;
-    }
+        // List groups
+        > .list-group {
+            max-width: 400px;
+        }
 
-    @include media-breakpoint-up(sm) {
-      .fixed-top,
-      .sticky-top {
-        margin: -1.5rem -1.5rem 1rem;
-      }
-      .fixed-bottom {
-        margin: 1rem -1.5rem -1.5rem;
-      }
-    }
+        > [class*="list-group-horizontal"] {
+            max-width: 100%;
+        }
 
-    // Pagination
-    .pagination {
-      margin-top: .5rem;
-      margin-bottom: .5rem;
-    }
+        // Navbars
+        .fixed-top,
+        .sticky-top {
+            position: static;
+            margin: -1rem -1rem 1rem;
+        }
 
-    .docs-example-modal {
-      .modal {
-        position: static;
-        display: block;
-      }
+        .fixed-bottom {
+            position: static;
+            margin: 1rem -1rem -1rem;
+        }
+
+        @include media-breakpoint-up(sm) {
+            .fixed-top,
+            .sticky-top {
+                margin: -1.5rem -1.5rem 1rem;
+            }
+            .fixed-bottom {
+                margin: 1rem -1.5rem -1.5rem;
+            }
+        }
+
+        // Pagination
+        .pagination {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .docs-example-modal {
+            .modal {
+                position: static;
+                display: block;
+            }
+        }
     }
-  }
 }
 
 @include color-mode(dark) {
-  .example .tab-content {
-    background-color: var(--#{$prefix}secondary-bg);
-  }
+    .example .tab-content {
+        background-color: var(--#{$prefix}secondary-bg);
+    }
 }

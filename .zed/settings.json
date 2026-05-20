@@ -1,0 +1,36 @@
+{
+    "format_on_save": "on",
+    "tab_size": 4,
+    "hard_tabs": false,
+    "preferred_line_length": 10000,
+    "prettier": {
+        "tab_width": 4,
+        "use_tabs": false,
+        "semi": true,
+        "single_quote": false,
+        "trailing_comma": "none",
+        "print_width": 10000
+    },
+    "languages": {
+        "JavaScript": {
+            "tab_size": 4,
+            "hard_tabs": false,
+            "preferred_line_length": 10000
+        },
+        "TypeScript": {
+            "tab_size": 4,
+            "hard_tabs": false,
+            "preferred_line_length": 10000
+        },
+        "TSX": {
+            "tab_size": 4,
+            "hard_tabs": false,
+            "preferred_line_length": 10000
+        },
+        "JavaScript React": {
+            "tab_size": 4,
+            "hard_tabs": false,
+            "preferred_line_length": 10000
+        }
+    }
+}

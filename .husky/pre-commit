@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+npx --prefix fenicia-web lint-staged --config fenicia-web/.lintstagedrc.json
+status=$?
+
+if [ $status -ne 0 ]; then
+    echo "❌ pre-commit failed: fix lint/prettier errors before committing."
+    exit $status
+fi
+
+exit 0

@@ -21,41 +21,45 @@ export default function OrderTable({ orders, loading, handlePageChange, handlePe
 
     const getStatusBadgeColor = (status: string | null) => {
         switch (status?.toLowerCase()) {
-            case 'pending':
-                return 'warning';
-            case 'approved':
-                return 'success';
-            case 'cancelled':
-                return 'danger';
+            case "pending":
+                return "warning";
+            case "approved":
+                return "success";
+            case "cancelled":
+                return "danger";
             default:
-                return 'secondary';
+                return "secondary";
         }
     };
 
     if (loading) {
-        return (<div className="text-center py-4">
-            <CSpinner color="primary" />
-            <p className="mt-2">{t('common.loading')}</p>
-        </div>);
+        return (
+            <div className="text-center py-4">
+                <CSpinner color="primary" />
+                <p className="mt-2">{t("common.loading")}</p>
+            </div>
+        );
     }
 
     if (!loading && orders.length === 0) {
-        return (<div className="text-center py-4">
-            <p className="text-muted">{t('common.noData')}</p>
-        </div>);
+        return (
+            <div className="text-center py-4">
+                <p className="text-muted">{t("common.noData")}</p>
+            </div>
+        );
     }
     return (
         <>
             <CTable hover responsive>
                 <CTableHead>
                     <CTableRow>
-                        <CTableHeaderCell>{t('orders.id')}</CTableHeaderCell>
-                        <CTableHeaderCell>{t('orders.customer')}</CTableHeaderCell>
-                        <CTableHeaderCell>{t('orders.total')}</CTableHeaderCell>
-                        <CTableHeaderCell>{t('orders.date')}</CTableHeaderCell>
-                        <CTableHeaderCell>{t('orders.status')}</CTableHeaderCell>
-                        <CTableHeaderCell>{t('orders.items')}</CTableHeaderCell>
-                        <CTableHeaderCell className="text-end">{t('common.actions')}</CTableHeaderCell>
+                        <CTableHeaderCell>{t("orders.id")}</CTableHeaderCell>
+                        <CTableHeaderCell>{t("orders.customer")}</CTableHeaderCell>
+                        <CTableHeaderCell>{t("orders.total")}</CTableHeaderCell>
+                        <CTableHeaderCell>{t("orders.date")}</CTableHeaderCell>
+                        <CTableHeaderCell>{t("orders.status")}</CTableHeaderCell>
+                        <CTableHeaderCell>{t("orders.items")}</CTableHeaderCell>
+                        <CTableHeaderCell className="text-end">{t("common.actions")}</CTableHeaderCell>
                     </CTableRow>
                 </CTableHead>
                 <CTableBody>
@@ -74,31 +78,20 @@ export default function OrderTable({ orders, loading, handlePageChange, handlePe
                             <CTableDataCell>{formatCurrency(order.totalAmount)}</CTableDataCell>
                             <CTableDataCell>{formatDate(order.saleDate)}</CTableDataCell>
                             <CTableDataCell>
-                                <span className={`badge bg-${getStatusBadgeColor(order.status)}`}>
-                                    {t(`orders.statusValues.${order.status?.toLowerCase()}`) || order.status}
-                                </span>
+                                <span className={`badge bg-${getStatusBadgeColor(order.status)}`}>{t(`orders.statusValues.${order.status?.toLowerCase()}`) || order.status}</span>
                             </CTableDataCell>
                             <CTableDataCell>{order.totalItems}</CTableDataCell>
                             <CTableDataCell className="text-end">
-                                <CButton
-                                    color="danger"
-                                    size="sm"
-                                    onClick={() => handleOpenDelete(order)}
-                                >
+                                <CButton color="danger" size="sm" onClick={() => handleOpenDelete(order)}>
                                     <CIcon icon={cilTrash} />
                                 </CButton>
-
                             </CTableDataCell>
                         </CTableRow>
                     ))}
                 </CTableBody>
             </CTable>
 
-            <Pagination
-                pagination={pagination}
-                onPageChange={handlePageChange}
-                onPerPageChange={handlePerPageChange}
-            />
+            <Pagination pagination={pagination} onPageChange={handlePageChange} onPerPageChange={handlePerPageChange} />
         </>
-    )
+    );
 }

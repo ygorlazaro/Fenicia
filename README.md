@@ -51,9 +51,9 @@ Fenicia is a modular, multi-tenant SaaS platform for administrative ERP, client 
 
 ---
 
-## �️ Technical Stack
+## 🛠️ Technical Stack
 
-- **Backend**: .NET 8 API
+- **Backend**: .NET 10 API
 - **Database**: PostgreSQL
 - **Messaging**: RabbitMQ
 - **ORM**: EF Core with Multi-tenancy

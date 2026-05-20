@@ -1,47 +1,28 @@
-import {
-    CModal,
-    CModalBody,
-    CModalHeader,
-    CModalTitle,
-    CSpinner
-} from '@coreui/react';
-import { useTranslation } from 'react-i18next';
-import { GetCompaniesByUserResponse } from '../../../types/auth/get-companies-by-user-response';
+import { CModal, CModalBody, CModalHeader, CModalTitle, CSpinner } from "@coreui/react";
+import { useTranslation } from "react-i18next";
+import { GetCompaniesByUserResponse } from "../../../types/auth/get-companies-by-user-response";
 
 interface CompanySelectModalProps {
     visible: boolean;
-    companies: GetCompaniesByUserResponse[];
+    companies?: GetCompaniesByUserResponse[];
     loading: boolean;
     error: string | null;
     onSelect: (company: GetCompaniesByUserResponse) => void;
 }
 
-const CompanySelectModal = ({
-    visible,
-    companies = [],
-    loading,
-    error,
-    onSelect
-}: CompanySelectModalProps) => {
+const CompanySelectModal = ({ visible, companies = [], loading, error, onSelect }: CompanySelectModalProps) => {
     const { t } = useTranslation();
 
     return (
-        <CModal
-            visible={visible}
-            backdrop="static"
-            keyboard={false}
-            size="lg"
-            onClose={() => {}}
-            scrollable
-        >
+        <CModal visible={visible} backdrop="static" keyboard={false} size="lg" onClose={() => {}} scrollable>
             <CModalHeader closeButton={false}>
-                <CModalTitle>{t('auth.selectCompany')}</CModalTitle>
+                <CModalTitle>{t("auth.selectCompany")}</CModalTitle>
             </CModalHeader>
             <CModalBody>
                 {loading && (
                     <div className="text-center py-4">
                         <CSpinner color="primary" />
-                        <p className="mt-2">{t('common.loading')}</p>
+                        <p className="mt-2">{t("common.loading")}</p>
                     </div>
                 )}
 
@@ -53,18 +34,13 @@ const CompanySelectModal = ({
 
                 {!loading && !error && companies.length === 0 && (
                     <div className="alert alert-warning" role="alert">
-                        {t('auth.noCompanies')}
+                        {t("auth.noCompanies")}
                     </div>
                 )}
 
                 <div className="list-group">
                     {companies.map((company) => (
-                        <button
-                            key={company.id}
-                            type="button"
-                            className="list-group-item list-group-item-action"
-                            onClick={() => onSelect(company)}
-                        >
+                        <button key={company.id} type="button" className="list-group-item list-group-item-action" onClick={() => onSelect(company)}>
                             <div className="d-flex w-100 justify-content-between">
                                 <h6 className="mb-1">{company.name}</h6>
                             </div>

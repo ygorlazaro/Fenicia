@@ -12,59 +12,61 @@ interface CategoryChartProps {
 
 export default function CategoryChart({ data }: CategoryChartProps) {
     const getCategoryChartData = () => {
-        if (!data || data.length === 0) return null
+        if (!data || data.length === 0) return null;
 
         return {
-            labels: data.map(c => c.categoryName),
+            labels: data.map((c) => c.categoryName),
             datasets: [
                 {
-                    label: t('inventory.costValue'),
-                    backgroundColor: getStyle('--cui-danger'),
-                    data: data.map(c => c.totalCostValue),
+                    label: t("inventory.costValue"),
+                    backgroundColor: getStyle("--cui-danger"),
+                    data: data.map((c) => c.totalCostValue)
                 },
                 {
-                    label: t('inventory.salesValue'),
-                    backgroundColor: getStyle('--cui-success'),
-                    data: data.map(c => c.totalSalesValue),
-                },
-            ],
-        }
-    }
+                    label: t("inventory.salesValue"),
+                    backgroundColor: getStyle("--cui-success"),
+                    data: data.map((c) => c.totalSalesValue)
+                }
+            ]
+        };
+    };
 
-    return (<CRow className="mb-4">
-        <CCol xs={12}>
-            <CCard>
-                <CCardHeader>
-                    <CIcon icon={cilTags} className="me-2" />
-                    <strong>{t('inventory.categoryComparison')}</strong>
-                </CCardHeader>
-                <CCardBody>
-                    <CChartBar
-                        data={getCategoryChartData()}
-                        options={{
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
+    return (
+        <CRow className="mb-4">
+            <CCol xs={12}>
+                <CCard>
+                    <CCardHeader>
+                        <CIcon icon={cilTags} className="me-2" />
+                        <strong>{t("inventory.categoryComparison")}</strong>
+                    </CCardHeader>
+                    <CCardBody>
+                        <CChartBar
+                            data={getCategoryChartData()}
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: true,
+                                plugins: {
+                                    legend: {
+                                        position: "top"
+                                    }
                                 },
-                            },
-                            scales: {
-                                x: {
-                                    grid: {
-                                        display: false,
+                                scales: {
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        }
                                     },
-                                },
-                                y: {
-                                    ticks: {
-                                        callback: (value) => `R$ ${Number(value) / 1000}k`,
-                                    },
-                                },
-                            },
-                        }}
-                    />
-                </CCardBody>
-            </CCard>
-        </CCol>
-    </CRow>);
+                                    y: {
+                                        ticks: {
+                                            callback: (value) => `R$ ${Number(value) / 1000}k`
+                                        }
+                                    }
+                                }
+                            }}
+                        />
+                    </CCardBody>
+                </CCard>
+            </CCol>
+        </CRow>
+    );
 }
