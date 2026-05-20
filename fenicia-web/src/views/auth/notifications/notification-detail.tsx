@@ -1,21 +1,21 @@
 import { cilArrowLeft, cilBell } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import {
-    CAlert,
-    CBadge,
-    CButton,
-    CCard,
-    CCardBody,
-    CCardHeader,
-    CContainer,
-    CSpinner,
+  CAlert,
+  CBadge,
+  CButton,
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CContainer,
+  CSpinner,
 } from '@coreui/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import NotificationClient from '../../services/notification/notification-client';
-import { Notification } from '../../types/notification/notification';
-import formatDate from '../../utils/format-date';
+import NotificationClient from '../../../services/notification/notification-client';
+import { Notification } from '../../../types/notification/notification';
+import formatDate from '../../../utils/format-date';
 
 const notificationClient = new NotificationClient();
 

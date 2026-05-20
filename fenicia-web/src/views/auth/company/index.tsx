@@ -9,7 +9,7 @@ const companyClient = new AuthCompanyClient();
 
 const CompanySelect = () => {
     const navigate = useNavigate();
-    const [companies, setCompanies] = useState <GetCompaniesByUserResponse[]>();
+    const [companies, setCompanies] = useState<GetCompaniesByUserResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selected, setSelected] = useState(false);
@@ -26,7 +26,7 @@ const CompanySelect = () => {
 
             setCompanies(response.data);
             
-            if (companies.length === 0) {
+            if (!response.data || response.data.length === 0) {
                 setError('Nenhuma empresa encontrada para este usuário.');
             }
         } catch (err) {

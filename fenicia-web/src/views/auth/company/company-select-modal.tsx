@@ -10,7 +10,7 @@ import { GetCompaniesByUserResponse } from '../../../types/auth/get-companies-by
 
 interface CompanySelectModalProps {
     visible: boolean;
-    companies: GetCompaniesByUserResponse[];
+    companies?: GetCompaniesByUserResponse[];
     loading: boolean;
     error: string | null;
     onSelect: (company: GetCompaniesByUserResponse) => void;

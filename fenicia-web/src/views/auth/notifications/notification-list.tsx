@@ -19,10 +19,10 @@ import {
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import Pagination from '../../components/fenicia/pagination';
-import NotificationClient from '../../services/notification/notification-client';
-import { Notification } from '../../types/notification/notification';
-import formatDate from '../../utils/format-date';
+import Pagination from '../../../components/fenicia/pagination';
+import NotificationClient from '../../../services/notification/notification-client';
+import { Notification } from '../../../types/notification/notification';
+import formatDate from '../../../utils/format-date';
 
 const notificationClient = new NotificationClient();
 

@@ -1,5 +1,5 @@
 import AuthLayout from '../layout/auth-layout'
-import AppBreadcrumb from './AppBreadcrumb'
+import AppBreadcrumb from './app-breadcrumb'
 import AppContent from './AppContent'
 import AppFooter from './AppFooter'
 import AppHeader from './AppHeader'
