@@ -1,3 +1,6 @@
+using MediatR;
+using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 
 /// <summary>
@@ -7,4 +10,4 @@ public record GetProductCategoryByIdQuery(
     /// <summary>
     /// Unique identifier of the category.
     /// </summary>
-    Guid Id);
+    Guid Id) : IRequest<GetProductCategoryByIdResponse?>;

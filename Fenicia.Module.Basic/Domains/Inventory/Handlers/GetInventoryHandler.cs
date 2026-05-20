@@ -2,6 +2,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Inventory.Queries;
 using Fenicia.Module.Basic.Domains.Inventory.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
@@ -10,7 +12,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
 ///     Handler responsible for retrieving inventory data with pagination.
 ///     Returns paginated list of products with their inventory details.
 /// </summary>
-public class GetInventoryHandler(DefaultContext db)
+public class GetInventoryHandler(DefaultContext db) : IRequestHandler<GetInventoryQuery, InventoryResponse>
 {
     /// <summary>
     ///     Retrieves paginated inventory data for all products.

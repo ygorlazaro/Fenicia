@@ -1,3 +1,6 @@
+using MediatR;
+using Fenicia.Module.Basic.Domains.StockMovement.Responses;
+
 namespace Fenicia.Module.Basic.Domains.StockMovement.Queries;
 
 /// <summary>
@@ -19,4 +22,4 @@ public record GetStockMovementQuery(
     /// <summary>
     /// Number of items per page.
     /// </summary>
-    int PerPage = 10);
+    int PerPage = 10) : IRequest<List<GetStockMovementResponse>>;

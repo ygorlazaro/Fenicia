@@ -1,3 +1,6 @@
+using MediatR;
+using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Commands;
 
 /// <summary>
@@ -11,4 +14,4 @@ public record UpdateProductCategoryCommand(
     /// <summary>
     /// Updated name of the category.
     /// </summary>
-    string Name);
+    string Name) : IRequest<UpdateProductCategoryResponse?>;

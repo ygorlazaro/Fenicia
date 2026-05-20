@@ -2,6 +2,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Inventory.Queries;
 using Fenicia.Module.Basic.Domains.Inventory.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
@@ -9,7 +11,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
 /// <summary>
 ///     Handler responsible for retrieving inventory data for a specific product.
 /// </summary>
-public class GetInventoryByProductHandler(DefaultContext db)
+public class GetInventoryByProductHandler(DefaultContext db) : IRequestHandler<GetInventoryByProductQuery, InventoryResponse>
 {
     /// <summary>
     ///     Retrieves inventory data for a specific product.

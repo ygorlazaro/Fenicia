@@ -3,6 +3,8 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Position.Commands;
 using Fenicia.Module.Basic.Domains.Position.Responses;
 
+using MediatR;
+
 namespace Fenicia.Module.Basic.Domains.Position.Handlers;
 
 /// <summary>
@@ -16,7 +18,7 @@ namespace Fenicia.Module.Basic.Domains.Position.Handlers;
 ///     4. Saves changes to persist the new position
 ///     5. Returns the created position data
 /// </remarks>
-public class AddPositionHandler(DefaultContext db)
+public class AddPositionHandler(DefaultContext db) : IRequestHandler<AddPositionCommand, AddPositionResponse>
 {
     /// <summary>
     ///     Handles the creation of a new position.

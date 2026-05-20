@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Supplier.Commands;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 /// <summary>
 ///     Handler responsible for updating an existing supplier.
 /// </summary>
-public class UpdateSupplierHandler(DefaultContext db)
+public class UpdateSupplierHandler(DefaultContext db) : IRequestHandler<UpdateSupplierCommand, UpdateSupplierResponse?>
 {
     /// <summary>
     ///     Updates a supplier with new information.

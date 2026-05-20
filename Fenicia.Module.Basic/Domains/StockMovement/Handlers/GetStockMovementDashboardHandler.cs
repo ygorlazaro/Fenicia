@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.StockMovement.Queries;
 using Fenicia.Module.Basic.Domains.StockMovement.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 ///     Handler responsible for retrieving stock movement dashboard analytics.
 ///     Provides comprehensive analytics including history, monthly trends, top products, and turnover rates.
 /// </summary>
-public class GetStockMovementDashboardHandler(DefaultContext db)
+public class GetStockMovementDashboardHandler(DefaultContext db) : IRequestHandler<GetStockMovementDashboardQuery, StockMovementDashboardResponse>
 {
     /// <summary>
     ///     Retrieves stock movement dashboard analytics.

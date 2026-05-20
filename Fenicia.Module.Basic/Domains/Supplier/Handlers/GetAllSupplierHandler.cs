@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Customer.Responses;
 using Fenicia.Module.Basic.Domains.Supplier.Queries;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 ///     Handler responsible for retrieving all suppliers with pagination.
 ///     Returns a paginated list of suppliers including their contact information.
 /// </summary>
-public class GetAllSupplierHandler(DefaultContext db)
+public class GetAllSupplierHandler(DefaultContext db) : IRequestHandler<GetAllSupplierQuery, Pagination<List<GetAllSupplierResponse>>>
 {
     /// <summary>
     ///     Retrieves paginated suppliers.

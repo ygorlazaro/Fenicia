@@ -1,9 +1,9 @@
 using System.Net.Mime;
+using MediatR;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Supplier.Commands;
-using Fenicia.Module.Basic.Domains.Supplier.Handlers;
 using Fenicia.Module.Basic.Domains.Supplier.Queries;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
 
@@ -24,7 +24,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, GetSupplierByIdHandler getSupplierByIdHandler, AddSupplierHandler addSupplierHandler, UpdateSupplierHandler updateSupplierHandler, DeleteSupplierHandler deleteSupplierHandler, GetSupplierPerformanceHandler getSupplierPerformanceHandler) : ControllerBase
+public class SupplierController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves a paginated list of all suppliers.
@@ -46,7 +46,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var suppliers = await getAllSupplierHandler.Handle(new GetAllSupplierQuery(page, perPage), ct);
+            var suppliers = await sender.Send(new GetAllSupplierQuery(page, perPage), ct);
 
             return Ok(suppliers);
         }
@@ -77,7 +77,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var supplier = await getSupplierByIdHandler.Handle(new GetSupplierByIdQuery(id), ct);
+            var supplier = await sender.Send(new GetSupplierByIdQuery(id), ct);
 
             return supplier is null ? NotFound() : Ok(supplier);
         }
@@ -108,7 +108,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var supplier = await addSupplierHandler.Handle(command, ct);
+            var supplier = await sender.Send(command, ct);
 
             return new CreatedResult(string.Empty, supplier);
         }
@@ -143,7 +143,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var supplier = await updateSupplierHandler.Handle(command with { Id = id }, ct);
+            var supplier = await sender.Send(command with { Id = id }, ct);
 
             return supplier is null ? NotFound() : Ok(supplier);
         }
@@ -172,7 +172,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await deleteSupplierHandler.Handle(new DeleteSupplierCommand(id), ct);
+            await sender.Send(new DeleteSupplierCommand(id), ct);
 
             return NoContent();
         }
@@ -202,7 +202,7 @@ public class SupplierController(GetAllSupplierHandler getAllSupplierHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var performance = await getSupplierPerformanceHandler.Handle(new GetSupplierPerformanceQuery(days, topLimit), ct);
+            var performance = await sender.Send(new GetSupplierPerformanceQuery(days, topLimit), ct);
 
             return Ok(performance);
         }

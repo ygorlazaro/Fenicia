@@ -3,6 +3,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Order.Queries;
 using Fenicia.Module.Basic.Domains.Order.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
@@ -11,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 ///     Handler responsible for retrieving all orders with pagination.
 ///     Returns orders with customer and employee information.
 /// </summary>
-public class GetAllOrderHandler(DefaultContext db)
+public class GetAllOrderHandler(DefaultContext db) : IRequestHandler<GetAllOrderQuery, Pagination<List<GetAllOrderResponse>>>
 {
     public async Task<Pagination<List<GetAllOrderResponse>>> Handle(GetAllOrderQuery query, CancellationToken ct)
     {

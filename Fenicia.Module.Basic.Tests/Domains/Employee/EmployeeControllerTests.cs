@@ -10,7 +10,10 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
+using Fenicia.Module.Basic.Domains.Employee.Queries;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +34,7 @@ public class EmployeeControllerTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Mock<ISender> mockSender;
     private readonly Guid testEmployeeId;
 
     public EmployeeControllerTests()
@@ -46,9 +50,28 @@ public class EmployeeControllerTests : IDisposable
         var updateEmployeeHandler = new UpdateEmployeeHandler(db);
         var deleteEmployeeHandler = new DeleteEmployeeHandler(db);
         var getEmployeePerformanceHandler = new GetEmployeePerformanceHandler(db);
+        mockSender = new Mock<ISender>();
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new EmployeeController(getAllEmployeeHandler, getEmployeeByIdHandler, addEmployeeHandler, updateEmployeeHandler, deleteEmployeeHandler, getEmployeePerformanceHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        mockSender.Setup(s => s.Send(It.IsAny<GetAllEmployeeQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllEmployeeQuery query, CancellationToken ct) => getAllEmployeeHandler.Handle(query, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<GetEmployeeByIdQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetEmployeeByIdQuery query, CancellationToken ct) => getEmployeeByIdHandler.Handle(query, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<AddEmployeeCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((AddEmployeeCommand command, CancellationToken ct) => addEmployeeHandler.Handle(command, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<UpdateEmployeeCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((UpdateEmployeeCommand command, CancellationToken ct) => updateEmployeeHandler.Handle(command, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<DeleteEmployeeCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((DeleteEmployeeCommand command, CancellationToken ct) => deleteEmployeeHandler.Handle(command, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<GetEmployeePerformanceQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetEmployeePerformanceQuery query, CancellationToken ct) => getEmployeePerformanceHandler.Handle(query, ct));
+
+        controller = new EmployeeController(mockSender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();
@@ -255,12 +278,12 @@ public class EmployeeControllerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new AddEmployeeCommand(
-            Guid.NewGuid(), 
-            position.Id, 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
+            Guid.NewGuid(),
+            position.Id,
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
             null);
 
         var ct = CancellationToken.None;
@@ -314,12 +337,12 @@ public class EmployeeControllerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
-            employee.Id, 
-            position.Id, 
-            faker.Person.FullName + " Updated", 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
+            employee.Id,
+            position.Id,
+            faker.Person.FullName + " Updated",
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
             null);
 
         var ct = CancellationToken.None;
@@ -357,12 +380,12 @@ public class EmployeeControllerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
-            nonExistentId, 
-            position.Id, 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
+            nonExistentId,
+            position.Id,
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
             null);
 
         var ct = CancellationToken.None;

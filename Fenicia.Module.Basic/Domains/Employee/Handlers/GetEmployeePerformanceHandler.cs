@@ -3,6 +3,8 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
@@ -11,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 ///     Handler responsible for generating employee performance analytics.
 ///     Provides business intelligence including sales by employee, order counts, and top performers.
 /// </summary>
-public class GetEmployeePerformanceHandler(DefaultContext db)
+public class GetEmployeePerformanceHandler(DefaultContext db) : IRequestHandler<GetEmployeePerformanceQuery, EmployeePerformanceResponse>
 {
     /// <summary>
     ///     Generates comprehensive employee performance analytics.

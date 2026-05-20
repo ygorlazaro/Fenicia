@@ -1,5 +1,8 @@
 using Fenicia.Common.Enums.Auth;
 using Fenicia.Common.Enums.Basic;
+using Fenicia.Module.Basic.Domains.Order.Responses;
+
+using MediatR;
 
 namespace Fenicia.Module.Basic.Domains.Order.Commands;
 
@@ -15,4 +18,4 @@ public record CreateOrderCommand(
     PaymentMethod PaymentMethod,
     Guid? EmployeeId = null,
     string? Notes = null,
-    decimal DiscountAmount = 0);
+    decimal DiscountAmount = 0) : IRequest<CreateOrderResponse>;

@@ -8,7 +8,10 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.DataSource;
 using Fenicia.Module.Basic.Domains.DataSource.Handlers;
+using Fenicia.Module.Basic.Domains.DataSource.Queries;
 using Fenicia.Module.Basic.Domains.DataSource.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -42,9 +45,24 @@ public class DataSourceControllerTests : IDisposable
         var getAllCustomerForDataSourceHandler = new GetAllCustomerForDataSourceHandler(db);
         var getAllProductForDataSourceHandler = new GetAllProductForDataSourceHandler(db);
         var getAllEmployeeForDataSourceHandler = new GetAllEmployeeForDataSourceHandler(db);
+
+        var sender = new Mock<ISender>();
+        sender.Setup(x => x.Send(It.IsAny<GetAllPositionForDataSourceQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllPositionForDataSourceQuery query, CancellationToken ct) => getAllPositionForDataSourceHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetAllProductCategoryForDataSourceQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllProductCategoryForDataSourceQuery query, CancellationToken ct) => getAllProductCategoryForDataSourceHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetAllSupplierForDataSourceQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllSupplierForDataSourceQuery query, CancellationToken ct) => getAllSupplierForDataSourceHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetAllCustomerForDataSourceQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllCustomerForDataSourceQuery query, CancellationToken ct) => getAllCustomerForDataSourceHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetAllProductForDataSourceQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllProductForDataSourceQuery query, CancellationToken ct) => getAllProductForDataSourceHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetAllEmployeeForDataSourceQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllEmployeeForDataSourceQuery query, CancellationToken ct) => getAllEmployeeForDataSourceHandler.Handle(query, ct));
+
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new DataSourceController(getAllPositionForDataSourceHandler, getAllProductCategoryForDataSourceHandler, getAllSupplierForDataSourceHandler, getAllCustomerForDataSourceHandler, getAllProductForDataSourceHandler, getAllEmployeeForDataSourceHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new DataSourceController(sender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();

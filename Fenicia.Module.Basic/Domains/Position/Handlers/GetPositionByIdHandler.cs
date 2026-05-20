@@ -2,6 +2,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Position.Queries;
 using Fenicia.Module.Basic.Domains.Position.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position.Handlers;
@@ -15,7 +17,7 @@ namespace Fenicia.Module.Basic.Domains.Position.Handlers;
 ///     2. Returns null if position is not found
 ///     3. Returns the position data if found
 /// </remarks>
-public class GetPositionByIdHandler(DefaultContext db)
+public class GetPositionByIdHandler(DefaultContext db) : IRequestHandler<GetPositionByIdQuery, GetPositionByIdResponse?>
 {
     /// <summary>
     ///     Handles retrieval of a position by ID.

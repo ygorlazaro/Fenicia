@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 /// <summary>
 ///     Handler responsible for retrieving a specific product category by its ID.
 /// </summary>
-public class GetProductCategoryByIdHandler(DefaultContext db)
+public class GetProductCategoryByIdHandler(DefaultContext db) : IRequestHandler<GetProductCategoryByIdQuery, GetProductCategoryByIdResponse?>
 {
     /// <summary>
     ///     Retrieves a product category by its ID.

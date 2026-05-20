@@ -11,7 +11,10 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Supplier;
 using Fenicia.Module.Basic.Domains.Supplier.Commands;
 using Fenicia.Module.Basic.Domains.Supplier.Handlers;
+using Fenicia.Module.Basic.Domains.Supplier.Queries;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -43,9 +46,16 @@ public class SupplierControllerTests : IDisposable
         var updateSupplierHandler = new UpdateSupplierHandler(db);
         var deleteSupplierHandler = new DeleteSupplierHandler(db);
         var getSupplierPerformanceHandler = new GetSupplierPerformanceHandler(db);
+        var sender = new Mock<ISender>();
+        sender.Setup(x => x.Send(It.IsAny<GetAllSupplierQuery>(), It.IsAny<CancellationToken>())).Returns((GetAllSupplierQuery query, CancellationToken ct) => getAllSupplierHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetSupplierByIdQuery>(), It.IsAny<CancellationToken>())).Returns((GetSupplierByIdQuery query, CancellationToken ct) => getSupplierByIdHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<AddSupplierCommand>(), It.IsAny<CancellationToken>())).Returns((AddSupplierCommand command, CancellationToken ct) => addSupplierHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<UpdateSupplierCommand>(), It.IsAny<CancellationToken>())).Returns((UpdateSupplierCommand command, CancellationToken ct) => updateSupplierHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<DeleteSupplierCommand>(), It.IsAny<CancellationToken>())).Returns((DeleteSupplierCommand command, CancellationToken ct) => deleteSupplierHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetSupplierPerformanceQuery>(), It.IsAny<CancellationToken>())).Returns((GetSupplierPerformanceQuery query, CancellationToken ct) => getSupplierPerformanceHandler.Handle(query, ct));
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new SupplierController(getAllSupplierHandler, getSupplierByIdHandler, addSupplierHandler, updateSupplierHandler, deleteSupplierHandler, getSupplierPerformanceHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new SupplierController(sender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();
@@ -230,12 +240,12 @@ public class SupplierControllerTests : IDisposable
     {
         // Arrange
         var command = new AddSupplierCommand(
-            Guid.NewGuid(), 
-            faker.Company.CompanyName(), 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
-            faker.Company.Cnpj(), 
+            Guid.NewGuid(),
+            faker.Company.CompanyName(),
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
+            faker.Company.Cnpj(),
             null);
 
         var ct = CancellationToken.None;
@@ -284,12 +294,12 @@ public class SupplierControllerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateSupplierCommand(
-            testSupplierId, 
-            faker.Company.CompanyName() + " Updated", 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
-            faker.Company.Cnpj(), 
+            testSupplierId,
+            faker.Company.CompanyName() + " Updated",
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
+            faker.Company.Cnpj(),
             null);
 
         var ct = CancellationToken.None;
@@ -315,12 +325,12 @@ public class SupplierControllerTests : IDisposable
         // Arrange
         var nonExistentId = Guid.NewGuid();
         var command = new UpdateSupplierCommand(
-            nonExistentId, 
-            faker.Company.CompanyName(), 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
-            faker.Company.Cnpj(), 
+            nonExistentId,
+            faker.Company.CompanyName(),
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
+            faker.Company.Cnpj(),
             null);
 
         var ct = CancellationToken.None;

@@ -1,3 +1,6 @@
+using MediatR;
+using Fenicia.Module.Basic.Domains.Product.Responses;
+
 namespace Fenicia.Module.Basic.Domains.Product.Commands;
 
 public record AddProductCommand(
@@ -16,4 +19,4 @@ public record AddProductCommand(
     string? Dimensions = null,
     string? UnitOfMeasure = null,
     Guid CategoryId = default,
-    Guid? SupplierId = null);
+    Guid? SupplierId = null) : IRequest<AddProductResponse>;

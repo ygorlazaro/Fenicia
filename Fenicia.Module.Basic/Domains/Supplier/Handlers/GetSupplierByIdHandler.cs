@@ -2,6 +2,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Customer.Responses;
 using Fenicia.Module.Basic.Domains.Supplier.Queries;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 /// <summary>
 ///     Handler responsible for retrieving a specific supplier by its ID.
 /// </summary>
-public class GetSupplierByIdHandler(DefaultContext db)
+public class GetSupplierByIdHandler(DefaultContext db) : IRequestHandler<GetSupplierByIdQuery, GetSupplierByIdResponse?>
 {
     /// <summary>
     ///     Retrieves a supplier by its ID.

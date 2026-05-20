@@ -5,6 +5,8 @@ using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Dashboard.Queries;
 using Fenicia.Module.Basic.Domains.Dashboard.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard.Handlers;
@@ -13,7 +15,7 @@ namespace Fenicia.Module.Basic.Domains.Dashboard.Handlers;
 ///     Handler responsible for generating financial dashboard data.
 ///     Provides comprehensive business analytics including KPIs, revenue vs cost analysis, profit margins, and sales summaries.
 /// </summary>
-public class GetFinancialDashboardHandler(DefaultContext db)
+public class GetFinancialDashboardHandler(DefaultContext db) : IRequestHandler<GetFinancialDashboardQuery, FinancialDashboardResponse>
 {
     /// <summary>
     ///     Generates comprehensive financial dashboard analytics.

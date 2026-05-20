@@ -3,6 +3,8 @@ using Fenicia.Module.Basic.Domains.Customer.Responses;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
@@ -11,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 ///     Handler responsible for retrieving a specific employee by their unique identifier.
 ///     Returns employee details including associated person information.
 /// </summary>
-public class GetEmployeeByIdHandler(DefaultContext db)
+public class GetEmployeeByIdHandler(DefaultContext db) : IRequestHandler<GetEmployeeByIdQuery, GetEmployeeByIdResponse?>
 {
     /// <summary>
     ///     Retrieves an employee by their unique identifier.
@@ -35,12 +37,12 @@ public class GetEmployeeByIdHandler(DefaultContext db)
         var address = personAddress?.Address;
 
         return new GetEmployeeByIdResponse(
-            employee.Id, 
-            employee.PositionId, 
-            employee.PersonId, 
-            employee.Person.Name, 
-            employee.Person.Email, 
-            employee.Person.PhoneNumber, 
+            employee.Id,
+            employee.PositionId,
+            employee.PersonId,
+            employee.Person.Name,
+            employee.Person.Email,
+            employee.Person.PhoneNumber,
             employee.Person.Document,
             address != null ? new AddressResponse(
                 address.Id,

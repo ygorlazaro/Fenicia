@@ -8,11 +8,15 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Employee.Handlers;
+using Fenicia.Module.Basic.Domains.Employee.Queries;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
 using Fenicia.Module.Basic.Domains.Position;
 using Fenicia.Module.Basic.Domains.Position.Commands;
 using Fenicia.Module.Basic.Domains.Position.Handlers;
+using Fenicia.Module.Basic.Domains.Position.Queries;
 using Fenicia.Module.Basic.Domains.Position.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -32,6 +36,7 @@ public class PositionControllerTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Mock<ISender> mockSender;
     private readonly Guid testPositionId;
 
     public PositionControllerTests()
@@ -47,9 +52,28 @@ public class PositionControllerTests : IDisposable
         var updatePositionHandler = new UpdatePositionHandler(db);
         var deletePositionHandler = new DeletePositionHandler(db);
         var getEmployeesByPositionIdHandler = new GetEmployeesByPositionIdHandler(db);
+        mockSender = new Mock<ISender>();
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new PositionController(getAllPositionHandler, getPositionByIdHandler, addPositionHandler, updatePositionHandler, deletePositionHandler, getEmployeesByPositionIdHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        mockSender.Setup(s => s.Send(It.IsAny<GetAllPositionQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllPositionQuery query, CancellationToken ct) => getAllPositionHandler.Handle(query, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<GetPositionByIdQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetPositionByIdQuery query, CancellationToken ct) => getPositionByIdHandler.Handle(query, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<GetEmployeesByPositionIdQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetEmployeesByPositionIdQuery query, CancellationToken ct) => getEmployeesByPositionIdHandler.Handle(query, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<AddPositionCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((AddPositionCommand command, CancellationToken ct) => addPositionHandler.Handle(command, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<UpdatePositionCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((UpdatePositionCommand command, CancellationToken ct) => updatePositionHandler.Handle(command, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<DeletePositionCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((DeletePositionCommand command, CancellationToken ct) => deletePositionHandler.Handle(command, ct));
+
+        controller = new PositionController(mockSender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();
@@ -212,9 +236,9 @@ public class PositionControllerTests : IDisposable
         var okResult = result.Result as OkObjectResult;
         Assert.NotNull(okResult);
 
-        var returnedEmployees = okResult.Value as List<GetEmployeesByPositionIdResponse>;
+        var returnedEmployees = okResult.Value as Pagination<List<GetEmployeesByPositionIdResponse>>;
         Assert.NotNull(returnedEmployees);
-        Assert.Empty(returnedEmployees);
+        Assert.Empty(returnedEmployees.Data);
     }
 
     [Fact]
@@ -273,9 +297,9 @@ public class PositionControllerTests : IDisposable
         var okResult = result.Result as OkObjectResult;
         Assert.NotNull(okResult);
 
-        var returnedEmployees = okResult.Value as List<GetEmployeesByPositionIdResponse>;
+        var returnedEmployees = okResult.Value as Pagination<List<GetEmployeesByPositionIdResponse>>;
         Assert.NotNull(returnedEmployees);
-        Assert.Equal(2, returnedEmployees.Count);
+        Assert.Equal(2, returnedEmployees.Data.Count);
     }
 
     [Fact]

@@ -1,4 +1,6 @@
 using Fenicia.Common.Enums.Basic;
+using MediatR;
+using Fenicia.Module.Basic.Domains.StockMovement.Responses;
 
 namespace Fenicia.Module.Basic.Domains.StockMovement.Commands;
 
@@ -49,4 +51,4 @@ public record UpdateStockMovementCommand(
     /// <summary>
     /// Updated reason for the movement.
     /// </summary>
-    string? Reason);
+    string? Reason) : IRequest<UpdateStockMovementResponse?>;

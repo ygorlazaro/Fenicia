@@ -1,4 +1,7 @@
 using Fenicia.Module.Basic.Domains.Customer.Common;
+using Fenicia.Module.Basic.Domains.Customer.Responses;
+
+using MediatR;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Commands;
 
@@ -7,9 +10,9 @@ namespace Fenicia.Module.Basic.Domains.Customer.Commands;
 ///     Contains all customer information that can be updated.
 /// </summary>
 public record UpdateCustomerCommand(
-    Guid Id, 
-    string Name, 
-    string? Email, 
-    string? Document, 
+    Guid Id,
+    string Name,
+    string? Email,
+    string? Document,
     string? PhoneNumber,
-    AddressCommand? Address);
+    AddressCommand? Address) : IRequest<UpdateCustomerResponse?>;

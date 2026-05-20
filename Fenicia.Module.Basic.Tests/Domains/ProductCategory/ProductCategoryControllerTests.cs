@@ -8,11 +8,15 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Product.Handlers;
+using Fenicia.Module.Basic.Domains.Product.Queries;
 using Fenicia.Module.Basic.Domains.Product.Responses;
 using Fenicia.Module.Basic.Domains.ProductCategory;
 using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
 using Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
+using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -44,9 +48,16 @@ public class ProductCategoryControllerTests : IDisposable
         var updateProductCategoryHandler = new UpdateProductCategoryHandler(db);
         var deleteProductCategoryHandler = new DeleteProductCategoryHandler(db);
         var getProductsByCategoryIdHandler = new GetProductsByCategoryIdHandler(db);
+        var sender = new Mock<ISender>();
+        sender.Setup(x => x.Send(It.IsAny<GetAllProductCategoryQuery>(), It.IsAny<CancellationToken>())).Returns((GetAllProductCategoryQuery query, CancellationToken ct) => getAllProductCategoryHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetProductCategoryByIdQuery>(), It.IsAny<CancellationToken>())).Returns((GetProductCategoryByIdQuery query, CancellationToken ct) => getProductCategoryByIdHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<AddProductCategoryCommand>(), It.IsAny<CancellationToken>())).Returns((AddProductCategoryCommand command, CancellationToken ct) => addProductCategoryHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<UpdateProductCategoryCommand>(), It.IsAny<CancellationToken>())).Returns((UpdateProductCategoryCommand command, CancellationToken ct) => updateProductCategoryHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<DeleteProductCategoryCommand>(), It.IsAny<CancellationToken>())).Returns((DeleteProductCategoryCommand command, CancellationToken ct) => deleteProductCategoryHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetProductsByCategoryIdQuery>(), It.IsAny<CancellationToken>())).Returns((GetProductsByCategoryIdQuery query, CancellationToken ct) => getProductsByCategoryIdHandler.Handle(query, ct));
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new ProductCategoryController(getAllProductCategoryHandler, getProductCategoryByIdHandler, addProductCategoryHandler, updateProductCategoryHandler, deleteProductCategoryHandler, getProductsByCategoryIdHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new ProductCategoryController(sender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();

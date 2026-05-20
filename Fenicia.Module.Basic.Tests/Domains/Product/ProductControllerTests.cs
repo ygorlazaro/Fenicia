@@ -10,7 +10,10 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Product;
 using Fenicia.Module.Basic.Domains.Product.Commands;
 using Fenicia.Module.Basic.Domains.Product.Handlers;
+using Fenicia.Module.Basic.Domains.Product.Queries;
 using Fenicia.Module.Basic.Domains.Product.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -42,9 +45,16 @@ public class ProductControllerTests : IDisposable
         var updateProductHandler = new UpdateProductHandler(db);
         var deleteProductHandler = new DeleteProductHandler(db);
         var getProductPerformanceHandler = new GetProductPerformanceHandler(db);
+        var sender = new Mock<ISender>();
+        sender.Setup(x => x.Send(It.IsAny<GetAllProductQuery>(), It.IsAny<CancellationToken>())).Returns((GetAllProductQuery query, CancellationToken ct) => getAllProductHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetProductByIdQuery>(), It.IsAny<CancellationToken>())).Returns((GetProductByIdQuery query, CancellationToken ct) => getProductByIdHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<AddProductCommand>(), It.IsAny<CancellationToken>())).Returns((AddProductCommand command, CancellationToken ct) => addProductHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<UpdateProductCommand>(), It.IsAny<CancellationToken>())).Returns((UpdateProductCommand command, CancellationToken ct) => updateProductHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<DeleteProductCommand>(), It.IsAny<CancellationToken>())).Returns((DeleteProductCommand command, CancellationToken ct) => deleteProductHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetProductPerformanceQuery>(), It.IsAny<CancellationToken>())).Returns((GetProductPerformanceQuery query, CancellationToken ct) => getProductPerformanceHandler.Handle(query, ct));
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new ProductController(getAllProductHandler, getProductByIdHandler, addProductHandler, updateProductHandler, deleteProductHandler, getProductPerformanceHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new ProductController(sender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();

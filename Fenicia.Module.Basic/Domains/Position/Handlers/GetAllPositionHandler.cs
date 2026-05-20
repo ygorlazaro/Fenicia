@@ -3,6 +3,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Position.Queries;
 using Fenicia.Module.Basic.Domains.Position.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position.Handlers;
@@ -17,7 +19,7 @@ namespace Fenicia.Module.Basic.Domains.Position.Handlers;
 ///     3. Applies pagination using Skip and Take
 ///     4. Returns paginated result with total count
 /// </remarks>
-public class GetAllPositionHandler(DefaultContext db)
+public class GetAllPositionHandler(DefaultContext db) : IRequestHandler<GetAllPositionQuery, Pagination<List<GetAllPositionResponse>>>
 {
     /// <summary>
     ///     Handles retrieval of all positions with pagination support.

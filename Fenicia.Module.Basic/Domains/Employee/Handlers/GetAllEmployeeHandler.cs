@@ -4,6 +4,8 @@ using Fenicia.Module.Basic.Domains.Customer.Responses;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
@@ -12,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 ///     Handler responsible for retrieving all employees with pagination.
 ///     Returns a paginated list of employees including their associated person and position details.
 /// </summary>
-public class GetAllEmployeeHandler(DefaultContext db)
+public class GetAllEmployeeHandler(DefaultContext db) : IRequestHandler<GetAllEmployeeQuery, Pagination<List<GetAllEmployeeResponse>>>
 {
     /// <summary>
     ///     Retrieves a paginated list of all employees.
@@ -40,13 +42,13 @@ public class GetAllEmployeeHandler(DefaultContext db)
             var address = personAddress?.Address;
 
             return new GetAllEmployeeResponse(
-                e.Id, 
-                e.PositionId, 
-                e.PersonId, 
-                e.Person.Name, 
-                e.Person.Email, 
-                e.Person.PhoneNumber, 
-                e.Person.Document, 
+                e.Id,
+                e.PositionId,
+                e.PersonId,
+                e.Person.Name,
+                e.Person.Email,
+                e.Person.PhoneNumber,
+                e.Person.Document,
                 e.Position.Name,
                 address != null ? new AddressResponse(
                     address.Id,

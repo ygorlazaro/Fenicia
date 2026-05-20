@@ -4,6 +4,8 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer.Commands;
 using Fenicia.Module.Basic.Domains.Customer.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
@@ -12,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 ///     Handler responsible for updating existing customer information.
 ///     Updates both the customer and associated person records.
 /// </summary>
-public class UpdateCustomerHandler(DefaultContext db)
+public class UpdateCustomerHandler(DefaultContext db) : IRequestHandler<UpdateCustomerCommand, UpdateCustomerResponse?>
 {
     /// <summary>
     ///     Updates an existing customer's information.
@@ -41,7 +43,7 @@ public class UpdateCustomerHandler(DefaultContext db)
         if (command.Address != null)
         {
             var existingPersonAddress = customer.Person.PersonAddresses.FirstOrDefault();
-            
+
             if (existingPersonAddress?.Address != null)
             {
                 existingPersonAddress.Address.Street = command.Address.Street;

@@ -1,4 +1,6 @@
 using Fenicia.Module.Basic.Domains.Supplier.Common;
+using MediatR;
+using Fenicia.Module.Basic.Domains.Supplier.Responses;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Commands;
 
@@ -33,4 +35,4 @@ string? Cnpj,
     /// <summary>
 /// Address (optional).
 /// </summary>
-AddressDTO? Address);
+AddressDTO? Address) : IRequest<AddSupplierResponse>;

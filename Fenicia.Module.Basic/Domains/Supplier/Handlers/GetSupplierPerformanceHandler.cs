@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Supplier.Queries;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 ///     Handler responsible for retrieving supplier performance analytics.
 ///     Provides insights including product counts, stock movements, and cost comparisons.
 /// </summary>
-public class GetSupplierPerformanceHandler(DefaultContext db)
+public class GetSupplierPerformanceHandler(DefaultContext db) : IRequestHandler<GetSupplierPerformanceQuery, SupplierPerformanceResponse>
 {
     /// <summary>
     ///     Retrieves supplier performance analytics.

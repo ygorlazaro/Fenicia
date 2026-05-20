@@ -2,12 +2,13 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Product.Queries;
 using Fenicia.Module.Basic.Domains.Product.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product.Handlers;
 
-public class GetAllProductHandler(DefaultContext db)
+public class GetAllProductHandler(DefaultContext db) : IRequestHandler<GetAllProductQuery, Pagination<List<GetAllProductResponse>>>
 {
     public async Task<Pagination<List<GetAllProductResponse>>> Handle(GetAllProductQuery query, CancellationToken ct)
     {

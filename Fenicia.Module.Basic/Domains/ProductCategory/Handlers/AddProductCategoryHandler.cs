@@ -2,6 +2,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
 using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+using MediatR;
 
 namespace Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 
@@ -9,7 +10,7 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 ///     Handler responsible for creating a new product category.
 ///     Adds a new category to the database.
 /// </summary>
-public class AddProductCategoryHandler(DefaultContext db)
+public class AddProductCategoryHandler(DefaultContext db) : IRequestHandler<AddProductCategoryCommand, AddProductCategoryResponse>
 {
     /// <summary>
     ///     Creates a new product category.

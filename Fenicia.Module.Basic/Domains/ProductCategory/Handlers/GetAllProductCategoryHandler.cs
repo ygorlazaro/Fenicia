@@ -2,6 +2,7 @@ using Fenicia.Common;
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 ///     Handler responsible for retrieving all product categories with pagination.
 ///     Returns a paginated list of categories.
 /// </summary>
-public class GetAllProductCategoryHandler(DefaultContext db)
+public class GetAllProductCategoryHandler(DefaultContext db) : IRequestHandler<GetAllProductCategoryQuery, Pagination<List<GetAllProductCategoryResponse>>>
 {
     /// <summary>
     ///     Retrieves paginated product categories.

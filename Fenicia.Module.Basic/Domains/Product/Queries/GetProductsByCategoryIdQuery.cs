@@ -1,3 +1,6 @@
+using MediatR;
+using Fenicia.Module.Basic.Domains.Product.Responses;
+
 namespace Fenicia.Module.Basic.Domains.Product.Queries;
 
 /// <summary>
@@ -15,4 +18,4 @@ public record GetProductsByCategoryIdQuery(
     /// <summary>
     /// Number of items per page.
     /// </summary>
-    int PerPage = 10);
+    int PerPage = 10) : IRequest<List<GetProductsByCategoryIdResponse>>;

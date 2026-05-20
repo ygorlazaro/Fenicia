@@ -1,3 +1,6 @@
+using MediatR;
+using Fenicia.Module.Basic.Domains.Supplier.Responses;
+
 namespace Fenicia.Module.Basic.Domains.Supplier.Queries;
 
 /// <summary>
@@ -11,4 +14,4 @@ public record GetSupplierPerformanceQuery(
     /// <summary>
     /// Number of top suppliers to return.
     /// </summary>
-    int TopLimit = 10);
+    int TopLimit = 10) : IRequest<SupplierPerformanceResponse>;

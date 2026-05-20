@@ -2,6 +2,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Position.Commands;
 using Fenicia.Module.Basic.Domains.Position.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position.Handlers;
@@ -17,7 +19,7 @@ namespace Fenicia.Module.Basic.Domains.Position.Handlers;
 ///     4. Marks the entity as modified and saves changes
 ///     5. Returns the updated position data
 /// </remarks>
-public class UpdatePositionHandler(DefaultContext db)
+public class UpdatePositionHandler(DefaultContext db) : IRequestHandler<UpdatePositionCommand, UpdatePositionResponse?>
 {
     /// <summary>
     ///     Handles updating an existing position.

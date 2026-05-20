@@ -1,8 +1,10 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.DataSource.Handlers;
+using Fenicia.Module.Basic.Domains.DataSource.Queries;
 using Fenicia.Module.Basic.Domains.DataSource.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +23,7 @@ namespace Fenicia.Module.Basic.Domains.DataSource;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class DataSourceController(GetAllPositionForDataSourceHandler getAllPositionForDataSourceHandler, GetAllProductCategoryForDataSourceHandler getAllProductCategoryForDataSourceHandler, GetAllSupplierForDataSourceHandler getAllSupplierForDataSourceHandler, GetAllCustomerForDataSourceHandler getAllCustomerForDataSourceHandler, GetAllProductForDataSourceHandler getAllProductForDataSourceHandler, GetAllEmployeeForDataSourceHandler getAllEmployeeForDataSourceHandler) : ControllerBase
+public class DataSourceController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves a list of all positions ordered by name.
@@ -41,7 +43,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var positions = await getAllPositionForDataSourceHandler.Handle(ct);
+            var positions = await sender.Send(new GetAllPositionForDataSourceQuery(), ct);
 
             return Ok(positions);
         }
@@ -69,7 +71,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var categories = await getAllProductCategoryForDataSourceHandler.Handle(ct);
+            var categories = await sender.Send(new GetAllProductCategoryForDataSourceQuery(), ct);
 
             return Ok(categories);
         }
@@ -97,7 +99,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var suppliers = await getAllSupplierForDataSourceHandler.Handle(ct);
+            var suppliers = await sender.Send(new GetAllSupplierForDataSourceQuery(), ct);
 
             return Ok(suppliers);
         }
@@ -125,7 +127,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customers = await getAllCustomerForDataSourceHandler.Handle(ct);
+            var customers = await sender.Send(new GetAllCustomerForDataSourceQuery(), ct);
 
             return Ok(customers);
         }
@@ -153,7 +155,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var products = await getAllProductForDataSourceHandler.Handle(ct);
+            var products = await sender.Send(new GetAllProductForDataSourceQuery(), ct);
 
             return Ok(products);
         }
@@ -181,7 +183,7 @@ public class DataSourceController(GetAllPositionForDataSourceHandler getAllPosit
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employees = await getAllEmployeeForDataSourceHandler.Handle(ct);
+            var employees = await sender.Send(new GetAllEmployeeForDataSourceQuery(), ct);
 
             return Ok(employees);
         }

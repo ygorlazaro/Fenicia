@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
 using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 /// <summary>
 ///     Handler responsible for updating an existing product category.
 /// </summary>
-public class UpdateProductCategoryHandler(DefaultContext db)
+public class UpdateProductCategoryHandler(DefaultContext db) : IRequestHandler<UpdateProductCategoryCommand, UpdateProductCategoryResponse?>
 {
     /// <summary>
     ///     Updates a product category.

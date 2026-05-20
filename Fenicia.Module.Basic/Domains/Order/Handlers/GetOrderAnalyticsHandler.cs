@@ -4,6 +4,8 @@ using Fenicia.Common.Enums.Auth;
 using Fenicia.Module.Basic.Domains.Order.Queries;
 using Fenicia.Module.Basic.Domains.Order.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
@@ -12,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 ///     Handler responsible for generating order analytics.
 ///     Provides comprehensive statistics including sales trends, top customers, and order values.
 /// </summary>
-public class GetOrderAnalyticsHandler(DefaultContext db)
+public class GetOrderAnalyticsHandler(DefaultContext db) : IRequestHandler<GetOrderAnalyticsQuery, OrderAnalyticsResponse>
 {
     /// <summary>
     ///     Generates comprehensive order analytics for a given time period.

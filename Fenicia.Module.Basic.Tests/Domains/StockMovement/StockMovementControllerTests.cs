@@ -10,7 +10,10 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.StockMovement;
 using Fenicia.Module.Basic.Domains.StockMovement.Commands;
 using Fenicia.Module.Basic.Domains.StockMovement.Handlers;
+using Fenicia.Module.Basic.Domains.StockMovement.Queries;
 using Fenicia.Module.Basic.Domains.StockMovement.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -48,9 +51,14 @@ public class StockMovementControllerTests : IDisposable
         addStockMovementHandler = new AddStockMovementHandler(db);
         updateStockMovementHandler = new UpdateStockMovementHandler(db);
         getStockMovementDashboardHandler = new GetStockMovementDashboardHandler(db);
+        var sender = new Mock<ISender>();
+        sender.Setup(x => x.Send(It.IsAny<GetStockMovementQuery>(), It.IsAny<CancellationToken>())).Returns((GetStockMovementQuery query, CancellationToken ct) => getStockMovementHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<AddStockMovementCommand>(), It.IsAny<CancellationToken>())).Returns((AddStockMovementCommand command, CancellationToken ct) => addStockMovementHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<UpdateStockMovementCommand>(), It.IsAny<CancellationToken>())).Returns((UpdateStockMovementCommand command, CancellationToken ct) => updateStockMovementHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetStockMovementDashboardQuery>(), It.IsAny<CancellationToken>())).Returns((GetStockMovementDashboardQuery query, CancellationToken ct) => getStockMovementDashboardHandler.Handle(query, ct));
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new StockMovementController(getStockMovementHandler, addStockMovementHandler, updateStockMovementHandler, getStockMovementDashboardHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new StockMovementController(sender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();

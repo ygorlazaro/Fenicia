@@ -4,6 +4,8 @@ using Fenicia.Common.Enums.Basic;
 using Fenicia.Module.Basic.Domains.Order.Commands;
 using Fenicia.Module.Basic.Domains.Order.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
@@ -20,7 +22,7 @@ namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 ///     Related documentation:
 ///     - See <see cref="Fenicia.Module.Basic.Domains.Stock.StockMovementHandler" /> for stock management
 /// </remarks>
-public class CreateOrderHandler(DefaultContext db)
+public class CreateOrderHandler(DefaultContext db) : IRequestHandler<CreateOrderCommand, CreateOrderResponse>
 {
     public async Task<CreateOrderResponse> Handle(CreateOrderCommand command, CancellationToken ct)
     {

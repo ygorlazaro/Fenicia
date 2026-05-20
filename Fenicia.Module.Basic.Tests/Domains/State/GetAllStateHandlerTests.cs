@@ -4,6 +4,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.State.Handlers;
+using Fenicia.Module.Basic.Domains.State.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -35,7 +36,7 @@ public class GetAllStateHandlerTests : IDisposable
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
         // Act
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(new GetAllStateQuery(), CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -64,7 +65,7 @@ public class GetAllStateHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(new GetAllStateQuery(), CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -92,7 +93,7 @@ public class GetAllStateHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(new GetAllStateQuery(), CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -114,7 +115,7 @@ public class GetAllStateHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await handler.Handle(CancellationToken.None);
+        var result = await handler.Handle(new GetAllStateQuery(), CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

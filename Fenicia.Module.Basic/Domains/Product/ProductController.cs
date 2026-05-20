@@ -1,9 +1,9 @@
 using System.Net.Mime;
+using MediatR;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Product.Commands;
-using Fenicia.Module.Basic.Domains.Product.Handlers;
 using Fenicia.Module.Basic.Domains.Product.Queries;
 using Fenicia.Module.Basic.Domains.Product.Responses;
 
@@ -24,7 +24,7 @@ namespace Fenicia.Module.Basic.Domains.Product;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProductController(GetAllProductHandler getAllProductHandler, GetProductByIdHandler getProductByIdHandler, AddProductHandler addProductHandler, UpdateProductHandler updateProductHandler, DeleteProductHandler deleteProductHandler, GetProductPerformanceHandler getProductPerformanceHandler) : ControllerBase
+public class ProductController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves a paginated list of all products.
@@ -46,7 +46,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var products = await getAllProductHandler.Handle(new GetAllProductQuery(page, perPage), ct);
+            var products = await sender.Send(new GetAllProductQuery(page, perPage), ct);
 
             return Ok(products);
         }
@@ -77,7 +77,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var product = await getProductByIdHandler.Handle(new GetProductByIdQuery(id), ct);
+            var product = await sender.Send(new GetProductByIdQuery(id), ct);
 
             return product is null ? NotFound() : Ok(product);
         }
@@ -108,7 +108,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var product = await addProductHandler.Handle(command, ct);
+            var product = await sender.Send(command, ct);
 
             return new CreatedResult(string.Empty, product);
         }
@@ -143,7 +143,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var product = await updateProductHandler.Handle(command with { Id = id }, ct);
+            var product = await sender.Send(command with { Id = id }, ct);
 
             return product is null ? NotFound() : Ok(product);
         }
@@ -172,7 +172,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await deleteProductHandler.Handle(new DeleteProductCommand(id), ct);
+            await sender.Send(new DeleteProductCommand(id), ct);
 
             return NoContent();
         }
@@ -202,7 +202,7 @@ public class ProductController(GetAllProductHandler getAllProductHandler, GetPro
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var performance = await getProductPerformanceHandler.Handle(new GetProductPerformanceQuery(days, topLimit), ct);
+            var performance = await sender.Send(new GetProductPerformanceQuery(days, topLimit), ct);
 
             return Ok(performance);
         }

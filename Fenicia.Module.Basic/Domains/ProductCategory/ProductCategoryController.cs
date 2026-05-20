@@ -1,12 +1,11 @@
 using System.Net.Mime;
+using MediatR;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Product.Handlers;
 using Fenicia.Module.Basic.Domains.Product.Queries;
 using Fenicia.Module.Basic.Domains.Product.Responses;
 using Fenicia.Module.Basic.Domains.ProductCategory.Commands;
-using Fenicia.Module.Basic.Domains.ProductCategory.Handlers;
 using Fenicia.Module.Basic.Domains.ProductCategory.Queries;
 using Fenicia.Module.Basic.Domains.ProductCategory.Responses;
 
@@ -27,7 +26,7 @@ namespace Fenicia.Module.Basic.Domains.ProductCategory;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class ProductCategoryController(GetAllProductCategoryHandler getAllProductCategoryHandler, GetProductCategoryByIdHandler getProductCategoryByIdHandler, AddProductCategoryHandler addProductCategoryHandler, UpdateProductCategoryHandler updateProductCategoryHandler, DeleteProductCategoryHandler deleteProductCategoryHandler, GetProductsByCategoryIdHandler getProductsByCategoryIdHandler) : ControllerBase
+public class ProductCategoryController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves a paginated list of all product categories.
@@ -49,7 +48,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await getAllProductCategoryHandler.Handle(new GetAllProductCategoryQuery(page, perPage), ct);
+            var productCategory = await sender.Send(new GetAllProductCategoryQuery(page, perPage), ct);
 
             return Ok(productCategory);
         }
@@ -80,7 +79,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await getProductCategoryByIdHandler.Handle(new GetProductCategoryByIdQuery(id), ct);
+            var productCategory = await sender.Send(new GetProductCategoryByIdQuery(id), ct);
 
             return productCategory is null ? NotFound() : Ok(productCategory);
         }
@@ -111,7 +110,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await addProductCategoryHandler.Handle(command, ct);
+            var productCategory = await sender.Send(command, ct);
 
             return new CreatedResult(string.Empty, productCategory);
         }
@@ -146,7 +145,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var productCategory = await updateProductCategoryHandler.Handle(command with { Id = id }, ct);
+            var productCategory = await sender.Send(command with { Id = id }, ct);
 
             return productCategory is null ? NotFound() : Ok(productCategory);
         }
@@ -175,7 +174,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await deleteProductCategoryHandler.Handle(new DeleteProductCategoryCommand(id), ct);
+            await sender.Send(new DeleteProductCategoryCommand(id), ct);
 
             return NoContent();
         }
@@ -205,7 +204,7 @@ public class ProductCategoryController(GetAllProductCategoryHandler getAllProduc
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var products = await getProductsByCategoryIdHandler.Handle(new GetProductsByCategoryIdQuery(categoryId, query.Page, query.PerPage), ct);
+            var products = await sender.Send(new GetProductsByCategoryIdQuery(categoryId, query.Page, query.PerPage), ct);
 
             return Ok(products);
         }

@@ -8,7 +8,10 @@ using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.State;
 using Fenicia.Module.Basic.Domains.State.Handlers;
+using Fenicia.Module.Basic.Domains.State.Queries;
 using Fenicia.Module.Basic.Domains.State.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,8 +28,8 @@ public class StateControllerTests : IDisposable
     private readonly StateController controller;
     private readonly DefaultContext db;
     private readonly Faker faker;
-    private readonly GetAllStateHandler getAllStateHandler;
     private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Mock<ISender> mockSender;
 
     public StateControllerTests()
     {
@@ -34,10 +37,14 @@ public class StateControllerTests : IDisposable
 
         companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
-        getAllStateHandler = new GetAllStateHandler(db);
+        var getAllStateHandler = new GetAllStateHandler(db);
+        mockSender = new Mock<ISender>();
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new StateController(getAllStateHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        mockSender.Setup(s => s.Send(It.IsAny<GetAllStateQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllStateQuery query, CancellationToken ct) => getAllStateHandler.Handle(query, ct));
+
+        controller = new StateController(mockSender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();

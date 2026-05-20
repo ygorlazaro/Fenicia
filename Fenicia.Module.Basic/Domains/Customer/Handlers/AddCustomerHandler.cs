@@ -4,13 +4,15 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Customer.Commands;
 using Fenicia.Module.Basic.Domains.Customer.Responses;
 
+using MediatR;
+
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 
 /// <summary>
 ///     Handler responsible for creating new customers in the system.
 ///     Creates both the customer record and associated person record.
 /// </summary>
-public class AddCustomerHandler(DefaultContext db)
+public class AddCustomerHandler(DefaultContext db) : IRequestHandler<AddCustomerCommand, AddCustomerResponse>
 {
     /// <summary>
     ///     Creates a new customer with the provided command data.
@@ -30,7 +32,7 @@ public class AddCustomerHandler(DefaultContext db)
         };
 
         AddressModel? address = null;
-        
+
         if (command.Address != null)
         {
             address = new AddressModel

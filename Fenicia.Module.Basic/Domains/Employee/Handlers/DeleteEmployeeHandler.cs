@@ -1,6 +1,8 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
@@ -9,7 +11,7 @@ namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 ///     Handler responsible for deleting (soft delete) an employee.
 ///     Performs a soft delete by setting the Deleted timestamp.
 /// </summary>
-public class DeleteEmployeeHandler(DefaultContext db)
+public class DeleteEmployeeHandler(DefaultContext db) : IRequestHandler<DeleteEmployeeCommand>
 {
     /// <summary>
     ///     Soft deletes an employee by setting the Deleted timestamp to current time.

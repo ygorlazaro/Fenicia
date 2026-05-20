@@ -2,13 +2,13 @@ using System.Net.Mime;
 
 using Fenicia.Common;
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Employee.Handlers;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
 using Fenicia.Module.Basic.Domains.Position.Commands;
-using Fenicia.Module.Basic.Domains.Position.Handlers;
 using Fenicia.Module.Basic.Domains.Position.Queries;
 using Fenicia.Module.Basic.Domains.Position.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +23,7 @@ namespace Fenicia.Module.Basic.Domains.Position;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class PositionController(GetAllPositionHandler getAllPositionHandler, GetPositionByIdHandler getPositionByIdHandler, AddPositionHandler addPositionHandler, UpdatePositionHandler updatePositionHandler, DeletePositionHandler deletePositionHandler, GetEmployeesByPositionIdHandler getEmployeesByPositionIdHandler) : ControllerBase
+public class PositionController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves all positions with pagination.
@@ -45,7 +45,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var positions = await getAllPositionHandler.Handle(new GetAllPositionQuery(page, perPage), ct);
+            var positions = await sender.Send(new GetAllPositionQuery(page, perPage), ct);
 
             return Ok(positions);
         }
@@ -76,7 +76,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var position = await getPositionByIdHandler.Handle(new GetPositionByIdQuery(id), ct);
+            var position = await sender.Send(new GetPositionByIdQuery(id), ct);
 
             return position is null ? NotFound() : Ok(position);
         }
@@ -98,15 +98,15 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
     /// <response code="401">Unauthorized</response>
     /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}/employee")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GetEmployeesByPositionIdResponse>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetEmployeesByPositionIdResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<List<GetEmployeesByPositionIdResponse>>> GetEmployeesByPositionIdAsync([FromRoute] Guid id, [FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
+    public async Task<ActionResult<Pagination<List<GetEmployeesByPositionIdResponse>>>> GetEmployeesByPositionIdAsync([FromRoute] Guid id, [FromQuery] PaginationQuery query, WideEventContext wide, CancellationToken ct)
     {
         try
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var employees = await getEmployeesByPositionIdHandler.Handle(new GetEmployeesByPositionIdQuery(id, query.Page, query.PerPage), ct);
+            var employees = await sender.Send(new GetEmployeesByPositionIdQuery(id, query.Page, query.PerPage), ct);
 
             return Ok(employees);
         }
@@ -137,7 +137,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var position = await addPositionHandler.Handle(command, ct);
+            var position = await sender.Send(command, ct);
 
             return new CreatedResult(string.Empty, position);
         }
@@ -172,7 +172,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var position = await updatePositionHandler.Handle(command with { Id = id }, ct);
+            var position = await sender.Send(command with { Id = id }, ct);
 
             return position is null ? NotFound() : Ok(position);
         }
@@ -201,7 +201,7 @@ public class PositionController(GetAllPositionHandler getAllPositionHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await deletePositionHandler.Handle(new DeletePositionCommand(id), ct);
+            await sender.Send(new DeletePositionCommand(id), ct);
 
             return NoContent();
         }

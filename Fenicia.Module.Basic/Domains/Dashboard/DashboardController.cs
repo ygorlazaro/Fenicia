@@ -1,9 +1,10 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Dashboard.Handlers;
 using Fenicia.Module.Basic.Domains.Dashboard.Queries;
 using Fenicia.Module.Basic.Domains.Dashboard.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class DashboardController(GetFinancialDashboardHandler getFinancialDashboardHandler) : ControllerBase
+public class DashboardController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves the financial dashboard with KPIs, revenue analysis, and sales summaries.
@@ -43,7 +44,7 @@ public class DashboardController(GetFinancialDashboardHandler getFinancialDashbo
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await getFinancialDashboardHandler.Handle(new GetFinancialDashboardQuery(days), ct);
+            var dashboard = await sender.Send(new GetFinancialDashboardQuery(days), ct);
 
             return Ok(dashboard);
         }

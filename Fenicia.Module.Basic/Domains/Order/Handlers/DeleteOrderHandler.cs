@@ -1,6 +1,8 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Order.Commands;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
@@ -8,7 +10,7 @@ namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 /// <summary>
 ///     Handler responsible for soft-deleting orders.
 /// </summary>
-public class DeleteOrderHandler(DefaultContext db)
+public class DeleteOrderHandler(DefaultContext db) : IRequestHandler<DeleteOrderCommand>
 {
     /// <summary>
     ///     Soft-deletes an order by setting the Deleted timestamp.

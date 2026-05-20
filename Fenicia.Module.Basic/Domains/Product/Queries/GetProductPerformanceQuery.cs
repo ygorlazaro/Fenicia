@@ -1,3 +1,6 @@
+using MediatR;
+using Fenicia.Module.Basic.Domains.Product.Responses;
+
 namespace Fenicia.Module.Basic.Domains.Product.Queries;
 
 /// <summary>
@@ -11,4 +14,4 @@ public record GetProductPerformanceQuery(
     /// <summary>
     /// Number of top/bottom products to return.
     /// </summary>
-    int TopLimit = 10);
+    int TopLimit = 10) : IRequest<ProductPerformanceResponse>;

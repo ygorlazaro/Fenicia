@@ -3,6 +3,7 @@ using Fenicia.Common.Data.Models.Auth;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Supplier.Commands;
 using Fenicia.Module.Basic.Domains.Supplier.Responses;
+using MediatR;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
@@ -10,7 +11,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 ///     Handler responsible for creating a new supplier.
 ///     Creates a new supplier along with their contact and address information.
 /// </summary>
-public class AddSupplierHandler(DefaultContext db)
+public class AddSupplierHandler(DefaultContext db) : IRequestHandler<AddSupplierCommand, AddSupplierResponse>
 {
     /// <summary>
     ///     Creates a new supplier.

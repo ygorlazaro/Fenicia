@@ -1,6 +1,8 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Position.Commands;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Position.Handlers;
@@ -15,7 +17,7 @@ namespace Fenicia.Module.Basic.Domains.Position.Handlers;
 ///     3. Sets the Deleted timestamp to current time (soft delete)
 ///     4. Marks the entity as modified and saves changes
 /// </remarks>
-public class DeletePositionHandler(DefaultContext db)
+public class DeletePositionHandler(DefaultContext db) : IRequestHandler<DeletePositionCommand>
 {
     /// <summary>
     ///     Handles soft-deleting a position by setting its Deleted timestamp.

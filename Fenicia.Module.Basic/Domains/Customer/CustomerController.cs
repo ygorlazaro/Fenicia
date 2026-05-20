@@ -3,9 +3,10 @@ using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Customer.Commands;
-using Fenicia.Module.Basic.Domains.Customer.Handlers;
 using Fenicia.Module.Basic.Domains.Customer.Queries;
 using Fenicia.Module.Basic.Domains.Customer.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,7 @@ namespace Fenicia.Module.Basic.Domains.Customer;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, GetCustomerByIdHandler getCustomerByIdHandler, AddCustomerHandler addCustomerHandler, UpdateCustomerHandler updateCustomerHandler, DeleteCustomerHandler deleteCustomerHandler, GetCustomerInsightsHandler getCustomerInsightsHandler) : ControllerBase
+public class CustomerController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves a paginated list of all customers.
@@ -44,7 +45,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customers = await getAllCustomerHandler.Handle(new GetAllCustomerQuery(page, perPage), ct);
+            var customers = await sender.Send(new GetAllCustomerQuery(page, perPage), ct);
 
             return Ok(customers);
         }
@@ -76,7 +77,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customer = await getCustomerByIdHandler.Handle(new GetCustomerByIdQuery(id), ct);
+            var customer = await sender.Send(new GetCustomerByIdQuery(id), ct);
 
             return customer is null ? NotFound() : Ok(customer);
         }
@@ -106,7 +107,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customer = await addCustomerHandler.Handle(command, ct);
+            var customer = await sender.Send(command, ct);
 
             return new CreatedResult(string.Empty, customer);
         }
@@ -141,7 +142,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var customer = await updateCustomerHandler.Handle(command with { Id = id }, ct);
+            var customer = await sender.Send(command with { Id = id }, ct);
 
             return customer switch
             {
@@ -174,7 +175,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await deleteCustomerHandler.Handle(new DeleteCustomerCommand(id), ct);
+            await sender.Send(new DeleteCustomerCommand(id), ct);
 
             return NoContent();
         }
@@ -205,7 +206,7 @@ public class CustomerController(GetAllCustomerHandler getAllCustomerHandler, Get
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var insights = await getCustomerInsightsHandler.Handle(new GetCustomerInsightsQuery(days, topLimit, riskThresholdDays), ct);
+            var insights = await sender.Send(new GetCustomerInsightsQuery(days, topLimit, riskThresholdDays), ct);
 
             return Ok(insights);
         }

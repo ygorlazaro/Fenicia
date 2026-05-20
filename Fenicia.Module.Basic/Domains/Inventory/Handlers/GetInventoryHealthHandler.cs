@@ -3,6 +3,8 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Inventory.Queries;
 using Fenicia.Module.Basic.Domains.Inventory.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
@@ -11,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
 ///     Handler responsible for generating inventory health analysis.
 ///     Identifies overstock products, zero-movement products, and provides health metrics.
 /// </summary>
-public class GetInventoryHealthHandler(DefaultContext db)
+public class GetInventoryHealthHandler(DefaultContext db) : IRequestHandler<GetInventoryHealthQuery, InventoryHealthResponse>
 {
     /// <summary>
     ///     Generates inventory health analysis with alerts and metrics.

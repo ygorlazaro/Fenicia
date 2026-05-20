@@ -10,7 +10,10 @@ using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Customer;
 using Fenicia.Module.Basic.Domains.Customer.Commands;
 using Fenicia.Module.Basic.Domains.Customer.Handlers;
+using Fenicia.Module.Basic.Domains.Customer.Queries;
 using Fenicia.Module.Basic.Domains.Customer.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -40,15 +43,31 @@ public class CustomerControllerTests : IDisposable
         var companyContext = new TestCompanyContext();
         db = new DefaultContext(options, companyContext);
         testCustomerId = Guid.NewGuid();
+
         var getAllCustomerHandler = new GetAllCustomerHandler(db);
         var getCustomerByIdHandler = new GetCustomerByIdHandler(db);
         var addCustomerHandler = new AddCustomerHandler(db);
         var updateCustomerHandler = new UpdateCustomerHandler(db);
         var deleteCustomerHandler = new DeleteCustomerHandler(db);
         var getCustomerInsightsHandler = new GetCustomerInsightsHandler(db);
+
+        var sender = new Mock<ISender>();
+        sender.Setup(x => x.Send(It.IsAny<GetAllCustomerQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetAllCustomerQuery query, CancellationToken ct) => getAllCustomerHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetCustomerByIdQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetCustomerByIdQuery query, CancellationToken ct) => getCustomerByIdHandler.Handle(query, ct));
+        sender.Setup(x => x.Send(It.IsAny<AddCustomerCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((AddCustomerCommand command, CancellationToken ct) => addCustomerHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<UpdateCustomerCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((UpdateCustomerCommand command, CancellationToken ct) => updateCustomerHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<DeleteCustomerCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((DeleteCustomerCommand command, CancellationToken ct) => deleteCustomerHandler.Handle(command, ct));
+        sender.Setup(x => x.Send(It.IsAny<GetCustomerInsightsQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetCustomerInsightsQuery query, CancellationToken ct) => getCustomerInsightsHandler.Handle(query, ct));
+
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new CustomerController(getAllCustomerHandler, getCustomerByIdHandler, addCustomerHandler, updateCustomerHandler, deleteCustomerHandler, getCustomerInsightsHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        controller = new CustomerController(sender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();
@@ -62,7 +81,7 @@ public class CustomerControllerTests : IDisposable
 
     private void SetupUserClaims()
     {
-        var claims = new List<Claim> { new("userId", Guid.NewGuid().ToString()) };;
+        var claims = new List<Claim> { new("userId", Guid.NewGuid().ToString()) };
 
         var claimsIdentity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
@@ -71,22 +90,16 @@ public class CustomerControllerTests : IDisposable
         controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    /// <summary>
-    ///     Tests that when no customers exist in the database, the endpoint returns an empty paginated response.
-    /// </summary>
     [Fact]
     public async Task GetAsync_WhenNoCustomersExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
         const int page = 1;
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -99,13 +112,9 @@ public class CustomerControllerTests : IDisposable
         Assert.Equal(0, returnedCustomers.Total);
     }
 
-    /// <summary>
-    ///     Tests that when customers exist in the database, the endpoint returns them in a paginated response.
-    /// </summary>
     [Fact]
     public async Task GetAsync_WhenCustomersExist_ReturnsOkWithCustomers()
     {
-        // Arrange
         var customer1 = new CustomerModel
         {
             Id = Guid.NewGuid(),
@@ -145,11 +154,9 @@ public class CustomerControllerTests : IDisposable
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -166,13 +173,9 @@ public class CustomerControllerTests : IDisposable
         Assert.Equal(customer2.Person.Email, returnedCustomers.Data[1].Email);
     }
 
-    /// <summary>
-    ///     Tests that when a customer exists, the endpoint returns the customer details.
-    /// </summary>
     [Fact]
     public async Task GetByIdAsync_WhenCustomerExists_ReturnsOkWithCustomer()
     {
-        // Arrange
         var customer = new CustomerModel
         {
             Id = testCustomerId,
@@ -194,11 +197,9 @@ public class CustomerControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(testCustomerId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -213,47 +214,34 @@ public class CustomerControllerTests : IDisposable
         Assert.Equal(customer.Person.Email, returnedCustomer.Email);
     }
 
-    /// <summary>
-    ///     Tests that when a customer does not exist, the endpoint returns NotFound.
-    /// </summary>
     [Fact]
     public async Task GetByIdAsync_WhenCustomerDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    /// <summary>
-    ///     Tests that creating a customer with valid data returns Created result with customer data.
-    /// </summary>
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithCustomer()
     {
-        // Arrange
         var command = new AddCustomerCommand(
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
             faker.Random.Replace("(##) #####-####"),
             null);
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -263,17 +251,13 @@ public class CustomerControllerTests : IDisposable
 
         var returnedCustomer = createdResult.Value as AddCustomerResponse;
         Assert.NotNull(returnedCustomer);
-        Assert.Equal(command.Id, returnedCustomer.Id);
+        Assert.NotEmpty(new[] { returnedCustomer.Id });
         Assert.NotEmpty(new[] { returnedCustomer.PersonId });
     }
 
-    /// <summary>
-    ///     Tests that updating an existing customer returns Ok with the updated customer.
-    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenCustomerExists_ReturnsOkWithUpdatedCustomer()
     {
-        // Arrange
         var customer = new CustomerModel
         {
             Id = testCustomerId,
@@ -294,20 +278,18 @@ public class CustomerControllerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
-            customer.Id, 
-            faker.Person.FullName + " Updated", 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
+            customer.Id,
+            faker.Person.FullName + " Updated",
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
             faker.Random.Replace("(##) #####-####"),
             null);
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, testCustomerId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -319,40 +301,30 @@ public class CustomerControllerTests : IDisposable
         Assert.Equal(command.Id, returnedCustomer.Id);
     }
 
-    /// <summary>
-    ///     Tests that updating a non-existent customer returns NotFound.
-    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenCustomerDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
         var nonExistentId = Guid.NewGuid();
         var command = new UpdateCustomerCommand(
-            nonExistentId, 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
+            nonExistentId,
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
             faker.Random.Replace("(##) #####-####"),
             null);
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
 
-    /// <summary>
-    ///     Tests that deleting an existing customer returns NoContent.
-    /// </summary>
     [Fact]
     public async Task DeleteAsync_WhenCustomerExists_ReturnsNoContent()
     {
-        // Arrange
         var customer = new CustomerModel
         {
             Id = testCustomerId,
@@ -373,82 +345,55 @@ public class CustomerControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(testCustomerId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
 
-        // Verify customer was deleted
         var deletedCustomer = await db.BasicCustomers.FirstOrDefaultAsync(x => testCustomerId == x.Id && x.Deleted == null, CancellationToken.None);
         Assert.Null(deletedCustomer);
     }
 
-    /// <summary>
-    ///     Tests that deleting a non-existent customer returns NoContent.
-    /// </summary>
     [Fact]
     public async Task DeleteAsync_WhenCustomerDoesNotExist_ReturnsNoContent()
     {
-        // Arrange
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
     }
 
-    /// <summary>
-    ///     Tests that the CustomerController has the AuthorizeAttribute applied.
-    /// </summary>
     [Fact]
     public void CustomerController_HasAuthorizeAttribute()
     {
-        // Arrange
         var controllerType = typeof(CustomerController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
-    /// <summary>
-    ///     Tests that the CustomerController has the RouteAttribute with correct template.
-    /// </summary>
     [Fact]
     public void CustomerController_HasRouteAttribute()
     {
-        // Arrange
         var controllerType = typeof(CustomerController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    /// <summary>
-    ///     Tests that the CustomerController has the ApiControllerAttribute applied.
-    /// </summary>
     [Fact]
     public void CustomerController_HasApiControllerAttribute()
     {
-        // Arrange
         var controllerType = typeof(CustomerController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 }

@@ -2,12 +2,13 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.Commands;
 using Fenicia.Module.Basic.Domains.Product.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Product.Handlers;
 
-public class UpdateProductHandler(DefaultContext db)
+public class UpdateProductHandler(DefaultContext db) : IRequestHandler<UpdateProductCommand, UpdateProductResponse?>
 {
     public async Task<UpdateProductResponse?> Handle(UpdateProductCommand command, CancellationToken ct)
     {

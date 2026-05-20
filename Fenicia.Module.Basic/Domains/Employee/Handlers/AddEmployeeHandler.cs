@@ -4,13 +4,15 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
 
+using MediatR;
+
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 
 /// <summary>
 ///     Handler responsible for creating new employees in the system.
 ///     Creates both the employee record and associated person record.
 /// </summary>
-public class AddEmployeeHandler(DefaultContext db)
+public class AddEmployeeHandler(DefaultContext db) : IRequestHandler<AddEmployeeCommand, AddEmployeeResponse>
 {
     /// <summary>
     ///     Creates a new employee with the provided command data.

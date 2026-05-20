@@ -3,6 +3,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Customer.Queries;
 using Fenicia.Module.Basic.Domains.Customer.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
@@ -11,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 ///     Handler responsible for retrieving all customers with pagination.
 ///     Returns a paginated list of customers including their associated person details.
 /// </summary>
-public class GetAllCustomerHandler(DefaultContext db)
+public class GetAllCustomerHandler(DefaultContext db) : IRequestHandler<GetAllCustomerQuery, Pagination<List<GetAllCustomerResponse>>>
 {
     /// <summary>
     ///     Retrieves a paginated list of all customers.
@@ -36,13 +38,13 @@ public class GetAllCustomerHandler(DefaultContext db)
         {
             var personAddress = c.Person.PersonAddresses.FirstOrDefault();
             var address = personAddress?.Address;
-            
+
             return new GetAllCustomerResponse(
-                c.Id, 
-                c.PersonId, 
-                c.Person.Name, 
-                c.Person.Email, 
-                c.Person.PhoneNumber, 
+                c.Id,
+                c.PersonId,
+                c.Person.Name,
+                c.Person.Email,
+                c.Person.PhoneNumber,
                 c.Person.Document,
                 address != null ? new AddressResponse(
                     address.Id,

@@ -2,6 +2,7 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Product.Queries;
 using Fenicia.Module.Basic.Domains.Product.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -12,7 +13,7 @@ namespace Fenicia.Module.Basic.Domains.Product.Handlers;
 ///     Handler responsible for retrieving product performance metrics.
 ///     Provides analysis including best-selling, worst-selling, never sold products, and profit margins.
 /// </summary>
-public class GetProductPerformanceHandler(DefaultContext db)
+public class GetProductPerformanceHandler(DefaultContext db) : IRequestHandler<GetProductPerformanceQuery, ProductPerformanceResponse>
 {
     /// <summary>
     ///     Retrieves product performance metrics for a given time period.

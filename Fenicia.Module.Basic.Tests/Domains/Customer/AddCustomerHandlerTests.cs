@@ -45,11 +45,10 @@ public class AddCustomerHandlerTests : IDisposable
     {
         // Arrange
         var command = new AddCustomerCommand(
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
             null);
 
         // Act
@@ -57,7 +56,7 @@ public class AddCustomerHandlerTests : IDisposable
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(command.Id, result.Id);
+        Assert.NotEmpty(new[] { result.Id });
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
@@ -69,11 +68,10 @@ public class AddCustomerHandlerTests : IDisposable
     {
         // Arrange
         var command = new AddCustomerCommand(
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            null, 
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            null,
             null);
 
         // Act
@@ -91,18 +89,17 @@ public class AddCustomerHandlerTests : IDisposable
     {
         // Arrange
         var command = new AddCustomerCommand(
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
             null);
 
         // Act
-        await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        var customer = await db.BasicCustomers.Include(c => c.Person).FirstOrDefaultAsync(c => c.Id == command.Id);
+        var customer = await db.BasicCustomers.Include(c => c.Person).FirstOrDefaultAsync(c => c.Id == result.Id);
 
         Assert.NotNull(customer);
         Assert.Equal(command.Name, customer.Person.Name);
@@ -117,19 +114,17 @@ public class AddCustomerHandlerTests : IDisposable
     {
         // Arrange
         var command1 = new AddCustomerCommand(
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            null, 
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            null,
             null);
 
         var command2 = new AddCustomerCommand(
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            null, 
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            null,
             null);
 
         // Act
@@ -170,11 +165,10 @@ public class AddCustomerHandlerTests : IDisposable
         );
 
         var command = new AddCustomerCommand(
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
             addressDto);
 
         // Act

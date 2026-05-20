@@ -3,6 +3,8 @@ using Fenicia.Common.API.Startup;
 using Fenicia.Common.Data;
 using Fenicia.Common.Data.Contexts;
 
+using MediatR;
+
 namespace Fenicia.Module.Basic;
 
 public abstract class Program
@@ -10,6 +12,8 @@ public abstract class Program
     public static void Main(string[] args)
     {
         var tenantId = FeniciaModuleLoader.Load(args, out var configuration, out var builder);
+
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
         builder.AddFeniciaLogging().AddFeniciaRateLimiting(configuration).AddFeniciaCors().AddFeniciaAuthentication(configuration).AddFeniciaControllers().AddFeniciaLocalization().AddFeniciaDependencyInjection(() =>
         {

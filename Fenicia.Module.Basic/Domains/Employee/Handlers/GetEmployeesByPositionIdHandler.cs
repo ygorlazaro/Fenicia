@@ -4,6 +4,8 @@ using Fenicia.Module.Basic.Domains.Customer.Responses;
 using Fenicia.Module.Basic.Domains.Employee.Queries;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
@@ -12,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 ///     Handler responsible for retrieving employees filtered by position ID.
 ///     Returns a paginated list of employees with the specified position.
 /// </summary>
-public class GetEmployeesByPositionIdHandler(DefaultContext db)
+public class GetEmployeesByPositionIdHandler(DefaultContext db) : IRequestHandler<GetEmployeesByPositionIdQuery, Pagination<List<GetEmployeesByPositionIdResponse>>>
 {
     /// <summary>
     ///     Retrieves employees filtered by position ID with pagination.

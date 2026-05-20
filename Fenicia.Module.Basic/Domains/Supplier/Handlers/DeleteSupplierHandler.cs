@@ -1,5 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Supplier.Commands;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,7 @@ namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 /// <summary>
 ///     Handler responsible for deleting a supplier (soft delete).
 /// </summary>
-public class DeleteSupplierHandler(DefaultContext db)
+public class DeleteSupplierHandler(DefaultContext db) : IRequestHandler<DeleteSupplierCommand>
 {
     /// <summary>
     ///     Deletes a supplier by setting its Deleted timestamp.

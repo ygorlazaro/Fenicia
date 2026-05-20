@@ -8,7 +8,10 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Common.Tests;
 using Fenicia.Module.Basic.Domains.Inventory;
 using Fenicia.Module.Basic.Domains.Inventory.Handlers;
+using Fenicia.Module.Basic.Domains.Inventory.Queries;
 using Fenicia.Module.Basic.Domains.Inventory.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +32,7 @@ public class InventoryControllerTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Mock<ISender> mockSender;
     private readonly Guid testCategoryId;
     private readonly Guid testProductId;
     private readonly WideEventContext wide;
@@ -47,9 +51,25 @@ public class InventoryControllerTests : IDisposable
         var getInventoryByCategoryHandler = new GetInventoryByCategoryHandler(db);
         var getInventoryDashboardHandler = new GetInventoryDashboardHandler(db);
         var getInventoryHealthHandler = new GetInventoryHealthHandler(db);
+        mockSender = new Mock<ISender>();
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new InventoryController(getInventoryHandler, getInventoryByProductHandler, getInventoryByCategoryHandler, getInventoryDashboardHandler, getInventoryHealthHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        mockSender.Setup(s => s.Send(It.IsAny<GetInventoryQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetInventoryQuery query, CancellationToken ct) => getInventoryHandler.Handle(query, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<GetInventoryByProductQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetInventoryByProductQuery query, CancellationToken ct) => getInventoryByProductHandler.Handle(query, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<GetInventoryByCategoryQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetInventoryByCategoryQuery query, CancellationToken ct) => getInventoryByCategoryHandler.Handle(query, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<GetInventoryDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetInventoryDashboardQuery query, CancellationToken ct) => getInventoryDashboardHandler.Handle(query, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<GetInventoryHealthQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetInventoryHealthQuery query, CancellationToken ct) => getInventoryHealthHandler.Handle(query, ct));
+
+        controller = new InventoryController(mockSender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims();
         faker = new Faker();

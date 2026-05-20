@@ -1,8 +1,8 @@
 using System.Net.Mime;
+using MediatR;
 
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.StockMovement.Commands;
-using Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 using Fenicia.Module.Basic.Domains.StockMovement.Queries;
 using Fenicia.Module.Basic.Domains.StockMovement.Responses;
 
@@ -23,7 +23,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement;
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class StockMovementController(GetStockMovementHandler getStockMovementHandler, AddStockMovementHandler addStockMovementHandler, UpdateStockMovementHandler updateStockMovementHandler, GetStockMovementDashboardHandler getStockMovementDashboardHandler) : ControllerBase
+public class StockMovementController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves a paginated list of stock movements filtered by date range.
@@ -44,7 +44,7 @@ public class StockMovementController(GetStockMovementHandler getStockMovementHan
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var stockMovement = await getStockMovementHandler.Handle(new GetStockMovementQuery(query.StartDate, query.EndDate, query.Page, query.PerPage), ct);
+            var stockMovement = await sender.Send(new GetStockMovementQuery(query.StartDate, query.EndDate, query.Page, query.PerPage), ct);
 
             return Ok(stockMovement);
         }
@@ -75,7 +75,7 @@ public class StockMovementController(GetStockMovementHandler getStockMovementHan
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var stockMovement = await addStockMovementHandler.Handle(command, ct);
+            var stockMovement = await sender.Send(command, ct);
 
             return new CreatedResult(string.Empty, stockMovement);
         }
@@ -113,7 +113,7 @@ public class StockMovementController(GetStockMovementHandler getStockMovementHan
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var stockMovement = await updateStockMovementHandler.Handle(command with { Id = id }, ct);
+            var stockMovement = await sender.Send(command with { Id = id }, ct);
 
             return stockMovement is null ? NotFound() : new CreatedResult(string.Empty, stockMovement);
         }
@@ -143,7 +143,7 @@ public class StockMovementController(GetStockMovementHandler getStockMovementHan
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await getStockMovementDashboardHandler.Handle(new GetStockMovementDashboardQuery(days, topLimit), ct);
+            var dashboard = await sender.Send(new GetStockMovementDashboardQuery(days, topLimit), ct);
 
             return Ok(dashboard);
         }

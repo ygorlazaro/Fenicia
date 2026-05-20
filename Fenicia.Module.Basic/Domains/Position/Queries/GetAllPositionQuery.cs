@@ -1,6 +1,11 @@
+using Fenicia.Common;
+using Fenicia.Module.Basic.Domains.Position.Responses;
+
+using MediatR;
+
 namespace Fenicia.Module.Basic.Domains.Position.Queries;
 
 /// <summary>
 ///     Query to retrieve all positions with pagination.
 /// </summary>
-public record GetAllPositionQuery(int Page = 1, int PerPage = 10);
+public record GetAllPositionQuery(int Page = 1, int PerPage = 10) : IRequest<Pagination<List<GetAllPositionResponse>>>;

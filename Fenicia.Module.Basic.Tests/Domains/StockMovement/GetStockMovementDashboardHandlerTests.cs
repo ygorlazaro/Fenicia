@@ -700,7 +700,7 @@ public class GetStockMovementDashboardHandlerTests : IDisposable
         db.BasicProducts.Add(product);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        var query = new GetStockMovementDashboardQuery(60);
+        var query = new GetStockMovementDashboardQuery(400);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);

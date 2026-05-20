@@ -4,6 +4,7 @@ using Fenicia.Common.Enums.Basic;
 using Fenicia.Common.Localization;
 using Fenicia.Module.Basic.Domains.StockMovement.Commands;
 using Fenicia.Module.Basic.Domains.StockMovement.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 ///     Handler responsible for creating a new stock movement.
 ///     Also updates the product quantity based on the movement type (In/Out).
 /// </summary>
-public class AddStockMovementHandler(DefaultContext db)
+public class AddStockMovementHandler(DefaultContext db) : IRequestHandler<AddStockMovementCommand, AddStockMovementResponse>
 {
     /// <summary>
     ///     Creates a new stock movement and updates product quantity.

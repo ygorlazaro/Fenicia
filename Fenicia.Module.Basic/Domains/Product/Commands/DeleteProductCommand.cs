@@ -1,3 +1,5 @@
+using MediatR;
+
 namespace Fenicia.Module.Basic.Domains.Product.Commands;
 
 /// <summary>
@@ -7,4 +9,4 @@ public record DeleteProductCommand(
     /// <summary>
     /// Unique identifier of the product to delete.
     /// </summary>
-    Guid Id);
+    Guid Id) : IRequest;

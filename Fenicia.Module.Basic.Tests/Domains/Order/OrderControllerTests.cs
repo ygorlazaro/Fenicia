@@ -13,7 +13,10 @@ using Fenicia.Module.Basic.Domains.Order.Commands;
 using Fenicia.Module.Basic.Domains.Order.Handlers;
 using Fenicia.Module.Basic.Domains.Order.Responses;
 using Fenicia.Module.Basic.Domains.OrderDetail.Handlers;
+using Fenicia.Module.Basic.Domains.OrderDetail.Queries;
 using Fenicia.Module.Basic.Domains.OrderDetail.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +37,7 @@ public class OrderControllerTests : IDisposable
     private readonly DefaultContext db;
     private readonly Faker faker;
     private readonly Mock<HttpContext> mockHttpContext;
+    private readonly Mock<ISender> mockSender;
     private readonly Guid testCustomerId;
     private readonly Guid testOrderId;
     private readonly Guid testUserId;
@@ -49,13 +53,16 @@ public class OrderControllerTests : IDisposable
         testCustomerId = Guid.NewGuid();
         var createOrderHandler = new CreateOrderHandler(db);
         var getOrderDetailsByOrderIdHandler = new GetOrderDetailsByOrderIdHandler(db);
-        var getAllOrderHandler = new GetAllOrderHandler(db);
-        var getOrderByIdHandler = new GetOrderByIdHandler(db);
-        var deleteOrderHandler = new DeleteOrderHandler(db);
-        var getOrderAnalyticsHandler = new GetOrderAnalyticsHandler(db);
+        mockSender = new Mock<ISender>();
         mockHttpContext = new Mock<HttpContext>();
 
-        controller = new OrderController(getAllOrderHandler, getOrderByIdHandler, createOrderHandler, deleteOrderHandler, getOrderDetailsByOrderIdHandler, getOrderAnalyticsHandler) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
+        mockSender.Setup(s => s.Send(It.IsAny<CreateOrderCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((CreateOrderCommand command, CancellationToken ct) => createOrderHandler.Handle(command, ct));
+
+        mockSender.Setup(s => s.Send(It.IsAny<GetOrderDetailsByOrderIdQuery>(), It.IsAny<CancellationToken>()))
+            .Returns((GetOrderDetailsByOrderIdQuery query, CancellationToken ct) => getOrderDetailsByOrderIdHandler.Handle(query, ct));
+
+        controller = new OrderController(mockSender.Object) { ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object } };
 
         SetupUserClaims(testUserId);
         faker = new Faker();

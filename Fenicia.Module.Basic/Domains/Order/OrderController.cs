@@ -3,12 +3,12 @@ using System.Net.Mime;
 using Fenicia.Common;
 using Fenicia.Common.API;
 using Fenicia.Module.Basic.Domains.Order.Commands;
-using Fenicia.Module.Basic.Domains.Order.Handlers;
 using Fenicia.Module.Basic.Domains.Order.Queries;
 using Fenicia.Module.Basic.Domains.Order.Responses;
-using Fenicia.Module.Basic.Domains.OrderDetail.Handlers;
 using Fenicia.Module.Basic.Domains.OrderDetail.Queries;
 using Fenicia.Module.Basic.Domains.OrderDetail.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +37,7 @@ namespace Fenicia.Module.Basic.Domains.Order;
 [Authorize]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderByIdHandler getOrderByIdHandler, CreateOrderHandler createOrderHandler, DeleteOrderHandler deleteOrderHandler, GetOrderDetailsByOrderIdHandler getOrderDetailsByOrderIdHandler, GetOrderAnalyticsHandler getOrderAnalyticsHandler) : ControllerBase
+public class OrderController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves a paginated list of all orders.
@@ -59,7 +59,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var orders = await getAllOrderHandler.Handle(new GetAllOrderQuery(page, perPage), ct);
+            var orders = await sender.Send(new GetAllOrderQuery(page, perPage), ct);
 
             return Ok(orders);
         }
@@ -90,7 +90,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var order = await getOrderByIdHandler.Handle(new GetOrderByIdQuery(id), ct);
+            var order = await sender.Send(new GetOrderByIdQuery(id), ct);
 
             return order is null ? NotFound() : Ok(order);
         }
@@ -128,7 +128,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
             wide.UserId = ClaimReader.UserId(User).ToString();
 
             var userId = ClaimReader.UserId(User);
-            var order = await createOrderHandler.Handle(command with { UserId = userId }, ct);
+            var order = await sender.Send(command with { UserId = userId }, ct);
 
             return new CreatedResult(string.Empty, order);
         }
@@ -164,7 +164,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            await deleteOrderHandler.Handle(new DeleteOrderCommand(id), ct);
+            await sender.Send(new DeleteOrderCommand(id), ct);
 
             return NoContent();
         }
@@ -193,7 +193,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var details = await getOrderDetailsByOrderIdHandler.Handle(new GetOrderDetailsByOrderIdQuery(id), ct);
+            var details = await sender.Send(new GetOrderDetailsByOrderIdQuery(id), ct);
 
             return Ok(details);
         }
@@ -231,7 +231,7 @@ public class OrderController(GetAllOrderHandler getAllOrderHandler, GetOrderById
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var analytics = await getOrderAnalyticsHandler.Handle(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
+            var analytics = await sender.Send(new GetOrderAnalyticsQuery(days, topCustomersLimit), ct);
 
             return Ok(analytics);
         }

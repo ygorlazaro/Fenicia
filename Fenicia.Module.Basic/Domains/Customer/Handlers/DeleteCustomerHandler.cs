@@ -1,6 +1,8 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Customer.Commands;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
@@ -9,7 +11,7 @@ namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 ///     Handler responsible for deleting (soft delete) a customer.
 ///     Performs a soft delete by setting the Deleted timestamp.
 /// </summary>
-public class DeleteCustomerHandler(DefaultContext db)
+public class DeleteCustomerHandler(DefaultContext db) : IRequestHandler<DeleteCustomerCommand>
 {
     /// <summary>
     ///     Soft deletes a customer by setting the Deleted timestamp to current time.

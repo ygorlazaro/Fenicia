@@ -1,5 +1,6 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Product.Commands;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ namespace Fenicia.Module.Basic.Domains.Product.Handlers;
 ///     Handler responsible for deleting a product (soft delete).
 ///     Sets the Deleted timestamp to mark the product as removed.
 /// </summary>
-public class DeleteProductHandler(DefaultContext db)
+public class DeleteProductHandler(DefaultContext db) : IRequestHandler<DeleteProductCommand>
 {
     /// <summary>
     ///     Deletes a product by setting its Deleted timestamp.

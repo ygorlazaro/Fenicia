@@ -4,6 +4,8 @@ using Fenicia.Common.Data.Models.Basic;
 using Fenicia.Module.Basic.Domains.Employee.Commands;
 using Fenicia.Module.Basic.Domains.Employee.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
@@ -12,7 +14,7 @@ namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 ///     Handler responsible for updating existing employee information.
 ///     Updates both the employee and associated person records.
 /// </summary>
-public class UpdateEmployeeHandler(DefaultContext db)
+public class UpdateEmployeeHandler(DefaultContext db) : IRequestHandler<UpdateEmployeeCommand, UpdateEmployeeResponse?>
 {
     /// <summary>
     ///     Updates an existing employee's information.

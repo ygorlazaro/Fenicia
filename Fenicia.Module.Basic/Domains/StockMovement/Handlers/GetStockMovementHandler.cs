@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.StockMovement.Queries;
 using Fenicia.Module.Basic.Domains.StockMovement.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 ///     Handler responsible for retrieving stock movements filtered by date range.
 ///     Returns a paginated list of movements with related entity information.
 /// </summary>
-public class GetStockMovementHandler(DefaultContext context)
+public class GetStockMovementHandler(DefaultContext context) : IRequestHandler<GetStockMovementQuery, List<GetStockMovementResponse>>
 {
     /// <summary>
     ///     Retrieves stock movements by date range with pagination.

@@ -1,6 +1,7 @@
 using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.StockMovement.Commands;
 using Fenicia.Module.Basic.Domains.StockMovement.Responses;
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ namespace Fenicia.Module.Basic.Domains.StockMovement.Handlers;
 /// <summary>
 ///     Handler responsible for updating an existing stock movement.
 /// </summary>
-public class UpdateStockMovementHandler(DefaultContext db)
+public class UpdateStockMovementHandler(DefaultContext db) : IRequestHandler<UpdateStockMovementCommand, UpdateStockMovementResponse?>
 {
     /// <summary>
     ///     Updates an existing stock movement.

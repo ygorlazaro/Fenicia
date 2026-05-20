@@ -2,6 +2,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Customer.Queries;
 using Fenicia.Module.Basic.Domains.Customer.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
@@ -10,7 +12,7 @@ namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 ///     Handler responsible for retrieving a specific customer by their unique identifier.
 ///     Returns customer details including associated person information.
 /// </summary>
-public class GetCustomerByIdHandler(DefaultContext db)
+public class GetCustomerByIdHandler(DefaultContext db) : IRequestHandler<GetCustomerByIdQuery, GetCustomerByIdResponse?>
 {
     /// <summary>
     ///     Retrieves a customer by their unique identifier.
@@ -34,11 +36,11 @@ public class GetCustomerByIdHandler(DefaultContext db)
         var address = personAddress?.Address;
 
         return new GetCustomerByIdResponse(
-            customer.Id, 
-            customer.PersonId, 
-            customer.Person.Name, 
-            customer.Person.Email, 
-            customer.Person.PhoneNumber, 
+            customer.Id,
+            customer.PersonId,
+            customer.Person.Name,
+            customer.Person.Email,
+            customer.Person.PhoneNumber,
             customer.Person.Document,
             address != null ? new AddressResponse(
                 address.Id,

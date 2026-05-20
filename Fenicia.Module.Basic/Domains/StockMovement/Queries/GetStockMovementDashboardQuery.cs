@@ -1,3 +1,6 @@
+using MediatR;
+using Fenicia.Module.Basic.Domains.StockMovement.Responses;
+
 namespace Fenicia.Module.Basic.Domains.StockMovement.Queries;
 
 /// <summary>
@@ -11,4 +14,4 @@ public record GetStockMovementDashboardQuery(
     /// <summary>
     /// Number of top products to return.
     /// </summary>
-    int TopLimit = 10);
+    int TopLimit = 10) : IRequest<StockMovementDashboardResponse>;

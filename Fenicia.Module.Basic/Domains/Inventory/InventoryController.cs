@@ -1,9 +1,10 @@
 using System.Net.Mime;
 
 using Fenicia.Common.API;
-using Fenicia.Module.Basic.Domains.Inventory.Handlers;
 using Fenicia.Module.Basic.Domains.Inventory.Queries;
 using Fenicia.Module.Basic.Domains.Inventory.Responses;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 [Authorize]
 [Produces(MediaTypeNames.Application.Json)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class InventoryController(GetInventoryHandler getInventoryHandler, GetInventoryByProductHandler getInventoryByProductHandler, GetInventoryByCategoryHandler getInventoryByCategoryHandler, GetInventoryDashboardHandler getInventoryDashboardHandler, GetInventoryHealthHandler getInventoryHealthHandler) : ControllerBase
+public class InventoryController(ISender sender) : ControllerBase
 {
     /// <summary>
     ///     Retrieves inventory data for a specific product.
@@ -43,7 +44,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await getInventoryByProductHandler.Handle(new GetInventoryByProductQuery(productId), ct);
+            var inventory = await sender.Send(new GetInventoryByProductQuery(productId), ct);
 
             return Ok(inventory);
         }
@@ -72,7 +73,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await getInventoryByCategoryHandler.Handle(new GetInventoryByCategoryQuery(categoryId), ct);
+            var inventory = await sender.Send(new GetInventoryByCategoryQuery(categoryId), ct);
 
             return Ok(inventory);
         }
@@ -102,7 +103,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var inventory = await getInventoryHandler.Handle(new GetInventoryQuery(page, perPage), ct);
+            var inventory = await sender.Send(new GetInventoryQuery(page, perPage), ct);
 
             return Ok(inventory);
         }
@@ -130,7 +131,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var dashboard = await getInventoryDashboardHandler.Handle(ct);
+            var dashboard = await sender.Send(new GetInventoryDashboardQuery(), ct);
 
             return Ok(dashboard);
         }
@@ -160,7 +161,7 @@ public class InventoryController(GetInventoryHandler getInventoryHandler, GetInv
         {
             wide.UserId = ClaimReader.UserId(User).ToString();
 
-            var health = await getInventoryHealthHandler.Handle(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), ct);
+            var health = await sender.Send(new GetInventoryHealthQuery(zeroMovementDays, overstockMultiplier), ct);
 
             return Ok(health);
         }

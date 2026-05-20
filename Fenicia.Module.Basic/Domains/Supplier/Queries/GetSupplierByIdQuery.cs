@@ -1,3 +1,6 @@
+using MediatR;
+using Fenicia.Module.Basic.Domains.Supplier.Responses;
+
 namespace Fenicia.Module.Basic.Domains.Supplier.Queries;
 
 /// <summary>
@@ -7,4 +10,4 @@ public record GetSupplierByIdQuery(
     /// <summary>
     /// Unique identifier of the supplier.
     /// </summary>
-    Guid Id);
+    Guid Id) : IRequest<GetSupplierByIdResponse?>;

@@ -1,5 +1,8 @@
 using Fenicia.Common.Data.Contexts;
+using Fenicia.Module.Basic.Domains.Inventory.Queries;
 using Fenicia.Module.Basic.Domains.Inventory.Responses;
+
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,14 +12,14 @@ namespace Fenicia.Module.Basic.Domains.Inventory.Handlers;
 ///     Handler responsible for generating inventory dashboard data.
 ///     Provides overview metrics including low stock items, totals, and breakdowns.
 /// </summary>
-public class GetInventoryDashboardHandler(DefaultContext db)
+public class GetInventoryDashboardHandler(DefaultContext db) : IRequestHandler<GetInventoryDashboardQuery, InventoryDashboardResponse>
 {
     /// <summary>
     ///     Generates inventory dashboard with key metrics and breakdowns.
     /// </summary>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Inventory dashboard with metrics, low stock items, and breakdowns.</returns>
-    public async Task<InventoryDashboardResponse> Handle(CancellationToken ct)
+    public async Task<InventoryDashboardResponse> Handle(GetInventoryDashboardQuery query, CancellationToken ct)
     {
         var lowStockItems = await GetInventoryDashboardItemAsync(ct);
         var totalCustomers = await db.BasicCustomers.CountAsync(ct);

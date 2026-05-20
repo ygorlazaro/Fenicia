@@ -2,6 +2,8 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Customer.Queries;
 using Fenicia.Module.Basic.Domains.Customer.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
@@ -10,7 +12,7 @@ namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 ///     Handler responsible for generating customer analytics and insights.
 ///     Provides business intelligence including top customers, risk alerts, and order statistics.
 /// </summary>
-public class GetCustomerInsightsHandler(DefaultContext db)
+public class GetCustomerInsightsHandler(DefaultContext db) : IRequestHandler<GetCustomerInsightsQuery, CustomerInsightsResponse>
 {
     /// <summary>
     ///     Generates comprehensive customer analytics based on the provided query parameters.

@@ -108,9 +108,9 @@ public class AddProductHandlerTests : IDisposable
     public async Task Handle_WithMultipleCommands_AddsAllProducts()
     {
         // Arrange
-        var command1 = new AddProductCommand(Guid.NewGuid(), "Product 1", "SKU001", "123456789", "Description", 10.00m, 20.00m, 100, 5, 200, null, 1.5f, "10x10x10", "un", Guid.NewGuid(), null);
+        var command1 = new AddProductCommand(Guid.NewGuid(), "Product 1", "SKU001", "123456789", "Description", 10.00m, 20.00m, 100, 5, 200, null, 1.5m, "10x10x10", "un", Guid.NewGuid(), null);
 
-        var command2 = new AddProductCommand(Guid.NewGuid(), "Product 2", "SKU002", "987654321", "Description", 15.00m, 25.00m, 50, 10, 150, null, 2.0f, "20x20x20", "kg", Guid.NewGuid(), null);
+        var command2 = new AddProductCommand(Guid.NewGuid(), "Product 2", "SKU002", "987654321", "Description", 15.00m, 25.00m, 50, 10, 150, null, 2.0m, "20x20x20", "kg", Guid.NewGuid(), null);
 
         // Act
         await handler.Handle(command1, CancellationToken.None);

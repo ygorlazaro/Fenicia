@@ -2,11 +2,13 @@ using Fenicia.Common.Data.Contexts;
 using Fenicia.Module.Basic.Domains.Order.Queries;
 using Fenicia.Module.Basic.Domains.Order.Responses;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 
-public class GetOrderByIdHandler(DefaultContext db)
+public class GetOrderByIdHandler(DefaultContext db) : IRequestHandler<GetOrderByIdQuery, GetOrderByIdResponse?>
 {
     public async Task<GetOrderByIdResponse?> Handle(GetOrderByIdQuery query, CancellationToken ct)
     {
