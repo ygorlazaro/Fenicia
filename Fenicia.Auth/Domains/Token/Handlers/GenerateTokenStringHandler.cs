@@ -11,28 +11,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Fenicia.Auth.Domains.Token.Handlers;
 
-/// <summary>
-///     Handler responsible for generating JWT token strings.
-///     Creates signed JWT tokens with user claims.
-/// </summary>
 public class GenerateTokenStringHandler(IConfiguration configuration) : IRequestHandler<GenerateTokenStringQuery, string>
 {
-    /// <summary>
-    ///     Generates a JWT token for the given user.
-    /// </summary>
-    /// <param name="user">User information to encode in the token.</param>
-    /// <returns>JWT token string.</returns>
-    /// <remarks>
-    ///     Token includes:
-    ///     - userId claim
-    ///     - email claim
-    ///     - name claim (unique_name)
-    ///     - JWT ID (jti)
-    ///     - companyId claim (if present)
-    ///     - role claims (if present)
-    ///     - module claims (if present)
-    ///     Token expires in 3 hours.
-    /// </remarks>
+
     public string Handle(GenerateTokenResponse user)
     {
         var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? throw new InvalidOperationException());

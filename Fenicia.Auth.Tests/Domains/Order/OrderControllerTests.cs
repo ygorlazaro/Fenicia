@@ -24,10 +24,6 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Order;
 
-/// <summary>
-///     Unit tests for the OrderController in Auth module.
-///     Tests the HTTP endpoint for creating module subscription orders.
-/// </summary>
 public class OrderControllerTests : IDisposable
 {
     private readonly OrderController controller;
@@ -75,13 +71,10 @@ public class OrderControllerTests : IDisposable
         controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    /// <summary>
-    ///     Tests that a user not belonging to the company throws PermissionDeniedException.
-    /// </summary>
     [Fact]
     public async Task CreateNewOrderAsync_WhenUserDoesNotBelongToCompany_ReturnsForbid()
     {
-        // Arrange
+
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -89,20 +82,15 @@ public class OrderControllerTests : IDisposable
         var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
         var headers = new Headers { CompanyId = testCompanyId };
 
-        // Act
         var result = await controller.CreateNewOrderAsync(command, headers, wide, ct);
 
-        // Assert
         Assert.IsType<ForbidResult>(result.Result);
     }
 
-    /// <summary>
-    ///     Tests that requesting non-existent modules throws ItemNotExistsException.
-    /// </summary>
     [Fact]
     public async Task CreateNewOrderAsync_WhenModulesDoNotExist_ThrowsItemNotExistsException()
     {
-        // Arrange
+
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -139,20 +127,15 @@ public class OrderControllerTests : IDisposable
         var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
         var headers = new Headers { CompanyId = testCompanyId };
 
-        // Act
         var result = await controller.CreateNewOrderAsync(command, headers, wide, ct);
 
-        // Assert
         Assert.IsType<NotFoundObjectResult>(result.Result);
     }
 
-    /// <summary>
-    ///     Tests that a valid request returns OK with the created order.
-    /// </summary>
     [Fact]
     public async Task CreateNewOrderAsync_WhenValidRequest_ReturnsOkWithOrder()
     {
-        // Arrange
+
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -200,10 +183,8 @@ public class OrderControllerTests : IDisposable
         var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
         var headers = new Headers { CompanyId = testCompanyId };
 
-        // Act
         var result = await controller.CreateNewOrderAsync(command, headers, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -217,7 +198,6 @@ public class OrderControllerTests : IDisposable
         Assert.NotEqual(Guid.Empty, returnedResponse.OrderId);
         Assert.Equal(testUserId.ToString(), wide.UserId);
 
-        // Verify order was created
         var createdOrder = await db.AuthOrders.FirstOrDefaultAsync(o => o.Id == returnedResponse.OrderId, ct);
         Assert.NotNull(createdOrder);
 
@@ -225,13 +205,10 @@ public class OrderControllerTests : IDisposable
         Assert.Equal(testCompanyId, createdOrder.CompanyId);
     }
 
-    /// <summary>
-    ///     Tests that WideEventContext UserId is set from the authenticated user.
-    /// </summary>
     [Fact]
     public async Task CreateNewOrderAsync_SetsWideEventContextUserId()
     {
-        // Arrange
+
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
@@ -279,59 +256,42 @@ public class OrderControllerTests : IDisposable
         var command = new CreateNewOrderCommand(testUserId, testCompanyId, modules);
         var headers = new Headers { CompanyId = testCompanyId };
 
-        // Act
         await controller.CreateNewOrderAsync(command, headers, wide, ct);
 
-        // Assert
         Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
-    /// <summary>
-    ///     Tests that the controller has the AuthorizeAttribute applied.
-    /// </summary>
     [Fact]
     public void OrderController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(OrderController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
-    /// <summary>
-    ///     Tests that the controller has the RouteAttribute with [controller] template.
-    /// </summary>
     [Fact]
     public void OrderController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(OrderController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    /// <summary>
-    ///     Tests that the controller has the ProducesAttribute with application/json content type.
-    /// </summary>
     [Fact]
     public void OrderController_HasProducesAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(OrderController);
 
-        // Act
         var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
-        // Assert
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
     }

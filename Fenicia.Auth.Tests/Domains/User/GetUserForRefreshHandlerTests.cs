@@ -35,7 +35,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserExists_ReturnsUserResponse()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var name = faker.Person.FullName;
@@ -51,10 +51,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(userId, result.Id);
@@ -65,10 +63,9 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserDoesNotExist_ThrowsUnauthorizedAccessException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(userId, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
@@ -76,7 +73,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsCorrectUser()
     {
-        // Arrange
+
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
         const string email1 = "user1@example.com";
@@ -103,10 +100,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
         db.AuthUsers.AddRange(user1, user2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(userId1, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(userId1, result.Id);
@@ -116,10 +111,9 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ThrowsUnauthorizedAccessException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(userId, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
@@ -127,7 +121,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_ResponseDoesNotIncludePassword()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var name = faker.Person.FullName;
@@ -144,10 +138,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotNull(result.Email);
     }
@@ -155,7 +147,7 @@ public class GetUserForRefreshHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesResponseContainsAllExpectedFields()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var email = faker.Internet.Email();
         var name = faker.Person.FullName;
@@ -171,10 +163,8 @@ public class GetUserForRefreshHandlerTests : IDisposable
         db.AuthUsers.Add(user);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.NotEqual(Guid.Empty, result.Id);

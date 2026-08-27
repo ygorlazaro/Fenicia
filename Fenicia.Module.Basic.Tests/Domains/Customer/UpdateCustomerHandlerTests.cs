@@ -12,10 +12,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
-/// <summary>
-///     Unit tests for the UpdateCustomerHandler.
-///     Tests customer update business logic including validation and data persistence.
-/// </summary>
 public class UpdateCustomerHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -38,13 +34,10 @@ public class UpdateCustomerHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    ///     Tests that updating an existing customer successfully updates the data and returns response.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerExists_UpdatesCustomerAndReturnsResponse()
     {
-        // Arrange
+
         var customerId = Guid.NewGuid();
         var customer = new CustomerModel
         {
@@ -64,73 +57,58 @@ public class UpdateCustomerHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
-            customerId, 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            customerId,
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(customer.Person.Id, result.PersonId);
         Assert.Equal(customerId, result.Id);
     }
 
-    /// <summary>
-    ///     Tests that updating a non-existent customer returns null.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateCustomerCommand(
-            Guid.NewGuid(), 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            Guid.NewGuid(),
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
-    /// <summary>
-    ///     Tests that updating with an empty database returns null.
-    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateCustomerCommand(
-            Guid.NewGuid(), 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            Guid.NewGuid(),
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
-    /// <summary>
-    ///     Tests that updating a customer with null phone number is handled correctly.
-    /// </summary>
     [Fact]
     public async Task Handle_WithNullPhoneNumber_SetsEmptyString()
     {
-        // Arrange
+
         var customerId = Guid.NewGuid();
         var customer = new CustomerModel
         {
@@ -150,28 +128,23 @@ public class UpdateCustomerHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
-            customerId, 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            null, 
+            customerId,
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            null,
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(new[] { result.PersonId });
     }
 
-    /// <summary>
-    ///     Tests that the customer update is actually persisted to the database.
-    /// </summary>
     [Fact]
     public async Task Handle_VerifiesCustomerWasUpdatedInDatabase()
     {
-        // Arrange
+
         var customerId = Guid.NewGuid();
         var customer = new CustomerModel
         {
@@ -191,17 +164,15 @@ public class UpdateCustomerHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateCustomerCommand(
-            customerId, 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            customerId,
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             null);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedCustomer = await db.BasicCustomers.Include(c => c.Person).FirstOrDefaultAsync(c => c.Id == customerId);
 
         Assert.NotNull(updatedCustomer);
@@ -209,13 +180,10 @@ public class UpdateCustomerHandlerTests : IDisposable
         Assert.Equal("new@email.com", updatedCustomer.Person.Email);
     }
 
-    /// <summary>
-    ///     Tests that updating a customer with an address creates/updates the address.
-    /// </summary>
     [Fact]
     public async Task Handle_WithAddress_CreatesOrUpdatesAddress()
     {
-        // Arrange
+
         var stateId = Guid.NewGuid();
         var state = new StateModel
         {
@@ -256,17 +224,15 @@ public class UpdateCustomerHandlerTests : IDisposable
         );
 
         var command = new UpdateCustomerCommand(
-            customerId, 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            customerId,
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             addressDto);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var address = await db.AuthAddresses.FirstOrDefaultAsync(a => a.Street == addressDto.Street);
         var personAddress = await db.BasicPersonAddresses.FirstOrDefaultAsync(pa => pa.AddressId == address!.Id);
 

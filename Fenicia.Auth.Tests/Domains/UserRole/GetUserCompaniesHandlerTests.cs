@@ -30,7 +30,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserHasCompanies_ReturnsCompanies()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -62,10 +62,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result);
     }
@@ -73,13 +71,11 @@ public class GetUserCompaniesHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserHasNoCompanies_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -87,7 +83,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesResponseContainsAllFields()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -122,10 +118,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         var response = result[0];
@@ -140,7 +134,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserHasMultipleCompanies_ReturnsAllCompanies()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
@@ -179,10 +173,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         db.AuthUserRoles.AddRange(userRoles);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(3, result.Count);
     }
@@ -190,7 +182,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_ReturnsOnlyRequestedUserCompanies()
     {
-        // Arrange
+
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -239,11 +231,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         db.AuthUserRoles.AddRange(userRole1, userRole2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result1 = await handler.Handle(userId1, CancellationToken.None);
         var result2 = await handler.Handle(userId2, CancellationToken.None);
-
-        // Assert
 
         Assert.Single(result1);
         Assert.Equal(company1.Id, result1[0].CompanyId);
@@ -254,13 +243,11 @@ public class GetUserCompaniesHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -268,7 +255,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserHasDifferentRoles_ReturnsAllWithCorrectRoles()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
 
         var adminRole = new RoleModel
@@ -322,10 +309,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         db.AuthUserRoles.AddRange(userRole1, userRole2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(2, result.Count);
@@ -336,7 +321,7 @@ public class GetUserCompaniesHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCompanyHasNullDescription_HandlesCorrectly()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -368,10 +353,8 @@ public class GetUserCompaniesHandlerTests : IDisposable
         db.AuthUserRoles.Add(userRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(userId, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result);
     }

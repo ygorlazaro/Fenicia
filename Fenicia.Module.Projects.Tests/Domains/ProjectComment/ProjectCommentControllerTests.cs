@@ -71,16 +71,14 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenNoItemsExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         const int page = 1;
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -95,7 +93,7 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenItemsExist_ReturnsOkWithItems()
     {
-        // Arrange
+
         var projectComment1 = new ProjectCommentModel
         {
             Id = Guid.NewGuid(),
@@ -119,11 +117,9 @@ public class ProjectCommentControllerTests : IDisposable
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -138,7 +134,7 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenItemExists_ReturnsOkWithItem()
     {
-        // Arrange
+
         var projectComment = new ProjectCommentModel
         {
             Id = testProjectCommentId,
@@ -152,11 +148,9 @@ public class ProjectCommentControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(testProjectCommentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -172,15 +166,13 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenItemDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -188,16 +180,14 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithItem()
     {
-        // Arrange
+
         var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Paragraph());
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -214,7 +204,7 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenItemExists_ReturnsOkWithUpdatedItem()
     {
-        // Arrange
+
         var projectComment = new ProjectCommentModel
         {
             Id = testProjectCommentId,
@@ -230,11 +220,9 @@ public class ProjectCommentControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, testProjectCommentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -249,17 +237,15 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenItemDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var command = new UpdateProjectCommentCommand(nonExistentId, faker.Lorem.Paragraph());
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -267,7 +253,7 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenItemExists_ReturnsNoContent()
     {
-        // Arrange
+
         var projectComment = new ProjectCommentModel
         {
             Id = testProjectCommentId,
@@ -281,14 +267,11 @@ public class ProjectCommentControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(testProjectCommentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
 
-        // Verify project comment was deleted
         var deletedComment = await db.ProjectComments.FirstOrDefaultAsync(x => x.Id == testProjectCommentId && x.Deleted == null, ct);
         Assert.Null(deletedComment);
     }
@@ -296,41 +279,35 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenItemDoesNotExist_ReturnsNoContent()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
     }
 
     [Fact]
     public void Controller_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectCommentController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     [Fact]
     public void Controller_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectCommentController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
@@ -338,27 +315,23 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public void Controller_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectCommentController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 
     [Fact]
     public void DeleteAction_HasAuthorizeAdminAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectCommentController);
         var deleteMethod = controllerType.GetMethod(nameof(ProjectCommentController.DeleteAsync));
 
-        // Act
         var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);
     }
@@ -366,14 +339,12 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public void PostAction_HasAuthorizeAdminAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectCommentController);
         var postMethod = controllerType.GetMethod(nameof(ProjectCommentController.PostAsync));
 
-        // Act
         var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);
     }
@@ -381,14 +352,12 @@ public class ProjectCommentControllerTests : IDisposable
     [Fact]
     public void PatchAction_HasAuthorizeAdminAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectCommentController);
         var patchMethod = controllerType.GetMethod(nameof(ProjectCommentController.PatchAsync));
 
-        // Act
         var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);
     }

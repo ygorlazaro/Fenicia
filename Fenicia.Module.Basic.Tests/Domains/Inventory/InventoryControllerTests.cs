@@ -22,10 +22,6 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Inventory;
 
-/// <summary>
-///     Unit tests for the InventoryController.
-///     Tests HTTP endpoints for inventory management, dashboards, and health checks.
-/// </summary>
 public class InventoryControllerTests : IDisposable
 {
     private readonly InventoryController controller;
@@ -96,15 +92,13 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public async Task GetInventoryAsync_WhenNoProductsExist_ReturnsOkWithEmptyInventory()
     {
-        // Arrange
+
         var page = 1;
         var perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -122,7 +116,7 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public async Task GetInventoryAsync_WhenProductsExist_ReturnsOkWithInventory()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = testCategoryId,
@@ -157,10 +151,8 @@ public class InventoryControllerTests : IDisposable
         var perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -178,7 +170,7 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public async Task GetInventoryByProductIdAsync_WhenProductExists_ReturnsOkWithInventory()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = testCategoryId,
@@ -201,10 +193,8 @@ public class InventoryControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryByProductIdAsync(testProductId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -221,14 +211,12 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public async Task GetInventoryByProductIdAsync_WhenProductDoesNotExist_ReturnsOkWithEmptyInventory()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryByProductIdAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -243,7 +231,7 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public async Task GetInventoryByCategoryIdAsync_WhenCategoryExists_ReturnsOkWithInventory()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = testCategoryId,
@@ -276,10 +264,8 @@ public class InventoryControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryByCategoryIdAsync(testCategoryId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -296,14 +282,12 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public async Task GetInventoryByCategoryIdAsync_WhenCategoryDoesNotExist_ReturnsOkWithEmptyInventory()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryByCategoryIdAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -318,26 +302,22 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public void InventoryController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(InventoryController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     [Fact]
     public void InventoryController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(InventoryController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
@@ -345,13 +325,11 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public void InventoryController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(InventoryController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 
@@ -360,13 +338,11 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public async Task GetInventoryDashboardAsync_WhenNoDataExists_ReturnsOkWithEmptyDashboard()
     {
-        // Arrange
+
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryDashboardAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -387,7 +363,7 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public async Task GetInventoryDashboardAsync_WhenProductsExist_ReturnsOkWithDashboardData()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = testCategoryId,
@@ -445,10 +421,8 @@ public class InventoryControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryDashboardAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -467,7 +441,7 @@ public class InventoryControllerTests : IDisposable
     [Fact]
     public async Task GetInventoryDashboardAsync_ReturnsLowStockItemsOrderedByQuantity()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = testCategoryId,
@@ -500,10 +474,8 @@ public class InventoryControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryDashboardAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -514,14 +486,13 @@ public class InventoryControllerTests : IDisposable
         Assert.NotNull(returnedDashboard);
         Assert.NotEmpty(returnedDashboard.LowStockItems);
 
-        // First item should be the one with the lowest quantity
         Assert.Equal("Low Stock Product", returnedDashboard.LowStockItems[0].Name);
     }
 
     [Fact]
     public async Task GetInventoryDashboardAsync_CalculatesProfitPotentialCorrectly()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = testCategoryId,
@@ -544,10 +515,8 @@ public class InventoryControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetInventoryDashboardAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -557,9 +526,6 @@ public class InventoryControllerTests : IDisposable
         var returnedDashboard = okResult.Value as InventoryDashboardResponse;
         Assert.NotNull(returnedDashboard);
 
-        // Total Cost Value = 10.00 * 10 = 100.00
-        // Total Sales Value = 20.00 * 10 = 200.00
-        // Profit Potential = 200.00 - 100.00 = 100.00
         Assert.Equal(100.00m, returnedDashboard.TotalCostValue);
         Assert.Equal(200.00m, returnedDashboard.TotalSalesValue);
         Assert.Equal(100.00m, returnedDashboard.ProfitPotential);

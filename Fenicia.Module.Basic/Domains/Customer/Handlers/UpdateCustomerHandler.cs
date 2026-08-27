@@ -10,18 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 
-/// <summary>
-///     Handler responsible for updating existing customer information.
-///     Updates both the customer and associated person records.
-/// </summary>
 public class UpdateCustomerHandler(DefaultContext db) : IRequestHandler<UpdateCustomerCommand, UpdateCustomerResponse?>
 {
-    /// <summary>
-    ///     Updates an existing customer's information.
-    /// </summary>
-    /// <param name="command">The update command containing the new customer data.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The updated customer response if found, null if customer does not exist.</returns>
+
     public async Task<UpdateCustomerResponse?> Handle(UpdateCustomerCommand command, CancellationToken ct)
     {
         var customer = await db.BasicCustomers

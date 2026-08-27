@@ -11,10 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-/// <summary>
-///     Unit tests for the GetEmployeeByIdHandler.
-///     Tests employee retrieval by ID logic.
-/// </summary>
 public class GetEmployeeByIdHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -71,7 +67,6 @@ public class GetEmployeeByIdHandlerTests : IDisposable
 
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(employeeId, result.Id);
         Assert.Equal(employee.Person.Id, result.PersonId);
@@ -85,33 +80,29 @@ public class GetEmployeeByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmployeeDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetEmployeeByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetEmployeeByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_VerifiesPersonAndPositionDataIsIncluded()
     {
-        // Arrange
+
         var employeeId = Guid.NewGuid();
         var position = new PositionModel
         {
@@ -140,10 +131,8 @@ public class GetEmployeeByIdHandlerTests : IDisposable
 
         var query = new GetEmployeeByIdQuery(employeeId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(position.Id, result.PositionId);
         Assert.Equal(employee.Person.Name, result.Name);
@@ -152,7 +141,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleEmployees_ReturnsOnlyRequestedEmployee()
     {
-        // Arrange
+
         var employee1Id = Guid.NewGuid();
         var employee2Id = Guid.NewGuid();
         var position = new PositionModel
@@ -197,10 +186,8 @@ public class GetEmployeeByIdHandlerTests : IDisposable
 
         var query = new GetEmployeeByIdQuery(employee1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(employee1Id, result.Id);
         Assert.Equal(employee1.Person.Name, result.Name);
@@ -209,7 +196,7 @@ public class GetEmployeeByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithAddress_ReturnsAddressId()
     {
-        // Arrange
+
         var employeeId = Guid.NewGuid();
         var addressId = Guid.NewGuid();
         var personId = Guid.NewGuid();
@@ -268,10 +255,8 @@ public class GetEmployeeByIdHandlerTests : IDisposable
 
         var query = new GetEmployeeByIdQuery(employeeId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotNull(result.Address);
         Assert.Equal(addressId, result.Address.Id);

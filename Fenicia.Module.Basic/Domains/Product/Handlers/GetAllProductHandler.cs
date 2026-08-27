@@ -13,29 +13,29 @@ public class GetAllProductHandler(DefaultContext db) : IRequestHandler<GetAllPro
     public async Task<Pagination<List<GetAllProductResponse>>> Handle(GetAllProductQuery query, CancellationToken ct)
     {
         var request = from p in db.BasicProducts
-            join c in db.BasicProductCategories on p.CategoryId equals c.Id
-            join s in db.BasicSuppliers on p.SupplierId equals s.Id into ps
-            from s in ps.DefaultIfEmpty()
-            select new GetAllProductResponse(
-                p.Id,
-                p.Name,
-                p.SKU,
-                p.Barcode,
-                p.Description,
-                p.CostPrice,
-                p.SalesPrice,
-                p.Quantity,
-                p.MinStockLevel,
-                p.MaxStockLevel,
-                p.ImageUrl,
-                p.Weight,
-                p.Dimensions,
-                p.UnitOfMeasure,
-                p.CategoryId,
-                c.Name,
-                p.SupplierId,
-                s != null ? s.Person.Name : string.Empty,
-                p.IsActive);
+                      join c in db.BasicProductCategories on p.CategoryId equals c.Id
+                      join s in db.BasicSuppliers on p.SupplierId equals s.Id into ps
+                      from s in ps.DefaultIfEmpty()
+                      select new GetAllProductResponse(
+                          p.Id,
+                          p.Name,
+                          p.SKU,
+                          p.Barcode,
+                          p.Description,
+                          p.CostPrice,
+                          p.SalesPrice,
+                          p.Quantity,
+                          p.MinStockLevel,
+                          p.MaxStockLevel,
+                          p.ImageUrl,
+                          p.Weight,
+                          p.Dimensions,
+                          p.UnitOfMeasure,
+                          p.CategoryId,
+                          c.Name,
+                          p.SupplierId,
+                          s != null ? s.Person.Name : string.Empty,
+                          p.IsActive);
 
         var total = await request.CountAsync(ct);
 

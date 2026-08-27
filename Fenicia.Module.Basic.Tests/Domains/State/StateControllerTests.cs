@@ -70,14 +70,12 @@ public class StateControllerTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenNoStatesExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAllAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -92,7 +90,7 @@ public class StateControllerTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenStatesExist_ReturnsOkWithStates()
     {
-        // Arrange
+
         var state1 = new StateModel
         {
             Id = Guid.NewGuid(),
@@ -112,11 +110,9 @@ public class StateControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAllAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -131,7 +127,7 @@ public class StateControllerTests : IDisposable
     [Fact]
     public async Task GetAllAsync_WhenStatesExist_ReturnsStatesOrderedByUf()
     {
-        // Arrange
+
         var state1 = new StateModel
         {
             Id = Guid.NewGuid(),
@@ -158,11 +154,9 @@ public class StateControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAllAsync(wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -180,26 +174,22 @@ public class StateControllerTests : IDisposable
     [Fact]
     public void StateController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(StateController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     [Fact]
     public void StateController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(StateController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
@@ -207,13 +197,11 @@ public class StateControllerTests : IDisposable
     [Fact]
     public void StateController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(StateController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 }

@@ -32,7 +32,7 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeExists_ReturnsProjectTaskAssigneeResponse()
     {
-        // Arrange
+
         var assigneeId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -51,10 +51,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
 
         var query = new GetProjectTaskAssigneeByIdQuery(assigneeId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(assigneeId, result.Id);
         Assert.Equal(userId, result.UserId);
@@ -63,33 +61,29 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectTaskAssigneeByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectTaskAssigneeByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleProjectTaskAssignees_ReturnsOnlyRequestedAssignee()
     {
-        // Arrange
+
         var assignee1Id = Guid.NewGuid();
         var assignee2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -119,10 +113,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
 
         var query = new GetProjectTaskAssigneeByIdQuery(assignee1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(assignee1Id, result.Id);
         Assert.Equal(userId1, result.UserId);
@@ -131,7 +123,7 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMemberRole_ReturnsCorrectResponse()
     {
-        // Arrange
+
         var assigneeId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -150,10 +142,8 @@ public class GetProjectTaskAssigneeByIdHandlerTests : IDisposable
 
         var query = new GetProjectTaskAssigneeByIdQuery(assigneeId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(assigneeId, result.Id);
         Assert.Equal("Contributor", result.Role);

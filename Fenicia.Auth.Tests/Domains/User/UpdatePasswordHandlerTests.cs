@@ -37,7 +37,7 @@ public class UpdatePasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserExists_ChangesPasswordSuccessfully()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var newPassword = faker.Internet.Password();
         const string oldPassword = "old_hashed_password";
@@ -55,10 +55,8 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(userId, result.Id);
@@ -73,12 +71,11 @@ public class UpdatePasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenUserDoesNotExist_ThrowsArgumentException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var newPassword = faker.Internet.Password();
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
@@ -86,7 +83,7 @@ public class UpdatePasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_PasswordIsHashedBeforeSaving()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var newPassword = faker.Internet.Password();
 
@@ -103,10 +100,8 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        // Act
         await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
 
@@ -117,7 +112,7 @@ public class UpdatePasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesPasswordCanBeVerified()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var newPassword = faker.Internet.Password();
 
@@ -134,10 +129,8 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        // Act
         await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
 
@@ -149,7 +142,7 @@ public class UpdatePasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenMultipleUsersExist_OnlyUpdatesRequestedUser()
     {
-        // Arrange
+
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
         var newPassword = faker.Internet.Password();
@@ -177,10 +170,8 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId1, newPassword);
 
-        // Act
         await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         var updatedUser1 = await db.AuthUsers.FindAsync(userId1);
         var updatedUser2 = await db.AuthUsers.FindAsync(userId2);
 
@@ -191,7 +182,7 @@ public class UpdatePasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_PreservesOtherUserProperties()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var newPassword = faker.Internet.Password();
         var email = faker.Internet.Email();
@@ -210,10 +201,8 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        // Act
         await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         var updatedUser = await db.AuthUsers.FindAsync(userId);
         Assert.NotNull(updatedUser);
 
@@ -225,12 +214,11 @@ public class UpdatePasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ThrowsArgumentException()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var newPassword = faker.Internet.Password();
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
         Assert.Equal("User not found", ex.Message);
     }
@@ -238,7 +226,7 @@ public class UpdatePasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenPasswordIsEmpty_StillHashesAndSaves()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var newPassword = string.Empty;
 
@@ -255,7 +243,6 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(query, CancellationToken.None));
         Assert.Equal("Password cannot be null or empty", ex.Message);
     }
@@ -263,7 +250,7 @@ public class UpdatePasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_ReturnsCorrectResponseData()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var newPassword = faker.Internet.Password();
         var email = faker.Internet.Email();
@@ -282,10 +269,7 @@ public class UpdatePasswordHandlerTests : IDisposable
 
         var query = new UpdatePasswordCommand(userId, newPassword);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
-
-        // Assert
 
         Assert.Equal(userId, result.Id);
         Assert.Equal(name, result.Name);

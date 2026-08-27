@@ -13,13 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Configuration;
 
-/// <summary>
-///     Controller responsible for handling configuration-related HTTP endpoints.
-///     Provides endpoints to retrieve and update user/company configurations such as language and timezone.
-/// </summary>
-/// <remarks>
-///     All endpoints require authentication. Configurations are scoped by user and optionally by company.
-/// </remarks>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -27,16 +20,7 @@ namespace Fenicia.Auth.Domains.Configuration;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ConfigurationController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Retrieves configurations for the authenticated user, filtered by company.
-    /// </summary>
-    /// <param name="companyId">Company ID to filter configurations (required).</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>A list of configuration responses.</returns>
-    /// <response code="200">Returns the list of configurations successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -58,19 +42,6 @@ public class ConfigurationController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Creates or updates a configuration entry.
-    ///     Uses upsert pattern: creates new if doesn't exist, updates existing otherwise.
-    /// </summary>
-    /// <param name="id">The configuration ID (used for routing).</param>
-    /// <param name="request">The upsert command containing configuration details.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>No content on successful upsert.</returns>
-    /// <response code="204">Configuration created or updated successfully.</response>
-    /// <response code="400">Invalid request data.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

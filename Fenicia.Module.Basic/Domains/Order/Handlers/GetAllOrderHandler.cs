@@ -9,17 +9,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 
-/// <summary>
-///     Handler responsible for retrieving all orders with pagination.
-///     Returns orders with customer and employee information.
-/// </summary>
 public class GetAllOrderHandler(DefaultContext db) : IRequestHandler<GetAllOrderQuery, Pagination<List<GetAllOrderResponse>>>
 {
     public async Task<Pagination<List<GetAllOrderResponse>>> Handle(GetAllOrderQuery query, CancellationToken ct)
     {
         var total = await db.BasicOrders.CountAsync(ct);
 
-        // Get paginated order IDs
         var orderIds = await db.BasicOrders
             .OrderByDescending(o => o.SaleDate)
             .Skip((query.Page - 1) * query.PerPage)
@@ -27,14 +22,12 @@ public class GetAllOrderHandler(DefaultContext db) : IRequestHandler<GetAllOrder
             .Select(o => o.Id)
             .ToListAsync(ct);
 
-        // Pre-fetch detail counts for these orders
         var detailCounts = await db.BasicOrderDetails
             .Where(d => orderIds.Contains(d.OrderId))
             .GroupBy(d => d.OrderId)
             .Select(g => new { OrderId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(g => g.OrderId, g => g.Count, ct);
 
-        // Fetch orders with customer/employee info using navigation properties
         var orders = await (from o in db.BasicOrders
                             where orderIds.Contains(o.Id)
                             select new
@@ -54,7 +47,6 @@ public class GetAllOrderHandler(DefaultContext db) : IRequestHandler<GetAllOrder
                                 EmployeeName = o.Employee != null ? o.Employee.Person.Name : null
                             }).ToListAsync(ct);
 
-        // Project to response client-side
         var response = orders
             .OrderByDescending(o => o.SaleDate)
             .Select(o => new GetAllOrderResponse(

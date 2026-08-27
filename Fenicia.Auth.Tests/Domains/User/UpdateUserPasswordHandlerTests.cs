@@ -28,7 +28,6 @@ public class UpdateUserPasswordHandlerTests : IDisposable
         handler = new UpdateUserPasswordHandler(db);
         faker = new Faker();
 
-        // Create test user
         testUser = new UserModel
         {
             Email = faker.Internet.Email(),
@@ -50,21 +49,18 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenValidRequest_ChangesPasswordSuccessfully()
     {
-        // Arrange
+
         var newPassword = faker.Internet.Password();
         var request = new UpdateUserPasswordCommand(testUser.Id, newPassword);
         var originalPasswordHash = testUser.Password;
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.True(result.Success);
         Assert.Equal("Password changed successfully", result.Message);
 
-        // Verify password was updated in database
         var updatedUser = await db.AuthUsers.FindAsync(testUser.Id);
         Assert.NotNull(updatedUser);
 
@@ -74,32 +70,28 @@ public class UpdateUserPasswordHandlerTests : IDisposable
     [Fact]
     public async Task Handle_NewPasswordIsHashed()
     {
-        // Arrange
+
         var newPassword = faker.Internet.Password();
         var request = new UpdateUserPasswordCommand(testUser.Id, newPassword);
 
-        // Act
         await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         var updatedUser = await db.AuthUsers.FindAsync(testUser.Id);
         Assert.NotNull(updatedUser);
-        Assert.NotEqual(newPassword, updatedUser.Password); // Should be hashed
-        Assert.StartsWith("$2", updatedUser.Password); // BCrypt format
+        Assert.NotEqual(newPassword, updatedUser.Password);
+        Assert.StartsWith("$2", updatedUser.Password);
 
-        // Verify new password works
         Assert.True(BCrypt.Net.BCrypt.Verify(newPassword, updatedUser.Password));
     }
 
     [Fact]
     public async Task Handle_WhenUserNotFound_ThrowsArgumentException()
     {
-        // Arrange
+
         var nonExistentUserId = Guid.NewGuid();
         var newPassword = faker.Internet.Password();
         var request = new UpdateUserPasswordCommand(nonExistentUserId, newPassword);
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
 
         Assert.Equal("User not found", exception.Message);

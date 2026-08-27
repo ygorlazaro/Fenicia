@@ -11,10 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-/// <summary>
-///     Unit tests for the AddEmployeeHandler.
-///     Tests employee creation business logic including validation and database operations.
-/// </summary>
 public class AddEmployeeHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -43,17 +39,16 @@ public class AddEmployeeHandlerTests : IDisposable
     {
         var positionId = Guid.NewGuid();
         var command = new AddEmployeeCommand(
-            Guid.NewGuid(), 
-            positionId, 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
+            Guid.NewGuid(),
+            positionId,
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
             null);
 
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal(positionId, result.PositionId);
@@ -62,41 +57,37 @@ public class AddEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNullPhoneNumber_SetsEmptyString()
     {
-        // Arrange
+
         var command = new AddEmployeeCommand(
-            Guid.NewGuid(), 
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            null, 
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            null,
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
     }
 
     [Fact]
     public async Task Handle_VerifiesEmployeeWasSavedToDatabase()
     {
-        // Arrange
+
         var positionId = Guid.NewGuid();
         var command = new AddEmployeeCommand(
-            Guid.NewGuid(), 
-            positionId, 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
+            Guid.NewGuid(),
+            positionId,
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
             null);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var employee = await db.BasicEmployees.Include(e => e.Person).FirstOrDefaultAsync(e => e.Id == command.Id);
 
         Assert.NotNull(employee);
@@ -107,30 +98,28 @@ public class AddEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllEmployees()
     {
-        // Arrange
+
         var command1 = new AddEmployeeCommand(
-            Guid.NewGuid(), 
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            null, 
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            null,
             null);
 
         var command2 = new AddEmployeeCommand(
-            Guid.NewGuid(), 
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            null, 
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            null,
             null);
 
-        // Act
         await handler.Handle(command1, CancellationToken.None);
         await handler.Handle(command2, CancellationToken.None);
 
-        // Assert
         var employees = await db.BasicEmployees.ToListAsync();
         Assert.Equal(2, employees.Count);
     }
@@ -138,7 +127,7 @@ public class AddEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithAddress_CreatesAddressAndPersonAddressRelationship()
     {
-        // Arrange
+
         var stateId = Guid.NewGuid();
         var state = new StateModel
         {
@@ -161,18 +150,16 @@ public class AddEmployeeHandlerTests : IDisposable
         );
 
         var command = new AddEmployeeCommand(
-            Guid.NewGuid(), 
-            Guid.NewGuid(), 
-            faker.Person.FullName, 
-            faker.Internet.Email(), 
-            faker.Random.Replace("###.###.###-##"), 
-            faker.Random.Replace("(##) #####-####"), 
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            faker.Person.FullName,
+            faker.Internet.Email(),
+            faker.Random.Replace("###.###.###-##"),
+            faker.Random.Replace("(##) #####-####"),
             addressDto);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var address = await db.AuthAddresses.FirstOrDefaultAsync(a => a.Street == addressDto.Street);
         var personAddress = await db.BasicPersonAddresses.FirstOrDefaultAsync(pa => pa.AddressId == address!.Id);
 

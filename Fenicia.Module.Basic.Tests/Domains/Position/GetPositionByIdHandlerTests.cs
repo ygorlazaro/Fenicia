@@ -35,7 +35,7 @@ public class GetPositionByIdHandlerTests : IDisposable
     [InlineData("Analyst")]
     public async Task Handle_WhenPositionExists_ReturnsPositionResponse(string positionName)
     {
-        // Arrange
+
         var positionId = Guid.NewGuid();
         var position = new PositionModel
         {
@@ -48,10 +48,8 @@ public class GetPositionByIdHandlerTests : IDisposable
 
         var query = new GetPositionByIdQuery(positionId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(positionId, result.Id);
         Assert.Equal(positionName, result.Name);
@@ -60,33 +58,29 @@ public class GetPositionByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenPositionDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetPositionByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetPositionByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultiplePositions_ReturnsOnlyRequestedPosition()
     {
-        // Arrange
+
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
 
@@ -106,10 +100,8 @@ public class GetPositionByIdHandlerTests : IDisposable
 
         var query = new GetPositionByIdQuery(position1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(position1Id, result.Id);
         Assert.Equal("Developer", result.Name);

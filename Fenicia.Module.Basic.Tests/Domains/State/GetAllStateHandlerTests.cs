@@ -35,10 +35,9 @@ public class GetAllStateHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Act
+
         var result = await handler.Handle(new GetAllStateQuery(), CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -46,7 +45,7 @@ public class GetAllStateHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithStates_ReturnsAllStates()
     {
-        // Arrange
+
         var state1 = new StateModel
         {
             Id = Guid.NewGuid(),
@@ -64,10 +63,8 @@ public class GetAllStateHandlerTests : IDisposable
         db.AuthStates.AddRange(state1, state2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(new GetAllStateQuery(), CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
         Assert.Contains(result, s => s.Id == state1.Id);
@@ -77,7 +74,7 @@ public class GetAllStateHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleStates_ReturnsAllWithoutPagination()
     {
-        // Arrange
+
         for (var i = 0; i < 27; i++)
         {
             var state = new StateModel
@@ -92,10 +89,8 @@ public class GetAllStateHandlerTests : IDisposable
 
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(new GetAllStateQuery(), CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(27, result.Count);
     }
@@ -103,7 +98,7 @@ public class GetAllStateHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesStateDataIsCorrect()
     {
-        // Arrange
+
         var state = new StateModel
         {
             Id = Guid.NewGuid(),
@@ -114,10 +109,8 @@ public class GetAllStateHandlerTests : IDisposable
         db.AuthStates.Add(state);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(new GetAllStateQuery(), CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result);
         Assert.Equal("Minas Gerais", result[0].Name);

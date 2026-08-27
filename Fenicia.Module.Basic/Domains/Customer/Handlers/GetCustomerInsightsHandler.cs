@@ -8,18 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Customer.Handlers;
 
-/// <summary>
-///     Handler responsible for generating customer analytics and insights.
-///     Provides business intelligence including top customers, risk alerts, and order statistics.
-/// </summary>
 public class GetCustomerInsightsHandler(DefaultContext db) : IRequestHandler<GetCustomerInsightsQuery, CustomerInsightsResponse>
 {
-    /// <summary>
-    ///     Generates comprehensive customer analytics based on the provided query parameters.
-    /// </summary>
-    /// <param name="query">The query containing insight generation parameters (days, top limit, risk threshold).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Customer insights including summary, top customers, recent orders, and risk alerts.</returns>
+
     public async Task<CustomerInsightsResponse> Handle(GetCustomerInsightsQuery query, CancellationToken ct)
     {
         var summary = await GetSummaryAsync(ct);

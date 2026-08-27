@@ -9,18 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 
-/// <summary>
-///     Handler responsible for retrieving a specific employee by their unique identifier.
-///     Returns employee details including associated person information.
-/// </summary>
 public class GetEmployeeByIdHandler(DefaultContext db) : IRequestHandler<GetEmployeeByIdQuery, GetEmployeeByIdResponse?>
 {
-    /// <summary>
-    ///     Retrieves an employee by their unique identifier.
-    /// </summary>
-    /// <param name="query">The query containing the employee ID to retrieve.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The employee details if found, null otherwise.</returns>
+
     public async Task<GetEmployeeByIdResponse?> Handle(GetEmployeeByIdQuery query, CancellationToken ct)
     {
         var employee = await db.BasicEmployees

@@ -9,18 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Employee.Handlers;
 
-/// <summary>
-///     Handler responsible for generating employee performance analytics.
-///     Provides business intelligence including sales by employee, order counts, and top performers.
-/// </summary>
 public class GetEmployeePerformanceHandler(DefaultContext db) : IRequestHandler<GetEmployeePerformanceQuery, EmployeePerformanceResponse>
 {
-    /// <summary>
-    ///     Generates comprehensive employee performance analytics.
-    /// </summary>
-    /// <param name="query">The query containing performance parameters (days, top limit).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Employee performance data including summary, sales, orders, and top performers.</returns>
+
     public async Task<EmployeePerformanceResponse> Handle(GetEmployeePerformanceQuery query, CancellationToken ct)
     {
         var endDate = DateTime.UtcNow;

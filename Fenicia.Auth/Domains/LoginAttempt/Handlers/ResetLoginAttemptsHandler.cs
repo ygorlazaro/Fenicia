@@ -8,34 +8,11 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Fenicia.Auth.Domains.LoginAttempt.Handlers;
 
-/// <summary>
-///     Handler responsible for resetting login attempt counters in memory cache.
-///     Called after successful login to clear failed attempt counts.
-/// </summary>
-/// <remarks>
-///     This handler is part of a brute-force protection system. When a user successfully logs in,
-///     this handler removes the attempt counter from the cache, allowing the user to start fresh.
-///     This is typically called as part of the successful authentication flow.
-/// </remarks>
 public class ResetLoginAttemptsHandler(IMemoryCache cache) : IRequestHandler<ResetLoginAttemptsCommand>
 {
-    /// <summary>
-    ///     Prefix used for all login attempt cache keys.
-    /// </summary>
+
     private const string KeyPrefix = "login-attempt:";
 
-    /// <summary>
-    ///     Resets login attempts for the specified email address.
-    ///     Removes the attempt counter from cache, allowing the user to start fresh.
-    /// </summary>
-    /// <param name="email">Email address to reset attempts for.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when email is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when email is empty or whitespace-only.</exception>
-    /// <remarks>
-    ///     The email is trimmed and normalized to lowercase before generating the cache key.
-    ///     This method safely handles cases where no attempts exist (no-op).
-    /// </remarks>
     public Task ResetAsync(string email)
     {
         ArgumentNullException.ThrowIfNull(email);
@@ -54,18 +31,9 @@ public class ResetLoginAttemptsHandler(IMemoryCache cache) : IRequestHandler<Res
         return ResetAsync(request.Email);
     }
 
-    /// <summary>
-    ///     Generates a cache key for login attempts based on email.
-    /// </summary>
-    /// <param name="email">Email address to generate key for.</param>
-    /// <returns>Formatted cache key with lowercase, trimmed email.</returns>
-    /// <remarks>
-    ///     Normalizes email to lowercase with invariant culture to ensure consistency.
-    ///     Also trims whitespace from the email before processing.
-    /// </remarks>
     private static string GetKey(string email)
     {
-        // Normalize email to lowercase with invariant culture to ensure consistency
+
         return $"{KeyPrefix}{email.Trim().ToLower(CultureInfo.InvariantCulture)}";
     }
 }

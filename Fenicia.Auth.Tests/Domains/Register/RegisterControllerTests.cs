@@ -58,7 +58,7 @@ public class RegisterControllerTests : IDisposable
     [Fact]
     public async Task CreateNewUserAsync_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new Common.API.WideEventContext();
         var ct = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("existing@example.com", "password123", "Test User", company);
@@ -74,7 +74,7 @@ public class RegisterControllerTests : IDisposable
     [Fact]
     public async Task CreateNewUserAsync_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new Common.API.WideEventContext();
         var ct = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Existing Company");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
@@ -90,7 +90,7 @@ public class RegisterControllerTests : IDisposable
     [Fact]
     public async Task CreateNewUserAsync_WhenAdminRoleDoesNotExist_ReturnsBadRequest()
     {
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new Common.API.WideEventContext();
         var ct = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
@@ -106,7 +106,7 @@ public class RegisterControllerTests : IDisposable
     [Fact]
     public async Task CreateNewUserAsync_WhenValidRequest_ReturnsCreatedWithUser()
     {
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new Common.API.WideEventContext();
         var ct = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);
@@ -136,7 +136,7 @@ public class RegisterControllerTests : IDisposable
     [Fact]
     public async Task CreateNewUserAsync_SetsWideEventContextUserId()
     {
-        var wide = new Fenicia.Common.API.WideEventContext();
+        var wide = new Common.API.WideEventContext();
         var ct = CancellationToken.None;
         var company = new CreateNewUserCompanyCommand("12.345.678/0001-90", "Company Name");
         var request = new RegisterCommand("test@example.com", "password123", "Test User", company);

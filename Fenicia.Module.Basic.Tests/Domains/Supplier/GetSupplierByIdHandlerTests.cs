@@ -35,7 +35,7 @@ public class GetSupplierByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenSupplierExists_ReturnsSupplierResponse()
     {
-        // Arrange
+
         var supplierId = Guid.NewGuid();
 
         var supplier = new SupplierModel
@@ -57,10 +57,8 @@ public class GetSupplierByIdHandlerTests : IDisposable
 
         var query = new GetSupplierByIdQuery(supplierId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(supplierId, result.Id);
         Assert.Equal(supplier.Person.Id, result.PersonId);
@@ -73,33 +71,29 @@ public class GetSupplierByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenSupplierDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetSupplierByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetSupplierByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleSuppliers_ReturnsOnlyRequestedSupplier()
     {
-        // Arrange
+
         var supplier1Id = Guid.NewGuid();
         var supplier2Id = Guid.NewGuid();
 
@@ -136,10 +130,8 @@ public class GetSupplierByIdHandlerTests : IDisposable
 
         var query = new GetSupplierByIdQuery(supplier1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(supplier1Id, result.Id);
         Assert.Equal(supplier1.Person.Name, result.Name);
@@ -148,7 +140,7 @@ public class GetSupplierByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithAddress_ReturnsAddress()
     {
-        // Arrange
+
         var stateId = Guid.NewGuid();
         var state = new StateModel
         {
@@ -201,10 +193,8 @@ public class GetSupplierByIdHandlerTests : IDisposable
 
         var query = new GetSupplierByIdQuery(supplierId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotNull(result.Address);
         Assert.Equal(addressId, result.Address.Id);

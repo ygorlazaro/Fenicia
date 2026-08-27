@@ -36,13 +36,11 @@ public class GetAllProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var query = new GetAllProjectQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -50,7 +48,7 @@ public class GetAllProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithProjects_ReturnsAllProjects()
     {
-        // Arrange
+
         var project1 = new ProjectModel
         {
             Id = Guid.NewGuid(),
@@ -78,10 +76,8 @@ public class GetAllProjectHandlerTests : IDisposable
 
         var query = new GetAllProjectQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
         Assert.Equal(project1.Id, result[0].Id);
@@ -91,7 +87,7 @@ public class GetAllProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         for (var i = 0; i < 25; i++)
         {
             var project = new ProjectModel
@@ -111,10 +107,8 @@ public class GetAllProjectHandlerTests : IDisposable
 
         var query = new GetAllProjectQuery(2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Count);
     }
@@ -122,7 +116,7 @@ public class GetAllProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         for (var i = 0; i < 5; i++)
         {
             var project = new ProjectModel
@@ -142,10 +136,8 @@ public class GetAllProjectHandlerTests : IDisposable
 
         var query = new GetAllProjectQuery(10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -153,7 +145,7 @@ public class GetAllProjectHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
-        // Arrange
+
         for (var i = 0; i < 25; i++)
         {
             var project = new ProjectModel
@@ -173,10 +165,8 @@ public class GetAllProjectHandlerTests : IDisposable
 
         var query = new GetAllProjectQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Count);
     }

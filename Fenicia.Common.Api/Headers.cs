@@ -2,6 +2,6 @@ namespace Fenicia.Common.API;
 
 public class Headers
 {
-    // x-company header deprecated - use JWT company_id claim
+
     public Guid CompanyId { get; set; }
 }

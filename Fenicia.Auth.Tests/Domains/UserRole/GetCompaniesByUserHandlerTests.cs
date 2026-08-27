@@ -31,7 +31,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     [Fact]
     public async Task GetUserCompaniesAsync_WhenUserHasCompanies_ReturnsCompanies()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -65,10 +65,8 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var request = new GetCompaniesByUserQuery(userId);
 
-        // Act
         var result = await handler.GetUserCompaniesAsync(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result);
     }
@@ -76,14 +74,12 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     [Fact]
     public async Task GetUserCompaniesAsync_WhenUserHasNoCompanies_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var request = new GetCompaniesByUserQuery(userId);
 
-        // Act
         var result = await handler.GetUserCompaniesAsync(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -91,7 +87,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     [Fact]
     public async Task GetUserCompaniesAsync_VerifiesResponseContainsAllFields()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -128,10 +124,8 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var request = new GetCompaniesByUserQuery(userId);
 
-        // Act
         var result = await handler.GetUserCompaniesAsync(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         var response = result[0];
@@ -146,7 +140,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     [Fact]
     public async Task GetUserCompaniesAsync_WhenUserHasMultipleCompanies_ReturnsAllCompanies()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
@@ -187,10 +181,8 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var request = new GetCompaniesByUserQuery(userId);
 
-        // Act
         var result = await handler.GetUserCompaniesAsync(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(3, result.Count);
     }
@@ -198,7 +190,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     [Fact]
     public async Task GetUserCompaniesAsync_WhenMultipleUsersExist_ReturnsOnlyRequestedUserCompanies()
     {
-        // Arrange
+
         var userId1 = Guid.NewGuid();
         var userId2 = Guid.NewGuid();
         var roleId = Guid.NewGuid();
@@ -249,10 +241,8 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var request = new GetCompaniesByUserQuery(userId1);
 
-        // Act
         var result = await handler.GetUserCompaniesAsync(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Single(result);
@@ -262,14 +252,12 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     [Fact]
     public async Task GetUserCompaniesAsync_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var request = new GetCompaniesByUserQuery(userId);
 
-        // Act
         var result = await handler.GetUserCompaniesAsync(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -277,7 +265,7 @@ public class GetCompaniesByUserHandlerTests : IDisposable
     [Fact]
     public async Task GetUserCompaniesAsync_WhenUserHasDifferentRoles_ReturnsAllWithCorrectRoles()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
 
         var adminRole = new RoleModel
@@ -333,10 +321,8 @@ public class GetCompaniesByUserHandlerTests : IDisposable
 
         var request = new GetCompaniesByUserQuery(userId);
 
-        // Act
         var result = await handler.GetUserCompaniesAsync(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(2, result.Count);

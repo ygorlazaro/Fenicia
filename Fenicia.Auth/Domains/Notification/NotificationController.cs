@@ -13,10 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Notification;
 
-/// <summary>
-///     Controller responsible for handling notification-related HTTP endpoints.
-///     Provides CRUD operations for company-scoped notifications.
-/// </summary>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -24,14 +20,7 @@ namespace Fenicia.Auth.Domains.Notification;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class NotificationController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Retrieves a paginated list of all notifications.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="page">Page number (default: 1).</param>
-    /// <param name="perPage">Items per page (default: 10).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Paginated list of notifications.</returns>
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllNotificationsResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -50,13 +39,6 @@ public class NotificationController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Retrieves a specific notification by ID.
-    /// </summary>
-    /// <param name="id">Notification's unique identifier.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Notification details or 404 if not found.</returns>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetNotificationByIdResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -76,13 +58,6 @@ public class NotificationController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Creates a new notification.
-    /// </summary>
-    /// <param name="command">Notification creation command.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Created notification.</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddNotificationResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -102,14 +77,6 @@ public class NotificationController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Updates an existing notification.
-    /// </summary>
-    /// <param name="command">Notification update command.</param>
-    /// <param name="id">Notification's unique identifier.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Updated notification or 404 if not found.</returns>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateNotificationResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -134,13 +101,6 @@ public class NotificationController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Deletes a notification (soft delete).
-    /// </summary>
-    /// <param name="id">Notification's unique identifier.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>No content on success.</returns>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -158,13 +118,6 @@ public class NotificationController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Marks a notification as read.
-    /// </summary>
-    /// <param name="id">Notification's unique identifier.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>No content on success, 404 if not found.</returns>
     [HttpPatch("{id:guid}/read")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

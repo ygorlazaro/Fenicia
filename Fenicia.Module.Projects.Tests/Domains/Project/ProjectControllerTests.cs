@@ -72,16 +72,14 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenNoProjectsExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         const int page = 1;
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -96,7 +94,7 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenProjectsExist_ReturnsOkWithProjects()
     {
-        // Arrange
+
         var project1 = new ProjectModel
         {
             Id = Guid.NewGuid(),
@@ -125,11 +123,9 @@ public class ProjectControllerTests : IDisposable
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -144,7 +140,7 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenProjectExists_ReturnsOkWithProject()
     {
-        // Arrange
+
         var project = new ProjectModel
         {
             Id = testProjectId,
@@ -160,11 +156,9 @@ public class ProjectControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(testProjectId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -180,15 +174,13 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenProjectDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -196,16 +188,14 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithProject()
     {
-        // Arrange
+
         var command = new AddProjectCommand(Guid.NewGuid(), faker.Lorem.Sentence(5), faker.Lorem.Paragraph(), "Active", DateTime.UtcNow, null, Guid.NewGuid());
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -222,7 +212,7 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenProjectExists_ReturnsOkWithUpdatedProject()
     {
-        // Arrange
+
         var project = new ProjectModel
         {
             Id = testProjectId,
@@ -240,11 +230,9 @@ public class ProjectControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, testProjectId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -259,17 +247,15 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenProjectDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var command = new UpdateProjectCommand(nonExistentId, faker.Lorem.Sentence(5), faker.Lorem.Paragraph(), "Active", DateTime.UtcNow, null, Guid.NewGuid());
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -277,7 +263,7 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenProjectExists_ReturnsNoContent()
     {
-        // Arrange
+
         var project = new ProjectModel
         {
             Id = testProjectId,
@@ -293,14 +279,11 @@ public class ProjectControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(testProjectId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
 
-        // Verify project was deleted
         var deletedProject = await db.Projects.FirstOrDefaultAsync(x => x.Id == testProjectId && x.Deleted == null, ct);
         Assert.Null(deletedProject);
     }
@@ -308,41 +291,35 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenProjectDoesNotExist_ReturnsNoContent()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
     }
 
     [Fact]
     public void ProjectController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     [Fact]
     public void ProjectController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
@@ -350,27 +327,23 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public void ProjectController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 
     [Fact]
     public void ProjectController_DeleteAction_HasAuthorizeAdminAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectController);
         var deleteMethod = controllerType.GetMethod(nameof(ProjectController.DeleteAsync));
 
-        // Act
         var authorizeAttribute = deleteMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);
     }
@@ -378,14 +351,12 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public void ProjectController_PostAction_HasAuthorizeAdminAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectController);
         var postMethod = controllerType.GetMethod(nameof(ProjectController.PostAsync));
 
-        // Act
         var authorizeAttribute = postMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);
     }
@@ -393,14 +364,12 @@ public class ProjectControllerTests : IDisposable
     [Fact]
     public void ProjectController_PatchAction_HasAuthorizeAdminAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProjectController);
         var patchMethod = controllerType.GetMethod(nameof(ProjectController.PatchAsync));
 
-        // Act
         var authorizeAttribute = patchMethod?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);
     }

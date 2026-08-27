@@ -8,9 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.OrderDetail.Handlers;
 
-/// <summary>
-///     Handler for retrieving order details by order ID.
-/// </summary>
 public class GetOrderDetailsByOrderIdHandler(DefaultContext db) : IRequestHandler<GetOrderDetailsByOrderIdQuery, List<GetOrderDetailsByOrderIdResponse>>
 {
     public async Task<List<GetOrderDetailsByOrderIdResponse>> Handle(GetOrderDetailsByOrderIdQuery query, CancellationToken ct)

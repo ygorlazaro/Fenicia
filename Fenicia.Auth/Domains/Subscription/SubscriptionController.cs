@@ -18,16 +18,7 @@ namespace Fenicia.Auth.Domains.Subscription;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class SubscriptionController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Retrieves the user profile with associated companies and subscriptions.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>User profile with companies and subscriptions.</returns>
-    /// <response code="200">User profile retrieved successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <response code="404">User not found.</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+
     [HttpGet("profile")]
     [ProducesResponseType(typeof(GetUserProfileResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

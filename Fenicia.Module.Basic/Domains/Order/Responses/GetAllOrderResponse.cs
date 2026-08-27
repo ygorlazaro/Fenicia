@@ -2,9 +2,6 @@ using Fenicia.Common.Enums.Basic;
 
 namespace Fenicia.Module.Basic.Domains.Order.Responses;
 
-/// <summary>
-///     Response containing order summary for list views.
-/// </summary>
 public record GetAllOrderResponse(
     Guid Id,
     string OrderNumber,

@@ -32,7 +32,7 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeExists_SetsDeletedDate()
     {
-        // Arrange
+
         var assigneeId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -51,10 +51,8 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
         var command = new DeleteProjectTaskAssigneeCommand(assigneeId);
         var beforeDelete = DateTime.UtcNow;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedAssignee = await db.ProjectTaskAssignees.FindAsync([assigneeId], CancellationToken.None);
         Assert.NotNull(deletedAssignee);
         Assert.NotNull(deletedAssignee.Deleted);
@@ -64,13 +62,11 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectTaskAssigneeDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectTaskAssigneeCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var assignees = await db.ProjectTaskAssignees.ToListAsync();
         Assert.Empty(assignees);
     }
@@ -78,13 +74,11 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectTaskAssigneeCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var assignees = await db.ProjectTaskAssignees.ToListAsync();
         Assert.Empty(assignees);
     }
@@ -92,7 +86,7 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectTaskAssignees_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var assignee1Id = Guid.NewGuid();
         var assignee2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -122,10 +116,8 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
 
         var command = new DeleteProjectTaskAssigneeCommand(assignee1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedAssignee = await db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
         var notDeletedAssignee = await db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
 
@@ -138,7 +130,7 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectTaskAssignees_DeletesCorrectProjectTaskAssignee()
     {
-        // Arrange
+
         var assignee1Id = Guid.NewGuid();
         var assignee2Id = Guid.NewGuid();
         var assignee3Id = Guid.NewGuid();
@@ -179,10 +171,8 @@ public class DeleteProjectTaskAssigneeHandlerTests : IDisposable
 
         var command = new DeleteProjectTaskAssigneeCommand(assignee2Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var assignee1InDb = await db.ProjectTaskAssignees.FindAsync([assignee1Id], CancellationToken.None);
         var deletedAssignee = await db.ProjectTaskAssignees.FindAsync([assignee2Id], CancellationToken.None);
         var assignee3InDb = await db.ProjectTaskAssignees.FindAsync([assignee3Id], CancellationToken.None);

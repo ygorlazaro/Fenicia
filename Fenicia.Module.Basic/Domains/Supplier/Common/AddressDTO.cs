@@ -1,8 +1,5 @@
 namespace Fenicia.Module.Basic.Domains.Supplier.Common;
 
-/// <summary>
-///     Data transfer object for address information.
-/// </summary>
 public record AddressDTO(
     string Street,
     string Number,

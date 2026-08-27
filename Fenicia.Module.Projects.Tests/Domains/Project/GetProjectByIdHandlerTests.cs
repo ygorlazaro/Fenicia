@@ -36,7 +36,7 @@ public class GetProjectByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectExists_ReturnsProjectResponse()
     {
-        // Arrange
+
         var projectId = Guid.NewGuid();
         var project = new ProjectModel
         {
@@ -54,10 +54,8 @@ public class GetProjectByIdHandlerTests : IDisposable
 
         var query = new GetProjectByIdQuery(projectId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(projectId, result.Id);
         Assert.Equal(project.Title, result.Title);
@@ -66,33 +64,29 @@ public class GetProjectByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleProjects_ReturnsOnlyRequestedProject()
     {
-        // Arrange
+
         var project1Id = Guid.NewGuid();
         var project2Id = Guid.NewGuid();
 
@@ -123,10 +117,8 @@ public class GetProjectByIdHandlerTests : IDisposable
 
         var query = new GetProjectByIdQuery(project1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(project1Id, result.Id);
         Assert.Equal(project1.Title, result.Title);
@@ -135,7 +127,7 @@ public class GetProjectByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNullDescription_ReturnsCorrectResponse()
     {
-        // Arrange
+
         var projectId = Guid.NewGuid();
         var project = new ProjectModel
         {
@@ -153,10 +145,8 @@ public class GetProjectByIdHandlerTests : IDisposable
 
         var query = new GetProjectByIdQuery(projectId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(projectId, result.Id);
         Assert.Null(result.Description);

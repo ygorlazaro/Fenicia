@@ -12,13 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Product;
 
-/// <summary>
-///     Controller responsible for handling product-related HTTP endpoints.
-///     Provides endpoints to retrieve, create, update, and delete products, as well as retrieve product performance metrics.
-/// </summary>
-/// <remarks>
-///     All endpoints require authentication. Products are associated with categories and suppliers.
-/// </remarks>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -26,17 +19,7 @@ namespace Fenicia.Module.Basic.Domains.Product;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class ProductController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Retrieves a paginated list of all products.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="page">Page number for pagination (default: 1).</param>
-    /// <param name="perPage">Number of items per page (default: 10).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>A paginated response containing the list of products.</returns>
-    /// <response code="200">Returns the list of products successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Pagination<List<GetAllProductResponse>>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -56,17 +39,6 @@ public class ProductController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Retrieves a specific product by its unique identifier.
-    /// </summary>
-    /// <param name="id">The unique identifier of the product.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The product details if found, otherwise NotFound.</returns>
-    /// <response code="200">Returns the product successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <response code="404">Product not found.</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetProductByIdResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -87,16 +59,6 @@ public class ProductController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Creates a new product.
-    /// </summary>
-    /// <param name="command">The command containing product details.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The created product with its details.</returns>
-    /// <response code="201">Product created successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddProductResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -118,19 +80,6 @@ public class ProductController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Updates an existing product.
-    /// </summary>
-    /// <param name="command">The command containing updated product details.</param>
-    /// <param name="id">The unique identifier of the product to update.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The updated product if found, otherwise NotFound.</returns>
-    /// <response code="200">Product updated successfully.</response>
-    /// <response code="400">Invalid request.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <response code="404">Product not found.</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UpdateProductResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -153,16 +102,6 @@ public class ProductController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Deletes a product (soft delete).
-    /// </summary>
-    /// <param name="id">The unique identifier of the product to delete.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>No content on successful deletion.</returns>
-    /// <response code="204">Product deleted successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -182,17 +121,6 @@ public class ProductController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Retrieves product performance metrics including best-selling, worst-selling, and never sold products.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="days">Number of days to analyze (default: 90).</param>
-    /// <param name="topLimit">Number of top/bottom products to return (default: 10).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Performance metrics including best-selling, worst-selling, and never sold products.</returns>
-    /// <response code="200">Returns product performance data successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("performance")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductPerformanceResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

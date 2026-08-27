@@ -12,10 +12,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-/// <summary>
-///     Unit tests for the UpdateEmployeeHandler.
-///     Tests employee update business logic including validation and data persistence.
-/// </summary>
 public class UpdateEmployeeHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -79,18 +75,16 @@ public class UpdateEmployeeHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
-            employeeId, 
-            position2Id, 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            employeeId,
+            position2Id,
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(employee.PersonId, result.PersonId);
         Assert.Equal(position2Id, result.PositionId);
@@ -99,47 +93,43 @@ public class UpdateEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmployeeDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateEmployeeCommand(
-            Guid.NewGuid(), 
-            Guid.NewGuid(), 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateEmployeeCommand(
-            Guid.NewGuid(), 
-            Guid.NewGuid(), 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithNullPhoneNumber_SetsEmptyString()
     {
-        // Arrange
+
         var employeeId = Guid.NewGuid();
         var position = new PositionModel
         {
@@ -167,25 +157,23 @@ public class UpdateEmployeeHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
-            employeeId, 
-            position.Id, 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            null, 
+            employeeId,
+            position.Id,
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            null,
             null);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
     }
 
     [Fact]
     public async Task Handle_VerifiesEmployeeWasUpdatedInDatabase()
     {
-        // Arrange
+
         var employeeId = Guid.NewGuid();
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
@@ -223,18 +211,16 @@ public class UpdateEmployeeHandlerTests : IDisposable
         await db.SaveChangesAsync(CancellationToken.None);
 
         var command = new UpdateEmployeeCommand(
-            employeeId, 
-            position2Id, 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            employeeId,
+            position2Id,
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             null);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedEmployee = await db.BasicEmployees.Include(e => e.Person).FirstOrDefaultAsync(e => e.Id == employeeId);
 
         Assert.NotNull(updatedEmployee);
@@ -246,7 +232,7 @@ public class UpdateEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithAddress_CreatesOrUpdatesAddress()
     {
-        // Arrange
+
         var stateId = Guid.NewGuid();
         var state = new StateModel
         {
@@ -288,18 +274,16 @@ public class UpdateEmployeeHandlerTests : IDisposable
         );
 
         var command = new UpdateEmployeeCommand(
-            employeeId, 
-            employee.PositionId, 
-            "New Name", 
-            "new@email.com", 
-            "98765432100", 
-            "11988887777", 
+            employeeId,
+            employee.PositionId,
+            "New Name",
+            "new@email.com",
+            "98765432100",
+            "11988887777",
             addressDto);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var address = await db.AuthAddresses.FirstOrDefaultAsync(a => a.Street == addressDto.Street);
         var personAddress = await db.BasicPersonAddresses.FirstOrDefaultAsync(pa => pa.AddressId == address!.Id);
 

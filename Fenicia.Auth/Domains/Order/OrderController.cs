@@ -11,15 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Auth.Domains.Order;
 
-/// <summary>
-///     Controller responsible for handling order-related HTTP endpoints in the Auth module.
-///     Provides endpoints for creating new orders (module subscriptions).
-/// </summary>
-/// <remarks>
-///     This controller handles the creation of orders for module subscriptions.
-///     It integrates with the subscription system to automatically create subscriptions
-///     and credits when an order is placed. See <see cref="CreateNewOrderHandler" /> for details.
-/// </remarks>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -27,31 +18,7 @@ namespace Fenicia.Auth.Domains.Order;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class OrderController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Creates a new order for module subscriptions.
-    /// </summary>
-    /// <param name="request">The command containing user ID, company ID, and list of module IDs to subscribe.</param>
-    /// <param name="headers">HTTP headers containing company context.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The created order ID or error response.</returns>
-    /// <remarks>
-    ///     This endpoint:
-    ///     1. Validates the user belongs to the company
-    ///     2. Validates the requested modules exist
-    ///     3. Automatically adds Basic module if not included
-    ///     4. Creates the order with Approved status
-    ///     5. Creates a 1-month subscription with credits for each module
-    /// </remarks>
-    /// <response code="201">Order created successfully.</response>
-    /// <response code="400">Invalid request or modules not found.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <response code="403">User does not belong to the company.</response>
-    /// <response code="404">Module not found.</response>
-    /// <response code="500">Internal server error.</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
-    /// <exception cref="PermissionDeniedException">User does not belong to the company.</exception>
-    /// <exception cref="ItemNotExistsException">Requested modules or Basic module not found.</exception>
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

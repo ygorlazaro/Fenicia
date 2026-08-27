@@ -29,13 +29,11 @@ public class AddProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithValidCommand_AddsCategoryAndReturnsResponse()
     {
-        // Arrange
+
         var command = new AddProductCategoryCommand(Guid.NewGuid(), "Electronics");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal(command.Name, result.Name);
@@ -44,13 +42,11 @@ public class AddProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesCategoryWasSavedToDatabase()
     {
-        // Arrange
+
         var command = new AddProductCategoryCommand(Guid.NewGuid(), "Books");
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var category = await db.BasicProductCategories.FindAsync([command.Id], CancellationToken.None);
         Assert.NotNull(category);
         Assert.Equal(command.Name, category.Name);
@@ -59,15 +55,13 @@ public class AddProductCategoryHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllCategories()
     {
-        // Arrange
+
         var command1 = new AddProductCategoryCommand(Guid.NewGuid(), "Electronics");
         var command2 = new AddProductCategoryCommand(Guid.NewGuid(), "Books");
 
-        // Act
         await handler.Handle(command1, CancellationToken.None);
         await handler.Handle(command2, CancellationToken.None);
 
-        // Assert
         var categories = await db.BasicProductCategories.ToListAsync();
         Assert.Equal(2, categories.Count);
     }

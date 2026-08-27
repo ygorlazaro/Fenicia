@@ -39,23 +39,20 @@ public class CreateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenValidRequest_CreatesUserSuccessfully()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
 
         var request = new CreateUserCommand(email, password, name);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(email, result.Email);
         Assert.Equal(name, result.Name);
         Assert.NotEqual(Guid.Empty, result.Id);
 
-        // Verify user was saved to database
         var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
         Assert.Equal(email, user.Email);
@@ -65,12 +62,11 @@ public class CreateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmailExists_ThrowsArgumentException()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
 
-        // Create existing user
         var existingUser = new UserModel
         {
             Email = email,
@@ -83,7 +79,6 @@ public class CreateUserHandlerTests : IDisposable
 
         var request = new CreateUserCommand(email, password, "Another " + name);
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
 
         Assert.Equal("This email already exists", exception.Message);
@@ -92,12 +87,11 @@ public class CreateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenValidRequestWithCompanies_CreatesUserWithCompaniesSuccessfully()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
 
-        // Create company and role
         var company = new CompanyModel
         {
             Name = faker.Company.CompanyName(),
@@ -113,13 +107,10 @@ public class CreateUserHandlerTests : IDisposable
 
         var request = new CreateUserCommand(email, password, name, companiesRoles);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
-        // Verify user role was saved to database
         var userRole = await db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
 
         Assert.NotNull(userRole);
@@ -130,7 +121,7 @@ public class CreateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCompanyNotFound_ThrowsArgumentException()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -141,12 +132,11 @@ public class CreateUserHandlerTests : IDisposable
 
         var companiesRoles = new List<CreateUserRoleCommand>
         {
-            new(Guid.NewGuid(), role.Id) // Non-existent company
+            new(Guid.NewGuid(), role.Id)
         };
 
         var request = new CreateUserCommand(email, password, name, companiesRoles);
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
 
         Assert.Contains("not found", exception.Message);
@@ -155,7 +145,7 @@ public class CreateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenRoleNotFound_ThrowsArgumentException()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -170,12 +160,11 @@ public class CreateUserHandlerTests : IDisposable
 
         var companiesRoles = new List<CreateUserRoleCommand>
         {
-            new(company.Id, Guid.NewGuid()) // Non-existent role
+            new(company.Id, Guid.NewGuid())
         };
 
         var request = new CreateUserCommand(email, password, name, companiesRoles);
 
-        // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
 
         Assert.Contains("not found", exception.Message);
@@ -184,20 +173,18 @@ public class CreateUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_PasswordIsHashed_BeforeSaving()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
 
         var request = new CreateUserCommand(email, password, name);
 
-        // Act
         await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         var user = db.AuthUsers.Local.FirstOrDefault(u => u.Email == email);
         Assert.NotNull(user);
-        Assert.NotEqual(password, user.Password); // Password should be hashed
-        Assert.StartsWith("$2", user.Password); // BCrypt hashes start with $2
+        Assert.NotEqual(password, user.Password);
+        Assert.StartsWith("$2", user.Password);
     }
 }

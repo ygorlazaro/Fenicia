@@ -10,18 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Order.Handlers;
 
-/// <summary>
-///     Handler responsible for generating order analytics.
-///     Provides comprehensive statistics including sales trends, top customers, and order values.
-/// </summary>
 public class GetOrderAnalyticsHandler(DefaultContext db) : IRequestHandler<GetOrderAnalyticsQuery, OrderAnalyticsResponse>
 {
-    /// <summary>
-    ///     Generates comprehensive order analytics for a given time period.
-    /// </summary>
-    /// <param name="query">Query containing days to analyze and top customers limit.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Complete analytics response with multiple data sets.</returns>
+
     public async Task<OrderAnalyticsResponse> Handle(GetOrderAnalyticsQuery query, CancellationToken ct)
     {
         var startDate = DateTime.UtcNow.AddDays(-query.Days);
@@ -45,9 +36,6 @@ public class GetOrderAnalyticsHandler(DefaultContext db) : IRequestHandler<GetOr
         };
     }
 
-    /// <summary>
-    ///     Retrieves recent cancelled orders.
-    /// </summary>
     private async Task<List<CancelledOrderResponse>> GetCancelledOrderAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
         var cancelled = await orders
@@ -76,9 +64,6 @@ public class GetOrderAnalyticsHandler(DefaultContext db) : IRequestHandler<GetOr
             .ToList();
     }
 
-    /// <summary>
-    ///     Calculates average order value statistics.
-    /// </summary>
     private async Task<AverageOrderValueResponse> GetAverageOrderValueAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
         var orderValues = await orders.Select(o => o.TotalAmount).OrderBy(v => v).ToListAsync(ct);
@@ -93,9 +78,6 @@ public class GetOrderAnalyticsHandler(DefaultContext db) : IRequestHandler<GetOr
         return averageOrderValue;
     }
 
-    /// <summary>
-    ///     Retrieves top customers by total spending.
-    /// </summary>
     private async Task<List<TopCustomerResponse>> GetTopCustomerAsync(GetOrderAnalyticsQuery query, IQueryable<OrderModel> orders, CancellationToken ct)
     {
         var raw = await orders
@@ -125,9 +107,6 @@ public class GetOrderAnalyticsHandler(DefaultContext db) : IRequestHandler<GetOr
         return topCustomers;
     }
 
-    /// <summary>
-    ///     Retrieves daily sales trends.
-    /// </summary>
     private async Task<List<SalesTrendResponse>> GetSalesTrendAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
         var orderData = await orders
@@ -156,9 +135,6 @@ public class GetOrderAnalyticsHandler(DefaultContext db) : IRequestHandler<GetOr
         return salesTrend;
     }
 
-    /// <summary>
-    ///     Groups orders by status and calculates counts and totals.
-    /// </summary>
     private async Task<List<OrderStatusCountResponse>> GetOrdersByStatusAsync(IQueryable<OrderModel> orders, CancellationToken ct)
     {
         var groups = await orders

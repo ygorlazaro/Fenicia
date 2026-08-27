@@ -79,16 +79,14 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenNoProductsExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var page = 1;
         var perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -103,7 +101,7 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenProductsExist_ReturnsOkWithProducts()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -142,11 +140,9 @@ public class ProductControllerTests : IDisposable
         var perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -161,7 +157,7 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenProductExists_ReturnsOkWithProduct()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -188,11 +184,9 @@ public class ProductControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(testProductId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -208,15 +202,13 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenProductDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -224,7 +216,7 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithProduct()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -238,11 +230,9 @@ public class ProductControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -260,7 +250,7 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenProductExists_ReturnsOkWithUpdatedProduct()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -289,11 +279,9 @@ public class ProductControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, testProductId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -308,7 +296,7 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenProductDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var category = new ProductCategoryModel
         {
@@ -323,11 +311,9 @@ public class ProductControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -335,7 +321,7 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenProductExists_ReturnsNoContent()
     {
-        // Arrange
+
         var category = new ProductCategoryModel
         {
             Id = Guid.NewGuid(),
@@ -370,14 +356,11 @@ public class ProductControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(testProductId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
 
-        // Verify product was deleted
         var deletedProduct = await db.BasicProducts.FirstOrDefaultAsync(x => x.Id == testProductId && x.Deleted == null, ct);
         Assert.Null(deletedProduct);
     }
@@ -385,41 +368,35 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenProductDoesNotExist_ReturnsNoContent()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
     }
 
     [Fact]
     public void ProductController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProductController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     [Fact]
     public void ProductController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProductController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
@@ -427,13 +404,11 @@ public class ProductControllerTests : IDisposable
     [Fact]
     public void ProductController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(ProductController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 }

@@ -27,9 +27,6 @@ using Moq;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Position;
 
-/// <summary>
-///     Unit tests for the PositionController.
-/// </summary>
 public class PositionControllerTests : IDisposable
 {
     private readonly PositionController controller;
@@ -99,16 +96,14 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenNoPositionsExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         const int page = 1;
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -124,7 +119,7 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task GetAsync_WhenPositionsExist_ReturnsOkWithPositions()
     {
-        // Arrange
+
         var position1 = new PositionModel
         {
             Id = Guid.NewGuid(),
@@ -144,11 +139,9 @@ public class PositionControllerTests : IDisposable
         const int perPage = 10;
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetAsync(wide, page, perPage, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -164,7 +157,7 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenPositionExists_ReturnsOkWithPosition()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = testPositionId,
@@ -176,11 +169,9 @@ public class PositionControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(testPositionId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -196,15 +187,13 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task GetByIdAsync_WhenPositionDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetByIdAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -212,7 +201,7 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task GetEmployeesByPositionIdAsync_WhenNoEmployeesExist_ReturnsOkWithEmptyList()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = testPositionId,
@@ -225,11 +214,9 @@ public class PositionControllerTests : IDisposable
         var query = new PaginationQuery(1, 10);
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetEmployeesByPositionIdAsync(testPositionId, query, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -244,7 +231,7 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task GetEmployeesByPositionIdAsync_WhenEmployeesExist_ReturnsOkWithEmployees()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = testPositionId,
@@ -286,11 +273,9 @@ public class PositionControllerTests : IDisposable
         var query = new PaginationQuery(1, 10);
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.GetEmployeesByPositionIdAsync(testPositionId, query, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -305,15 +290,13 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task PostAsync_WithValidCommand_ReturnsCreatedWithPosition()
     {
-        // Arrange
+
         var command = new AddPositionCommand(Guid.NewGuid(), faker.Commerce.Department());
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PostAsync(command, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<CreatedResult>(result.Result);
 
@@ -329,7 +312,7 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenPositionExists_ReturnsOkWithUpdatedPosition()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = testPositionId,
@@ -342,11 +325,9 @@ public class PositionControllerTests : IDisposable
         var command = new UpdatePositionCommand(testPositionId, faker.Commerce.Department() + " Updated");
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, testPositionId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -361,16 +342,14 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task PatchAsync_WhenPositionDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var command = new UpdatePositionCommand(nonExistentId, faker.Commerce.Department());
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.PatchAsync(command, nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NotFoundResult>(result.Result);
     }
@@ -378,7 +357,7 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenPositionExists_ReturnsNoContent()
     {
-        // Arrange
+
         var position = new PositionModel
         {
             Id = testPositionId,
@@ -390,14 +369,11 @@ public class PositionControllerTests : IDisposable
 
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(testPositionId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
 
-        // Verify position was deleted
         var deletedPosition = await db.BasicPositions.FirstOrDefaultAsync(x => x.Id == testPositionId && x.Deleted == null, ct);
         Assert.Null(deletedPosition);
     }
@@ -405,41 +381,35 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public async Task DeleteAsync_WhenPositionDoesNotExist_ReturnsNoContent()
     {
-        // Arrange
+
         var nonExistentId = Guid.NewGuid();
         var ct = CancellationToken.None;
 
-        // Act
         var wide = new WideEventContext();
         var result = await controller.DeleteAsync(nonExistentId, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
     }
 
     [Fact]
     public void PositionController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(PositionController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
     [Fact]
     public void PositionController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(PositionController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
@@ -447,13 +417,11 @@ public class PositionControllerTests : IDisposable
     [Fact]
     public void PositionController_HasApiControllerAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(PositionController);
 
-        // Act
         var apiControllerAttribute = controllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(apiControllerAttribute);
     }
 }

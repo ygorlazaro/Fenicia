@@ -29,7 +29,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenAdminRoleExists_ReturnsAdminRole()
     {
-        // Arrange
+
         var adminRoleId = Guid.NewGuid();
 
         var adminRole = new RoleModel
@@ -41,10 +41,8 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.Add(adminRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(adminRoleId, result.Id);
         Assert.Equal("Admin", result.Name);
@@ -53,7 +51,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenAdminRoleDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var role = new RoleModel
         {
             Id = Guid.NewGuid(),
@@ -63,17 +61,15 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.Add(role);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WhenMultipleRolesExist_ReturnsOnlyAdminRole()
     {
-        // Arrange
+
         var adminRoleId = Guid.NewGuid();
 
         var adminRole = new RoleModel
@@ -97,10 +93,8 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.AddRange(adminRole, userRole, managerRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(adminRoleId, result.Id);
         Assert.Equal("Admin", result.Name);
@@ -109,7 +103,7 @@ public class GetAdminRoleHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenAdminRoleNameHasDifferentCase_ReturnsNull()
     {
-        // Arrange
+
         var role = new RoleModel
         {
             Id = Guid.NewGuid(),
@@ -119,27 +113,24 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.Add(role);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Act
+
         var result = await handler.Handle(CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WhenAdminRoleNameHasExtraSpaces_ReturnsNull()
     {
-        // Arrange
+
         var role = new RoleModel
         {
             Id = Guid.NewGuid(),
@@ -149,17 +140,15 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.Add(role);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WhenMultipleAdminRolesExist_ReturnsFirst()
     {
-        // Arrange
+
         var adminRoleId1 = Guid.NewGuid();
         var adminRoleId2 = Guid.NewGuid();
 
@@ -178,10 +167,8 @@ public class GetAdminRoleHandlerTests : IDisposable
         db.AuthRoles.AddRange(adminRole1, adminRole2);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act
         var result = await handler.Handle(CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal("Admin", result.Name);
     }

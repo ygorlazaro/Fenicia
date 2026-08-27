@@ -11,18 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Auth.Tests.Domains.Module;
 
-/// <summary>
-///     Unit tests for the GetModulesHandler.
-///     Tests retrieval of paginated modules from database.
-/// </summary>
-/// <remarks>
-///     These tests verify the core functionality of module retrieval:
-///     - Pagination returns correct data and metadata
-///     - Auth type modules are excluded from results
-///     - Results are ordered by module type
-///     - Empty results are handled correctly
-///     - Response contains all required fields
-/// </remarks>
 public class GetModulesHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -45,13 +33,10 @@ public class GetModulesHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    ///     Tests that when modules exist, they are returned with correct pagination metadata.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenModulesExist_ReturnsPaginatedModules()
     {
-        // Arrange
+
         var module1 = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -77,10 +62,8 @@ public class GetModulesHandlerTests : IDisposable
 
         var request = new GetModulesQuery(1, 10);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(2, result.Data.Count);
@@ -89,13 +72,10 @@ public class GetModulesHandlerTests : IDisposable
         Assert.Equal(10, result.PerPage);
     }
 
-    /// <summary>
-    ///     Tests that Auth type modules are excluded from results while Basic modules are included.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenModulesExist_ExcludesErpAndAuthTypes()
     {
-        // Arrange
+
         var authModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -121,10 +101,8 @@ public class GetModulesHandlerTests : IDisposable
 
         var request = new GetModulesQuery(1, 10);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Single(result.Data);
@@ -135,7 +113,7 @@ public class GetModulesHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenInactiveModulesExist_ExcludesInactiveModules()
     {
-        // Arrange
+
         var activeModule = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -161,23 +139,18 @@ public class GetModulesHandlerTests : IDisposable
 
         var request = new GetModulesQuery(1, 10);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Single(result.Data);
         Assert.Equal(activeModule.Name, result.Data[0].Name);
     }
 
-    /// <summary>
-    ///     Tests that pagination returns the correct page of results.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenPaginationIsApplied_ReturnsCorrectPage()
     {
-        // Arrange
+
         var modules = new List<ModuleModel>();
         for (var i = 0; i < 25; i++)
         {
@@ -197,10 +170,8 @@ public class GetModulesHandlerTests : IDisposable
 
         var request = new GetModulesQuery(2, 10);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(10, result.Data.Count);
@@ -210,32 +181,24 @@ public class GetModulesHandlerTests : IDisposable
         Assert.Equal(3, result.Pages);
     }
 
-    /// <summary>
-    ///     Tests that when no modules exist, an empty pagination result is returned.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenNoModulesExist_ReturnsEmptyPagination()
     {
-        // Arrange
+
         var request = new GetModulesQuery(1, 10);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Empty(result.Data);
         Assert.Equal(0, result.Total);
     }
 
-    /// <summary>
-    ///     Tests that when page number exceeds available pages, empty data is returned.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenPageExceedsTotalPages_ReturnsEmptyData()
     {
-        // Arrange
+
         var module = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -251,23 +214,18 @@ public class GetModulesHandlerTests : IDisposable
 
         var request = new GetModulesQuery(10, 10);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Empty(result.Data);
         Assert.Equal(1, result.Total);
     }
 
-    /// <summary>
-    ///     Tests that results are ordered by module type in ascending order.
-    /// </summary>
     [Fact]
     public async Task Handle_ResultsAreOrderedBySortOrder()
     {
-        // Arrange
+
         var module1 = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -303,10 +261,8 @@ public class GetModulesHandlerTests : IDisposable
 
         var request = new GetModulesQuery(1, 10);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(3, result.Data.Count);
@@ -318,13 +274,10 @@ public class GetModulesHandlerTests : IDisposable
         Assert.Equal(3, result.Data[2].SortOrder);
     }
 
-    /// <summary>
-    ///     Tests that default request values (page 1, 20 items) are applied correctly.
-    /// </summary>
     [Fact]
     public async Task Handle_WithDefaultRequest_ReturnsFirstPage()
     {
-        // Arrange
+
         var module = new ModuleModel
         {
             Id = Guid.NewGuid(),
@@ -340,23 +293,18 @@ public class GetModulesHandlerTests : IDisposable
 
         var request = new GetModulesQuery();
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(1, result.Page);
         Assert.Equal(20, result.PerPage);
     }
 
-    /// <summary>
-    ///     Tests that the response contains all required fields (Id, Name, Type).
-    /// </summary>
     [Fact]
     public async Task Handle_VerifiesResponseContainsAllFields()
     {
-        // Arrange
+
         var moduleId = Guid.NewGuid();
         var description = "Test module description";
         var icon = "icon-test";
@@ -379,10 +327,8 @@ public class GetModulesHandlerTests : IDisposable
 
         var request = new GetModulesQuery(1, 10);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result.Data);
         var moduleResponse = result.Data[0];

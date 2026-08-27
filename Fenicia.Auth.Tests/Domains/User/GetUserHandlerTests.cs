@@ -49,13 +49,11 @@ public class GetUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenNoParameters_ReturnsFirstPageWithDefaultPerPage()
     {
-        // Arrange
+
         var request = new GetUsersQuery();
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(1, result.Page);
@@ -68,13 +66,11 @@ public class GetUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenPageSpecified_ReturnsCorrectPage()
     {
-        // Arrange
+
         var request = new GetUsersQuery(2, 5);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(2, result.Page);
@@ -85,28 +81,23 @@ public class GetUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_UsersAreOrderedAlphabeticallyByName()
     {
-        // Arrange
+
         var request = new GetUsersQuery(1, 15);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(result.Data.Select(u => u.Name).OrderBy(n => n), result.Data.Select(u => u.Name));
     }
 
-
     [Fact]
     public async Task Handle_WhenLastPage_HasNextIsFalse()
     {
-        // Arrange
+
         var request = new GetUsersQuery(2, 10);
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         Assert.Equal(2, result.Page);

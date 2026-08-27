@@ -32,15 +32,13 @@ public class GetStockMovementHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNoMovementsInDateRange_ReturnsEmptyList()
     {
-        // Arrange
+
         var startDate = DateTime.Now.AddDays(-10);
         var endDate = DateTime.Now;
         var query = new GetStockMovementQuery(startDate, endDate);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -48,7 +46,7 @@ public class GetStockMovementHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMovementsInDateRange_ReturnsFilteredList()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -100,10 +98,8 @@ public class GetStockMovementHandlerTests : IDisposable
         var endDate = DateTime.Now;
         var query = new GetStockMovementQuery(startDate, endDate);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
         Assert.True(result.All(m => m.Date >= startDate && m.Date <= endDate));
@@ -112,7 +108,7 @@ public class GetStockMovementHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -144,10 +140,8 @@ public class GetStockMovementHandlerTests : IDisposable
         var endDate = DateTime.Now;
         var query = new GetStockMovementQuery(startDate, endDate, 2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Count);
     }
@@ -155,7 +149,7 @@ public class GetStockMovementHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         var product = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -187,10 +181,8 @@ public class GetStockMovementHandlerTests : IDisposable
         var endDate = DateTime.Now;
         var query = new GetStockMovementQuery(startDate, endDate, 10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
     }

@@ -35,7 +35,7 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectSubtaskExists_SetsDeletedDate()
     {
-        // Arrange
+
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var subtask = new ProjectSubtaskModel
@@ -54,10 +54,8 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
         var command = new DeleteProjectSubtaskCommand(subtaskId);
         var beforeDelete = DateTime.UtcNow;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedSubtask = await db.ProjectSubtasks.FindAsync([subtaskId], CancellationToken.None);
         Assert.NotNull(deletedSubtask);
         Assert.NotNull(deletedSubtask.Deleted);
@@ -67,13 +65,11 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectSubtaskDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectSubtaskCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var subtasks = await db.ProjectSubtasks.ToListAsync();
         Assert.Empty(subtasks);
     }
@@ -81,13 +77,11 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteProjectSubtaskCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var subtasks = await db.ProjectSubtasks.ToListAsync();
         Assert.Empty(subtasks);
     }
@@ -95,7 +89,7 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectSubtasks_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var subtask1Id = Guid.NewGuid();
         var subtask2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -125,10 +119,8 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
 
         var command = new DeleteProjectSubtaskCommand(subtask1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedSubtask = await db.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
         var notDeletedSubtask = await db.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
 
@@ -141,7 +133,7 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleProjectSubtasks_DeletesCorrectProjectSubtask()
     {
-        // Arrange
+
         var subtask1Id = Guid.NewGuid();
         var subtask2Id = Guid.NewGuid();
         var subtask3Id = Guid.NewGuid();
@@ -182,10 +174,8 @@ public class DeleteProjectSubtaskHandlerTests : IDisposable
 
         var command = new DeleteProjectSubtaskCommand(subtask2Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var subtask1InDb = await db.ProjectSubtasks.FindAsync([subtask1Id], CancellationToken.None);
         var deletedSubtask = await db.ProjectSubtasks.FindAsync([subtask2Id], CancellationToken.None);
         var subtask3InDb = await db.ProjectSubtasks.FindAsync([subtask3Id], CancellationToken.None);

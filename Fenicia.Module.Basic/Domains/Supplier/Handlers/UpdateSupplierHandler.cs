@@ -9,17 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Supplier.Handlers;
 
-/// <summary>
-///     Handler responsible for updating an existing supplier.
-/// </summary>
 public class UpdateSupplierHandler(DefaultContext db) : IRequestHandler<UpdateSupplierCommand, UpdateSupplierResponse?>
 {
-    /// <summary>
-    ///     Updates a supplier with new information.
-    /// </summary>
-    /// <param name="command">The command containing updated supplier details.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>The updated supplier details if found, otherwise null.</returns>
+
     public async Task<UpdateSupplierResponse?> Handle(UpdateSupplierCommand command, CancellationToken ct)
     {
         var supplier = await db.BasicSuppliers

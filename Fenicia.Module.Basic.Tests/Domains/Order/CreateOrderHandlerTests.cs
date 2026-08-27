@@ -32,7 +32,7 @@ public class CreateOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithValidCommand_CreatesOrderAndReturnsResponse()
     {
-        // Arrange
+
         var userId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
         var employeeId = Guid.NewGuid();
@@ -40,10 +40,8 @@ public class CreateOrderHandlerTests : IDisposable
 
         var command = new CreateOrderCommand(userId, customerId, DateTime.Now, OrderStatus.Pending, details, PaymentMethod.CreditCard, employeeId);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(userId, result.UserId);
         Assert.Equal(customerId, result.CustomerId);
@@ -59,15 +57,13 @@ public class CreateOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithSingleDetail_CalculatesCorrectTotalAmount()
     {
-        // Arrange
+
         var details = new List<OrderDetailCommand> { new(Guid.NewGuid(), 15.00m, 2) };
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details, PaymentMethod.Pix);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(30.00m, result.TotalAmount);
         Assert.Equal(2, result.TotalQuantity);
@@ -76,7 +72,7 @@ public class CreateOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleDetails_CreatesStockMovements()
     {
-        // Arrange
+
         var productId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
         var employeeId = Guid.NewGuid();
@@ -97,10 +93,8 @@ public class CreateOrderHandlerTests : IDisposable
 
         var command = new CreateOrderCommand(Guid.NewGuid(), customerId, DateTime.Now, OrderStatus.Pending, details, PaymentMethod.CreditCard, employeeId);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var stockMovements = await db.BasicStockMovements.ToListAsync();
         Assert.Single(stockMovements);
         Assert.Equal(productId, stockMovements[0].ProductId);
@@ -118,7 +112,7 @@ public class CreateOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleDetails_SubtractsProductQuantity()
     {
-        // Arrange
+
         var product1 = new ProductModel
         {
             Id = Guid.NewGuid(),
@@ -146,10 +140,8 @@ public class CreateOrderHandlerTests : IDisposable
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details, PaymentMethod.Cash);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var updatedProduct1 = await db.BasicProducts.FindAsync(product1.Id);
         var updatedProduct2 = await db.BasicProducts.FindAsync(product2.Id);
         Assert.Equal(45, updatedProduct1?.Quantity);
@@ -159,15 +151,13 @@ public class CreateOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesOrderWasSavedToDatabase()
     {
-        // Arrange
+
         var details = new List<OrderDetailCommand> { new(Guid.NewGuid(), 10.00m, 5) };
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details, PaymentMethod.Boleto);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var orders = await db.BasicOrders.ToListAsync();
         Assert.Single(orders);
         Assert.Equal(command.CustomerId, orders[0].CustomerId);
@@ -178,15 +168,13 @@ public class CreateOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleDetails_CreatesOrderDetails()
     {
-        // Arrange
+
         var details = new List<OrderDetailCommand> { new(Guid.NewGuid(), 10.00m, 5), new(Guid.NewGuid(), 20.00m, 3) };
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details, PaymentMethod.DebitCard);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var orderDetails = await db.BasicOrderDetails.ToListAsync();
         Assert.Equal(2, orderDetails.Count);
     }
@@ -194,15 +182,13 @@ public class CreateOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNullEmployeeId_CreatesOrderWithoutEmployee()
     {
-        // Arrange
+
         var details = new List<OrderDetailCommand> { new(Guid.NewGuid(), 10.00m, 5) };
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details, PaymentMethod.Pix);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result.EmployeeId);
 
         var orders = await db.BasicOrders.ToListAsync();
@@ -212,15 +198,13 @@ public class CreateOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDiscount_CalculatesCorrectSubtotal()
     {
-        // Arrange
+
         var details = new List<OrderDetailCommand> { new(Guid.NewGuid(), 50.00m, 2, 10.00m) };
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details, PaymentMethod.CreditCard);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(90.00m, result.TotalAmount);
     }
@@ -228,16 +212,14 @@ public class CreateOrderHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNotes_StoresNotesCorrectly()
     {
-        // Arrange
+
         var details = new List<OrderDetailCommand> { new(Guid.NewGuid(), 10.00m, 5) };
         var notes = "Please deliver in the morning";
 
         var command = new CreateOrderCommand(Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, OrderStatus.Pending, details, PaymentMethod.CreditCard, null, notes);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(notes, result.Notes);
     }

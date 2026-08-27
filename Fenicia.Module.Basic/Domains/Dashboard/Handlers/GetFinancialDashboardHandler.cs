@@ -11,18 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard.Handlers;
 
-/// <summary>
-///     Handler responsible for generating financial dashboard data.
-///     Provides comprehensive business analytics including KPIs, revenue vs cost analysis, profit margins, and sales summaries.
-/// </summary>
 public class GetFinancialDashboardHandler(DefaultContext db) : IRequestHandler<GetFinancialDashboardQuery, FinancialDashboardResponse>
 {
-    /// <summary>
-    ///     Generates comprehensive financial dashboard analytics.
-    /// </summary>
-    /// <param name="query">The query containing dashboard parameters (number of days to analyze).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Financial dashboard including KPIs, revenue analysis, and sales data.</returns>
+
     public async Task<FinancialDashboardResponse> Handle(GetFinancialDashboardQuery query, CancellationToken ct)
     {
         var kpi = await CalculateKpiSummaryAsync(ct);
@@ -171,7 +162,7 @@ public class GetFinancialDashboardHandler(DefaultContext db) : IRequestHandler<G
         var products = db.BasicProducts;
 
         var totalRevenue = await orders.SumAsync(o => o.TotalAmount, ct);
-        var totalCost = await orders.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), ct); // Estimate 70% cost
+        var totalCost = await orders.SumAsync(o => o.Details.Sum(d => d.Price * (decimal)d.Quantity * 0.7m), ct);
         var grossProfit = totalRevenue - totalCost;
         var profitMargin = totalRevenue > 0 ? grossProfit / totalRevenue * 100 : 0;
         var totalOrders = await orders.CountAsync(ct);

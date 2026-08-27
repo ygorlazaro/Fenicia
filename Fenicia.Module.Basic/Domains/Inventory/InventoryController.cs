@@ -11,13 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Inventory;
 
-/// <summary>
-///     Controller responsible for handling inventory-related HTTP endpoints.
-///     Provides endpoints for inventory management, dashboards, and health checks.
-/// </summary>
-/// <remarks>
-///     All endpoints require authentication.
-/// </remarks>
 [ApiController]
 [Route("[controller]")]
 [Authorize]
@@ -25,16 +18,7 @@ namespace Fenicia.Module.Basic.Domains.Inventory;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class InventoryController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Retrieves inventory data for a specific product.
-    /// </summary>
-    /// <param name="productId">Product's unique identifier.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <returns>Inventory details for the specified product.</returns>
-    /// <response code="200">Inventory retrieved successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+
     [HttpGet("product/{productId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -54,16 +38,6 @@ public class InventoryController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Retrieves inventory data for products in a specific category.
-    /// </summary>
-    /// <param name="categoryId">Category's unique identifier.</param>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Inventory details for products in the specified category.</returns>
-    /// <response code="200">Inventory retrieved successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("category/{categoryId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -83,17 +57,6 @@ public class InventoryController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Retrieves paginated inventory data for all products.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="page">Page number (default: 1).</param>
-    /// <param name="perPage">Items per page (default: 10).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Paginated inventory list.</returns>
-    /// <response code="200">Inventory retrieved successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -113,15 +76,6 @@ public class InventoryController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Retrieves inventory dashboard with overview metrics.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Inventory dashboard with key metrics.</returns>
-    /// <response code="200">Dashboard retrieved successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("dashboard")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -141,17 +95,6 @@ public class InventoryController(ISender sender) : ControllerBase
         }
     }
 
-    /// <summary>
-    ///     Retrieves inventory health analysis including overstock and zero-movement alerts.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="zeroMovementDays">Days threshold for zero movement detection (default: 90).</param>
-    /// <param name="overstockMultiplier">Multiplier for overstock calculation (default: 3.0).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Inventory health analysis.</returns>
-    /// <response code="200">Health analysis retrieved successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
     [HttpGet("health")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(InventoryHealthResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -10,10 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-/// <summary>
-///     Unit tests for the DeleteEmployeeHandler.
-///     Tests employee deletion (soft delete) business logic.
-/// </summary>
 public class DeleteEmployeeHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -63,7 +59,6 @@ public class DeleteEmployeeHandlerTests : IDisposable
 
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedEmployee = await db.BasicEmployees.FindAsync([employeeId], CancellationToken.None);
         Assert.NotNull(deletedEmployee);
         Assert.NotNull(deletedEmployee.Deleted);
@@ -74,13 +69,11 @@ public class DeleteEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmployeeDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteEmployeeCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var employees = await db.BasicEmployees.ToListAsync();
         Assert.Empty(employees);
     }
@@ -88,7 +81,7 @@ public class DeleteEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleEmployees_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var employee1Id = Guid.NewGuid();
         var employee2Id = Guid.NewGuid();
 
@@ -125,10 +118,8 @@ public class DeleteEmployeeHandlerTests : IDisposable
 
         var command = new DeleteEmployeeCommand(employee1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedEmployee = await db.BasicEmployees.FindAsync([employee1Id], CancellationToken.None);
         var notDeletedEmployee = await db.BasicEmployees.FindAsync([employee2Id], CancellationToken.None);
 
@@ -141,13 +132,11 @@ public class DeleteEmployeeHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteEmployeeCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var employees = await db.BasicEmployees.ToListAsync();
         Assert.Empty(employees);
     }

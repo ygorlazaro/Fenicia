@@ -9,9 +9,6 @@ using StackExchange.Redis;
 
 namespace Fenicia.Auth.Domains.RefreshToken.Handlers;
 
-/// <summary>
-///     Handler responsible for invalidating (revoking) refresh tokens.
-/// </summary>
 public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis) : IRequestHandler<InvalidateRefreshTokenCommand>
 {
     private const string RedisPrefix = "refresh_token:";
@@ -40,7 +37,7 @@ public class InvalidateRefreshTokenHandler(IConnectionMultiplexer redis) : IRequ
         }
         catch
         {
-            // ignored
+
         }
     }
 

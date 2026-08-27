@@ -35,7 +35,7 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectCommentExists_ReturnsProjectCommentResponse()
     {
-        // Arrange
+
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -52,10 +52,8 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
 
         var query = new GetProjectCommentByIdQuery(commentId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(commentId, result.Id);
         Assert.Equal(comment.Content, result.Content);
@@ -64,33 +62,29 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectCommentDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectCommentByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectCommentByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleProjectComments_ReturnsOnlyRequestedComment()
     {
-        // Arrange
+
         var comment1Id = Guid.NewGuid();
         var comment2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -117,10 +111,8 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
 
         var query = new GetProjectCommentByIdQuery(comment1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(comment1Id, result.Id);
         Assert.Equal(comment1.Content, result.Content);
@@ -129,7 +121,7 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithLongContent_ReturnsCorrectResponse()
     {
-        // Arrange
+
         var commentId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
@@ -147,10 +139,8 @@ public class GetProjectCommentByIdHandlerTests : IDisposable
 
         var query = new GetProjectCommentByIdQuery(commentId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(commentId, result.Id);
         Assert.Equal(longContent, result.Content);

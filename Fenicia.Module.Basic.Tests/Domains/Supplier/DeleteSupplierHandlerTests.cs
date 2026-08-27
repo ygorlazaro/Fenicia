@@ -34,7 +34,7 @@ public class DeleteSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenSupplierExists_SetsDeletedDate()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var supplierId = Guid.NewGuid();
         var supplier = new SupplierModel
@@ -58,10 +58,8 @@ public class DeleteSupplierHandlerTests : IDisposable
         var command = new DeleteSupplierCommand(supplierId);
         var beforeDelete = DateTime.Now;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedSupplier = await db.BasicSuppliers.FindAsync([supplierId], CancellationToken.None);
         Assert.NotNull(deletedSupplier);
         Assert.NotNull(deletedSupplier.Deleted);
@@ -72,13 +70,11 @@ public class DeleteSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenSupplierDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteSupplierCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var suppliers = await db.BasicSuppliers.ToListAsync();
         Assert.Empty(suppliers);
     }
@@ -86,7 +82,7 @@ public class DeleteSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleSuppliers_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var supplier1Id = Guid.NewGuid();
         var supplier2Id = Guid.NewGuid();
@@ -122,10 +118,8 @@ public class DeleteSupplierHandlerTests : IDisposable
 
         var command = new DeleteSupplierCommand(supplier1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedSupplier = await db.BasicSuppliers.FindAsync([supplier1Id], CancellationToken.None);
         var notDeletedSupplier = await db.BasicSuppliers.FindAsync([supplier2Id], CancellationToken.None);
 

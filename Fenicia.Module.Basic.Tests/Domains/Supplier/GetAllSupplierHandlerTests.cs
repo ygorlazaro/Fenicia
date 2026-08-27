@@ -35,13 +35,11 @@ public class GetAllSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsEmptyList()
     {
-        // Arrange
+
         var query = new GetAllSupplierQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
         Assert.Equal(0, result.Total);
@@ -50,7 +48,7 @@ public class GetAllSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithSuppliers_ReturnsAllSuppliers()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var state = new StateModel
         {
@@ -100,10 +98,8 @@ public class GetAllSupplierHandlerTests : IDisposable
 
         var query = new GetAllSupplierQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Data.Count);
         Assert.Equal(2, result.Total);
@@ -119,7 +115,7 @@ public class GetAllSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
 
         for (var i = 0; i < 25; i++)
@@ -147,10 +143,8 @@ public class GetAllSupplierHandlerTests : IDisposable
 
         var query = new GetAllSupplierQuery(2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
         Assert.Equal(25, result.Total);
@@ -159,7 +153,7 @@ public class GetAllSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
 
         for (var i = 0; i < 5; i++)
@@ -187,10 +181,8 @@ public class GetAllSupplierHandlerTests : IDisposable
 
         var query = new GetAllSupplierQuery(10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
         Assert.Equal(5, result.Total);
@@ -199,7 +191,7 @@ public class GetAllSupplierHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
 
         for (var i = 0; i < 25; i++)
@@ -227,10 +219,8 @@ public class GetAllSupplierHandlerTests : IDisposable
 
         var query = new GetAllSupplierQuery();
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
         Assert.Equal(25, result.Total);

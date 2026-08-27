@@ -10,10 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Employee;
 
-/// <summary>
-///     Unit tests for the GetEmployeesByPositionIdHandler.
-///     Tests employee retrieval filtered by position ID.
-/// </summary>
 public class GetEmployeesByPositionIdHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -40,14 +36,12 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNoEmployeesForPosition_ReturnsEmptyList()
     {
-        // Arrange
+
         var positionId = Guid.NewGuid();
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
     }
@@ -55,7 +49,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithEmployeesForPosition_ReturnsFilteredList()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var position1Id = Guid.NewGuid();
         var position2Id = Guid.NewGuid();
@@ -136,10 +130,8 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
 
         var query = new GetEmployeesByPositionIdQuery(position1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Data.Count);
         Assert.True(result.Data.All(e => e.PositionId == position1Id));
@@ -148,7 +140,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPagination_ReturnsCorrectPage()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var positionId = Guid.NewGuid();
         var position = new PositionModel
@@ -185,10 +177,8 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
 
         var query = new GetEmployeesByPositionIdQuery(positionId, 2);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
     }
@@ -196,7 +186,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithPageBeyondData_ReturnsEmptyList()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var positionId = Guid.NewGuid();
         var position = new PositionModel
@@ -233,10 +223,8 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
 
         var query = new GetEmployeesByPositionIdQuery(positionId, 10);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Empty(result.Data);
     }
@@ -244,7 +232,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithDefaultPagination_ReturnsFirstPageWith10Items()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var positionId = Guid.NewGuid();
         var position = new PositionModel
@@ -281,10 +269,8 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
 
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(10, result.Data.Count);
     }
@@ -292,7 +278,7 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesPersonAndPositionDataIsIncluded()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var positionId = Guid.NewGuid();
         var position = new PositionModel
@@ -326,10 +312,8 @@ public class GetEmployeesByPositionIdHandlerTests : IDisposable
 
         var query = new GetEmployeesByPositionIdQuery(positionId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Single(result.Data);
         Assert.Equal(employee.PersonId, result.Data[0].PersonId);

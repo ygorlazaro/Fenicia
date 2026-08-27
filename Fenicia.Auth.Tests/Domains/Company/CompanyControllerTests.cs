@@ -26,10 +26,6 @@ using Moq;
 
 namespace Fenicia.Auth.Tests.Domains.Company;
 
-/// <summary>
-///     Unit tests for the CompanyController.
-///     Tests HTTP endpoints behavior including authorization, pagination, and request/response handling.
-/// </summary>
 public class CompanyControllerTests : IDisposable
 {
     private readonly CompanyController controller;
@@ -77,21 +73,16 @@ public class CompanyControllerTests : IDisposable
         controller.ControllerContext.HttpContext.User = claimsPrincipal;
     }
 
-    /// <summary>
-    ///     Tests that when a user has no associated companies, the endpoint returns an empty paginated response.
-    /// </summary>
     [Fact]
     public async Task GetByLoggedUser_WhenUserHasNoCompanies_ReturnsOkWithEmptyPagination()
     {
-        // Arrange
+
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetByLoggedUser(query, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -105,13 +96,10 @@ public class CompanyControllerTests : IDisposable
         Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
-    /// <summary>
-    ///     Tests that when a user has associated companies, the endpoint returns them in a paginated response.
-    /// </summary>
     [Fact]
     public async Task GetByLoggedUser_WhenUserHasCompanies_ReturnsOkWithPagination()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var roleId = Guid.NewGuid();
 
@@ -155,10 +143,8 @@ public class CompanyControllerTests : IDisposable
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        // Act
         var result = await controller.GetByLoggedUser(query, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<OkObjectResult>(result.Result);
 
@@ -173,31 +159,23 @@ public class CompanyControllerTests : IDisposable
         Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
-    /// <summary>
-    ///     Tests that the WideEventContext UserId is set from the authenticated user claims.
-    /// </summary>
     [Fact]
     public async Task GetByLoggedUser_SetsWideEventContextUserId()
     {
-        // Arrange
+
         var query = new PaginationQuery(1, 10);
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
-        // Act
         await controller.GetByLoggedUser(query, wide, ct);
 
-        // Assert
         Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
-    /// <summary>
-    ///     Tests that an Admin user can successfully update a company and receives NoContent result.
-    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenUserIsAdminAndCompanyExists_ReturnsNoContent()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
@@ -241,10 +219,8 @@ public class CompanyControllerTests : IDisposable
 
         var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
 
-        // Act
         var result = await controller.PatchAsync(companyId, request, wide, ct);
 
-        // Assert
         Assert.NotNull(result);
         Assert.IsType<NoContentResult>(result);
 
@@ -253,40 +229,31 @@ public class CompanyControllerTests : IDisposable
         Assert.Equal(204, noContentResult.StatusCode);
         Assert.Equal(testUserId.ToString(), wide.UserId);
 
-        // Verify company was updated
         var updatedCompany = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Id == companyId, ct);
         Assert.NotNull(updatedCompany);
         Assert.Equal(request.Name, updatedCompany.Name);
     }
 
-    /// <summary>
-    ///     Tests that attempting to update a non-existent company returns 404 NotFound.
-    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenCompanyDoesNotExist_ReturnsNotFound()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var wide = new WideEventContext();
         var ct = CancellationToken.None;
 
         var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
 
-        // Act
         var result = await controller.PatchAsync(companyId, request, wide, ct);
 
-        // Assert
         Assert.IsType<NotFoundObjectResult>(result);
         Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
-    /// <summary>
-    ///     Tests that a non-Admin user cannot update a company and receives 403 Forbidden.
-    /// </summary>
     [Fact]
     public async Task PatchAsync_WhenUserIsNotAdmin_ReturnsForbidden()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var userRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
@@ -330,21 +297,16 @@ public class CompanyControllerTests : IDisposable
 
         var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
 
-        // Act
         var result = await controller.PatchAsync(companyId, request, wide, ct);
 
-        // Assert
         Assert.IsType<ForbidResult>(result);
         Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
-    /// <summary>
-    ///     Tests that the WideEventContext UserId is set when patching a company.
-    /// </summary>
     [Fact]
     public async Task PatchAsync_SetsWideEventContextUserId()
     {
-        // Arrange
+
         var companyId = Guid.NewGuid();
         var adminRoleId = Guid.NewGuid();
         var wide = new WideEventContext();
@@ -388,77 +350,55 @@ public class CompanyControllerTests : IDisposable
 
         var request = new UpdateCompanyCommand(companyId, testUserId, faker.Company.CompanyName());
 
-        // Act
         await controller.PatchAsync(companyId, request, wide, ct);
 
-        // Assert
         Assert.Equal(testUserId.ToString(), wide.UserId);
     }
 
-    /// <summary>
-    ///     Tests that the CompanyController has the AuthorizeAttribute applied.
-    /// </summary>
     [Fact]
     public void CompanyController_HasAuthorizeAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(CompanyController);
 
-        // Act
         var authorizeAttribute = controllerType.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault();
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
     }
 
-    /// <summary>
-    ///     Tests that the CompanyController has the RouteAttribute with correct template.
-    /// </summary>
     [Fact]
     public void CompanyController_HasRouteAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(CompanyController);
 
-        // Act
         var routeAttribute = controllerType.GetCustomAttributes(typeof(RouteAttribute), false).FirstOrDefault() as RouteAttribute;
 
-        // Assert
         Assert.NotNull(routeAttribute);
         Assert.Equal("[controller]", routeAttribute.Template);
     }
 
-    /// <summary>
-    ///     Tests that the CompanyController has the ProducesAttribute with correct content type.
-    /// </summary>
     [Fact]
     public void CompanyController_HasProducesAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(CompanyController);
 
-        // Act
         var producesAttribute = controllerType.GetCustomAttributes(typeof(ProducesAttribute), false).FirstOrDefault() as ProducesAttribute;
 
-        // Assert
         Assert.NotNull(producesAttribute);
         Assert.Equal("application/json", producesAttribute.ContentTypes.FirstOrDefault());
     }
 
-    /// <summary>
-    ///     Tests that the PatchAsync method has the AuthorizeAttribute with Admin role.
-    /// </summary>
     [Fact]
     public void PatchAsync_HasAuthorizeRolesAttribute()
     {
-        // Arrange
+
         var controllerType = typeof(CompanyController);
         var methodInfo = controllerType.GetMethod(nameof(CompanyController.PatchAsync));
 
-        // Act
         var authorizeAttribute = methodInfo?.GetCustomAttributes(typeof(AuthorizeAttribute), false).FirstOrDefault() as AuthorizeAttribute;
 
-        // Assert
         Assert.NotNull(authorizeAttribute);
         Assert.Equal("Admin", authorizeAttribute.Roles);
     }

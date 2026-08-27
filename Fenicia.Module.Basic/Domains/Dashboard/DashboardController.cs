@@ -11,13 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fenicia.Module.Basic.Domains.Dashboard;
 
-/// <summary>
-///     Controller responsible for handling dashboard-related HTTP endpoints.
-///     Provides access to financial dashboard analytics and KPIs.
-/// </summary>
-/// <remarks>
-///     All endpoints require authentication.
-/// </remarks>
 [Authorize]
 [ApiController]
 [Route("[controller]")]
@@ -25,16 +18,7 @@ namespace Fenicia.Module.Basic.Domains.Dashboard;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class DashboardController(ISender sender) : ControllerBase
 {
-    /// <summary>
-    ///     Retrieves the financial dashboard with KPIs, revenue analysis, and sales summaries.
-    /// </summary>
-    /// <param name="wide">Wide event context for request tracking.</param>
-    /// <param name="days">Number of days to analyze (default: 90).</param>
-    /// <param name="ct">Cancellation token.</param>
-    /// <returns>Comprehensive financial dashboard data.</returns>
-    /// <response code="200">Returns the financial dashboard successfully.</response>
-    /// <response code="401">Unauthorized</response>
-    /// <exception cref="UnauthorizedAccessException">User claim not found.</exception>
+
     [HttpGet("financial")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FinancialDashboardResponse))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

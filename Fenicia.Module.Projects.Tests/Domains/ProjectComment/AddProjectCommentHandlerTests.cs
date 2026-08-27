@@ -34,13 +34,11 @@ public class AddProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithValidCommand_AddsProjectCommentAndReturnsResponse()
     {
-        // Arrange
+
         var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Paragraph());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal(command.Content, result.Content);
@@ -49,13 +47,11 @@ public class AddProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_VerifiesProjectCommentWasSaved()
     {
-        // Arrange
+
         var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), faker.Lorem.Paragraph());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var comment = await db.ProjectComments.FirstOrDefaultAsync(c => c.Id == command.Id);
 
         Assert.NotNull(comment);
@@ -66,18 +62,16 @@ public class AddProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithMultipleCommands_AddsAllProjectComments()
     {
-        // Arrange
+
         var taskId = Guid.NewGuid();
         var userId = Guid.NewGuid();
         var command1 = new AddProjectCommentCommand(Guid.NewGuid(), taskId, userId, faker.Lorem.Paragraph());
 
         var command2 = new AddProjectCommentCommand(Guid.NewGuid(), taskId, userId, faker.Lorem.Paragraph());
 
-        // Act
         await handler.Handle(command1, CancellationToken.None);
         await handler.Handle(command2, CancellationToken.None);
 
-        // Assert
         var comments = await db.ProjectComments.ToListAsync();
         Assert.Equal(2, comments.Count);
     }
@@ -85,14 +79,12 @@ public class AddProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithLongContent_AddsProjectCommentSuccessfully()
     {
-        // Arrange
+
         var longContent = faker.Lorem.Paragraphs(5);
         var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), longContent);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal(longContent, result.Content);
@@ -101,13 +93,11 @@ public class AddProjectCommentHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithShortContent_AddsProjectCommentSuccessfully()
     {
-        // Arrange
+
         var command = new AddProjectCommentCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Short comment");
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(command.Id, result.Id);
         Assert.Equal("Short comment", result.Content);

@@ -53,7 +53,7 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenValidRequest_CreatesUserAndCompanySuccessfully()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -62,10 +62,8 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
 
         var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
@@ -83,7 +81,7 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenEmailAlreadyExists_ThrowsArgumentException()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -101,7 +99,6 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
         Assert.Equal("This email already exists", ex.Message);
     }
@@ -109,7 +106,7 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCompanyAlreadyExists_ThrowsArgumentException()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -126,7 +123,6 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
         Assert.Equal("Company with this CNPJ already exists.", ex.Message);
     }
@@ -134,7 +130,7 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenAdminRoleNotFound_ThrowsArgumentException()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -147,7 +143,6 @@ public class CreateNewUserHandlerTests : IDisposable
         db.AuthRoles.Remove(adminRole);
         await db.SaveChangesAsync(CancellationToken.None);
 
-        // Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidRequestException>(async () => await handler.Handle(request, CancellationToken.None));
 
         Assert.Equal("Admin role not found. Please ensure that the admin role exists in the database.", ex.Message);
@@ -156,7 +151,7 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_CreatesUserRoleLinkingUserCompanyAndRole()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -165,10 +160,8 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         var userRole = await db.AuthUserRoles.FirstOrDefaultAsync(ur => ur.UserId == result.Id);
         Assert.NotNull(userRole);
         Assert.Equal(adminRoleId, userRole.RoleId);
@@ -178,7 +171,7 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_ReturnsCorrectResponseData()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -187,10 +180,8 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         Assert.NotEqual(Guid.Empty, result.Id);
         Assert.Equal(name, result.Name);
         Assert.Equal(email, result.Email);
@@ -202,7 +193,7 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_PasswordIsHashedBeforeSaving()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -211,10 +202,8 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        // Act
         await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         var user = await db.AuthUsers.FirstOrDefaultAsync(u => u.Email == email);
         Assert.NotNull(user);
         Assert.NotEqual(password, user.Password);
@@ -223,7 +212,7 @@ public class CreateNewUserHandlerTests : IDisposable
     [Fact]
     public async Task Handle_CompanyIsActiveByDefault()
     {
-        // Arrange
+
         var email = faker.Internet.Email();
         var password = faker.Internet.Password();
         var name = faker.Person.FullName;
@@ -232,10 +221,8 @@ public class CreateNewUserHandlerTests : IDisposable
 
         var request = new CreateNewUserCommand(email, password, name, new CreateNewUserCompanyCommand(cnpj, companyName));
 
-        // Act
         await handler.Handle(request, CancellationToken.None);
 
-        // Assert
         var company = await db.AuthCompanies.FirstOrDefaultAsync(c => c.Cnpj == cnpj);
         Assert.NotNull(company);
         Assert.True(company.IsActive);

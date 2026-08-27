@@ -52,7 +52,7 @@ public class TokenControllerTests
 
         sender.Setup(s => s.Send(It.IsAny<GenerateTokenQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
         sender.Setup(s => s.Send(It.IsAny<GenerateTokenStringQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync("jwt");
-        sender.Setup(s => s.Send(It.IsAny<Fenicia.Auth.Domains.RefreshToken.Commands.GenerateRefreshTokenCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync("refresh");
+        sender.Setup(s => s.Send(It.IsAny<Auth.Domains.RefreshToken.Commands.GenerateRefreshTokenCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync("refresh");
 
         var result = await controller.PostAsync(request, wide, CancellationToken.None);
 
@@ -82,10 +82,10 @@ public class TokenControllerTests
         var user = new GetUserForRefreshResponse(userId, faker.Internet.Email(), faker.Person.FullName);
 
         sender.Setup(s => s.Send(It.IsAny<ValidateTokenQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        sender.Setup(s => s.Send(It.IsAny<Fenicia.Auth.Domains.RefreshToken.Commands.InvalidateRefreshTokenCommand>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        sender.Setup(s => s.Send(It.IsAny<Auth.Domains.RefreshToken.Commands.InvalidateRefreshTokenCommand>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         sender.Setup(s => s.Send(It.IsAny<GetUserForRefreshQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
         sender.Setup(s => s.Send(It.IsAny<GenerateTokenStringQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync("jwt");
-        sender.Setup(s => s.Send(It.IsAny<Fenicia.Auth.Domains.RefreshToken.Commands.GenerateRefreshTokenCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync("refresh2");
+        sender.Setup(s => s.Send(It.IsAny<Auth.Domains.RefreshToken.Commands.GenerateRefreshTokenCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync("refresh2");
 
         var result = await controller.Refresh(request, wide, CancellationToken.None);
 

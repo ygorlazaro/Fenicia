@@ -10,10 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fenicia.Module.Basic.Tests.Domains.Customer;
 
-/// <summary>
-///     Unit tests for the DeleteCustomerHandler.
-///     Tests customer deletion (soft delete) business logic.
-/// </summary>
 public class DeleteCustomerHandlerTests : IDisposable
 {
     private readonly DefaultContext db;
@@ -36,13 +32,10 @@ public class DeleteCustomerHandlerTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    /// <summary>
-    ///     Tests that deleting an existing customer sets the Deleted timestamp.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerExists_SetsDeletedDate()
     {
-        // Arrange
+
         var customerId = Guid.NewGuid();
         var customer = new CustomerModel
         {
@@ -63,40 +56,30 @@ public class DeleteCustomerHandlerTests : IDisposable
         var command = new DeleteCustomerCommand(customerId);
         var beforeDelete = DateTime.Now;
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedCustomer = await db.BasicCustomers.FindAsync([customerId], CancellationToken.None);
         Assert.NotNull(deletedCustomer);
         Assert.NotNull(deletedCustomer.Deleted);
         Assert.InRange(deletedCustomer.Deleted.Value, beforeDelete.AddSeconds(-1), DateTime.Now.AddSeconds(1));
     }
 
-    /// <summary>
-    ///     Tests that deleting a non-existent customer does nothing.
-    /// </summary>
     [Fact]
     public async Task Handle_WhenCustomerDoesNotExist_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteCustomerCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var customers = await db.BasicCustomers.ToListAsync();
         Assert.Empty(customers);
     }
 
-    /// <summary>
-    ///     Tests that deleting one customer does not affect other customers.
-    /// </summary>
     [Fact]
     public async Task Handle_WithMultipleCustomers_OnlyDeletesSpecified()
     {
-        // Arrange
+
         var customer1Id = Guid.NewGuid();
         var customer2Id = Guid.NewGuid();
 
@@ -131,10 +114,8 @@ public class DeleteCustomerHandlerTests : IDisposable
 
         var command = new DeleteCustomerCommand(customer1Id);
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var deletedCustomer = await db.BasicCustomers.FindAsync([customer1Id], CancellationToken.None);
         var notDeletedCustomer = await db.BasicCustomers.FindAsync([customer2Id], CancellationToken.None);
 
@@ -144,19 +125,14 @@ public class DeleteCustomerHandlerTests : IDisposable
         Assert.Null(notDeletedCustomer.Deleted);
     }
 
-    /// <summary>
-    ///     Tests that deleting from an empty database does nothing.
-    /// </summary>
     [Fact]
     public async Task Handle_WithEmptyDatabase_DoesNothing()
     {
-        // Arrange
+
         var command = new DeleteCustomerCommand(Guid.NewGuid());
 
-        // Act
         await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         var customers = await db.BasicCustomers.ToListAsync();
         Assert.Empty(customers);
     }

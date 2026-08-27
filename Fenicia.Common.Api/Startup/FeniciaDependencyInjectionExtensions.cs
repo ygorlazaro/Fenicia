@@ -31,10 +31,6 @@ public static class FeniciaDependencyInjectionExtensions
         return builder;
     }
 
-    /// <summary>
-    ///     Registers all public non-abstract classes ending with "Handler" from the entry assembly as Transient.
-    ///     Call this after registering all dependencies to ensure handler dependencies are resolved.
-    /// </summary>
     private static void RegisterAllHandlers(this IServiceCollection services)
     {
         var assembly = Assembly.GetEntryAssembly() ?? throw new InvalidOperationException("Could not determine the entry assembly for handler registration.");

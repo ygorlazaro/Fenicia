@@ -35,7 +35,7 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectSubtaskExists_ReturnsProjectSubtaskResponse()
     {
-        // Arrange
+
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var subtask = new ProjectSubtaskModel
@@ -53,10 +53,8 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
 
         var query = new GetProjectSubtaskByIdQuery(subtaskId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(subtaskId, result.Id);
         Assert.Equal(subtask.Title, result.Title);
@@ -65,33 +63,29 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectSubtaskDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectSubtaskByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProjectSubtaskByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleProjectSubtasks_ReturnsOnlyRequestedSubtask()
     {
-        // Arrange
+
         var subtask1Id = Guid.NewGuid();
         var subtask2Id = Guid.NewGuid();
         var taskId = Guid.NewGuid();
@@ -121,10 +115,8 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
 
         var query = new GetProjectSubtaskByIdQuery(subtask1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(subtask1Id, result.Id);
         Assert.Equal(subtask1.Title, result.Title);
@@ -133,7 +125,7 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithCompletedSubtask_ReturnsCorrectResponse()
     {
-        // Arrange
+
         var subtaskId = Guid.NewGuid();
         var taskId = Guid.NewGuid();
         var completedAt = DateTime.UtcNow.AddDays(-5);
@@ -152,10 +144,8 @@ public class GetProjectSubtaskByIdHandlerTests : IDisposable
 
         var query = new GetProjectSubtaskByIdQuery(subtaskId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(subtaskId, result.Id);
         Assert.True(result.IsCompleted);

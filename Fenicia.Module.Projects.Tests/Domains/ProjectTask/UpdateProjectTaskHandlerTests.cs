@@ -36,7 +36,7 @@ public class UpdateProjectTaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectTaskExists_UpdatesProjectTaskAndReturnsResponse()
     {
-        // Arrange
+
         var taskId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
@@ -60,10 +60,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
 
         var command = new UpdateProjectTaskCommand(taskId, projectId, statusId, "New Task Title", "New Description", "High", "Bug", 10, 8, DateTime.UtcNow.AddDays(14), Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(taskId, result.Id);
         Assert.Equal("New Task Title", result.Title);
@@ -72,33 +70,29 @@ public class UpdateProjectTaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenProjectTaskDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "New Task Title", "New Description", "High", "Bug", 1, 5, null, Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var command = new UpdateProjectTaskCommand(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "New Task Title", "New Description", "High", "Bug", 1, 5, null, Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleUpdates_UpdatesCorrectProjectTask()
     {
-        // Arrange
+
         var task1Id = Guid.NewGuid();
         var task2Id = Guid.NewGuid();
         var projectId = Guid.NewGuid();
@@ -139,10 +133,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
 
         var command = new UpdateProjectTaskCommand(task1Id, projectId, statusId, "Updated Task 1 Title", "Updated Task 1 Description", "High", "Task", 5, 10, DateTime.UtcNow.AddDays(21), task1.CreatedBy);
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(task1Id, result.Id);
         Assert.Equal("Updated Task 1 Title", result.Title);
@@ -159,7 +151,7 @@ public class UpdateProjectTaskHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WithNullDescription_UpdatesProjectTaskSuccessfully()
     {
-        // Arrange
+
         var taskId = Guid.NewGuid();
         var projectId = Guid.NewGuid();
         var statusId = Guid.NewGuid();
@@ -183,10 +175,8 @@ public class UpdateProjectTaskHandlerTests : IDisposable
 
         var command = new UpdateProjectTaskCommand(taskId, projectId, statusId, "Updated Title", null, "Medium", "Task", 1, 5, null, Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(taskId, result.Id);
         Assert.Null(result.Description);

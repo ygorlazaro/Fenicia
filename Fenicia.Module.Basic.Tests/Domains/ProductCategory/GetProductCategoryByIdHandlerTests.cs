@@ -30,7 +30,7 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCategoryExists_ReturnsCategoryResponse()
     {
-        // Arrange
+
         var categoryId = Guid.NewGuid();
         var category = new ProductCategoryModel
         {
@@ -43,10 +43,8 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
 
         var query = new GetProductCategoryByIdQuery(categoryId);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(categoryId, result.Id);
         Assert.Equal("Electronics", result.Name);
@@ -55,33 +53,29 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
     [Fact]
     public async Task Handle_WhenCategoryDoesNotExist_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProductCategoryByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithEmptyDatabase_ReturnsNull()
     {
-        // Arrange
+
         var query = new GetProductCategoryByIdQuery(Guid.NewGuid());
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public async Task Handle_WithMultipleCategories_ReturnsOnlyRequestedCategory()
     {
-        // Arrange
+
         var category1Id = Guid.NewGuid();
         var category2Id = Guid.NewGuid();
 
@@ -102,10 +96,8 @@ public class GetProductCategoryByIdHandlerTests : IDisposable
 
         var query = new GetProductCategoryByIdQuery(category1Id);
 
-        // Act
         var result = await handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(category1Id, result.Id);
         Assert.Equal("Electronics", result.Name);
