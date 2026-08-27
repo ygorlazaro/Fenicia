@@ -17,3 +17,4 @@ fenicia-web/.env
 fenicia-web/.env.local
 fenicia-web/.env.production
 Docker/.env
+Fenicia.Module.Basic.Tests/TestResults/*
